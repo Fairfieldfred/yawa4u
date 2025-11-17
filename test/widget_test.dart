@@ -1,29 +1,61 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
+// This is a basic Flutter widget test for YAWA Gym app.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:yawa_gym/main.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  testWidgets('App loads and shows welcome screen', (WidgetTester tester) async {
+    // Build our app with ProviderScope
+    await tester.pumpWidget(const ProviderScope(child: MyApp()));
+    await tester.pumpAndSettle();
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    // Verify that app name is displayed
+    expect(find.text('YAWA GYM'), findsWidgets);
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    // Verify welcome message
+    expect(find.text('Welcome to YAWA GYM'), findsOneWidget);
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    // Verify description text
+    expect(
+      find.text('Track your mesocycles, workouts, and progress'),
+      findsOneWidget,
+    );
+
+    // Verify database status card
+    expect(find.text('Database Status'), findsOneWidget);
+
+    // Verify fitness icon
+    expect(find.byIcon(Icons.fitness_center), findsOneWidget);
+  });
+
+  testWidgets('Database status labels are displayed', (WidgetTester tester) async {
+    // Build our app with ProviderScope
+    await tester.pumpWidget(const ProviderScope(child: MyApp()));
+    await tester.pumpAndSettle();
+
+    // Verify database status items are present (regardless of initialization state)
+    expect(find.text('Database'), findsOneWidget);
+    expect(find.text('Exercises Library'), findsOneWidget);
+    expect(find.text('Mesocycles'), findsOneWidget);
+    expect(find.text('Workouts'), findsOneWidget);
+    expect(find.text('Exercises Logged'), findsOneWidget);
+  });
+
+  testWidgets('Theme is applied correctly', (WidgetTester tester) async {
+    // Build our app with ProviderScope
+    await tester.pumpWidget(const ProviderScope(child: MyApp()));
+    await tester.pumpAndSettle();
+
+    // Find the MaterialApp widget
+    final materialApp = tester.widget<MaterialApp>(find.byType(MaterialApp));
+
+    // Verify dark theme is set as default
+    expect(materialApp.themeMode, ThemeMode.dark);
+
+    // Verify both themes are configured
+    expect(materialApp.theme, isNotNull);
+    expect(materialApp.darkTheme, isNotNull);
   });
 }

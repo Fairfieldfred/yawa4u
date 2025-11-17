@@ -1,7 +1,15 @@
+import 'package:hive/hive.dart';
+
+part 'enums.g.dart';
+
 /// Status of a mesocycle
+@HiveType(typeId: 10)
 enum MesocycleStatus {
+  @HiveField(0)
   draft,
+  @HiveField(1)
   current,
+  @HiveField(2)
   completed,
 }
 
@@ -23,9 +31,13 @@ extension MesocycleStatusExtension on MesocycleStatus {
 }
 
 /// Status of a workout
+@HiveType(typeId: 11)
 enum WorkoutStatus {
+  @HiveField(0)
   incomplete,
+  @HiveField(1)
   completed,
+  @HiveField(2)
   skipped,
 }
 
@@ -47,9 +59,13 @@ extension WorkoutStatusExtension on WorkoutStatus {
 }
 
 /// Type of exercise set
+@HiveType(typeId: 12)
 enum SetType {
+  @HiveField(0)
   regular,
+  @HiveField(1)
   myorep,
+  @HiveField(2)
   myorepMatch,
 }
 
@@ -94,10 +110,15 @@ extension SetTypeExtension on SetType {
 }
 
 /// Joint pain level feedback
+@HiveType(typeId: 13)
 enum JointPain {
+  @HiveField(0)
   none,
+  @HiveField(1)
   low,
+  @HiveField(2)
   moderate,
+  @HiveField(3)
   severe,
 }
 
@@ -130,9 +151,13 @@ extension JointPainExtension on JointPain {
 }
 
 /// Muscle pump level feedback
+@HiveType(typeId: 14)
 enum MusclePump {
+  @HiveField(0)
   low,
+  @HiveField(1)
   moderate,
+  @HiveField(2)
   amazing,
 }
 
@@ -161,10 +186,15 @@ extension MusclePumpExtension on MusclePump {
 }
 
 /// Workload difficulty feedback
+@HiveType(typeId: 15)
 enum Workload {
+  @HiveField(0)
   easy,
+  @HiveField(1)
   prettyGood,
+  @HiveField(2)
   pushedLimits,
+  @HiveField(3)
   tooMuch,
 }
 
@@ -197,10 +227,15 @@ extension WorkloadExtension on Workload {
 }
 
 /// Muscle soreness level feedback
+@HiveType(typeId: 16)
 enum Soreness {
+  @HiveField(0)
   neverGotSore,
+  @HiveField(1)
   healedAWhileAgo,
+  @HiveField(2)
   healedJustOnTime,
+  @HiveField(3)
   stillSore,
 }
 
@@ -233,8 +268,11 @@ extension SorenessExtension on Soreness {
 }
 
 /// Gender for template filtering
+@HiveType(typeId: 17)
 enum Gender {
+  @HiveField(0)
   male,
+  @HiveField(1)
   female,
 }
 

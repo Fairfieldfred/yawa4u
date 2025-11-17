@@ -1,0 +1,143 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../data/models/exercise.dart';
+import '../../data/models/exercise_definition.dart';
+import '../../core/constants/muscle_groups.dart';
+import '../../core/constants/equipment_types.dart';
+import 'repository_providers.dart';
+import 'database_providers.dart';
+
+/// Provider for all exercises
+final exercisesProvider = StreamProvider<List<Exercise>>((ref) async* {
+  final repository = ref.watch(exerciseRepositoryProvider);
+  final box = repository.box;
+
+  // Emit initial value
+  yield repository.getAll();
+
+  // Listen to box changes and emit updates
+  await for (final _ in box.watch()) {
+    yield repository.getAll();
+  }
+});
+
+/// Provider for exercises by workout ID
+final exercisesByWorkoutProvider =
+    Provider.family<List<Exercise>, String>((ref, workoutId) {
+  final repository = ref.watch(exerciseRepositoryProvider);
+  return repository.getByWorkoutId(workoutId);
+});
+
+/// Provider for a specific exercise by ID
+final exerciseProvider = Provider.family<Exercise?, String>((ref, id) {
+  final exercises = ref.watch(exercisesProvider);
+  return exercises.when(
+    data: (list) {
+      try {
+        return list.firstWhere((e) => e.id == id);
+      } catch (e) {
+        return null;
+      }
+    },
+    loading: () => null,
+    error: (_, __) => null,
+  );
+});
+
+/// Provider for exercise statistics
+final exerciseStatsProvider = Provider<Map<String, dynamic>>((ref) {
+  final repository = ref.watch(exerciseRepositoryProvider);
+  return repository.getStats();
+});
+
+/// Provider for exercise statistics by workout
+final exerciseStatsForWorkoutProvider =
+    Provider.family<Map<String, dynamic>, String>((ref, workoutId) {
+  final repository = ref.watch(exerciseRepositoryProvider);
+  return repository.getStatsForWorkout(workoutId);
+});
+
+/// Provider for recently performed exercises
+final recentExercisesProvider =
+    Provider.family<List<Exercise>, int>((ref, limit) {
+  final repository = ref.watch(exerciseRepositoryProvider);
+  return repository.getRecentlyPerformed(limit: limit);
+});
+
+/// Provider for exercise history by name
+final exerciseHistoryProvider =
+    Provider.family<List<Exercise>, String>((ref, name) {
+  final repository = ref.watch(exerciseRepositoryProvider);
+  return repository.getHistoryByName(name);
+});
+
+// =============================================================================
+// Exercise Library (CSV) Providers
+// =============================================================================
+
+/// Provider for all exercise definitions from CSV
+final exerciseDefinitionsProvider = Provider<List<ExerciseDefinition>>((ref) {
+  final csvService = ref.watch(csvLoaderServiceProvider);
+  return csvService.isLoaded ? csvService.exercises : [];
+});
+
+/// Provider for exercise definitions by muscle group
+final exerciseDefinitionsByMuscleGroupProvider =
+    Provider.family<List<ExerciseDefinition>, MuscleGroup>(
+  (ref, muscleGroup) {
+    final csvService = ref.watch(csvLoaderServiceProvider);
+    return csvService.filterByMuscleGroup(muscleGroup);
+  },
+);
+
+/// Provider for exercise definitions by equipment type
+final exerciseDefinitionsByEquipmentProvider =
+    Provider.family<List<ExerciseDefinition>, EquipmentType>(
+  (ref, equipmentType) {
+    final csvService = ref.watch(csvLoaderServiceProvider);
+    return csvService.filterByEquipment(equipmentType);
+  },
+);
+
+/// Provider for searching exercise definitions
+final exerciseDefinitionsSearchProvider =
+    Provider.family<List<ExerciseDefinition>, String>((ref, query) {
+  final csvService = ref.watch(csvLoaderServiceProvider);
+  return csvService.searchByName(query);
+});
+
+/// Provider for filtered exercise definitions
+final exerciseDefinitionsFilterProvider = Provider.family<
+    List<ExerciseDefinition>,
+    ({
+      String? searchQuery,
+      MuscleGroup? muscleGroup,
+      EquipmentType? equipmentType,
+    })>((ref, params) {
+  final csvService = ref.watch(csvLoaderServiceProvider);
+  return csvService.filter(
+    searchQuery: params.searchQuery,
+    muscleGroup: params.muscleGroup,
+    equipmentType: params.equipmentType,
+  );
+});
+
+/// Provider for exercise definition by name
+final exerciseDefinitionByNameProvider =
+    Provider.family<ExerciseDefinition?, String>((ref, name) {
+  final csvService = ref.watch(csvLoaderServiceProvider);
+  return csvService.getByName(name);
+});
+
+/// Provider for exercise definitions grouped by muscle group
+final exerciseDefinitionsGroupedByMuscleProvider =
+    Provider<Map<MuscleGroup, List<ExerciseDefinition>>>((ref) {
+  final csvService = ref.watch(csvLoaderServiceProvider);
+  return csvService.groupByMuscleGroup();
+});
+
+/// Provider for exercise definitions grouped by equipment
+final exerciseDefinitionsGroupedByEquipmentProvider =
+    Provider<Map<EquipmentType, List<ExerciseDefinition>>>((ref) {
+  final csvService = ref.watch(csvLoaderServiceProvider);
+  return csvService.groupByEquipmentType();
+});

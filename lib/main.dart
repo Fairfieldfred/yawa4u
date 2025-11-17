@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'firebase_options.dart';
 import 'core/config/sentry_config.dart';
 import 'core/theme/app_theme.dart';
 import 'core/constants/app_constants.dart';
+import 'data/services/database_service.dart';
+import 'data/services/csv_loader_service.dart';
+import 'domain/providers/theme_provider.dart';
+import 'presentation/navigation/app_router.dart';
 
 Future<void> main() async {
   // Ensure Flutter bindings are initialized
@@ -14,6 +19,12 @@ Future<void> main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  // Initialize Hive database
+  await DatabaseService().initialize();
+
+  // Load exercises from CSV
+  await CsvLoaderService().loadExercises();
 
   // Initialize Sentry and run app
   if (SentryConfig.shouldInitialize) {
@@ -44,86 +55,32 @@ Future<void> main() async {
           return event;
         };
       },
-      appRunner: () => runApp(const MyApp()),
+      appRunner: () => runApp(const ProviderScope(child: MyApp())),
     );
   } else {
-    runApp(const MyApp());
+    runApp(const ProviderScope(child: MyApp()));
   }
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends ConsumerWidget {
   const MyApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
+  Widget build(BuildContext context, WidgetRef ref) {
+    final themeMode = ref.watch(themeModeProvider);
+    final router = ref.watch(routerProvider);
+
+    return MaterialApp.router(
       title: AppConstants.appName,
       debugShowCheckedModeBanner: false,
 
-      // Theme configuration
+      // Theme configuration with Riverpod
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
-      themeMode: ThemeMode.dark, // Default to dark theme
+      themeMode: themeMode,
 
-      // Home page - will be replaced with proper routing later
-      home: const PlaceholderHomePage(),
-    );
-  }
-}
-
-/// Placeholder home page until we implement the actual UI
-class PlaceholderHomePage extends StatelessWidget {
-  const PlaceholderHomePage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(AppConstants.appName),
-        centerTitle: true,
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.fitness_center,
-              size: 120,
-              color: Theme.of(context).colorScheme.primary,
-            ),
-            const SizedBox(height: 24),
-            Text(
-              'Welcome to ${AppConstants.appName}',
-              style: Theme.of(context).textTheme.headlineMedium,
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Track your mesocycles, workouts, and progress',
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurface.withValues(
-                          alpha: 0.7,
-                        ),
-                  ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 48),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 48.0),
-              child: LinearProgressIndicator(),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Setting up your gym...',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurface.withValues(
-                          alpha: 0.6,
-                        ),
-                  ),
-            ),
-          ],
-        ),
-      ),
+      // Router configuration
+      routerConfig: router,
     );
   }
 }
