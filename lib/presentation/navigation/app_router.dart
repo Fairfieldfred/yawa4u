@@ -6,14 +6,10 @@ import '../../core/constants/muscle_groups.dart';
 import '../screens/add_exercise_screen.dart';
 import '../screens/exercise_log_screen.dart';
 import '../screens/exercise_selection_screen.dart';
-import '../screens/exercises_home_screen.dart';
 import '../screens/home_screen.dart';
 import '../screens/mesocycle_create_screen.dart';
-import '../screens/mesocycle_list_screen.dart';
-import '../screens/more_screen.dart';
 import '../screens/plan_a_mesocycle_screen.dart';
 import '../screens/workout_detail_screen.dart';
-import '../screens/workout_home_screen.dart';
 import '../screens/workout_list_screen.dart';
 
 /// Navigation routes

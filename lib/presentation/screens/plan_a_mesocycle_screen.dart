@@ -1,28 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import 'exercises_home_screen.dart';
-import 'mesocycle_list_screen.dart';
-import 'more_screen.dart';
-import 'workout_home_screen.dart';
+import '../../core/constants/enums.dart';
+import '../../domain/providers/mesocycle_providers.dart';
+import '../../domain/providers/repository_providers.dart';
 
 /// Plan a mesocycle screen - Shows different options for creating a mesocycle
-class PlanAMesocycleScreen extends StatefulWidget {
+class PlanAMesocycleScreen extends ConsumerStatefulWidget {
   const PlanAMesocycleScreen({super.key});
 
   @override
-  State<PlanAMesocycleScreen> createState() => _PlanAMesocycleScreenState();
+  ConsumerState<PlanAMesocycleScreen> createState() =>
+      _PlanAMesocycleScreenState();
 }
 
-class _PlanAMesocycleScreenState extends State<PlanAMesocycleScreen> {
-  int _selectedIndex = 1; // Keep on Mesocycles tab
-
-  static const List<Widget> _screens = [
-    WorkoutHomeScreen(),
-    MesocycleListScreen(),
-    ExercisesHomeScreen(),
-    MoreScreen(),
-  ];
+class _PlanAMesocycleScreenState extends ConsumerState<PlanAMesocycleScreen> {
+  final int _selectedIndex = 1; // Keep on Mesocycles tab
 
   void _onItemTapped(int index) {
     if (index != _selectedIndex) {
@@ -94,9 +88,7 @@ class _PlanAMesocycleScreenState extends State<PlanAMesocycleScreen> {
               iconColor: Colors.teal,
               title: 'Start from scratch',
               subtitle: 'Build your own meso from a completely blank slate.',
-              onTap: () {
-                context.push('/mesocycles/create');
-              },
+              onTap: () => _handleStartFromScratch(),
             ),
           ],
         ),
@@ -126,6 +118,155 @@ class _PlanAMesocycleScreenState extends State<PlanAMesocycleScreen> {
         ],
       ),
     );
+  }
+
+  Future<void> _handleStartFromScratch() async {
+    // Check if there's a draft mesocycle
+    final mesocycles = await ref.read(mesocyclesProvider.future);
+    final draftMesocycles = mesocycles
+        .where((m) => m.status == MesocycleStatus.draft)
+        .toList();
+
+    if (!mounted) return;
+
+    if (draftMesocycles.isNotEmpty) {
+      // Show warning dialog
+      final confirmed = await showDialog<bool>(
+        context: context,
+        builder: (context) => Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surface,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const SizedBox(width: 40),
+                    const Spacer(),
+                    IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: () => Navigator.pop(context, false),
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Are you sure?',
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'You have a draft mesocycle plan already in progress. By starting a new mesocycle, your draft will be overwritten.',
+                  style: Theme.of(context).textTheme.bodyLarge,
+                ),
+                const SizedBox(height: 16),
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.orange.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: Colors.orange.withValues(alpha: 0.3),
+                      width: 1,
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.warning_amber_rounded,
+                        color: Colors.orange,
+                        size: 24,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          'This will delete your current draft mesocycle plan.',
+                          style:
+                              Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    color: Theme.of(context).colorScheme.onSurface,
+                                  ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 24),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () => Navigator.pop(context, false),
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          side: BorderSide(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .outline
+                                .withValues(alpha: 0.5),
+                          ),
+                        ),
+                        child: const Text('CANCEL'),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: FilledButton(
+                        onPressed: () => Navigator.pop(context, true),
+                        style: FilledButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          backgroundColor: Colors.red,
+                        ),
+                        child: const Text('CONTINUE'),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+
+      if (confirmed == true && mounted) {
+        // Delete all draft mesocycles
+        try {
+          final repository = ref.read(mesocycleRepositoryProvider);
+          for (final draft in draftMesocycles) {
+            await repository.delete(draft.id);
+          }
+
+          if (mounted) {
+            // Navigate to create screen
+            context.push('/mesocycles/create');
+          }
+        } catch (e) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Error deleting draft: $e'),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+        }
+      }
+    } else {
+      // No drafts, go directly to create screen
+      context.push('/mesocycles/create');
+    }
   }
 }
 
