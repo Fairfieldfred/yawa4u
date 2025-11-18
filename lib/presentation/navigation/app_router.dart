@@ -1,23 +1,28 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+
 import '../../core/constants/muscle_groups.dart';
-import '../screens/home_screen.dart';
-import '../screens/mesocycle_create_screen.dart';
-import '../screens/workout_list_screen.dart';
-import '../screens/workout_detail_screen.dart';
+import '../screens/add_exercise_screen.dart';
 import '../screens/exercise_log_screen.dart';
 import '../screens/exercise_selection_screen.dart';
-import '../screens/add_exercise_screen.dart';
+import '../screens/home_screen.dart';
+import '../screens/mesocycle_create_screen.dart';
+import '../screens/plan_a_mesocycle_screen.dart';
+import '../screens/workout_detail_screen.dart';
+import '../screens/workout_list_screen.dart';
 
 /// Navigation routes
 class AppRoutes {
   static const String home = '/';
   static const String mesocycleList = '/mesocycles';
+  static const String planMesocycle = '/plan-mesocycle';
   static const String mesocycleCreate = '/mesocycles/create';
   static const String workoutList = '/mesocycles/:mesocycleId/workouts';
-  static const String workoutDetail = '/mesocycles/:mesocycleId/workouts/:workoutId';
-  static const String exerciseLog = '/mesocycles/:mesocycleId/workouts/:workoutId/exercises/:exerciseId';
+  static const String workoutDetail =
+      '/mesocycles/:mesocycleId/workouts/:workoutId';
+  static const String exerciseLog =
+      '/mesocycles/:mesocycleId/workouts/:workoutId/exercises/:exerciseId';
 }
 
 /// Provider for GoRouter instance
@@ -31,6 +36,13 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.home,
         name: 'home',
         builder: (context, state) => const HomeScreen(),
+      ),
+
+      // Plan a mesocycle screen
+      GoRoute(
+        path: AppRoutes.planMesocycle,
+        name: 'plan-mesocycle',
+        builder: (context, state) => const PlanAMesocycleScreen(),
       ),
 
       // Mesocycle creation screen
@@ -108,7 +120,8 @@ final routerProvider = Provider<GoRouter>((ref) {
 
       // Exercise logging screen
       GoRoute(
-        path: '/mesocycles/:mesocycleId/workouts/:workoutId/exercises/:exerciseId',
+        path:
+            '/mesocycles/:mesocycleId/workouts/:workoutId/exercises/:exerciseId',
         name: 'exercise-log',
         builder: (context, state) {
           final mesocycleId = state.pathParameters['mesocycleId']!;

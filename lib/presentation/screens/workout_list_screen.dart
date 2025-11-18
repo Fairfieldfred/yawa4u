@@ -26,13 +26,13 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
   int _selectedDayIndex = 0;
 
   final List<String> _dayNames = [
-    'Monday',
-    'Tuesday',
-    'Wednesday',
-    'Thursday',
-    'Friday',
-    'Saturday',
-    'Sunday',
+    'Mon',
+    'Tue',
+    'Wed',
+    'Thu',
+    'Fri',
+    'Sat',
+    'Sun',
   ];
 
   @override
@@ -62,7 +62,15 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
               onPressed: () => GoRouter.of(context).pop(),
             ),
             title: Text(mesocycle.name),
-            actions: [Icon(Icons.chevron_right)],
+            actions: [
+              // Start mesocycle button (if draft)
+              if (mesocycle.status == MesocycleStatus.draft)
+                IconButton(
+                  icon: const Icon(Icons.play_arrow),
+                  onPressed: () => _startMesocycle(context, ref, mesocycle),
+                  tooltip: 'Start mesocycle',
+                ),
+            ],
           ),
           body: Column(
             children: [
@@ -186,7 +194,8 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
           _buildCategoryHeader('Upper push'),
           ...upperPushWorkouts.map((workout) {
             final muscleGroup = MuscleGroup.values.firstWhere(
-              (mg) => mg.displayName.toLowerCase() == workout.label?.toLowerCase(),
+              (mg) =>
+                  mg.displayName.toLowerCase() == workout.label?.toLowerCase(),
               orElse: () => MuscleGroup.chest,
             );
             return _buildMuscleGroupSection(
@@ -203,7 +212,8 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
           _buildCategoryHeader('Upper pull'),
           ...upperPullWorkouts.map((workout) {
             final muscleGroup = MuscleGroup.values.firstWhere(
-              (mg) => mg.displayName.toLowerCase() == workout.label?.toLowerCase(),
+              (mg) =>
+                  mg.displayName.toLowerCase() == workout.label?.toLowerCase(),
               orElse: () => MuscleGroup.back,
             );
             return _buildMuscleGroupSection(
@@ -220,7 +230,8 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
           _buildCategoryHeader('Legs'),
           ...legsWorkouts.map((workout) {
             final muscleGroup = MuscleGroup.values.firstWhere(
-              (mg) => mg.displayName.toLowerCase() == workout.label?.toLowerCase(),
+              (mg) =>
+                  mg.displayName.toLowerCase() == workout.label?.toLowerCase(),
               orElse: () => MuscleGroup.quads,
             );
             return _buildMuscleGroupSection(
@@ -236,7 +247,8 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
           const SizedBox(height: 24),
           ...otherWorkouts.map((workout) {
             final muscleGroup = MuscleGroup.values.firstWhere(
-              (mg) => mg.displayName.toLowerCase() == workout.label?.toLowerCase(),
+              (mg) =>
+                  mg.displayName.toLowerCase() == workout.label?.toLowerCase(),
               orElse: () => MuscleGroup.chest,
             );
             return _buildMuscleGroupSection(
@@ -268,17 +280,17 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
     String workoutId,
   ) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: 2),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Muscle group header
           Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(4),
             child: Row(
               children: [
                 Container(
@@ -292,20 +304,16 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
                 const SizedBox(width: 12),
                 Text(
                   muscleGroup.displayName,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const Spacer(),
                 IconButton(
-                  icon: const Icon(Icons.add, size: 20),
-                  onPressed: () {
-                    // Navigate to exercise selection for this muscle group
-                    GoRouter.of(context).push(
-                      '/mesocycles/${widget.mesocycleId}/workouts/$workoutId/choose-exercise?muscleGroup=${muscleGroup.name}',
-                    );
-                  },
+                  icon: const Icon(Icons.delete_outline, size: 20),
+                  onPressed: () => _deleteMuscleGroup(workoutId),
                   visualDensity: VisualDensity.compact,
+                  tooltip: 'Delete muscle group',
                 ),
               ],
             ),
@@ -313,12 +321,12 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
 
           // Exercise list or "Choose an exercise" placeholder
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            padding: const EdgeInsets.fromLTRB(12, 0, 12, 0),
             child: Column(
               children: [
                 if (exercises.isEmpty)
                   Container(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
                       color: Theme.of(context).colorScheme.surface,
                       borderRadius: BorderRadius.circular(8),
@@ -351,7 +359,7 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
                 else
                   ...exercises.map((exercise) {
                     return Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
+                      padding: const EdgeInsets.only(bottom: 6),
                       child: TextButton(
                         onPressed: () {
                           // Navigate back to add_exercise screen with muscle group pre-filtered
@@ -362,8 +370,8 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
                         style: TextButton.styleFrom(
                           alignment: Alignment.centerLeft,
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 12,
+                            horizontal: 12,
+                            vertical: 4,
                           ),
                           backgroundColor: Theme.of(
                             context,
@@ -371,22 +379,14 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
                           foregroundColor: Theme.of(
                             context,
                           ).colorScheme.onSurface,
-                          minimumSize: const Size(double.infinity, 48),
+                          minimumSize: const Size(double.infinity, 40),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
                         ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(
-                              child: Text(
-                                exercise.name,
-                                style: Theme.of(context).textTheme.bodyMedium,
-                              ),
-                            ),
-                            const Icon(Icons.chevron_right, size: 20),
-                          ],
+                        child: Text(
+                          exercise.name,
+                          style: Theme.of(context).textTheme.bodyLarge,
                         ),
                       ),
                     );
@@ -448,6 +448,99 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
         ],
       ),
     );
+  }
+
+  Future<void> _deleteMuscleGroup(String workoutId) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Muscle Group'),
+        content: const Text(
+          'Are you sure you want to delete this muscle group and all its exercises?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: FilledButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && mounted) {
+      try {
+        final repository = ref.read(workoutRepositoryProvider);
+        await repository.delete(workoutId);
+
+        if (mounted) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(const SnackBar(content: Text('Muscle group deleted')));
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error deleting muscle group: $e'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    }
+  }
+
+  Future<void> _startMesocycle(
+    BuildContext context,
+    WidgetRef ref,
+    Mesocycle mesocycle,
+  ) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Start Mesocycle'),
+        content: Text(
+          'Start "${mesocycle.name}"? This will set it as your current mesocycle.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Start'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && context.mounted) {
+      try {
+        final repository = ref.read(mesocycleRepositoryProvider);
+        await repository.setAsCurrent(mesocycle.id);
+
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Mesocycle started!'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      } catch (e) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+          );
+        }
+      }
+    }
   }
 
   void _showMuscleGroupSelector(BuildContext context, Mesocycle mesocycle) {
