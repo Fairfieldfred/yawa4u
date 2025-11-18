@@ -40,7 +40,7 @@ class _MesocycleListScreenState extends ConsumerState<MesocycleListScreen> {
           ),
           // New mesocycle button
           TextButton.icon(
-            onPressed: () => _showPlanMesocycleModal(context),
+            onPressed: () => context.push('/plan-mesocycle'),
             icon: const Icon(Icons.add),
             label: const Text('New'),
             style: TextButton.styleFrom(
@@ -324,7 +324,7 @@ class _MesocycleListScreenState extends ConsumerState<MesocycleListScreen> {
           ),
           const SizedBox(height: 24),
           FilledButton.icon(
-            onPressed: () => _showPlanMesocycleModal(context),
+            onPressed: () => context.push('/plan-mesocycle'),
             icon: const Icon(Icons.add),
             label: const Text('Create Mesocycle'),
           ),
@@ -376,200 +376,5 @@ class _MesocycleListScreenState extends ConsumerState<MesocycleListScreen> {
         }
       }
     }
-  }
-
-  void _showPlanMesocycleModal(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => Container(
-        height: MediaQuery.of(context).size.height * 0.85,
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-        ),
-        child: Column(
-          children: [
-            // Header
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const SizedBox(width: 40),
-                  Text(
-                    'Plan a mesocycle',
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.close),
-                    onPressed: () => Navigator.pop(context),
-                  ),
-                ],
-              ),
-            ),
-            // Content
-            Expanded(
-              child: ListView(
-                padding: const EdgeInsets.all(16),
-                children: [
-                  _PlanOption(
-                    icon: Icons.copy_outlined,
-                    iconColor: Colors.pink,
-                    title: 'Copy a mesocycle',
-                    subtitle:
-                        'Ensure long-term progressive overload by keeping your training similar over time.',
-                    badge: '✨',
-                    onTap: () {
-                      // TODO: Navigate to copy mesocycle screen
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  _PlanOption(
-                    icon: Icons.play_arrow,
-                    iconColor: Colors.purple,
-                    title: 'Resume plan in progress',
-                    subtitle: 'Pick up where you left off.',
-                    onTap: () {
-                      // TODO: Navigate to resume plan screen
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  _PlanOption(
-                    icon: Icons.grid_view_outlined,
-                    iconColor: Colors.blue,
-                    title: 'Start with a template',
-                    subtitle:
-                        'Pick a template that fits your goals and get started ASAP.',
-                    onTap: () {
-                      // TODO: Navigate to template selection screen
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  _PlanOption(
-                    icon: Icons.science_outlined,
-                    iconColor: Colors.cyan,
-                    title: 'Meso Builder',
-                    subtitle:
-                        'Build a meso based on your muscle group priorities.',
-                    badge: '🧪',
-                    onTap: () {
-                      // TODO: Navigate to meso builder screen
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  _PlanOption(
-                    icon: Icons.note_outlined,
-                    iconColor: Colors.teal,
-                    title: 'Start from scratch',
-                    subtitle:
-                        'Build your own meso from a completely blank slate.',
-                    onTap: () {
-                      Navigator.pop(context);
-                      context.push('/mesocycles/create');
-                    },
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _PlanOption extends StatelessWidget {
-  final IconData icon;
-  final Color iconColor;
-  final String title;
-  final String subtitle;
-  final String? badge;
-  final VoidCallback onTap;
-
-  const _PlanOption({
-    required this.icon,
-    required this.iconColor,
-    required this.title,
-    required this.subtitle,
-    this.badge,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: Theme.of(context).colorScheme.surfaceContainerHighest,
-      borderRadius: BorderRadius.circular(16),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Row(
-            children: [
-              // Icon container
-              Container(
-                width: 56,
-                height: 56,
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surfaceContainerHigh,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(icon, color: iconColor, size: 28),
-              ),
-              const SizedBox(width: 16),
-              // Text content
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Flexible(
-                          child: Text(
-                            title,
-                            style:
-                                Theme.of(context).textTheme.titleMedium?.copyWith(
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 18,
-                                    ),
-                          ),
-                        ),
-                        if (badge != null) ...[
-                          const SizedBox(width: 6),
-                          Text(badge!, style: const TextStyle(fontSize: 16)),
-                        ],
-                      ],
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      subtitle,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .onSurface
-                                .withValues(alpha: 0.7),
-                            height: 1.4,
-                          ),
-                    ),
-                  ],
-                ),
-              ),
-              // Chevron
-              Icon(
-                Icons.chevron_right,
-                color: Theme.of(context)
-                    .colorScheme
-                    .onSurface
-                    .withValues(alpha: 0.4),
-                size: 24,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
   }
 }
