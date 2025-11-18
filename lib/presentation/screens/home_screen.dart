@@ -15,7 +15,7 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
-  int _selectedIndex = 1; // Start on Mesocycles tab
+  int _selectedIndex = 0; // Start on Mesocycles tab
 
   static const List<Widget> _screens = [
     WorkoutHomeScreen(),

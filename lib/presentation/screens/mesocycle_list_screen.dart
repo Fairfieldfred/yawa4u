@@ -72,11 +72,7 @@ class _MesocycleListScreenState extends ConsumerState<MesocycleListScreen> {
             children: [
               // Draft Mesocycles Section
               if (draftMesocycles.isNotEmpty) ...[
-                _buildSectionHeader(
-                  context,
-                  'Draft Mesocycles',
-                  'Continue editing',
-                ),
+                _buildSectionHeader(context, 'Draft Mesocycle'),
                 const SizedBox(height: 12),
                 ...draftMesocycles.map(
                   (mesocycle) =>
@@ -87,7 +83,7 @@ class _MesocycleListScreenState extends ConsumerState<MesocycleListScreen> {
 
               // Current Mesocycle Section
               if (currentMesocycles.isNotEmpty) ...[
-                _buildSectionHeader(context, 'Current Mesocycle', ''),
+                _buildSectionHeader(context, 'Current Mesocycle'),
                 const SizedBox(height: 12),
                 ...currentMesocycles.map(
                   (mesocycle) =>
@@ -98,7 +94,7 @@ class _MesocycleListScreenState extends ConsumerState<MesocycleListScreen> {
 
               // Completed Mesocycles Section
               if (completedMesocycles.isNotEmpty) ...[
-                _buildSectionHeader(context, 'Completed Mesocycles', ''),
+                _buildSectionHeader(context, 'Completed Mesocycles'),
                 const SizedBox(height: 12),
                 ...completedMesocycles.map(
                   (mesocycle) => _buildMesocycleCard(context, mesocycle),
@@ -122,11 +118,7 @@ class _MesocycleListScreenState extends ConsumerState<MesocycleListScreen> {
     );
   }
 
-  Widget _buildSectionHeader(
-    BuildContext context,
-    String title,
-    String subtitle,
-  ) {
+  Widget _buildSectionHeader(BuildContext context, String title) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -136,17 +128,6 @@ class _MesocycleListScreenState extends ConsumerState<MesocycleListScreen> {
             context,
           ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
         ),
-        if (subtitle.isNotEmpty) ...[
-          const SizedBox(height: 4),
-          Text(
-            subtitle,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: Theme.of(
-                context,
-              ).colorScheme.onSurface.withValues(alpha: 0.6),
-            ),
-          ),
-        ],
       ],
     );
   }

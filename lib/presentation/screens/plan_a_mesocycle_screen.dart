@@ -164,8 +164,8 @@ class _PlanAMesocycleScreenState extends ConsumerState<PlanAMesocycleScreen> {
                 Text(
                   'Are you sure?',
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const SizedBox(height: 16),
                 Text(
@@ -194,10 +194,10 @@ class _PlanAMesocycleScreenState extends ConsumerState<PlanAMesocycleScreen> {
                       Expanded(
                         child: Text(
                           'This will delete your current draft mesocycle plan.',
-                          style:
-                              Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                    color: Theme.of(context).colorScheme.onSurface,
-                                  ),
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(
+                                color: Theme.of(context).colorScheme.onSurface,
+                              ),
                         ),
                       ),
                     ],
@@ -212,10 +212,9 @@ class _PlanAMesocycleScreenState extends ConsumerState<PlanAMesocycleScreen> {
                         style: OutlinedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           side: BorderSide(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .outline
-                                .withValues(alpha: 0.5),
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.outline.withValues(alpha: 0.5),
                           ),
                         ),
                         child: const Text('CANCEL'),

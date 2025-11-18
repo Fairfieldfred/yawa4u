@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uuid/uuid.dart';
+
 import '../../core/constants/enums.dart';
 import '../../data/models/mesocycle.dart';
 import '../../data/models/workout.dart';
-import '../../domain/providers/repository_providers.dart';
 import '../../data/services/analytics_service.dart';
+import '../../domain/providers/repository_providers.dart';
 
 /// Mesocycle creation screen with form
 class MesocycleCreateScreen extends ConsumerStatefulWidget {
@@ -17,8 +18,7 @@ class MesocycleCreateScreen extends ConsumerStatefulWidget {
       _MesocycleCreateScreenState();
 }
 
-class _MesocycleCreateScreenState
-    extends ConsumerState<MesocycleCreateScreen> {
+class _MesocycleCreateScreenState extends ConsumerState<MesocycleCreateScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _uuid = const Uuid();
@@ -84,8 +84,8 @@ class _MesocycleCreateScreenState
           ),
         );
 
-        // Navigate back
-        context.pop();
+        // Navigate to HomeScreen
+        context.go('/');
       }
     } catch (e) {
       if (mounted) {
@@ -163,19 +163,18 @@ class _MesocycleCreateScreenState
             // Header
             Text(
               'New Training Mesocycle',
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             Text(
               'A mesocycle is a multi-week training program with progressive overload',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Theme.of(context)
-                        .colorScheme
-                        .onSurface
-                        .withValues(alpha: 0.7),
-                  ),
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.7),
+              ),
             ),
             const SizedBox(height: 24),
 
@@ -261,9 +260,9 @@ class _MesocycleCreateScreenState
   Widget _buildSectionHeader(String title) {
     return Text(
       title,
-      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
+      style: Theme.of(
+        context,
+      ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
     );
   }
 
@@ -284,9 +283,9 @@ class _MesocycleCreateScreenState
                 Text(
                   '$_weeksTotal weeks',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
                 ),
               ],
             ),
@@ -312,11 +311,10 @@ class _MesocycleCreateScreenState
             Text(
               'Recommended: 4-6 weeks for hypertrophy',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context)
-                        .colorScheme
-                        .onSurface
-                        .withValues(alpha: 0.6),
-                  ),
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.6),
+              ),
             ),
           ],
         ),
@@ -341,9 +339,9 @@ class _MesocycleCreateScreenState
                 Text(
                   '$_daysPerWeek days/week',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
                 ),
               ],
             ),
@@ -361,11 +359,10 @@ class _MesocycleCreateScreenState
             Text(
               _getDaysPerWeekDescription(),
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context)
-                        .colorScheme
-                        .onSurface
-                        .withValues(alpha: 0.6),
-                  ),
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.6),
+              ),
             ),
           ],
         ),
@@ -425,9 +422,9 @@ class _MesocycleCreateScreenState
                 Text(
                   'Week $_deloadWeek',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: Theme.of(context).colorScheme.secondary,
-                      ),
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.secondary,
+                  ),
                 ),
               ],
             ),
@@ -445,11 +442,10 @@ class _MesocycleCreateScreenState
             Text(
               'Most people deload on the last week',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context)
-                        .colorScheme
-                        .onSurface
-                        .withValues(alpha: 0.6),
-                  ),
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.6),
+              ),
             ),
           ],
         ),
@@ -495,7 +491,7 @@ class _MesocycleCreateScreenState
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             DropdownButtonFormField<String?>(
-              value: _templateName,
+              initialValue: _templateName,
               decoration: const InputDecoration(
                 labelText: 'Choose a Template',
                 border: OutlineInputBorder(),
@@ -527,11 +523,10 @@ class _MesocycleCreateScreenState
             Text(
               'Templates provide pre-configured workout splits',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context)
-                        .colorScheme
-                        .onSurface
-                        .withValues(alpha: 0.6),
-                  ),
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.6),
+              ),
             ),
           ],
         ),
