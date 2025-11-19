@@ -1,9 +1,11 @@
 import 'package:hive/hive.dart';
-import '../../core/constants/muscle_groups.dart';
-import '../../core/constants/equipment_types.dart';
+import 'package:json_annotation/json_annotation.dart';
+
 import '../../core/constants/enums.dart';
-import 'exercise_set.dart';
+import '../../core/constants/equipment_types.dart';
+import '../../core/constants/muscle_groups.dart';
 import 'exercise_feedback.dart';
+import 'exercise_set.dart';
 
 part 'exercise.g.dart';
 
@@ -11,6 +13,7 @@ part 'exercise.g.dart';
 ///
 /// Contains exercise details, sets, feedback, and tracking information.
 @HiveType(typeId: 2)
+@JsonSerializable(explicitToJson: true)
 class Exercise {
   @HiveField(0)
   final String id;
@@ -80,8 +83,9 @@ class Exercise {
 
   /// Check if exercise has any Myorep sets
   bool get hasMyorepSets {
-    return sets.any((s) =>
-        s.setType == SetType.myorep || s.setType == SetType.myorepMatch);
+    return sets.any(
+      (s) => s.setType == SetType.myorep || s.setType == SetType.myorepMatch,
+    );
   }
 
   /// Add a new set
@@ -151,53 +155,11 @@ class Exercise {
   }
 
   /// Convert to JSON for export
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'workoutId': workoutId,
-      'name': name,
-      'muscleGroup': muscleGroup.name,
-      'equipmentType': equipmentType.name,
-      'sets': sets.map((s) => s.toJson()).toList(),
-      'orderIndex': orderIndex,
-      'bodyweight': bodyweight,
-      'notes': notes,
-      'feedback': feedback?.toJson(),
-      'lastPerformed': lastPerformed?.toIso8601String(),
-      'videoUrl': videoUrl,
-    };
-  }
+  Map<String, dynamic> toJson() => _$ExerciseToJson(this);
 
   /// Create from JSON for import
-  factory Exercise.fromJson(Map<String, dynamic> json) {
-    return Exercise(
-      id: json['id'] as String,
-      workoutId: json['workoutId'] as String,
-      name: json['name'] as String,
-      muscleGroup: MuscleGroup.values.firstWhere(
-        (e) => e.name == json['muscleGroup'],
-        orElse: () => MuscleGroup.chest,
-      ),
-      equipmentType: EquipmentType.values.firstWhere(
-        (e) => e.name == json['equipmentType'],
-        orElse: () => EquipmentType.barbell,
-      ),
-      sets: (json['sets'] as List?)
-              ?.map((s) => ExerciseSet.fromJson(s as Map<String, dynamic>))
-              .toList() ??
-          [],
-      orderIndex: json['orderIndex'] as int? ?? 0,
-      bodyweight: json['bodyweight'] as double?,
-      notes: json['notes'] as String?,
-      feedback: json['feedback'] != null
-          ? ExerciseFeedback.fromJson(json['feedback'] as Map<String, dynamic>)
-          : null,
-      lastPerformed: json['lastPerformed'] != null
-          ? DateTime.parse(json['lastPerformed'] as String)
-          : null,
-      videoUrl: json['videoUrl'] as String?,
-    );
-  }
+  factory Exercise.fromJson(Map<String, dynamic> json) =>
+      _$ExerciseFromJson(json);
 
   @override
   String toString() {
@@ -218,12 +180,6 @@ class Exercise {
 
   @override
   int get hashCode {
-    return Object.hash(
-      id,
-      workoutId,
-      name,
-      muscleGroup,
-      equipmentType,
-    );
+    return Object.hash(id, workoutId, name, muscleGroup, equipmentType);
   }
 }

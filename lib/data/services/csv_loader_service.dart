@@ -1,7 +1,9 @@
-import 'package:flutter/services.dart';
 import 'package:csv/csv.dart';
-import '../../core/constants/muscle_groups.dart';
+import 'package:flutter/services.dart';
+import 'package:logging/logging.dart';
+
 import '../../core/constants/equipment_types.dart';
+import '../../core/constants/muscle_groups.dart';
 import '../models/exercise_definition.dart';
 
 /// Service for loading and managing exercise definitions from CSV
@@ -12,6 +14,7 @@ class CsvLoaderService {
   factory CsvLoaderService() => _instance;
   CsvLoaderService._internal();
 
+  final _log = Logger('CsvLoaderService');
   List<ExerciseDefinition>? _exercises;
   bool _loaded = false;
 
@@ -35,8 +38,9 @@ class CsvLoaderService {
       final csvString = await rootBundle.loadString('exercises.csv');
 
       // Parse CSV
-      final List<List<dynamic>> csvTable =
-          const CsvToListConverter().convert(csvString);
+      final List<List<dynamic>> csvTable = const CsvToListConverter().convert(
+        csvString,
+      );
 
       // Skip header row and convert to ExerciseDefinition objects
       _exercises = [];
@@ -47,14 +51,14 @@ class CsvLoaderService {
           _exercises!.add(exercise);
         } catch (e) {
           // Skip invalid rows but continue processing
-          print('Warning: Skipping invalid exercise row $i: $e');
+          _log.warning('Skipping invalid exercise row $i: $e');
         }
       }
 
       _loaded = true;
-      print('Loaded ${_exercises!.length} exercises from CSV');
-    } catch (e) {
-      print('Error loading exercises from CSV: $e');
+      _log.info('Loaded ${_exercises!.length} exercises from CSV');
+    } catch (e, stackTrace) {
+      _log.severe('Error loading exercises from CSV', e, stackTrace);
       rethrow;
     }
   }

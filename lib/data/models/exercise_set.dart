@@ -1,4 +1,6 @@
 import 'package:hive/hive.dart';
+import 'package:json_annotation/json_annotation.dart';
+
 import '../../core/constants/enums.dart';
 
 part 'exercise_set.g.dart';
@@ -8,6 +10,7 @@ part 'exercise_set.g.dart';
 /// Tracks weight, reps (supporting RIR format like "2 RIR"),
 /// set type (regular, myorep, myorep match), and logging status.
 @HiveType(typeId: 0)
+@JsonSerializable()
 class ExerciseSet {
   @HiveField(0)
   final String id;
@@ -63,33 +66,11 @@ class ExerciseSet {
   }
 
   /// Convert to JSON for export
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'setNumber': setNumber,
-      'weight': weight,
-      'reps': reps,
-      'setType': setType.name,
-      'isLogged': isLogged,
-      'notes': notes,
-    };
-  }
+  Map<String, dynamic> toJson() => _$ExerciseSetToJson(this);
 
   /// Create from JSON for import
-  factory ExerciseSet.fromJson(Map<String, dynamic> json) {
-    return ExerciseSet(
-      id: json['id'] as String,
-      setNumber: json['setNumber'] as int,
-      weight: json['weight'] as double?,
-      reps: json['reps'] as String,
-      setType: SetType.values.firstWhere(
-        (e) => e.name == json['setType'],
-        orElse: () => SetType.regular,
-      ),
-      isLogged: json['isLogged'] as bool? ?? false,
-      notes: json['notes'] as String?,
-    );
-  }
+  factory ExerciseSet.fromJson(Map<String, dynamic> json) =>
+      _$ExerciseSetFromJson(json);
 
   @override
   String toString() {
@@ -112,14 +93,6 @@ class ExerciseSet {
 
   @override
   int get hashCode {
-    return Object.hash(
-      id,
-      setNumber,
-      weight,
-      reps,
-      setType,
-      isLogged,
-      notes,
-    );
+    return Object.hash(id, setNumber, weight, reps, setType, isLogged, notes);
   }
 }

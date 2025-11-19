@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:uuid/uuid.dart';
 
 import '../../core/constants/enums.dart';
 import '../../core/constants/muscle_groups.dart';
+import '../../core/theme/app_theme.dart';
 import '../../data/models/exercise.dart';
 import '../../data/models/mesocycle.dart';
 import '../../data/models/workout.dart';
 import '../../domain/providers/mesocycle_providers.dart';
-import '../../domain/providers/repository_providers.dart';
 import '../../domain/providers/workout_providers.dart';
+import 'workout/workout_list_controller.dart';
 
 /// Workout list screen - Edit draft mesocycle design
 class WorkoutListScreen extends ConsumerStatefulWidget {
@@ -39,6 +39,9 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
   @override
   Widget build(BuildContext context) {
     final mesocyclesAsync = ref.watch(mesocyclesProvider);
+    final controller = ref.watch(
+      workoutListControllerProvider(widget.mesocycleId),
+    );
 
     return mesocyclesAsync.when(
       data: (mesocycles) {
@@ -72,7 +75,8 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
               if (mesocycle.status == MesocycleStatus.draft)
                 IconButton(
                   icon: const Icon(Icons.play_arrow),
-                  onPressed: () => _startMesocycle(context, ref, mesocycle),
+                  onPressed: () =>
+                      _startMesocycle(context, controller, mesocycle),
                   tooltip: 'Start mesocycle',
                 ),
             ],
@@ -80,7 +84,7 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
           body: Column(
             children: [
               // Week selector
-              _buildWeekSelector(mesocycle),
+              _buildWeekSelector(mesocycle, controller),
 
               // Day selector
               _buildDaySelector(mesocycle),
@@ -88,13 +92,14 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
               // Exercise list
               Expanded(
                 child: dayWorkouts.isEmpty
-                    ? _buildEmptyState(context, mesocycle)
-                    : _buildExerciseList(context, dayWorkouts),
+                    ? _buildEmptyState(context, mesocycle, controller)
+                    : _buildExerciseList(context, dayWorkouts, controller),
               ),
             ],
           ),
           floatingActionButton: FloatingActionButton.extended(
-            onPressed: () => _showMuscleGroupSelector(context, mesocycle),
+            onPressed: () =>
+                _showMuscleGroupSelector(context, mesocycle, controller),
             backgroundColor: Theme.of(context).colorScheme.primary,
             label: const Text('Add Exercise'),
             icon: const Icon(Icons.add),
@@ -110,7 +115,10 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
     );
   }
 
-  Widget _buildWeekSelector(Mesocycle mesocycle) {
+  Widget _buildWeekSelector(
+    Mesocycle mesocycle,
+    WorkoutListController controller,
+  ) {
     final allWorkouts = ref.watch(
       workoutsByMesocycleProvider(widget.mesocycleId),
     );
@@ -181,7 +189,8 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
           if (_selectedWeek > 1 && week1HasWorkouts)
             IconButton(
               icon: const Icon(Icons.content_copy, size: 20),
-              onPressed: () => _mirrorWeek1ToSelectedWeek(mesocycle),
+              onPressed: () =>
+                  _mirrorWeek1ToSelectedWeek(mesocycle, controller),
               tooltip: 'Mirror Week 1',
               style: IconButton.styleFrom(
                 backgroundColor: Theme.of(context).colorScheme.primaryContainer,
@@ -239,9 +248,13 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
     );
   }
 
-  Widget _buildExerciseList(BuildContext context, List<Workout> dayWorkouts) {
+  Widget _buildExerciseList(
+    BuildContext context,
+    List<Workout> dayWorkouts,
+    WorkoutListController controller,
+  ) {
     if (dayWorkouts.isEmpty) {
-      return _buildEmptyState(context, null);
+      return _buildEmptyState(context, null, controller);
     }
 
     // Group workouts by category based on their muscle group label
@@ -257,11 +270,17 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
       MuscleGroup.glutes,
       MuscleGroup.calves,
     ];
+    final coreAndAccessories = <MuscleGroup>[
+      MuscleGroup.traps,
+      MuscleGroup.forearms,
+      MuscleGroup.abs,
+    ];
 
     // Separate workouts by category
     final upperPushWorkouts = <Workout>[];
     final upperPullWorkouts = <Workout>[];
     final legsWorkouts = <Workout>[];
+    final coreAndAccessoriesWorkouts = <Workout>[];
     final otherWorkouts = <Workout>[];
 
     for (final workout in dayWorkouts) {
@@ -276,6 +295,8 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
         upperPullWorkouts.add(workout);
       } else if (legs.contains(muscleGroup)) {
         legsWorkouts.add(workout);
+      } else if (coreAndAccessories.contains(muscleGroup)) {
+        coreAndAccessoriesWorkouts.add(workout);
       } else {
         otherWorkouts.add(workout);
       }
@@ -297,6 +318,7 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
               muscleGroup,
               workout.exercises,
               workout.id,
+              controller,
             );
           }),
           const SizedBox(height: 24),
@@ -315,6 +337,7 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
               muscleGroup,
               workout.exercises,
               workout.id,
+              controller,
             );
           }),
           const SizedBox(height: 24),
@@ -333,8 +356,29 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
               muscleGroup,
               workout.exercises,
               workout.id,
+              controller,
             );
           }),
+          const SizedBox(height: 24),
+        ],
+
+        // Core & Accessories section
+        if (coreAndAccessoriesWorkouts.isNotEmpty) ...[
+          _buildCategoryHeader('Core & Accessories'),
+          ...coreAndAccessoriesWorkouts.map((workout) {
+            final muscleGroup = MuscleGroup.values.firstWhere(
+              (mg) =>
+                  mg.displayName.toLowerCase() == workout.label?.toLowerCase(),
+              orElse: () => MuscleGroup.abs,
+            );
+            return _buildMuscleGroupSection(
+              muscleGroup,
+              workout.exercises,
+              workout.id,
+              controller,
+            );
+          }),
+          const SizedBox(height: 24),
         ],
 
         // Other workouts (if any)
@@ -350,6 +394,7 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
               muscleGroup,
               workout.exercises,
               workout.id,
+              controller,
             );
           }),
         ],
@@ -373,6 +418,7 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
     MuscleGroup muscleGroup,
     List<Exercise> exercises,
     String workoutId,
+    WorkoutListController controller,
   ) {
     return Container(
       margin: const EdgeInsets.only(bottom: 2),
@@ -406,7 +452,8 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
                 const Spacer(),
                 IconButton(
                   icon: const Icon(Icons.delete_outline, size: 20),
-                  onPressed: () => _deleteMuscleGroup(workoutId),
+                  onPressed: () =>
+                      _deleteMuscleGroup(context, controller, workoutId),
                   visualDensity: VisualDensity.compact,
                   tooltip: 'Delete muscle group',
                 ),
@@ -495,23 +542,38 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
   }
 
   Color _getMuscleGroupColor(MuscleGroup muscleGroup) {
+    final colors = Theme.of(context).extension<MuscleGroupColors>();
+    if (colors == null) return Colors.teal;
+
     // Upper push = pink/magenta
     if ([
       MuscleGroup.chest,
       MuscleGroup.triceps,
       MuscleGroup.shoulders,
     ].contains(muscleGroup)) {
-      return Colors.pink;
+      return colors.upperPush ?? Colors.pink;
     }
     // Upper pull = blue/cyan
     if ([MuscleGroup.back, MuscleGroup.biceps].contains(muscleGroup)) {
-      return Colors.cyan;
+      return colors.upperPull ?? Colors.cyan;
+    }
+    // Core & Accessories = purple
+    if ([
+      MuscleGroup.traps,
+      MuscleGroup.forearms,
+      MuscleGroup.abs,
+    ].contains(muscleGroup)) {
+      return colors.coreAndAccessories ?? Colors.purple;
     }
     // Legs = green/teal
-    return Colors.teal;
+    return colors.legs ?? Colors.teal;
   }
 
-  Widget _buildEmptyState(BuildContext context, Mesocycle? mesocycle) {
+  Widget _buildEmptyState(
+    BuildContext context,
+    Mesocycle? mesocycle,
+    WorkoutListController controller,
+  ) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -535,7 +597,8 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
           if (mesocycle != null) ...[
             const SizedBox(height: 24),
             FilledButton.icon(
-              onPressed: () => _showMuscleGroupSelector(context, mesocycle),
+              onPressed: () =>
+                  _showMuscleGroupSelector(context, mesocycle, controller),
               icon: const Icon(Icons.add),
               label: const Text('Add First Workout'),
             ),
@@ -545,7 +608,10 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
     );
   }
 
-  Future<void> _mirrorWeek1ToSelectedWeek(Mesocycle mesocycle) async {
+  Future<void> _mirrorWeek1ToSelectedWeek(
+    Mesocycle mesocycle,
+    WorkoutListController controller,
+  ) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -568,52 +634,7 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
 
     if (confirmed == true && mounted) {
       try {
-        final repository = ref.read(workoutRepositoryProvider);
-        final allWorkouts = ref.read(
-          workoutsByMesocycleProvider(widget.mesocycleId),
-        );
-
-        // Get all Week 1 workouts
-        final week1Workouts = allWorkouts
-            .where((w) => w.weekNumber == 1)
-            .toList();
-
-        if (week1Workouts.isEmpty) {
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('No workouts found in Week 1'),
-                backgroundColor: Colors.orange,
-              ),
-            );
-          }
-          return;
-        }
-
-        // Delete existing workouts for the selected week
-        final existingWorkouts = allWorkouts
-            .where((w) => w.weekNumber == _selectedWeek)
-            .toList();
-        for (final workout in existingWorkouts) {
-          await repository.delete(workout.id);
-        }
-
-        // Create copies of Week 1 workouts for the selected week
-        for (final workout in week1Workouts) {
-          final newWorkout = Workout(
-            id: const Uuid().v4(),
-            mesocycleId: mesocycle.id,
-            weekNumber: _selectedWeek,
-            dayNumber: workout.dayNumber,
-            dayName: workout.dayName,
-            label: workout.label,
-            status: WorkoutStatus.incomplete,
-            exercises: workout.exercises
-                .map((exercise) => exercise.copyWith())
-                .toList(),
-          );
-          await repository.create(newWorkout);
-        }
+        await controller.mirrorWeek1ToSelectedWeek(mesocycle, _selectedWeek);
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -636,7 +657,11 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
     }
   }
 
-  Future<void> _deleteMuscleGroup(String workoutId) async {
+  Future<void> _deleteMuscleGroup(
+    BuildContext context,
+    WorkoutListController controller,
+    String workoutId,
+  ) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -658,18 +683,17 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
       ),
     );
 
-    if (confirmed == true && mounted) {
+    if (confirmed == true && context.mounted) {
       try {
-        final repository = ref.read(workoutRepositoryProvider);
-        await repository.delete(workoutId);
+        await controller.deleteMuscleGroup(workoutId);
 
-        if (mounted) {
+        if (context.mounted) {
           ScaffoldMessenger.of(
             context,
           ).showSnackBar(const SnackBar(content: Text('Muscle group deleted')));
         }
       } catch (e) {
-        if (mounted) {
+        if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Error deleting muscle group: $e'),
@@ -683,7 +707,7 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
 
   Future<void> _startMesocycle(
     BuildContext context,
-    WidgetRef ref,
+    WorkoutListController controller,
     Mesocycle mesocycle,
   ) async {
     final confirmed = await showDialog<bool>(
@@ -708,8 +732,7 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
 
     if (confirmed == true && context.mounted) {
       try {
-        final repository = ref.read(mesocycleRepositoryProvider);
-        await repository.setAsCurrent(mesocycle.id);
+        await controller.startMesocycle(mesocycle);
 
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -729,7 +752,11 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
     }
   }
 
-  void _showMuscleGroupSelector(BuildContext context, Mesocycle mesocycle) {
+  void _showMuscleGroupSelector(
+    BuildContext context,
+    Mesocycle mesocycle,
+    WorkoutListController controller,
+  ) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -738,22 +765,12 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
         mesocycleId: mesocycle.id,
         dayNumber: _selectedDayIndex + 1,
         onMuscleGroupsSelected: (muscleGroups) {
-          // Create workouts for selected muscle groups
-          for (final muscleGroup in muscleGroups) {
-            // Create a workout for this day and muscle group
-            final newWorkout = Workout(
-              id: const Uuid().v4(),
-              mesocycleId: mesocycle.id,
-              weekNumber: _selectedWeek, // Use selected week
-              dayNumber: _selectedDayIndex + 1,
-              dayName: _dayNames[_selectedDayIndex],
-              label: muscleGroup.displayName,
-              status: WorkoutStatus.incomplete,
-            );
-
-            ref.read(workoutRepositoryProvider).create(newWorkout);
-          }
-
+          controller.createWorkoutsForMuscleGroups(
+            muscleGroups: muscleGroups,
+            weekNumber: _selectedWeek,
+            dayNumber: _selectedDayIndex + 1,
+            dayName: _dayNames[_selectedDayIndex],
+          );
           GoRouter.of(context).pop();
         },
       ),
@@ -799,139 +816,55 @@ class __MuscleGroupSelectorModalState extends State<_MuscleGroupSelectorModal> {
               children: [
                 TextButton(
                   onPressed: () => Navigator.pop(context),
-                  child: const Text('CANCEL'),
+                  child: const Text('Cancel'),
                 ),
                 Text(
-                  'Choose muscle groups',
+                  'Select Muscle Groups',
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
-                IconButton(
-                  icon: const Icon(Icons.close),
-                  onPressed: () => Navigator.pop(context),
-                ),
-              ],
-            ),
-          ),
-
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                _buildCategorySection('Upper push', [
-                  MuscleGroup.chest,
-                  MuscleGroup.triceps,
-                  MuscleGroup.shoulders,
-                ], Colors.pink),
-
-                const SizedBox(height: 24),
-
-                _buildCategorySection('Upper pull', [
-                  MuscleGroup.back,
-                  MuscleGroup.biceps,
-                ], Colors.cyan),
-
-                const SizedBox(height: 24),
-
-                _buildCategorySection('Legs', [
-                  MuscleGroup.quads,
-                  MuscleGroup.glutes,
-                  MuscleGroup.hamstrings,
-                  MuscleGroup.calves,
-                ], Colors.teal),
-              ],
-            ),
-          ),
-
-          // Bottom button
-          SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: SizedBox(
-                width: double.infinity,
-                child: FilledButton(
+                TextButton(
                   onPressed: _selectedMuscleGroups.isEmpty
                       ? null
                       : () => widget.onMuscleGroupsSelected(
                           _selectedMuscleGroups.toList(),
                         ),
-                  child: Text(
-                    'ADD MUSCLE GROUPS',
-                    style: TextStyle(
-                      color: _selectedMuscleGroups.isEmpty
-                          ? Theme.of(
-                              context,
-                            ).colorScheme.onSurface.withValues(alpha: 0.4)
-                          : null,
-                    ),
-                  ),
+                  child: const Text('Add'),
                 ),
-              ),
+              ],
+            ),
+          ),
+          const Divider(height: 1),
+          // List
+          Expanded(
+            child: ListView.builder(
+              itemCount: MuscleGroup.values.length,
+              itemBuilder: (context, index) {
+                final muscleGroup = MuscleGroup.values[index];
+                final isSelected = _selectedMuscleGroups.contains(muscleGroup);
+
+                return ListTile(
+                  title: Text(muscleGroup.displayName),
+                  trailing: isSelected
+                      ? Icon(
+                          Icons.check_circle,
+                          color: Theme.of(context).colorScheme.primary,
+                        )
+                      : const Icon(Icons.circle_outlined),
+                  onTap: () {
+                    setState(() {
+                      if (isSelected) {
+                        _selectedMuscleGroups.remove(muscleGroup);
+                      } else {
+                        _selectedMuscleGroups.add(muscleGroup);
+                      }
+                    });
+                  },
+                );
+              },
             ),
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildCategorySection(
-    String title,
-    List<MuscleGroup> muscleGroups,
-    Color color,
-  ) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: Theme.of(
-            context,
-          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 12),
-        ...muscleGroups.map((muscleGroup) {
-          final isSelected = _selectedMuscleGroups.contains(muscleGroup);
-          return Container(
-            margin: const EdgeInsets.only(bottom: 8),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surfaceContainerHighest,
-              borderRadius: BorderRadius.circular(12),
-              border: isSelected ? Border.all(color: color, width: 2) : null,
-            ),
-            child: ListTile(
-              leading: Container(
-                width: 8,
-                height: 8,
-                decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-              ),
-              title: Text(muscleGroup.displayName),
-              trailing: IconButton(
-                icon: Icon(
-                  isSelected ? Icons.check_circle : Icons.add_circle_outline,
-                  color: isSelected ? color : null,
-                ),
-                onPressed: () {
-                  setState(() {
-                    if (isSelected) {
-                      _selectedMuscleGroups.remove(muscleGroup);
-                    } else {
-                      _selectedMuscleGroups.add(muscleGroup);
-                    }
-                  });
-                },
-              ),
-              onTap: () {
-                setState(() {
-                  if (isSelected) {
-                    _selectedMuscleGroups.remove(muscleGroup);
-                  } else {
-                    _selectedMuscleGroups.add(muscleGroup);
-                  }
-                });
-              },
-            ),
-          );
-        }),
-      ],
     );
   }
 }

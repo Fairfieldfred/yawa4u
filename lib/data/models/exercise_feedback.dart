@@ -1,4 +1,6 @@
 import 'package:hive/hive.dart';
+import 'package:json_annotation/json_annotation.dart';
+
 import '../../core/constants/enums.dart';
 
 part 'exercise_feedback.g.dart';
@@ -8,6 +10,7 @@ part 'exercise_feedback.g.dart';
 /// Includes joint pain, muscle pump, workload difficulty,
 /// and soreness ratings for each trained muscle group.
 @HiveType(typeId: 1)
+@JsonSerializable()
 class ExerciseFeedback {
   @HiveField(0)
   final JointPain? jointPain;
@@ -66,62 +69,11 @@ class ExerciseFeedback {
   }
 
   /// Convert to JSON for export
-  Map<String, dynamic> toJson() {
-    return {
-      'jointPain': jointPain?.name,
-      'musclePump': musclePump?.name,
-      'workload': workload?.name,
-      'soreness': soreness?.name,
-      'muscleGroupSoreness': muscleGroupSoreness?.map(
-        (key, value) => MapEntry(key, value.name),
-      ),
-      'timestamp': timestamp?.toIso8601String(),
-    };
-  }
+  Map<String, dynamic> toJson() => _$ExerciseFeedbackToJson(this);
 
   /// Create from JSON for import
-  factory ExerciseFeedback.fromJson(Map<String, dynamic> json) {
-    return ExerciseFeedback(
-      jointPain: json['jointPain'] != null
-          ? JointPain.values.firstWhere(
-              (e) => e.name == json['jointPain'],
-              orElse: () => JointPain.none,
-            )
-          : null,
-      musclePump: json['musclePump'] != null
-          ? MusclePump.values.firstWhere(
-              (e) => e.name == json['musclePump'],
-              orElse: () => MusclePump.moderate,
-            )
-          : null,
-      workload: json['workload'] != null
-          ? Workload.values.firstWhere(
-              (e) => e.name == json['workload'],
-              orElse: () => Workload.prettyGood,
-            )
-          : null,
-      soreness: json['soreness'] != null
-          ? Soreness.values.firstWhere(
-              (e) => e.name == json['soreness'],
-              orElse: () => Soreness.healedJustOnTime,
-            )
-          : null,
-      muscleGroupSoreness: json['muscleGroupSoreness'] != null
-          ? (json['muscleGroupSoreness'] as Map<String, dynamic>).map(
-              (key, value) => MapEntry(
-                key,
-                Soreness.values.firstWhere(
-                  (e) => e.name == value,
-                  orElse: () => Soreness.healedJustOnTime,
-                ),
-              ),
-            )
-          : null,
-      timestamp: json['timestamp'] != null
-          ? DateTime.parse(json['timestamp'] as String)
-          : null,
-    );
-  }
+  factory ExerciseFeedback.fromJson(Map<String, dynamic> json) =>
+      _$ExerciseFeedbackFromJson(json);
 
   @override
   String toString() {
@@ -142,12 +94,6 @@ class ExerciseFeedback {
 
   @override
   int get hashCode {
-    return Object.hash(
-      jointPain,
-      musclePump,
-      workload,
-      soreness,
-      timestamp,
-    );
+    return Object.hash(jointPain, musclePump, workload, soreness, timestamp);
   }
 }

@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
 import 'colors.dart';
 import 'text_styles.dart';
 
 /// Theme mode options for the app
-enum AppThemeMode {
-  light,
-  dark,
-  system,
-}
+enum AppThemeMode { light, dark, system }
 
 extension AppThemeModeExtension on AppThemeMode {
   String get displayName {
@@ -34,6 +31,54 @@ extension AppThemeModeExtension on AppThemeMode {
   }
 }
 
+/// Custom theme extension for muscle group colors
+@immutable
+class MuscleGroupColors extends ThemeExtension<MuscleGroupColors> {
+  final Color? upperPush;
+  final Color? upperPull;
+  final Color? legs;
+  final Color? coreAndAccessories;
+
+  const MuscleGroupColors({
+    required this.upperPush,
+    required this.upperPull,
+    required this.legs,
+    required this.coreAndAccessories,
+  });
+
+  @override
+  MuscleGroupColors copyWith({
+    Color? upperPush,
+    Color? upperPull,
+    Color? legs,
+    Color? coreAndAccessories,
+  }) {
+    return MuscleGroupColors(
+      upperPush: upperPush ?? this.upperPush,
+      upperPull: upperPull ?? this.upperPull,
+      legs: legs ?? this.legs,
+      coreAndAccessories: coreAndAccessories ?? this.coreAndAccessories,
+    );
+  }
+
+  @override
+  MuscleGroupColors lerp(ThemeExtension<MuscleGroupColors>? other, double t) {
+    if (other is! MuscleGroupColors) {
+      return this;
+    }
+    return MuscleGroupColors(
+      upperPush: Color.lerp(upperPush, other.upperPush, t),
+      upperPull: Color.lerp(upperPull, other.upperPull, t),
+      legs: Color.lerp(legs, other.legs, t),
+      coreAndAccessories: Color.lerp(
+        coreAndAccessories,
+        other.coreAndAccessories,
+        t,
+      ),
+    );
+  }
+}
+
 /// Application theme configuration
 class AppTheme {
   AppTheme._();
@@ -44,6 +89,16 @@ class AppTheme {
     // Brightness
     brightness: Brightness.dark,
     useMaterial3: true,
+
+    // Extensions
+    extensions: const <ThemeExtension<dynamic>>[
+      MuscleGroupColors(
+        upperPush: Colors.pink,
+        upperPull: Colors.cyan,
+        legs: Colors.teal,
+        coreAndAccessories: Colors.purple,
+      ),
+    ],
 
     // Color scheme
     colorScheme: ColorScheme.dark(
@@ -81,10 +136,8 @@ class AppTheme {
     cardTheme: CardThemeData(
       color: AppColors.darkCardBackground,
       elevation: 2,
-      shadowColor: Colors.black.withOpacity(0.3),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shadowColor: Colors.black.withValues(alpha: 0.3),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
     ),
 
@@ -96,11 +149,9 @@ class AppTheme {
         disabledBackgroundColor: AppColors.darkTextDisabled,
         disabledForegroundColor: AppColors.darkTextSecondary,
         elevation: 2,
-        shadowColor: Colors.black.withOpacity(0.3),
+        shadowColor: Colors.black.withValues(alpha: 0.3),
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         textStyle: AppTextStyles.buttonText,
       ),
     ),
@@ -165,9 +216,7 @@ class AppTheme {
         return AppColors.checkboxUnchecked;
       }),
       checkColor: WidgetStateProperty.all(AppColors.darkTextPrimary),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(4),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
     ),
 
     // Switch
@@ -180,9 +229,9 @@ class AppTheme {
       }),
       trackColor: WidgetStateProperty.resolveWith((states) {
         if (states.contains(WidgetState.selected)) {
-          return AppColors.primary.withOpacity(0.5);
+          return AppColors.primary.withValues(alpha: 0.5);
         }
-        return AppColors.darkTextDisabled.withOpacity(0.3);
+        return AppColors.darkTextDisabled.withValues(alpha: 0.3);
       }),
     ),
 
@@ -194,9 +243,7 @@ class AppTheme {
       labelStyle: AppTextStyles.badgeText,
       secondaryLabelStyle: AppTextStyles.badgeText,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
     ),
 
     // Bottom navigation bar
@@ -220,10 +267,8 @@ class AppTheme {
     dialogTheme: DialogThemeData(
       backgroundColor: AppColors.darkCardBackground,
       elevation: 8,
-      shadowColor: Colors.black.withOpacity(0.5),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shadowColor: Colors.black.withValues(alpha: 0.5),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       titleTextStyle: AppTextStyles.darkTextTheme.headlineMedium,
       contentTextStyle: AppTextStyles.darkTextTheme.bodyMedium,
     ),
@@ -256,10 +301,7 @@ class AppTheme {
     textTheme: AppTextStyles.darkTextTheme,
 
     // Icon theme
-    iconTheme: const IconThemeData(
-      color: AppColors.darkTextPrimary,
-      size: 24,
-    ),
+    iconTheme: const IconThemeData(color: AppColors.darkTextPrimary, size: 24),
   );
 
   // ========== LIGHT THEME ==========
@@ -268,6 +310,16 @@ class AppTheme {
     // Brightness
     brightness: Brightness.light,
     useMaterial3: true,
+
+    // Extensions
+    extensions: const <ThemeExtension<dynamic>>[
+      MuscleGroupColors(
+        upperPush: Colors.pink,
+        upperPull: Colors.cyan,
+        legs: Colors.teal,
+        coreAndAccessories: Colors.purple,
+      ),
+    ],
 
     // Color scheme
     colorScheme: ColorScheme.light(
@@ -307,10 +359,8 @@ class AppTheme {
     cardTheme: CardThemeData(
       color: AppColors.lightCardBackground,
       elevation: 2,
-      shadowColor: Colors.black.withOpacity(0.1),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shadowColor: Colors.black.withValues(alpha: 0.1),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
     ),
 
@@ -322,11 +372,9 @@ class AppTheme {
         disabledBackgroundColor: AppColors.lightTextDisabled,
         disabledForegroundColor: AppColors.lightTextSecondary,
         elevation: 2,
-        shadowColor: Colors.black.withOpacity(0.2),
+        shadowColor: Colors.black.withValues(alpha: 0.2),
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         textStyle: AppTextStyles.buttonText,
       ),
     ),
@@ -395,9 +443,7 @@ class AppTheme {
         return AppColors.lightTextSecondary;
       }),
       checkColor: WidgetStateProperty.all(AppColors.darkTextPrimary),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(4),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
     ),
 
     // Switch
@@ -410,9 +456,9 @@ class AppTheme {
       }),
       trackColor: WidgetStateProperty.resolveWith((states) {
         if (states.contains(WidgetState.selected)) {
-          return AppColors.primary.withOpacity(0.5);
+          return AppColors.primary.withValues(alpha: 0.5);
         }
-        return AppColors.lightTextDisabled.withOpacity(0.3);
+        return AppColors.lightTextDisabled.withValues(alpha: 0.3);
       }),
     ),
 
@@ -428,9 +474,7 @@ class AppTheme {
         color: AppColors.lightTextPrimary,
       ),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
     ),
 
     // Bottom navigation bar
@@ -454,10 +498,8 @@ class AppTheme {
     dialogTheme: DialogThemeData(
       backgroundColor: AppColors.lightCardBackground,
       elevation: 8,
-      shadowColor: Colors.black.withOpacity(0.3),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shadowColor: Colors.black.withValues(alpha: 0.3),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       titleTextStyle: AppTextStyles.lightTextTheme.headlineMedium,
       contentTextStyle: AppTextStyles.lightTextTheme.bodyMedium,
     ),
@@ -494,9 +536,6 @@ class AppTheme {
     textTheme: AppTextStyles.lightTextTheme,
 
     // Icon theme
-    iconTheme: const IconThemeData(
-      color: AppColors.lightTextPrimary,
-      size: 24,
-    ),
+    iconTheme: const IconThemeData(color: AppColors.lightTextPrimary, size: 24),
   );
 }
