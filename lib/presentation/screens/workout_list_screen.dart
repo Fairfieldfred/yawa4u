@@ -24,6 +24,7 @@ class WorkoutListScreen extends ConsumerStatefulWidget {
 
 class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
   int _selectedDayIndex = 0;
+  int _selectedWeek = 1;
 
   final List<String> _dayNames = [
     'Mon',
@@ -50,10 +51,14 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
           workoutsByMesocycleProvider(widget.mesocycleId),
         );
 
-        // Get workouts for the selected day
-        final dayWorkouts =
-            workouts.where((w) => w.dayNumber == _selectedDayIndex + 1).toList()
-              ..sort((a, b) => a.weekNumber.compareTo(b.weekNumber));
+        // Get workouts for the selected week and day
+        final dayWorkouts = workouts
+            .where(
+              (w) =>
+                  w.weekNumber == _selectedWeek &&
+                  w.dayNumber == _selectedDayIndex + 1,
+            )
+            .toList();
 
         return Scaffold(
           appBar: AppBar(
@@ -74,6 +79,9 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
           ),
           body: Column(
             children: [
+              // Week selector
+              _buildWeekSelector(mesocycle),
+
               // Day selector
               _buildDaySelector(mesocycle),
 
@@ -91,12 +99,99 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
             label: const Text('Add Exercise'),
             icon: const Icon(Icons.add),
           ),
+          floatingActionButtonLocation:
+              FloatingActionButtonLocation.centerFloat,
         );
       },
       loading: () =>
           const Scaffold(body: Center(child: CircularProgressIndicator())),
       error: (error, stack) =>
           Scaffold(body: Center(child: Text('Error: $error'))),
+    );
+  }
+
+  Widget _buildWeekSelector(Mesocycle mesocycle) {
+    final allWorkouts = ref.watch(
+      workoutsByMesocycleProvider(widget.mesocycleId),
+    );
+    final week1HasWorkouts = allWorkouts.any((w) => w.weekNumber == 1);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surfaceContainerHighest,
+        border: Border(
+          bottom: BorderSide(
+            color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+          ),
+        ),
+      ),
+      child: Row(
+        children: [
+          Text(
+            'Week',
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: List.generate(mesocycle.weeksTotal, (index) {
+                  final weekNumber = index + 1;
+                  final isSelected = weekNumber == _selectedWeek;
+                  final isDeloadWeek = weekNumber == mesocycle.weeksTotal;
+
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: ChoiceChip(
+                      label: Text(
+                        isDeloadWeek ? 'DL' : '$weekNumber',
+                        style: TextStyle(
+                          color: isSelected
+                              ? Theme.of(context).colorScheme.onPrimary
+                              : Theme.of(context).colorScheme.onSurface,
+                          fontWeight: isSelected
+                              ? FontWeight.bold
+                              : FontWeight.normal,
+                        ),
+                      ),
+                      selected: isSelected,
+                      onSelected: (selected) {
+                        if (selected) {
+                          setState(() => _selectedWeek = weekNumber);
+                        }
+                      },
+                      selectedColor: Theme.of(context).colorScheme.primary,
+                      backgroundColor: Theme.of(context).colorScheme.surface,
+                      side: BorderSide.none,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 4,
+                      ),
+                    ),
+                  );
+                }),
+              ),
+            ),
+          ),
+          // Mirror week 1 button (only show when not on week 1 and week 1 has workouts)
+          if (_selectedWeek > 1 && week1HasWorkouts)
+            IconButton(
+              icon: const Icon(Icons.content_copy, size: 20),
+              onPressed: () => _mirrorWeek1ToSelectedWeek(mesocycle),
+              tooltip: 'Mirror Week 1',
+              style: IconButton.styleFrom(
+                backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                foregroundColor: Theme.of(
+                  context,
+                ).colorScheme.onPrimaryContainer,
+              ),
+            ),
+        ],
+      ),
     );
   }
 
@@ -450,6 +545,97 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
     );
   }
 
+  Future<void> _mirrorWeek1ToSelectedWeek(Mesocycle mesocycle) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Mirror Week 1'),
+        content: Text(
+          'Copy all workouts from Week 1 to Week $_selectedWeek? This will replace any existing workouts for Week $_selectedWeek.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Mirror'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && mounted) {
+      try {
+        final repository = ref.read(workoutRepositoryProvider);
+        final allWorkouts = ref.read(
+          workoutsByMesocycleProvider(widget.mesocycleId),
+        );
+
+        // Get all Week 1 workouts
+        final week1Workouts = allWorkouts
+            .where((w) => w.weekNumber == 1)
+            .toList();
+
+        if (week1Workouts.isEmpty) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('No workouts found in Week 1'),
+                backgroundColor: Colors.orange,
+              ),
+            );
+          }
+          return;
+        }
+
+        // Delete existing workouts for the selected week
+        final existingWorkouts = allWorkouts
+            .where((w) => w.weekNumber == _selectedWeek)
+            .toList();
+        for (final workout in existingWorkouts) {
+          await repository.delete(workout.id);
+        }
+
+        // Create copies of Week 1 workouts for the selected week
+        for (final workout in week1Workouts) {
+          final newWorkout = Workout(
+            id: const Uuid().v4(),
+            mesocycleId: mesocycle.id,
+            weekNumber: _selectedWeek,
+            dayNumber: workout.dayNumber,
+            dayName: workout.dayName,
+            label: workout.label,
+            status: WorkoutStatus.incomplete,
+            exercises: workout.exercises
+                .map((exercise) => exercise.copyWith())
+                .toList(),
+          );
+          await repository.create(newWorkout);
+        }
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Week 1 mirrored to Week $_selectedWeek'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error mirroring week: $e'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    }
+  }
+
   Future<void> _deleteMuscleGroup(String workoutId) async {
     final confirmed = await showDialog<bool>(
       context: context,
@@ -558,7 +744,7 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
             final newWorkout = Workout(
               id: const Uuid().v4(),
               mesocycleId: mesocycle.id,
-              weekNumber: 1, // Default to week 1
+              weekNumber: _selectedWeek, // Use selected week
               dayNumber: _selectedDayIndex + 1,
               dayName: _dayNames[_selectedDayIndex],
               label: muscleGroup.displayName,

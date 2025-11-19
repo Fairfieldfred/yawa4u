@@ -17,6 +17,8 @@ class WorkoutHomeScreen extends ConsumerStatefulWidget {
 
 class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
   bool _showWeekSelector = false;
+  int? _selectedWeek;
+  int? _selectedDay;
 
   void _toggleWeekSelector() {
     setState(() {
@@ -27,7 +29,8 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
   void _selectDay(int week, int day) {
     setState(() {
       _showWeekSelector = false;
-      // The screen will rebuild with the new current day
+      _selectedWeek = week;
+      _selectedDay = day;
     });
   }
 
@@ -70,52 +73,52 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
         );
       }
 
-      // Calculate current day within the week
-      final daysSinceStart = DateTime.now()
-          .difference(currentMesocycle.startDate!)
-          .inDays;
-      final daysSinceWeekStart = daysSinceStart % 7;
+      // Use selected week/day if available, otherwise calculate current day
+      final displayWeek = _selectedWeek ?? currentWeek;
+      final displayDay =
+          _selectedDay ??
+          (() {
+            final daysSinceStart = DateTime.now()
+                .difference(currentMesocycle.startDate!)
+                .inDays;
+            final daysSinceWeekStart = daysSinceStart % 7;
+            return (daysSinceWeekStart + 1).clamp(
+              1,
+              currentMesocycle.daysPerWeek,
+            );
+          })();
 
-      debugPrint('Days since start: $daysSinceStart');
-      debugPrint('Days since week start: $daysSinceWeekStart');
+      debugPrint('Display week: $displayWeek, Display day: $displayDay');
 
-      // Find ALL workouts for today (not just the first one)
-      final calculatedDay = (daysSinceWeekStart + 1).clamp(
-        1,
-        currentMesocycle.daysPerWeek,
-      );
-      debugPrint(
-        'Calculated day: $calculatedDay (daysPerWeek: ${currentMesocycle.daysPerWeek})',
-      );
-
-      // Get all workouts for current week and day
+      // Get all workouts for the display week and day
       final todaysWorkouts = allWorkouts
           .where(
-            (w) => w.weekNumber == currentWeek && w.dayNumber == calculatedDay,
+            (w) => w.weekNumber == displayWeek && w.dayNumber == displayDay,
           )
           .toList();
 
       debugPrint(
-        'Found ${todaysWorkouts.length} workouts for W$currentWeek D$calculatedDay',
+        'Found ${todaysWorkouts.length} workouts for W$displayWeek D$displayDay',
       );
 
       if (todaysWorkouts.isNotEmpty) {
-        // Show today's workouts
+        // Show selected day's workouts
         return _buildTodaysWorkoutView(
           context,
           ref,
           currentMesocycle,
           todaysWorkouts,
-          currentWeek,
-          calculatedDay,
+          displayWeek,
+          displayDay,
+          currentWeek: currentWeek,
         );
       }
 
-      // No workout found for today
+      // No workout found for selected day
       return _buildEmptyState(
         context,
         'No Workout Scheduled',
-        'No workout found for Week $currentWeek, Day $calculatedDay',
+        'No workout found for Week $displayWeek, Day $displayDay',
       );
     }
 
@@ -167,13 +170,14 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     WidgetRef ref,
     dynamic mesocycle,
     List<Workout> workouts,
-    int currentWeek,
-    int calculatedDay,
-  ) {
+    int displayWeek,
+    int displayDay, {
+    required int currentWeek,
+  }) {
     final dayNames = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
-    final dayName = calculatedDay >= 1 && calculatedDay <= dayNames.length
-        ? dayNames[calculatedDay - 1]
-        : 'DAY $calculatedDay';
+    final dayName = displayDay >= 1 && displayDay <= dayNames.length
+        ? dayNames[displayDay - 1]
+        : 'DAY $displayDay';
 
     // Collect all exercises from all workouts for today
     final allExercises = <dynamic>[];
@@ -191,7 +195,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFF1C1C1E),
       appBar: AppBar(
-        backgroundColor: const Color(0xFF1C1C1E),
+        backgroundColor: const Color(0xFF2C2C2E),
         elevation: 0,
         automaticallyImplyLeading: false,
         title: Column(
@@ -208,7 +212,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
             ),
             const SizedBox(height: 2),
             Text(
-              'WEEK $currentWeek DAY $calculatedDay $dayName',
+              'WEEK $displayWeek DAY $displayDay $dayName',
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 17,
@@ -239,10 +243,22 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                   ),
                 )
               : ListView.separated(
-                  padding: const EdgeInsets.only(bottom: 80, top: 16),
+                  padding: const EdgeInsets.only(bottom: 80, top: 24),
                   itemCount: allExercises.length,
-                  separatorBuilder: (context, index) =>
-                      const SizedBox(height: 8),
+                  separatorBuilder: (context, index) {
+                    // Check if next exercise is same muscle group
+                    final currentMuscleGroup = allExercises[index].muscleGroup;
+                    final nextMuscleGroup = index + 1 < allExercises.length
+                        ? allExercises[index + 1].muscleGroup
+                        : null;
+                    final isSameMuscleGroup =
+                        currentMuscleGroup == nextMuscleGroup;
+
+                    // Thin grey divider for same muscle group, black spacer for different
+                    return isSameMuscleGroup
+                        ? Container(height: 1, color: const Color(0xFF3A3A3C))
+                        : const SizedBox(height: 32);
+                  },
                   itemBuilder: (context, index) {
                     final exercise = allExercises[index];
                     final showMuscleGroupBadge =
@@ -266,7 +282,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
               child: _WeekSelectorDropdown(
                 mesocycle: mesocycle,
                 currentWeek: currentWeek,
-                currentDay: calculatedDay,
+                currentDay: displayDay,
                 onDaySelected: _selectDay,
               ),
             ),
@@ -283,51 +299,15 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     final muscleGroup = exercise.muscleGroup as MuscleGroup;
     final equipmentType = exercise.equipmentType as EquipmentType?;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Stack(
+      clipBehavior: Clip.none,
       children: [
-        // Muscle group badge - only show if first exercise or different muscle group
-        if (showMuscleGroupBadge)
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              decoration: BoxDecoration(
-                color: muscleGroup.color,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    width: 4,
-                    height: 16,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    muscleGroup.displayName.toUpperCase(),
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: 0.5,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-
         // Exercise card
         Container(
-          margin: const EdgeInsets.symmetric(horizontal: 16),
+          width: double.infinity,
           decoration: BoxDecoration(
             color: const Color(0xFF2C2C2E),
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(0),
           ),
           child: Padding(
             padding: const EdgeInsets.all(16),
@@ -364,6 +344,43 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
             ),
           ),
         ),
+
+        // Muscle group badge - overlays the card
+        if (showMuscleGroupBadge)
+          Positioned(
+            top: -20,
+            left: 16,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: muscleGroup.color.withValues(alpha: 0.9),
+                borderRadius: BorderRadius.circular(0),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 4,
+                    height: 16,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    muscleGroup.displayName.toUpperCase(),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
       ],
     );
   }

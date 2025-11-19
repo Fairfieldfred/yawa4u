@@ -12,10 +12,7 @@ import '../../../../core/constants/muscle_groups.dart';
 class MuscleGroupBadge extends StatelessWidget {
   final MuscleGroup muscleGroup;
 
-  const MuscleGroupBadge({
-    super.key,
-    required this.muscleGroup,
-  });
+  const MuscleGroupBadge({super.key, required this.muscleGroup});
 
   @override
   Widget build(BuildContext context) {
