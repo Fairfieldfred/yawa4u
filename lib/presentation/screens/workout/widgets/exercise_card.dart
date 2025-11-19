@@ -43,9 +43,7 @@ class ExerciseCard extends StatelessWidget {
     if (onExerciseChanged != null) {
       final updatedSets = List<ExerciseSet>.from(exercise.sets);
       updatedSets[index] = updatedSet;
-      onExerciseChanged!(
-        exercise.copyWith(sets: updatedSets),
-      );
+      onExerciseChanged!(exercise.copyWith(sets: updatedSets));
     }
   }
 
@@ -98,7 +96,8 @@ class ExerciseCard extends StatelessWidget {
                           Row(
                             children: [
                               Text(
-                                exercise.equipmentType.displayName.toUpperCase(),
+                                exercise.equipmentType.displayName
+                                    .toUpperCase(),
                                 style: const TextStyle(
                                   color: Color(0xFF8E8E93),
                                   fontSize: 13,
@@ -106,7 +105,8 @@ class ExerciseCard extends StatelessWidget {
                                   letterSpacing: 0.3,
                                 ),
                               ),
-                              if (_isBodyweightLoadable && bodyweight != null) ...[
+                              if (_isBodyweightLoadable &&
+                                  bodyweight != null) ...[
                                 Text(
                                   ' @ ${bodyweight!.toInt()} LBS BODYWEIGHT',
                                   style: const TextStyle(
@@ -122,6 +122,7 @@ class ExerciseCard extends StatelessWidget {
                         ],
                       ),
                     ),
+                    const SizedBox(width: 8),
                     // Info button
                     IconButton(
                       icon: Container(
@@ -149,23 +150,26 @@ class ExerciseCard extends StatelessWidget {
                       onPressed: onInfoPressed,
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(
-                        minWidth: 32,
-                        minHeight: 32,
+                        minWidth: 24,
+                        minHeight: 24,
                       ),
                     ),
+                    const SizedBox(width: 20),
                     // Overflow menu button
                     IconButton(
                       icon: const Icon(
                         Icons.more_vert,
                         color: Color(0xFF8E8E93),
+                        size: 24,
                       ),
                       onPressed: onMenuPressed,
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(
-                        minWidth: 32,
-                        minHeight: 32,
+                        minWidth: 24,
+                        minHeight: 24,
                       ),
                     ),
+                    const SizedBox(width: 20),
                   ],
                 ),
 
@@ -283,8 +287,10 @@ class ExerciseCard extends StatelessWidget {
                     setNumber: index + 1,
                     isBodyweightLoadable: _isBodyweightLoadable,
                     bodyweight: bodyweight,
-                    onSetChanged: (updatedSet) => _handleSetChanged(index, updatedSet),
-                    onMenuPressed: () => onSetMenuPressed?.call(exercise.sets[index], index),
+                    onSetChanged: (updatedSet) =>
+                        _handleSetChanged(index, updatedSet),
+                    onMenuPressed: () =>
+                        onSetMenuPressed?.call(exercise.sets[index], index),
                   ),
                 ),
               ],

@@ -314,23 +314,82 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  exercise.name,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 17,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  equipmentType?.displayName.toUpperCase() ?? 'UNKNOWN',
-                  style: const TextStyle(
-                    color: Color(0xFF8E8E93),
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500,
-                    letterSpacing: 0.3,
-                  ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            exercise.name,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 17,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            equipmentType?.displayName.toUpperCase() ??
+                                'UNKNOWN',
+                            style: const TextStyle(
+                              color: Color(0xFF8E8E93),
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                              letterSpacing: 0.3,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    // Info button
+                    IconButton(
+                      icon: Container(
+                        width: 24,
+                        height: 24,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: const Color(0xFF8E8E93),
+                            width: 2,
+                          ),
+                        ),
+                        child: const Center(
+                          child: Text(
+                            'i',
+                            style: TextStyle(
+                              color: Color(0xFF8E8E93),
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              fontStyle: FontStyle.italic,
+                            ),
+                          ),
+                        ),
+                      ),
+                      onPressed: () {},
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(
+                        minWidth: 24,
+                        minHeight: 24,
+                      ),
+                    ),
+                    const SizedBox(width: 0),
+                    // Overflow menu button
+                    IconButton(
+                      icon: const Icon(
+                        Icons.more_vert,
+                        color: Color(0xFF8E8E93),
+                        size: 24,
+                      ),
+                      onPressed: () {},
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(
+                        minWidth: 24,
+                        minHeight: 24,
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 16),
                 Text(
