@@ -3,6 +3,7 @@ import 'package:uuid/uuid.dart';
 
 import '../../../core/constants/enums.dart';
 import '../../../core/constants/muscle_groups.dart';
+import '../../../data/models/exercise_set.dart';
 import '../../../data/models/mesocycle.dart';
 import '../../../data/models/workout.dart';
 import '../../../domain/providers/repository_providers.dart';
@@ -93,6 +94,56 @@ class WorkoutListController {
 
       await repository.create(newWorkout);
     }
+  }
+
+  /// Add a set to an exercise
+  Future<void> addSetToExercise(
+    String workoutId,
+    String exerciseId,
+    ExerciseSet set,
+  ) async {
+    final repository = ref.read(workoutRepositoryProvider);
+    final workout = repository.getById(workoutId);
+    if (workout == null) return;
+
+    final exerciseIndex = workout.exercises.indexWhere(
+      (e) => e.id == exerciseId,
+    );
+    if (exerciseIndex == -1) return;
+
+    final exercise = workout.exercises[exerciseIndex];
+    final updatedExercise = exercise.addSet(set);
+    final updatedWorkout = workout.updateExercise(
+      exerciseIndex,
+      updatedExercise,
+    );
+
+    await repository.update(updatedWorkout);
+  }
+
+  /// Remove a set from an exercise
+  Future<void> removeSetFromExercise(
+    String workoutId,
+    String exerciseId,
+    int setIndex,
+  ) async {
+    final repository = ref.read(workoutRepositoryProvider);
+    final workout = repository.getById(workoutId);
+    if (workout == null) return;
+
+    final exerciseIndex = workout.exercises.indexWhere(
+      (e) => e.id == exerciseId,
+    );
+    if (exerciseIndex == -1) return;
+
+    final exercise = workout.exercises[exerciseIndex];
+    final updatedExercise = exercise.removeSet(setIndex);
+    final updatedWorkout = workout.updateExercise(
+      exerciseIndex,
+      updatedExercise,
+    );
+
+    await repository.update(updatedWorkout);
   }
 }
 

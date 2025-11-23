@@ -2,14 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uuid/uuid.dart';
-import '../../core/constants/muscle_groups.dart';
+
+import '../../core/constants/enums.dart';
 import '../../core/constants/equipment_types.dart';
-import '../../data/models/exercise_definition.dart';
+import '../../core/constants/muscle_groups.dart';
 import '../../data/models/exercise.dart';
-import '../../data/models/workout.dart';
+import '../../data/models/exercise_definition.dart';
+import '../../data/models/exercise_set.dart';
 import '../../domain/providers/exercise_providers.dart';
-import '../../domain/providers/workout_providers.dart';
 import '../../domain/providers/repository_providers.dart';
+import '../../domain/providers/workout_providers.dart';
 
 /// Screen for adding exercises from the library to a workout
 class AddExerciseScreen extends ConsumerStatefulWidget {
@@ -91,7 +93,9 @@ class _AddExerciseScreenState extends ConsumerState<AddExerciseScreen> {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 filled: true,
-                fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                fillColor: Theme.of(
+                  context,
+                ).colorScheme.surfaceContainerHighest,
               ),
               onChanged: (value) {
                 setState(() => _searchQuery = value);
@@ -121,11 +125,12 @@ class _AddExerciseScreenState extends ConsumerState<AddExerciseScreen> {
                         onDeleted: () {
                           setState(() => _selectedMuscleGroup = null);
                         },
-                        backgroundColor: Theme.of(context)
-                            .colorScheme
-                            .surfaceContainerHighest,
-                        selectedColor:
-                            Theme.of(context).colorScheme.primaryContainer,
+                        backgroundColor: Theme.of(
+                          context,
+                        ).colorScheme.surfaceContainerHighest,
+                        selectedColor: Theme.of(
+                          context,
+                        ).colorScheme.primaryContainer,
                       ),
                     ),
 
@@ -143,11 +148,12 @@ class _AddExerciseScreenState extends ConsumerState<AddExerciseScreen> {
                         onDeleted: () {
                           setState(() => _selectedEquipment.remove(equipment));
                         },
-                        backgroundColor: Theme.of(context)
-                            .colorScheme
-                            .surfaceContainerHighest,
-                        selectedColor:
-                            Theme.of(context).colorScheme.secondaryContainer,
+                        backgroundColor: Theme.of(
+                          context,
+                        ).colorScheme.surfaceContainerHighest,
+                        selectedColor: Theme.of(
+                          context,
+                        ).colorScheme.secondaryContainer,
                       ),
                     );
                   }),
@@ -200,14 +206,17 @@ class _AddExerciseScreenState extends ConsumerState<AddExerciseScreen> {
     );
   }
 
-  List<ExerciseDefinition> _filterExercises(List<ExerciseDefinition> exercises) {
+  List<ExerciseDefinition> _filterExercises(
+    List<ExerciseDefinition> exercises,
+  ) {
     var filtered = exercises;
 
     // Filter by search query
     if (_searchQuery.isNotEmpty) {
       filtered = filtered
-          .where((e) =>
-              e.name.toLowerCase().contains(_searchQuery.toLowerCase()))
+          .where(
+            (e) => e.name.toLowerCase().contains(_searchQuery.toLowerCase()),
+          )
           .toList();
     }
 
@@ -251,8 +260,8 @@ class _AddExerciseScreenState extends ConsumerState<AddExerciseScreen> {
                 child: Text(
                   exercise.muscleGroup.displayName,
                   style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: Theme.of(context).colorScheme.onPrimaryContainer,
-                      ),
+                    color: Theme.of(context).colorScheme.onPrimaryContainer,
+                  ),
                 ),
               ),
               const SizedBox(width: 8),
@@ -266,9 +275,8 @@ class _AddExerciseScreenState extends ConsumerState<AddExerciseScreen> {
                 child: Text(
                   exercise.equipmentType.displayName,
                   style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color:
-                            Theme.of(context).colorScheme.onSecondaryContainer,
-                      ),
+                    color: Theme.of(context).colorScheme.onSecondaryContainer,
+                  ),
                 ),
               ),
             ],
@@ -291,7 +299,9 @@ class _AddExerciseScreenState extends ConsumerState<AddExerciseScreen> {
           Icon(
             Icons.search_off,
             size: 64,
-            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurface.withValues(alpha: 0.4),
           ),
           const SizedBox(height: 16),
           Text(
@@ -302,11 +312,10 @@ class _AddExerciseScreenState extends ConsumerState<AddExerciseScreen> {
           Text(
             'Try adjusting your search or filters',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Theme.of(context)
-                      .colorScheme
-                      .onSurface
-                      .withValues(alpha: 0.6),
-                ),
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.6),
+            ),
           ),
         ],
       ),
@@ -345,6 +354,20 @@ class _AddExerciseScreenState extends ConsumerState<AddExerciseScreen> {
       equipmentType: exerciseDef.equipmentType,
       orderIndex: 0, // Always first and only exercise
       videoUrl: exerciseDef.videoUrl,
+      sets: [
+        ExerciseSet(
+          id: const Uuid().v4(),
+          setNumber: 1,
+          reps: '2 RIR',
+          setType: SetType.regular,
+        ),
+        ExerciseSet(
+          id: const Uuid().v4(),
+          setNumber: 2,
+          reps: '2 RIR',
+          setType: SetType.regular,
+        ),
+      ],
     );
 
     // Replace all exercises with just this one (one exercise per muscle group)
@@ -415,10 +438,7 @@ class _FilterModalState extends State<_FilterModal> {
                   },
                   child: const Text('CLEAR ALL'),
                 ),
-                Text(
-                  'Filter',
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
+                Text('Filter', style: Theme.of(context).textTheme.titleLarge),
                 IconButton(
                   icon: const Icon(Icons.close),
                   onPressed: () => Navigator.pop(context),
@@ -435,8 +455,8 @@ class _FilterModalState extends State<_FilterModal> {
                 Text(
                   'Muscle Group',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const SizedBox(height: 12),
                 Wrap(
@@ -452,7 +472,9 @@ class _FilterModalState extends State<_FilterModal> {
                           _tempMuscleGroup = selected ? muscleGroup : null;
                         });
                       },
-                      selectedColor: Theme.of(context).colorScheme.primaryContainer,
+                      selectedColor: Theme.of(
+                        context,
+                      ).colorScheme.primaryContainer,
                       labelStyle: TextStyle(
                         color: isSelected
                             ? Theme.of(context).colorScheme.onPrimaryContainer
@@ -468,8 +490,8 @@ class _FilterModalState extends State<_FilterModal> {
                 Text(
                   'Equipment',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const SizedBox(height: 12),
                 Wrap(
@@ -489,8 +511,9 @@ class _FilterModalState extends State<_FilterModal> {
                           }
                         });
                       },
-                      selectedColor:
-                          Theme.of(context).colorScheme.secondaryContainer,
+                      selectedColor: Theme.of(
+                        context,
+                      ).colorScheme.secondaryContainer,
                       labelStyle: TextStyle(
                         color: isSelected
                             ? Theme.of(context).colorScheme.onSecondaryContainer

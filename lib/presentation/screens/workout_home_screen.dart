@@ -5,6 +5,7 @@ import '../../core/constants/equipment_types.dart';
 import '../../core/constants/muscle_groups.dart';
 import '../../data/models/workout.dart';
 import '../../domain/providers/mesocycle_providers.dart';
+import '../../domain/providers/repository_providers.dart';
 import '../../domain/providers/workout_providers.dart';
 
 /// Workout home screen - shows current/upcoming workouts
@@ -32,6 +33,89 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
       _selectedWeek = week;
       _selectedDay = day;
     });
+  }
+
+  Future<void> _updateSetWeight(
+    String workoutId,
+    String exerciseId,
+    int setIndex,
+    String value,
+  ) async {
+    final weight = double.tryParse(value);
+    if (weight == null && value.isNotEmpty) return;
+
+    final repository = ref.read(workoutRepositoryProvider);
+    final workout = repository.getById(workoutId);
+    if (workout == null) return;
+
+    final exerciseIndex = workout.exercises.indexWhere(
+      (e) => e.id == exerciseId,
+    );
+    if (exerciseIndex == -1) return;
+
+    final exercise = workout.exercises[exerciseIndex];
+    final set = exercise.sets[setIndex];
+    final updatedSet = set.copyWith(weight: weight);
+    final updatedExercise = exercise.updateSet(setIndex, updatedSet);
+    final updatedWorkout = workout.updateExercise(
+      exerciseIndex,
+      updatedExercise,
+    );
+
+    await repository.update(updatedWorkout);
+  }
+
+  Future<void> _updateSetReps(
+    String workoutId,
+    String exerciseId,
+    int setIndex,
+    String value,
+  ) async {
+    final repository = ref.read(workoutRepositoryProvider);
+    final workout = repository.getById(workoutId);
+    if (workout == null) return;
+
+    final exerciseIndex = workout.exercises.indexWhere(
+      (e) => e.id == exerciseId,
+    );
+    if (exerciseIndex == -1) return;
+
+    final exercise = workout.exercises[exerciseIndex];
+    final set = exercise.sets[setIndex];
+    final updatedSet = set.copyWith(reps: value);
+    final updatedExercise = exercise.updateSet(setIndex, updatedSet);
+    final updatedWorkout = workout.updateExercise(
+      exerciseIndex,
+      updatedExercise,
+    );
+
+    await repository.update(updatedWorkout);
+  }
+
+  Future<void> _toggleSetLog(
+    String workoutId,
+    String exerciseId,
+    int setIndex,
+  ) async {
+    final repository = ref.read(workoutRepositoryProvider);
+    final workout = repository.getById(workoutId);
+    if (workout == null) return;
+
+    final exerciseIndex = workout.exercises.indexWhere(
+      (e) => e.id == exerciseId,
+    );
+    if (exerciseIndex == -1) return;
+
+    final exercise = workout.exercises[exerciseIndex];
+    final set = exercise.sets[setIndex];
+    final updatedSet = set.copyWith(isLogged: !set.isLogged);
+    final updatedExercise = exercise.updateSet(setIndex, updatedSet);
+    final updatedWorkout = workout.updateExercise(
+      exerciseIndex,
+      updatedExercise,
+    );
+
+    await repository.update(updatedWorkout);
   }
 
   @override
@@ -392,13 +476,200 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                   ],
                 ),
                 const SizedBox(height: 16),
-                Text(
-                  '${exercise.sets?.length ?? 0} sets',
-                  style: const TextStyle(
-                    color: Color(0xFF8E8E93),
-                    fontSize: 14,
+
+                // Column headers
+                if (exercise.sets.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: Row(
+                      children: [
+                        const SizedBox(
+                          width: 24,
+                        ), // Spacer for overflow menu alignment
+                        Expanded(
+                          child: Text(
+                            'WEIGHT',
+                            style: TextStyle(
+                              color: Colors.white.withValues(alpha: 0.6),
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                'REPS',
+                                style: TextStyle(
+                                  color: Colors.white.withValues(alpha: 0.6),
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              const SizedBox(width: 4),
+                              Icon(
+                                Icons.info_outline,
+                                size: 14,
+                                color: Colors.white.withValues(alpha: 0.6),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        SizedBox(
+                          width: 40,
+                          child: Text(
+                            'LOG',
+                            style: TextStyle(
+                              color: Colors.white.withValues(alpha: 0.6),
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
+
+                // Sets list
+                ...List.generate(exercise.sets.length, (index) {
+                  final set = exercise.sets[index];
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: Row(
+                      children: [
+                        // Set menu (3 dots)
+                        SizedBox(
+                          width: 24,
+                          child: IconButton(
+                            icon: Icon(
+                              Icons.more_vert,
+                              color: Colors.white.withValues(alpha: 0.6),
+                              size: 20,
+                            ),
+                            padding: EdgeInsets.zero,
+                            constraints: const BoxConstraints(),
+                            onPressed: () {},
+                          ),
+                        ),
+
+                        // Weight Input
+                        Expanded(
+                          child: Container(
+                            height: 40,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF1C1C1E),
+                              borderRadius: BorderRadius.circular(4),
+                              border: Border.all(
+                                color: Colors.white.withValues(alpha: 0.1),
+                              ),
+                            ),
+                            child: Center(
+                              child: TextFormField(
+                                initialValue: set.weight?.toString() ?? '',
+                                style: const TextStyle(color: Colors.white),
+                                textAlign: TextAlign.center,
+                                decoration: const InputDecoration(
+                                  hintText: 'lbs',
+                                  hintStyle: TextStyle(color: Colors.white24),
+                                  border: InputBorder.none,
+                                  contentPadding: EdgeInsets.only(
+                                    bottom: 12,
+                                  ), // Center vertically
+                                ),
+                                keyboardType:
+                                    const TextInputType.numberWithOptions(
+                                      decimal: true,
+                                    ),
+                                onChanged: (value) {
+                                  _updateSetWeight(
+                                    exercise.workoutId,
+                                    exercise.id,
+                                    index,
+                                    value,
+                                  );
+                                },
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+
+                        // Reps Input
+                        Expanded(
+                          child: Container(
+                            height: 40,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF1C1C1E),
+                              borderRadius: BorderRadius.circular(4),
+                              border: Border.all(
+                                color: Colors.white.withValues(alpha: 0.1),
+                              ),
+                            ),
+                            child: Center(
+                              child: TextFormField(
+                                initialValue: set.reps,
+                                style: const TextStyle(color: Colors.white),
+                                textAlign: TextAlign.center,
+                                decoration: const InputDecoration(
+                                  hintText: 'RIR',
+                                  hintStyle: TextStyle(color: Colors.white24),
+                                  border: InputBorder.none,
+                                  contentPadding: EdgeInsets.only(bottom: 12),
+                                ),
+                                onChanged: (value) {
+                                  _updateSetReps(
+                                    exercise.workoutId,
+                                    exercise.id,
+                                    index,
+                                    value,
+                                  );
+                                },
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+
+                        // Log Checkbox
+                        SizedBox(
+                          width: 40,
+                          height: 40,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: set.isLogged
+                                  ? Colors.green.withValues(alpha: 0.2)
+                                  : const Color(0xFF1C1C1E),
+                              borderRadius: BorderRadius.circular(4),
+                              border: Border.all(
+                                color: set.isLogged
+                                    ? Colors.green
+                                    : Colors.white.withValues(alpha: 0.1),
+                              ),
+                            ),
+                            child: InkWell(
+                              onTap: () {
+                                _toggleSetLog(
+                                  exercise.workoutId,
+                                  exercise.id,
+                                  index,
+                                );
+                              },
+                              child: set.isLogged
+                                  ? const Icon(Icons.check, color: Colors.green)
+                                  : null,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }),
               ],
             ),
           ),
@@ -561,10 +832,9 @@ class _WeekSelectorDropdownState extends State<_WeekSelectorDropdown> {
             ),
           ),
 
-          // Week grid with horizontal scrolling
+          // Week grid with responsive layout
           Expanded(
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
+            child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -572,10 +842,12 @@ class _WeekSelectorDropdownState extends State<_WeekSelectorDropdown> {
                   weekIndex,
                 ) {
                   final weekNumber = weekIndex + 1;
-                  return _buildWeekColumn(
-                    weekNumber,
-                    availableDays,
-                    widget.mesocycle.deloadWeek == weekNumber,
+                  return Expanded(
+                    child: _buildWeekColumn(
+                      weekNumber,
+                      availableDays,
+                      widget.mesocycle.deloadWeek == weekNumber,
+                    ),
                   );
                 }),
               ),
@@ -592,13 +864,14 @@ class _WeekSelectorDropdownState extends State<_WeekSelectorDropdown> {
     bool isDeload,
   ) {
     return Container(
-      margin: const EdgeInsets.only(right: 8),
+      margin: const EdgeInsets.symmetric(horizontal: 2),
       child: Column(
         mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           // Week header
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 6),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -637,7 +910,6 @@ class _WeekSelectorDropdownState extends State<_WeekSelectorDropdown> {
                 widget.onDaySelected(weekNumber, dayNumber);
               },
               child: Container(
-                width: 80,
                 height: 48,
                 margin: const EdgeInsets.only(bottom: 6),
                 decoration: BoxDecoration(

@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../core/constants/enums.dart';
 import '../../core/constants/muscle_groups.dart';
 import '../../core/theme/app_theme.dart';
 import '../../data/models/exercise.dart';
+import '../../data/models/exercise_set.dart';
 import '../../data/models/mesocycle.dart';
 import '../../data/models/workout.dart';
 import '../../domain/providers/mesocycle_providers.dart';
@@ -502,34 +504,97 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
                   ...exercises.map((exercise) {
                     return Padding(
                       padding: const EdgeInsets.only(bottom: 6),
-                      child: TextButton(
-                        onPressed: () {
-                          // Navigate back to add_exercise screen with muscle group pre-filtered
-                          GoRouter.of(context).push(
-                            '/mesocycles/${widget.mesocycleId}/workouts/$workoutId/choose-exercise?muscleGroup=${muscleGroup.name}',
-                          );
-                        },
-                        style: TextButton.styleFrom(
-                          alignment: Alignment.centerLeft,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 4,
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: TextButton(
+                              onPressed: () {
+                                // Navigate back to add_exercise screen with muscle group pre-filtered
+                                GoRouter.of(context).push(
+                                  '/mesocycles/${widget.mesocycleId}/workouts/$workoutId/choose-exercise?muscleGroup=${muscleGroup.name}',
+                                );
+                              },
+                              style: TextButton.styleFrom(
+                                alignment: Alignment.centerLeft,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 4,
+                                ),
+                                backgroundColor: Theme.of(
+                                  context,
+                                ).colorScheme.surface,
+                                foregroundColor: Theme.of(
+                                  context,
+                                ).colorScheme.onSurface,
+                                minimumSize: const Size(0, 40),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                              child: Text(
+                                exercise.name,
+                                style: Theme.of(context).textTheme.bodyLarge,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
                           ),
-                          backgroundColor: Theme.of(
-                            context,
-                          ).colorScheme.surface,
-                          foregroundColor: Theme.of(
-                            context,
-                          ).colorScheme.onSurface,
-                          minimumSize: const Size(double.infinity, 40),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
+                          const SizedBox(width: 8),
+                          // Set counter with +/- buttons
+                          Container(
+                            height: 40,
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.surface,
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.outline.withValues(alpha: 0.2),
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                IconButton(
+                                  icon: const Icon(Icons.remove, size: 16),
+                                  onPressed: exercise.sets.length > 1
+                                      ? () => _removeSet(
+                                          controller,
+                                          workoutId,
+                                          exercise,
+                                        )
+                                      : null,
+                                  padding: EdgeInsets.zero,
+                                  constraints: const BoxConstraints(
+                                    minWidth: 32,
+                                    minHeight: 32,
+                                  ),
+                                  tooltip: 'Remove set',
+                                ),
+                                Container(
+                                  width: 24,
+                                  alignment: Alignment.center,
+                                  child: Text(
+                                    '${exercise.sets.length}',
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.add, size: 16),
+                                  onPressed: () =>
+                                      _addSet(controller, workoutId, exercise),
+                                  padding: EdgeInsets.zero,
+                                  constraints: const BoxConstraints(
+                                    minWidth: 32,
+                                    minHeight: 32,
+                                  ),
+                                  tooltip: 'Add set',
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                        child: Text(
-                          exercise.name,
-                          style: Theme.of(context).textTheme.bodyLarge,
-                        ),
+                        ],
                       ),
                     );
                   }),
@@ -538,6 +603,37 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  Future<void> _addSet(
+    WorkoutListController controller,
+    String workoutId,
+    Exercise exercise,
+  ) async {
+    final newSetNumber = exercise.sets.length + 1;
+    final newSet = ExerciseSet(
+      id: const Uuid().v4(),
+      setNumber: newSetNumber,
+      reps: '2 RIR', // Default RIR
+      setType: SetType.regular,
+    );
+
+    await controller.addSetToExercise(workoutId, exercise.id, newSet);
+  }
+
+  Future<void> _removeSet(
+    WorkoutListController controller,
+    String workoutId,
+    Exercise exercise,
+  ) async {
+    if (exercise.sets.isEmpty) return;
+
+    // Remove the last set
+    await controller.removeSetFromExercise(
+      workoutId,
+      exercise.id,
+      exercise.sets.length - 1,
     );
   }
 
