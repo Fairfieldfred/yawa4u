@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:uuid/uuid.dart';
 
+import '../../core/constants/enums.dart';
 import '../../core/constants/equipment_types.dart';
 import '../../core/constants/muscle_groups.dart';
+import '../../data/models/exercise_set.dart';
 import '../../data/models/workout.dart';
 import '../../domain/providers/mesocycle_providers.dart';
 import '../../domain/providers/repository_providers.dart';
@@ -110,6 +113,145 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     final set = exercise.sets[setIndex];
     final updatedSet = set.copyWith(isLogged: !set.isLogged);
     final updatedExercise = exercise.updateSet(setIndex, updatedSet);
+    final updatedWorkout = workout.updateExercise(
+      exerciseIndex,
+      updatedExercise,
+    );
+
+    await repository.update(updatedWorkout);
+  }
+
+  Future<void> _addSetBelow(
+    String workoutId,
+    String exerciseId,
+    int currentSetIndex,
+  ) async {
+    final repository = ref.read(workoutRepositoryProvider);
+    final workout = repository.getById(workoutId);
+    if (workout == null) return;
+
+    final exerciseIndex = workout.exercises.indexWhere(
+      (e) => e.id == exerciseId,
+    );
+    if (exerciseIndex == -1) return;
+
+    final exercise = workout.exercises[exerciseIndex];
+
+    // Create new set
+    final newSet = ExerciseSet(
+      id: const Uuid().v4(),
+      setNumber: exercise.sets.length + 1,
+      reps: '',
+      setType: SetType.regular,
+    );
+
+    // Insert set after current index
+    final updatedSets = List<ExerciseSet>.from(exercise.sets);
+    updatedSets.insert(currentSetIndex + 1, newSet);
+
+    // Re-number sets
+    for (var i = 0; i < updatedSets.length; i++) {
+      updatedSets[i] = updatedSets[i].copyWith(setNumber: i + 1);
+    }
+
+    final updatedExercise = exercise.copyWith(sets: updatedSets);
+    final updatedWorkout = workout.updateExercise(
+      exerciseIndex,
+      updatedExercise,
+    );
+
+    await repository.update(updatedWorkout);
+  }
+
+  Future<void> _toggleSetSkip(
+    String workoutId,
+    String exerciseId,
+    int setIndex,
+  ) async {
+    final repository = ref.read(workoutRepositoryProvider);
+    final workout = repository.getById(workoutId);
+    if (workout == null) return;
+
+    final exerciseIndex = workout.exercises.indexWhere(
+      (e) => e.id == exerciseId,
+    );
+    if (exerciseIndex == -1) return;
+
+    final exercise = workout.exercises[exerciseIndex];
+    if (setIndex >= exercise.sets.length) return;
+
+    final currentSet = exercise.sets[setIndex];
+    final updatedSet = currentSet.copyWith(isSkipped: !currentSet.isSkipped);
+    final updatedSets = List<ExerciseSet>.from(exercise.sets);
+    updatedSets[setIndex] = updatedSet;
+
+    final updatedExercise = exercise.copyWith(sets: updatedSets);
+    final updatedWorkout = workout.updateExercise(
+      exerciseIndex,
+      updatedExercise,
+    );
+
+    await repository.update(updatedWorkout);
+  }
+
+  Future<void> _deleteSet(
+    String workoutId,
+    String exerciseId,
+    int setIndex,
+  ) async {
+    final repository = ref.read(workoutRepositoryProvider);
+    final workout = repository.getById(workoutId);
+    if (workout == null) return;
+
+    final exerciseIndex = workout.exercises.indexWhere(
+      (e) => e.id == exerciseId,
+    );
+    if (exerciseIndex == -1) return;
+
+    final exercise = workout.exercises[exerciseIndex];
+    if (setIndex >= exercise.sets.length) return;
+
+    // Remove set
+    final updatedSets = List<ExerciseSet>.from(exercise.sets);
+    updatedSets.removeAt(setIndex);
+
+    // Re-number sets
+    for (var i = 0; i < updatedSets.length; i++) {
+      updatedSets[i] = updatedSets[i].copyWith(setNumber: i + 1);
+    }
+
+    final updatedExercise = exercise.copyWith(sets: updatedSets);
+    final updatedWorkout = workout.updateExercise(
+      exerciseIndex,
+      updatedExercise,
+    );
+
+    await repository.update(updatedWorkout);
+  }
+
+  Future<void> _updateSetType(
+    String workoutId,
+    String exerciseId,
+    int setIndex,
+    SetType type,
+  ) async {
+    final repository = ref.read(workoutRepositoryProvider);
+    final workout = repository.getById(workoutId);
+    if (workout == null) return;
+
+    final exerciseIndex = workout.exercises.indexWhere(
+      (e) => e.id == exerciseId,
+    );
+    if (exerciseIndex == -1) return;
+
+    final exercise = workout.exercises[exerciseIndex];
+    if (setIndex >= exercise.sets.length) return;
+
+    final updatedSet = exercise.sets[setIndex].copyWith(setType: type);
+    final updatedSets = List<ExerciseSet>.from(exercise.sets);
+    updatedSets[setIndex] = updatedSet;
+
+    final updatedExercise = exercise.copyWith(sets: updatedSets);
     final updatedWorkout = workout.updateExercise(
       exerciseIndex,
       updatedExercise,
@@ -546,15 +688,257 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                         // Set menu (3 dots)
                         SizedBox(
                           width: 24,
-                          child: IconButton(
+                          child: PopupMenuButton<String>(
                             icon: Icon(
                               Icons.more_vert,
                               color: Colors.white.withValues(alpha: 0.6),
                               size: 20,
                             ),
                             padding: EdgeInsets.zero,
-                            constraints: const BoxConstraints(),
-                            onPressed: () {},
+                            constraints: const BoxConstraints(minWidth: 250),
+                            color: const Color(0xFF2C2C2E),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              side: BorderSide(
+                                color: Colors.white.withValues(alpha: 0.1),
+                              ),
+                            ),
+                            onSelected: (value) {
+                              switch (value) {
+                                case 'add_below':
+                                  _addSetBelow(
+                                    exercise.workoutId,
+                                    exercise.id,
+                                    index,
+                                  );
+                                  break;
+                                case 'skip':
+                                  _toggleSetSkip(
+                                    exercise.workoutId,
+                                    exercise.id,
+                                    index,
+                                  );
+                                  break;
+                                case 'delete':
+                                  _deleteSet(
+                                    exercise.workoutId,
+                                    exercise.id,
+                                    index,
+                                  );
+                                  break;
+                                case 'regular':
+                                  _updateSetType(
+                                    exercise.workoutId,
+                                    exercise.id,
+                                    index,
+                                    SetType.regular,
+                                  );
+                                  break;
+                                case 'myorep':
+                                  _updateSetType(
+                                    exercise.workoutId,
+                                    exercise.id,
+                                    index,
+                                    SetType.myorep,
+                                  );
+                                  break;
+                                case 'myorep_match':
+                                  _updateSetType(
+                                    exercise.workoutId,
+                                    exercise.id,
+                                    index,
+                                    SetType.myorepMatch,
+                                  );
+                                  break;
+                              }
+                            },
+                            itemBuilder: (context) => [
+                              // SET Header
+                              const PopupMenuItem<String>(
+                                enabled: false,
+                                height: 32,
+                                child: Text(
+                                  'SET',
+                                  style: TextStyle(
+                                    color: Colors.grey,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                              // Add set below
+                              const PopupMenuItem<String>(
+                                value: 'add_below',
+                                height: 40,
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.subdirectory_arrow_right,
+                                      color: Colors.white,
+                                      size: 20,
+                                    ),
+                                    SizedBox(width: 12),
+                                    Text(
+                                      'Add set below',
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              // Skip set
+                              PopupMenuItem<String>(
+                                value: 'skip',
+                                height: 40,
+                                child: Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.fast_forward,
+                                      color: Colors.white,
+                                      size: 20,
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Text(
+                                      set.isSkipped ? 'Unskip set' : 'Skip set',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              // Delete set
+                              const PopupMenuItem<String>(
+                                value: 'delete',
+                                height: 40,
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.delete_outline,
+                                      color: Colors.red,
+                                      size: 20,
+                                    ),
+                                    SizedBox(width: 12),
+                                    Text(
+                                      'Delete set',
+                                      style: TextStyle(color: Colors.red),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const PopupMenuDivider(),
+                              // SET TYPE Header
+                              const PopupMenuItem<String>(
+                                enabled: false,
+                                height: 32,
+                                child: Text(
+                                  'SET TYPE',
+                                  style: TextStyle(
+                                    color: Colors.grey,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                              // Regular
+                              PopupMenuItem<String>(
+                                value: 'regular',
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      set.setType == SetType.regular
+                                          ? Icons.radio_button_checked
+                                          : Icons.radio_button_unchecked,
+                                      color: set.setType == SetType.regular
+                                          ? Colors.red
+                                          : Colors.grey,
+                                      size: 20,
+                                    ),
+                                    const SizedBox(width: 12),
+                                    const Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            'Regular',
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                          Text(
+                                            '(straight, down, ascending)',
+                                            style: TextStyle(
+                                              color: Colors.grey,
+                                              fontSize: 12,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              // Myorep
+                              PopupMenuItem<String>(
+                                value: 'myorep',
+                                height: 40,
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      set.setType == SetType.myorep
+                                          ? Icons.radio_button_checked
+                                          : Icons.radio_button_unchecked,
+                                      color: set.setType == SetType.myorep
+                                          ? Colors.red
+                                          : Colors.grey,
+                                      size: 20,
+                                    ),
+                                    const SizedBox(width: 12),
+                                    const Text(
+                                      'Myorep',
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                    const Spacer(),
+                                    const Icon(
+                                      Icons.info_outline,
+                                      color: Colors.blue,
+                                      size: 20,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              // Myorep match
+                              PopupMenuItem<String>(
+                                value: 'myorep_match',
+                                height: 40,
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      set.setType == SetType.myorepMatch
+                                          ? Icons.radio_button_checked
+                                          : Icons.radio_button_unchecked,
+                                      color: set.setType == SetType.myorepMatch
+                                          ? Colors.red
+                                          : Colors.grey,
+                                      size: 20,
+                                    ),
+                                    const SizedBox(width: 12),
+                                    const Text(
+                                      'Myorep match',
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                    const Spacer(),
+                                    const Icon(
+                                      Icons.info_outline,
+                                      color: Colors.blue,
+                                      size: 20,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
                           ),
                         ),
 

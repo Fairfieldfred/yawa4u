@@ -24,13 +24,14 @@ class ExerciseSetAdapter extends TypeAdapter<ExerciseSet> {
       setType: fields[4] as SetType,
       isLogged: fields[5] as bool,
       notes: fields[6] as String?,
+      isSkipped: fields[7] as bool? ?? false,
     );
   }
 
   @override
   void write(BinaryWriter writer, ExerciseSet obj) {
     writer
-      ..writeByte(7)
+      ..writeByte(8)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -44,7 +45,9 @@ class ExerciseSetAdapter extends TypeAdapter<ExerciseSet> {
       ..writeByte(5)
       ..write(obj.isLogged)
       ..writeByte(6)
-      ..write(obj.notes);
+      ..write(obj.notes)
+      ..writeByte(7)
+      ..write(obj.isSkipped);
   }
 
   @override
@@ -63,15 +66,16 @@ class ExerciseSetAdapter extends TypeAdapter<ExerciseSet> {
 // **************************************************************************
 
 ExerciseSet _$ExerciseSetFromJson(Map<String, dynamic> json) => ExerciseSet(
-      id: json['id'] as String,
-      setNumber: (json['setNumber'] as num).toInt(),
-      weight: (json['weight'] as num?)?.toDouble(),
-      reps: json['reps'] as String,
-      setType: $enumDecodeNullable(_$SetTypeEnumMap, json['setType']) ??
-          SetType.regular,
-      isLogged: json['isLogged'] as bool? ?? false,
-      notes: json['notes'] as String?,
-    );
+  id: json['id'] as String,
+  setNumber: (json['setNumber'] as num).toInt(),
+  weight: (json['weight'] as num?)?.toDouble(),
+  reps: json['reps'] as String,
+  setType:
+      $enumDecodeNullable(_$SetTypeEnumMap, json['setType']) ?? SetType.regular,
+  isLogged: json['isLogged'] as bool? ?? false,
+  notes: json['notes'] as String?,
+  isSkipped: json['isSkipped'] as bool? ?? false,
+);
 
 Map<String, dynamic> _$ExerciseSetToJson(ExerciseSet instance) =>
     <String, dynamic>{
@@ -82,6 +86,7 @@ Map<String, dynamic> _$ExerciseSetToJson(ExerciseSet instance) =>
       'setType': _$SetTypeEnumMap[instance.setType]!,
       'isLogged': instance.isLogged,
       'notes': instance.notes,
+      'isSkipped': instance.isSkipped,
     };
 
 const _$SetTypeEnumMap = {

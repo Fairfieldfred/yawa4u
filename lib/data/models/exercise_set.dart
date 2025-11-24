@@ -34,6 +34,9 @@ class ExerciseSet {
   @HiveField(6)
   final String? notes;
 
+  @HiveField(7)
+  final bool isSkipped;
+
   ExerciseSet({
     required this.id,
     required this.setNumber,
@@ -42,6 +45,7 @@ class ExerciseSet {
     this.setType = SetType.regular,
     this.isLogged = false,
     this.notes,
+    this.isSkipped = false,
   });
 
   /// Create a copy with updated fields
@@ -53,6 +57,7 @@ class ExerciseSet {
     SetType? setType,
     bool? isLogged,
     String? notes,
+    bool? isSkipped,
   }) {
     return ExerciseSet(
       id: id ?? this.id,
@@ -62,6 +67,7 @@ class ExerciseSet {
       setType: setType ?? this.setType,
       isLogged: isLogged ?? this.isLogged,
       notes: notes ?? this.notes,
+      isSkipped: isSkipped ?? this.isSkipped,
     );
   }
 
@@ -74,7 +80,7 @@ class ExerciseSet {
 
   @override
   String toString() {
-    return 'ExerciseSet(setNumber: $setNumber, weight: $weight, reps: $reps, type: ${setType.name})';
+    return 'ExerciseSet(setNumber: $setNumber, weight: $weight, reps: $reps, type: ${setType.name}, skipped: $isSkipped)';
   }
 
   @override
@@ -88,11 +94,21 @@ class ExerciseSet {
         other.reps == reps &&
         other.setType == setType &&
         other.isLogged == isLogged &&
-        other.notes == notes;
+        other.notes == notes &&
+        other.isSkipped == isSkipped;
   }
 
   @override
   int get hashCode {
-    return Object.hash(id, setNumber, weight, reps, setType, isLogged, notes);
+    return Object.hash(
+      id,
+      setNumber,
+      weight,
+      reps,
+      setType,
+      isLogged,
+      notes,
+      isSkipped,
+    );
   }
 }
