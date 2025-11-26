@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../core/constants/enums.dart';
 import '../../domain/providers/mesocycle_providers.dart';
 import '../../domain/providers/repository_providers.dart';
+import 'template_selection_screen.dart';
 
 /// Plan a mesocycle screen - Shows different options for creating a mesocycle
 class PlanAMesocycleScreen extends ConsumerStatefulWidget {
@@ -68,7 +69,11 @@ class _PlanAMesocycleScreenState extends ConsumerState<PlanAMesocycleScreen> {
               subtitle:
                   'Pick a template that fits your goals and get started ASAP.',
               onTap: () {
-                // Navigate to template selection screen
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => const TemplateSelectionScreen(),
+                  ),
+                );
               },
             ),
             const SizedBox(height: 16),

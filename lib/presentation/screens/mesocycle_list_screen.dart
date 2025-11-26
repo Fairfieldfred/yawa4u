@@ -149,7 +149,7 @@ class _MesocycleListScreenState extends ConsumerState<MesocycleListScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Header row with name and badge
+              // Header row with name and more menu
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -160,31 +160,103 @@ class _MesocycleListScreenState extends ConsumerState<MesocycleListScreen> {
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  if (isDraft)
-                    IconButton(
-                      icon: const Icon(Icons.delete_outline, size: 20),
-                      onPressed: () => _deleteMesocycle(mesocycle),
-                      visualDensity: VisualDensity.compact,
-                      tooltip: 'Delete draft',
-                    ),
-                  if (isCurrent)
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.primary,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        'CURRENT',
-                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                          color: Theme.of(context).colorScheme.onPrimary,
-                          fontWeight: FontWeight.bold,
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (isCurrent)
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.primary,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            'CURRENT',
+                            style: Theme.of(context).textTheme.labelSmall
+                                ?.copyWith(
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onPrimary,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                          ),
                         ),
+                      const SizedBox(width: 8),
+                      PopupMenuButton<String>(
+                        icon: const Icon(Icons.more_vert),
+                        onSelected: (value) =>
+                            _handleMenuAction(value, mesocycle),
+                        itemBuilder: (context) => [
+                          const PopupMenuItem(
+                            value: 'note',
+                            child: Row(
+                              children: [
+                                Icon(Icons.note_add_outlined),
+                                SizedBox(width: 12),
+                                Text('Write a new note'),
+                              ],
+                            ),
+                          ),
+                          const PopupMenuItem(
+                            value: 'rename',
+                            child: Row(
+                              children: [
+                                Icon(Icons.edit_outlined),
+                                SizedBox(width: 12),
+                                Text('Rename the mesocycle'),
+                              ],
+                            ),
+                          ),
+                          const PopupMenuItem(
+                            value: 'copy',
+                            child: Row(
+                              children: [
+                                Icon(Icons.copy_outlined),
+                                SizedBox(width: 12),
+                                Text('Copy the Mesocycle'),
+                              ],
+                            ),
+                          ),
+                          const PopupMenuItem(
+                            value: 'summary',
+                            child: Row(
+                              children: [
+                                Icon(Icons.summarize_outlined),
+                                SizedBox(width: 12),
+                                Text('Summary'),
+                              ],
+                            ),
+                          ),
+                          const PopupMenuItem(
+                            value: 'template',
+                            child: Row(
+                              children: [
+                                Icon(Icons.save_outlined),
+                                SizedBox(width: 12),
+                                Text('Save as a Template'),
+                              ],
+                            ),
+                          ),
+                          const PopupMenuItem(
+                            value: 'delete',
+                            child: Row(
+                              children: [
+                                Icon(Icons.delete_outline, color: Colors.red),
+                                SizedBox(width: 12),
+                                Text(
+                                  'Delete meso',
+                                  style: TextStyle(color: Colors.red),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
+                    ],
+                  ),
                 ],
               ),
               const SizedBox(height: 12),
@@ -223,52 +295,6 @@ class _MesocycleListScreenState extends ConsumerState<MesocycleListScreen> {
                       color: Theme.of(
                         context,
                       ).colorScheme.onSurface.withValues(alpha: 0.8),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-
-              // Progress bar
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Progress',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.onSurface.withValues(alpha: 0.6),
-                        ),
-                      ),
-                      Text(
-                        '${(mesocycle.getProgress() * 100).toInt()}%',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.onSurface.withValues(alpha: 0.6),
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(4),
-                    child: LinearProgressIndicator(
-                      value: mesocycle.getProgress(),
-                      minHeight: 8,
-                      backgroundColor: Theme.of(
-                        context,
-                      ).colorScheme.surfaceContainerHighest,
-                      valueColor: AlwaysStoppedAnimation<Color>(
-                        isCurrent || isDraft
-                            ? Theme.of(context).colorScheme.primary
-                            : Theme.of(context).colorScheme.tertiary,
-                      ),
                     ),
                   ),
                 ],
@@ -325,6 +351,169 @@ class _MesocycleListScreenState extends ConsumerState<MesocycleListScreen> {
         ],
       ),
     );
+  }
+
+  Future<void> _handleMenuAction(String action, Mesocycle mesocycle) async {
+    switch (action) {
+      case 'note':
+        // TODO: Implement write note functionality
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Write note - Coming soon')),
+        );
+        break;
+      case 'rename':
+        await _showRenameMesocycleModal(mesocycle);
+        break;
+      case 'copy':
+        // TODO: Implement copy functionality
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Copy mesocycle - Coming soon')),
+        );
+        break;
+      case 'summary':
+        // TODO: Implement summary functionality
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Summary - Coming soon')));
+        break;
+      case 'template':
+        // TODO: Implement save as template functionality
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Save as template - Coming soon')),
+        );
+        break;
+      case 'delete':
+        await _deleteMesocycle(mesocycle);
+        break;
+    }
+  }
+
+  Future<void> _showRenameMesocycleModal(Mesocycle mesocycle) async {
+    final TextEditingController nameController = TextEditingController(
+      text: mesocycle.name,
+    );
+
+    try {
+      final newName = await showDialog<String>(
+        context: context,
+        builder: (context) => Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surface,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const SizedBox(width: 40),
+                    Text(
+                      'Rename',
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: () => Navigator.pop(context),
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
+                TextField(
+                  controller: nameController,
+                  autofocus: true,
+                  decoration: InputDecoration(
+                    hintText: 'Mesocycle name',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    filled: true,
+                    fillColor: Theme.of(
+                      context,
+                    ).colorScheme.surfaceContainerHighest,
+                  ),
+                  style: Theme.of(context).textTheme.bodyLarge,
+                ),
+                const SizedBox(height: 24),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () => Navigator.pop(context),
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: const Text('CANCEL'),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: FilledButton(
+                        onPressed: () {
+                          final trimmedName = nameController.text.trim();
+                          if (trimmedName.isNotEmpty) {
+                            Navigator.pop(context, trimmedName);
+                          }
+                        },
+                        style: FilledButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: const Text('SAVE'),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+
+      if (newName != null && newName != mesocycle.name && mounted) {
+        try {
+          final repository = ref.read(mesocycleRepositoryProvider);
+          final updatedMesocycle = mesocycle.copyWith(name: newName);
+          await repository.update(updatedMesocycle);
+
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Renamed to "$newName"'),
+                backgroundColor: Colors.green,
+              ),
+            );
+          }
+        } catch (e) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Error renaming mesocycle: $e'),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+        }
+      }
+    } finally {
+      // Dispose after a microtask to ensure dialog is fully closed
+      Future.microtask(() => nameController.dispose());
+    }
   }
 
   Future<void> _deleteMesocycle(Mesocycle mesocycle) async {

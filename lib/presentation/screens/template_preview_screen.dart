@@ -147,7 +147,7 @@ class _TemplatePreviewScreenState extends ConsumerState<TemplatePreviewScreen> {
                           ),
                         )
                       : const Text(
-                          'START PROGRAM',
+                          'LOAD PROGRAM',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
