@@ -5,6 +5,7 @@ import 'package:uuid/uuid.dart';
 import '../../core/constants/enums.dart';
 import '../../core/constants/equipment_types.dart';
 import '../../core/constants/muscle_groups.dart';
+import '../../data/models/exercise.dart';
 import '../../data/models/exercise_set.dart';
 import '../../data/models/workout.dart';
 import '../../domain/providers/mesocycle_providers.dart';
@@ -111,6 +112,8 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
 
     final exercise = workout.exercises[exerciseIndex];
     final set = exercise.sets[setIndex];
+    if (set.weight == null || set.reps.isEmpty) return;
+
     final updatedSet = set.copyWith(isLogged: !set.isLogged);
     final updatedExercise = exercise.updateSet(setIndex, updatedSet);
     final updatedWorkout = workout.updateExercise(
@@ -257,6 +260,107 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
       updatedExercise,
     );
 
+    await repository.update(updatedWorkout);
+  }
+
+  Future<void> _addNote(String workoutId, String exerciseId) async {
+    // TODO: Implement note dialog
+    debugPrint('Add note for exercise: $exerciseId');
+  }
+
+  Future<void> _moveExerciseDown(String workoutId, String exerciseId) async {
+    final repository = ref.read(workoutRepositoryProvider);
+    final workout = repository.getById(workoutId);
+    if (workout == null) return;
+
+    final index = workout.exercises.indexWhere((e) => e.id == exerciseId);
+    if (index == -1 || index >= workout.exercises.length - 1) return;
+
+    final updatedExercises = List<Exercise>.from(workout.exercises);
+    final exercise = updatedExercises.removeAt(index);
+    updatedExercises.insert(index + 1, exercise);
+
+    final updatedWorkout = workout.copyWith(exercises: updatedExercises);
+    await repository.update(updatedWorkout);
+  }
+
+  Future<void> _replaceExercise(String workoutId, String exerciseId) async {
+    // TODO: Implement replace exercise navigation
+    debugPrint('Replace exercise: $exerciseId');
+  }
+
+  Future<void> _logJointPain(String workoutId, String exerciseId) async {
+    // TODO: Implement joint pain dialog
+    debugPrint('Log joint pain for exercise: $exerciseId');
+  }
+
+  Future<void> _addSetToExercise(String workoutId, String exerciseId) async {
+    final repository = ref.read(workoutRepositoryProvider);
+    final workout = repository.getById(workoutId);
+    if (workout == null) return;
+
+    final exerciseIndex = workout.exercises.indexWhere(
+      (e) => e.id == exerciseId,
+    );
+    if (exerciseIndex == -1) return;
+
+    final exercise = workout.exercises[exerciseIndex];
+    final newSet = ExerciseSet(
+      id: const Uuid().v4(),
+      setNumber: exercise.sets.length + 1,
+      reps: '',
+      setType: SetType.regular,
+    );
+
+    final updatedSets = List<ExerciseSet>.from(exercise.sets)..add(newSet);
+    final updatedExercise = exercise.copyWith(sets: updatedSets);
+    final updatedWorkout = workout.updateExercise(
+      exerciseIndex,
+      updatedExercise,
+    );
+
+    await repository.update(updatedWorkout);
+  }
+
+  Future<void> _skipExerciseSets(String workoutId, String exerciseId) async {
+    final repository = ref.read(workoutRepositoryProvider);
+    final workout = repository.getById(workoutId);
+    if (workout == null) return;
+
+    final exerciseIndex = workout.exercises.indexWhere(
+      (e) => e.id == exerciseId,
+    );
+    if (exerciseIndex == -1) return;
+
+    final exercise = workout.exercises[exerciseIndex];
+    // Check if all sets are currently skipped
+    final allSkipped = exercise.sets.every((s) => s.isSkipped);
+    // Toggle: if all skipped, unskip all. Otherwise, skip all.
+    final newSkipState = !allSkipped;
+
+    final updatedSets = exercise.sets
+        .map((s) => s.copyWith(isSkipped: newSkipState))
+        .toList();
+
+    final updatedExercise = exercise.copyWith(sets: updatedSets);
+    final updatedWorkout = workout.updateExercise(
+      exerciseIndex,
+      updatedExercise,
+    );
+
+    await repository.update(updatedWorkout);
+  }
+
+  Future<void> _deleteExercise(String workoutId, String exerciseId) async {
+    final repository = ref.read(workoutRepositoryProvider);
+    final workout = repository.getById(workoutId);
+    if (workout == null) return;
+
+    final updatedExercises = workout.exercises
+        .where((e) => e.id != exerciseId)
+        .toList();
+
+    final updatedWorkout = workout.copyWith(exercises: updatedExercises);
     await repository.update(updatedWorkout);
   }
 
@@ -602,18 +706,190 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                     ),
                     const SizedBox(width: 0),
                     // Overflow menu button
-                    IconButton(
+                    PopupMenuButton<String>(
                       icon: const Icon(
                         Icons.more_vert,
                         color: Color(0xFF8E8E93),
                         size: 24,
                       ),
-                      onPressed: () {},
                       padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(
-                        minWidth: 24,
-                        minHeight: 24,
+                      constraints: const BoxConstraints(minWidth: 250),
+                      color: const Color(0xFF2C2C2E),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        side: BorderSide(
+                          color: Colors.white.withValues(alpha: 0.1),
+                        ),
                       ),
+                      onSelected: (value) {
+                        switch (value) {
+                          case 'note':
+                            _addNote(exercise.workoutId, exercise.id);
+                            break;
+                          case 'move_down':
+                            _moveExerciseDown(exercise.workoutId, exercise.id);
+                            break;
+                          case 'replace':
+                            _replaceExercise(exercise.workoutId, exercise.id);
+                            break;
+                          case 'joint_pain':
+                            _logJointPain(exercise.workoutId, exercise.id);
+                            break;
+                          case 'add_set':
+                            _addSetToExercise(exercise.workoutId, exercise.id);
+                            break;
+                          case 'skip_sets':
+                            _skipExerciseSets(exercise.workoutId, exercise.id);
+                            break;
+                          case 'delete':
+                            _deleteExercise(exercise.workoutId, exercise.id);
+                            break;
+                        }
+                      },
+                      itemBuilder: (context) => [
+                        // Header
+                        const PopupMenuItem<String>(
+                          enabled: false,
+                          height: 32,
+                          child: Text(
+                            'EXERCISE',
+                            style: TextStyle(
+                              color: Colors.grey,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                        // New note
+                        const PopupMenuItem<String>(
+                          value: 'note',
+                          height: 48,
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.edit_outlined,
+                                color: Colors.white,
+                                size: 20,
+                              ),
+                              SizedBox(width: 12),
+                              Text(
+                                'New note',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            ],
+                          ),
+                        ),
+                        // Move down
+                        const PopupMenuItem<String>(
+                          value: 'move_down',
+                          height: 48,
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.arrow_downward,
+                                color: Colors.white,
+                                size: 20,
+                              ),
+                              SizedBox(width: 12),
+                              Text(
+                                'Move down',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            ],
+                          ),
+                        ),
+                        // Replace
+                        const PopupMenuItem<String>(
+                          value: 'replace',
+                          height: 48,
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.swap_horiz,
+                                color: Colors.white,
+                                size: 20,
+                              ),
+                              SizedBox(width: 12),
+                              Text(
+                                'Replace',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            ],
+                          ),
+                        ),
+                        // Joint pain
+                        const PopupMenuItem<String>(
+                          value: 'joint_pain',
+                          height: 48,
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.healing,
+                                color: Colors.white,
+                                size: 20,
+                              ),
+                              SizedBox(width: 12),
+                              Text(
+                                'Joint pain',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            ],
+                          ),
+                        ),
+                        // Add set
+                        const PopupMenuItem<String>(
+                          value: 'add_set',
+                          height: 48,
+                          child: Row(
+                            children: [
+                              Icon(Icons.add, color: Colors.white, size: 20),
+                              SizedBox(width: 12),
+                              Text(
+                                'Add set',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            ],
+                          ),
+                        ),
+                        // Skip sets
+                        const PopupMenuItem<String>(
+                          value: 'skip_sets',
+                          height: 48,
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.fast_forward,
+                                color: Colors.white,
+                                size: 20,
+                              ),
+                              SizedBox(width: 12),
+                              Text(
+                                'Skip sets',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            ],
+                          ),
+                        ),
+                        // Delete exercise
+                        const PopupMenuItem<String>(
+                          value: 'delete',
+                          height: 48,
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.delete_outline,
+                                color: Colors.red,
+                                size: 20,
+                              ),
+                              SizedBox(width: 12),
+                              Text(
+                                'Delete exercise',
+                                style: TextStyle(color: Colors.red),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -681,6 +957,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                 // Sets list
                 ...List.generate(exercise.sets.length, (index) {
                   final set = exercise.sets[index];
+                  final isLoggable = set.weight != null && set.reps.isNotEmpty;
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 8),
                     child: Row(
@@ -1028,22 +1305,30 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                             decoration: BoxDecoration(
                               color: set.isLogged
                                   ? Colors.green.withValues(alpha: 0.2)
-                                  : const Color(0xFF1C1C1E),
+                                  : (isLoggable
+                                        ? const Color(0xFF1C1C1E)
+                                        : Colors.grey.withValues(alpha: 0.1)),
                               borderRadius: BorderRadius.circular(4),
                               border: Border.all(
                                 color: set.isLogged
                                     ? Colors.green
-                                    : Colors.white.withValues(alpha: 0.1),
+                                    : (isLoggable
+                                          ? Colors.white.withValues(alpha: 0.1)
+                                          : Colors.white.withValues(
+                                              alpha: 0.05,
+                                            )),
                               ),
                             ),
                             child: InkWell(
-                              onTap: () {
-                                _toggleSetLog(
-                                  exercise.workoutId,
-                                  exercise.id,
-                                  index,
-                                );
-                              },
+                              onTap: isLoggable
+                                  ? () {
+                                      _toggleSetLog(
+                                        exercise.workoutId,
+                                        exercise.id,
+                                        index,
+                                      );
+                                    }
+                                  : null,
                               child: set.isLogged
                                   ? const Icon(Icons.check, color: Colors.green)
                                   : null,

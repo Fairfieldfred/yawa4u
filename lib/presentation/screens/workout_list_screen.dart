@@ -615,7 +615,7 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
     final newSet = ExerciseSet(
       id: const Uuid().v4(),
       setNumber: newSetNumber,
-      reps: '2 RIR', // Default RIR
+      reps: '', // Default empty to show hint
       setType: SetType.regular,
     );
 

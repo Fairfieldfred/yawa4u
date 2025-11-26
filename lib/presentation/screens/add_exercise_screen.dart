@@ -358,13 +358,13 @@ class _AddExerciseScreenState extends ConsumerState<AddExerciseScreen> {
         ExerciseSet(
           id: const Uuid().v4(),
           setNumber: 1,
-          reps: '2 RIR',
+          reps: '',
           setType: SetType.regular,
         ),
         ExerciseSet(
           id: const Uuid().v4(),
           setNumber: 2,
-          reps: '2 RIR',
+          reps: '',
           setType: SetType.regular,
         ),
       ],
