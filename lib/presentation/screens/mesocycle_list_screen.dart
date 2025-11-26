@@ -7,6 +7,7 @@ import '../../data/models/mesocycle.dart';
 import '../../domain/providers/mesocycle_providers.dart';
 import '../../domain/providers/repository_providers.dart';
 import '../../domain/providers/theme_provider.dart';
+import 'template_selection_screen.dart';
 
 /// Mesocycle list screen - organized by Draft/Current/Completed
 class MesocycleListScreen extends ConsumerStatefulWidget {
@@ -307,7 +308,19 @@ class _MesocycleListScreenState extends ConsumerState<MesocycleListScreen> {
           FilledButton.icon(
             onPressed: () => context.push('/plan-mesocycle'),
             icon: const Icon(Icons.add),
-            label: const Text('Create Mesocycle'),
+            label: const Text('Create New'),
+          ),
+          const SizedBox(height: 12),
+          OutlinedButton.icon(
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const TemplateSelectionScreen(),
+                ),
+              );
+            },
+            icon: const Icon(Icons.copy),
+            label: const Text('Start from Template'),
           ),
         ],
       ),

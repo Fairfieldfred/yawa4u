@@ -333,13 +333,10 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     if (exerciseIndex == -1) return;
 
     final exercise = workout.exercises[exerciseIndex];
-    // Check if all sets are currently skipped
-    final allSkipped = exercise.sets.every((s) => s.isSkipped);
-    // Toggle: if all skipped, unskip all. Otherwise, skip all.
-    final newSkipState = !allSkipped;
 
-    final updatedSets = exercise.sets
-        .map((s) => s.copyWith(isSkipped: newSkipState))
+    // Only skip unlogged sets
+    final updatedSets = (exercise.sets)
+        .map((s) => !s.isLogged ? s.copyWith(isSkipped: true) : s)
         .toList();
 
     final updatedExercise = exercise.copyWith(sets: updatedSets);
@@ -362,6 +359,55 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
 
     final updatedWorkout = workout.copyWith(exercises: updatedExercises);
     await repository.update(updatedWorkout);
+  }
+
+  bool _isWorkoutComplete(Workout workout) {
+    // Check if all sets in all exercises are either logged or skipped
+    for (final exercise in workout.exercises) {
+      final sets = exercise.sets;
+      for (final set in sets) {
+        if (!set.isLogged && !set.isSkipped) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
+  Future<void> _finishWorkout(List<Workout> workouts) async {
+    if (workouts.isEmpty) return;
+
+    final repository = ref.read(workoutRepositoryProvider);
+
+    // Mark ALL workouts for this day as completed
+    for (final workout in workouts) {
+      final updatedWorkout = workout.copyWith(
+        status: WorkoutStatus.completed,
+        completedDate: DateTime.now(),
+      );
+      await repository.update(updatedWorkout);
+    }
+
+    // Navigate to next workout using the first workout's info
+    final firstWorkout = workouts.first;
+    final mesocycle = ref.read(currentMesocycleProvider);
+    if (mesocycle == null) return;
+
+    // Find next workout
+    int nextDay = firstWorkout.dayNumber + 1;
+    int nextWeek = firstWorkout.weekNumber;
+
+    // Check if we need to move to next week
+    if (nextDay > mesocycle.daysPerWeek) {
+      nextDay = 1;
+      nextWeek++;
+    }
+
+    // Update selected day
+    setState(() {
+      _selectedWeek = nextWeek;
+      _selectedDay = nextDay;
+    });
   }
 
   @override
@@ -614,6 +660,48 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                 currentWeek: currentWeek,
                 currentDay: displayDay,
                 onDaySelected: _selectDay,
+              ),
+            ),
+
+          // FINISH WORKOUT button (appears when all sets are logged or skipped)
+          if (workouts.isNotEmpty &&
+              !workouts.every((w) => w.isCompleted) &&
+              workouts.every((w) => _isWorkoutComplete(w)))
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF1C1C1E),
+                  border: Border(
+                    top: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
+                  ),
+                ),
+                child: SafeArea(
+                  top: false,
+                  child: ElevatedButton(
+                    onPressed: () => _finishWorkout(workouts),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      elevation: 0,
+                    ),
+                    child: const Text(
+                      'FINISH WORKOUT',
+                      style: TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ),
+                ),
               ),
             ),
         ],
@@ -871,20 +959,35 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                           ),
                         ),
                         // Delete exercise
-                        const PopupMenuItem<String>(
+                        PopupMenuItem<String>(
                           value: 'delete',
+                          enabled: !(exercise.sets as List<ExerciseSet>).any(
+                            (s) => s.isLogged,
+                          ),
                           height: 48,
                           child: Row(
                             children: [
                               Icon(
                                 Icons.delete_outline,
-                                color: Colors.red,
+                                color:
+                                    (exercise.sets as List<ExerciseSet>).any(
+                                      (s) => s.isLogged,
+                                    )
+                                    ? Colors.grey
+                                    : Colors.red,
                                 size: 20,
                               ),
-                              SizedBox(width: 12),
+                              const SizedBox(width: 12),
                               Text(
                                 'Delete exercise',
-                                style: TextStyle(color: Colors.red),
+                                style: TextStyle(
+                                  color:
+                                      (exercise.sets as List<ExerciseSet>).any(
+                                        (s) => s.isLogged,
+                                      )
+                                      ? Colors.grey
+                                      : Colors.red,
+                                ),
                               ),
                             ],
                           ),
@@ -1232,7 +1335,10 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                             ),
                             child: Center(
                               child: TextFormField(
-                                initialValue: set.weight?.toString() ?? '',
+                                key: ValueKey('weight_${set.id}'),
+                                initialValue: set.isLogged
+                                    ? (set.weight?.toString() ?? '')
+                                    : '',
                                 style: const TextStyle(color: Colors.white),
                                 textAlign: TextAlign.center,
                                 decoration: const InputDecoration(
@@ -1274,7 +1380,8 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                             ),
                             child: Center(
                               child: TextFormField(
-                                initialValue: set.reps,
+                                key: ValueKey('reps_${set.id}'),
+                                initialValue: set.isLogged ? set.reps : '',
                                 style: const TextStyle(color: Colors.white),
                                 textAlign: TextAlign.center,
                                 decoration: const InputDecoration(
@@ -1612,20 +1719,25 @@ class _WeekSelectorDropdownState extends State<_WeekSelectorDropdown> {
   }
 
   int _calculateRIR(int weekNumber) {
-    final totalWeeks = widget.mesocycle.weeksTotal;
     final deloadWeek = widget.mesocycle.deloadWeek;
 
+    // Deload week has 8 RIR
     if (weekNumber == deloadWeek) {
       return 8;
     }
 
-    if (weekNumber <= totalWeeks ~/ 3) {
-      return 3;
-    } else if (weekNumber <= (totalWeeks * 2) ~/ 3) {
-      return 2;
-    } else if (weekNumber < deloadWeek) {
-      return 1;
+    // Calculate weeks until deload
+    final weeksUntilDeload = deloadWeek - weekNumber;
+
+    // Week before deload = 0 RIR
+    // 2 weeks before = 1 RIR
+    // 3 weeks before = 2 RIR, etc.
+    if (weeksUntilDeload == 1) {
+      return 0;
+    } else if (weeksUntilDeload > 1) {
+      return weeksUntilDeload - 1;
     } else {
+      // After deload week
       return 0;
     }
   }
@@ -1903,22 +2015,25 @@ class _WeekSelectorModalState extends State<_WeekSelectorModal> {
   }
 
   int _calculateRIR(int weekNumber) {
-    // Calculate RIR based on week number and deload week
-    final totalWeeks = widget.mesocycle.weeksTotal;
     final deloadWeek = widget.mesocycle.deloadWeek;
 
+    // Deload week has 8 RIR
     if (weekNumber == deloadWeek) {
-      return 8; // Deload week has high RIR
+      return 8;
     }
 
-    // Progressive overload: start at 3 RIR and decrease
-    if (weekNumber <= totalWeeks ~/ 3) {
-      return 3;
-    } else if (weekNumber <= (totalWeeks * 2) ~/ 3) {
-      return 2;
-    } else if (weekNumber < deloadWeek) {
-      return 1;
+    // Calculate weeks until deload
+    final weeksUntilDeload = deloadWeek - weekNumber;
+
+    // Week before deload = 0 RIR
+    // 2 weeks before = 1 RIR
+    // 3 weeks before = 2 RIR, etc.
+    if (weeksUntilDeload == 1) {
+      return 0;
+    } else if (weeksUntilDeload > 1) {
+      return weeksUntilDeload - 1;
     } else {
+      // After deload week
       return 0;
     }
   }
