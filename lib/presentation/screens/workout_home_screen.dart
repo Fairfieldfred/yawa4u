@@ -374,6 +374,31 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     return true;
   }
 
+  /// Calculate target RIR for a given week based on mesocycle deload schedule
+  int _calculateRIR(int weekNumber, dynamic mesocycle) {
+    final deloadWeek = mesocycle.deloadWeek;
+
+    // Deload week has 8 RIR
+    if (weekNumber == deloadWeek) {
+      return 8;
+    }
+
+    // Calculate weeks until deload
+    final weeksUntilDeload = deloadWeek - weekNumber;
+
+    // Week before deload = 0 RIR
+    // 2 weeks before = 1 RIR
+    // 3 weeks before = 2 RIR, etc.
+    if (weeksUntilDeload == 1) {
+      return 0;
+    } else if (weeksUntilDeload > 1) {
+      return weeksUntilDeload - 1;
+    } else {
+      // After deload week
+      return 0;
+    }
+  }
+
   Future<void> _finishWorkout(List<Workout> workouts) async {
     if (workouts.isEmpty) return;
 
@@ -641,10 +666,15 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                         index == 0 ||
                         allExercises[index - 1].muscleGroup !=
                             exercise.muscleGroup;
+
+                    // Calculate target RIR for current week
+                    final weekRir = _calculateRIR(displayWeek, mesocycle);
+
                     return _buildExerciseCard(
                       context,
                       exercise,
                       showMuscleGroupBadge: showMuscleGroupBadge,
+                      targetRir: weekRir,
                     );
                   },
                 ),
@@ -713,6 +743,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     BuildContext context,
     dynamic exercise, {
     required bool showMuscleGroupBadge,
+    int? targetRir,
   }) {
     final muscleGroup = exercise.muscleGroup as MuscleGroup;
     final equipmentType = exercise.equipmentType as EquipmentType?;
@@ -1384,11 +1415,11 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                                 initialValue: set.isLogged ? set.reps : '',
                                 style: const TextStyle(color: Colors.white),
                                 textAlign: TextAlign.center,
-                                decoration: const InputDecoration(
-                                  hintText: 'RIR',
-                                  hintStyle: TextStyle(color: Colors.white24),
+                                decoration: InputDecoration(
+                                  hintText: targetRir != null ? '$targetRir RIR' : 'RIR',
+                                  hintStyle: const TextStyle(color: Colors.white24),
                                   border: InputBorder.none,
-                                  contentPadding: EdgeInsets.only(bottom: 12),
+                                  contentPadding: const EdgeInsets.only(bottom: 12),
                                 ),
                                 onChanged: (value) {
                                   _updateSetReps(

@@ -15,11 +15,12 @@ import 'set_row.dart';
 /// - Info icon button (opens exercise detail)
 /// - Overflow menu button (3 dots)
 /// - Set row headers (WEIGHT, REPS, LOG)
-/// - List of set rows
+/// - List of set rows with week-based RIR hints
 /// - Card styling with elevation/shadow
 class ExerciseCard extends StatelessWidget {
   final Exercise exercise;
   final double? bodyweight;
+  final int? targetRir;
   final ValueChanged<Exercise>? onExerciseChanged;
   final VoidCallback? onInfoPressed;
   final VoidCallback? onMenuPressed;
@@ -29,6 +30,7 @@ class ExerciseCard extends StatelessWidget {
     super.key,
     required this.exercise,
     this.bodyweight,
+    this.targetRir,
     this.onExerciseChanged,
     this.onInfoPressed,
     this.onMenuPressed,
@@ -287,6 +289,7 @@ class ExerciseCard extends StatelessWidget {
                     setNumber: index + 1,
                     isBodyweightLoadable: _isBodyweightLoadable,
                     bodyweight: bodyweight,
+                    targetRir: targetRir,
                     onSetChanged: (updatedSet) =>
                         _handleSetChanged(index, updatedSet),
                     onMenuPressed: () =>

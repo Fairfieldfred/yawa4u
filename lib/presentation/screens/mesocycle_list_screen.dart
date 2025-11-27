@@ -6,7 +6,9 @@ import '../../core/constants/enums.dart';
 import '../../data/models/mesocycle.dart';
 import '../../domain/providers/mesocycle_providers.dart';
 import '../../domain/providers/repository_providers.dart';
+import '../../domain/providers/template_providers.dart';
 import '../../domain/providers/theme_provider.dart';
+import '../../domain/providers/workout_providers.dart';
 import 'template_selection_screen.dart';
 
 /// Mesocycle list screen - organized by Draft/Current/Completed
@@ -133,12 +135,40 @@ class _MesocycleListScreenState extends ConsumerState<MesocycleListScreen> {
     );
   }
 
+  /// Check if ALL days in ALL weeks have at least one exercise
+  bool _hasExercisesForAllDays(Mesocycle mesocycle) {
+    final workouts = ref.read(workoutsByMesocycleProvider(mesocycle.id));
+
+    // Check EVERY week in the mesocycle
+    for (int week = 1; week <= mesocycle.weeksTotal; week++) {
+      final weekWorkouts = workouts.where((w) => w.weekNumber == week).toList();
+
+      // Check EVERY day in this week
+      for (int day = 1; day <= mesocycle.daysPerWeek; day++) {
+        // Find workouts for this specific day in this specific week
+        final dayWorkouts = weekWorkouts.where((w) => w.dayNumber == day);
+
+        // Check if at least one workout has exercises
+        final hasExercises = dayWorkouts.any((w) => w.exercises.isNotEmpty);
+
+        if (!hasExercises) {
+          return false; // This day in this week has no exercises
+        }
+      }
+    }
+
+    return true; // ALL days in ALL weeks have at least one exercise
+  }
+
   Widget _buildMesocycleCard(
     BuildContext context,
     Mesocycle mesocycle, {
     bool isDraft = false,
     bool isCurrent = false,
   }) {
+    // Check if mesocycle is ready to be saved as template
+    final canSaveAsTemplate = _hasExercisesForAllDays(mesocycle);
+
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       child: InkWell(
@@ -230,13 +260,22 @@ class _MesocycleListScreenState extends ConsumerState<MesocycleListScreen> {
                               ],
                             ),
                           ),
-                          const PopupMenuItem(
+                          PopupMenuItem(
                             value: 'template',
+                            enabled: canSaveAsTemplate,
                             child: Row(
                               children: [
-                                Icon(Icons.save_outlined),
-                                SizedBox(width: 12),
-                                Text('Save as a Template'),
+                                Icon(
+                                  Icons.save_outlined,
+                                  color: canSaveAsTemplate ? null : Colors.grey,
+                                ),
+                                const SizedBox(width: 12),
+                                Text(
+                                  'Save as a Template',
+                                  style: TextStyle(
+                                    color: canSaveAsTemplate ? null : Colors.grey,
+                                  ),
+                                ),
                               ],
                             ),
                           ),
@@ -377,14 +416,188 @@ class _MesocycleListScreenState extends ConsumerState<MesocycleListScreen> {
         ).showSnackBar(const SnackBar(content: Text('Summary - Coming soon')));
         break;
       case 'template':
-        // TODO: Implement save as template functionality
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Save as template - Coming soon')),
-        );
+        await _saveAsTemplate(mesocycle);
         break;
       case 'delete':
         await _deleteMesocycle(mesocycle);
         break;
+    }
+  }
+
+  Future<void> _saveAsTemplate(Mesocycle mesocycle) async {
+    final TextEditingController nameController = TextEditingController(
+      text: mesocycle.name,
+    );
+    final TextEditingController descriptionController = TextEditingController();
+
+    try {
+      final result = await showDialog<({String name, String description})>(
+        context: context,
+        builder: (context) => Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surface,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const SizedBox(width: 40),
+                    Text(
+                      'Save as Template',
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: () => Navigator.pop(context),
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Template Name',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: nameController,
+                  autofocus: true,
+                  decoration: InputDecoration(
+                    hintText: 'e.g., "Upper Lower Split"',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    filled: true,
+                    fillColor: Theme.of(
+                      context,
+                    ).colorScheme.surfaceContainerHighest,
+                  ),
+                  style: Theme.of(context).textTheme.bodyLarge,
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Description',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: descriptionController,
+                  maxLines: 3,
+                  decoration: InputDecoration(
+                    hintText: 'e.g., "Great for building strength and size"',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    filled: true,
+                    fillColor: Theme.of(
+                      context,
+                    ).colorScheme.surfaceContainerHighest,
+                  ),
+                  style: Theme.of(context).textTheme.bodyLarge,
+                ),
+                const SizedBox(height: 24),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () => Navigator.pop(context),
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: const Text('CANCEL'),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: FilledButton(
+                        onPressed: () {
+                          final trimmedName = nameController.text.trim();
+                          final trimmedDescription =
+                              descriptionController.text.trim();
+                          if (trimmedName.isNotEmpty &&
+                              trimmedDescription.isNotEmpty) {
+                            Navigator.pop(
+                              context,
+                              (name: trimmedName, description: trimmedDescription),
+                            );
+                          }
+                        },
+                        style: FilledButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: const Text('SAVE'),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+
+      if (result != null && mounted) {
+        try {
+          // Load the full mesocycle with workouts
+          final workouts = ref.read(workoutsByMesocycleProvider(mesocycle.id));
+          final fullMesocycle = mesocycle.copyWith(workouts: workouts);
+
+          final repository = ref.read(templateRepositoryProvider);
+          await repository.saveAsTemplate(
+            fullMesocycle,
+            result.name,
+            result.description,
+          );
+
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Template "${result.name}" saved!'),
+                backgroundColor: Colors.green,
+              ),
+            );
+
+            // Refresh templates provider
+            ref.invalidate(availableTemplatesProvider);
+          }
+        } catch (e) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Error saving template: $e'),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+        }
+      }
+    } finally {
+      Future.microtask(() {
+        nameController.dispose();
+        descriptionController.dispose();
+      });
     }
   }
 

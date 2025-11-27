@@ -10,6 +10,7 @@ import '../../../../core/constants/enums.dart';
 /// - Overflow menu (3 dots) for set actions
 /// - Weight input field
 /// - Reps input field (supports "2 RIR" text)
+/// - RIR hint text based on current week
 /// - LOG checkbox (green when checked)
 /// - Auto-save on field blur
 /// - Myorep badge ("M" or "MM")
@@ -19,6 +20,7 @@ class SetRow extends StatefulWidget {
   final int setNumber;
   final bool isBodyweightLoadable;
   final double? bodyweight;
+  final int? targetRir;
   final ValueChanged<ExerciseSet>? onSetChanged;
   final VoidCallback? onMenuPressed;
 
@@ -28,6 +30,7 @@ class SetRow extends StatefulWidget {
     required this.setNumber,
     this.isBodyweightLoadable = false,
     this.bodyweight,
+    this.targetRir,
     this.onSetChanged,
     this.onMenuPressed,
   });
@@ -223,10 +226,16 @@ class _SetRowState extends State<SetRow> {
                     fontSize: 17,
                     fontWeight: FontWeight.w400,
                   ),
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     border: InputBorder.none,
                     contentPadding: EdgeInsets.zero,
                     isDense: true,
+                    hintText: widget.targetRir != null ? '${widget.targetRir} RIR' : null,
+                    hintStyle: const TextStyle(
+                      color: Color(0xFF8E8E93),
+                      fontSize: 17,
+                      fontWeight: FontWeight.w400,
+                    ),
                   ),
                   onChanged: (_) => _handleRepsChange(),
                 ),

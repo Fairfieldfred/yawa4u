@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/services.dart';
+import 'package:hive/hive.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../core/constants/enums.dart';
@@ -15,6 +16,7 @@ import '../models/workout.dart';
 /// Repository for managing mesocycle templates
 class TemplateRepository {
   final _uuid = const Uuid();
+  static const String _savedTemplatesBoxName = 'saved_templates';
 
   /// Load all available templates from assets
   Future<List<MesocycleTemplate>> loadTemplates() async {
@@ -51,9 +53,121 @@ class TemplateRepository {
     return templates;
   }
 
-  /// Get all available templates
+  /// Load saved (user-created) templates from Hive
+  Future<List<MesocycleTemplate>> loadSavedTemplates() async {
+    try {
+      final box = await Hive.openBox<String>(_savedTemplatesBoxName);
+      final savedTemplates = <MesocycleTemplate>[];
+
+      for (final jsonString in box.values) {
+        try {
+          final template = MesocycleTemplate.fromJson(
+            json.decode(jsonString) as Map<String, dynamic>,
+          );
+          savedTemplates.add(template);
+        } catch (e) {
+          print('Error parsing saved template: $e');
+        }
+      }
+
+      return savedTemplates;
+    } catch (e) {
+      print('Error loading saved templates: $e');
+      return [];
+    }
+  }
+
+  /// Get all available templates (both built-in and user-saved)
   Future<List<MesocycleTemplate>> getAllTemplates() async {
-    return await loadTemplates();
+    final builtInTemplates = await loadTemplates();
+    final savedTemplates = await loadSavedTemplates();
+    return [...builtInTemplates, ...savedTemplates];
+  }
+
+  /// Check if a template is a saved (user-created) template
+  Future<bool> isSavedTemplate(String templateId) async {
+    try {
+      final box = await Hive.openBox<String>(_savedTemplatesBoxName);
+      return box.containsKey(templateId);
+    } catch (e) {
+      print('Error checking if template is saved: $e');
+      return false;
+    }
+  }
+
+  /// Delete a saved template
+  Future<void> deleteTemplate(String templateId) async {
+    try {
+      final box = await Hive.openBox<String>(_savedTemplatesBoxName);
+      await box.delete(templateId);
+    } catch (e) {
+      print('Error deleting template: $e');
+      rethrow;
+    }
+  }
+
+  /// Save a mesocycle as a template
+  Future<void> saveAsTemplate(
+    Mesocycle mesocycle,
+    String name,
+    String description,
+  ) async {
+    final template = _convertMesocycleToTemplate(mesocycle, name, description);
+    final box = await Hive.openBox<String>(_savedTemplatesBoxName);
+    final jsonString = json.encode(template.toJson());
+    await box.put(template.id, jsonString);
+  }
+
+  /// Convert a Mesocycle to a MesocycleTemplate
+  MesocycleTemplate _convertMesocycleToTemplate(
+    Mesocycle mesocycle,
+    String name,
+    String description,
+  ) {
+    // Get workouts from week 1 only (template structure)
+    final week1Workouts = mesocycle.workouts.where((w) => w.weekNumber == 1);
+
+    print('Converting mesocycle "${mesocycle.name}" to template');
+    print('Total workouts in mesocycle: ${mesocycle.workouts.length}');
+    print('Week 1 workouts: ${week1Workouts.length}');
+
+    final workoutTemplates = <WorkoutTemplate>[];
+    for (final workout in week1Workouts) {
+      print('Processing workout: Day ${workout.dayNumber}, ${workout.exercises.length} exercises');
+      final exerciseTemplates = workout.exercises.map((exercise) {
+        return ExerciseTemplate(
+          name: exercise.name,
+          muscleGroup: exercise.muscleGroup.name,
+          equipmentType: exercise.equipmentType.name,
+          sets: exercise.sets.length,
+          reps: exercise.sets.isNotEmpty && exercise.sets.first.reps.isNotEmpty
+              ? exercise.sets.first.reps
+              : '8-12',
+          setType: exercise.sets.isNotEmpty
+              ? exercise.sets.first.setType.name
+              : 'regular',
+        );
+      }).toList();
+
+      workoutTemplates.add(
+        WorkoutTemplate(
+          weekNumber: workout.weekNumber,
+          dayNumber: workout.dayNumber,
+          dayName: workout.dayName,
+          exercises: exerciseTemplates,
+        ),
+      );
+    }
+
+    return MesocycleTemplate(
+      id: _uuid.v4(),
+      name: name,
+      description: description,
+      weeksTotal: mesocycle.weeksTotal,
+      daysPerWeek: mesocycle.daysPerWeek,
+      deloadWeek: mesocycle.deloadWeek,
+      workouts: workoutTemplates,
+    );
   }
 
   /// Get a specific template by ID
