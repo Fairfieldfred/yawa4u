@@ -655,7 +655,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
               top: 0,
               left: 0,
               right: 0,
-              child: _WeekSelectorDropdown(
+              child: _CalendarDropdown(
                 mesocycle: mesocycle,
                 currentWeek: currentWeek,
                 currentDay: displayDay,
@@ -1493,13 +1493,13 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
 }
 
 /// Dropdown for selecting week and day (appears below AppBar)
-class _WeekSelectorDropdown extends StatefulWidget {
+class _CalendarDropdown extends StatefulWidget {
   final dynamic mesocycle;
   final int currentWeek;
   final int currentDay;
   final Function(int week, int day) onDaySelected;
 
-  const _WeekSelectorDropdown({
+  const _CalendarDropdown({
     required this.mesocycle,
     required this.currentWeek,
     required this.currentDay,
@@ -1507,10 +1507,10 @@ class _WeekSelectorDropdown extends StatefulWidget {
   });
 
   @override
-  State<_WeekSelectorDropdown> createState() => _WeekSelectorDropdownState();
+  State<_CalendarDropdown> createState() => _CalendarDropdownState();
 }
 
-class _WeekSelectorDropdownState extends State<_WeekSelectorDropdown> {
+class _CalendarDropdownState extends State<_CalendarDropdown> {
   late int _selectedWeek;
   late int _selectedDay;
 
@@ -1526,8 +1526,23 @@ class _WeekSelectorDropdownState extends State<_WeekSelectorDropdown> {
     final dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     final availableDays = dayNames.take(widget.mesocycle.daysPerWeek).toList();
 
+    // Calculate dynamic height based on number of workout days
+    // Header height: 60, Week header: 60, Day button: 48, Day margin: 6
+    // Total per day: 54 (48 + 6 margin)
+    final headerHeight = 60.0;
+    final weekHeaderHeight = 60.0;
+    final dayButtonHeight = 48.0;
+    final dayMargin = 6.0;
+    final bottomPadding = 12.0;
+
+    final calculatedHeight =
+        headerHeight +
+        weekHeaderHeight +
+        (widget.mesocycle.daysPerWeek * (dayButtonHeight + dayMargin)) +
+        bottomPadding;
+
     return Container(
-      constraints: const BoxConstraints(maxHeight: 450),
+      height: calculatedHeight,
       decoration: BoxDecoration(
         color: const Color(0xFF1C1C1E),
         boxShadow: [
