@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -6,6 +7,7 @@ import 'package:uuid/uuid.dart';
 import '../../core/constants/enums.dart';
 import '../../core/constants/muscle_groups.dart';
 import '../../core/theme/app_theme.dart';
+import '../../core/utils/template_exporter.dart';
 import '../../data/models/exercise.dart';
 import '../../data/models/exercise_set.dart';
 import '../../data/models/mesocycle.dart';
@@ -73,6 +75,14 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
             ),
             title: Text(mesocycle.name),
             actions: [
+              // Export template button (Debug only)
+              if (kDebugMode)
+                IconButton(
+                  icon: const Icon(Icons.save_alt),
+                  onPressed: () =>
+                      _exportTemplate(context, mesocycle, workouts),
+                  tooltip: 'Export Template (Debug)',
+                ),
               // Start mesocycle button (if draft)
               if (mesocycle.status == MesocycleStatus.draft)
                 IconButton(
@@ -871,6 +881,35 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
         },
       ),
     );
+  }
+
+  Future<void> _exportTemplate(
+    BuildContext context,
+    Mesocycle mesocycle,
+    List<Workout> workouts,
+  ) async {
+    try {
+      // Create a copy of the mesocycle with the latest workouts
+      final mesocycleToExport = mesocycle.copyWith(workouts: workouts);
+      await TemplateExporter.exportToClipboard(mesocycleToExport);
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Template JSON copied to clipboard!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error exporting template: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 }
 
