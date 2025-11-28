@@ -3,15 +3,15 @@ class AppConstants {
   AppConstants._();
 
   // App Identity
-  static const String appName = 'YAWA GYM';
+  static const String appName = 'YAWA4U';
   static const String appVersion = '1.0.0';
   static const String appAuthor = 'YAWA';
 
   // Database
-  static const String isarDbName = 'yawa_gym';
+  static const String isarDbName = 'yawa4u';
 
   // Export/Import
-  static const String exportFilePrefix = 'yawa_gym_backup';
+  static const String exportFilePrefix = 'yawa4u_backup';
   static const String exportFileExtension = 'json';
 
   // Mesocycle Constraints
@@ -117,8 +117,7 @@ class AppConstants {
   static const String eventSetLogged = 'set_logged';
   static const String eventTemplateViewed = 'template_viewed';
   static const String eventTemplateUsed = 'template_used';
-  static const String eventTemplateFilterApplied =
-      'template_filter_applied';
+  static const String eventTemplateFilterApplied = 'template_filter_applied';
   static const String eventFeedbackSubmitted = 'feedback_submitted';
   static const String eventJointPainReported = 'joint_pain_reported';
   static const String eventSorenessReported = 'muscle_soreness_reported';
@@ -127,8 +126,7 @@ class AppConstants {
   static const String eventDataShared = 'data_shared';
   static const String eventMyorepSetCreated = 'myorep_set_created';
   static const String eventCalendarOpened = 'calendar_opened';
-  static const String eventExerciseFiltersApplied =
-      'exercise_filters_applied';
+  static const String eventExerciseFiltersApplied = 'exercise_filters_applied';
   static const String eventMusclePrioritiesUpdated =
       'muscle_priorities_updated';
   static const String eventFeedbackLogged = 'feedback_logged';
