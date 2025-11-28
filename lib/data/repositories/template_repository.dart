@@ -21,33 +21,46 @@ class TemplateRepository {
   /// Load all available templates from assets
   Future<List<MesocycleTemplate>> loadTemplates() async {
     final templates = <MesocycleTemplate>[];
+    List<String> templatePaths = [];
 
+    // Try dynamic discovery first
     try {
-      // Load beginner full body template
-      final beginnerJson = await rootBundle.loadString(
-        'assets/templates/beginner_full_body.json',
-      );
-      templates.add(
-        MesocycleTemplate.fromJson(
-          json.decode(beginnerJson) as Map<String, dynamic>,
-        ),
-      );
+      final manifestContent = await rootBundle.loadString('AssetManifest.json');
+      final Map<String, dynamic> manifestMap = json.decode(manifestContent);
+
+      templatePaths = manifestMap.keys
+          .where(
+            (String key) =>
+                key.startsWith('assets/templates/') && key.endsWith('.json'),
+          )
+          .toList();
     } catch (e) {
-      print('Error loading beginner_full_body template: $e');
+      print('Error loading AssetManifest: $e');
     }
 
-    try {
-      // Load upper/lower split template
-      final upperLowerJson = await rootBundle.loadString(
+    // Fallback if dynamic discovery fails or returns empty
+    if (templatePaths.isEmpty) {
+      print(
+        'Dynamic template loading failed or found no files. Using fallback list.',
+      );
+      templatePaths = [
+        'assets/templates/beginner_full_body.json',
         'assets/templates/upper_lower_split.json',
-      );
-      templates.add(
-        MesocycleTemplate.fromJson(
-          json.decode(upperLowerJson) as Map<String, dynamic>,
-        ),
-      );
-    } catch (e) {
-      print('Error loading upper_lower_split template: $e');
+        'assets/templates/freds_full_body.json',
+      ];
+    }
+
+    for (final path in templatePaths) {
+      try {
+        final jsonString = await rootBundle.loadString(path);
+        templates.add(
+          MesocycleTemplate.fromJson(
+            json.decode(jsonString) as Map<String, dynamic>,
+          ),
+        );
+      } catch (e) {
+        print('Error loading template from $path: $e');
+      }
     }
 
     return templates;
@@ -133,7 +146,9 @@ class TemplateRepository {
 
     final workoutTemplates = <WorkoutTemplate>[];
     for (final workout in week1Workouts) {
-      print('Processing workout: Day ${workout.dayNumber}, ${workout.exercises.length} exercises');
+      print(
+        'Processing workout: Day ${workout.dayNumber}, ${workout.exercises.length} exercises',
+      );
       final exerciseTemplates = workout.exercises.map((exercise) {
         return ExerciseTemplate(
           name: exercise.name,

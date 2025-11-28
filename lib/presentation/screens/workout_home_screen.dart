@@ -627,9 +627,11 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
             icon: const Icon(Icons.calendar_today, color: Colors.white),
             onPressed: _toggleWeekSelector,
           ),
-          IconButton(
-            icon: const Icon(Icons.more_vert, color: Colors.white),
-            onPressed: () {},
+          Builder(
+            builder: (context) => IconButton(
+              icon: const Icon(Icons.more_vert, color: Colors.white),
+              onPressed: () => _showWorkoutMenu(context, mesocycle, workouts),
+            ),
           ),
         ],
       ),
@@ -737,6 +739,164 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
         ],
       ),
     );
+  }
+
+  void _showWorkoutMenu(
+    BuildContext context,
+    dynamic mesocycle,
+    List<Workout> workouts,
+  ) {
+    final RenderBox button = context.findRenderObject() as RenderBox;
+    final RenderBox overlay =
+        Navigator.of(context).overlay!.context.findRenderObject() as RenderBox;
+    final RelativeRect position = RelativeRect.fromRect(
+      Rect.fromPoints(
+        button.localToGlobal(Offset.zero, ancestor: overlay),
+        button.localToGlobal(
+          button.size.bottomRight(Offset.zero),
+          ancestor: overlay,
+        ),
+      ),
+      Offset.zero & overlay.size,
+    );
+
+    showMenu(
+      context: context,
+      position: position,
+      color: const Color(0xFF2C2C2E),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      items: <PopupMenuEntry<void>>[
+        // MESOCYCLE Section
+        _buildMenuHeader('MESOCYCLE'),
+        _buildMenuItem(
+          icon: Icons.edit_note,
+          text: 'View notes',
+          onTap: () => _viewMesocycleNotes(mesocycle),
+        ),
+        _buildMenuItem(
+          icon: Icons.edit,
+          text: 'Rename',
+          onTap: () => _renameMesocycle(mesocycle),
+        ),
+        _buildMenuItem(
+          icon: Icons.stop_circle_outlined,
+          text: 'End meso',
+          onTap: () => _endMesocycle(mesocycle),
+        ),
+        const PopupMenuDivider(height: 1),
+
+        // WORKOUT Section
+        _buildMenuHeader('WORKOUT'),
+        _buildMenuItem(
+          icon: Icons.edit,
+          text: 'New note',
+          onTap: () => _newWorkoutNote(workouts),
+        ),
+        _buildMenuItem(
+          icon: Icons.label_outline,
+          text: 'Relabel',
+          onTap: () => _relabelWorkout(workouts),
+        ),
+        _buildMenuItem(
+          icon: Icons.add,
+          text: 'Add exercise',
+          onTap: () => _addExerciseToWorkout(workouts),
+        ),
+        _buildMenuItem(
+          icon: Icons.monitor_weight_outlined,
+          text: 'Bodyweight',
+          onTap: () => _logBodyweight(),
+        ),
+        _buildMenuItem(
+          icon: Icons.undo,
+          text: 'Reset',
+          onTap: () => _resetWorkout(workouts),
+        ),
+        _buildMenuItem(
+          icon: Icons.skip_next,
+          text: 'Skip workout',
+          onTap: () => _skipWorkout(workouts),
+        ),
+      ],
+    );
+  }
+
+  PopupMenuItem<void> _buildMenuHeader(String title) {
+    return PopupMenuItem<void>(
+      enabled: false,
+      height: 32,
+      child: Text(
+        title,
+        style: const TextStyle(
+          color: Color(0xFF8E8E93),
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+          letterSpacing: 0.5,
+        ),
+      ),
+    );
+  }
+
+  PopupMenuItem<void> _buildMenuItem({
+    required IconData icon,
+    required String text,
+    required VoidCallback onTap,
+  }) {
+    return PopupMenuItem<void>(
+      height: 48,
+      onTap: onTap,
+      child: Row(
+        children: [
+          Icon(icon, color: Colors.white, size: 20),
+          const SizedBox(width: 12),
+          Text(
+            text,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 16,
+              fontWeight: FontWeight.w400,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Placeholder actions
+  void _viewMesocycleNotes(dynamic mesocycle) {
+    debugPrint('View notes');
+  }
+
+  void _renameMesocycle(dynamic mesocycle) {
+    debugPrint('Rename mesocycle');
+  }
+
+  void _endMesocycle(dynamic mesocycle) {
+    debugPrint('End mesocycle');
+  }
+
+  void _newWorkoutNote(List<Workout> workouts) {
+    debugPrint('New workout note');
+  }
+
+  void _relabelWorkout(List<Workout> workouts) {
+    debugPrint('Relabel workout');
+  }
+
+  void _addExerciseToWorkout(List<Workout> workouts) {
+    debugPrint('Add exercise');
+  }
+
+  void _logBodyweight() {
+    debugPrint('Log bodyweight');
+  }
+
+  void _resetWorkout(List<Workout> workouts) {
+    debugPrint('Reset workout');
+  }
+
+  void _skipWorkout(List<Workout> workouts) {
+    debugPrint('Skip workout');
   }
 
   Widget _buildExerciseCard(
@@ -1416,10 +1576,16 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                                 style: const TextStyle(color: Colors.white),
                                 textAlign: TextAlign.center,
                                 decoration: InputDecoration(
-                                  hintText: targetRir != null ? '$targetRir RIR' : 'RIR',
-                                  hintStyle: const TextStyle(color: Colors.white24),
+                                  hintText: targetRir != null
+                                      ? '$targetRir RIR'
+                                      : 'RIR',
+                                  hintStyle: const TextStyle(
+                                    color: Colors.white24,
+                                  ),
                                   border: InputBorder.none,
-                                  contentPadding: const EdgeInsets.only(bottom: 12),
+                                  contentPadding: const EdgeInsets.only(
+                                    bottom: 12,
+                                  ),
                                 ),
                                 onChanged: (value) {
                                   _updateSetReps(
