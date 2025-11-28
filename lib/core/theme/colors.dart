@@ -21,9 +21,9 @@ class AppColors {
   // ========== LIGHT THEME COLORS ==========
 
   /// Light theme backgrounds
-  static const Color lightScaffoldBackground = Color(0xFFF5F5F5);
+  static const Color lightScaffoldBackground = Color(0xFFF2F2F7);
   static const Color lightCardBackground = Color(0xFFFFFFFF);
-  static const Color lightInputBackground = Color(0xFFEEEEEE);
+  static const Color lightInputBackground = Color(0xFFF9F9F9);
   static const Color lightDivider = Color(0xFFE0E0E0);
 
   /// Light theme text colors
@@ -120,8 +120,7 @@ class AppColors {
         normalized.contains('tricep') ||
         normalized.contains('shoulder')) {
       return musclePink;
-    } else if (normalized.contains('back') ||
-        normalized.contains('bicep')) {
+    } else if (normalized.contains('back') || normalized.contains('bicep')) {
       return muscleCyan;
     } else if (normalized.contains('quad') ||
         normalized.contains('hamstring') ||

@@ -358,9 +358,11 @@ class AppTheme {
     // Card
     cardTheme: CardThemeData(
       color: AppColors.lightCardBackground,
-      elevation: 2,
-      shadowColor: Colors.black.withValues(alpha: 0.1),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide.none,
+      ),
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
     ),
 
@@ -436,13 +438,14 @@ class AppTheme {
 
     // Checkbox
     checkboxTheme: CheckboxThemeData(
+      side: const BorderSide(color: AppColors.lightTextDisabled, width: 2),
       fillColor: WidgetStateProperty.resolveWith((states) {
         if (states.contains(WidgetState.selected)) {
-          return AppColors.checkboxChecked;
+          return AppColors.success;
         }
-        return AppColors.lightTextSecondary;
+        return Colors.transparent;
       }),
-      checkColor: WidgetStateProperty.all(AppColors.darkTextPrimary),
+      checkColor: WidgetStateProperty.all(Colors.white),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
     ),
 

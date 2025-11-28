@@ -1,7 +1,10 @@
+import 'package:feedback_sentry/feedback_sentry.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:yawa_gym/core/utils/canvas_kit/unsupported.dart';
 
 import 'core/config/sentry_config.dart';
 import 'core/constants/app_constants.dart';
@@ -54,7 +57,15 @@ Future<void> main() async {
       };
     }, appRunner: () => runApp(const ProviderScope(child: MyApp())));
   } else {
-    runApp(const ProviderScope(child: MyApp()));
+    runApp(
+      ProviderScope(
+        child: // * Don't wrap with BetterFeedback if web HTML renderer is used
+            // https://pub.dev/packages/feedback#-known-issues-and-limitations
+            !kIsWeb || isCanvasKitRenderer()
+            ? BetterFeedback(child: MyApp())
+            : MyApp(),
+      ),
+    );
   }
 }
 

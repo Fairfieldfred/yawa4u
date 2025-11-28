@@ -10,6 +10,7 @@ import '../../data/models/exercise_set.dart';
 import '../../data/models/workout.dart';
 import '../../domain/providers/mesocycle_providers.dart';
 import '../../domain/providers/repository_providers.dart';
+import '../../domain/providers/theme_provider.dart';
 import '../../domain/providers/workout_providers.dart';
 
 /// Workout home screen - shows current/upcoming workouts
@@ -594,9 +595,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     }
 
     return Scaffold(
-      backgroundColor: const Color(0xFF1C1C1E),
       appBar: AppBar(
-        backgroundColor: const Color(0xFF2C2C2E),
         elevation: 0,
         automaticallyImplyLeading: false,
         title: Column(
@@ -604,8 +603,8 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
           children: [
             Text(
               mesocycle.name.toUpperCase(),
-              style: const TextStyle(
-                color: Color(0xFF8E8E93),
+              style: TextStyle(
+                color: Theme.of(context).textTheme.bodySmall?.color,
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
                 letterSpacing: 0.5,
@@ -614,8 +613,8 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
             const SizedBox(height: 2),
             Text(
               'WEEK $displayWeek DAY $displayDay $dayName',
-              style: const TextStyle(
-                color: Colors.white,
+              style: TextStyle(
+                color: Theme.of(context).textTheme.titleLarge?.color,
                 fontSize: 17,
                 fontWeight: FontWeight.w600,
               ),
@@ -624,12 +623,24 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.calendar_today, color: Colors.white),
+            icon: const Icon(Icons.calendar_today),
             onPressed: _toggleWeekSelector,
+          ),
+          // Theme toggle
+          IconButton(
+            icon: Icon(
+              ref.watch(isDarkModeProvider)
+                  ? Icons.light_mode
+                  : Icons.dark_mode,
+            ),
+            onPressed: () {
+              ref.read(themeModeProvider.notifier).toggleTheme();
+            },
+            tooltip: 'Toggle theme',
           ),
           Builder(
             builder: (context) => IconButton(
-              icon: const Icon(Icons.more_vert, color: Colors.white),
+              icon: const Icon(Icons.more_vert),
               onPressed: () => _showWorkoutMenu(context, mesocycle, workouts),
             ),
           ),
@@ -763,7 +774,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     showMenu(
       context: context,
       position: position,
-      color: const Color(0xFF2C2C2E),
+      color: Theme.of(context).cardTheme.color,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       items: <PopupMenuEntry<void>>[
         // MESOCYCLE Section
@@ -827,8 +838,8 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
       height: 32,
       child: Text(
         title,
-        style: const TextStyle(
-          color: Color(0xFF8E8E93),
+        style: TextStyle(
+          color: Theme.of(context).textTheme.bodySmall?.color,
           fontSize: 12,
           fontWeight: FontWeight.w600,
           letterSpacing: 0.5,
@@ -847,12 +858,11 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
       onTap: onTap,
       child: Row(
         children: [
-          Icon(icon, color: Colors.white, size: 20),
+          Icon(icon, color: Theme.of(context).iconTheme.color, size: 20),
           const SizedBox(width: 12),
           Text(
             text,
-            style: const TextStyle(
-              color: Colors.white,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               fontSize: 16,
               fontWeight: FontWeight.w400,
             ),
@@ -915,7 +925,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
         Container(
           width: double.infinity,
           decoration: BoxDecoration(
-            color: const Color(0xFF2C2C2E),
+            color: Theme.of(context).cardTheme.color,
             borderRadius: BorderRadius.circular(0),
           ),
           child: Padding(
@@ -931,22 +941,22 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                         children: [
                           Text(
                             exercise.name,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 17,
-                              fontWeight: FontWeight.w600,
-                            ),
+                            style: Theme.of(context).textTheme.titleMedium
+                                ?.copyWith(
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.w600,
+                                ),
                           ),
                           const SizedBox(height: 4),
                           Text(
                             equipmentType?.displayName.toUpperCase() ??
                                 'UNKNOWN',
-                            style: const TextStyle(
-                              color: Color(0xFF8E8E93),
-                              fontSize: 13,
-                              fontWeight: FontWeight.w500,
-                              letterSpacing: 0.3,
-                            ),
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w500,
+                                  letterSpacing: 0.3,
+                                ),
                           ),
                         ],
                       ),
@@ -964,11 +974,13 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                             width: 2,
                           ),
                         ),
-                        child: const Center(
+                        child: Center(
                           child: Text(
                             'i',
                             style: TextStyle(
-                              color: Color(0xFF8E8E93),
+                              color: Theme.of(
+                                context,
+                              ).textTheme.bodySmall?.color,
                               fontSize: 12,
                               fontWeight: FontWeight.bold,
                               fontStyle: FontStyle.italic,
@@ -986,9 +998,9 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                     const SizedBox(width: 0),
                     // Overflow menu button
                     PopupMenuButton<String>(
-                      icon: const Icon(
+                      icon: Icon(
                         Icons.more_vert,
-                        color: Color(0xFF8E8E93),
+                        color: Theme.of(context).textTheme.bodySmall?.color,
                         size: 24,
                       ),
                       padding: EdgeInsets.zero,
@@ -1202,7 +1214,11 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                           child: Text(
                             'WEIGHT',
                             style: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.6),
+                              color: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.color
+                                  ?.withValues(alpha: 0.7),
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
                             ),
@@ -1217,7 +1233,11 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                               Text(
                                 'REPS',
                                 style: TextStyle(
-                                  color: Colors.white.withValues(alpha: 0.6),
+                                  color: Theme.of(context)
+                                      .textTheme
+                                      .bodySmall
+                                      ?.color
+                                      ?.withValues(alpha: 0.7),
                                   fontSize: 12,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -1226,7 +1246,11 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                               Icon(
                                 Icons.info_outline,
                                 size: 14,
-                                color: Colors.white.withValues(alpha: 0.6),
+                                color: Theme.of(context)
+                                    .textTheme
+                                    .bodySmall
+                                    ?.color
+                                    ?.withValues(alpha: 0.7),
                               ),
                             ],
                           ),
@@ -1237,7 +1261,11 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                           child: Text(
                             'LOG',
                             style: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.6),
+                              color: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.color
+                                  ?.withValues(alpha: 0.7),
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
                             ),
@@ -1262,16 +1290,18 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                           child: PopupMenuButton<String>(
                             icon: Icon(
                               Icons.more_vert,
-                              color: Colors.white.withValues(alpha: 0.6),
+                              color: Theme.of(
+                                context,
+                              ).iconTheme.color?.withValues(alpha: 0.6),
                               size: 20,
                             ),
                             padding: EdgeInsets.zero,
                             constraints: const BoxConstraints(minWidth: 250),
-                            color: const Color(0xFF2C2C2E),
+                            color: Theme.of(context).cardTheme.color,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8),
                               side: BorderSide(
-                                color: Colors.white.withValues(alpha: 0.1),
+                                color: Theme.of(context).dividerColor,
                               ),
                             ),
                             onSelected: (value) {
@@ -1518,10 +1548,12 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                           child: Container(
                             height: 40,
                             decoration: BoxDecoration(
-                              color: const Color(0xFF1C1C1E),
+                              color: Theme.of(
+                                context,
+                              ).inputDecorationTheme.fillColor,
                               borderRadius: BorderRadius.circular(4),
                               border: Border.all(
-                                color: Colors.white.withValues(alpha: 0.1),
+                                color: Theme.of(context).dividerColor,
                               ),
                             ),
                             child: Center(
@@ -1530,11 +1562,13 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                                 initialValue: set.isLogged
                                     ? (set.weight?.toString() ?? '')
                                     : '',
-                                style: const TextStyle(color: Colors.white),
+                                style: Theme.of(context).textTheme.bodyMedium,
                                 textAlign: TextAlign.center,
-                                decoration: const InputDecoration(
+                                decoration: InputDecoration(
                                   hintText: 'lbs',
-                                  hintStyle: TextStyle(color: Colors.white24),
+                                  hintStyle: Theme.of(
+                                    context,
+                                  ).inputDecorationTheme.hintStyle,
                                   border: InputBorder.none,
                                   contentPadding: EdgeInsets.only(
                                     bottom: 12,
@@ -1563,25 +1597,27 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                           child: Container(
                             height: 40,
                             decoration: BoxDecoration(
-                              color: const Color(0xFF1C1C1E),
+                              color: Theme.of(
+                                context,
+                              ).inputDecorationTheme.fillColor,
                               borderRadius: BorderRadius.circular(4),
                               border: Border.all(
-                                color: Colors.white.withValues(alpha: 0.1),
+                                color: Theme.of(context).dividerColor,
                               ),
                             ),
                             child: Center(
                               child: TextFormField(
                                 key: ValueKey('reps_${set.id}'),
                                 initialValue: set.isLogged ? set.reps : '',
-                                style: const TextStyle(color: Colors.white),
+                                style: Theme.of(context).textTheme.bodyMedium,
                                 textAlign: TextAlign.center,
                                 decoration: InputDecoration(
                                   hintText: targetRir != null
                                       ? '$targetRir RIR'
                                       : 'RIR',
-                                  hintStyle: const TextStyle(
-                                    color: Colors.white24,
-                                  ),
+                                  hintStyle: Theme.of(
+                                    context,
+                                  ).inputDecorationTheme.hintStyle,
                                   border: InputBorder.none,
                                   contentPadding: const EdgeInsets.only(
                                     bottom: 12,
@@ -1610,17 +1646,19 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                               color: set.isLogged
                                   ? Colors.green.withValues(alpha: 0.2)
                                   : (isLoggable
-                                        ? const Color(0xFF1C1C1E)
+                                        ? Theme.of(
+                                            context,
+                                          ).inputDecorationTheme.fillColor
                                         : Colors.grey.withValues(alpha: 0.1)),
                               borderRadius: BorderRadius.circular(4),
                               border: Border.all(
                                 color: set.isLogged
                                     ? Colors.green
                                     : (isLoggable
-                                          ? Colors.white.withValues(alpha: 0.1)
-                                          : Colors.white.withValues(
-                                              alpha: 0.05,
-                                            )),
+                                          ? Colors.green
+                                          : Theme.of(context).dividerColor
+                                                .withValues(alpha: 0.3)),
+                                width: set.isLogged || isLoggable ? 2 : 1,
                               ),
                             ),
                             child: InkWell(
@@ -1673,8 +1711,10 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                   const SizedBox(width: 8),
                   Text(
                     muscleGroup.displayName.toUpperCase(),
-                    style: const TextStyle(
-                      color: Colors.white,
+                    style: TextStyle(
+                      color: Theme.of(context).brightness == Brightness.light
+                          ? Colors.grey.shade700
+                          : Colors.white,
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
                       letterSpacing: 0.5,
