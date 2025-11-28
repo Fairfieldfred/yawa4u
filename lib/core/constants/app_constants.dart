@@ -99,7 +99,8 @@ class AppConstants {
   static const String menuLeaveReview = 'Leave a review';
 
   // Links
-  static const String privacyPolicyUrl = 'https://example.com/privacy';
+  static const String privacyPolicyUrl =
+      'https://www.blairhouseapps.com/yawa4u/privacy_policy.html';
   static const String termsOfServiceUrl = 'https://example.com/terms';
   static const String helpUrl = 'https://example.com/help';
 
