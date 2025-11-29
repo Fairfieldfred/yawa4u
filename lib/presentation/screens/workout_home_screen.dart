@@ -1647,7 +1647,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                           child: Container(
                             decoration: BoxDecoration(
                               color: set.isLogged
-                                  ? Colors.green.withValues(alpha: 0.5)
+                                  ? Colors.green.withValues(alpha: 0.2)
                                   : (isLoggable
                                         ? Theme.of(
                                             context,
