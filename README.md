@@ -1,6 +1,6 @@
 # yawa4u
 
-A new open source Flutter project to build a free useful multi-platform app gym routine and exercise tracking.
+An open source Flutter project to build a free useful multi-platform app gym routine and exercise tracking.
 
 ## Getting Started
 

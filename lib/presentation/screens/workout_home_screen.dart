@@ -1559,9 +1559,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                             child: Center(
                               child: TextFormField(
                                 key: ValueKey('weight_${set.id}'),
-                                initialValue: set.isLogged
-                                    ? (set.weight?.toString() ?? '')
-                                    : '',
+                                initialValue: set.weight?.toString() ?? '',
                                 style: Theme.of(context).textTheme.bodyMedium,
                                 textAlign: TextAlign.center,
                                 decoration: InputDecoration(
@@ -1608,7 +1606,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                             child: Center(
                               child: TextFormField(
                                 key: ValueKey('reps_${set.id}'),
-                                initialValue: set.isLogged ? set.reps : '',
+                                initialValue: set.reps,
                                 style: Theme.of(context).textTheme.bodyMedium,
                                 textAlign: TextAlign.center,
                                 decoration: InputDecoration(
