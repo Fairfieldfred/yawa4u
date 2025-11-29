@@ -44,8 +44,9 @@ class WorkoutListController {
 
     // Create copies of Week 1 workouts for the selected week
     for (final workout in week1Workouts) {
+      final newWorkoutId = const Uuid().v4();
       final newWorkout = Workout(
-        id: const Uuid().v4(),
+        id: newWorkoutId,
         mesocycleId: mesocycle.id,
         weekNumber: selectedWeek,
         dayNumber: workout.dayNumber,
@@ -53,7 +54,17 @@ class WorkoutListController {
         label: workout.label,
         status: WorkoutStatus.incomplete,
         exercises: workout.exercises
-            .map((exercise) => exercise.copyWith())
+            .map((exercise) => exercise.copyWith(
+              id: const Uuid().v4(),        // New exercise ID for the new week
+              workoutId: newWorkoutId,      // Update to point to the new workout!
+              sets: exercise.sets.map((set) => set.copyWith(
+                id: const Uuid().v4(),      // New set ID
+                isLogged: false,            // Reset logged status
+                weight: null,               // Reset weight
+                reps: '',                   // Reset reps
+                isSkipped: false,           // Reset skipped status
+              )).toList(),
+            ))
             .toList(),
       );
       await repository.create(newWorkout);

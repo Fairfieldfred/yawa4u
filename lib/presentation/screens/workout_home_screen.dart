@@ -513,6 +513,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
           displayWeek,
           displayDay,
           currentWeek: currentWeek,
+          allWorkouts: allWorkouts,
         );
       }
 
@@ -575,6 +576,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     int displayWeek,
     int displayDay, {
     required int currentWeek,
+    required List<Workout> allWorkouts,
   }) {
     final dayNames = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
     final dayName = displayDay >= 1 && displayDay <= dayNames.length
@@ -702,6 +704,9 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                 mesocycle: mesocycle,
                 currentWeek: currentWeek,
                 currentDay: displayDay,
+                selectedWeek: displayWeek,
+                selectedDay: displayDay,
+                allWorkouts: allWorkouts,
                 onDaySelected: _selectDay,
               ),
             ),
@@ -1642,7 +1647,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                           child: Container(
                             decoration: BoxDecoration(
                               color: set.isLogged
-                                  ? Colors.green.withValues(alpha: 0.2)
+                                  ? Colors.green.withValues(alpha: 0.5)
                                   : (isLoggable
                                         ? Theme.of(
                                             context,
@@ -1732,12 +1737,18 @@ class _CalendarDropdown extends StatefulWidget {
   final dynamic mesocycle;
   final int currentWeek;
   final int currentDay;
+  final int selectedWeek;
+  final int selectedDay;
+  final List<Workout> allWorkouts;
   final Function(int week, int day) onDaySelected;
 
   const _CalendarDropdown({
     required this.mesocycle,
     required this.currentWeek,
     required this.currentDay,
+    required this.selectedWeek,
+    required this.selectedDay,
+    required this.allWorkouts,
     required this.onDaySelected,
   });
 
@@ -1752,8 +1763,8 @@ class _CalendarDropdownState extends State<_CalendarDropdown> {
   @override
   void initState() {
     super.initState();
-    _selectedWeek = widget.currentWeek;
-    _selectedDay = widget.currentDay;
+    _selectedWeek = widget.selectedWeek;
+    _selectedDay = widget.selectedDay;
   }
 
   @override
@@ -1776,20 +1787,24 @@ class _CalendarDropdownState extends State<_CalendarDropdown> {
         (widget.mesocycle.daysPerWeek * (dayButtonHeight + dayMargin)) +
         bottomPadding;
 
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       height: calculatedHeight,
       decoration: BoxDecoration(
-        color: const Color(0xFF1C1C1E),
+        color: Theme.of(context).colorScheme.surface,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.3),
+            color: isDarkMode
+                ? Colors.black.withValues(alpha: 0.3)
+                : Colors.black.withValues(alpha: 0.1),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
         ],
         border: Border(
           bottom: BorderSide(
-            color: Colors.white.withValues(alpha: 0.1),
+            color: Theme.of(context).dividerColor,
             width: 1,
           ),
         ),
@@ -1805,7 +1820,7 @@ class _CalendarDropdownState extends State<_CalendarDropdown> {
                 Text(
                   'WEEKS',
                   style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.6),
+                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
                     letterSpacing: 0.5,
@@ -1814,9 +1829,9 @@ class _CalendarDropdownState extends State<_CalendarDropdown> {
                 Row(
                   children: [
                     IconButton(
-                      icon: const Icon(
+                      icon: Icon(
                         Icons.remove,
-                        color: Colors.white,
+                        color: Theme.of(context).colorScheme.onSurface,
                         size: 20,
                       ),
                       onPressed: _selectedWeek > 1
@@ -1827,16 +1842,16 @@ class _CalendarDropdownState extends State<_CalendarDropdown> {
                             }
                           : null,
                       style: IconButton.styleFrom(
-                        backgroundColor: const Color(0xFF2C2C2E),
+                        backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
                         padding: const EdgeInsets.all(8),
                         minimumSize: const Size(36, 36),
                       ),
                     ),
                     const SizedBox(width: 8),
                     IconButton(
-                      icon: const Icon(
+                      icon: Icon(
                         Icons.add,
-                        color: Colors.white,
+                        color: Theme.of(context).colorScheme.onSurface,
                         size: 20,
                       ),
                       onPressed: _selectedWeek < widget.mesocycle.weeksTotal
@@ -1847,7 +1862,7 @@ class _CalendarDropdownState extends State<_CalendarDropdown> {
                             }
                           : null,
                       style: IconButton.styleFrom(
-                        backgroundColor: const Color(0xFF2C2C2E),
+                        backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
                         padding: const EdgeInsets.all(8),
                         minimumSize: const Size(36, 36),
                       ),
@@ -1903,8 +1918,8 @@ class _CalendarDropdownState extends State<_CalendarDropdown> {
               children: [
                 Text(
                   isDeload ? 'DL' : '$weekNumber',
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
@@ -1912,7 +1927,7 @@ class _CalendarDropdownState extends State<_CalendarDropdown> {
                 Text(
                   '${_calculateRIR(weekNumber)} RIR',
                   style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.6),
+                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                     fontSize: 10,
                   ),
                 ),
@@ -1927,9 +1942,31 @@ class _CalendarDropdownState extends State<_CalendarDropdown> {
             final isCurrentDay = dayNumber == widget.currentDay;
             final isSelected =
                 weekNumber == _selectedWeek && dayNumber == _selectedDay;
+
+            // Check actual workout completion status from database
+            final dayWorkouts = widget.allWorkouts
+                .where(
+                  (w) => w.weekNumber == weekNumber && w.dayNumber == dayNumber,
+                )
+                .toList();
             final isCompleted =
-                weekNumber < widget.currentWeek ||
-                (isCurrentWeek && dayNumber < widget.currentDay);
+                dayWorkouts.isNotEmpty &&
+                dayWorkouts.every((w) => w.status == WorkoutStatus.completed);
+
+            // Determine background and text colors based on state
+            Color backgroundColor;
+            Color textColor;
+
+            if (isCompleted) {
+              backgroundColor = Colors.green;
+              textColor = Colors.white;
+            } else if (isCurrentWeek && isCurrentDay) {
+              backgroundColor = Colors.red;
+              textColor = Colors.white;
+            } else {
+              backgroundColor = Theme.of(context).colorScheme.surfaceContainerHighest;
+              textColor = Theme.of(context).colorScheme.onSurface;
+            }
 
             return GestureDetector(
               onTap: () {
@@ -1939,11 +1976,7 @@ class _CalendarDropdownState extends State<_CalendarDropdown> {
                 height: 48,
                 margin: const EdgeInsets.only(bottom: 6),
                 decoration: BoxDecoration(
-                  color: isCompleted
-                      ? Colors.green
-                      : (isCurrentWeek && isCurrentDay)
-                      ? Colors.red
-                      : const Color(0xFF2C2C2E),
+                  color: backgroundColor,
                   borderRadius: BorderRadius.circular(8),
                   border: isSelected
                       ? Border.all(color: Colors.orange, width: 2)
@@ -1953,7 +1986,7 @@ class _CalendarDropdownState extends State<_CalendarDropdown> {
                 child: Text(
                   dayNames[dayIndex],
                   style: TextStyle(
-                    color: Colors.white,
+                    color: textColor,
                     fontSize: 13,
                     fontWeight: isSelected
                         ? FontWeight.bold
