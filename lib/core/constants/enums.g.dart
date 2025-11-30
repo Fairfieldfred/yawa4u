@@ -107,6 +107,10 @@ class SetTypeAdapter extends TypeAdapter<SetType> {
         return SetType.myorep;
       case 2:
         return SetType.myorepMatch;
+      case 3:
+        return SetType.maxReps;
+      case 4:
+        return SetType.endWithPartials;
       default:
         return SetType.regular;
     }
@@ -123,6 +127,12 @@ class SetTypeAdapter extends TypeAdapter<SetType> {
         break;
       case SetType.myorepMatch:
         writer.writeByte(2);
+        break;
+      case SetType.maxReps:
+        writer.writeByte(3);
+        break;
+      case SetType.endWithPartials:
+        writer.writeByte(4);
         break;
     }
   }

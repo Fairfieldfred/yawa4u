@@ -425,307 +425,80 @@ class _MesocycleListScreenState extends ConsumerState<MesocycleListScreen> {
   }
 
   Future<void> _saveAsTemplate(Mesocycle mesocycle) async {
-    final TextEditingController nameController = TextEditingController(
-      text: mesocycle.name,
+    final result = await showDialog<({String name, String description})>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => _SaveTemplateDialog(initialName: mesocycle.name),
     );
-    final TextEditingController descriptionController = TextEditingController();
 
-    try {
-      final result = await showDialog<({String name, String description})>(
-        context: context,
-        builder: (context) => Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Container(
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface,
-              borderRadius: BorderRadius.circular(20),
+    if (result != null && mounted) {
+      try {
+        // Load the full mesocycle with workouts
+        final workouts = ref.read(workoutsByMesocycleProvider(mesocycle.id));
+        final fullMesocycle = mesocycle.copyWith(workouts: workouts);
+
+        final repository = ref.read(templateRepositoryProvider);
+        await repository.saveAsTemplate(
+          fullMesocycle,
+          result.name,
+          result.description,
+        );
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Template "${result.name}" saved!'),
+              backgroundColor: Colors.green,
             ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const SizedBox(width: 40),
-                    Text(
-                      'Save as Template',
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.close),
-                      onPressed: () => Navigator.pop(context),
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'Template Name',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                TextField(
-                  controller: nameController,
-                  autofocus: true,
-                  decoration: InputDecoration(
-                    hintText: 'e.g., "Upper Lower Split"',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    filled: true,
-                    fillColor: Theme.of(
-                      context,
-                    ).colorScheme.surfaceContainerHighest,
-                  ),
-                  style: Theme.of(context).textTheme.bodyLarge,
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'Description',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                TextField(
-                  controller: descriptionController,
-                  maxLines: 3,
-                  decoration: InputDecoration(
-                    hintText: 'e.g., "Great for building strength and size"',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    filled: true,
-                    fillColor: Theme.of(
-                      context,
-                    ).colorScheme.surfaceContainerHighest,
-                  ),
-                  style: Theme.of(context).textTheme.bodyLarge,
-                ),
-                const SizedBox(height: 24),
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: () => Navigator.pop(context),
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        child: const Text('CANCEL'),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: FilledButton(
-                        onPressed: () {
-                          final trimmedName = nameController.text.trim();
-                          final trimmedDescription =
-                              descriptionController.text.trim();
-                          if (trimmedName.isNotEmpty &&
-                              trimmedDescription.isNotEmpty) {
-                            Navigator.pop(
-                              context,
-                              (name: trimmedName, description: trimmedDescription),
-                            );
-                          }
-                        },
-                        style: FilledButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        child: const Text('SAVE'),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
-
-      if (result != null && mounted) {
-        try {
-          // Load the full mesocycle with workouts
-          final workouts = ref.read(workoutsByMesocycleProvider(mesocycle.id));
-          final fullMesocycle = mesocycle.copyWith(workouts: workouts);
-
-          final repository = ref.read(templateRepositoryProvider);
-          await repository.saveAsTemplate(
-            fullMesocycle,
-            result.name,
-            result.description,
           );
 
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('Template "${result.name}" saved!'),
-                backgroundColor: Colors.green,
-              ),
-            );
-
-            // Refresh templates provider
-            ref.invalidate(availableTemplatesProvider);
-          }
-        } catch (e) {
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('Error saving template: $e'),
-                backgroundColor: Colors.red,
-              ),
-            );
-          }
+          // Refresh templates provider
+          ref.invalidate(availableTemplatesProvider);
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error saving template: $e'),
+              backgroundColor: Colors.red,
+            ),
+          );
         }
       }
-    } finally {
-      Future.microtask(() {
-        nameController.dispose();
-        descriptionController.dispose();
-      });
     }
   }
 
   Future<void> _showRenameMesocycleModal(Mesocycle mesocycle) async {
-    final TextEditingController nameController = TextEditingController(
-      text: mesocycle.name,
+    final newName = await showDialog<String>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => _RenameMesocycleDialog(initialName: mesocycle.name),
     );
 
-    try {
-      final newName = await showDialog<String>(
-        context: context,
-        builder: (context) => Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Container(
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface,
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const SizedBox(width: 40),
-                    Text(
-                      'Rename',
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.close),
-                      onPressed: () => Navigator.pop(context),
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 24),
-                TextField(
-                  controller: nameController,
-                  autofocus: true,
-                  decoration: InputDecoration(
-                    hintText: 'Mesocycle name',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    filled: true,
-                    fillColor: Theme.of(
-                      context,
-                    ).colorScheme.surfaceContainerHighest,
-                  ),
-                  style: Theme.of(context).textTheme.bodyLarge,
-                ),
-                const SizedBox(height: 24),
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: () => Navigator.pop(context),
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        child: const Text('CANCEL'),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: FilledButton(
-                        onPressed: () {
-                          final trimmedName = nameController.text.trim();
-                          if (trimmedName.isNotEmpty) {
-                            Navigator.pop(context, trimmedName);
-                          }
-                        },
-                        style: FilledButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        child: const Text('SAVE'),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
+    if (newName != null && newName != mesocycle.name && mounted) {
+      try {
+        final repository = ref.read(mesocycleRepositoryProvider);
+        final updatedMesocycle = mesocycle.copyWith(name: newName);
+        await repository.update(updatedMesocycle);
 
-      if (newName != null && newName != mesocycle.name && mounted) {
-        try {
-          final repository = ref.read(mesocycleRepositoryProvider);
-          final updatedMesocycle = mesocycle.copyWith(name: newName);
-          await repository.update(updatedMesocycle);
-
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('Renamed to "$newName"'),
-                backgroundColor: Colors.green,
-              ),
-            );
-          }
-        } catch (e) {
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('Error renaming mesocycle: $e'),
-                backgroundColor: Colors.red,
-              ),
-            );
-          }
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Renamed to "$newName"'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error renaming mesocycle: $e'),
+              backgroundColor: Colors.red,
+            ),
+          );
         }
       }
-    } finally {
-      // Dispose after a microtask to ensure dialog is fully closed
-      Future.microtask(() => nameController.dispose());
     }
   }
 
@@ -772,5 +545,269 @@ class _MesocycleListScreenState extends ConsumerState<MesocycleListScreen> {
         }
       }
     }
+  }
+}
+
+// Stateful dialog widget for renaming mesocycle
+class _RenameMesocycleDialog extends StatefulWidget {
+  final String initialName;
+
+  const _RenameMesocycleDialog({required this.initialName});
+
+  @override
+  State<_RenameMesocycleDialog> createState() => _RenameMesocycleDialogState();
+}
+
+class _RenameMesocycleDialogState extends State<_RenameMesocycleDialog> {
+  late final TextEditingController nameController;
+
+  @override
+  void initState() {
+    super.initState();
+    nameController = TextEditingController(text: widget.initialName);
+  }
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Container(
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const SizedBox(width: 40),
+                Text(
+                  'Rename',
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () => Navigator.of(context).pop(),
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+            TextField(
+              controller: nameController,
+              autofocus: true,
+              decoration: InputDecoration(
+                hintText: 'Mesocycle name',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                filled: true,
+                fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+              ),
+              style: Theme.of(context).textTheme.bodyLarge,
+            ),
+            const SizedBox(height: 24),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: const Text('CANCEL'),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: FilledButton(
+                    onPressed: () {
+                      final trimmedName = nameController.text.trim();
+                      if (trimmedName.isNotEmpty) {
+                        Navigator.of(context).pop(trimmedName);
+                      }
+                    },
+                    style: FilledButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: const Text('SAVE'),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// Stateful dialog widget to properly manage TextEditingController lifecycle
+class _SaveTemplateDialog extends StatefulWidget {
+  final String initialName;
+
+  const _SaveTemplateDialog({required this.initialName});
+
+  @override
+  State<_SaveTemplateDialog> createState() => _SaveTemplateDialogState();
+}
+
+class _SaveTemplateDialogState extends State<_SaveTemplateDialog> {
+  late final TextEditingController nameController;
+  late final TextEditingController descriptionController;
+
+  @override
+  void initState() {
+    super.initState();
+    nameController = TextEditingController(text: widget.initialName);
+    descriptionController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    descriptionController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Container(
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const SizedBox(width: 40),
+                Text(
+                  'Save as Template',
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () => Navigator.of(context).pop(),
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Template Name',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 8),
+            TextField(
+              controller: nameController,
+              autofocus: true,
+              decoration: InputDecoration(
+                hintText: 'e.g., "Upper Lower Split"',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                filled: true,
+                fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+              ),
+              style: Theme.of(context).textTheme.bodyLarge,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Description',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 8),
+            TextField(
+              controller: descriptionController,
+              maxLines: 3,
+              decoration: InputDecoration(
+                hintText: 'e.g., "Great for building strength and size"',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                filled: true,
+                fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+              ),
+              style: Theme.of(context).textTheme.bodyLarge,
+            ),
+            const SizedBox(height: 24),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: const Text('CANCEL'),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: FilledButton(
+                    onPressed: () {
+                      final trimmedName = nameController.text.trim();
+                      final trimmedDescription = descriptionController.text.trim();
+                      if (trimmedName.isNotEmpty && trimmedDescription.isNotEmpty) {
+                        Navigator.of(context).pop(
+                          (name: trimmedName, description: trimmedDescription),
+                        );
+                      }
+                    },
+                    style: FilledButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: const Text('SAVE'),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

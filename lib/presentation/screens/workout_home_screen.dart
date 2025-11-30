@@ -12,6 +12,7 @@ import '../../domain/providers/mesocycle_providers.dart';
 import '../../domain/providers/repository_providers.dart';
 import '../../domain/providers/theme_provider.dart';
 import '../../domain/providers/workout_providers.dart';
+import 'add_exercise_screen.dart';
 
 /// Workout home screen - shows current/upcoming workouts
 class WorkoutHomeScreen extends ConsumerStatefulWidget {
@@ -38,6 +39,21 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
       _selectedWeek = week;
       _selectedDay = day;
     });
+  }
+
+  String? _getSetTypeBadge(SetType setType) {
+    switch (setType) {
+      case SetType.regular:
+        return null;
+      case SetType.myorep:
+        return 'M';
+      case SetType.myorepMatch:
+        return 'MM';
+      case SetType.maxReps:
+        return 'MX';
+      case SetType.endWithPartials:
+        return 'EP';
+    }
   }
 
   Future<void> _updateSetWeight(
@@ -265,29 +281,198 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
   }
 
   Future<void> _addNote(String workoutId, String exerciseId) async {
-    // TODO: Implement note dialog
-    debugPrint('Add note for exercise: $exerciseId');
-  }
-
-  Future<void> _moveExerciseDown(String workoutId, String exerciseId) async {
     final repository = ref.read(workoutRepositoryProvider);
     final workout = repository.getById(workoutId);
     if (workout == null) return;
 
-    final index = workout.exercises.indexWhere((e) => e.id == exerciseId);
-    if (index == -1 || index >= workout.exercises.length - 1) return;
+    final exercise = workout.exercises.firstWhere((e) => e.id == exerciseId);
+    final noteController = TextEditingController(text: exercise.notes ?? '');
 
-    final updatedExercises = List<Exercise>.from(workout.exercises);
-    final exercise = updatedExercises.removeAt(index);
-    updatedExercises.insert(index + 1, exercise);
+    final result = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Exercise Note'),
+        content: TextField(
+          controller: noteController,
+          decoration: const InputDecoration(
+            hintText: 'Enter your note here...',
+            border: OutlineInputBorder(),
+          ),
+          maxLines: 5,
+          autofocus: true,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('CANCEL'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, noteController.text),
+            child: const Text('SAVE'),
+          ),
+        ],
+      ),
+    );
 
-    final updatedWorkout = workout.copyWith(exercises: updatedExercises);
-    await repository.update(updatedWorkout);
+    if (result != null) {
+      final updatedExercise = exercise.copyWith(notes: result.isEmpty ? null : result);
+      final updatedExercises = workout.exercises
+          .map((e) => e.id == exerciseId ? updatedExercise : e)
+          .toList();
+      final updatedWorkout = workout.copyWith(exercises: updatedExercises);
+      await repository.update(updatedWorkout);
+    }
+  }
+
+  Future<void> _moveExerciseDown(String workoutId, String exerciseId) async {
+    debugPrint('Move exercise down called: workoutId=$workoutId, exerciseId=$exerciseId');
+    final repository = ref.read(workoutRepositoryProvider);
+
+    // Get the current mesocycle to find all workouts for today
+    final mesocycle = ref.read(currentMesocycleProvider);
+    if (mesocycle == null) {
+      debugPrint('No current mesocycle');
+      return;
+    }
+
+    // Get all workouts for this mesocycle
+    final allWorkouts = ref.read(workoutsByMesocycleProvider(mesocycle.id));
+
+    // Get current week and day
+    final currentWeek = mesocycle.getCurrentWeek();
+    if (currentWeek == null) {
+      debugPrint('Could not determine current week');
+      return;
+    }
+
+    // Use selected week/day if available, otherwise use current
+    final displayWeek = _selectedWeek ?? currentWeek;
+    final displayDay = _selectedDay ?? (() {
+      final daysSinceStart = DateTime.now()
+          .difference(mesocycle.startDate!)
+          .inDays;
+      final daysSinceWeekStart = daysSinceStart % 7;
+      return (daysSinceWeekStart + 1).clamp(1, 7);
+    })();
+
+    final todaysWorkouts = allWorkouts.where((w) =>
+      w.weekNumber == displayWeek &&
+      w.dayNumber == displayDay
+    ).toList();
+
+    // Collect all exercises from all workouts
+    final allExercises = <Exercise>[];
+    for (var workout in todaysWorkouts) {
+      allExercises.addAll(workout.exercises);
+    }
+
+    debugPrint('Total exercises across all workouts: ${allExercises.length}');
+
+    // Find the exercise's position in the complete list
+    final globalIndex = allExercises.indexWhere((e) => e.id == exerciseId);
+    if (globalIndex == -1) {
+      debugPrint('Exercise not found in allExercises');
+      return;
+    }
+
+    if (globalIndex >= allExercises.length - 1) {
+      debugPrint('Exercise is already at the bottom');
+      return;
+    }
+
+    // Get the exercise to move and the exercise to swap with
+    final exerciseToMove = allExercises[globalIndex];
+    final exerciseToSwapWith = allExercises[globalIndex + 1];
+
+    debugPrint('Moving "${exerciseToMove.name}" down, swapping with "${exerciseToSwapWith.name}"');
+
+    // Find which workouts contain these exercises
+    Workout? workoutWithMovingExercise;
+    Workout? workoutWithSwapExercise;
+
+    for (var workout in todaysWorkouts) {
+      if (workout.exercises.any((e) => e.id == exerciseToMove.id)) {
+        workoutWithMovingExercise = workout;
+      }
+      if (workout.exercises.any((e) => e.id == exerciseToSwapWith.id)) {
+        workoutWithSwapExercise = workout;
+      }
+    }
+
+    if (workoutWithMovingExercise == null || workoutWithSwapExercise == null) {
+      debugPrint('Could not find workouts containing the exercises');
+      return;
+    }
+
+    if (workoutWithMovingExercise.id == workoutWithSwapExercise.id) {
+      // Same workout - just swap positions
+      final workout = workoutWithMovingExercise;
+      final exercises = List<Exercise>.from(workout.exercises);
+      final idx1 = exercises.indexWhere((e) => e.id == exerciseToMove.id);
+      final idx2 = exercises.indexWhere((e) => e.id == exerciseToSwapWith.id);
+
+      final temp = exercises[idx1];
+      exercises[idx1] = exercises[idx2];
+      exercises[idx2] = temp;
+
+      final updatedWorkout = workout.copyWith(exercises: exercises);
+      await repository.update(updatedWorkout);
+      debugPrint('Swapped exercises within same workout');
+    } else {
+      // Different workouts - move exercise between workouts
+      // Remove from first workout
+      final exercises1 = workoutWithMovingExercise.exercises
+          .where((e) => e.id != exerciseToMove.id)
+          .toList();
+
+      // Add to second workout (insert at the position before the swap exercise)
+      final exercises2 = List<Exercise>.from(workoutWithSwapExercise.exercises);
+      final insertIndex = exercises2.indexWhere((e) => e.id == exerciseToSwapWith.id);
+
+      // Update the exercise's workoutId to match the new workout
+      final movedExercise = exerciseToMove.copyWith(
+        workoutId: workoutWithSwapExercise.id,
+      );
+      exercises2.insert(insertIndex, movedExercise);
+
+      final updatedWorkout1 = workoutWithMovingExercise.copyWith(exercises: exercises1);
+      final updatedWorkout2 = workoutWithSwapExercise.copyWith(exercises: exercises2);
+
+      await repository.update(updatedWorkout1);
+      await repository.update(updatedWorkout2);
+      debugPrint('Moved exercise from workout ${workoutWithMovingExercise.id} to ${workoutWithSwapExercise.id}');
+    }
+
+    debugPrint('Exercise moved successfully');
   }
 
   Future<void> _replaceExercise(String workoutId, String exerciseId) async {
-    // TODO: Implement replace exercise navigation
-    debugPrint('Replace exercise: $exerciseId');
+    // Get the workout and exercise
+    final workout = ref.read(workoutProvider(workoutId));
+    if (workout == null) return;
+
+    final exercise = workout.exercises.firstWhere(
+      (e) => e.id == exerciseId,
+      orElse: () => throw Exception('Exercise not found'),
+    );
+
+    // First delete the current exercise
+    final updatedExercises = workout.exercises.where((e) => e.id != exerciseId).toList();
+    final updatedWorkout = workout.copyWith(exercises: updatedExercises);
+    await ref.read(workoutRepositoryProvider).update(updatedWorkout);
+
+    // Navigate to add exercise screen with the same muscle group
+    if (mounted) {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => AddExerciseScreen(
+            mesocycleId: workout.mesocycleId,
+            workoutId: workout.id,
+            initialMuscleGroup: exercise.muscleGroup,
+          ),
+        ),
+      );
+    }
   }
 
   Future<void> _logJointPain(String workoutId, String exerciseId) async {
@@ -578,7 +763,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     required int currentWeek,
     required List<Workout> allWorkouts,
   }) {
-    final dayNames = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
+    final dayNames = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
     final dayName = displayDay >= 1 && displayDay <= dayNames.length
         ? dayNames[displayDay - 1]
         : 'DAY $displayDay';
@@ -765,13 +950,11 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     final RenderBox button = context.findRenderObject() as RenderBox;
     final RenderBox overlay =
         Navigator.of(context).overlay!.context.findRenderObject() as RenderBox;
+    final Offset buttonPosition = button.localToGlobal(Offset.zero, ancestor: overlay);
     final RelativeRect position = RelativeRect.fromRect(
       Rect.fromPoints(
-        button.localToGlobal(Offset.zero, ancestor: overlay),
-        button.localToGlobal(
-          button.size.bottomRight(Offset.zero),
-          ancestor: overlay,
-        ),
+        buttonPosition + const Offset(-180, 40),
+        buttonPosition + const Offset(-180, 40) + const Offset(250, 0),
       ),
       Offset.zero & overlay.size,
     );
@@ -899,7 +1082,120 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
   }
 
   void _addExerciseToWorkout(List<Workout> workouts) {
-    debugPrint('Add exercise');
+    if (workouts.isEmpty) return;
+
+    // Always show muscle group selector to allow adding any muscle group
+    _showMuscleGroupSelector(workouts);
+  }
+
+  void _showMuscleGroupSelector(List<Workout> workouts) async {
+    if (workouts.isEmpty) return;
+
+    // Get the mesocycle info from the first workout
+    final mesocycleId = workouts.first.mesocycleId;
+    final dayNumber = workouts.first.dayNumber;
+    final weekNumber = workouts.first.weekNumber;
+    final dayName = workouts.first.dayName;
+
+    // Create a map of existing muscle groups to their workouts
+    final muscleGroupWorkouts = <MuscleGroup, Workout>{};
+    for (final workout in workouts) {
+      if (workout.exercises.isNotEmpty) {
+        final muscleGroup = workout.exercises.first.muscleGroup;
+        if (!muscleGroupWorkouts.containsKey(muscleGroup)) {
+          muscleGroupWorkouts[muscleGroup] = workout;
+        }
+      }
+    }
+
+    // Show all muscle groups
+    final allMuscleGroups = MuscleGroup.values.toList()
+      ..sort((a, b) => a.displayName.compareTo(b.displayName));
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) => Container(
+        height: MediaQuery.of(context).size.height * 0.8,
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: SafeArea(
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Text(
+                  'Select Muscle Group',
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+              ),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: allMuscleGroups.length,
+                  itemBuilder: (context, index) {
+                    final muscleGroup = allMuscleGroups[index];
+                    final existingWorkout = muscleGroupWorkouts[muscleGroup];
+
+                    return ListTile(
+                      title: Text(muscleGroup.displayName),
+                      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                      onTap: () async {
+                        Navigator.pop(context);
+
+                        // If workout exists for this muscle group, use it
+                        if (existingWorkout != null) {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => AddExerciseScreen(
+                                mesocycleId: existingWorkout.mesocycleId,
+                                workoutId: existingWorkout.id,
+                                initialMuscleGroup: muscleGroup,
+                              ),
+                            ),
+                          );
+                        } else {
+                          // Create a new workout for this muscle group
+                          final newWorkout = Workout(
+                            id: const Uuid().v4(),
+                            mesocycleId: mesocycleId,
+                            weekNumber: weekNumber,
+                            dayNumber: dayNumber,
+                            dayName: dayName,
+                            label: muscleGroup.displayName,
+                            exercises: [],
+                          );
+
+                          // Save the new workout
+                          await ref
+                              .read(workoutRepositoryProvider)
+                              .create(newWorkout);
+
+                          // Navigate to add exercise screen
+                          if (context.mounted) {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => AddExerciseScreen(
+                                  mesocycleId: newWorkout.mesocycleId,
+                                  workoutId: newWorkout.id,
+                                  initialMuscleGroup: muscleGroup,
+                                ),
+                              ),
+                            );
+                          }
+                        }
+                      },
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   void _logBodyweight() {
@@ -1008,6 +1304,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                         color: Theme.of(context).textTheme.bodySmall?.color,
                         size: 24,
                       ),
+                      offset: const Offset(-180, 40),
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(minWidth: 250),
                       color: const Color(0xFF2C2C2E),
@@ -1219,11 +1516,13 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                           child: Text(
                             'WEIGHT',
                             style: TextStyle(
-                              color: Theme.of(context)
-                                  .textTheme
-                                  .bodySmall
-                                  ?.color
-                                  ?.withValues(alpha: 0.7),
+                              color: Theme.of(context).brightness == Brightness.light
+                                  ? Theme.of(context)
+                                      .textTheme
+                                      .bodySmall
+                                      ?.color
+                                      ?.withValues(alpha: 0.7)
+                                  : Colors.white,
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
                             ),
@@ -1232,32 +1531,20 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                         ),
                         const SizedBox(width: 16),
                         Expanded(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                'REPS',
-                                style: TextStyle(
-                                  color: Theme.of(context)
+                          child: Text(
+                            'REPS',
+                            style: TextStyle(
+                              color: Theme.of(context).brightness == Brightness.light
+                                  ? Theme.of(context)
                                       .textTheme
                                       .bodySmall
                                       ?.color
-                                      ?.withValues(alpha: 0.7),
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                              const SizedBox(width: 4),
-                              Icon(
-                                Icons.info_outline,
-                                size: 14,
-                                color: Theme.of(context)
-                                    .textTheme
-                                    .bodySmall
-                                    ?.color
-                                    ?.withValues(alpha: 0.7),
-                              ),
-                            ],
+                                      ?.withValues(alpha: 0.7)
+                                  : Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            textAlign: TextAlign.center,
                           ),
                         ),
                         const SizedBox(width: 16),
@@ -1266,11 +1553,13 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                           child: Text(
                             'LOG',
                             style: TextStyle(
-                              color: Theme.of(context)
-                                  .textTheme
-                                  .bodySmall
-                                  ?.color
-                                  ?.withValues(alpha: 0.7),
+                              color: Theme.of(context).brightness == Brightness.light
+                                  ? Theme.of(context)
+                                      .textTheme
+                                      .bodySmall
+                                      ?.color
+                                      ?.withValues(alpha: 0.7)
+                                  : Colors.white,
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
                             ),
@@ -1300,6 +1589,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                               ).iconTheme.color?.withValues(alpha: 0.6),
                               size: 20,
                             ),
+                            offset: const Offset(0, 40),
                             padding: EdgeInsets.zero,
                             constraints: const BoxConstraints(minWidth: 250),
                             color: Theme.of(context).cardTheme.color,
@@ -1356,6 +1646,22 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                                     SetType.myorepMatch,
                                   );
                                   break;
+                                case 'max_reps':
+                                  _updateSetType(
+                                    exercise.workoutId,
+                                    exercise.id,
+                                    index,
+                                    SetType.maxReps,
+                                  );
+                                  break;
+                                case 'end_with_partials':
+                                  _updateSetType(
+                                    exercise.workoutId,
+                                    exercise.id,
+                                    index,
+                                    SetType.endWithPartials,
+                                  );
+                                  break;
                               }
                             },
                             itemBuilder: (context) => [
@@ -1373,20 +1679,26 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                                 ),
                               ),
                               // Add set below
-                              const PopupMenuItem<String>(
+                              PopupMenuItem<String>(
                                 value: 'add_below',
                                 height: 40,
                                 child: Row(
                                   children: [
                                     Icon(
                                       Icons.subdirectory_arrow_right,
-                                      color: Colors.white,
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.onSurface,
                                       size: 20,
                                     ),
-                                    SizedBox(width: 12),
+                                    const SizedBox(width: 12),
                                     Text(
                                       'Add set below',
-                                      style: TextStyle(color: Colors.white),
+                                      style: TextStyle(
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.onSurface,
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -1397,16 +1709,20 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                                 height: 40,
                                 child: Row(
                                   children: [
-                                    const Icon(
+                                    Icon(
                                       Icons.fast_forward,
-                                      color: Colors.white,
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.onSurface,
                                       size: 20,
                                     ),
                                     const SizedBox(width: 12),
                                     Text(
                                       set.isSkipped ? 'Unskip set' : 'Skip set',
-                                      style: const TextStyle(
-                                        color: Colors.white,
+                                      style: TextStyle(
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.onSurface,
                                       ),
                                     ),
                                   ],
@@ -1448,6 +1764,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                               // Regular
                               PopupMenuItem<String>(
                                 value: 'regular',
+                                height: 40,
                                 child: Row(
                                   children: [
                                     Icon(
@@ -1460,27 +1777,12 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                                       size: 20,
                                     ),
                                     const SizedBox(width: 12),
-                                    const Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          Text(
-                                            'Regular',
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                          Text(
-                                            '(straight, down, ascending)',
-                                            style: TextStyle(
-                                              color: Colors.grey,
-                                              fontSize: 12,
-                                            ),
-                                          ),
-                                        ],
+                                    Text(
+                                      'Regular',
+                                      style: TextStyle(
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.onSurface,
                                       ),
                                     ),
                                   ],
@@ -1502,15 +1804,13 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                                       size: 20,
                                     ),
                                     const SizedBox(width: 12),
-                                    const Text(
+                                    Text(
                                       'Myorep',
-                                      style: TextStyle(color: Colors.white),
-                                    ),
-                                    const Spacer(),
-                                    const Icon(
-                                      Icons.info_outline,
-                                      color: Colors.blue,
-                                      size: 20,
+                                      style: TextStyle(
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.onSurface,
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -1531,15 +1831,68 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                                       size: 20,
                                     ),
                                     const SizedBox(width: 12),
-                                    const Text(
+                                    Text(
                                       'Myorep match',
-                                      style: TextStyle(color: Colors.white),
+                                      style: TextStyle(
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.onSurface,
+                                      ),
                                     ),
-                                    const Spacer(),
-                                    const Icon(
-                                      Icons.info_outline,
-                                      color: Colors.blue,
+                                  ],
+                                ),
+                              ),
+                              // Max reps
+                              PopupMenuItem<String>(
+                                value: 'max_reps',
+                                height: 40,
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      set.setType == SetType.maxReps
+                                          ? Icons.radio_button_checked
+                                          : Icons.radio_button_unchecked,
+                                      color: set.setType == SetType.maxReps
+                                          ? Colors.red
+                                          : Colors.grey,
                                       size: 20,
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Text(
+                                      'Max reps',
+                                      style: TextStyle(
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.onSurface,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              // End with partials
+                              PopupMenuItem<String>(
+                                value: 'end_with_partials',
+                                height: 40,
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      set.setType == SetType.endWithPartials
+                                          ? Icons.radio_button_checked
+                                          : Icons.radio_button_unchecked,
+                                      color:
+                                          set.setType == SetType.endWithPartials
+                                          ? Colors.red
+                                          : Colors.grey,
+                                      size: 20,
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Text(
+                                      'End with partials',
+                                      style: TextStyle(
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.onSurface,
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -1597,45 +1950,79 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
 
                         // Reps Input
                         Expanded(
-                          child: Container(
-                            height: 40,
-                            decoration: BoxDecoration(
-                              color: Theme.of(
-                                context,
-                              ).inputDecorationTheme.fillColor,
-                              borderRadius: BorderRadius.circular(4),
-                              border: Border.all(
-                                color: Theme.of(context).dividerColor,
-                              ),
-                            ),
-                            child: Center(
-                              child: TextFormField(
-                                key: ValueKey('reps_${set.id}'),
-                                initialValue: set.reps,
-                                style: Theme.of(context).textTheme.bodyMedium,
-                                textAlign: TextAlign.center,
-                                decoration: InputDecoration(
-                                  hintText: targetRir != null
-                                      ? '$targetRir RIR'
-                                      : 'RIR',
-                                  hintStyle: Theme.of(
+                          child: Stack(
+                            children: [
+                              Container(
+                                height: 40,
+                                decoration: BoxDecoration(
+                                  color: Theme.of(
                                     context,
-                                  ).inputDecorationTheme.hintStyle,
-                                  border: InputBorder.none,
-                                  contentPadding: const EdgeInsets.only(
-                                    bottom: 12,
+                                  ).inputDecorationTheme.fillColor,
+                                  borderRadius: BorderRadius.circular(4),
+                                  border: Border.all(
+                                    color: Theme.of(context).dividerColor,
                                   ),
                                 ),
-                                onChanged: (value) {
-                                  _updateSetReps(
-                                    exercise.workoutId,
-                                    exercise.id,
-                                    index,
-                                    value,
-                                  );
-                                },
+                                child: Center(
+                                  child: TextFormField(
+                                    key: ValueKey('reps_${set.id}'),
+                                    initialValue: set.reps,
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.bodyMedium,
+                                    textAlign: TextAlign.center,
+                                    decoration: InputDecoration(
+                                      hintText: targetRir != null
+                                          ? '$targetRir RIR'
+                                          : 'RIR',
+                                      hintStyle: Theme.of(
+                                        context,
+                                      ).inputDecorationTheme.hintStyle,
+                                      border: InputBorder.none,
+                                      contentPadding: const EdgeInsets.only(
+                                        bottom: 12,
+                                      ),
+                                    ),
+                                    onChanged: (value) {
+                                      _updateSetReps(
+                                        exercise.workoutId,
+                                        exercise.id,
+                                        index,
+                                        value,
+                                      );
+                                    },
+                                  ),
+                                ),
                               ),
-                            ),
+                              // Badge for non-regular set types
+                              if (_getSetTypeBadge(set.setType) != null)
+                                Positioned(
+                                  top: 2,
+                                  right: 4,
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 4,
+                                      vertical: 2,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey.withValues(alpha: 0.6),
+                                      borderRadius: BorderRadius.circular(3),
+                                    ),
+                                    child: Text(
+                                      _getSetTypeBadge(set.setType)!,
+                                      style: TextStyle(
+                                        color:
+                                            Theme.of(context).brightness ==
+                                                Brightness.light
+                                            ? Colors.black
+                                            : Colors.white,
+                                        fontSize: 9,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                            ],
                           ),
                         ),
                         const SizedBox(width: 16),
@@ -1767,6 +2154,131 @@ class _CalendarDropdownState extends State<_CalendarDropdown> {
     _selectedDay = widget.selectedDay;
   }
 
+  Future<void> _addWeek() async {
+    // Add a new week before the deload week
+    final mesocycle = widget.mesocycle;
+    final newWeekNumber = mesocycle.weeksTotal;
+
+    // Get all existing workouts
+    final repository = widget.ref.read(workoutRepositoryProvider);
+    final allWorkouts = widget.ref.read(workoutsByMesocycleProvider(mesocycle.id));
+
+    // Get the last non-deload week as a template
+    final templateWeek = mesocycle.weeksTotal - 1;
+    final templateWorkouts = allWorkouts.where((w) => w.weekNumber == templateWeek).toList();
+
+    if (templateWorkouts.isEmpty) {
+      // If no template workouts found, show error
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Cannot add week: No template workouts found'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+      return;
+    }
+
+    // Update deload week workouts to be one week later
+    final deloadWorkouts = allWorkouts.where((w) => w.weekNumber == mesocycle.weeksTotal).toList();
+    for (var workout in deloadWorkouts) {
+      final updatedWorkout = workout.copyWith(weekNumber: newWeekNumber + 1);
+      await repository.update(updatedWorkout);
+    }
+
+    // Create new workouts for the new week based on template
+    for (var templateWorkout in templateWorkouts) {
+      final newWorkout = templateWorkout.copyWith(
+        id: const Uuid().v4(),
+        weekNumber: newWeekNumber,
+        exercises: templateWorkout.exercises.map((exercise) => exercise.copyWith(
+          id: const Uuid().v4(),
+          workoutId: const Uuid().v4(),
+          sets: exercise.sets.map((set) => set.copyWith(
+            id: const Uuid().v4(),
+            isLogged: false,
+            weight: null,
+            reps: '',
+            isSkipped: false,
+          )).toList(),
+        )).toList(),
+      );
+      await repository.create(newWorkout);
+    }
+
+    // Update mesocycle weeks total
+    final mesocycleRepository = widget.ref.read(mesocycleRepositoryProvider);
+    final updatedMesocycle = mesocycle.copyWith(weeksTotal: mesocycle.weeksTotal + 1);
+    await mesocycleRepository.update(updatedMesocycle);
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Week ${newWeekNumber} added'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    }
+  }
+
+  Future<void> _removeWeek() async {
+    // Remove the last week before the deload week
+    final mesocycle = widget.mesocycle;
+    final weekToRemove = mesocycle.weeksTotal - 1; // Week before deload
+
+    if (weekToRemove < 1) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Cannot remove: Must have at least 1 week'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+      return;
+    }
+
+    // Get all workouts
+    final repository = widget.ref.read(workoutRepositoryProvider);
+    final allWorkouts = widget.ref.read(workoutsByMesocycleProvider(mesocycle.id));
+
+    // Delete all workouts for the week to remove
+    final workoutsToRemove = allWorkouts.where((w) => w.weekNumber == weekToRemove).toList();
+    for (var workout in workoutsToRemove) {
+      await repository.delete(workout.id);
+    }
+
+    // Update deload week workouts to be one week earlier
+    final deloadWorkouts = allWorkouts.where((w) => w.weekNumber == mesocycle.weeksTotal).toList();
+    for (var workout in deloadWorkouts) {
+      final updatedWorkout = workout.copyWith(weekNumber: weekToRemove);
+      await repository.update(updatedWorkout);
+    }
+
+    // Update mesocycle weeks total
+    final mesocycleRepository = widget.ref.read(mesocycleRepositoryProvider);
+    final updatedMesocycle = mesocycle.copyWith(weeksTotal: mesocycle.weeksTotal - 1);
+    await mesocycleRepository.update(updatedMesocycle);
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Week ${weekToRemove} removed'),
+          backgroundColor: Colors.green,
+        ),
+      );
+
+      // If selected week was removed or is now out of bounds, go to previous week
+      if (_selectedWeek >= mesocycle.weeksTotal) {
+        setState(() {
+          _selectedWeek = mesocycle.weeksTotal - 1;
+        });
+        widget.onDaySelected(_selectedWeek, _selectedDay);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -1803,10 +2315,7 @@ class _CalendarDropdownState extends State<_CalendarDropdown> {
           ),
         ],
         border: Border(
-          bottom: BorderSide(
-            color: Theme.of(context).dividerColor,
-            width: 1,
-          ),
+          bottom: BorderSide(color: Theme.of(context).dividerColor, width: 1),
         ),
       ),
       child: Column(
@@ -1820,7 +2329,9 @@ class _CalendarDropdownState extends State<_CalendarDropdown> {
                 Text(
                   'WEEKS',
                   style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.6),
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
                     letterSpacing: 0.5,
@@ -1834,15 +2345,13 @@ class _CalendarDropdownState extends State<_CalendarDropdown> {
                         color: Theme.of(context).colorScheme.onSurface,
                         size: 20,
                       ),
-                      onPressed: _selectedWeek > 1
-                          ? () {
-                              setState(() {
-                                _selectedWeek--;
-                              });
-                            }
+                      onPressed: widget.mesocycle.weeksTotal > 1
+                          ? () => _removeWeek()
                           : null,
                       style: IconButton.styleFrom(
-                        backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                        backgroundColor: Theme.of(
+                          context,
+                        ).colorScheme.surfaceContainerHighest,
                         padding: const EdgeInsets.all(8),
                         minimumSize: const Size(36, 36),
                       ),
@@ -1854,15 +2363,11 @@ class _CalendarDropdownState extends State<_CalendarDropdown> {
                         color: Theme.of(context).colorScheme.onSurface,
                         size: 20,
                       ),
-                      onPressed: _selectedWeek < widget.mesocycle.weeksTotal
-                          ? () {
-                              setState(() {
-                                _selectedWeek++;
-                              });
-                            }
-                          : null,
+                      onPressed: () => _addWeek(),
                       style: IconButton.styleFrom(
-                        backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                        backgroundColor: Theme.of(
+                          context,
+                        ).colorScheme.surfaceContainerHighest,
                         padding: const EdgeInsets.all(8),
                         minimumSize: const Size(36, 36),
                       ),
@@ -1927,7 +2432,9 @@ class _CalendarDropdownState extends State<_CalendarDropdown> {
                 Text(
                   '${_calculateRIR(weekNumber)} RIR',
                   style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.6),
                     fontSize: 10,
                   ),
                 ),
@@ -1964,7 +2471,9 @@ class _CalendarDropdownState extends State<_CalendarDropdown> {
               backgroundColor = Colors.red;
               textColor = Colors.white;
             } else {
-              backgroundColor = Theme.of(context).colorScheme.surfaceContainerHighest;
+              backgroundColor = Theme.of(
+                context,
+              ).colorScheme.surfaceContainerHighest;
               textColor = Theme.of(context).colorScheme.onSurface;
             }
 

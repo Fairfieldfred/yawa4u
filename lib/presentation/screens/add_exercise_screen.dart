@@ -116,7 +116,14 @@ class _AddExerciseScreenState extends ConsumerState<AddExerciseScreen> {
                     Padding(
                       padding: const EdgeInsets.only(right: 8),
                       child: FilterChip(
-                        label: Text(_selectedMuscleGroup!.displayName),
+                        label: Text(
+                          _selectedMuscleGroup!.displayName,
+                          style: TextStyle(
+                            color: Theme.of(context).brightness == Brightness.light
+                                ? Colors.black.withValues(alpha: 0.85)
+                                : Theme.of(context).colorScheme.onPrimaryContainer.withValues(alpha: 0.85),
+                          ),
+                        ),
                         selected: true,
                         onSelected: (_) {
                           setState(() => _selectedMuscleGroup = null);
@@ -130,7 +137,11 @@ class _AddExerciseScreenState extends ConsumerState<AddExerciseScreen> {
                         ).colorScheme.surfaceContainerHighest,
                         selectedColor: Theme.of(
                           context,
-                        ).colorScheme.primaryContainer,
+                        ).colorScheme.primaryContainer.withValues(alpha: 0.5),
+                        side: BorderSide(
+                          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.5),
+                          width: 1,
+                        ),
                       ),
                     ),
 
@@ -139,7 +150,14 @@ class _AddExerciseScreenState extends ConsumerState<AddExerciseScreen> {
                     return Padding(
                       padding: const EdgeInsets.only(right: 8),
                       child: FilterChip(
-                        label: Text(equipment.displayName),
+                        label: Text(
+                          equipment.displayName,
+                          style: TextStyle(
+                            color: Theme.of(context).brightness == Brightness.light
+                                ? Colors.black.withValues(alpha: 0.85)
+                                : Theme.of(context).colorScheme.onSecondaryContainer.withValues(alpha: 0.85),
+                          ),
+                        ),
                         selected: true,
                         onSelected: (_) {
                           setState(() => _selectedEquipment.remove(equipment));
@@ -153,7 +171,11 @@ class _AddExerciseScreenState extends ConsumerState<AddExerciseScreen> {
                         ).colorScheme.surfaceContainerHighest,
                         selectedColor: Theme.of(
                           context,
-                        ).colorScheme.secondaryContainer,
+                        ).colorScheme.secondaryContainer.withValues(alpha: 0.5),
+                        side: BorderSide(
+                          color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.5),
+                          width: 1,
+                        ),
                       ),
                     );
                   }),
@@ -254,13 +276,22 @@ class _AddExerciseScreenState extends ConsumerState<AddExerciseScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.primaryContainer,
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.primaryContainer.withValues(alpha: 0.5),
                   borderRadius: BorderRadius.circular(4),
+                  border: Border.all(
+                    color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.5),
+                    width: 1,
+                  ),
                 ),
                 child: Text(
                   exercise.muscleGroup.displayName,
                   style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: Theme.of(context).colorScheme.onPrimaryContainer,
+                    color: Theme.of(context).brightness == Brightness.light
+                        ? Colors.black.withValues(alpha: 0.85)
+                        : Theme.of(context).colorScheme.onPrimaryContainer
+                              .withValues(alpha: 0.85),
                   ),
                 ),
               ),
@@ -269,13 +300,22 @@ class _AddExerciseScreenState extends ConsumerState<AddExerciseScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.secondaryContainer,
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.secondaryContainer.withValues(alpha: 0.5),
                   borderRadius: BorderRadius.circular(4),
+                  border: Border.all(
+                    color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.5),
+                    width: 1,
+                  ),
                 ),
                 child: Text(
                   exercise.equipmentType.displayName,
                   style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: Theme.of(context).colorScheme.onSecondaryContainer,
+                    color: Theme.of(context).brightness == Brightness.light
+                        ? Colors.black.withValues(alpha: 0.85)
+                        : Theme.of(context).colorScheme.onSecondaryContainer
+                              .withValues(alpha: 0.85),
                   ),
                 ),
               ),
@@ -456,6 +496,9 @@ class _FilterModalState extends State<_FilterModal> {
                   'Muscle Group',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.7),
                   ),
                 ),
                 const SizedBox(height: 12),

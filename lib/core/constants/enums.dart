@@ -67,6 +67,10 @@ enum SetType {
   myorep,
   @HiveField(2)
   myorepMatch,
+  @HiveField(3)
+  maxReps,
+  @HiveField(4)
+  endWithPartials,
 }
 
 extension SetTypeExtension on SetType {
@@ -78,6 +82,10 @@ extension SetTypeExtension on SetType {
         return 'Myorep';
       case SetType.myorepMatch:
         return 'Myorep match';
+      case SetType.maxReps:
+        return 'Max reps';
+      case SetType.endWithPartials:
+        return 'End with partials';
     }
   }
 
@@ -89,6 +97,10 @@ extension SetTypeExtension on SetType {
         return 'take 5-15 second pauses between mini-sets of reps to hit rep target or week over week RIR target. Log total reps.';
       case SetType.myorepMatch:
         return 'take 5-15 second pauses between mini-sets of reps to match reps from your first set. Log total reps.';
+      case SetType.maxReps:
+        return 'perform as many reps as possible until failure';
+      case SetType.endWithPartials:
+        return 'after reaching failure, continue with partial reps to further fatigue the muscle';
     }
   }
 
@@ -101,12 +113,18 @@ extension SetTypeExtension on SetType {
         return 'M';
       case SetType.myorepMatch:
         return 'MM';
+      case SetType.maxReps:
+        return 'MX';
+      case SetType.endWithPartials:
+        return 'EP';
     }
   }
 
   bool get isRegular => this == SetType.regular;
   bool get isMyorep => this == SetType.myorep;
   bool get isMyorepMatch => this == SetType.myorepMatch;
+  bool get isMaxReps => this == SetType.maxReps;
+  bool get isEndWithPartials => this == SetType.endWithPartials;
 }
 
 /// Joint pain level feedback

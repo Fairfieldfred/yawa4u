@@ -24,7 +24,7 @@ class ExerciseSetAdapter extends TypeAdapter<ExerciseSet> {
       setType: fields[4] as SetType,
       isLogged: fields[5] as bool,
       notes: fields[6] as String?,
-      isSkipped: fields[7] as bool? ?? false,
+      isSkipped: fields[7] as bool,
     );
   }
 
@@ -66,16 +66,16 @@ class ExerciseSetAdapter extends TypeAdapter<ExerciseSet> {
 // **************************************************************************
 
 ExerciseSet _$ExerciseSetFromJson(Map<String, dynamic> json) => ExerciseSet(
-  id: json['id'] as String,
-  setNumber: (json['setNumber'] as num).toInt(),
-  weight: (json['weight'] as num?)?.toDouble(),
-  reps: json['reps'] as String,
-  setType:
-      $enumDecodeNullable(_$SetTypeEnumMap, json['setType']) ?? SetType.regular,
-  isLogged: json['isLogged'] as bool? ?? false,
-  notes: json['notes'] as String?,
-  isSkipped: json['isSkipped'] as bool? ?? false,
-);
+      id: json['id'] as String,
+      setNumber: (json['setNumber'] as num).toInt(),
+      weight: (json['weight'] as num?)?.toDouble(),
+      reps: json['reps'] as String,
+      setType: $enumDecodeNullable(_$SetTypeEnumMap, json['setType']) ??
+          SetType.regular,
+      isLogged: json['isLogged'] as bool? ?? false,
+      notes: json['notes'] as String?,
+      isSkipped: json['isSkipped'] as bool? ?? false,
+    );
 
 Map<String, dynamic> _$ExerciseSetToJson(ExerciseSet instance) =>
     <String, dynamic>{
@@ -93,4 +93,6 @@ const _$SetTypeEnumMap = {
   SetType.regular: 'regular',
   SetType.myorep: 'myorep',
   SetType.myorepMatch: 'myorepMatch',
+  SetType.maxReps: 'maxReps',
+  SetType.endWithPartials: 'endWithPartials',
 };
