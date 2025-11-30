@@ -213,6 +213,34 @@ class _MesocycleListScreenState extends ConsumerState<MesocycleListScreen> {
                                   fontWeight: FontWeight.bold,
                                 ),
                           ),
+                        )
+                      else if (mesocycle.status == MesocycleStatus.completed &&
+                          mesocycle.endDate != null)
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.surfaceContainerHighest,
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Text(
+                                _formatDate(mesocycle.endDate!),
+                                style: Theme.of(context).textTheme.bodySmall,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            const Icon(
+                              Icons.check_circle,
+                              color: Colors.green,
+                              size: 20,
+                            ),
+                          ],
                         ),
                       const SizedBox(width: 8),
                       PopupMenuButton<String>(
@@ -273,7 +301,9 @@ class _MesocycleListScreenState extends ConsumerState<MesocycleListScreen> {
                                 Text(
                                   'Save as a Template',
                                   style: TextStyle(
-                                    color: canSaveAsTemplate ? null : Colors.grey,
+                                    color: canSaveAsTemplate
+                                        ? null
+                                        : Colors.grey,
                                   ),
                                 ),
                               ],
@@ -546,6 +576,24 @@ class _MesocycleListScreenState extends ConsumerState<MesocycleListScreen> {
       }
     }
   }
+
+  String _formatDate(DateTime date) {
+    final months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
+    return '${months[date.month - 1]} ${date.day}, ${date.year}';
+  }
 }
 
 // Stateful dialog widget for renaming mesocycle
@@ -576,9 +624,7 @@ class _RenameMesocycleDialogState extends State<_RenameMesocycleDialog> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       child: Container(
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
@@ -595,9 +641,9 @@ class _RenameMesocycleDialogState extends State<_RenameMesocycleDialog> {
                 const SizedBox(width: 40),
                 Text(
                   'Rename',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                 ),
                 IconButton(
                   icon: const Icon(Icons.close),
@@ -617,7 +663,9 @@ class _RenameMesocycleDialogState extends State<_RenameMesocycleDialog> {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 filled: true,
-                fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                fillColor: Theme.of(
+                  context,
+                ).colorScheme.surfaceContainerHighest,
               ),
               style: Theme.of(context).textTheme.bodyLarge,
             ),
@@ -694,9 +742,7 @@ class _SaveTemplateDialogState extends State<_SaveTemplateDialog> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       child: Container(
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
@@ -713,9 +759,9 @@ class _SaveTemplateDialogState extends State<_SaveTemplateDialog> {
                 const SizedBox(width: 40),
                 Text(
                   'Save as Template',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                 ),
                 IconButton(
                   icon: const Icon(Icons.close),
@@ -728,9 +774,9 @@ class _SaveTemplateDialogState extends State<_SaveTemplateDialog> {
             const SizedBox(height: 16),
             Text(
               'Template Name',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 8),
             TextField(
@@ -742,16 +788,18 @@ class _SaveTemplateDialogState extends State<_SaveTemplateDialog> {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 filled: true,
-                fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                fillColor: Theme.of(
+                  context,
+                ).colorScheme.surfaceContainerHighest,
               ),
               style: Theme.of(context).textTheme.bodyLarge,
             ),
             const SizedBox(height: 16),
             Text(
               'Description',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 8),
             TextField(
@@ -763,7 +811,9 @@ class _SaveTemplateDialogState extends State<_SaveTemplateDialog> {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 filled: true,
-                fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                fillColor: Theme.of(
+                  context,
+                ).colorScheme.surfaceContainerHighest,
               ),
               style: Theme.of(context).textTheme.bodyLarge,
             ),
@@ -787,11 +837,14 @@ class _SaveTemplateDialogState extends State<_SaveTemplateDialog> {
                   child: FilledButton(
                     onPressed: () {
                       final trimmedName = nameController.text.trim();
-                      final trimmedDescription = descriptionController.text.trim();
-                      if (trimmedName.isNotEmpty && trimmedDescription.isNotEmpty) {
-                        Navigator.of(context).pop(
-                          (name: trimmedName, description: trimmedDescription),
-                        );
+                      final trimmedDescription = descriptionController.text
+                          .trim();
+                      if (trimmedName.isNotEmpty &&
+                          trimmedDescription.isNotEmpty) {
+                        Navigator.of(context).pop((
+                          name: trimmedName,
+                          description: trimmedDescription,
+                        ));
                       }
                     },
                     style: FilledButton.styleFrom(

@@ -780,10 +780,15 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     required int currentWeek,
     required List<Workout> allWorkouts,
   }) {
-    final dayNames = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
-    final dayName = displayDay >= 1 && displayDay <= dayNames.length
-        ? dayNames[displayDay - 1]
-        : 'DAY $displayDay';
+    // Get custom day name from workout if available
+    final defaultDayNames = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+    final dayName = workouts.isNotEmpty && workouts.first.dayName != null
+        ? workouts.first.dayName!
+              .substring(0, 3)
+              .toUpperCase() // First 3 chars
+        : (displayDay >= 1 && displayDay <= defaultDayNames.length
+              ? defaultDayNames[displayDay - 1]
+              : 'DAY $displayDay');
 
     // Collect all exercises from all workouts for today
     final allExercises = <dynamic>[];
@@ -897,7 +902,20 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                 ),
 
           // Week selector overlay (shown on top when toggled)
-          if (_showWeekSelector)
+          if (_showWeekSelector) ...[
+            // Barrier to dismiss on tap outside
+            Positioned.fill(
+              child: GestureDetector(
+                onTap: () {
+                  setState(() {
+                    _showWeekSelector = false;
+                  });
+                },
+                behavior: HitTestBehavior.opaque,
+                child: Container(color: Colors.transparent),
+              ),
+            ),
+            // The dropdown itself
             Positioned(
               top: 0,
               left: 0,
@@ -912,6 +930,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                 onDaySelected: _selectDay,
               ),
             ),
+          ],
 
           // FINISH WORKOUT button (appears when all sets are logged or skipped)
           if (workouts.isNotEmpty &&
@@ -1085,20 +1104,198 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     debugPrint('View notes');
   }
 
-  void _renameMesocycle(dynamic mesocycle) {
-    debugPrint('Rename mesocycle');
+  Future<void> _renameMesocycle(dynamic mesocycle) async {
+    final newName = await showDialog<String>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => _RenameMesocycleDialog(initialName: mesocycle.name),
+    );
+
+    if (newName != null && newName != mesocycle.name && mounted) {
+      try {
+        final repository = ref.read(mesocycleRepositoryProvider);
+        final updatedMesocycle = mesocycle.copyWith(name: newName);
+        await repository.update(updatedMesocycle);
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Renamed to "$newName"'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error renaming mesocycle: $e'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    }
   }
 
-  void _endMesocycle(dynamic mesocycle) {
-    debugPrint('End mesocycle');
+  Future<void> _endMesocycle(dynamic mesocycle) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('End Mesocycle'),
+        content: Text(
+          'Are you sure you want to end "${mesocycle.name}"? This will mark it as completed.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('CANCEL'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('END MESOCYCLE'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && mounted) {
+      try {
+        final repository = ref.read(mesocycleRepositoryProvider);
+        final updatedMesocycle = mesocycle.copyWith(
+          status: MesocycleStatus.completed,
+          endDate: DateTime.now(),
+        );
+        await repository.update(updatedMesocycle);
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('"${mesocycle.name}" completed'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error ending mesocycle: $e'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    }
   }
 
-  void _newWorkoutNote(List<Workout> workouts) {
-    debugPrint('New workout note');
+  Future<void> _newWorkoutNote(List<Workout> workouts) async {
+    if (workouts.isEmpty) return;
+
+    // Use the first workout to store the note for the day
+    final workout = workouts.first;
+    final currentNote = workout.notes;
+
+    final newNote = await showDialog<String>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => _WorkoutNoteDialog(initialNote: currentNote),
+    );
+
+    if (newNote != null && newNote != currentNote && mounted) {
+      try {
+        final repository = ref.read(workoutRepositoryProvider);
+        final updatedWorkout = workout.copyWith(notes: newNote);
+        await repository.update(updatedWorkout);
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Note saved'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error saving note: $e'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    }
   }
 
-  void _relabelWorkout(List<Workout> workouts) {
-    debugPrint('Relabel workout');
+  Future<void> _relabelWorkout(List<Workout> workouts) async {
+    if (workouts.isEmpty) return;
+
+    final workout = workouts.first;
+    final currentLabel = workout.dayName ?? 'Day ${workout.dayNumber}';
+
+    final result = await showDialog<({String label, bool applyToAll})>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => _RelabelDayDialog(initialLabel: currentLabel),
+    );
+
+    if (result != null && mounted) {
+      try {
+        final repository = ref.read(workoutRepositoryProvider);
+
+        if (result.applyToAll) {
+          // Update all workouts with the same day number in this mesocycle
+          final allWorkouts = ref.read(
+            workoutsByMesocycleProvider(workout.mesocycleId),
+          );
+          final workoutsToUpdate = allWorkouts
+              .where((w) => w.dayNumber == workout.dayNumber)
+              .toList();
+
+          for (final w in workoutsToUpdate) {
+            final updatedWorkout = w.copyWith(dayName: result.label);
+            await repository.update(updatedWorkout);
+          }
+
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  'Updated label for all Day ${workout.dayNumber} workouts',
+                ),
+                backgroundColor: Colors.green,
+              ),
+            );
+          }
+        } else {
+          // Update only the current workout(s) for this day
+          for (final w in workouts) {
+            final updatedWorkout = w.copyWith(dayName: result.label);
+            await repository.update(updatedWorkout);
+          }
+
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Label updated'),
+                backgroundColor: Colors.green,
+              ),
+            );
+          }
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error updating label: $e'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    }
   }
 
   void _addExerciseToWorkout(List<Workout> workouts) {
@@ -2373,8 +2570,22 @@ class _CalendarDropdownState extends ConsumerState<_CalendarDropdown> {
 
   @override
   Widget build(BuildContext context) {
-    final dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    final availableDays = dayNames.take(widget.mesocycle.daysPerWeek).toList();
+    // Get day names for the dropdown columns - use custom names from workouts if available
+    final defaultDayNames = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+    final availableDays = List.generate(widget.mesocycle.daysPerWeek, (index) {
+      final dayNumber = index + 1;
+      // Find any workout for this day number to get the custom label
+      final dayWorkout = widget.allWorkouts.firstWhere(
+        (w) => w.dayNumber == dayNumber,
+        orElse: () => widget.allWorkouts.first, // fallback
+      );
+
+      // Use custom dayName if available, otherwise use default
+      if (dayWorkout.dayNumber == dayNumber && dayWorkout.dayName != null) {
+        return dayWorkout.dayName!.substring(0, 3).toUpperCase();
+      }
+      return defaultDayNames[index % defaultDayNames.length];
+    });
 
     // Calculate dynamic height based on number of workout days
     // Header height: 60, Week header: 60, Day button: 48, Day margin: 6
@@ -2920,5 +3131,410 @@ class _WeekSelectorModalState extends State<_WeekSelectorModal> {
       // After deload week
       return 0;
     }
+  }
+}
+
+// Stateful dialog widget for renaming mesocycle
+class _RenameMesocycleDialog extends StatefulWidget {
+  final String initialName;
+
+  const _RenameMesocycleDialog({required this.initialName});
+
+  @override
+  State<_RenameMesocycleDialog> createState() => _RenameMesocycleDialogState();
+}
+
+class _RenameMesocycleDialogState extends State<_RenameMesocycleDialog> {
+  late final TextEditingController nameController;
+
+  @override
+  void initState() {
+    super.initState();
+    nameController = TextEditingController(text: widget.initialName);
+  }
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      child: Container(
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const SizedBox(width: 40),
+                Text(
+                  'Rename',
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () => Navigator.of(context).pop(),
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+            TextField(
+              controller: nameController,
+              autofocus: true,
+              decoration: InputDecoration(
+                hintText: 'Mesocycle name',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                filled: true,
+                fillColor: Theme.of(
+                  context,
+                ).colorScheme.surfaceContainerHighest,
+              ),
+              style: Theme.of(context).textTheme.bodyLarge,
+            ),
+            const SizedBox(height: 24),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: const Text('CANCEL'),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: FilledButton(
+                    onPressed: () {
+                      final trimmedName = nameController.text.trim();
+                      if (trimmedName.isNotEmpty) {
+                        Navigator.of(context).pop(trimmedName);
+                      }
+                    },
+                    style: FilledButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: const Text('SAVE'),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// Stateful dialog widget for workout notes
+class _WorkoutNoteDialog extends StatefulWidget {
+  final String? initialNote;
+
+  const _WorkoutNoteDialog({this.initialNote});
+
+  @override
+  State<_WorkoutNoteDialog> createState() => _WorkoutNoteDialogState();
+}
+
+class _WorkoutNoteDialogState extends State<_WorkoutNoteDialog> {
+  late final TextEditingController noteController;
+
+  @override
+  void initState() {
+    super.initState();
+    noteController = TextEditingController(text: widget.initialNote);
+  }
+
+  @override
+  void dispose() {
+    noteController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      child: Container(
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const SizedBox(width: 40),
+                Text(
+                  'Workout Note',
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () => Navigator.of(context).pop(),
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+            TextField(
+              controller: noteController,
+              autofocus: true,
+              maxLines: 5,
+              decoration: InputDecoration(
+                hintText: 'Enter note for this workout...',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                filled: true,
+                fillColor: Theme.of(
+                  context,
+                ).colorScheme.surfaceContainerHighest,
+              ),
+              style: Theme.of(context).textTheme.bodyLarge,
+            ),
+            const SizedBox(height: 24),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: const Text('CANCEL'),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: FilledButton(
+                    onPressed: () {
+                      Navigator.of(context).pop(noteController.text.trim());
+                    },
+                    style: FilledButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: const Text('SAVE'),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// Stateful dialog widget for relabeling day
+class _RelabelDayDialog extends StatefulWidget {
+  final String initialLabel;
+
+  const _RelabelDayDialog({required this.initialLabel});
+
+  @override
+  State<_RelabelDayDialog> createState() => _RelabelDayDialogState();
+}
+
+class _RelabelDayDialogState extends State<_RelabelDayDialog> {
+  late String selectedLabel;
+  bool applyToAll = false;
+
+  final List<String> daysOfWeek = [
+    'Monday',
+    'Tuesday',
+    'Wednesday',
+    'Thursday',
+    'Friday',
+    'Saturday',
+    'Sunday',
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    // If initial label is in the list, select it. Otherwise default to Monday or keep custom if we supported custom input (which we don't yet for simplicity based on request)
+    // Actually, let's allow custom input via the dropdown if possible, or just map to nearest.
+    // For now, if it matches a day, select it. If not, default to Monday.
+    if (daysOfWeek.contains(widget.initialLabel)) {
+      selectedLabel = widget.initialLabel;
+    } else {
+      selectedLabel = daysOfWeek.first;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      child: Container(
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const SizedBox(width: 40),
+                Text(
+                  'Update day label',
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () => Navigator.of(context).pop(),
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'You can apply a different weekday label to this day.',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.7),
+              ),
+            ),
+            const SizedBox(height: 24),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.outline.withValues(alpha: 0.2),
+                ),
+              ),
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton<String>(
+                  value: selectedLabel,
+                  isExpanded: true,
+                  items: daysOfWeek.map((String day) {
+                    return DropdownMenuItem<String>(
+                      value: day,
+                      child: Text(day),
+                    );
+                  }).toList(),
+                  onChanged: (String? newValue) {
+                    if (newValue != null) {
+                      setState(() {
+                        selectedLabel = newValue;
+                      });
+                    }
+                  },
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
+            Row(
+              children: [
+                SizedBox(
+                  height: 24,
+                  width: 24,
+                  child: Checkbox(
+                    value: applyToAll,
+                    onChanged: (bool? value) {
+                      setState(() {
+                        applyToAll = value ?? false;
+                      });
+                    },
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        applyToAll = !applyToAll;
+                      });
+                    },
+                    child: Text(
+                      'Apply to all days in this position',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 32),
+            Row(
+              children: [
+                const Spacer(),
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text('CANCEL'),
+                ),
+                const SizedBox(width: 16),
+                FilledButton(
+                  onPressed: () {
+                    Navigator.of(
+                      context,
+                    ).pop((label: selectedLabel, applyToAll: applyToAll));
+                  },
+                  style: FilledButton.styleFrom(
+                    backgroundColor: Colors.red,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: const Text('SAVE'),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
