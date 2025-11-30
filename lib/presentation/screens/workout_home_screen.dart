@@ -315,7 +315,9 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     );
 
     if (result != null) {
-      final updatedExercise = exercise.copyWith(notes: result.isEmpty ? null : result);
+      final updatedExercise = exercise.copyWith(
+        notes: result.isEmpty ? null : result,
+      );
       final updatedExercises = workout.exercises
           .map((e) => e.id == exerciseId ? updatedExercise : e)
           .toList();
@@ -325,7 +327,9 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
   }
 
   Future<void> _moveExerciseDown(String workoutId, String exerciseId) async {
-    debugPrint('Move exercise down called: workoutId=$workoutId, exerciseId=$exerciseId');
+    debugPrint(
+      'Move exercise down called: workoutId=$workoutId, exerciseId=$exerciseId',
+    );
     final repository = ref.read(workoutRepositoryProvider);
 
     // Get the current mesocycle to find all workouts for today
@@ -347,18 +351,19 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
 
     // Use selected week/day if available, otherwise use current
     final displayWeek = _selectedWeek ?? currentWeek;
-    final displayDay = _selectedDay ?? (() {
-      final daysSinceStart = DateTime.now()
-          .difference(mesocycle.startDate!)
-          .inDays;
-      final daysSinceWeekStart = daysSinceStart % 7;
-      return (daysSinceWeekStart + 1).clamp(1, 7);
-    })();
+    final displayDay =
+        _selectedDay ??
+        (() {
+          final daysSinceStart = DateTime.now()
+              .difference(mesocycle.startDate!)
+              .inDays;
+          final daysSinceWeekStart = daysSinceStart % 7;
+          return (daysSinceWeekStart + 1).clamp(1, 7);
+        })();
 
-    final todaysWorkouts = allWorkouts.where((w) =>
-      w.weekNumber == displayWeek &&
-      w.dayNumber == displayDay
-    ).toList();
+    final todaysWorkouts = allWorkouts
+        .where((w) => w.weekNumber == displayWeek && w.dayNumber == displayDay)
+        .toList();
 
     // Collect all exercises from all workouts
     final allExercises = <Exercise>[];
@@ -384,7 +389,9 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     final exerciseToMove = allExercises[globalIndex];
     final exerciseToSwapWith = allExercises[globalIndex + 1];
 
-    debugPrint('Moving "${exerciseToMove.name}" down, swapping with "${exerciseToSwapWith.name}"');
+    debugPrint(
+      'Moving "${exerciseToMove.name}" down, swapping with "${exerciseToSwapWith.name}"',
+    );
 
     // Find which workouts contain these exercises
     Workout? workoutWithMovingExercise;
@@ -427,7 +434,9 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
 
       // Add to second workout (insert at the position before the swap exercise)
       final exercises2 = List<Exercise>.from(workoutWithSwapExercise.exercises);
-      final insertIndex = exercises2.indexWhere((e) => e.id == exerciseToSwapWith.id);
+      final insertIndex = exercises2.indexWhere(
+        (e) => e.id == exerciseToSwapWith.id,
+      );
 
       // Update the exercise's workoutId to match the new workout
       final movedExercise = exerciseToMove.copyWith(
@@ -435,12 +444,18 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
       );
       exercises2.insert(insertIndex, movedExercise);
 
-      final updatedWorkout1 = workoutWithMovingExercise.copyWith(exercises: exercises1);
-      final updatedWorkout2 = workoutWithSwapExercise.copyWith(exercises: exercises2);
+      final updatedWorkout1 = workoutWithMovingExercise.copyWith(
+        exercises: exercises1,
+      );
+      final updatedWorkout2 = workoutWithSwapExercise.copyWith(
+        exercises: exercises2,
+      );
 
       await repository.update(updatedWorkout1);
       await repository.update(updatedWorkout2);
-      debugPrint('Moved exercise from workout ${workoutWithMovingExercise.id} to ${workoutWithSwapExercise.id}');
+      debugPrint(
+        'Moved exercise from workout ${workoutWithMovingExercise.id} to ${workoutWithSwapExercise.id}',
+      );
     }
 
     debugPrint('Exercise moved successfully');
@@ -457,7 +472,9 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     );
 
     // First delete the current exercise
-    final updatedExercises = workout.exercises.where((e) => e.id != exerciseId).toList();
+    final updatedExercises = workout.exercises
+        .where((e) => e.id != exerciseId)
+        .toList();
     final updatedWorkout = workout.copyWith(exercises: updatedExercises);
     await ref.read(workoutRepositoryProvider).update(updatedWorkout);
 
@@ -950,7 +967,10 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     final RenderBox button = context.findRenderObject() as RenderBox;
     final RenderBox overlay =
         Navigator.of(context).overlay!.context.findRenderObject() as RenderBox;
-    final Offset buttonPosition = button.localToGlobal(Offset.zero, ancestor: overlay);
+    final Offset buttonPosition = button.localToGlobal(
+      Offset.zero,
+      ancestor: overlay,
+    );
     final RelativeRect position = RelativeRect.fromRect(
       Rect.fromPoints(
         buttonPosition + const Offset(-180, 40),
@@ -1516,12 +1536,11 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                           child: Text(
                             'WEIGHT',
                             style: TextStyle(
-                              color: Theme.of(context).brightness == Brightness.light
-                                  ? Theme.of(context)
-                                      .textTheme
-                                      .bodySmall
-                                      ?.color
-                                      ?.withValues(alpha: 0.7)
+                              color:
+                                  Theme.of(context).brightness ==
+                                      Brightness.light
+                                  ? Theme.of(context).textTheme.bodySmall?.color
+                                        ?.withValues(alpha: 0.7)
                                   : Colors.white,
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
@@ -1534,12 +1553,11 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                           child: Text(
                             'REPS',
                             style: TextStyle(
-                              color: Theme.of(context).brightness == Brightness.light
-                                  ? Theme.of(context)
-                                      .textTheme
-                                      .bodySmall
-                                      ?.color
-                                      ?.withValues(alpha: 0.7)
+                              color:
+                                  Theme.of(context).brightness ==
+                                      Brightness.light
+                                  ? Theme.of(context).textTheme.bodySmall?.color
+                                        ?.withValues(alpha: 0.7)
                                   : Colors.white,
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
@@ -1553,12 +1571,11 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                           child: Text(
                             'LOG',
                             style: TextStyle(
-                              color: Theme.of(context).brightness == Brightness.light
-                                  ? Theme.of(context)
-                                      .textTheme
-                                      .bodySmall
-                                      ?.color
-                                      ?.withValues(alpha: 0.7)
+                              color:
+                                  Theme.of(context).brightness ==
+                                      Brightness.light
+                                  ? Theme.of(context).textTheme.bodySmall?.color
+                                        ?.withValues(alpha: 0.7)
                                   : Colors.white,
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
@@ -2120,7 +2137,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
 }
 
 /// Dropdown for selecting week and day (appears below AppBar)
-class _CalendarDropdown extends StatefulWidget {
+class _CalendarDropdown extends ConsumerStatefulWidget {
   final dynamic mesocycle;
   final int currentWeek;
   final int currentDay;
@@ -2140,10 +2157,10 @@ class _CalendarDropdown extends StatefulWidget {
   });
 
   @override
-  State<_CalendarDropdown> createState() => _CalendarDropdownState();
+  ConsumerState<_CalendarDropdown> createState() => _CalendarDropdownState();
 }
 
-class _CalendarDropdownState extends State<_CalendarDropdown> {
+class _CalendarDropdownState extends ConsumerState<_CalendarDropdown> {
   late int _selectedWeek;
   late int _selectedDay;
 
@@ -2157,18 +2174,40 @@ class _CalendarDropdownState extends State<_CalendarDropdown> {
   Future<void> _addWeek() async {
     // Add a new week before the deload week
     final mesocycle = widget.mesocycle;
-    final newWeekNumber = mesocycle.weeksTotal;
+    final newWeekNumber = mesocycle
+        .weeksTotal; // This will be the new week number (before deload)
 
     // Get all existing workouts
-    final repository = widget.ref.read(workoutRepositoryProvider);
-    final allWorkouts = widget.ref.read(workoutsByMesocycleProvider(mesocycle.id));
+    final repository = ref.read(workoutRepositoryProvider);
+    final allWorkouts = ref.read(workoutsByMesocycleProvider(mesocycle.id));
 
     // Get the last non-deload week as a template
+    // If weeksTotal is 4 (1, 2, 3, 4=DL), we want to copy week 3.
+    // templateWeek = 4 - 1 = 3.
     final templateWeek = mesocycle.weeksTotal - 1;
-    final templateWorkouts = allWorkouts.where((w) => w.weekNumber == templateWeek).toList();
+
+    // Safety check: if we only have 1 week (which is deload), we can't really copy "previous" week.
+    // But usually a mesocycle starts with at least some weeks.
+    // If templateWeek < 1, we might need to copy the deload week but change it?
+    // Or just assume there's always at least one normal week if we are adding.
+    // If weeksTotal is 1 (just deload?), templateWeek is 0.
+
+    List<Workout> templateWorkouts = [];
+    if (templateWeek >= 1) {
+      templateWorkouts = allWorkouts
+          .where((w) => w.weekNumber == templateWeek)
+          .toList();
+    } else {
+      // Fallback: if we are at week 1 (deload), and we add a week, maybe copy week 1?
+      // But week 1 is deload.
+      // Let's just try to find ANY week to copy, or copy the deload week but reset RIR?
+      // For now, let's assume we copy the week before deload.
+      templateWorkouts = allWorkouts
+          .where((w) => w.weekNumber == mesocycle.weeksTotal)
+          .toList();
+    }
 
     if (templateWorkouts.isEmpty) {
-      // If no template workouts found, show error
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -2180,42 +2219,82 @@ class _CalendarDropdownState extends State<_CalendarDropdown> {
       return;
     }
 
-    // Update deload week workouts to be one week later
-    final deloadWorkouts = allWorkouts.where((w) => w.weekNumber == mesocycle.weeksTotal).toList();
+    // 1. Shift Deload Week: Update deload week workouts to be one week later
+    // Current deload week is at `mesocycle.weeksTotal`. New position will be `mesocycle.weeksTotal + 1`.
+    final deloadWorkouts = allWorkouts
+        .where((w) => w.weekNumber == mesocycle.weeksTotal)
+        .toList();
     for (var workout in deloadWorkouts) {
-      final updatedWorkout = workout.copyWith(weekNumber: newWeekNumber + 1);
+      final updatedWorkout = workout.copyWith(
+        weekNumber: mesocycle.weeksTotal + 1,
+      );
       await repository.update(updatedWorkout);
     }
 
-    // Create new workouts for the new week based on template
+    // 2. Create New Week: Create new workouts for the new week based on template
+    // The new week will take the place of the old deload week index (which is `mesocycle.weeksTotal` before increment).
+    // Wait, if we have weeks 1, 2, 3(DL). weeksTotal=3.
+    // We want 1, 2, 3, 4(DL).
+    // Old DL was 3. New DL is 4.
+    // New week is 3.
+    // So newWeekNumber = mesocycle.weeksTotal (which is 3). Correct.
+
     for (var templateWorkout in templateWorkouts) {
       final newWorkout = templateWorkout.copyWith(
         id: const Uuid().v4(),
         weekNumber: newWeekNumber,
-        exercises: templateWorkout.exercises.map((exercise) => exercise.copyWith(
-          id: const Uuid().v4(),
-          workoutId: const Uuid().v4(),
-          sets: exercise.sets.map((set) => set.copyWith(
-            id: const Uuid().v4(),
-            isLogged: false,
-            weight: null,
-            reps: '',
-            isSkipped: false,
-          )).toList(),
-        )).toList(),
+        status: WorkoutStatus.incomplete, // Reset status
+        exercises: templateWorkout.exercises
+            .map(
+              (exercise) => exercise.copyWith(
+                id: const Uuid().v4(),
+                workoutId: const Uuid()
+                    .v4(), // This will be replaced by newWorkout.id but we need to ensure it matches
+                // Actually, we should set workoutId after we have the newWorkout ID, but copyWith on top level handles it?
+                // No, workout.exercises usually have workoutId.
+                // Let's just generate IDs.
+                sets: exercise.sets
+                    .map(
+                      (set) => set.copyWith(
+                        id: const Uuid().v4(),
+                        isLogged: false,
+                        weight:
+                            null, // Reset weight? Or keep previous? Usually keep previous for progressive overload reference?
+                        // User request says "add another week". Usually implies copying structure.
+                        // Let's keep weight empty or null to force user to enter new weights, or maybe copy?
+                        // Existing logic in some apps copies previous weights.
+                        // But here let's reset logged state.
+                        reps: '',
+                        isSkipped: false,
+                      ),
+                    )
+                    .toList(),
+              ),
+            )
+            .toList(),
       );
-      await repository.create(newWorkout);
+
+      // Fix workoutId in exercises
+      final fixedExercises = newWorkout.exercises
+          .map((e) => e.copyWith(workoutId: newWorkout.id))
+          .toList();
+      final finalWorkout = newWorkout.copyWith(exercises: fixedExercises);
+
+      await repository.create(finalWorkout);
     }
 
-    // Update mesocycle weeks total
-    final mesocycleRepository = widget.ref.read(mesocycleRepositoryProvider);
-    final updatedMesocycle = mesocycle.copyWith(weeksTotal: mesocycle.weeksTotal + 1);
+    // Update mesocycle weeks total and deload week
+    final mesocycleRepository = ref.read(mesocycleRepositoryProvider);
+    final updatedMesocycle = mesocycle.copyWith(
+      weeksTotal: mesocycle.weeksTotal + 1,
+      deloadWeek: mesocycle.deloadWeek + 1,
+    );
     await mesocycleRepository.update(updatedMesocycle);
 
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Week ${newWeekNumber} added'),
+          content: Text('Week $newWeekNumber added'),
           backgroundColor: Colors.green,
         ),
       );
@@ -2225,7 +2304,11 @@ class _CalendarDropdownState extends State<_CalendarDropdown> {
   Future<void> _removeWeek() async {
     // Remove the last week before the deload week
     final mesocycle = widget.mesocycle;
-    final weekToRemove = mesocycle.weeksTotal - 1; // Week before deload
+
+    // If we have weeks 1, 2, 3, 4(DL). weeksTotal=4.
+    // We want to remove week 3.
+    // weekToRemove = 4 - 1 = 3.
+    final weekToRemove = mesocycle.weeksTotal - 1;
 
     if (weekToRemove < 1) {
       if (mounted) {
@@ -2240,39 +2323,48 @@ class _CalendarDropdownState extends State<_CalendarDropdown> {
     }
 
     // Get all workouts
-    final repository = widget.ref.read(workoutRepositoryProvider);
-    final allWorkouts = widget.ref.read(workoutsByMesocycleProvider(mesocycle.id));
+    final repository = ref.read(workoutRepositoryProvider);
+    final allWorkouts = ref.read(workoutsByMesocycleProvider(mesocycle.id));
 
-    // Delete all workouts for the week to remove
-    final workoutsToRemove = allWorkouts.where((w) => w.weekNumber == weekToRemove).toList();
+    // 1. Delete Week: Delete all workouts for the week to remove
+    final workoutsToRemove = allWorkouts
+        .where((w) => w.weekNumber == weekToRemove)
+        .toList();
     for (var workout in workoutsToRemove) {
       await repository.delete(workout.id);
     }
 
-    // Update deload week workouts to be one week earlier
-    final deloadWorkouts = allWorkouts.where((w) => w.weekNumber == mesocycle.weeksTotal).toList();
+    // 2. Shift Deload Week: Update deload week workouts to be one week earlier
+    // Current deload is `mesocycle.weeksTotal`. New position is `weekToRemove` (which is weeksTotal - 1).
+    final deloadWorkouts = allWorkouts
+        .where((w) => w.weekNumber == mesocycle.weeksTotal)
+        .toList();
     for (var workout in deloadWorkouts) {
       final updatedWorkout = workout.copyWith(weekNumber: weekToRemove);
       await repository.update(updatedWorkout);
     }
 
-    // Update mesocycle weeks total
-    final mesocycleRepository = widget.ref.read(mesocycleRepositoryProvider);
-    final updatedMesocycle = mesocycle.copyWith(weeksTotal: mesocycle.weeksTotal - 1);
+    // Update mesocycle weeks total and deload week
+    final mesocycleRepository = ref.read(mesocycleRepositoryProvider);
+    final updatedMesocycle = mesocycle.copyWith(
+      weeksTotal: mesocycle.weeksTotal - 1,
+      deloadWeek: mesocycle.deloadWeek - 1,
+    );
     await mesocycleRepository.update(updatedMesocycle);
 
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Week ${weekToRemove} removed'),
+          content: Text('Week $weekToRemove removed'),
           backgroundColor: Colors.green,
         ),
       );
 
       // If selected week was removed or is now out of bounds, go to previous week
-      if (_selectedWeek >= mesocycle.weeksTotal) {
+      if (_selectedWeek >= updatedMesocycle.weeksTotal) {
         setState(() {
-          _selectedWeek = mesocycle.weeksTotal - 1;
+          _selectedWeek =
+              updatedMesocycle.weeksTotal; // Go to new last week (deload)
         });
         widget.onDaySelected(_selectedWeek, _selectedDay);
       }
