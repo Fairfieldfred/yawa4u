@@ -1091,6 +1091,18 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
           icon: Icons.undo,
           text: 'Reset',
           onTap: () => _resetWorkout(workouts),
+          enabled:
+              !workouts.any((w) => w.status == WorkoutStatus.completed) &&
+              workouts.any(
+                (w) => w.exercises.any(
+                  (e) => e.sets.any(
+                    (s) =>
+                        s.isLogged ||
+                        (s.weight != null) ||
+                        (s.reps.isNotEmpty && s.reps != '0'),
+                  ),
+                ),
+              ),
         ),
         _buildMenuItem(
           icon: Icons.skip_next,
@@ -1121,19 +1133,30 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     required IconData icon,
     required String text,
     required VoidCallback onTap,
+    bool enabled = true,
   }) {
     return PopupMenuItem<void>(
+      enabled: enabled,
       height: 48,
       onTap: onTap,
       child: Row(
         children: [
-          Icon(icon, color: Theme.of(context).iconTheme.color, size: 20),
+          Icon(
+            icon,
+            color: enabled
+                ? Theme.of(context).iconTheme.color
+                : Theme.of(context).disabledColor,
+            size: 20,
+          ),
           const SizedBox(width: 12),
           Text(
             text,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               fontSize: 16,
               fontWeight: FontWeight.w400,
+              color: enabled
+                  ? Theme.of(context).textTheme.bodyMedium?.color
+                  : Theme.of(context).disabledColor,
             ),
           ),
         ],
@@ -1577,7 +1600,74 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
   }
 
   void _resetWorkout(List<Workout> workouts) {
-    debugPrint('Reset workout');
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Reset Workout?'),
+        content: const Text(
+          'This will clear all logged sets and entered values for this workout. This action cannot be undone.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('CANCEL'),
+          ),
+          FilledButton(
+            onPressed: () async {
+              Navigator.pop(context); // Close dialog
+
+              try {
+                final repository = ref.read(workoutRepositoryProvider);
+
+                for (final workout in workouts) {
+                  // Create updated exercises with reset sets
+                  final updatedExercises = workout.exercises.map((exercise) {
+                    final updatedSets = exercise.sets.map((set) {
+                      return set.copyWith(
+                        isLogged: false,
+                        weight: null, // Clear weight
+                        reps: '', // Clear reps
+                      );
+                    }).toList();
+
+                    return exercise.copyWith(sets: updatedSets);
+                  }).toList();
+
+                  // Update workout with reset exercises and status
+                  final updatedWorkout = workout.copyWith(
+                    exercises: updatedExercises,
+                    status: WorkoutStatus.incomplete,
+                    completedDate: null,
+                  );
+
+                  await repository.update(updatedWorkout);
+                }
+
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Workout reset'),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
+                }
+              } catch (e) {
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Error resetting workout: $e'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+              }
+            },
+            style: FilledButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text('RESET'),
+          ),
+        ],
+      ),
+    );
   }
 
   void _skipWorkout(List<Workout> workouts) {
