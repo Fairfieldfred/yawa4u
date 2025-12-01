@@ -2728,75 +2728,9 @@ class _CalendarDropdownState extends ConsumerState<_CalendarDropdown> {
   @override
   Widget build(BuildContext context) {
     // Calculate day names based on mesocycle start date
-    final defaultDayNames = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
-    final availableDays = List.generate(widget.mesocycle.daysPerWeek, (index) {
-      final dayNumber = index + 1;
+    // Note: Day names are now calculated per-week inside _buildWeekColumn
 
-      // Check if there's a custom label for this day in the SELECTED week
-      final selectedWeekDayWorkouts = widget.allWorkouts
-          .where(
-            (w) =>
-                w.dayNumber == dayNumber && w.weekNumber == widget.selectedWeek,
-          )
-          .toList();
-
-      debugPrint(
-        '=== CALENDAR DAY $dayNumber (Week ${widget.selectedWeek}) ===',
-      );
-      debugPrint(
-        'Workouts for day $dayNumber in week ${widget.selectedWeek}: ${selectedWeekDayWorkouts.length}',
-      );
-      for (var w in selectedWeekDayWorkouts) {
-        debugPrint('  dayName: "${w.dayName}"');
-      }
-
-      if (selectedWeekDayWorkouts.isNotEmpty) {
-        // Check if all workouts for this day in the selected week have the same custom dayName
-        final firstDayName = selectedWeekDayWorkouts.first.dayName;
-        final allHaveSameName = selectedWeekDayWorkouts.every(
-          (w) => w.dayName == firstDayName,
-        );
-
-        debugPrint(
-          'First dayName: "$firstDayName", allHaveSameName: $allHaveSameName',
-        );
-
-        // Use custom dayName if all workouts in this week have the same non-null custom name
-        if (allHaveSameName &&
-            firstDayName != null &&
-            firstDayName.isNotEmpty) {
-          final label = firstDayName.substring(0, 3).toUpperCase();
-          debugPrint('Using custom label: $label');
-          return label;
-        }
-      }
-
-      // Otherwise, calculate based on mesocycle start date
-      if (widget.mesocycle.startDate != null) {
-        // Get the day of week when mesocycle started (0 = Sunday, 6 = Saturday)
-        final startDayOfWeek = widget.mesocycle.startDate!.weekday % 7;
-
-        // Calculate which actual day this workout falls on
-        // Week 1, Day 1 = start day + 0 days
-        // Week 1, Day 2 = start day + 1 day, etc.
-        final daysElapsed =
-            ((widget.selectedWeek - 1) * widget.mesocycle.daysPerWeek) +
-            (dayNumber - 1);
-
-        // Calculate actual day of week
-        final actualDayOfWeek = (startDayOfWeek + daysElapsed) % 7;
-
-        final label = defaultDayNames[actualDayOfWeek];
-        debugPrint(
-          'Using calculated label: $label (daysElapsed: $daysElapsed)',
-        );
-        return label;
-      }
-
-      // Fallback to default
-      debugPrint('Using fallback label');
-      return defaultDayNames[index % defaultDayNames.length];
-    }); // Calculate dynamic height based on number of workout days
+    // Calculate dynamic height based on number of workout days
     // Header height: 60, Week header: 60, Day button: 48, Day margin: 6
     // Total per day: 54 (48 + 6 margin)
     final headerHeight = 60.0;
@@ -2903,7 +2837,6 @@ class _CalendarDropdownState extends ConsumerState<_CalendarDropdown> {
                   return Expanded(
                     child: _buildWeekColumn(
                       weekNumber,
-                      availableDays,
                       widget.mesocycle.deloadWeek == weekNumber,
                     ),
                   );
@@ -2916,11 +2849,7 @@ class _CalendarDropdownState extends ConsumerState<_CalendarDropdown> {
     );
   }
 
-  Widget _buildWeekColumn(
-    int weekNumber,
-    List<String> dayNames,
-    bool isDeload,
-  ) {
+  Widget _buildWeekColumn(int weekNumber, bool isDeload) {
     // Calculate day names specific to THIS week
     final defaultDayNames = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
     final weekDayNames = List.generate(widget.mesocycle.daysPerWeek, (index) {
@@ -3049,7 +2978,7 @@ class _CalendarDropdownState extends ConsumerState<_CalendarDropdown> {
                 ),
                 alignment: Alignment.center,
                 child: Text(
-                  dayNames[dayIndex],
+                  weekDayNames[dayIndex],
                   style: TextStyle(
                     color: textColor,
                     fontSize: 13,
