@@ -2921,6 +2921,50 @@ class _CalendarDropdownState extends ConsumerState<_CalendarDropdown> {
     List<String> dayNames,
     bool isDeload,
   ) {
+    // Calculate day names specific to THIS week
+    final defaultDayNames = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+    final weekDayNames = List.generate(widget.mesocycle.daysPerWeek, (index) {
+      final dayNumber = index + 1;
+
+      // Check if there's a custom label for this day in THIS SPECIFIC week
+      final weekDayWorkouts = widget.allWorkouts
+          .where((w) => w.dayNumber == dayNumber && w.weekNumber == weekNumber)
+          .toList();
+
+      if (weekDayWorkouts.isNotEmpty) {
+        // Check if all workouts for this day in this week have the same custom dayName
+        final firstDayName = weekDayWorkouts.first.dayName;
+        final allHaveSameName = weekDayWorkouts.every(
+          (w) => w.dayName == firstDayName,
+        );
+
+        // Use custom dayName if all workouts in this week have the same non-null custom name
+        if (allHaveSameName &&
+            firstDayName != null &&
+            firstDayName.isNotEmpty) {
+          return firstDayName.substring(0, 3).toUpperCase();
+        }
+      }
+
+      // Otherwise, calculate based on mesocycle start date
+      if (widget.mesocycle.startDate != null) {
+        // Get the day of week when mesocycle started (0 = Sunday, 6 = Saturday)
+        final startDayOfWeek = widget.mesocycle.startDate!.weekday % 7;
+
+        // Calculate which actual day this workout falls on
+        final daysElapsed =
+            ((weekNumber - 1) * widget.mesocycle.daysPerWeek) + (dayNumber - 1);
+
+        // Calculate actual day of week
+        final actualDayOfWeek = (startDayOfWeek + daysElapsed) % 7;
+
+        return defaultDayNames[actualDayOfWeek];
+      }
+
+      // Fallback to default
+      return defaultDayNames[index % defaultDayNames.length];
+    });
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 2),
       child: Column(
@@ -2955,7 +2999,7 @@ class _CalendarDropdownState extends ConsumerState<_CalendarDropdown> {
           ),
 
           // Day buttons - limit to available workout days only
-          ...List.generate(dayNames.length, (dayIndex) {
+          ...List.generate(weekDayNames.length, (dayIndex) {
             final dayNumber = dayIndex + 1;
             final isCurrentWeek = weekNumber == widget.currentWeek;
             final isCurrentDay = dayNumber == widget.currentDay;
