@@ -875,7 +875,6 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
             muscleGroups: muscleGroups,
             weekNumber: _selectedWeek,
             dayNumber: _selectedDayIndex + 1,
-            dayName: _dayNames[_selectedDayIndex],
           );
           GoRouter.of(context).pop();
         },

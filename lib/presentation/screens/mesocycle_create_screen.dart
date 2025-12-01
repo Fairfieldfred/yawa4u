@@ -115,7 +115,6 @@ class _MesocycleCreateScreenState extends ConsumerState<MesocycleCreateScreen> {
             mesocycleId: '', // Will be set when mesocycle is created
             weekNumber: week,
             dayNumber: day,
-            dayName: _getDayName(day),
             status: WorkoutStatus.incomplete,
             exercises: [],
           ),
@@ -124,25 +123,6 @@ class _MesocycleCreateScreenState extends ConsumerState<MesocycleCreateScreen> {
     }
 
     return workouts;
-  }
-
-  String _getDayName(int day) {
-    switch (day) {
-      case 1:
-        return 'Push';
-      case 2:
-        return 'Pull';
-      case 3:
-        return 'Legs';
-      case 4:
-        return 'Upper';
-      case 5:
-        return 'Lower';
-      case 6:
-        return 'Full Body';
-      default:
-        return 'Day $day';
-    }
   }
 
   @override

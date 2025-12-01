@@ -281,7 +281,6 @@ class TemplateRepository {
             mesocycleId: mesocycleId,
             weekNumber: workoutTemplate.weekNumber,
             dayNumber: workoutTemplate.dayNumber,
-            dayName: workoutTemplate.dayName,
             label: muscleGroup.displayName, // Use muscle group as label
             exercises: updatedExercises,
           ),

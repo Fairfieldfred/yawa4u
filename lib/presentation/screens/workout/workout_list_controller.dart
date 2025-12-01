@@ -50,21 +50,26 @@ class WorkoutListController {
         mesocycleId: mesocycle.id,
         weekNumber: selectedWeek,
         dayNumber: workout.dayNumber,
-        dayName: workout.dayName,
         label: workout.label,
         status: WorkoutStatus.incomplete,
         exercises: workout.exercises
-            .map((exercise) => exercise.copyWith(
-              id: const Uuid().v4(),        // New exercise ID for the new week
-              workoutId: newWorkoutId,      // Update to point to the new workout!
-              sets: exercise.sets.map((set) => set.copyWith(
-                id: const Uuid().v4(),      // New set ID
-                isLogged: false,            // Reset logged status
-                weight: null,               // Reset weight
-                reps: '',                   // Reset reps
-                isSkipped: false,           // Reset skipped status
-              )).toList(),
-            ))
+            .map(
+              (exercise) => exercise.copyWith(
+                id: const Uuid().v4(), // New exercise ID for the new week
+                workoutId: newWorkoutId, // Update to point to the new workout!
+                sets: exercise.sets
+                    .map(
+                      (set) => set.copyWith(
+                        id: const Uuid().v4(), // New set ID
+                        isLogged: false, // Reset logged status
+                        weight: null, // Reset weight
+                        reps: '', // Reset reps
+                        isSkipped: false, // Reset skipped status
+                      ),
+                    )
+                    .toList(),
+              ),
+            )
             .toList(),
       );
       await repository.create(newWorkout);
@@ -88,7 +93,6 @@ class WorkoutListController {
     required List<MuscleGroup> muscleGroups,
     required int weekNumber,
     required int dayNumber,
-    required String dayName,
   }) async {
     final repository = ref.read(workoutRepositoryProvider);
 
@@ -98,7 +102,6 @@ class WorkoutListController {
         mesocycleId: mesocycleId,
         weekNumber: weekNumber,
         dayNumber: dayNumber,
-        dayName: dayName,
         label: muscleGroup.displayName,
         status: WorkoutStatus.incomplete,
       );

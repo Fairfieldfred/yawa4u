@@ -780,15 +780,52 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     required int currentWeek,
     required List<Workout> allWorkouts,
   }) {
-    // Get custom day name from workout if available
+    // Calculate day name based on the mesocycle start date
     final defaultDayNames = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
-    final dayName = workouts.isNotEmpty && workouts.first.dayName != null
-        ? workouts.first.dayName!
-              .substring(0, 3)
-              .toUpperCase() // First 3 chars
-        : (displayDay >= 1 && displayDay <= defaultDayNames.length
-              ? defaultDayNames[displayDay - 1]
-              : 'DAY $displayDay');
+    String dayName;
+
+    // Debug logging
+    debugPrint('=== DAY NAME CALCULATION ===');
+    debugPrint('Start date: ${mesocycle.startDate}');
+    debugPrint('Start date weekday: ${mesocycle.startDate?.weekday}');
+    debugPrint('Display week: $displayWeek, Display day: $displayDay');
+    debugPrint('Days per week: ${mesocycle.daysPerWeek}');
+    debugPrint(
+      'Has custom dayName: ${workouts.isNotEmpty && workouts.first.dayName != null}',
+    );
+    if (workouts.isNotEmpty && workouts.first.dayName != null) {
+      debugPrint('Custom dayName: ${workouts.first.dayName}');
+    }
+
+    if (workouts.isNotEmpty && workouts.first.dayName != null) {
+      // Use custom day name from workout if available
+      dayName = workouts.first.dayName!.substring(0, 3).toUpperCase();
+      debugPrint('Using custom dayName: $dayName');
+    } else if (mesocycle.startDate != null) {
+      // Calculate based on start date
+      // Get the day of week when mesocycle started (0 = Sunday, 6 = Saturday)
+      final startDayOfWeek =
+          mesocycle.startDate!.weekday % 7; // Convert Monday=1 to Sunday=0
+      debugPrint('Start day of week (after conversion): $startDayOfWeek');
+
+      // Calculate days elapsed since start
+      final daysElapsed =
+          ((displayWeek - 1) * mesocycle.daysPerWeek) + (displayDay - 1);
+      debugPrint('Days elapsed: $daysElapsed');
+
+      // Calculate actual day of week
+      final actualDayOfWeek = (startDayOfWeek + daysElapsed) % 7;
+      debugPrint('Actual day of week: $actualDayOfWeek');
+
+      dayName = defaultDayNames[actualDayOfWeek];
+      debugPrint('Calculated dayName: $dayName');
+    } else {
+      // Fallback to default if no start date
+      dayName = displayDay >= 1 && displayDay <= defaultDayNames.length
+          ? defaultDayNames[displayDay - 1]
+          : 'DAY $displayDay';
+      debugPrint('Using fallback dayName: $dayName');
+    }
 
     // Collect all exercises from all workouts for today
     final allExercises = <dynamic>[];
@@ -1036,6 +1073,11 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
           onTap: () => _relabelWorkout(workouts),
         ),
         _buildMenuItem(
+          icon: Icons.clear_all,
+          text: 'Clear all day labels',
+          onTap: () => _clearAllDayNames(mesocycle),
+        ),
+        _buildMenuItem(
           icon: Icons.add,
           text: 'Add exercise',
           onTap: () => _addExerciseToWorkout(workouts),
@@ -1235,6 +1277,13 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     final workout = workouts.first;
     final currentLabel = workout.dayName ?? 'Day ${workout.dayNumber}';
 
+    // Debug logging to understand what's being passed in
+    debugPrint('=== RELABEL DEBUG ===');
+    debugPrint('Workouts passed in: ${workouts.length}');
+    for (var w in workouts) {
+      debugPrint('  - Week ${w.weekNumber}, Day ${w.dayNumber}, ID: ${w.id}');
+    }
+
     final result = await showDialog<({String label, bool applyToAll})>(
       context: context,
       barrierDismissible: false,
@@ -1242,6 +1291,9 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     );
 
     if (result != null && mounted) {
+      debugPrint('Apply to all: ${result.applyToAll}');
+      debugPrint('New label: ${result.label}');
+
       try {
         final repository = ref.read(workoutRepositoryProvider);
 
@@ -1254,7 +1306,13 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
               .where((w) => w.dayNumber == workout.dayNumber)
               .toList();
 
+          debugPrint(
+            'Updating ${workoutsToUpdate.length} workouts (apply to all)',
+          );
           for (final w in workoutsToUpdate) {
+            debugPrint(
+              '  - Updating Week ${w.weekNumber}, Day ${w.dayNumber}, ID: ${w.id}',
+            );
             final updatedWorkout = w.copyWith(dayName: result.label);
             await repository.update(updatedWorkout);
           }
@@ -1270,10 +1328,45 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
             );
           }
         } else {
-          // Update only the current workout(s) for this day
-          for (final w in workouts) {
+          // Update only the current workout(s) for this specific week and day
+          // The workouts list passed in contains ALL workouts for this day across all weeks
+          // We need to filter to only the current week
+          final currentWeekNumber = workouts.first.weekNumber;
+          final currentWeekWorkouts = workouts
+              .where((w) => w.weekNumber == currentWeekNumber)
+              .toList();
+
+          debugPrint(
+            'Updating ${currentWeekWorkouts.length} workouts (current week only)',
+          );
+          for (final w in currentWeekWorkouts) {
+            debugPrint(
+              '  - Updating Week ${w.weekNumber}, Day ${w.dayNumber}, ID: ${w.id}',
+            );
             final updatedWorkout = w.copyWith(dayName: result.label);
             await repository.update(updatedWorkout);
+          }
+
+          // Verify the update by checking all workouts again
+          debugPrint('=== VERIFICATION ===');
+          final allWorkoutsAfter = ref.read(
+            workoutsByMesocycleProvider(workout.mesocycleId),
+          );
+
+          // Show ALL workouts grouped by week
+          debugPrint('All workouts in mesocycle after update:');
+          for (int week = 1; week <= 5; week++) {
+            final weekWorkouts = allWorkoutsAfter
+                .where((w) => w.weekNumber == week)
+                .toList();
+            if (weekWorkouts.isNotEmpty) {
+              debugPrint('  Week $week:');
+              for (var w in weekWorkouts) {
+                debugPrint(
+                  '    - Day ${w.dayNumber}, dayName: "${w.dayName}", ID: ${w.id.substring(0, 8)}...',
+                );
+              }
+            }
           }
 
           if (mounted) {
@@ -1286,10 +1379,74 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
           }
         }
       } catch (e) {
+        debugPrint('Error updating label: $e');
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Error updating label: $e'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    }
+  }
+
+  Future<void> _clearAllDayNames(dynamic mesocycle) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Clear All Day Labels'),
+        content: const Text(
+          'This will remove all custom day labels from workouts in this mesocycle. '
+          'Day names will be calculated automatically based on the start date.\n\n'
+          'This cannot be undone.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('CANCEL'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: FilledButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text('CLEAR ALL'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && mounted) {
+      try {
+        final repository = ref.read(workoutRepositoryProvider);
+        final allWorkouts = ref.read(workoutsByMesocycleProvider(mesocycle.id));
+
+        debugPrint('Clearing dayName from ${allWorkouts.length} workouts');
+
+        for (final workout in allWorkouts) {
+          if (workout.dayName != null) {
+            final updatedWorkout = workout.copyWith(dayName: null);
+            await repository.update(updatedWorkout);
+            debugPrint(
+              '  Cleared: Week ${workout.weekNumber}, Day ${workout.dayNumber}',
+            );
+          }
+        }
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('All day labels cleared'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      } catch (e) {
+        debugPrint('Error clearing day names: $e');
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error clearing labels: $e'),
               backgroundColor: Colors.red,
             ),
           );
@@ -2570,24 +2727,76 @@ class _CalendarDropdownState extends ConsumerState<_CalendarDropdown> {
 
   @override
   Widget build(BuildContext context) {
-    // Get day names for the dropdown columns - use custom names from workouts if available
+    // Calculate day names based on mesocycle start date
     final defaultDayNames = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
     final availableDays = List.generate(widget.mesocycle.daysPerWeek, (index) {
       final dayNumber = index + 1;
-      // Find any workout for this day number to get the custom label
-      final dayWorkout = widget.allWorkouts.firstWhere(
-        (w) => w.dayNumber == dayNumber,
-        orElse: () => widget.allWorkouts.first, // fallback
+
+      // Check if there's a custom label for this day in the SELECTED week
+      final selectedWeekDayWorkouts = widget.allWorkouts
+          .where(
+            (w) =>
+                w.dayNumber == dayNumber && w.weekNumber == widget.selectedWeek,
+          )
+          .toList();
+
+      debugPrint(
+        '=== CALENDAR DAY $dayNumber (Week ${widget.selectedWeek}) ===',
       );
-
-      // Use custom dayName if available, otherwise use default
-      if (dayWorkout.dayNumber == dayNumber && dayWorkout.dayName != null) {
-        return dayWorkout.dayName!.substring(0, 3).toUpperCase();
+      debugPrint(
+        'Workouts for day $dayNumber in week ${widget.selectedWeek}: ${selectedWeekDayWorkouts.length}',
+      );
+      for (var w in selectedWeekDayWorkouts) {
+        debugPrint('  dayName: "${w.dayName}"');
       }
-      return defaultDayNames[index % defaultDayNames.length];
-    });
 
-    // Calculate dynamic height based on number of workout days
+      if (selectedWeekDayWorkouts.isNotEmpty) {
+        // Check if all workouts for this day in the selected week have the same custom dayName
+        final firstDayName = selectedWeekDayWorkouts.first.dayName;
+        final allHaveSameName = selectedWeekDayWorkouts.every(
+          (w) => w.dayName == firstDayName,
+        );
+
+        debugPrint(
+          'First dayName: "$firstDayName", allHaveSameName: $allHaveSameName',
+        );
+
+        // Use custom dayName if all workouts in this week have the same non-null custom name
+        if (allHaveSameName &&
+            firstDayName != null &&
+            firstDayName.isNotEmpty) {
+          final label = firstDayName.substring(0, 3).toUpperCase();
+          debugPrint('Using custom label: $label');
+          return label;
+        }
+      }
+
+      // Otherwise, calculate based on mesocycle start date
+      if (widget.mesocycle.startDate != null) {
+        // Get the day of week when mesocycle started (0 = Sunday, 6 = Saturday)
+        final startDayOfWeek = widget.mesocycle.startDate!.weekday % 7;
+
+        // Calculate which actual day this workout falls on
+        // Week 1, Day 1 = start day + 0 days
+        // Week 1, Day 2 = start day + 1 day, etc.
+        final daysElapsed =
+            ((widget.selectedWeek - 1) * widget.mesocycle.daysPerWeek) +
+            (dayNumber - 1);
+
+        // Calculate actual day of week
+        final actualDayOfWeek = (startDayOfWeek + daysElapsed) % 7;
+
+        final label = defaultDayNames[actualDayOfWeek];
+        debugPrint(
+          'Using calculated label: $label (daysElapsed: $daysElapsed)',
+        );
+        return label;
+      }
+
+      // Fallback to default
+      debugPrint('Using fallback label');
+      return defaultDayNames[index % defaultDayNames.length];
+    }); // Calculate dynamic height based on number of workout days
     // Header height: 60, Week header: 60, Day button: 48, Day margin: 6
     // Total per day: 54 (48 + 6 margin)
     final headerHeight = 60.0;
