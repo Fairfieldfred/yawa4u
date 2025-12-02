@@ -9,6 +9,7 @@ import '../../domain/providers/repository_providers.dart';
 import '../../domain/providers/template_providers.dart';
 import '../../domain/providers/theme_provider.dart';
 import '../../domain/providers/workout_providers.dart';
+import '../widgets/mesocycle_summary_dialog.dart';
 import 'template_selection_screen.dart';
 
 /// Mesocycle list screen - organized by Draft/Current/Completed
@@ -440,10 +441,10 @@ class _MesocycleListScreenState extends ConsumerState<MesocycleListScreen> {
         );
         break;
       case 'summary':
-        // TODO: Implement summary functionality
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('Summary - Coming soon')));
+        await showDialog(
+          context: context,
+          builder: (context) => MesocycleSummaryDialog(mesocycle: mesocycle),
+        );
         break;
       case 'template':
         await _saveAsTemplate(mesocycle);

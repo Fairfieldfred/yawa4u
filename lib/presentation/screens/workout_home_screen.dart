@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../core/constants/enums.dart';
@@ -12,6 +13,7 @@ import '../../domain/providers/mesocycle_providers.dart';
 import '../../domain/providers/repository_providers.dart';
 import '../../domain/providers/theme_provider.dart';
 import '../../domain/providers/workout_providers.dart';
+import '../widgets/mesocycle_summary_dialog.dart';
 import 'add_exercise_screen.dart';
 
 /// Workout home screen - shows current/upcoming workouts
@@ -606,6 +608,10 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     if (workouts.isEmpty) return;
 
     final repository = ref.read(workoutRepositoryProvider);
+    final mesocycleRepository = ref.read(mesocycleRepositoryProvider);
+    final mesocycle = ref.read(currentMesocycleProvider);
+
+    if (mesocycle == null) return;
 
     // Mark ALL workouts for this day as completed
     for (final workout in workouts) {
@@ -616,10 +622,41 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
       await repository.update(updatedWorkout);
     }
 
+    // Check if ALL workouts in the mesocycle are now completed
+    final allWorkouts = repository.getByMesocycleId(mesocycle.id);
+    final allCompleted = allWorkouts.every(
+      (w) => w.status == WorkoutStatus.completed,
+    );
+
+    if (allCompleted) {
+      // Complete the mesocycle
+      await mesocycleRepository.update(mesocycle.complete());
+
+      if (mounted) {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Mesocycle Completed!'),
+            content: const Text(
+              'Congratulations! You have finished all workouts in this mesocycle.',
+            ),
+            actions: [
+              FilledButton(
+                onPressed: () {
+                  Navigator.pop(context); // Close dialog
+                  context.go('/'); // Go back to list screen
+                },
+                child: const Text('AWESOME'),
+              ),
+            ],
+          ),
+        );
+      }
+      return;
+    }
+
     // Navigate to next workout using the first workout's info
     final firstWorkout = workouts.first;
-    final mesocycle = ref.read(currentMesocycleProvider);
-    if (mesocycle == null) return;
 
     // Find next workout
     int nextDay = firstWorkout.dayNumber + 1;
@@ -1049,6 +1086,11 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
           onTap: () => _viewMesocycleNotes(mesocycle),
         ),
         _buildMenuItem(
+          icon: Icons.summarize_outlined,
+          text: 'Summary',
+          onTap: () => _showMesocycleSummary(mesocycle),
+        ),
+        _buildMenuItem(
           icon: Icons.edit,
           text: 'Rename',
           onTap: () => _renameMesocycle(mesocycle),
@@ -1167,6 +1209,13 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
   // Placeholder actions
   void _viewMesocycleNotes(dynamic mesocycle) {
     debugPrint('View notes');
+  }
+
+  void _showMesocycleSummary(dynamic mesocycle) {
+    showDialog(
+      context: context,
+      builder: (context) => MesocycleSummaryDialog(mesocycle: mesocycle),
+    );
   }
 
   Future<void> _renameMesocycle(dynamic mesocycle) async {
