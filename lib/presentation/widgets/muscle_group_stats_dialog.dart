@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/constants/muscle_groups.dart';
+import '../../data/models/mesocycle.dart';
 import '../../domain/providers/workout_providers.dart';
 
 class MuscleGroupStatsDialog extends ConsumerWidget {
-  final String mesocycleId;
+  final Mesocycle mesocycle;
 
-  const MuscleGroupStatsDialog({super.key, required this.mesocycleId});
+  const MuscleGroupStatsDialog({super.key, required this.mesocycle});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -21,7 +22,7 @@ class MuscleGroupStatsDialog extends ConsumerWidget {
         data: (allWorkouts) {
           // 1. Filter workouts for this mesocycle
           final workouts = allWorkouts
-              .where((w) => w.mesocycleId == mesocycleId)
+              .where((w) => w.mesocycleId == mesocycle.id)
               .toList();
 
           if (workouts.isEmpty) {
@@ -97,19 +98,20 @@ class MuscleGroupStatsDialog extends ConsumerWidget {
                       flex: 2,
                       child: SizedBox(),
                     ), // Space for Muscle Group Name
-                    ...weeks.map(
-                      (week) => Expanded(
+                    ...weeks.map((week) {
+                      final isDeload = week == mesocycle.deloadWeek;
+                      return Expanded(
                         child: Center(
                           child: Text(
-                            'wk $week',
+                            isDeload ? 'DL' : 'wk $week',
                             style: TextStyle(
                               fontSize: 12,
                               color: Colors.grey[400],
                             ),
                           ),
                         ),
-                      ),
-                    ),
+                      );
+                    }),
                     Expanded(
                       child: Center(
                         child: Text(

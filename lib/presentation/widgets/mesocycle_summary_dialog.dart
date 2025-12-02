@@ -135,7 +135,7 @@ class MesocycleSummaryDialog extends ConsumerWidget {
                     showDialog(
                       context: context,
                       builder: (context) =>
-                          MuscleGroupStatsDialog(mesocycleId: mesocycle.id),
+                          MuscleGroupStatsDialog(mesocycle: mesocycle),
                     );
                   },
                 ),
