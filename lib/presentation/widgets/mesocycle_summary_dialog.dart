@@ -14,10 +14,15 @@ class MesocycleSummaryDialog extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final workoutsAsync = ref.watch(workoutsProvider);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final backgroundColor = isDark ? const Color(0xFF2C2C2E) : Colors.white;
+    final textColor = isDark ? Colors.white : Colors.black87;
+    final secondaryTextColor = isDark ? Colors.grey[400] : Colors.grey[600];
+    final dividerColor = isDark ? Colors.grey[800] : Colors.grey[300];
 
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      backgroundColor: const Color(0xFF2C2C2E), // Dark card background
+      backgroundColor: backgroundColor,
       child: workoutsAsync.when(
         data: (allWorkouts) {
           final workouts =
@@ -52,12 +57,12 @@ class MesocycleSummaryDialog extends ConsumerWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
+                          Text(
                             'Mesocycle summary',
                             style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                              color: textColor,
                             ),
                           ),
                           const SizedBox(height: 4),
@@ -65,7 +70,7 @@ class MesocycleSummaryDialog extends ConsumerWidget {
                             mesocycle.name.toUpperCase(),
                             style: TextStyle(
                               fontSize: 12,
-                              color: Colors.grey[400],
+                              color: secondaryTextColor,
                               letterSpacing: 0.5,
                             ),
                             overflow: TextOverflow.ellipsis,
@@ -75,7 +80,7 @@ class MesocycleSummaryDialog extends ConsumerWidget {
                     ),
                     IconButton(
                       onPressed: () => Navigator.of(context).pop(),
-                      icon: const Icon(Icons.close, color: Colors.white),
+                      icon: Icon(Icons.close, color: textColor),
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(),
                     ),
@@ -84,12 +89,12 @@ class MesocycleSummaryDialog extends ConsumerWidget {
                 const SizedBox(height: 24),
 
                 // Workouts Section
-                const Text(
+                Text(
                   'Workouts',
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
-                    color: Colors.white,
+                    color: textColor,
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -98,39 +103,44 @@ class MesocycleSummaryDialog extends ConsumerWidget {
                   icon: Icons.check_circle_outline,
                   label: 'Completed',
                   value: completedCount.toString(),
+                  textColor: textColor,
                   iconColor: Colors.white,
                 ),
-                _buildDivider(),
+                _buildDivider(dividerColor),
                 _buildStatRow(
                   context,
                   icon: Icons.undo, // Using undo/curved arrow for skipped
                   label: 'Skipped',
                   value: skippedCount.toString(),
+                  textColor: textColor,
                   iconColor: Colors.white,
                 ),
-                _buildDivider(),
+                _buildDivider(dividerColor),
                 _buildStatRow(
                   context,
                   icon: Icons.radio_button_unchecked, // Dashed circle approx
                   label: 'Incomplete',
                   value: incompleteCount.toString(),
+                  textColor: textColor,
                   iconColor: Colors.white,
                 ),
                 const SizedBox(height: 24),
 
                 // Stats Section
-                const Text(
+                Text(
                   'Stats',
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
-                    color: Colors.white,
+                    color: textColor,
                   ),
                 ),
                 const SizedBox(height: 12),
                 _buildNavigationRow(
                   context,
                   label: 'Muscle groups',
+                  textColor: textColor,
+                  secondaryTextColor: secondaryTextColor,
                   onTap: () {
                     showDialog(
                       context: context,
@@ -139,10 +149,12 @@ class MesocycleSummaryDialog extends ConsumerWidget {
                     );
                   },
                 ),
-                _buildDivider(),
+                _buildDivider(dividerColor),
                 _buildNavigationRow(
                   context,
                   label: 'Exercises',
+                  textColor: textColor,
+                  secondaryTextColor: secondaryTextColor,
                   onTap: () {
                     // TODO: Navigate to exercise stats
                     Navigator.of(context).pop();
@@ -160,10 +172,10 @@ class MesocycleSummaryDialog extends ConsumerWidget {
                   alignment: Alignment.centerRight,
                   child: TextButton(
                     onPressed: () => Navigator.of(context).pop(),
-                    child: const Text(
+                    child: Text(
                       'CLOSE',
                       style: TextStyle(
-                        color: Colors.white,
+                        color: textColor,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -195,6 +207,7 @@ class MesocycleSummaryDialog extends ConsumerWidget {
     required IconData icon,
     required String label,
     required String value,
+    required Color textColor,
     Color? iconColor,
   }) {
     return Padding(
@@ -206,13 +219,10 @@ class MesocycleSummaryDialog extends ConsumerWidget {
           Expanded(
             child: Text(
               label,
-              style: const TextStyle(fontSize: 16, color: Colors.white),
+              style: TextStyle(fontSize: 16, color: textColor),
             ),
           ),
-          Text(
-            value,
-            style: const TextStyle(fontSize: 16, color: Colors.white),
-          ),
+          Text(value, style: TextStyle(fontSize: 16, color: textColor)),
         ],
       ),
     );
@@ -222,6 +232,8 @@ class MesocycleSummaryDialog extends ConsumerWidget {
     BuildContext context, {
     required String label,
     required VoidCallback onTap,
+    required Color textColor,
+    required Color? secondaryTextColor,
   }) {
     return InkWell(
       onTap: onTap,
@@ -232,17 +244,17 @@ class MesocycleSummaryDialog extends ConsumerWidget {
             Expanded(
               child: Text(
                 label,
-                style: const TextStyle(fontSize: 16, color: Colors.white),
+                style: TextStyle(fontSize: 16, color: textColor),
               ),
             ),
-            const Icon(Icons.chevron_right, color: Colors.grey),
+            Icon(Icons.chevron_right, color: secondaryTextColor),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildDivider() {
-    return Divider(height: 1, thickness: 1, color: Colors.grey[800]);
+  Widget _buildDivider(Color? dividerColor) {
+    return Divider(height: 1, thickness: 1, color: dividerColor);
   }
 }

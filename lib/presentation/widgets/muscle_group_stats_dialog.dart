@@ -13,10 +13,15 @@ class MuscleGroupStatsDialog extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final workoutsAsync = ref.watch(workoutsProvider);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final backgroundColor = isDark ? const Color(0xFF2C2C2E) : Colors.white;
+    final textColor = isDark ? Colors.white : Colors.black87;
+    final secondaryTextColor = isDark ? Colors.grey[400] : Colors.grey[600];
+    final cellBackgroundColor = isDark ? Colors.grey[700] : Colors.grey[200];
 
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      backgroundColor: const Color(0xFF2C2C2E),
+      backgroundColor: backgroundColor,
       insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
       child: workoutsAsync.when(
         data: (allWorkouts) {
@@ -26,11 +31,11 @@ class MuscleGroupStatsDialog extends ConsumerWidget {
               .toList();
 
           if (workouts.isEmpty) {
-            return const Padding(
-              padding: EdgeInsets.all(20.0),
+            return Padding(
+              padding: const EdgeInsets.all(20.0),
               child: Text(
                 'No workouts found for this mesocycle.',
-                style: TextStyle(color: Colors.white),
+                style: TextStyle(color: textColor),
               ),
             );
           }
@@ -73,17 +78,17 @@ class MuscleGroupStatsDialog extends ConsumerWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
+                    Text(
                       'Muscle group stats',
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                        color: textColor,
                       ),
                     ),
                     IconButton(
                       onPressed: () => Navigator.of(context).pop(),
-                      icon: const Icon(Icons.close, color: Colors.white),
+                      icon: Icon(Icons.close, color: textColor),
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(),
                     ),
@@ -106,23 +111,12 @@ class MuscleGroupStatsDialog extends ConsumerWidget {
                             isDeload ? 'DL' : 'wk $week',
                             style: TextStyle(
                               fontSize: 12,
-                              color: Colors.grey[400],
+                              color: secondaryTextColor,
                             ),
                           ),
                         ),
                       );
                     }),
-                    Expanded(
-                      child: Center(
-                        child: Text(
-                          'Avg',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey[400],
-                          ),
-                        ),
-                      ),
-                    ),
                   ],
                 ),
                 const SizedBox(height: 12),
@@ -130,142 +124,148 @@ class MuscleGroupStatsDialog extends ConsumerWidget {
                 // List of Muscle Groups
                 Flexible(
                   child: SingleChildScrollView(
-                    child: Column(
-                      children: sortedGroups.map((group) {
-                        final groupStats = stats[group] ?? {};
-                        final totalSets = groupStats.values.fold(
-                          0,
-                          (sum, count) => sum + count,
-                        );
-                        final avgSets = weeks.isEmpty
-                            ? 0
-                            : (totalSets / weeks.length).round();
+                    child: Builder(
+                      builder: (context) {
+                        // First pass: calculate all averages to find the max
+                        final avgSetsMap = <MuscleGroup, int>{};
+                        for (final group in sortedGroups) {
+                          final groupStats = stats[group] ?? {};
+                          final totalSets = groupStats.values.fold(
+                            0,
+                            (sum, count) => sum + count,
+                          );
+                          final avgSets = weeks.isEmpty
+                              ? 0
+                              : (totalSets / weeks.length).round();
+                          avgSetsMap[group] = avgSets;
+                        }
 
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 8.0),
-                          child: Row(
-                            children: [
-                              // Muscle Group Name & Avg
-                              Expanded(
-                                flex: 2,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
+                        // Find the maximum average sets
+                        final maxAvgSets = avgSetsMap.values.isEmpty
+                            ? 1
+                            : avgSetsMap.values.reduce((a, b) => a > b ? a : b);
+
+                        return Column(
+                          children: sortedGroups.map((group) {
+                            final groupStats = stats[group] ?? {};
+                            final avgSets = avgSetsMap[group] ?? 0;
+
+                            // Calculate opacity multiplier based on proportion to max
+                            final intensityMultiplier = maxAvgSets > 0
+                                ? avgSets / maxAvgSets
+                                : 0.0;
+
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 8.0,
+                              ),
+                              child: Row(
+                                children: [
+                                  // Muscle Group Name & Avg
+                                  Expanded(
+                                    flex: 2,
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
-                                        Container(
-                                          width: 4,
-                                          height: 16,
-                                          decoration: BoxDecoration(
-                                            color: group.color,
-                                            borderRadius: BorderRadius.circular(
-                                              2,
+                                        Row(
+                                          children: [
+                                            Container(
+                                              width: 4,
+                                              height: 16,
+                                              decoration: BoxDecoration(
+                                                color: group.color.withValues(
+                                                  alpha: intensityMultiplier,
+                                                ),
+                                                borderRadius:
+                                                    BorderRadius.circular(2),
+                                              ),
                                             ),
-                                          ),
+                                            const SizedBox(width: 4),
+                                            Container(
+                                              width: 4,
+                                              height: 16,
+                                              decoration: BoxDecoration(
+                                                color: group.color.withValues(
+                                                  alpha:
+                                                      intensityMultiplier * 0.6,
+                                                ),
+                                                borderRadius:
+                                                    BorderRadius.circular(2),
+                                              ),
+                                            ),
+                                            const SizedBox(width: 4),
+                                            Container(
+                                              width: 4,
+                                              height: 16,
+                                              decoration: BoxDecoration(
+                                                color: group.color.withValues(
+                                                  alpha:
+                                                      intensityMultiplier * 0.3,
+                                                ),
+                                                borderRadius:
+                                                    BorderRadius.circular(2),
+                                              ),
+                                            ),
+                                            const SizedBox(width: 8),
+                                            Expanded(
+                                              child: Text(
+                                                group.displayName,
+                                                style: TextStyle(
+                                                  color: textColor,
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 14,
+                                                ),
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            ),
+                                          ],
                                         ),
-                                        const SizedBox(width: 4),
-                                        Container(
-                                          width: 4,
-                                          height: 16,
-                                          decoration: BoxDecoration(
-                                            color: group.color.withValues(
-                                              alpha: 0.6,
-                                            ),
-                                            borderRadius: BorderRadius.circular(
-                                              2,
-                                            ),
-                                          ),
-                                        ),
-                                        const SizedBox(width: 4),
-                                        Container(
-                                          width: 4,
-                                          height: 16,
-                                          decoration: BoxDecoration(
-                                            color: group.color.withValues(
-                                              alpha: 0.3,
-                                            ),
-                                            borderRadius: BorderRadius.circular(
-                                              2,
-                                            ),
-                                          ),
-                                        ),
-                                        const SizedBox(width: 8),
-                                        Expanded(
-                                          child: Text(
-                                            group.displayName,
-                                            style: const TextStyle(
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 14,
-                                            ),
-                                            overflow: TextOverflow.ellipsis,
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          '$avgSets avg sets',
+                                          style: TextStyle(
+                                            color: secondaryTextColor,
+                                            fontSize: 12,
                                           ),
                                         ),
                                       ],
                                     ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      '$avgSets avg sets',
-                                      style: TextStyle(
-                                        color: Colors.grey[400],
-                                        fontSize: 12,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
+                                  ),
 
-                              // Weekly Bars
-                              ...weeks.map((week) {
-                                final count = groupStats[week] ?? 0;
-                                return Expanded(
-                                  child: Container(
-                                    margin: const EdgeInsets.symmetric(
-                                      horizontal: 2,
-                                    ),
-                                    height:
-                                        40, // Fixed height for the bar container
-                                    decoration: BoxDecoration(
-                                      color: Colors.grey[700],
-                                      borderRadius: BorderRadius.circular(4),
-                                    ),
-                                    alignment: Alignment.center,
-                                    child: Text(
-                                      count > 0 ? count.toString() : '-',
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 12,
+                                  // Weekly Bars
+                                  ...weeks.map((week) {
+                                    final count = groupStats[week] ?? 0;
+                                    return Expanded(
+                                      child: Container(
+                                        margin: const EdgeInsets.symmetric(
+                                          horizontal: 2,
+                                        ),
+                                        height:
+                                            40, // Fixed height for the bar container
+                                        decoration: BoxDecoration(
+                                          color: cellBackgroundColor,
+                                          borderRadius: BorderRadius.circular(
+                                            4,
+                                          ),
+                                        ),
+                                        alignment: Alignment.center,
+                                        child: Text(
+                                          count > 0 ? count.toString() : '-',
+                                          style: TextStyle(
+                                            color: textColor,
+                                            fontSize: 12,
+                                          ),
+                                        ),
                                       ),
-                                    ),
-                                  ),
-                                );
-                              }),
-
-                              // Average Column
-                              Expanded(
-                                child: Container(
-                                  margin: const EdgeInsets.symmetric(
-                                    horizontal: 2,
-                                  ),
-                                  height: 30,
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey[800],
-                                    borderRadius: BorderRadius.circular(4),
-                                  ),
-                                  alignment: Alignment.center,
-                                  child: Text(
-                                    avgSets.toString(),
-                                    style: TextStyle(
-                                      color: Colors.grey[400],
-                                      fontSize: 12,
-                                    ),
-                                  ),
-                                ),
+                                    );
+                                  }),
+                                ],
                               ),
-                            ],
-                          ),
+                            );
+                          }).toList(),
                         );
-                      }).toList(),
+                      },
                     ),
                   ),
                 ),
