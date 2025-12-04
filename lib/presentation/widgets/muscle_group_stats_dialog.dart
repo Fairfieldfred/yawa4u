@@ -22,7 +22,7 @@ class MuscleGroupStatsDialog extends ConsumerWidget {
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       backgroundColor: backgroundColor,
-      insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+      insetPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 24),
       child: workoutsAsync.when(
         data: (allWorkouts) {
           // 1. Filter workouts for this mesocycle
@@ -109,10 +109,7 @@ class MuscleGroupStatsDialog extends ConsumerWidget {
                         child: Center(
                           child: Text(
                             isDeload ? 'DL' : 'wk $week',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: secondaryTextColor,
-                            ),
+                            style: TextStyle(fontSize: 12, color: textColor),
                           ),
                         ),
                       );
@@ -214,7 +211,7 @@ class MuscleGroupStatsDialog extends ConsumerWidget {
                                                 style: TextStyle(
                                                   color: textColor,
                                                   fontWeight: FontWeight.bold,
-                                                  fontSize: 14,
+                                                  fontSize: 18,
                                                 ),
                                                 overflow: TextOverflow.ellipsis,
                                               ),
@@ -225,7 +222,7 @@ class MuscleGroupStatsDialog extends ConsumerWidget {
                                         Text(
                                           '$avgSets avg sets',
                                           style: TextStyle(
-                                            color: secondaryTextColor,
+                                            color: textColor,
                                             fontSize: 12,
                                           ),
                                         ),
