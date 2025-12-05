@@ -8,6 +8,7 @@ import '../../data/models/workout.dart';
 import '../../domain/providers/mesocycle_providers.dart';
 import '../../domain/providers/repository_providers.dart';
 import '../../domain/providers/workout_providers.dart';
+import '../widgets/exercise_card_widget.dart';
 
 /// Exercises library home screen
 class ExercisesHomeScreen extends ConsumerWidget {
@@ -31,34 +32,48 @@ class ExercisesHomeScreen extends ConsumerWidget {
     }
 
     // Get workouts for the current mesocycle
-    final workouts = ref.watch(
+    final allWorkouts = ref.watch(
       workoutsByMesocycleProvider(currentMesocycle.id),
     );
 
-    // Find the first incomplete workout
-    final activeWorkout = workouts.cast<Workout?>().firstWhere(
-      (w) => w?.status == WorkoutStatus.incomplete,
-      orElse: () => null,
-    );
+    // Find the first incomplete workout day (not just workout/muscle group)
+    // Group by (weekNumber, dayNumber) to find unique days
+    final Map<String, List<Workout>> workoutsByDay = {};
+    for (var workout in allWorkouts) {
+      final key = '${workout.weekNumber}-${workout.dayNumber}';
+      workoutsByDay.putIfAbsent(key, () => []).add(workout);
+    }
 
-    if (activeWorkout == null) {
+    // Find first day with any incomplete workout
+    String? firstIncompleteDay;
+    for (var entry in workoutsByDay.entries) {
+      if (entry.value.any((w) => w.status == WorkoutStatus.incomplete)) {
+        firstIncompleteDay = entry.key;
+        break;
+      }
+    }
+
+    if (firstIncompleteDay == null) {
       return Scaffold(
         appBar: AppBar(title: const Text('Exercises')),
         body: const Center(child: Text('All workouts completed!')),
       );
     }
 
+    // Get all workouts for that day
+    final dayWorkouts = workoutsByDay[firstIncompleteDay]!;
+
     return _WorkoutSessionView(
-      key: ValueKey(activeWorkout.id), // Rebuild if workout changes
-      workout: activeWorkout,
+      key: ValueKey(firstIncompleteDay), // Rebuild if day changes
+      workouts: dayWorkouts,
     );
   }
 }
 
 class _WorkoutSessionView extends ConsumerStatefulWidget {
-  final Workout workout;
+  final List<Workout> workouts;
 
-  const _WorkoutSessionView({required Key key, required this.workout})
+  const _WorkoutSessionView({required Key key, required this.workouts})
     : super(key: key);
 
   @override
@@ -69,11 +84,47 @@ class _WorkoutSessionView extends ConsumerStatefulWidget {
 class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
   late PageController _pageController;
   int _currentPage = 0;
+  late List<Exercise> _allExercises;
+  late Map<int, _ExerciseSource> _exerciseSources; // Maps exercise index to its source workout
 
   @override
   void initState() {
     super.initState();
-    _pageController = PageController();
+    _buildExerciseList();
+
+    // Find first unfinished exercise set
+    final initialPage = _findFirstUnfinishedExerciseIndex();
+    _currentPage = initialPage;
+    _pageController = PageController(initialPage: initialPage);
+  }
+
+  void _buildExerciseList() {
+    _allExercises = [];
+    _exerciseSources = {};
+
+    // Collect all exercises from all workouts for this day
+    for (var workout in widget.workouts) {
+      for (var exercise in workout.exercises) {
+        final exerciseIndex = _allExercises.length;
+        _exerciseSources[exerciseIndex] = _ExerciseSource(
+          workout: workout,
+          exerciseIndex: workout.exercises.indexOf(exercise),
+        );
+        _allExercises.add(exercise);
+      }
+    }
+  }
+
+  int _findFirstUnfinishedExerciseIndex() {
+    for (int i = 0; i < _allExercises.length; i++) {
+      final exercise = _allExercises[i];
+      // Check if any set is not logged
+      if (exercise.sets.any((set) => !set.isLogged)) {
+        return i;
+      }
+    }
+    // If all exercises are complete, return 0 (first exercise)
+    return 0;
   }
 
   @override
@@ -84,44 +135,67 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
 
   @override
   Widget build(BuildContext context) {
-    final workout = widget.workout;
-    final exercises = workout.exercises;
+    // Use the first workout's display info for the appBar
+    final firstWorkout = widget.workouts.first;
+    final dayLabel = firstWorkout.dayName ?? 'Week ${firstWorkout.weekNumber} - Day ${firstWorkout.dayNumber}';
 
     return Scaffold(
-      appBar: AppBar(title: Text(workout.displayName), centerTitle: true),
+      appBar: AppBar(title: Text(dayLabel), centerTitle: true),
       body: Column(
         children: [
           // Progress Indicator
           LinearProgressIndicator(
-            value: (exercises.isEmpty)
+            value: (_allExercises.isEmpty)
                 ? 0
-                : (_currentPage + 1) / exercises.length,
+                : (_currentPage + 1) / _allExercises.length,
             backgroundColor: Theme.of(context).dividerColor,
           ),
 
           Expanded(
             child: PageView.builder(
               controller: _pageController,
-              itemCount: exercises.length,
+              itemCount: _allExercises.length,
               onPageChanged: (index) {
                 setState(() {
                   _currentPage = index;
                 });
               },
               itemBuilder: (context, index) {
-                return _ExercisePage(
-                  workout: workout,
-                  exercise: exercises[index],
-                  exerciseIndex: index,
+                final source = _exerciseSources[index]!;
+                final exercise = _allExercises[index];
+                final showMuscleGroupBadge = index == 0 ||
+                    _allExercises[index - 1].muscleGroup != exercise.muscleGroup;
+
+                return SingleChildScrollView(
+                  padding: const EdgeInsets.all(24),
+                  child: ExerciseCardWidget(
+                    exercise: exercise,
+                    showMuscleGroupBadge: showMuscleGroupBadge,
+                    targetRir: null, // Could calculate this if needed
+                    onAddNote: (exerciseId) => _addNote(source.workout.id, exerciseId),
+                    onMoveDown: (exerciseId) => _moveExerciseDown(source.workout.id, exerciseId),
+                    onReplace: (exerciseId) => _replaceExercise(source.workout.id, exerciseId),
+                    onJointPain: (exerciseId) => _logJointPain(source.workout.id, exerciseId),
+                    onAddSet: (exerciseId) => _addSetToExercise(source.workout.id, exerciseId),
+                    onSkipSets: (exerciseId) => _skipExerciseSets(source.workout.id, exerciseId),
+                    onDelete: (exerciseId) => _deleteExercise(source.workout.id, exerciseId),
+                    onAddSetBelow: (setIndex) => _addSetBelow(source.workout.id, exercise.id, setIndex),
+                    onToggleSetSkip: (setIndex) => _toggleSetSkip(source.workout.id, exercise.id, setIndex),
+                    onDeleteSet: (setIndex) => _deleteSet(source.workout.id, exercise.id, setIndex),
+                    onUpdateSetType: (setIndex, setType) => _updateSetType(source.workout.id, exercise.id, setIndex, setType),
+                    onUpdateSetWeight: (setIndex, value) => _updateSetWeight(source.workout.id, exercise.id, setIndex, value),
+                    onUpdateSetReps: (setIndex, value) => _updateSetReps(source.workout.id, exercise.id, setIndex, value),
+                    onToggleSetLog: (setIndex) => _toggleSetLog(source.workout.id, exercise.id, setIndex),
+                  ),
                 );
               },
             ),
           ),
 
           _BottomActionBar(
-            workout: workout,
+            currentExercise: _allExercises[_currentPage],
             currentPage: _currentPage,
-            totalPages: exercises.length,
+            totalPages: _allExercises.length,
             onNext: _goToNextPage,
           ),
         ],
@@ -129,8 +203,236 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
     );
   }
 
+  // ========== Exercise Callbacks ==========
+  void _addNote(String workoutId, String exerciseId) {
+    // TODO: Implement add note dialog
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Add note feature coming soon')),
+    );
+  }
+
+  void _moveExerciseDown(String workoutId, String exerciseId) {
+    // TODO: Implement move exercise
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Move exercise feature coming soon')),
+    );
+  }
+
+  void _replaceExercise(String workoutId, String exerciseId) {
+    // TODO: Implement replace exercise
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Replace exercise feature coming soon')),
+    );
+  }
+
+  void _logJointPain(String workoutId, String exerciseId) {
+    // TODO: Implement joint pain feedback
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Joint pain logging coming soon')),
+    );
+  }
+
+  void _addSetToExercise(String workoutId, String exerciseId) {
+    final repository = ref.read(workoutRepositoryProvider);
+    final workout = repository.getById(workoutId);
+    if (workout == null) return;
+
+    final exerciseIndex = workout.exercises.indexWhere((e) => e.id == exerciseId);
+    if (exerciseIndex == -1) return;
+
+    final exercise = workout.exercises[exerciseIndex];
+    final newSet = ExerciseSet(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      setNumber: exercise.sets.length + 1,
+      reps: '',
+      setType: SetType.regular,
+    );
+
+    final updatedSets = [...exercise.sets, newSet];
+    final updatedExercise = exercise.copyWith(sets: updatedSets);
+    final updatedWorkout = workout.updateExercise(exerciseIndex, updatedExercise);
+    repository.update(updatedWorkout);
+  }
+
+  void _skipExerciseSets(String workoutId, String exerciseId) {
+    // TODO: Implement skip sets
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Skip sets feature coming soon')),
+    );
+  }
+
+  void _deleteExercise(String workoutId, String exerciseId) {
+    final repository = ref.read(workoutRepositoryProvider);
+    final workout = repository.getById(workoutId);
+    if (workout == null) return;
+
+    final exerciseIndex = workout.exercises.indexWhere((e) => e.id == exerciseId);
+    if (exerciseIndex == -1) return;
+
+    final updatedExercises = List<Exercise>.from(workout.exercises);
+    updatedExercises.removeAt(exerciseIndex);
+    final updatedWorkout = workout.copyWith(exercises: updatedExercises);
+    repository.update(updatedWorkout);
+
+    // Rebuild exercise list
+    setState(() {
+      _buildExerciseList();
+      if (_currentPage >= _allExercises.length && _allExercises.isNotEmpty) {
+        _currentPage = _allExercises.length - 1;
+      }
+    });
+  }
+
+  // ========== Set Callbacks ==========
+  void _addSetBelow(String workoutId, String exerciseId, int currentSetIndex) {
+    final repository = ref.read(workoutRepositoryProvider);
+    final workout = repository.getById(workoutId);
+    if (workout == null) return;
+
+    final exerciseIndex = workout.exercises.indexWhere((e) => e.id == exerciseId);
+    if (exerciseIndex == -1) return;
+
+    final exercise = workout.exercises[exerciseIndex];
+    final newSet = ExerciseSet(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      setNumber: exercise.sets.length + 1,
+      reps: '',
+      setType: SetType.regular,
+    );
+
+    final updatedSets = List<ExerciseSet>.from(exercise.sets);
+    updatedSets.insert(currentSetIndex + 1, newSet);
+
+    // Renumber sets
+    for (var i = 0; i < updatedSets.length; i++) {
+      updatedSets[i] = updatedSets[i].copyWith(setNumber: i + 1);
+    }
+
+    final updatedExercise = exercise.copyWith(sets: updatedSets);
+    final updatedWorkout = workout.updateExercise(exerciseIndex, updatedExercise);
+    repository.update(updatedWorkout);
+  }
+
+  void _toggleSetSkip(String workoutId, String exerciseId, int setIndex) {
+    final repository = ref.read(workoutRepositoryProvider);
+    final workout = repository.getById(workoutId);
+    if (workout == null) return;
+
+    final exerciseIndex = workout.exercises.indexWhere((e) => e.id == exerciseId);
+    if (exerciseIndex == -1) return;
+
+    final exercise = workout.exercises[exerciseIndex];
+    if (setIndex >= exercise.sets.length) return;
+
+    final set = exercise.sets[setIndex];
+    final updatedSet = set.copyWith(isSkipped: !set.isSkipped);
+    final updatedExercise = exercise.updateSet(setIndex, updatedSet);
+    final updatedWorkout = workout.updateExercise(exerciseIndex, updatedExercise);
+    repository.update(updatedWorkout);
+  }
+
+  void _deleteSet(String workoutId, String exerciseId, int setIndex) {
+    final repository = ref.read(workoutRepositoryProvider);
+    final workout = repository.getById(workoutId);
+    if (workout == null) return;
+
+    final exerciseIndex = workout.exercises.indexWhere((e) => e.id == exerciseId);
+    if (exerciseIndex == -1) return;
+
+    final exercise = workout.exercises[exerciseIndex];
+    if (setIndex >= exercise.sets.length) return;
+
+    final updatedSets = List<ExerciseSet>.from(exercise.sets);
+    updatedSets.removeAt(setIndex);
+
+    // Renumber sets
+    for (var i = 0; i < updatedSets.length; i++) {
+      updatedSets[i] = updatedSets[i].copyWith(setNumber: i + 1);
+    }
+
+    final updatedExercise = exercise.copyWith(sets: updatedSets);
+    final updatedWorkout = workout.updateExercise(exerciseIndex, updatedExercise);
+    repository.update(updatedWorkout);
+  }
+
+  void _updateSetType(String workoutId, String exerciseId, int setIndex, SetType setType) {
+    final repository = ref.read(workoutRepositoryProvider);
+    final workout = repository.getById(workoutId);
+    if (workout == null) return;
+
+    final exerciseIndex = workout.exercises.indexWhere((e) => e.id == exerciseId);
+    if (exerciseIndex == -1) return;
+
+    final exercise = workout.exercises[exerciseIndex];
+    if (setIndex >= exercise.sets.length) return;
+
+    final set = exercise.sets[setIndex];
+    final updatedSet = set.copyWith(setType: setType);
+    final updatedExercise = exercise.updateSet(setIndex, updatedSet);
+    final updatedWorkout = workout.updateExercise(exerciseIndex, updatedExercise);
+    repository.update(updatedWorkout);
+  }
+
+  void _updateSetWeight(String workoutId, String exerciseId, int setIndex, String value) {
+    final weight = double.tryParse(value);
+    if (weight == null && value.isNotEmpty) return;
+
+    final repository = ref.read(workoutRepositoryProvider);
+    final workout = repository.getById(workoutId);
+    if (workout == null) return;
+
+    final exerciseIndex = workout.exercises.indexWhere((e) => e.id == exerciseId);
+    if (exerciseIndex == -1) return;
+
+    final exercise = workout.exercises[exerciseIndex];
+    if (setIndex >= exercise.sets.length) return;
+
+    final set = exercise.sets[setIndex];
+    final updatedSet = set.copyWith(weight: weight);
+    final updatedExercise = exercise.updateSet(setIndex, updatedSet);
+    final updatedWorkout = workout.updateExercise(exerciseIndex, updatedExercise);
+    repository.update(updatedWorkout);
+  }
+
+  void _updateSetReps(String workoutId, String exerciseId, int setIndex, String value) {
+    final repository = ref.read(workoutRepositoryProvider);
+    final workout = repository.getById(workoutId);
+    if (workout == null) return;
+
+    final exerciseIndex = workout.exercises.indexWhere((e) => e.id == exerciseId);
+    if (exerciseIndex == -1) return;
+
+    final exercise = workout.exercises[exerciseIndex];
+    if (setIndex >= exercise.sets.length) return;
+
+    final set = exercise.sets[setIndex];
+    final updatedSet = set.copyWith(reps: value);
+    final updatedExercise = exercise.updateSet(setIndex, updatedSet);
+    final updatedWorkout = workout.updateExercise(exerciseIndex, updatedExercise);
+    repository.update(updatedWorkout);
+  }
+
+  void _toggleSetLog(String workoutId, String exerciseId, int setIndex) {
+    final repository = ref.read(workoutRepositoryProvider);
+    final workout = repository.getById(workoutId);
+    if (workout == null) return;
+
+    final exerciseIndex = workout.exercises.indexWhere((e) => e.id == exerciseId);
+    if (exerciseIndex == -1) return;
+
+    final exercise = workout.exercises[exerciseIndex];
+    if (setIndex >= exercise.sets.length) return;
+
+    final set = exercise.sets[setIndex];
+    final updatedSet = set.copyWith(isLogged: !set.isLogged);
+    final updatedExercise = exercise.updateSet(setIndex, updatedSet);
+    final updatedWorkout = workout.updateExercise(exerciseIndex, updatedExercise);
+    repository.update(updatedWorkout);
+  }
+
+  // ========== Navigation ==========
   void _goToNextPage() {
-    if (_currentPage < widget.workout.exercises.length - 1) {
+    if (_currentPage < _allExercises.length - 1) {
       _pageController.nextPage(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
@@ -142,7 +444,11 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
 
   void _finishWorkout() {
     final workoutRepo = ref.read(workoutRepositoryProvider);
-    workoutRepo.markAsCompleted(widget.workout.id);
+
+    // Mark all workouts for this day as completed
+    for (var workout in widget.workouts) {
+      workoutRepo.markAsCompleted(workout.id);
+    }
 
     ScaffoldMessenger.of(
       context,
@@ -150,286 +456,24 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
   }
 }
 
-class _ExercisePage extends ConsumerWidget {
+/// Helper class to track which workout an exercise belongs to
+class _ExerciseSource {
   final Workout workout;
-  final Exercise exercise;
-  final int exerciseIndex;
+  final int exerciseIndex; // Index within that workout's exercises list
 
-  const _ExercisePage({
-    required this.workout,
-    required this.exercise,
-    required this.exerciseIndex,
-  });
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Text(
-            exercise.name,
-            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-              color: Colors.amber,
-              fontWeight: FontWeight.bold,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 8),
-          Text(
-            '${exercise.muscleGroup.name} • ${exercise.sets.length} Sets',
-            style: Theme.of(
-              context,
-            ).textTheme.bodyLarge?.copyWith(color: Colors.grey),
-          ),
-          const SizedBox(height: 32),
-
-          // Sets List
-          ...exercise.sets.asMap().entries.map((entry) {
-            final setIndex = entry.key;
-            final set = entry.value;
-            return _SetRow(
-              workout: workout,
-              exerciseIndex: exerciseIndex,
-              setIndex: setIndex,
-              set: set,
-            );
-          }),
-        ],
-      ),
-    );
-  }
+  _ExerciseSource({required this.workout, required this.exerciseIndex});
 }
 
-class _SetRow extends ConsumerStatefulWidget {
-  final Workout workout;
-  final int exerciseIndex;
-  final int setIndex;
-  final ExerciseSet set;
-
-  const _SetRow({
-    required this.workout,
-    required this.exerciseIndex,
-    required this.setIndex,
-    required this.set,
-  });
-
-  @override
-  ConsumerState<_SetRow> createState() => _SetRowState();
-}
-
-class _SetRowState extends ConsumerState<_SetRow> {
-  late TextEditingController _weightController;
-  late TextEditingController _repsController;
-
-  @override
-  void initState() {
-    super.initState();
-    _weightController = TextEditingController(
-      text: _formatWeight(widget.set.weight),
-    );
-    _repsController = TextEditingController(text: widget.set.reps);
-  }
-
-  @override
-  void didUpdateWidget(covariant _SetRow oldWidget) {
-    super.didUpdateWidget(oldWidget);
-
-    if (oldWidget.set.weight != widget.set.weight) {
-      final text = _formatWeight(widget.set.weight);
-      // Avoid overwriting if the user is typing a decimal point or trailing zeros
-      // This is a heuristic: if the parsed value of current text equals the new weight,
-      // don't overwrite.
-      final currentVal = double.tryParse(_weightController.text);
-      if (currentVal != widget.set.weight) {
-        if (_weightController.text != text) {
-          _weightController.text = text;
-        }
-      }
-    }
-    if (oldWidget.set.reps != widget.set.reps) {
-      if (_repsController.text != widget.set.reps) {
-        _repsController.text = widget.set.reps;
-      }
-    }
-  }
-
-  String _formatWeight(double? weight) {
-    if (weight == null) return '';
-    // If it's an integer (e.g. 10.0), return "10"
-    if (weight % 1 == 0) return weight.toInt().toString();
-    // Otherwise return as is (e.g. 10.5)
-    return weight.toString();
-  }
-
-  @override
-  void dispose() {
-    _weightController.dispose();
-    _repsController.dispose();
-    super.dispose();
-  }
-
-  void _updateSet() {
-    final weightText = _weightController.text;
-    final repsText = _repsController.text;
-
-    final double? weight = double.tryParse(weightText);
-    // Reps is a string in the model (to support "2 RIR" etc), but usually just a number.
-    // The user asked for text entry, so we pass the string directly.
-
-    final updatedSet = widget.set.copyWith(weight: weight, reps: repsText);
-
-    // Only update if changed
-    if (updatedSet == widget.set) return;
-
-    final workoutRepo = ref.read(workoutRepositoryProvider);
-    final updatedExercise = widget.workout.exercises[widget.exerciseIndex]
-        .updateSet(widget.setIndex, updatedSet);
-    final updatedWorkout = widget.workout.updateExercise(
-      widget.exerciseIndex,
-      updatedExercise,
-    );
-
-    workoutRepo.update(updatedWorkout);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: widget.set.isLogged
-              ? Colors.green.withValues(alpha: 0.5)
-              : Colors.transparent,
-          width: 2,
-        ),
-      ),
-      child: Row(
-        children: [
-          // Set Number
-          Container(
-            width: 32,
-            height: 32,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surfaceContainerHighest,
-              shape: BoxShape.circle,
-            ),
-            child: Text(
-              '${widget.set.setNumber}',
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
-          ),
-          const SizedBox(width: 16),
-
-          // Weight and Reps Inputs
-          Expanded(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // Weight Input
-                SizedBox(
-                  width: 60,
-                  child: TextField(
-                    controller: _weightController,
-                    keyboardType: const TextInputType.numberWithOptions(
-                      decimal: true,
-                    ),
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    decoration: const InputDecoration(
-                      isDense: true,
-                      contentPadding: EdgeInsets.symmetric(vertical: 8),
-                      hintText: '0',
-                      border: UnderlineInputBorder(),
-                    ),
-                    onChanged: (_) => _updateSet(),
-                  ),
-                ),
-                const SizedBox(width: 4),
-                const Text(
-                  'lbs',
-                  style: TextStyle(fontSize: 14, color: Colors.grey),
-                ),
-
-                const SizedBox(width: 24),
-
-                // Reps Input
-                SizedBox(
-                  width: 60,
-                  child: TextField(
-                    controller: _repsController,
-                    keyboardType: TextInputType.text, // Allow "10" or "2 RIR"
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    decoration: const InputDecoration(
-                      isDense: true,
-                      contentPadding: EdgeInsets.symmetric(vertical: 8),
-                      hintText: '0',
-                      border: UnderlineInputBorder(),
-                    ),
-                    onChanged: (_) => _updateSet(),
-                  ),
-                ),
-                const SizedBox(width: 4),
-                const Text(
-                  'reps',
-                  style: TextStyle(fontSize: 14, color: Colors.grey),
-                ),
-              ],
-            ),
-          ),
-
-          const SizedBox(width: 16),
-
-          // Checkbox
-          IconButton(
-            onPressed: () => _toggleSetComplete(),
-            icon: Icon(
-              widget.set.isLogged ? Icons.check_circle : Icons.circle_outlined,
-              color: widget.set.isLogged ? Colors.green : Colors.grey,
-              size: 32,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _toggleSetComplete() {
-    final workoutRepo = ref.read(workoutRepositoryProvider);
-
-    final updatedSet = widget.set.copyWith(isLogged: !widget.set.isLogged);
-    final updatedExercise = widget.workout.exercises[widget.exerciseIndex]
-        .updateSet(widget.setIndex, updatedSet);
-    final updatedWorkout = widget.workout.updateExercise(
-      widget.exerciseIndex,
-      updatedExercise,
-    );
-
-    workoutRepo.update(updatedWorkout);
-  }
-}
+// The old _ExercisePage and _SetRow classes have been replaced with the shared ExerciseCardWidget
 
 class _BottomActionBar extends StatelessWidget {
-  final Workout workout;
+  final Exercise currentExercise;
   final int currentPage;
   final int totalPages;
   final VoidCallback onNext;
 
   const _BottomActionBar({
-    required this.workout,
+    required this.currentExercise,
     required this.currentPage,
     required this.totalPages,
     required this.onNext,
@@ -437,7 +481,6 @@ class _BottomActionBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final currentExercise = workout.exercises[currentPage];
     final isExerciseCompleted = currentExercise.isCompleted;
     final isLastPage = currentPage == totalPages - 1;
 
