@@ -98,6 +98,14 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
     _pageController = PageController(initialPage: initialPage);
   }
 
+  @override
+  void didUpdateWidget(_WorkoutSessionView oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    // Rebuild exercise list when workouts change
+    _buildExerciseList();
+  }
+
   void _buildExerciseList() {
     _allExercises = [];
     _exerciseSources = {};
@@ -169,6 +177,7 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
                 return SingleChildScrollView(
                   padding: const EdgeInsets.all(24),
                   child: ExerciseCardWidget(
+                    key: ValueKey('${exercise.id}_${exercise.sets.length}_${exercise.sets.map((s) => s.id).join(",")}'),
                     exercise: exercise,
                     showMuscleGroupBadge: showMuscleGroupBadge,
                     targetRir: null, // Could calculate this if needed
@@ -252,6 +261,11 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
     final updatedExercise = exercise.copyWith(sets: updatedSets);
     final updatedWorkout = workout.updateExercise(exerciseIndex, updatedExercise);
     repository.update(updatedWorkout);
+
+    // Force UI update
+    setState(() {
+      _buildExerciseList();
+    });
   }
 
   void _skipExerciseSets(String workoutId, String exerciseId) {
@@ -311,6 +325,11 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
     final updatedExercise = exercise.copyWith(sets: updatedSets);
     final updatedWorkout = workout.updateExercise(exerciseIndex, updatedExercise);
     repository.update(updatedWorkout);
+
+    // Force UI update
+    setState(() {
+      _buildExerciseList();
+    });
   }
 
   void _toggleSetSkip(String workoutId, String exerciseId, int setIndex) {
@@ -329,6 +348,11 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
     final updatedExercise = exercise.updateSet(setIndex, updatedSet);
     final updatedWorkout = workout.updateExercise(exerciseIndex, updatedExercise);
     repository.update(updatedWorkout);
+
+    // Force UI update
+    setState(() {
+      _buildExerciseList();
+    });
   }
 
   void _deleteSet(String workoutId, String exerciseId, int setIndex) {
@@ -353,6 +377,11 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
     final updatedExercise = exercise.copyWith(sets: updatedSets);
     final updatedWorkout = workout.updateExercise(exerciseIndex, updatedExercise);
     repository.update(updatedWorkout);
+
+    // Force UI update
+    setState(() {
+      _buildExerciseList();
+    });
   }
 
   void _updateSetType(String workoutId, String exerciseId, int setIndex, SetType setType) {
@@ -371,6 +400,11 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
     final updatedExercise = exercise.updateSet(setIndex, updatedSet);
     final updatedWorkout = workout.updateExercise(exerciseIndex, updatedExercise);
     repository.update(updatedWorkout);
+
+    // Force UI update
+    setState(() {
+      _buildExerciseList();
+    });
   }
 
   void _updateSetWeight(String workoutId, String exerciseId, int setIndex, String value) {
@@ -428,6 +462,11 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
     final updatedExercise = exercise.updateSet(setIndex, updatedSet);
     final updatedWorkout = workout.updateExercise(exerciseIndex, updatedExercise);
     repository.update(updatedWorkout);
+
+    // Force UI update
+    setState(() {
+      _buildExerciseList();
+    });
   }
 
   // ========== Navigation ==========
