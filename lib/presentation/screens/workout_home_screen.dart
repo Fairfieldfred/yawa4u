@@ -43,6 +43,42 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     });
   }
 
+  /// Find the first incomplete workout in the mesocycle.
+  /// Returns (weekNumber, dayNumber) or null if all workouts are complete.
+  (int, int)? _findFirstIncompleteWorkout(List<Workout> allWorkouts) {
+    // Group workouts by (week, day)
+    final Map<String, List<Workout>> workoutsByDay = {};
+    for (var workout in allWorkouts) {
+      final key = '${workout.weekNumber}-${workout.dayNumber}';
+      workoutsByDay.putIfAbsent(key, () => []).add(workout);
+    }
+
+    // Sort keys chronologically
+    final sortedKeys = workoutsByDay.keys.toList()..sort((a, b) {
+      final aParts = a.split('-').map(int.parse).toList();
+      final bParts = b.split('-').map(int.parse).toList();
+      if (aParts[0] != bParts[0]) return aParts[0].compareTo(bParts[0]); // Compare week
+      return aParts[1].compareTo(bParts[1]); // Compare day
+    });
+
+    // Find first day with incomplete exercises
+    for (final key in sortedKeys) {
+      final dayWorkouts = workoutsByDay[key]!;
+
+      // Check if any workout in this day has incomplete exercises
+      final hasIncomplete = dayWorkouts.any((w) =>
+        w.exercises.any((e) => e.sets.any((s) => !s.isLogged && !s.isSkipped))
+      );
+
+      if (hasIncomplete) {
+        final parts = key.split('-').map(int.parse).toList();
+        return (parts[0], parts[1]); // (week, day)
+      }
+    }
+
+    return null; // All workouts complete
+  }
+
   String? _getSetTypeBadge(SetType setType) {
     switch (setType) {
       case SetType.regular:
@@ -714,11 +750,24 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
         );
       }
 
-      // Use selected week/day if available, otherwise calculate current day
-      final displayWeek = _selectedWeek ?? currentWeek;
-      final displayDay =
-          _selectedDay ??
-          (() {
+      // Use selected week/day if available, otherwise find first incomplete workout
+      int displayWeek;
+      int displayDay;
+
+      if (_selectedWeek != null && _selectedDay != null) {
+        // User has manually selected a specific workout
+        displayWeek = _selectedWeek!;
+        displayDay = _selectedDay!;
+      } else {
+        // Find first incomplete workout
+        final firstIncomplete = _findFirstIncompleteWorkout(allWorkouts);
+        if (firstIncomplete != null) {
+          displayWeek = firstIncomplete.$1;
+          displayDay = firstIncomplete.$2;
+        } else {
+          // All workouts complete, fall back to current week/day
+          displayWeek = currentWeek;
+          displayDay = (() {
             final daysSinceStart = DateTime.now()
                 .difference(currentMesocycle.startDate!)
                 .inDays;
@@ -728,6 +777,8 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
               currentMesocycle.daysPerWeek,
             );
           })();
+        }
+      }
 
       debugPrint('Display week: $displayWeek, Display day: $displayDay');
 
@@ -877,59 +928,61 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
       debugPrint('  Exercise $i: ${allExercises[i].name}');
     }
 
-    return Scaffold(
-      appBar: AppBar(
-        elevation: 0,
-        automaticallyImplyLeading: false,
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              mesocycle.name.toUpperCase(),
-              style: TextStyle(
-                color: Theme.of(context).textTheme.bodySmall?.color,
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-                letterSpacing: 0.5,
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: Scaffold(
+        appBar: AppBar(
+          elevation: 0,
+          automaticallyImplyLeading: false,
+          title: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                mesocycle.name.toUpperCase(),
+                style: TextStyle(
+                  color: Theme.of(context).textTheme.bodySmall?.color,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                  letterSpacing: 0.5,
+                ),
               ),
+              const SizedBox(height: 2),
+              Text(
+                'WEEK $displayWeek DAY $displayDay $dayName',
+                style: TextStyle(
+                  color: Theme.of(context).textTheme.titleLarge?.color,
+                  fontSize: 17,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.calendar_today),
+              onPressed: _toggleWeekSelector,
             ),
-            const SizedBox(height: 2),
-            Text(
-              'WEEK $displayWeek DAY $displayDay $dayName',
-              style: TextStyle(
-                color: Theme.of(context).textTheme.titleLarge?.color,
-                fontSize: 17,
-                fontWeight: FontWeight.w600,
+            // Theme toggle
+            IconButton(
+              icon: Icon(
+                ref.watch(isDarkModeProvider)
+                    ? Icons.light_mode
+                    : Icons.dark_mode,
+              ),
+              onPressed: () {
+                ref.read(themeModeProvider.notifier).toggleTheme();
+              },
+              tooltip: 'Toggle theme',
+            ),
+            Builder(
+              builder: (context) => IconButton(
+                icon: const Icon(Icons.more_vert),
+                onPressed: () => _showWorkoutMenu(context, mesocycle, workouts),
               ),
             ),
           ],
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.calendar_today),
-            onPressed: _toggleWeekSelector,
-          ),
-          // Theme toggle
-          IconButton(
-            icon: Icon(
-              ref.watch(isDarkModeProvider)
-                  ? Icons.light_mode
-                  : Icons.dark_mode,
-            ),
-            onPressed: () {
-              ref.read(themeModeProvider.notifier).toggleTheme();
-            },
-            tooltip: 'Toggle theme',
-          ),
-          Builder(
-            builder: (context) => IconButton(
-              icon: const Icon(Icons.more_vert),
-              onPressed: () => _showWorkoutMenu(context, mesocycle, workouts),
-            ),
-          ),
-        ],
-      ),
-      body: Stack(
+        body: Stack(
         children: [
           // Exercise list
           allExercises.isEmpty
@@ -1048,6 +1101,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
               ),
             ),
         ],
+      ),
       ),
     );
   }
@@ -2481,6 +2535,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                                       context,
                                     ).textTheme.bodyMedium,
                                     textAlign: TextAlign.center,
+                                    keyboardType: TextInputType.number,
                                     decoration: InputDecoration(
                                       hintText: targetRir != null
                                           ? '$targetRir RIR'

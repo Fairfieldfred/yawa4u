@@ -56,44 +56,9 @@ class ExerciseCardWidget extends StatelessWidget {
     return Stack(
       clipBehavior: Clip.none,
       children: [
-        // Muscle group badge (top left)
-        if (showMuscleGroupBadge)
-          Positioned(
-            top: -8,
-            left: 16,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: muscleGroup.color,
-                borderRadius: BorderRadius.circular(4),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    Icons.fitness_center,
-                    size: 12,
-                    color: Colors.white,
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    muscleGroup.displayName.toUpperCase(),
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 0.5,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-
         // Exercise card
         Container(
           width: double.infinity,
-          margin: EdgeInsets.only(top: showMuscleGroupBadge ? 8 : 0),
           decoration: BoxDecoration(
             color: Theme.of(context).cardTheme.color,
             borderRadius: BorderRadius.circular(0),
@@ -249,6 +214,45 @@ class ExerciseCardWidget extends StatelessWidget {
             ),
           ),
         ),
+
+        // Muscle group badge - overlays the card
+        if (showMuscleGroupBadge)
+          Positioned(
+            top: -20,
+            left: 16,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: muscleGroup.color.withValues(alpha: 0.4),
+                borderRadius: BorderRadius.circular(0),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 4,
+                    height: 16,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    muscleGroup.displayName.toUpperCase(),
+                    style: TextStyle(
+                      color: Theme.of(context).brightness == Brightness.light
+                          ? Colors.grey.shade700
+                          : Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      letterSpacing: 1.0,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
       ],
     );
   }
@@ -493,6 +497,7 @@ class ExerciseCardWidget extends StatelessWidget {
                       initialValue: set.reps,
                       style: Theme.of(context).textTheme.bodyMedium,
                       textAlign: TextAlign.center,
+                      keyboardType: TextInputType.number,
                       decoration: InputDecoration(
                         hintText: targetRir != null ? '$targetRir RIR' : 'RIR',
                         hintStyle:
@@ -547,41 +552,24 @@ class ExerciseCardWidget extends StatelessWidget {
                     ? Colors.green.withValues(alpha: 0.2)
                     : (isLoggable
                         ? Theme.of(context).inputDecorationTheme.fillColor
-                        : Theme.of(context)
-                            .inputDecorationTheme
-                            .fillColor
-                            ?.withValues(alpha: 0.5)),
+                        : Colors.grey.withValues(alpha: 0.1)),
                 borderRadius: BorderRadius.circular(4),
                 border: Border.all(
                   color: set.isLogged
                       ? Colors.green
                       : (isLoggable
-                          ? Theme.of(context).dividerColor
+                          ? Colors.green
                           : Theme.of(context)
                               .dividerColor
                               .withValues(alpha: 0.3)),
-                  width: set.isLogged ? 2 : 1,
+                  width: set.isLogged || isLoggable ? 2 : 1,
                 ),
               ),
-              child: Center(
-                child: GestureDetector(
-                  onTap: isLoggable ? () => onToggleSetLog(index) : null,
-                  child: Icon(
-                    set.isLogged ? Icons.check_circle : Icons.circle_outlined,
-                    color: set.isLogged
-                        ? Colors.green
-                        : (isLoggable
-                            ? Theme.of(context)
-                                .iconTheme
-                                .color
-                                ?.withValues(alpha: 0.6)
-                            : Theme.of(context)
-                                .iconTheme
-                                .color
-                                ?.withValues(alpha: 0.3)),
-                    size: 24,
-                  ),
-                ),
+              child: InkWell(
+                onTap: isLoggable ? () => onToggleSetLog(index) : null,
+                child: set.isLogged
+                    ? const Icon(Icons.check, color: Colors.green)
+                    : null,
               ),
             ),
           ),
