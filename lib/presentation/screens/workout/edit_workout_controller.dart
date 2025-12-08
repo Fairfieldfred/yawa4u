@@ -159,6 +159,112 @@ class EditWorkoutController {
 
     await repository.update(updatedWorkout);
   }
+
+  /// Add a week to the mesocycle (inserted before the deload week)
+  Future<void> addWeek(Mesocycle mesocycle) async {
+    final mesocycleRepo = ref.read(mesocycleRepositoryProvider);
+    final workoutRepo = ref.read(workoutRepositoryProvider);
+    final allWorkouts = ref.read(workoutsByMesocycleProvider(mesocycleId));
+
+    final newWeeksTotal = mesocycle.weeksTotal + 1;
+    final oldDeloadWeek = mesocycle.deloadWeek;
+    final newDeloadWeek = newWeeksTotal; // Deload is always the last week
+
+    // First, update all workouts that are in the deload week to be in the new deload week
+    final deloadWorkouts = allWorkouts
+        .where((w) => w.weekNumber == oldDeloadWeek)
+        .toList();
+    for (final workout in deloadWorkouts) {
+      final updatedWorkout = Workout(
+        id: workout.id,
+        mesocycleId: workout.mesocycleId,
+        weekNumber: newDeloadWeek,
+        dayNumber: workout.dayNumber,
+        label: workout.label,
+        status: workout.status,
+        exercises: workout.exercises,
+        notes: workout.notes,
+      );
+      await workoutRepo.update(updatedWorkout);
+    }
+
+    // Update the mesocycle with new weeks total and deload week
+    final updatedMesocycle = mesocycle.copyWith(
+      weeksTotal: newWeeksTotal,
+      deloadWeek: newDeloadWeek,
+    );
+    await mesocycleRepo.update(updatedMesocycle);
+  }
+
+  /// Remove a week from the mesocycle
+  Future<void> removeWeek(
+    Mesocycle mesocycle, {
+    required bool removeDeload,
+  }) async {
+    if (mesocycle.weeksTotal <= 2) {
+      throw Exception('Cannot have fewer than 2 weeks');
+    }
+
+    final mesocycleRepo = ref.read(mesocycleRepositoryProvider);
+    final workoutRepo = ref.read(workoutRepositoryProvider);
+    final allWorkouts = ref.read(workoutsByMesocycleProvider(mesocycleId));
+
+    final oldDeloadWeek = mesocycle.deloadWeek;
+    final lastNonDeloadWeek = oldDeloadWeek - 1;
+
+    if (removeDeload) {
+      // Remove the deload week - delete deload workouts, keep everything else
+      final deloadWorkouts = allWorkouts
+          .where((w) => w.weekNumber == oldDeloadWeek)
+          .toList();
+      for (final workout in deloadWorkouts) {
+        await workoutRepo.delete(workout.id);
+      }
+
+      // Update mesocycle: reduce weeks, deload is now the last week
+      final newWeeksTotal = mesocycle.weeksTotal - 1;
+      final updatedMesocycle = mesocycle.copyWith(
+        weeksTotal: newWeeksTotal,
+        deloadWeek: newWeeksTotal,
+      );
+      await mesocycleRepo.update(updatedMesocycle);
+    } else {
+      // Remove the last non-deload week - delete those workouts,
+      // then move deload workouts down by 1 week
+      final lastWeekWorkouts = allWorkouts
+          .where((w) => w.weekNumber == lastNonDeloadWeek)
+          .toList();
+      for (final workout in lastWeekWorkouts) {
+        await workoutRepo.delete(workout.id);
+      }
+
+      // Move deload workouts to the previous week number
+      final deloadWorkouts = allWorkouts
+          .where((w) => w.weekNumber == oldDeloadWeek)
+          .toList();
+      for (final workout in deloadWorkouts) {
+        final updatedWorkout = Workout(
+          id: workout.id,
+          mesocycleId: workout.mesocycleId,
+          weekNumber: lastNonDeloadWeek,
+          dayNumber: workout.dayNumber,
+          label: workout.label,
+          status: workout.status,
+          exercises: workout.exercises,
+          notes: workout.notes,
+        );
+        await workoutRepo.update(updatedWorkout);
+      }
+
+      // Update mesocycle
+      final newWeeksTotal = mesocycle.weeksTotal - 1;
+      final updatedMesocycle = mesocycle.copyWith(
+        weeksTotal: newWeeksTotal,
+        deloadWeek: newWeeksTotal,
+      );
+      await mesocycleRepo.update(updatedMesocycle);
+    }
+  }
 }
 
 /// Provider for the EditWorkoutController

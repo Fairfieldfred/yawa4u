@@ -99,7 +99,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
               _buildWeekSelector(mesocycle, controller),
 
               // Day selector
-              _buildDaySelector(mesocycle),
+              _buildDaySelector(mesocycle, workouts),
 
               // Exercise list
               Expanded(
@@ -154,7 +154,28 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
               context,
             ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 4),
+          // Remove week button
+          IconButton(
+            icon: const Icon(Icons.remove_circle_outline, size: 20),
+            onPressed: mesocycle.weeksTotal > 2
+                ? () => _showRemoveWeekDialog(mesocycle, controller)
+                : null,
+            tooltip: 'Remove Week',
+            visualDensity: VisualDensity.compact,
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+          ),
+          // Add week button
+          IconButton(
+            icon: const Icon(Icons.add_circle_outline, size: 20),
+            onPressed: () => _addWeek(mesocycle, controller),
+            tooltip: 'Add Week',
+            visualDensity: VisualDensity.compact,
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+          ),
+          const SizedBox(width: 8),
           Expanded(
             child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
@@ -165,7 +186,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
                   final isDeloadWeek = weekNumber == mesocycle.weeksTotal;
 
                   return Padding(
-                    padding: const EdgeInsets.only(right: 8),
+                    padding: const EdgeInsets.only(right: 4),
                     child: ChoiceChip(
                       label: Text(
                         isDeloadWeek ? 'DL' : '$weekNumber',
@@ -188,7 +209,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
                       backgroundColor: Theme.of(context).colorScheme.surface,
                       side: BorderSide.none,
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
+                        horizontal: 4,
                         vertical: 4,
                       ),
                     ),
@@ -216,9 +237,116 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
     );
   }
 
-  Widget _buildDaySelector(Mesocycle mesocycle) {
-    // Show only the number of days per week the user selected
-    final availableDays = _dayNames.take(mesocycle.daysPerWeek).toList();
+  Future<void> _addWeek(
+    Mesocycle mesocycle,
+    EditWorkoutController controller,
+  ) async {
+    try {
+      await controller.addWeek(mesocycle);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Week ${mesocycle.weeksTotal} added'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error adding week: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _showRemoveWeekDialog(
+    Mesocycle mesocycle,
+    EditWorkoutController controller,
+  ) async {
+    final lastNonDeloadWeek = mesocycle.weeksTotal - 1;
+
+    final result = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Remove Week'),
+        content: Text(
+          'Which week would you like to remove?\n\n'
+          '• Week $lastNonDeloadWeek (last training week)\n'
+          '• Deload week',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          OutlinedButton(
+            onPressed: () => Navigator.pop(context, 'deload'),
+            child: const Text('Remove Deload'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, 'training'),
+            style: FilledButton.styleFrom(backgroundColor: Colors.red),
+            child: Text('Remove Week $lastNonDeloadWeek'),
+          ),
+        ],
+      ),
+    );
+
+    if (result != null && mounted) {
+      try {
+        final removeDeload = result == 'deload';
+        await controller.removeWeek(mesocycle, removeDeload: removeDeload);
+
+        // Adjust selected week if it no longer exists
+        if (_selectedWeek > mesocycle.weeksTotal - 1) {
+          setState(() => _selectedWeek = mesocycle.weeksTotal - 1);
+        }
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                removeDeload
+                    ? 'Deload week removed'
+                    : 'Week $lastNonDeloadWeek removed',
+              ),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error removing week: $e'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    }
+  }
+
+  Widget _buildDaySelector(Mesocycle mesocycle, List<Workout> workouts) {
+    // Build day labels from workouts or use default names
+    final dayLabels = <String>[];
+    for (int dayNum = 1; dayNum <= mesocycle.daysPerWeek; dayNum++) {
+      // Find a workout for this day to get the custom label
+      final workoutForDay = workouts.cast<Workout?>().firstWhere(
+        (w) => w!.dayNumber == dayNum,
+        orElse: () => null,
+      );
+      if (workoutForDay != null && workoutForDay.dayName != null) {
+        dayLabels.add(workoutForDay.dayName!);
+      } else {
+        // Fall back to default day names
+        dayLabels.add(_dayNames[dayNum - 1]);
+      }
+    }
 
     return Container(
       height: 60,
@@ -226,14 +354,14 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 16),
-        itemCount: availableDays.length,
+        itemCount: dayLabels.length,
         itemBuilder: (context, index) {
           final isSelected = index == _selectedDayIndex;
           return Padding(
             padding: const EdgeInsets.only(right: 8),
             child: ChoiceChip(
               label: Text(
-                availableDays[index],
+                dayLabels[index],
                 style: TextStyle(
                   color: isSelected
                       ? Theme.of(context).colorScheme.onPrimary
