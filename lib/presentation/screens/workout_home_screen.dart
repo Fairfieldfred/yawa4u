@@ -9,10 +9,12 @@ import '../../core/constants/muscle_groups.dart';
 import '../../data/models/exercise.dart';
 import '../../data/models/exercise_set.dart';
 import '../../data/models/workout.dart';
+import '../../domain/controllers/workout_home_controller.dart';
 import '../../domain/providers/mesocycle_providers.dart';
 import '../../domain/providers/repository_providers.dart';
 import '../../domain/providers/theme_provider.dart';
 import '../../domain/providers/workout_providers.dart';
+import '../widgets/dialogs/workout_dialogs.dart';
 import '../widgets/mesocycle_summary_dialog.dart';
 import 'add_exercise_screen.dart';
 
@@ -25,73 +27,21 @@ class WorkoutHomeScreen extends ConsumerStatefulWidget {
 }
 
 class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
-  bool _showWeekSelector = false;
-  int? _selectedWeek;
-  int? _selectedDay;
+  // ---------------------------------------------------------------------------
+  // Controller Access
+  // ---------------------------------------------------------------------------
+
+  WorkoutHomeController get _controller =>
+      ref.read(workoutHomeControllerProvider.notifier);
+
+  WorkoutHomeState get _homeState => ref.watch(workoutHomeControllerProvider);
 
   void _toggleWeekSelector() {
-    setState(() {
-      _showWeekSelector = !_showWeekSelector;
-    });
+    _controller.toggleWeekSelector();
   }
 
   void _selectDay(int week, int day) {
-    setState(() {
-      _showWeekSelector = false;
-      _selectedWeek = week;
-      _selectedDay = day;
-    });
-  }
-
-  /// Find the first incomplete workout in the mesocycle.
-  /// Returns (weekNumber, dayNumber) or null if all workouts are complete.
-  (int, int)? _findFirstIncompleteWorkout(List<Workout> allWorkouts) {
-    // Group workouts by (week, day)
-    final Map<String, List<Workout>> workoutsByDay = {};
-    for (var workout in allWorkouts) {
-      final key = '${workout.weekNumber}-${workout.dayNumber}';
-      workoutsByDay.putIfAbsent(key, () => []).add(workout);
-    }
-
-    // Sort keys chronologically
-    final sortedKeys = workoutsByDay.keys.toList()..sort((a, b) {
-      final aParts = a.split('-').map(int.parse).toList();
-      final bParts = b.split('-').map(int.parse).toList();
-      if (aParts[0] != bParts[0]) return aParts[0].compareTo(bParts[0]); // Compare week
-      return aParts[1].compareTo(bParts[1]); // Compare day
-    });
-
-    // Find first day with incomplete exercises
-    for (final key in sortedKeys) {
-      final dayWorkouts = workoutsByDay[key]!;
-
-      // Check if any workout in this day has incomplete exercises
-      final hasIncomplete = dayWorkouts.any((w) =>
-        w.exercises.any((e) => e.sets.any((s) => !s.isLogged && !s.isSkipped))
-      );
-
-      if (hasIncomplete) {
-        final parts = key.split('-').map(int.parse).toList();
-        return (parts[0], parts[1]); // (week, day)
-      }
-    }
-
-    return null; // All workouts complete
-  }
-
-  String? _getSetTypeBadge(SetType setType) {
-    switch (setType) {
-      case SetType.regular:
-        return null;
-      case SetType.myorep:
-        return 'M';
-      case SetType.myorepMatch:
-        return 'MM';
-      case SetType.maxReps:
-        return 'MX';
-      case SetType.endWithPartials:
-        return 'EP';
-    }
+    _controller.selectDay(week, day);
   }
 
   Future<void> _updateSetWeight(
@@ -388,9 +338,9 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     }
 
     // Use selected week/day if available, otherwise use current
-    final displayWeek = _selectedWeek ?? currentWeek;
+    final displayWeek = _homeState.selectedWeek ?? currentWeek;
     final displayDay =
-        _selectedDay ??
+        _homeState.selectedDay ??
         (() {
           final daysSinceStart = DateTime.now()
               .difference(mesocycle.startDate!)
@@ -704,11 +654,8 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
       nextWeek++;
     }
 
-    // Update selected day
-    setState(() {
-      _selectedWeek = nextWeek;
-      _selectedDay = nextDay;
-    });
+    // Update selected day via controller
+    _controller.navigateToNextDay(nextWeek, nextDay);
   }
 
   @override
@@ -754,13 +701,13 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
       int displayWeek;
       int displayDay;
 
-      if (_selectedWeek != null && _selectedDay != null) {
+      if (_homeState.selectedWeek != null && _homeState.selectedDay != null) {
         // User has manually selected a specific workout
-        displayWeek = _selectedWeek!;
-        displayDay = _selectedDay!;
+        displayWeek = _homeState.selectedWeek!;
+        displayDay = _homeState.selectedDay!;
       } else {
         // Find first incomplete workout
-        final firstIncomplete = _findFirstIncompleteWorkout(allWorkouts);
+        final firstIncomplete = findFirstIncompleteWorkout(allWorkouts);
         if (firstIncomplete != null) {
           displayWeek = firstIncomplete.$1;
           displayDay = firstIncomplete.$2;
@@ -983,125 +930,126 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
           ],
         ),
         body: Stack(
-        children: [
-          // Exercise list
-          allExercises.isEmpty
-              ? const Center(
-                  child: Text(
-                    'No exercises',
-                    style: TextStyle(color: Colors.white54),
+          children: [
+            // Exercise list
+            allExercises.isEmpty
+                ? const Center(
+                    child: Text(
+                      'No exercises',
+                      style: TextStyle(color: Colors.white54),
+                    ),
+                  )
+                : ListView.separated(
+                    padding: const EdgeInsets.only(bottom: 80, top: 24),
+                    itemCount: allExercises.length,
+                    separatorBuilder: (context, index) {
+                      // Check if next exercise is same muscle group
+                      final currentMuscleGroup =
+                          allExercises[index].muscleGroup;
+                      final nextMuscleGroup = index + 1 < allExercises.length
+                          ? allExercises[index + 1].muscleGroup
+                          : null;
+                      final isSameMuscleGroup =
+                          currentMuscleGroup == nextMuscleGroup;
+
+                      // Thin grey divider for same muscle group, black spacer for different
+                      return isSameMuscleGroup
+                          ? Container(height: 1, color: const Color(0xFF3A3A3C))
+                          : const SizedBox(height: 32);
+                    },
+                    itemBuilder: (context, index) {
+                      final exercise = allExercises[index];
+                      final showMuscleGroupBadge =
+                          index == 0 ||
+                          allExercises[index - 1].muscleGroup !=
+                              exercise.muscleGroup;
+
+                      // Calculate target RIR for current week
+                      final weekRir = _calculateRIR(displayWeek, mesocycle);
+
+                      return _buildExerciseCard(
+                        context,
+                        exercise,
+                        showMuscleGroupBadge: showMuscleGroupBadge,
+                        targetRir: weekRir,
+                      );
+                    },
                   ),
-                )
-              : ListView.separated(
-                  padding: const EdgeInsets.only(bottom: 80, top: 24),
-                  itemCount: allExercises.length,
-                  separatorBuilder: (context, index) {
-                    // Check if next exercise is same muscle group
-                    final currentMuscleGroup = allExercises[index].muscleGroup;
-                    final nextMuscleGroup = index + 1 < allExercises.length
-                        ? allExercises[index + 1].muscleGroup
-                        : null;
-                    final isSameMuscleGroup =
-                        currentMuscleGroup == nextMuscleGroup;
 
-                    // Thin grey divider for same muscle group, black spacer for different
-                    return isSameMuscleGroup
-                        ? Container(height: 1, color: const Color(0xFF3A3A3C))
-                        : const SizedBox(height: 32);
+            // Week selector overlay (shown on top when toggled)
+            if (_homeState.showWeekSelector) ...[
+              // Barrier to dismiss on tap outside
+              Positioned.fill(
+                child: GestureDetector(
+                  onTap: () {
+                    _controller.hideWeekSelector();
                   },
-                  itemBuilder: (context, index) {
-                    final exercise = allExercises[index];
-                    final showMuscleGroupBadge =
-                        index == 0 ||
-                        allExercises[index - 1].muscleGroup !=
-                            exercise.muscleGroup;
-
-                    // Calculate target RIR for current week
-                    final weekRir = _calculateRIR(displayWeek, mesocycle);
-
-                    return _buildExerciseCard(
-                      context,
-                      exercise,
-                      showMuscleGroupBadge: showMuscleGroupBadge,
-                      targetRir: weekRir,
-                    );
-                  },
+                  behavior: HitTestBehavior.opaque,
+                  child: Container(color: Colors.transparent),
                 ),
+              ),
+              // The dropdown itself
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                child: _CalendarDropdown(
+                  mesocycle: mesocycle,
+                  currentWeek: currentWeek,
+                  currentDay: displayDay,
+                  selectedWeek: displayWeek,
+                  selectedDay: displayDay,
+                  allWorkouts: allWorkouts,
+                  onDaySelected: _selectDay,
+                ),
+              ),
+            ],
 
-          // Week selector overlay (shown on top when toggled)
-          if (_showWeekSelector) ...[
-            // Barrier to dismiss on tap outside
-            Positioned.fill(
-              child: GestureDetector(
-                onTap: () {
-                  setState(() {
-                    _showWeekSelector = false;
-                  });
-                },
-                behavior: HitTestBehavior.opaque,
-                child: Container(color: Colors.transparent),
+            // FINISH WORKOUT button (appears when all sets are logged or skipped)
+            if (workouts.isNotEmpty &&
+                !workouts.every((w) => w.isCompleted) &&
+                workouts.every((w) => _isWorkoutComplete(w)))
+              Positioned(
+                bottom: 0,
+                left: 0,
+                right: 0,
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF1C1C1E),
+                    border: Border(
+                      top: BorderSide(
+                        color: Colors.white.withValues(alpha: 0.1),
+                      ),
+                    ),
+                  ),
+                  child: SafeArea(
+                    top: false,
+                    child: ElevatedButton(
+                      onPressed: () => _finishWorkout(workouts),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        elevation: 0,
+                      ),
+                      child: const Text(
+                        'FINISH WORKOUT',
+                        style: TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
               ),
-            ),
-            // The dropdown itself
-            Positioned(
-              top: 0,
-              left: 0,
-              right: 0,
-              child: _CalendarDropdown(
-                mesocycle: mesocycle,
-                currentWeek: currentWeek,
-                currentDay: displayDay,
-                selectedWeek: displayWeek,
-                selectedDay: displayDay,
-                allWorkouts: allWorkouts,
-                onDaySelected: _selectDay,
-              ),
-            ),
           ],
-
-          // FINISH WORKOUT button (appears when all sets are logged or skipped)
-          if (workouts.isNotEmpty &&
-              !workouts.every((w) => w.isCompleted) &&
-              workouts.every((w) => _isWorkoutComplete(w)))
-            Positioned(
-              bottom: 0,
-              left: 0,
-              right: 0,
-              child: Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF1C1C1E),
-                  border: Border(
-                    top: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
-                  ),
-                ),
-                child: SafeArea(
-                  top: false,
-                  child: ElevatedButton(
-                    onPressed: () => _finishWorkout(workouts),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      elevation: 0,
-                    ),
-                    child: const Text(
-                      'FINISH WORKOUT',
-                      style: TextStyle(
-                        fontSize: 17,
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: 0.5,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-        ],
-      ),
+        ),
       ),
     );
   }
@@ -1276,7 +1224,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     final newName = await showDialog<String>(
       context: context,
       barrierDismissible: false,
-      builder: (context) => _RenameMesocycleDialog(initialName: mesocycle.name),
+      builder: (context) => RenameMesocycleDialog(initialName: mesocycle.name),
     );
 
     if (newName != null && newName != mesocycle.name && mounted) {
@@ -1367,7 +1315,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     final newNote = await showDialog<String>(
       context: context,
       barrierDismissible: false,
-      builder: (context) => _WorkoutNoteDialog(initialNote: currentNote),
+      builder: (context) => WorkoutNoteDialog(initialNote: currentNote),
     );
 
     if (newNote != null && newNote != currentNote && mounted) {
@@ -1413,7 +1361,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     final result = await showDialog<({String label, bool applyToAll})>(
       context: context,
       barrierDismissible: false,
-      builder: (context) => _RelabelDayDialog(initialLabel: currentLabel),
+      builder: (context) => RelabelDayDialog(initialLabel: currentLabel),
     );
 
     if (result != null && mounted) {
@@ -2560,7 +2508,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                                 ),
                               ),
                               // Badge for non-regular set types
-                              if (_getSetTypeBadge(set.setType) != null)
+                              if (getSetTypeBadge(set.setType) != null)
                                 Positioned(
                                   top: 2,
                                   right: 4,
@@ -2574,7 +2522,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                                       borderRadius: BorderRadius.circular(3),
                                     ),
                                     child: Text(
-                                      _getSetTypeBadge(set.setType)!,
+                                      getSetTypeBadge(set.setType)!,
                                       style: TextStyle(
                                         color:
                                             Theme.of(context).brightness ==
@@ -3507,410 +3455,5 @@ class _WeekSelectorModalState extends State<_WeekSelectorModal> {
       // After deload week
       return 0;
     }
-  }
-}
-
-// Stateful dialog widget for renaming mesocycle
-class _RenameMesocycleDialog extends StatefulWidget {
-  final String initialName;
-
-  const _RenameMesocycleDialog({required this.initialName});
-
-  @override
-  State<_RenameMesocycleDialog> createState() => _RenameMesocycleDialogState();
-}
-
-class _RenameMesocycleDialogState extends State<_RenameMesocycleDialog> {
-  late final TextEditingController nameController;
-
-  @override
-  void initState() {
-    super.initState();
-    nameController = TextEditingController(text: widget.initialName);
-  }
-
-  @override
-  void dispose() {
-    nameController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      child: Container(
-        padding: const EdgeInsets.all(24),
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const SizedBox(width: 40),
-                Text(
-                  'Rename',
-                  style: Theme.of(
-                    context,
-                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.close),
-                  onPressed: () => Navigator.of(context).pop(),
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
-                ),
-              ],
-            ),
-            const SizedBox(height: 24),
-            TextField(
-              controller: nameController,
-              autofocus: true,
-              decoration: InputDecoration(
-                hintText: 'Mesocycle name',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                filled: true,
-                fillColor: Theme.of(
-                  context,
-                ).colorScheme.surfaceContainerHighest,
-              ),
-              style: Theme.of(context).textTheme.bodyLarge,
-            ),
-            const SizedBox(height: 24),
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: const Text('CANCEL'),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: FilledButton(
-                    onPressed: () {
-                      final trimmedName = nameController.text.trim();
-                      if (trimmedName.isNotEmpty) {
-                        Navigator.of(context).pop(trimmedName);
-                      }
-                    },
-                    style: FilledButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: const Text('SAVE'),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// Stateful dialog widget for workout notes
-class _WorkoutNoteDialog extends StatefulWidget {
-  final String? initialNote;
-
-  const _WorkoutNoteDialog({this.initialNote});
-
-  @override
-  State<_WorkoutNoteDialog> createState() => _WorkoutNoteDialogState();
-}
-
-class _WorkoutNoteDialogState extends State<_WorkoutNoteDialog> {
-  late final TextEditingController noteController;
-
-  @override
-  void initState() {
-    super.initState();
-    noteController = TextEditingController(text: widget.initialNote);
-  }
-
-  @override
-  void dispose() {
-    noteController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      child: Container(
-        padding: const EdgeInsets.all(24),
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const SizedBox(width: 40),
-                Text(
-                  'Workout Note',
-                  style: Theme.of(
-                    context,
-                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.close),
-                  onPressed: () => Navigator.of(context).pop(),
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
-                ),
-              ],
-            ),
-            const SizedBox(height: 24),
-            TextField(
-              controller: noteController,
-              autofocus: true,
-              maxLines: 5,
-              decoration: InputDecoration(
-                hintText: 'Enter note for this workout...',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                filled: true,
-                fillColor: Theme.of(
-                  context,
-                ).colorScheme.surfaceContainerHighest,
-              ),
-              style: Theme.of(context).textTheme.bodyLarge,
-            ),
-            const SizedBox(height: 24),
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: const Text('CANCEL'),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: FilledButton(
-                    onPressed: () {
-                      Navigator.of(context).pop(noteController.text.trim());
-                    },
-                    style: FilledButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: const Text('SAVE'),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// Stateful dialog widget for relabeling day
-class _RelabelDayDialog extends StatefulWidget {
-  final String initialLabel;
-
-  const _RelabelDayDialog({required this.initialLabel});
-
-  @override
-  State<_RelabelDayDialog> createState() => _RelabelDayDialogState();
-}
-
-class _RelabelDayDialogState extends State<_RelabelDayDialog> {
-  late String selectedLabel;
-  bool applyToAll = false;
-
-  final List<String> daysOfWeek = [
-    'Monday',
-    'Tuesday',
-    'Wednesday',
-    'Thursday',
-    'Friday',
-    'Saturday',
-    'Sunday',
-  ];
-
-  @override
-  void initState() {
-    super.initState();
-    // If initial label is in the list, select it. Otherwise default to Monday or keep custom if we supported custom input (which we don't yet for simplicity based on request)
-    // Actually, let's allow custom input via the dropdown if possible, or just map to nearest.
-    // For now, if it matches a day, select it. If not, default to Monday.
-    if (daysOfWeek.contains(widget.initialLabel)) {
-      selectedLabel = widget.initialLabel;
-    } else {
-      selectedLabel = daysOfWeek.first;
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      child: Container(
-        padding: const EdgeInsets.all(24),
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const SizedBox(width: 40),
-                Text(
-                  'Update day label',
-                  style: Theme.of(
-                    context,
-                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.close),
-                  onPressed: () => Navigator.of(context).pop(),
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'You can apply a different weekday label to this day.',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Theme.of(
-                  context,
-                ).colorScheme.onSurface.withValues(alpha: 0.7),
-              ),
-            ),
-            const SizedBox(height: 24),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.outline.withValues(alpha: 0.2),
-                ),
-              ),
-              child: DropdownButtonHideUnderline(
-                child: DropdownButton<String>(
-                  value: selectedLabel,
-                  isExpanded: true,
-                  items: daysOfWeek.map((String day) {
-                    return DropdownMenuItem<String>(
-                      value: day,
-                      child: Text(day),
-                    );
-                  }).toList(),
-                  onChanged: (String? newValue) {
-                    if (newValue != null) {
-                      setState(() {
-                        selectedLabel = newValue;
-                      });
-                    }
-                  },
-                ),
-              ),
-            ),
-            const SizedBox(height: 24),
-            Row(
-              children: [
-                SizedBox(
-                  height: 24,
-                  width: 24,
-                  child: Checkbox(
-                    value: applyToAll,
-                    onChanged: (bool? value) {
-                      setState(() {
-                        applyToAll = value ?? false;
-                      });
-                    },
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        applyToAll = !applyToAll;
-                      });
-                    },
-                    child: Text(
-                      'Apply to all days in this position',
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 32),
-            Row(
-              children: [
-                const Spacer(),
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: const Text('CANCEL'),
-                ),
-                const SizedBox(width: 16),
-                FilledButton(
-                  onPressed: () {
-                    Navigator.of(
-                      context,
-                    ).pop((label: selectedLabel, applyToAll: applyToAll));
-                  },
-                  style: FilledButton.styleFrom(
-                    backgroundColor: Colors.red,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  child: const Text('SAVE'),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
   }
 }

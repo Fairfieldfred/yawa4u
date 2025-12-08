@@ -13,11 +13,11 @@ import '../../../domain/providers/workout_providers.dart';
 ///
 /// Handles business logic for managing workouts, mirroring weeks,
 /// and starting mesocycles.
-class WorkoutListController {
+class EditWorkoutController {
   final Ref ref;
   final String mesocycleId;
 
-  WorkoutListController(this.ref, this.mesocycleId);
+  EditWorkoutController(this.ref, this.mesocycleId);
 
   /// Mirror Week 1 workouts to the selected week
   Future<void> mirrorWeek1ToSelectedWeek(
@@ -161,8 +161,8 @@ class WorkoutListController {
   }
 }
 
-/// Provider for the WorkoutListController
-final workoutListControllerProvider =
-    Provider.family<WorkoutListController, String>(
-      (ref, mesocycleId) => WorkoutListController(ref, mesocycleId),
+/// Provider for the EditWorkoutController
+final editWorkoutControllerProvider =
+    Provider.family<EditWorkoutController, String>(
+      (ref, mesocycleId) => EditWorkoutController(ref, mesocycleId),
     );

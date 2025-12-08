@@ -14,19 +14,19 @@ import '../../data/models/mesocycle.dart';
 import '../../data/models/workout.dart';
 import '../../domain/providers/mesocycle_providers.dart';
 import '../../domain/providers/workout_providers.dart';
-import 'workout/workout_list_controller.dart';
+import 'workout/edit_workout_controller.dart';
 
-/// Workout list screen - Edit draft mesocycle design
-class WorkoutListScreen extends ConsumerStatefulWidget {
+/// Edit workout screen - Edit draft mesocycle design
+class EditWorkoutScreen extends ConsumerStatefulWidget {
   final String mesocycleId;
 
-  const WorkoutListScreen({super.key, required this.mesocycleId});
+  const EditWorkoutScreen({super.key, required this.mesocycleId});
 
   @override
-  ConsumerState<WorkoutListScreen> createState() => _WorkoutListScreenState();
+  ConsumerState<EditWorkoutScreen> createState() => _EditWorkoutScreenState();
 }
 
-class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
+class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
   int _selectedDayIndex = 0;
   int _selectedWeek = 1;
 
@@ -44,7 +44,7 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
   Widget build(BuildContext context) {
     final mesocyclesAsync = ref.watch(mesocyclesProvider);
     final controller = ref.watch(
-      workoutListControllerProvider(widget.mesocycleId),
+      editWorkoutControllerProvider(widget.mesocycleId),
     );
 
     return mesocyclesAsync.when(
@@ -129,7 +129,7 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
 
   Widget _buildWeekSelector(
     Mesocycle mesocycle,
-    WorkoutListController controller,
+    EditWorkoutController controller,
   ) {
     final allWorkouts = ref.watch(
       workoutsByMesocycleProvider(widget.mesocycleId),
@@ -263,7 +263,7 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
   Widget _buildExerciseList(
     BuildContext context,
     List<Workout> dayWorkouts,
-    WorkoutListController controller,
+    EditWorkoutController controller,
   ) {
     if (dayWorkouts.isEmpty) {
       return _buildEmptyState(context, null, controller);
@@ -430,7 +430,7 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
     MuscleGroup muscleGroup,
     List<Exercise> exercises,
     String workoutId,
-    WorkoutListController controller,
+    EditWorkoutController controller,
   ) {
     return Container(
       margin: const EdgeInsets.only(bottom: 2),
@@ -617,7 +617,7 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
   }
 
   Future<void> _addSet(
-    WorkoutListController controller,
+    EditWorkoutController controller,
     String workoutId,
     Exercise exercise,
   ) async {
@@ -633,7 +633,7 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
   }
 
   Future<void> _removeSet(
-    WorkoutListController controller,
+    EditWorkoutController controller,
     String workoutId,
     Exercise exercise,
   ) async {
@@ -678,7 +678,7 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
   Widget _buildEmptyState(
     BuildContext context,
     Mesocycle? mesocycle,
-    WorkoutListController controller,
+    EditWorkoutController controller,
   ) {
     return Center(
       child: Column(
@@ -716,7 +716,7 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
 
   Future<void> _mirrorWeek1ToSelectedWeek(
     Mesocycle mesocycle,
-    WorkoutListController controller,
+    EditWorkoutController controller,
   ) async {
     final confirmed = await showDialog<bool>(
       context: context,
@@ -765,7 +765,7 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
 
   Future<void> _deleteMuscleGroup(
     BuildContext context,
-    WorkoutListController controller,
+    EditWorkoutController controller,
     String workoutId,
   ) async {
     final confirmed = await showDialog<bool>(
@@ -813,7 +813,7 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
 
   Future<void> _startMesocycle(
     BuildContext context,
-    WorkoutListController controller,
+    EditWorkoutController controller,
     Mesocycle mesocycle,
   ) async {
     final confirmed = await showDialog<bool>(
@@ -861,7 +861,7 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
   void _showMuscleGroupSelector(
     BuildContext context,
     Mesocycle mesocycle,
-    WorkoutListController controller,
+    EditWorkoutController controller,
   ) {
     showModalBottomSheet(
       context: context,

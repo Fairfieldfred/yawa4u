@@ -4,10 +4,10 @@ import 'package:go_router/go_router.dart';
 
 import '../../core/constants/muscle_groups.dart';
 import '../screens/add_exercise_screen.dart';
+import '../screens/edit_workout_screen.dart';
 import '../screens/home_screen.dart';
 import '../screens/mesocycle_create_screen.dart';
 import '../screens/plan_a_mesocycle_screen.dart';
-import '../screens/workout_list_screen.dart';
 
 /// Navigation routes
 class AppRoutes {
@@ -45,13 +45,13 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const MesocycleCreateScreen(),
       ),
 
-      // Workout list screen for a mesocycle
+      // Edit workout screen for a mesocycle
       GoRoute(
         path: '/mesocycles/:mesocycleId/workouts',
         name: 'workout-list',
         builder: (context, state) {
           final mesocycleId = state.pathParameters['mesocycleId']!;
-          return WorkoutListScreen(mesocycleId: mesocycleId);
+          return EditWorkoutScreen(mesocycleId: mesocycleId);
         },
       ),
 
