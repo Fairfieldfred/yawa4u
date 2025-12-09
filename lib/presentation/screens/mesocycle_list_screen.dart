@@ -72,7 +72,7 @@ class _MesocycleListScreenState extends ConsumerState<MesocycleListScreen> {
               .toList();
 
           return ListView(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(0.0),
             children: [
               // Draft Mesocycles Section
               if (draftMesocycles.isNotEmpty) ...[
@@ -93,7 +93,7 @@ class _MesocycleListScreenState extends ConsumerState<MesocycleListScreen> {
                   (mesocycle) =>
                       _buildMesocycleCard(context, mesocycle, isCurrent: true),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 20),
               ],
 
               // Completed Mesocycles Section
@@ -170,13 +170,24 @@ class _MesocycleListScreenState extends ConsumerState<MesocycleListScreen> {
     // Check if mesocycle is ready to be saved as template
     final canSaveAsTemplate = _hasExercisesForAllDays(mesocycle);
 
+    // Determine if this is a completed mesocycle (for read-only navigation)
+    final isCompleted = mesocycle.status == MesocycleStatus.completed;
+
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       child: InkWell(
-        onTap: () => context.push('/mesocycles/${mesocycle.id}/workouts'),
+        onTap: () {
+          if (isCompleted) {
+            // Navigate to read-only view for completed mesocycles
+            context.push('/mesocycles/${mesocycle.id}/view');
+          } else {
+            // Navigate to editable workout screen for draft/current mesocycles
+            context.push('/mesocycles/${mesocycle.id}/workouts');
+          }
+        },
         borderRadius: BorderRadius.circular(12),
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(10.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

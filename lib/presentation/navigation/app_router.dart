@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../core/constants/muscle_groups.dart';
 import '../screens/add_exercise_screen.dart';
+import '../screens/completed_mesocycle_workout_screen.dart';
 import '../screens/edit_workout_screen.dart';
 import '../screens/home_screen.dart';
 import '../screens/mesocycle_create_screen.dart';
@@ -16,6 +17,7 @@ class AppRoutes {
   static const String planMesocycle = '/plan-mesocycle';
   static const String mesocycleCreate = '/mesocycles/create';
   static const String workoutList = '/mesocycles/:mesocycleId/workouts';
+  static const String completedMesocycleView = '/mesocycles/:mesocycleId/view';
 }
 
 /// Provider for GoRouter instance
@@ -52,6 +54,16 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) {
           final mesocycleId = state.pathParameters['mesocycleId']!;
           return EditWorkoutScreen(mesocycleId: mesocycleId);
+        },
+      ),
+
+      // Read-only view of a completed mesocycle
+      GoRoute(
+        path: '/mesocycles/:mesocycleId/view',
+        name: 'completed-mesocycle-view',
+        builder: (context, state) {
+          final mesocycleId = state.pathParameters['mesocycleId']!;
+          return CompletedMesocycleWorkoutScreen(mesocycleId: mesocycleId);
         },
       ),
 
