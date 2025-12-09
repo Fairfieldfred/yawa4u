@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../domain/providers/navigation_providers.dart';
 import 'exercises_home_screen.dart';
 import 'mesocycle_list_screen.dart';
 import 'more_screen.dart';
@@ -15,8 +16,6 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
-  int _selectedIndex = 0; // Start on Mesocycles tab
-
   static const List<Widget> _screens = [
     WorkoutHomeScreen(),
     MesocycleListScreen(),
@@ -25,18 +24,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   ];
 
   void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
+    ref.read(homeTabIndexProvider.notifier).setTab(index);
   }
 
   @override
   Widget build(BuildContext context) {
+    final selectedIndex = ref.watch(homeTabIndexProvider);
+
     return Scaffold(
-      body: _screens[_selectedIndex],
+      body: _screens[selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
-        currentIndex: _selectedIndex,
+        currentIndex: selectedIndex,
         onTap: _onItemTapped,
         selectedItemColor: Theme.of(context).colorScheme.primary,
         unselectedItemColor: Theme.of(

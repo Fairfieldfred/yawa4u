@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../core/constants/enums.dart';
 import '../../data/models/mesocycle.dart';
 import '../../domain/providers/mesocycle_providers.dart';
+import '../../domain/providers/navigation_providers.dart';
 import '../../domain/providers/repository_providers.dart';
 import '../../domain/providers/template_providers.dart';
 import '../../domain/providers/theme_provider.dart';
@@ -180,8 +181,11 @@ class _MesocycleListScreenState extends ConsumerState<MesocycleListScreen> {
           if (isCompleted) {
             // Navigate to read-only view for completed mesocycles
             context.push('/mesocycles/${mesocycle.id}/view');
+          } else if (isCurrent) {
+            // Switch to workout tab (same as tapping Workout in bottomNav)
+            ref.read(homeTabIndexProvider.notifier).setTab(HomeTab.workout);
           } else {
-            // Navigate to editable workout screen for draft/current mesocycles
+            // Navigate to editable workout screen for draft mesocycles
             context.push('/mesocycles/${mesocycle.id}/workouts');
           }
         },
