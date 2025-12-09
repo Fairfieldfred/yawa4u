@@ -5,6 +5,7 @@ import '../../core/constants/equipment_types.dart';
 import '../../core/constants/muscle_groups.dart';
 import '../../data/models/exercise.dart';
 import '../../data/models/exercise_set.dart';
+import 'dialogs/exercise_info_dialog.dart';
 
 /// Shared widget for displaying an exercise card with sets.
 /// Used in both workout_home_screen and exercises_home_screen.
@@ -13,7 +14,8 @@ class ExerciseCardWidget extends StatelessWidget {
   final bool showMuscleGroupBadge;
   final int? targetRir;
   final Function(String exerciseId) onAddNote;
-  final Function(String exerciseId) onMoveDown;
+  final Function(String exerciseId)? onMoveDown;
+  final bool showMoveDown;
   final Function(String exerciseId) onReplace;
   final Function(String exerciseId) onJointPain;
   final Function(String exerciseId) onAddSet;
@@ -33,7 +35,8 @@ class ExerciseCardWidget extends StatelessWidget {
     required this.showMuscleGroupBadge,
     this.targetRir,
     required this.onAddNote,
-    required this.onMoveDown,
+    this.onMoveDown,
+    this.showMoveDown = true,
     required this.onReplace,
     required this.onJointPain,
     required this.onAddSet,
@@ -76,21 +79,21 @@ class ExerciseCardWidget extends StatelessWidget {
                         children: [
                           Text(
                             exercise.name,
-                            style:
-                                Theme.of(context).textTheme.titleMedium?.copyWith(
-                                      fontSize: 17,
-                                      fontWeight: FontWeight.w600,
-                                    ),
+                            style: Theme.of(context).textTheme.titleMedium
+                                ?.copyWith(
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.w600,
+                                ),
                           ),
                           const SizedBox(height: 4),
                           Text(
                             equipmentType.displayName.toUpperCase(),
-                            style:
-                                Theme.of(context).textTheme.bodySmall?.copyWith(
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w500,
-                                      letterSpacing: 0.3,
-                                    ),
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w500,
+                                  letterSpacing: 0.3,
+                                ),
                           ),
                         ],
                       ),
@@ -112,8 +115,9 @@ class ExerciseCardWidget extends StatelessWidget {
                           child: Text(
                             'i',
                             style: TextStyle(
-                              color:
-                                  Theme.of(context).textTheme.bodySmall?.color,
+                              color: Theme.of(
+                                context,
+                              ).textTheme.bodySmall?.color,
                               fontSize: 12,
                               fontWeight: FontWeight.bold,
                               fontStyle: FontStyle.italic,
@@ -121,7 +125,8 @@ class ExerciseCardWidget extends StatelessWidget {
                           ),
                         ),
                       ),
-                      onPressed: () {},
+                      onPressed: () =>
+                          showExerciseInfoDialog(context, exercise),
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(
                         minWidth: 24,
@@ -148,13 +153,11 @@ class ExerciseCardWidget extends StatelessWidget {
                           child: Text(
                             'WEIGHT',
                             style: TextStyle(
-                              color: Theme.of(context).brightness ==
+                              color:
+                                  Theme.of(context).brightness ==
                                       Brightness.light
-                                  ? Theme.of(context)
-                                      .textTheme
-                                      .bodySmall
-                                      ?.color
-                                      ?.withValues(alpha: 0.7)
+                                  ? Theme.of(context).textTheme.bodySmall?.color
+                                        ?.withValues(alpha: 0.7)
                                   : Colors.white,
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
@@ -167,13 +170,11 @@ class ExerciseCardWidget extends StatelessWidget {
                           child: Text(
                             'REPS',
                             style: TextStyle(
-                              color: Theme.of(context).brightness ==
+                              color:
+                                  Theme.of(context).brightness ==
                                       Brightness.light
-                                  ? Theme.of(context)
-                                      .textTheme
-                                      .bodySmall
-                                      ?.color
-                                      ?.withValues(alpha: 0.7)
+                                  ? Theme.of(context).textTheme.bodySmall?.color
+                                        ?.withValues(alpha: 0.7)
                                   : Colors.white,
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
@@ -187,13 +188,11 @@ class ExerciseCardWidget extends StatelessWidget {
                           child: Text(
                             'LOG',
                             style: TextStyle(
-                              color: Theme.of(context).brightness ==
+                              color:
+                                  Theme.of(context).brightness ==
                                       Brightness.light
-                                  ? Theme.of(context)
-                                      .textTheme
-                                      .bodySmall
-                                      ?.color
-                                      ?.withValues(alpha: 0.7)
+                                  ? Theme.of(context).textTheme.bodySmall?.color
+                                        ?.withValues(alpha: 0.7)
                                   : Colors.white,
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
@@ -270,9 +269,7 @@ class ExerciseCardWidget extends StatelessWidget {
       color: const Color(0xFF2C2C2E),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8),
-        side: BorderSide(
-          color: Colors.white.withValues(alpha: 0.1),
-        ),
+        side: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
       ),
       onSelected: (value) {
         switch (value) {
@@ -280,7 +277,7 @@ class ExerciseCardWidget extends StatelessWidget {
             onAddNote(exercise.id);
             break;
           case 'move_down':
-            onMoveDown(exercise.id);
+            onMoveDown?.call(exercise.id);
             break;
           case 'replace':
             onReplace(exercise.id);
@@ -325,18 +322,19 @@ class ExerciseCardWidget extends StatelessWidget {
             ],
           ),
         ),
-        // Move down
-        const PopupMenuItem<String>(
-          value: 'move_down',
-          height: 48,
-          child: Row(
-            children: [
-              Icon(Icons.arrow_downward, color: Colors.white, size: 20),
-              SizedBox(width: 12),
-              Text('Move down', style: TextStyle(color: Colors.white)),
-            ],
+        // Move down (conditionally shown)
+        if (showMoveDown)
+          const PopupMenuItem<String>(
+            value: 'move_down',
+            height: 48,
+            child: Row(
+              children: [
+                Icon(Icons.arrow_downward, color: Colors.white, size: 20),
+                SizedBox(width: 12),
+                Text('Move down', style: TextStyle(color: Colors.white)),
+              ],
+            ),
           ),
-        ),
         // Replace
         const PopupMenuItem<String>(
           value: 'replace',
@@ -449,9 +447,7 @@ class ExerciseCardWidget extends StatelessWidget {
               decoration: BoxDecoration(
                 color: Theme.of(context).inputDecorationTheme.fillColor,
                 borderRadius: BorderRadius.circular(4),
-                border: Border.all(
-                  color: Theme.of(context).dividerColor,
-                ),
+                border: Border.all(color: Theme.of(context).dividerColor),
               ),
               child: Center(
                 child: TextFormField(
@@ -461,8 +457,7 @@ class ExerciseCardWidget extends StatelessWidget {
                   textAlign: TextAlign.center,
                   decoration: InputDecoration(
                     hintText: 'lbs',
-                    hintStyle:
-                        Theme.of(context).inputDecorationTheme.hintStyle,
+                    hintStyle: Theme.of(context).inputDecorationTheme.hintStyle,
                     border: InputBorder.none,
                     contentPadding: const EdgeInsets.only(bottom: 12),
                   ),
@@ -487,9 +482,7 @@ class ExerciseCardWidget extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: Theme.of(context).inputDecorationTheme.fillColor,
                     borderRadius: BorderRadius.circular(4),
-                    border: Border.all(
-                      color: Theme.of(context).dividerColor,
-                    ),
+                    border: Border.all(color: Theme.of(context).dividerColor),
                   ),
                   child: Center(
                     child: TextFormField(
@@ -500,8 +493,9 @@ class ExerciseCardWidget extends StatelessWidget {
                       keyboardType: TextInputType.number,
                       decoration: InputDecoration(
                         hintText: targetRir != null ? '$targetRir RIR' : 'RIR',
-                        hintStyle:
-                            Theme.of(context).inputDecorationTheme.hintStyle,
+                        hintStyle: Theme.of(
+                          context,
+                        ).inputDecorationTheme.hintStyle,
                         border: InputBorder.none,
                         contentPadding: const EdgeInsets.only(bottom: 12),
                       ),
@@ -528,7 +522,8 @@ class ExerciseCardWidget extends StatelessWidget {
                       child: Text(
                         _getSetTypeBadge(set.setType)!,
                         style: TextStyle(
-                          color: Theme.of(context).brightness == Brightness.light
+                          color:
+                              Theme.of(context).brightness == Brightness.light
                               ? Colors.black
                               : Colors.white,
                           fontSize: 9,
@@ -551,17 +546,17 @@ class ExerciseCardWidget extends StatelessWidget {
                 color: set.isLogged
                     ? Colors.green.withValues(alpha: 0.2)
                     : (isLoggable
-                        ? Theme.of(context).inputDecorationTheme.fillColor
-                        : Colors.grey.withValues(alpha: 0.1)),
+                          ? Theme.of(context).inputDecorationTheme.fillColor
+                          : Colors.grey.withValues(alpha: 0.1)),
                 borderRadius: BorderRadius.circular(4),
                 border: Border.all(
                   color: set.isLogged
                       ? Colors.green
                       : (isLoggable
-                          ? Colors.green
-                          : Theme.of(context)
-                              .dividerColor
-                              .withValues(alpha: 0.3)),
+                            ? Colors.green
+                            : Theme.of(
+                                context,
+                              ).dividerColor.withValues(alpha: 0.3)),
                   width: set.isLogged || isLoggable ? 2 : 1,
                 ),
               ),
@@ -578,7 +573,11 @@ class ExerciseCardWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildSetOverflowMenu(BuildContext context, ExerciseSet set, int index) {
+  Widget _buildSetOverflowMenu(
+    BuildContext context,
+    ExerciseSet set,
+    int index,
+  ) {
     return PopupMenuButton<String>(
       icon: Icon(
         Icons.more_vert,
@@ -591,9 +590,7 @@ class ExerciseCardWidget extends StatelessWidget {
       color: Theme.of(context).cardTheme.color,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8),
-        side: BorderSide(
-          color: Theme.of(context).dividerColor,
-        ),
+        side: BorderSide(color: Theme.of(context).dividerColor),
       ),
       onSelected: (value) {
         switch (value) {
@@ -715,8 +712,9 @@ class ExerciseCardWidget extends StatelessWidget {
                 set.setType == SetType.regular
                     ? Icons.radio_button_checked
                     : Icons.radio_button_unchecked,
-                color:
-                    set.setType == SetType.regular ? Colors.red : Colors.grey,
+                color: set.setType == SetType.regular
+                    ? Colors.red
+                    : Colors.grey,
                 size: 20,
               ),
               const SizedBox(width: 12),
@@ -739,8 +737,7 @@ class ExerciseCardWidget extends StatelessWidget {
                 set.setType == SetType.myorep
                     ? Icons.radio_button_checked
                     : Icons.radio_button_unchecked,
-                color:
-                    set.setType == SetType.myorep ? Colors.red : Colors.grey,
+                color: set.setType == SetType.myorep ? Colors.red : Colors.grey,
                 size: 20,
               ),
               const SizedBox(width: 12),
@@ -788,8 +785,9 @@ class ExerciseCardWidget extends StatelessWidget {
                 set.setType == SetType.maxReps
                     ? Icons.radio_button_checked
                     : Icons.radio_button_unchecked,
-                color:
-                    set.setType == SetType.maxReps ? Colors.red : Colors.grey,
+                color: set.setType == SetType.maxReps
+                    ? Colors.red
+                    : Colors.grey,
                 size: 20,
               ),
               const SizedBox(width: 12),

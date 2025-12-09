@@ -87,7 +87,8 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
   late PageController _pageController;
   int _currentPage = 0;
   late List<Exercise> _allExercises;
-  late Map<int, _ExerciseSource> _exerciseSources; // Maps exercise index to its source workout
+  late Map<int, _ExerciseSource>
+  _exerciseSources; // Maps exercise index to its source workout
   bool _showWeekSelector = false;
 
   @override
@@ -161,8 +162,12 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
     final dayName = firstWorkout.dayName ?? '';
 
     // Check if all exercises are completed
-    final allExercisesCompleted = _allExercises.isNotEmpty &&
-        _allExercises.every((exercise) => exercise.sets.every((set) => set.isLogged || set.isSkipped));
+    final allExercisesCompleted =
+        _allExercises.isNotEmpty &&
+        _allExercises.every(
+          (exercise) =>
+              exercise.sets.every((set) => set.isLogged || set.isSkipped),
+        );
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
@@ -213,7 +218,11 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
             Builder(
               builder: (context) => IconButton(
                 icon: const Icon(Icons.more_vert),
-                onPressed: () => _showWorkoutMenu(context, currentMesocycle, widget.workouts),
+                onPressed: () => _showWorkoutMenu(
+                  context,
+                  currentMesocycle,
+                  widget.workouts,
+                ),
               ),
             ),
           ],
@@ -242,35 +251,86 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
                     itemBuilder: (context, index) {
                       final source = _exerciseSources[index]!;
                       final exercise = _allExercises[index];
-                      final showMuscleGroupBadge = index == 0 ||
-                          _allExercises[index - 1].muscleGroup != exercise.muscleGroup;
+                      final showMuscleGroupBadge =
+                          index == 0 ||
+                          _allExercises[index - 1].muscleGroup !=
+                              exercise.muscleGroup;
 
                       return GestureDetector(
                         onTap: () => FocusScope.of(context).unfocus(),
                         child: SingleChildScrollView(
                           padding: EdgeInsets.only(
                             top: 24,
-                            bottom: allExercisesCompleted ? 100 : 24, // Extra padding for button
+                            bottom: allExercisesCompleted
+                                ? 100
+                                : 24, // Extra padding for button
                           ),
                           child: ExerciseCardWidget(
-                            key: ValueKey('${exercise.id}_${exercise.sets.length}_${exercise.sets.map((s) => s.id).join(",")}'),
+                            key: ValueKey(
+                              '${exercise.id}_${exercise.sets.length}_${exercise.sets.map((s) => s.id).join(",")}',
+                            ),
                             exercise: exercise,
                             showMuscleGroupBadge: showMuscleGroupBadge,
                             targetRir: null, // Could calculate this if needed
-                            onAddNote: (exerciseId) => _addNote(source.workout.id, exerciseId),
-                            onMoveDown: (exerciseId) => _moveExerciseDown(source.workout.id, exerciseId),
-                            onReplace: (exerciseId) => _replaceExercise(source.workout.id, exerciseId),
-                            onJointPain: (exerciseId) => _logJointPain(source.workout.id, exerciseId),
-                            onAddSet: (exerciseId) => _addSetToExercise(source.workout.id, exerciseId),
-                            onSkipSets: (exerciseId) => _skipExerciseSets(source.workout.id, exerciseId),
-                            onDelete: (exerciseId) => _deleteExercise(source.workout.id, exerciseId),
-                            onAddSetBelow: (setIndex) => _addSetBelow(source.workout.id, exercise.id, setIndex),
-                            onToggleSetSkip: (setIndex) => _toggleSetSkip(source.workout.id, exercise.id, setIndex),
-                            onDeleteSet: (setIndex) => _deleteSet(source.workout.id, exercise.id, setIndex),
-                            onUpdateSetType: (setIndex, setType) => _updateSetType(source.workout.id, exercise.id, setIndex, setType),
-                            onUpdateSetWeight: (setIndex, value) => _updateSetWeight(source.workout.id, exercise.id, setIndex, value),
-                            onUpdateSetReps: (setIndex, value) => _updateSetReps(source.workout.id, exercise.id, setIndex, value),
-                            onToggleSetLog: (setIndex) => _toggleSetLog(source.workout.id, exercise.id, setIndex),
+                            onAddNote: (exerciseId) =>
+                                _addNote(source.workout.id, exerciseId),
+                            showMoveDown:
+                                false, // Single exercise view, no reordering needed
+                            onReplace: (exerciseId) =>
+                                _replaceExercise(source.workout.id, exerciseId),
+                            onJointPain: (exerciseId) =>
+                                _logJointPain(source.workout.id, exerciseId),
+                            onAddSet: (exerciseId) => _addSetToExercise(
+                              source.workout.id,
+                              exerciseId,
+                            ),
+                            onSkipSets: (exerciseId) => _skipExerciseSets(
+                              source.workout.id,
+                              exerciseId,
+                            ),
+                            onDelete: (exerciseId) =>
+                                _deleteExercise(source.workout.id, exerciseId),
+                            onAddSetBelow: (setIndex) => _addSetBelow(
+                              source.workout.id,
+                              exercise.id,
+                              setIndex,
+                            ),
+                            onToggleSetSkip: (setIndex) => _toggleSetSkip(
+                              source.workout.id,
+                              exercise.id,
+                              setIndex,
+                            ),
+                            onDeleteSet: (setIndex) => _deleteSet(
+                              source.workout.id,
+                              exercise.id,
+                              setIndex,
+                            ),
+                            onUpdateSetType: (setIndex, setType) =>
+                                _updateSetType(
+                                  source.workout.id,
+                                  exercise.id,
+                                  setIndex,
+                                  setType,
+                                ),
+                            onUpdateSetWeight: (setIndex, value) =>
+                                _updateSetWeight(
+                                  source.workout.id,
+                                  exercise.id,
+                                  setIndex,
+                                  value,
+                                ),
+                            onUpdateSetReps: (setIndex, value) =>
+                                _updateSetReps(
+                                  source.workout.id,
+                                  exercise.id,
+                                  setIndex,
+                                  value,
+                                ),
+                            onToggleSetLog: (setIndex) => _toggleSetLog(
+                              source.workout.id,
+                              exercise.id,
+                              setIndex,
+                            ),
                           ),
                         ),
                       );
@@ -291,9 +351,7 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
                   decoration: BoxDecoration(
                     color: Theme.of(context).scaffoldBackgroundColor,
                     border: Border(
-                      top: BorderSide(
-                        color: Theme.of(context).dividerColor,
-                      ),
+                      top: BorderSide(color: Theme.of(context).dividerColor),
                     ),
                   ),
                   child: SafeArea(
@@ -339,7 +397,9 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
     }
 
     // Get all workouts for the mesocycle
-    final allWorkouts = ref.read(workoutsByMesocycleProvider(currentMesocycle.id));
+    final allWorkouts = ref.read(
+      workoutsByMesocycleProvider(currentMesocycle.id),
+    );
 
     // Find the next workout day with incomplete exercises
     final currentWeek = widget.workouts.first.weekNumber;
@@ -353,12 +413,14 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
     }
 
     // Sort keys to find next day
-    final sortedKeys = workoutsByDay.keys.toList()..sort((a, b) {
-      final aParts = a.split('-').map(int.parse).toList();
-      final bParts = b.split('-').map(int.parse).toList();
-      if (aParts[0] != bParts[0]) return aParts[0].compareTo(bParts[0]); // Compare week
-      return aParts[1].compareTo(bParts[1]); // Compare day
-    });
+    final sortedKeys = workoutsByDay.keys.toList()
+      ..sort((a, b) {
+        final aParts = a.split('-').map(int.parse).toList();
+        final bParts = b.split('-').map(int.parse).toList();
+        if (aParts[0] != bParts[0])
+          return aParts[0].compareTo(bParts[0]); // Compare week
+        return aParts[1].compareTo(bParts[1]); // Compare day
+      });
 
     // Find next incomplete day
     final currentKey = '$currentWeek-$currentDay';
@@ -368,8 +430,10 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
       final dayWorkouts = workoutsByDay[sortedKeys[i]]!;
 
       // Check if this day has any incomplete exercises
-      final hasIncomplete = dayWorkouts.any((w) =>
-        w.exercises.any((e) => e.sets.any((s) => !s.isLogged && !s.isSkipped))
+      final hasIncomplete = dayWorkouts.any(
+        (w) => w.exercises.any(
+          (e) => e.sets.any((s) => !s.isLogged && !s.isSkipped),
+        ),
       );
 
       if (hasIncomplete) {
@@ -604,18 +668,55 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
   }
 
   // ========== Exercise Callbacks ==========
-  void _addNote(String workoutId, String exerciseId) {
-    // TODO: Implement add note dialog
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Add note feature coming soon')),
-    );
-  }
+  Future<void> _addNote(String workoutId, String exerciseId) async {
+    final repository = ref.read(workoutRepositoryProvider);
+    final workout = repository.getById(workoutId);
+    if (workout == null) return;
 
-  void _moveExerciseDown(String workoutId, String exerciseId) {
-    // TODO: Implement move exercise
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Move exercise feature coming soon')),
+    final exercise = workout.exercises.firstWhere((e) => e.id == exerciseId);
+    final noteController = TextEditingController(text: exercise.notes ?? '');
+
+    final result = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Exercise Note'),
+        content: TextField(
+          controller: noteController,
+          decoration: const InputDecoration(
+            hintText: 'Enter your note here...',
+            border: OutlineInputBorder(),
+          ),
+          maxLines: 5,
+          autofocus: true,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('CANCEL'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, noteController.text),
+            child: const Text('SAVE'),
+          ),
+        ],
+      ),
     );
+
+    if (result != null && mounted) {
+      final updatedExercise = exercise.copyWith(
+        notes: result.isEmpty ? null : result,
+      );
+      final updatedExercises = workout.exercises
+          .map((e) => e.id == exerciseId ? updatedExercise : e)
+          .toList();
+      final updatedWorkout = workout.copyWith(exercises: updatedExercises);
+      await repository.update(updatedWorkout);
+
+      // Rebuild exercise list to reflect the change
+      setState(() {
+        _buildExerciseList();
+      });
+    }
   }
 
   void _replaceExercise(String workoutId, String exerciseId) {
@@ -637,7 +738,9 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
     final workout = repository.getById(workoutId);
     if (workout == null) return;
 
-    final exerciseIndex = workout.exercises.indexWhere((e) => e.id == exerciseId);
+    final exerciseIndex = workout.exercises.indexWhere(
+      (e) => e.id == exerciseId,
+    );
     if (exerciseIndex == -1) return;
 
     final exercise = workout.exercises[exerciseIndex];
@@ -650,7 +753,10 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
 
     final updatedSets = [...exercise.sets, newSet];
     final updatedExercise = exercise.copyWith(sets: updatedSets);
-    final updatedWorkout = workout.updateExercise(exerciseIndex, updatedExercise);
+    final updatedWorkout = workout.updateExercise(
+      exerciseIndex,
+      updatedExercise,
+    );
     repository.update(updatedWorkout);
 
     // Force UI update
@@ -671,7 +777,9 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
     final workout = repository.getById(workoutId);
     if (workout == null) return;
 
-    final exerciseIndex = workout.exercises.indexWhere((e) => e.id == exerciseId);
+    final exerciseIndex = workout.exercises.indexWhere(
+      (e) => e.id == exerciseId,
+    );
     if (exerciseIndex == -1) return;
 
     final updatedExercises = List<Exercise>.from(workout.exercises);
@@ -694,7 +802,9 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
     final workout = repository.getById(workoutId);
     if (workout == null) return;
 
-    final exerciseIndex = workout.exercises.indexWhere((e) => e.id == exerciseId);
+    final exerciseIndex = workout.exercises.indexWhere(
+      (e) => e.id == exerciseId,
+    );
     if (exerciseIndex == -1) return;
 
     final exercise = workout.exercises[exerciseIndex];
@@ -714,7 +824,10 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
     }
 
     final updatedExercise = exercise.copyWith(sets: updatedSets);
-    final updatedWorkout = workout.updateExercise(exerciseIndex, updatedExercise);
+    final updatedWorkout = workout.updateExercise(
+      exerciseIndex,
+      updatedExercise,
+    );
     repository.update(updatedWorkout);
 
     // Force UI update
@@ -728,7 +841,9 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
     final workout = repository.getById(workoutId);
     if (workout == null) return;
 
-    final exerciseIndex = workout.exercises.indexWhere((e) => e.id == exerciseId);
+    final exerciseIndex = workout.exercises.indexWhere(
+      (e) => e.id == exerciseId,
+    );
     if (exerciseIndex == -1) return;
 
     final exercise = workout.exercises[exerciseIndex];
@@ -737,7 +852,10 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
     final set = exercise.sets[setIndex];
     final updatedSet = set.copyWith(isSkipped: !set.isSkipped);
     final updatedExercise = exercise.updateSet(setIndex, updatedSet);
-    final updatedWorkout = workout.updateExercise(exerciseIndex, updatedExercise);
+    final updatedWorkout = workout.updateExercise(
+      exerciseIndex,
+      updatedExercise,
+    );
     repository.update(updatedWorkout);
 
     // Force UI update
@@ -751,7 +869,9 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
     final workout = repository.getById(workoutId);
     if (workout == null) return;
 
-    final exerciseIndex = workout.exercises.indexWhere((e) => e.id == exerciseId);
+    final exerciseIndex = workout.exercises.indexWhere(
+      (e) => e.id == exerciseId,
+    );
     if (exerciseIndex == -1) return;
 
     final exercise = workout.exercises[exerciseIndex];
@@ -766,7 +886,10 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
     }
 
     final updatedExercise = exercise.copyWith(sets: updatedSets);
-    final updatedWorkout = workout.updateExercise(exerciseIndex, updatedExercise);
+    final updatedWorkout = workout.updateExercise(
+      exerciseIndex,
+      updatedExercise,
+    );
     repository.update(updatedWorkout);
 
     // Force UI update
@@ -775,12 +898,19 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
     });
   }
 
-  void _updateSetType(String workoutId, String exerciseId, int setIndex, SetType setType) {
+  void _updateSetType(
+    String workoutId,
+    String exerciseId,
+    int setIndex,
+    SetType setType,
+  ) {
     final repository = ref.read(workoutRepositoryProvider);
     final workout = repository.getById(workoutId);
     if (workout == null) return;
 
-    final exerciseIndex = workout.exercises.indexWhere((e) => e.id == exerciseId);
+    final exerciseIndex = workout.exercises.indexWhere(
+      (e) => e.id == exerciseId,
+    );
     if (exerciseIndex == -1) return;
 
     final exercise = workout.exercises[exerciseIndex];
@@ -789,7 +919,10 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
     final set = exercise.sets[setIndex];
     final updatedSet = set.copyWith(setType: setType);
     final updatedExercise = exercise.updateSet(setIndex, updatedSet);
-    final updatedWorkout = workout.updateExercise(exerciseIndex, updatedExercise);
+    final updatedWorkout = workout.updateExercise(
+      exerciseIndex,
+      updatedExercise,
+    );
     repository.update(updatedWorkout);
 
     // Force UI update
@@ -798,7 +931,12 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
     });
   }
 
-  void _updateSetWeight(String workoutId, String exerciseId, int setIndex, String value) {
+  void _updateSetWeight(
+    String workoutId,
+    String exerciseId,
+    int setIndex,
+    String value,
+  ) {
     final weight = double.tryParse(value);
     if (weight == null && value.isNotEmpty) return;
 
@@ -806,7 +944,9 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
     final workout = repository.getById(workoutId);
     if (workout == null) return;
 
-    final exerciseIndex = workout.exercises.indexWhere((e) => e.id == exerciseId);
+    final exerciseIndex = workout.exercises.indexWhere(
+      (e) => e.id == exerciseId,
+    );
     if (exerciseIndex == -1) return;
 
     final exercise = workout.exercises[exerciseIndex];
@@ -815,16 +955,26 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
     final set = exercise.sets[setIndex];
     final updatedSet = set.copyWith(weight: weight);
     final updatedExercise = exercise.updateSet(setIndex, updatedSet);
-    final updatedWorkout = workout.updateExercise(exerciseIndex, updatedExercise);
+    final updatedWorkout = workout.updateExercise(
+      exerciseIndex,
+      updatedExercise,
+    );
     repository.update(updatedWorkout);
   }
 
-  void _updateSetReps(String workoutId, String exerciseId, int setIndex, String value) {
+  void _updateSetReps(
+    String workoutId,
+    String exerciseId,
+    int setIndex,
+    String value,
+  ) {
     final repository = ref.read(workoutRepositoryProvider);
     final workout = repository.getById(workoutId);
     if (workout == null) return;
 
-    final exerciseIndex = workout.exercises.indexWhere((e) => e.id == exerciseId);
+    final exerciseIndex = workout.exercises.indexWhere(
+      (e) => e.id == exerciseId,
+    );
     if (exerciseIndex == -1) return;
 
     final exercise = workout.exercises[exerciseIndex];
@@ -833,7 +983,10 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
     final set = exercise.sets[setIndex];
     final updatedSet = set.copyWith(reps: value);
     final updatedExercise = exercise.updateSet(setIndex, updatedSet);
-    final updatedWorkout = workout.updateExercise(exerciseIndex, updatedExercise);
+    final updatedWorkout = workout.updateExercise(
+      exerciseIndex,
+      updatedExercise,
+    );
     repository.update(updatedWorkout);
   }
 
@@ -842,7 +995,9 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
     final workout = repository.getById(workoutId);
     if (workout == null) return;
 
-    final exerciseIndex = workout.exercises.indexWhere((e) => e.id == exerciseId);
+    final exerciseIndex = workout.exercises.indexWhere(
+      (e) => e.id == exerciseId,
+    );
     if (exerciseIndex == -1) return;
 
     final exercise = workout.exercises[exerciseIndex];
@@ -851,7 +1006,10 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
     final set = exercise.sets[setIndex];
     final updatedSet = set.copyWith(isLogged: !set.isLogged);
     final updatedExercise = exercise.updateSet(setIndex, updatedSet);
-    final updatedWorkout = workout.updateExercise(exerciseIndex, updatedExercise);
+    final updatedWorkout = workout.updateExercise(
+      exerciseIndex,
+      updatedExercise,
+    );
     repository.update(updatedWorkout);
 
     // Force UI update
@@ -859,7 +1017,6 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
       _buildExerciseList();
     });
   }
-
 }
 
 /// Helper class to track which workout an exercise belongs to

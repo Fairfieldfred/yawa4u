@@ -341,9 +341,13 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
         orElse: () => null,
       );
       if (workoutForDay != null && workoutForDay.dayName != null) {
-        dayLabels.add(workoutForDay.dayName!);
+        // Abbreviate to first 3 characters
+        final fullName = workoutForDay.dayName!;
+        dayLabels.add(
+          fullName.length > 3 ? fullName.substring(0, 3) : fullName,
+        );
       } else {
-        // Fall back to default day names
+        // Fall back to default day names (already abbreviated)
         dayLabels.add(_dayNames[dayNum - 1]);
       }
     }

@@ -14,6 +14,7 @@ import '../../domain/providers/mesocycle_providers.dart';
 import '../../domain/providers/repository_providers.dart';
 import '../../domain/providers/theme_provider.dart';
 import '../../domain/providers/workout_providers.dart';
+import '../widgets/dialogs/exercise_info_dialog.dart';
 import '../widgets/dialogs/workout_dialogs.dart';
 import '../widgets/mesocycle_summary_dialog.dart';
 import 'add_exercise_screen.dart';
@@ -1804,7 +1805,8 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                           ),
                         ),
                       ),
-                      onPressed: () {},
+                      onPressed: () =>
+                          showExerciseInfoDialog(context, exercise as Exercise),
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(
                         minWidth: 24,
