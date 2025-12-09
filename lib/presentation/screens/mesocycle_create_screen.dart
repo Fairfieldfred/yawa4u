@@ -4,10 +4,16 @@ import 'package:go_router/go_router.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../core/constants/enums.dart';
+import '../../core/constants/equipment_types.dart';
+import '../../core/constants/muscle_groups.dart';
+import '../../data/models/exercise.dart';
+import '../../data/models/exercise_set.dart';
 import '../../data/models/mesocycle.dart';
+import '../../data/models/mesocycle_template.dart';
 import '../../data/models/workout.dart';
 import '../../data/services/analytics_service.dart';
 import '../../domain/providers/repository_providers.dart';
+import '../../domain/providers/template_providers.dart';
 
 /// Mesocycle creation screen with form
 class MesocycleCreateScreen extends ConsumerStatefulWidget {
@@ -27,8 +33,7 @@ class _MesocycleCreateScreenState extends ConsumerState<MesocycleCreateScreen> {
   int _weeksTotal = 4;
   int _daysPerWeek = 4;
   int? _deloadWeek;
-  Gender _gender = Gender.male;
-  String? _templateName;
+  MesocycleTemplate? _selectedTemplate;
   bool _hasDeload = false;
   bool _isSubmitting = false;
 
@@ -57,11 +62,12 @@ class _MesocycleCreateScreenState extends ConsumerState<MesocycleCreateScreen> {
         daysPerWeek: _daysPerWeek,
         deloadWeek: _hasDeload ? _deloadWeek : null,
         status: MesocycleStatus.draft,
-        gender: _gender,
+        gender:
+            Gender.male, // Default value - will be set from onboarding later
         createdDate: DateTime.now(),
         workouts: _generateWorkouts(),
         muscleGroupPriorities: {},
-        templateName: _templateName,
+        templateName: _selectedTemplate?.name,
       );
 
       // Save to database
@@ -71,8 +77,8 @@ class _MesocycleCreateScreenState extends ConsumerState<MesocycleCreateScreen> {
       await analytics.logMesocycleCreated(
         weeks: _weeksTotal,
         daysPerWeek: _daysPerWeek,
-        gender: _gender.toString().split('.').last,
-        templateName: _templateName,
+        gender: 'not_specified', // Will be set from onboarding later
+        templateName: _selectedTemplate?.name,
       );
 
       if (mounted) {
@@ -104,25 +110,71 @@ class _MesocycleCreateScreenState extends ConsumerState<MesocycleCreateScreen> {
   }
 
   /// Generate workout templates for the mesocycle
+  /// If a template is selected, uses its exercises; otherwise creates empty workouts
   List<Workout> _generateWorkouts() {
     final workouts = <Workout>[];
 
     for (int week = 1; week <= _weeksTotal; week++) {
       for (int day = 1; day <= _daysPerWeek; day++) {
+        // Find matching template workout if template selected
+        WorkoutTemplate? templateWorkout;
+        if (_selectedTemplate != null) {
+          templateWorkout = _selectedTemplate!.workouts
+              .where((w) => w.weekNumber == week && w.dayNumber == day)
+              .firstOrNull;
+        }
+
         workouts.add(
           Workout(
             id: _uuid.v4(),
             mesocycleId: '', // Will be set when mesocycle is created
             weekNumber: week,
             dayNumber: day,
+            dayName: templateWorkout?.dayName,
             status: WorkoutStatus.incomplete,
-            exercises: [],
+            exercises: templateWorkout != null
+                ? _convertTemplateExercises(templateWorkout.exercises)
+                : [],
           ),
         );
       }
     }
 
     return workouts;
+  }
+
+  /// Convert template exercises to actual Exercise objects
+  List<Exercise> _convertTemplateExercises(List<ExerciseTemplate> templates) {
+    return templates.asMap().entries.map((entry) {
+      final index = entry.key;
+      final template = entry.value;
+      final exerciseId = _uuid.v4();
+
+      return Exercise(
+        id: exerciseId,
+        workoutId: '', // Will be set when workout is saved
+        name: template.name,
+        muscleGroup:
+            MuscleGroups.parse(template.muscleGroup) ?? MuscleGroup.chest,
+        equipmentType:
+            EquipmentTypes.parse(template.equipmentType) ??
+            EquipmentType.barbell,
+        sets: _generateSetsFromTemplate(template),
+        orderIndex: index,
+      );
+    }).toList();
+  }
+
+  /// Generate exercise sets from template
+  List<ExerciseSet> _generateSetsFromTemplate(ExerciseTemplate template) {
+    return List.generate(
+      template.sets,
+      (index) => ExerciseSet(
+        id: _uuid.v4(),
+        setNumber: index + 1,
+        reps: template.reps,
+      ),
+    );
   }
 
   @override
@@ -200,12 +252,6 @@ class _MesocycleCreateScreenState extends ConsumerState<MesocycleCreateScreen> {
               const SizedBox(height: 12),
               _buildDeloadWeekSelector(),
             ],
-            const SizedBox(height: 24),
-
-            // Gender selector
-            _buildSectionHeader('Gender'),
-            const SizedBox(height: 12),
-            _buildGenderSelector(),
             const SizedBox(height: 24),
 
             // Template (optional)
@@ -433,75 +479,59 @@ class _MesocycleCreateScreenState extends ConsumerState<MesocycleCreateScreen> {
     );
   }
 
-  Widget _buildGenderSelector() {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8.0),
-        child: Column(
-          children: [
-            RadioListTile<Gender>(
-              title: const Text('Male'),
-              subtitle: const Text('Optimized recovery recommendations'),
-              value: Gender.male,
-              groupValue: _gender,
-              onChanged: (value) {
-                if (value != null) setState(() => _gender = value);
-              },
-            ),
-            RadioListTile<Gender>(
-              title: const Text('Female'),
-              subtitle: const Text('Optimized recovery recommendations'),
-              value: Gender.female,
-              groupValue: _gender,
-              onChanged: (value) {
-                if (value != null) setState(() => _gender = value);
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _buildTemplateSelector() {
+    final templatesAsync = ref.watch(availableTemplatesProvider);
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            DropdownButtonFormField<String?>(
-              initialValue: _templateName,
-              decoration: const InputDecoration(
-                labelText: 'Choose a Template',
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.library_books),
+            templatesAsync.when(
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (error, stack) => Text(
+                'Error loading templates: $error',
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
               ),
-              items: [
-                const DropdownMenuItem(
-                  value: null,
-                  child: Text('None (Custom)'),
+              data: (templates) => DropdownButtonFormField<MesocycleTemplate?>(
+                initialValue: _selectedTemplate,
+                decoration: const InputDecoration(
+                  labelText: 'Choose a Template',
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.library_books),
                 ),
-                const DropdownMenuItem(
-                  value: 'Push/Pull/Legs',
-                  child: Text('Push/Pull/Legs'),
-                ),
-                const DropdownMenuItem(
-                  value: 'Upper/Lower',
-                  child: Text('Upper/Lower'),
-                ),
-                const DropdownMenuItem(
-                  value: 'Full Body',
-                  child: Text('Full Body'),
-                ),
-              ],
-              onChanged: (value) {
-                setState(() => _templateName = value);
-              },
+                items: [
+                  const DropdownMenuItem<MesocycleTemplate?>(
+                    value: null,
+                    child: Text('None (Custom)'),
+                  ),
+                  ...templates.map(
+                    (template) => DropdownMenuItem<MesocycleTemplate?>(
+                      value: template,
+                      child: Text(template.name),
+                    ),
+                  ),
+                ],
+                onChanged: (template) {
+                  setState(() {
+                    _selectedTemplate = template;
+                    // Optionally update form values from template
+                    if (template != null) {
+                      _weeksTotal = template.weeksTotal;
+                      _daysPerWeek = template.daysPerWeek;
+                      if (template.deloadWeek != null) {
+                        _hasDeload = true;
+                        _deloadWeek = template.deloadWeek;
+                      }
+                    }
+                  });
+                },
+              ),
             ),
             const SizedBox(height: 8),
             Text(
-              'Templates provide pre-configured workout splits',
+              'Templates provide pre-configured workout splits with exercises',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: Theme.of(
                   context,
