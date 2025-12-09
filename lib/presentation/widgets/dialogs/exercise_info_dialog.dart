@@ -4,9 +4,12 @@ import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 
+import '../../../core/constants/enums.dart';
 import '../../../core/constants/equipment_types.dart';
 import '../../../core/constants/muscle_groups.dart';
 import '../../../data/models/exercise.dart';
+import '../../../data/models/mesocycle.dart';
+import '../../../data/models/workout.dart';
 import '../../../domain/providers/repository_providers.dart';
 
 /// Dialog for displaying exercise information with Detail and History tabs.
@@ -121,20 +124,19 @@ class _ExerciseInfoDialogState extends ConsumerState<ExerciseInfoDialog> {
                     Text(
                       '${widget.exercise.muscleGroup.displayName} · ${widget.exercise.equipmentType.displayName}',
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .onSurface
-                                .withAlpha((255 * 0.6).round()),
-                            fontWeight: FontWeight.w500,
-                          ),
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withAlpha((255 * 0.6).round()),
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                     const SizedBox(height: 4),
                     // Exercise name
                     Text(
                       widget.exercise.name,
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ],
                 ),
@@ -163,12 +165,8 @@ class _ExerciseInfoDialogState extends ConsumerState<ExerciseInfoDialog> {
         padding: const EdgeInsets.all(4),
         child: Row(
           children: [
-            Expanded(
-              child: _buildTabButton(context, 'Detail', true),
-            ),
-            Expanded(
-              child: _buildTabButton(context, 'History', false),
-            ),
+            Expanded(child: _buildTabButton(context, 'Detail', true)),
+            Expanded(child: _buildTabButton(context, 'History', false)),
           ],
         ),
       ),
@@ -191,11 +189,11 @@ class _ExerciseInfoDialogState extends ConsumerState<ExerciseInfoDialog> {
           child: Text(
             label,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: isSelected
-                      ? Theme.of(context).colorScheme.onPrimary
-                      : Theme.of(context).colorScheme.onSurface,
-                ),
+              fontWeight: FontWeight.w600,
+              color: isSelected
+                  ? Theme.of(context).colorScheme.onPrimary
+                  : Theme.of(context).colorScheme.onSurface,
+            ),
           ),
         ),
       ),
@@ -214,9 +212,7 @@ class _ExerciseInfoDialogState extends ConsumerState<ExerciseInfoDialog> {
               borderRadius: BorderRadius.circular(12),
               child: AspectRatio(
                 aspectRatio: 16 / 9,
-                child: YoutubePlayer(
-                  controller: _youtubeController!,
-                ),
+                child: YoutubePlayer(controller: _youtubeController!),
               ),
             ),
             const SizedBox(height: 16),
@@ -249,20 +245,18 @@ class _ExerciseInfoDialogState extends ConsumerState<ExerciseInfoDialog> {
                   Icon(
                     Icons.videocam_off_outlined,
                     size: 48,
-                    color: Theme.of(context)
-                        .colorScheme
-                        .onSurface
-                        .withAlpha((255 * 0.4).round()),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withAlpha((255 * 0.4).round()),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     'No video available',
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .onSurface
-                              .withAlpha((255 * 0.6).round()),
-                        ),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withAlpha((255 * 0.6).round()),
+                    ),
                   ),
                 ],
               ),
@@ -273,9 +267,9 @@ class _ExerciseInfoDialogState extends ConsumerState<ExerciseInfoDialog> {
           // Exercise Notes
           Text(
             'Notes',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
           Container(
@@ -290,16 +284,15 @@ class _ExerciseInfoDialogState extends ConsumerState<ExerciseInfoDialog> {
                   ? widget.exercise.notes!
                   : 'No notes added yet.',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: widget.exercise.notes?.isNotEmpty == true
-                        ? Theme.of(context).colorScheme.onSurface
-                        : Theme.of(context)
-                            .colorScheme
-                            .onSurface
-                            .withAlpha((255 * 0.6).round()),
-                    fontStyle: widget.exercise.notes?.isNotEmpty == true
-                        ? FontStyle.normal
-                        : FontStyle.italic,
-                  ),
+                color: widget.exercise.notes?.isNotEmpty == true
+                    ? Theme.of(context).colorScheme.onSurface
+                    : Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withAlpha((255 * 0.6).round()),
+                fontStyle: widget.exercise.notes?.isNotEmpty == true
+                    ? FontStyle.normal
+                    : FontStyle.italic,
+              ),
             ),
           ),
         ],
@@ -308,15 +301,50 @@ class _ExerciseInfoDialogState extends ConsumerState<ExerciseInfoDialog> {
   }
 
   Widget _buildHistoryTab(BuildContext context) {
-    final exerciseRepo = ref.read(exerciseRepositoryProvider);
-    final history = exerciseRepo.getHistoryByName(widget.exercise.name);
+    final workoutRepo = ref.read(workoutRepositoryProvider);
+    final mesocycleRepo = ref.read(mesocycleRepositoryProvider);
+    final allWorkouts = workoutRepo.getAll();
+    final allMesocycles = mesocycleRepo.getAll();
 
-    // Filter to only show exercises with logged sets
-    final loggedHistory = history.where((e) {
-      return e.sets.any((s) => s.isLogged);
-    }).toList();
+    // Create a map of mesocycleId -> mesocycle for quick lookup
+    final mesocycleMap = {for (var m in allMesocycles) m.id: m};
 
-    if (loggedHistory.isEmpty) {
+    // Find all exercises with the same name from all workouts (across all mesocycles)
+    final List<_HistoryEntry> historyEntries = [];
+
+    for (final workout in allWorkouts) {
+      for (final exercise in workout.exercises) {
+        if (exercise.name.toLowerCase() == widget.exercise.name.toLowerCase()) {
+          // Only include exercises with at least one logged set
+          if (exercise.sets.any((s) => s.isLogged)) {
+            final mesocycle = mesocycleMap[workout.mesocycleId];
+            historyEntries.add(
+              _HistoryEntry(
+                exercise: exercise,
+                workout: workout,
+                mesocycle: mesocycle,
+                completedDate: workout.completedDate ?? exercise.lastPerformed,
+              ),
+            );
+          }
+        }
+      }
+    }
+
+    // Sort by date (most recent first)
+    historyEntries.sort((a, b) {
+      if (a.completedDate == null && b.completedDate == null) return 0;
+      if (a.completedDate == null) return 1;
+      if (b.completedDate == null) return -1;
+      return b.completedDate!.compareTo(a.completedDate!);
+    });
+
+    // Exclude the current exercise instance from history
+    final filteredHistory = historyEntries
+        .where((entry) => entry.exercise.id != widget.exercise.id)
+        .toList();
+
+    if (filteredHistory.isEmpty) {
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(32),
@@ -326,30 +354,27 @@ class _ExerciseInfoDialogState extends ConsumerState<ExerciseInfoDialog> {
               Icon(
                 Icons.history_outlined,
                 size: 48,
-                color: Theme.of(context)
-                    .colorScheme
-                    .onSurface
-                    .withAlpha((255 * 0.4).round()),
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withAlpha((255 * 0.4).round()),
               ),
               const SizedBox(height: 16),
               Text(
                 'No history yet',
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: Theme.of(context)
-                          .colorScheme
-                          .onSurface
-                          .withAlpha((255 * 0.6).round()),
-                    ),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withAlpha((255 * 0.6).round()),
+                ),
               ),
               const SizedBox(height: 8),
               Text(
                 'Complete sets to build your exercise history.',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Theme.of(context)
-                          .colorScheme
-                          .onSurface
-                          .withAlpha((255 * 0.5).round()),
-                    ),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withAlpha((255 * 0.5).round()),
+                ),
                 textAlign: TextAlign.center,
               ),
             ],
@@ -358,80 +383,182 @@ class _ExerciseInfoDialogState extends ConsumerState<ExerciseInfoDialog> {
       );
     }
 
-    return ListView.builder(
-      padding: const EdgeInsets.all(24),
+    // Group entries by mesocycle
+    final Map<String, List<_HistoryEntry>> groupedByMesocycle = {};
+    for (final entry in filteredHistory) {
+      final mesocycleId = entry.mesocycle?.id ?? 'unknown';
+      groupedByMesocycle.putIfAbsent(mesocycleId, () => []).add(entry);
+    }
+
+    // Build list with mesocycle headers
+    final List<Widget> children = [];
+    for (final mesocycleId in groupedByMesocycle.keys) {
+      final entries = groupedByMesocycle[mesocycleId]!;
+      final mesocycle = entries.first.mesocycle;
+
+      // Add mesocycle header
+      children.add(_buildMesocycleHeader(context, mesocycle));
+
+      // Add entries for this mesocycle
+      for (final entry in entries) {
+        children.add(_buildHistoryRow(context, entry));
+      }
+    }
+
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
       shrinkWrap: true,
-      itemCount: loggedHistory.length,
-      itemBuilder: (context, index) {
-        final exercise = loggedHistory[index];
-        return _buildHistoryEntry(context, exercise);
-      },
+      children: children,
     );
   }
 
-  Widget _buildHistoryEntry(BuildContext context, Exercise exercise) {
+  Widget _buildMesocycleHeader(BuildContext context, Mesocycle? mesocycle) {
+    final name = mesocycle?.name ?? 'Unknown Mesocycle';
+    final weeks = mesocycle?.weeksTotal ?? 0;
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 8, bottom: 12),
+      child: Text(
+        '$name - $weeks WEEKS'.toUpperCase(),
+        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+          color: Theme.of(
+            context,
+          ).colorScheme.onSurface.withAlpha((255 * 0.6).round()),
+          fontWeight: FontWeight.w600,
+          letterSpacing: 0.5,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHistoryRow(BuildContext context, _HistoryEntry entry) {
     final dateFormat = DateFormat('MMM d, yyyy');
-    final dateStr = exercise.lastPerformed != null
-        ? dateFormat.format(exercise.lastPerformed!)
+    final dateStr = entry.completedDate != null
+        ? dateFormat.format(entry.completedDate!)
         : 'Unknown date';
 
-    final loggedSets = exercise.sets.where((s) => s.isLogged).toList();
+    final loggedSets = entry.exercise.sets.where((s) => s.isLogged).toList();
+    final isDeload =
+        entry.mesocycle != null &&
+        entry.workout.weekNumber == entry.mesocycle!.deloadWeek;
+
+    // Build the weight × reps string with set type badges
+    final weight = loggedSets.isNotEmpty && loggedSets.first.weight != null
+        ? loggedSets.first.weight!
+        : null;
+    final weightStr = weight != null
+        ? weight.toStringAsFixed(weight % 1 == 0 ? 0 : 1)
+        : 'BW';
+
+    // Collect reps with their badges
+    final repsWithBadges = loggedSets.map((set) {
+      final badge = set.setType.badge;
+      if (badge != null) {
+        return '${set.reps} $badge';
+      }
+      return set.reps;
+    }).toList();
+
+    final repsStr = repsWithBadges.join(',  ');
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(vertical: 12),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(12),
+        border: Border(
+          bottom: BorderSide(
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurface.withAlpha((255 * 0.1).round()),
+          ),
+        ),
       ),
-      child: Column(
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Date header
-          Text(
-            dateStr,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Theme.of(context)
-                      .colorScheme
-                      .onSurface
-                      .withAlpha((255 * 0.6).round()),
-                  fontWeight: FontWeight.w500,
-                ),
-          ),
-          const SizedBox(height: 8),
-          // Sets
-          ...loggedSets.map((set) {
-            final weightStr = set.weight != null
-                ? '${set.weight!.toStringAsFixed(set.weight! % 1 == 0 ? 0 : 1)} lbs'
-                : 'BW';
-            return Padding(
-              padding: const EdgeInsets.symmetric(vertical: 2),
-              child: Row(
-                children: [
-                  SizedBox(
-                    width: 30,
-                    child: Text(
-                      '${set.setNumber}.',
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .onSurface
-                                .withAlpha((255 * 0.6).round()),
-                          ),
+          // Left side: Weight × Reps + Deload indicator
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                RichText(
+                  text: TextSpan(
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      fontWeight: FontWeight.w600,
                     ),
+                    children: [
+                      TextSpan(
+                        text: weightStr,
+                        style: const TextStyle(fontSize: 18),
+                      ),
+                      TextSpan(
+                        text: ' lbs',
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w400,
+                          color: Theme.of(context).colorScheme.onSurface
+                              .withAlpha((255 * 0.7).round()),
+                        ),
+                      ),
+                      const TextSpan(text: '  x  '),
+                      TextSpan(
+                        text: repsStr,
+                        style: const TextStyle(fontSize: 18),
+                      ),
+                    ],
                   ),
-                  Expanded(
-                    child: Text(
-                      '$weightStr × ${set.reps}',
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            fontWeight: FontWeight.w500,
-                          ),
+                ),
+                if (isDeload) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    'DELOAD',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withAlpha((255 * 0.5).round()),
+                      fontWeight: FontWeight.w500,
+                      fontSize: 11,
                     ),
                   ),
                 ],
+              ],
+            ),
+          ),
+          // Right side: Week/Day + Date
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              RichText(
+                text: TextSpan(
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withAlpha((255 * 0.6).round()),
+                  ),
+                  children: [
+                    const TextSpan(text: 'WEEK '),
+                    TextSpan(
+                      text: '${entry.workout.weekNumber}',
+                      style: const TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                    const TextSpan(text: ' - DAY '),
+                    TextSpan(
+                      text: '${entry.workout.dayNumber}',
+                      style: const TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                  ],
+                ),
               ),
-            );
-          }),
+              const SizedBox(height: 2),
+              Text(
+                dateStr,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withAlpha((255 * 0.5).round()),
+                ),
+              ),
+            ],
+          ),
         ],
       ),
     );
@@ -457,4 +584,19 @@ Future<void> showExerciseInfoDialog(
     context: context,
     builder: (context) => ExerciseInfoDialog(exercise: exercise),
   );
+}
+
+/// Helper class to hold history entry data
+class _HistoryEntry {
+  final Exercise exercise;
+  final Workout workout;
+  final Mesocycle? mesocycle;
+  final DateTime? completedDate;
+
+  _HistoryEntry({
+    required this.exercise,
+    required this.workout,
+    this.mesocycle,
+    this.completedDate,
+  });
 }
