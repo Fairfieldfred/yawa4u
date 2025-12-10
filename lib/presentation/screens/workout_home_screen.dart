@@ -756,10 +756,14 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
       }
 
       // No workout found for selected day
-      return _buildEmptyState(
+      return _buildNoWorkoutForDay(
         context,
-        'No Workout Scheduled',
-        'No workout found for Week $displayWeek, Day $displayDay',
+        ref,
+        currentMesocycle,
+        displayWeek,
+        displayDay,
+        currentWeek: currentWeek,
+        allWorkouts: allWorkouts,
       );
     }
 
@@ -768,6 +772,132 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
       context,
       'No Active Mesocycle',
       'Create and start a mesocycle to begin',
+    );
+  }
+
+  /// Build empty state for a selected day that has no workout scheduled
+  /// This includes the full AppBar with calendar navigation
+  Widget _buildNoWorkoutForDay(
+    BuildContext context,
+    WidgetRef ref,
+    dynamic mesocycle,
+    int displayWeek,
+    int displayDay, {
+    required int currentWeek,
+    required List<Workout> allWorkouts,
+  }) {
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: Scaffold(
+        appBar: AppBar(
+          elevation: 0,
+          automaticallyImplyLeading: false,
+          title: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                mesocycle.name.toUpperCase(),
+                style: TextStyle(
+                  color: Theme.of(context).textTheme.bodySmall?.color,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                  letterSpacing: 0.5,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                'WEEK $displayWeek DAY $displayDay',
+                style: TextStyle(
+                  color: Theme.of(context).textTheme.titleLarge?.color,
+                  fontSize: 17,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.calendar_today),
+              onPressed: _toggleWeekSelector,
+            ),
+            IconButton(
+              icon: Icon(
+                ref.watch(isDarkModeProvider)
+                    ? Icons.light_mode
+                    : Icons.dark_mode,
+              ),
+              onPressed: () {
+                ref.read(themeModeProvider.notifier).toggleTheme();
+              },
+              tooltip: 'Toggle theme',
+            ),
+          ],
+        ),
+        body: Stack(
+          children: [
+            Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.event_busy,
+                    size: 80,
+                    color: Theme.of(context)
+                        .colorScheme
+                        .primary
+                        .withValues(alpha: 0.5),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'No Workout Scheduled',
+                    style: Theme.of(context).textTheme.headlineSmall,
+                  ),
+                  const SizedBox(height: 8),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 32),
+                    child: Text(
+                      'No workout found for Week $displayWeek, Day $displayDay',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onSurface
+                                .withValues(alpha: 0.7),
+                          ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            // Week selector overlay
+            if (_homeState.showWeekSelector) ...[
+              Positioned.fill(
+                child: GestureDetector(
+                  onTap: () {
+                    _controller.hideWeekSelector();
+                  },
+                  behavior: HitTestBehavior.opaque,
+                  child: Container(color: Colors.transparent),
+                ),
+              ),
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                child: _CalendarDropdown(
+                  mesocycle: mesocycle,
+                  currentWeek: currentWeek,
+                  currentDay: displayDay,
+                  selectedWeek: displayWeek,
+                  selectedDay: displayDay,
+                  allWorkouts: allWorkouts,
+                  onDaySelected: _selectDay,
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
     );
   }
 
