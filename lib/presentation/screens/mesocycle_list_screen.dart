@@ -1,8 +1,10 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/constants/enums.dart';
+import '../../core/utils/template_exporter.dart';
 import '../../data/models/mesocycle.dart';
 import '../../domain/providers/mesocycle_providers.dart';
 import '../../domain/providers/navigation_providers.dart';
@@ -325,6 +327,18 @@ class _MesocycleListScreenState extends ConsumerState<MesocycleListScreen> {
                               ],
                             ),
                           ),
+                          // Export option (Debug mode only)
+                          if (kDebugMode)
+                            const PopupMenuItem(
+                              value: 'export',
+                              child: Row(
+                                children: [
+                                  Icon(Icons.save_alt),
+                                  SizedBox(width: 12),
+                                  Text('Export (Debug)'),
+                                ],
+                              ),
+                            ),
                           const PopupMenuItem(
                             value: 'delete',
                             child: Row(
@@ -464,6 +478,9 @@ class _MesocycleListScreenState extends ConsumerState<MesocycleListScreen> {
       case 'template':
         await _saveAsTemplate(mesocycle);
         break;
+      case 'export':
+        await _exportTemplate(mesocycle);
+        break;
       case 'delete':
         await _deleteMesocycle(mesocycle);
         break;
@@ -510,6 +527,33 @@ class _MesocycleListScreenState extends ConsumerState<MesocycleListScreen> {
             ),
           );
         }
+      }
+    }
+  }
+
+  /// Export mesocycle as JSON template to clipboard (Debug mode only)
+  Future<void> _exportTemplate(Mesocycle mesocycle) async {
+    try {
+      // Load the full mesocycle with workouts
+      final workouts = ref.read(workoutsByMesocycleProvider(mesocycle.id));
+      final mesocycleToExport = mesocycle.copyWith(workouts: workouts);
+      await TemplateExporter.exportToClipboard(mesocycleToExport);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Template JSON copied to clipboard!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error exporting template: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
       }
     }
   }
