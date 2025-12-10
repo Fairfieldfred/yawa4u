@@ -1,13 +1,15 @@
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart';
+
+import '../../core/constants/enums.dart';
+import '../../core/constants/equipment_types.dart';
+import '../../core/constants/muscle_groups.dart';
+import '../models/custom_exercise_definition.dart';
+import '../models/exercise.dart';
+import '../models/exercise_feedback.dart';
+import '../models/exercise_set.dart';
 import '../models/mesocycle.dart';
 import '../models/workout.dart';
-import '../models/exercise.dart';
-import '../models/exercise_set.dart';
-import '../models/exercise_feedback.dart';
-import '../../core/constants/enums.dart';
-import '../../core/constants/muscle_groups.dart';
-import '../../core/constants/equipment_types.dart';
 
 /// Database service for Hive initialization and management
 ///
@@ -21,11 +23,13 @@ class DatabaseService {
   static const String mesocyclesBoxName = 'mesocycles';
   static const String workoutsBoxName = 'workouts';
   static const String exercisesBoxName = 'exercises';
+  static const String customExercisesBoxName = 'custom_exercises';
 
   /// Hive boxes
   Box<Mesocycle>? _mesocyclesBox;
   Box<Workout>? _workoutsBox;
   Box<Exercise>? _exercisesBox;
+  Box<CustomExerciseDefinition>? _customExercisesBox;
 
   bool _initialized = false;
 
@@ -45,6 +49,7 @@ class DatabaseService {
     Hive.registerAdapter(ExerciseAdapter());
     Hive.registerAdapter(ExerciseSetAdapter());
     Hive.registerAdapter(ExerciseFeedbackAdapter());
+    Hive.registerAdapter(CustomExerciseDefinitionAdapter());
 
     // Register TypeAdapters for enums
     Hive.registerAdapter(MesocycleStatusAdapter());
@@ -62,6 +67,9 @@ class DatabaseService {
     _mesocyclesBox = await Hive.openBox<Mesocycle>(mesocyclesBoxName);
     _workoutsBox = await Hive.openBox<Workout>(workoutsBoxName);
     _exercisesBox = await Hive.openBox<Exercise>(exercisesBoxName);
+    _customExercisesBox = await Hive.openBox<CustomExerciseDefinition>(
+      customExercisesBoxName,
+    );
 
     _initialized = true;
   }
@@ -69,7 +77,9 @@ class DatabaseService {
   /// Get mesocycles box
   Box<Mesocycle> get mesocyclesBox {
     if (_mesocyclesBox == null) {
-      throw StateError('DatabaseService not initialized. Call initialize() first.');
+      throw StateError(
+        'DatabaseService not initialized. Call initialize() first.',
+      );
     }
     return _mesocyclesBox!;
   }
@@ -77,7 +87,9 @@ class DatabaseService {
   /// Get workouts box
   Box<Workout> get workoutsBox {
     if (_workoutsBox == null) {
-      throw StateError('DatabaseService not initialized. Call initialize() first.');
+      throw StateError(
+        'DatabaseService not initialized. Call initialize() first.',
+      );
     }
     return _workoutsBox!;
   }
@@ -85,9 +97,21 @@ class DatabaseService {
   /// Get exercises box
   Box<Exercise> get exercisesBox {
     if (_exercisesBox == null) {
-      throw StateError('DatabaseService not initialized. Call initialize() first.');
+      throw StateError(
+        'DatabaseService not initialized. Call initialize() first.',
+      );
     }
     return _exercisesBox!;
+  }
+
+  /// Get custom exercises box
+  Box<CustomExerciseDefinition> get customExercisesBox {
+    if (_customExercisesBox == null) {
+      throw StateError(
+        'DatabaseService not initialized. Call initialize() first.',
+      );
+    }
+    return _customExercisesBox!;
   }
 
   /// Get database path
@@ -101,6 +125,7 @@ class DatabaseService {
     await _mesocyclesBox?.clear();
     await _workoutsBox?.clear();
     await _exercisesBox?.clear();
+    await _customExercisesBox?.clear();
   }
 
   /// Close all boxes
@@ -108,6 +133,7 @@ class DatabaseService {
     await _mesocyclesBox?.close();
     await _workoutsBox?.close();
     await _exercisesBox?.close();
+    await _customExercisesBox?.close();
     _initialized = false;
   }
 
@@ -116,6 +142,7 @@ class DatabaseService {
     await _mesocyclesBox?.compact();
     await _workoutsBox?.compact();
     await _exercisesBox?.compact();
+    await _customExercisesBox?.compact();
   }
 
   /// Get database stats
@@ -124,6 +151,7 @@ class DatabaseService {
       'mesocycles': _mesocyclesBox?.length ?? 0,
       'workouts': _workoutsBox?.length ?? 0,
       'exercises': _exercisesBox?.length ?? 0,
+      'customExercises': _customExercisesBox?.length ?? 0,
       'initialized': _initialized,
     };
   }

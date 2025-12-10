@@ -30,16 +30,6 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
   int _selectedDayIndex = 0;
   int _selectedWeek = 1;
 
-  final List<String> _dayNames = [
-    'Mon',
-    'Tue',
-    'Wed',
-    'Thu',
-    'Fri',
-    'Sat',
-    'Sun',
-  ];
-
   @override
   Widget build(BuildContext context) {
     final mesocyclesAsync = ref.watch(mesocyclesProvider);
@@ -332,24 +322,10 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
   }
 
   Widget _buildDaySelector(Mesocycle mesocycle, List<Workout> workouts) {
-    // Build day labels from workouts or use default names
+    // Build day labels as D1, D2, D3, etc.
     final dayLabels = <String>[];
     for (int dayNum = 1; dayNum <= mesocycle.daysPerWeek; dayNum++) {
-      // Find a workout for this day to get the custom label
-      final workoutForDay = workouts.cast<Workout?>().firstWhere(
-        (w) => w!.dayNumber == dayNum,
-        orElse: () => null,
-      );
-      if (workoutForDay != null && workoutForDay.dayName != null) {
-        // Abbreviate to first 3 characters
-        final fullName = workoutForDay.dayName!;
-        dayLabels.add(
-          fullName.length > 3 ? fullName.substring(0, 3) : fullName,
-        );
-      } else {
-        // Fall back to default day names (already abbreviated)
-        dayLabels.add(_dayNames[dayNum - 1]);
-      }
+      dayLabels.add('D$dayNum');
     }
 
     return Container(

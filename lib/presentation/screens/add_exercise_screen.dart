@@ -12,6 +12,7 @@ import '../../data/models/exercise_set.dart';
 import '../../domain/providers/exercise_providers.dart';
 import '../../domain/providers/repository_providers.dart';
 import '../../domain/providers/workout_providers.dart';
+import '../widgets/dialogs/create_custom_exercise_dialog.dart';
 
 /// Screen for adding exercises from the library to a workout
 class AddExerciseScreen extends ConsumerStatefulWidget {
@@ -50,8 +51,8 @@ class _AddExerciseScreenState extends ConsumerState<AddExerciseScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Get filtered exercises
-    final allExercises = ref.watch(exerciseDefinitionsProvider);
+    // Get filtered exercises from combined CSV + custom exercises
+    final allExercises = ref.watch(allExerciseDefinitionsProvider);
     final filteredExercises = _filterExercises(allExercises);
 
     return Scaffold(
@@ -67,6 +68,11 @@ class _AddExerciseScreenState extends ConsumerState<AddExerciseScreen> {
             onPressed: () => GoRouter.of(context).pop(),
           ),
         ],
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => _showCreateCustomExerciseDialog(),
+        icon: const Icon(Icons.add),
+        label: const Text('Create Custom'),
       ),
       body: Column(
         children: [
@@ -119,9 +125,13 @@ class _AddExerciseScreenState extends ConsumerState<AddExerciseScreen> {
                         label: Text(
                           _selectedMuscleGroup!.displayName,
                           style: TextStyle(
-                            color: Theme.of(context).brightness == Brightness.light
+                            color:
+                                Theme.of(context).brightness == Brightness.light
                                 ? Colors.black.withValues(alpha: 0.85)
-                                : Theme.of(context).colorScheme.onPrimaryContainer.withValues(alpha: 0.85),
+                                : Theme.of(context)
+                                      .colorScheme
+                                      .onPrimaryContainer
+                                      .withValues(alpha: 0.85),
                           ),
                         ),
                         selected: true,
@@ -139,7 +149,9 @@ class _AddExerciseScreenState extends ConsumerState<AddExerciseScreen> {
                           context,
                         ).colorScheme.primaryContainer.withValues(alpha: 0.5),
                         side: BorderSide(
-                          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.5),
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.primary.withValues(alpha: 0.5),
                           width: 1,
                         ),
                       ),
@@ -153,9 +165,13 @@ class _AddExerciseScreenState extends ConsumerState<AddExerciseScreen> {
                         label: Text(
                           equipment.displayName,
                           style: TextStyle(
-                            color: Theme.of(context).brightness == Brightness.light
+                            color:
+                                Theme.of(context).brightness == Brightness.light
                                 ? Colors.black.withValues(alpha: 0.85)
-                                : Theme.of(context).colorScheme.onSecondaryContainer.withValues(alpha: 0.85),
+                                : Theme.of(context)
+                                      .colorScheme
+                                      .onSecondaryContainer
+                                      .withValues(alpha: 0.85),
                           ),
                         ),
                         selected: true,
@@ -173,7 +189,9 @@ class _AddExerciseScreenState extends ConsumerState<AddExerciseScreen> {
                           context,
                         ).colorScheme.secondaryContainer.withValues(alpha: 0.5),
                         side: BorderSide(
-                          color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.5),
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.secondary.withValues(alpha: 0.5),
                           width: 1,
                         ),
                       ),
@@ -226,6 +244,14 @@ class _AddExerciseScreenState extends ConsumerState<AddExerciseScreen> {
         ],
       ),
     );
+  }
+
+  Future<void> _showCreateCustomExerciseDialog() async {
+    await showDialog(
+      context: context,
+      builder: (context) => const CreateCustomExerciseDialog(),
+    );
+    // The provider will automatically update with the new custom exercise
   }
 
   List<ExerciseDefinition> _filterExercises(
@@ -281,7 +307,9 @@ class _AddExerciseScreenState extends ConsumerState<AddExerciseScreen> {
                   ).colorScheme.primaryContainer.withValues(alpha: 0.5),
                   borderRadius: BorderRadius.circular(4),
                   border: Border.all(
-                    color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.5),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.primary.withValues(alpha: 0.5),
                     width: 1,
                   ),
                 ),
@@ -305,7 +333,9 @@ class _AddExerciseScreenState extends ConsumerState<AddExerciseScreen> {
                   ).colorScheme.secondaryContainer.withValues(alpha: 0.5),
                   borderRadius: BorderRadius.circular(4),
                   border: Border.all(
-                    color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.5),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.secondary.withValues(alpha: 0.5),
                     width: 1,
                   ),
                 ),

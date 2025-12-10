@@ -1,4 +1,5 @@
 Name,Muscle Group,Equipment
+45 Degree Cable Rear Delt Pull,Shoulders,Cable
 Ab Wheel,Abs,Bodyweight Only
 Arnold Press,Shoulders,Dumbbell
 Assisted Dip,Triceps,Machine Assistance
@@ -147,6 +148,7 @@ Freemotion Curl (Facing Machine),Biceps,Freemotion
 Freemotion Curl (Single Arm),Biceps,Freemotion
 Freemotion Rear Delt Flyes,Shoulders,Freemotion
 Freemotion Rear Delt Flyes (Paused),Shoulders,Freemotion
+Freemotion Squat,Quads,Freemotion
 Freemotion Y-Raises,Shoulders,Freemotion
 Freemotion Y-Raises (Paused),Shoulders,Freemotion
 Front Foot Elevated Smith Lunge,Glutes,Smith Machine
@@ -166,6 +168,7 @@ Hanging Straight Leg Raise,Abs,Bodyweight Only
 Hip Abduction Machine,Glutes,Machine
 Hip Adduction,Quads,Machine
 In and Out Straight Arm Shoulder Flyes,Shoulders,Dumbbell
+Incline Dumbbell Y Raises,Shoulders,Dumbbell
 Inverted Row,Back,Bodyweight Only
 Inverted Skullcrusher,Triceps,Bodyweight Only
 JM Press,Triceps,Barbell
@@ -230,10 +233,12 @@ Pushup (Divebomber),Chest,Bodyweight Only
 "Pushup (Weighted, Military)",Chest,Bodyweight Loadable 
 "Pushup (Weighted, Normal Grip)",Chest,Bodyweight Loadable 
 Reaching Sit-Up,Abs,Bodyweight Only
+Reverse Cable Crossover, Shoulders, Cable
 Reverse Curl,Forearms,Barbell
 Reverse Hyper,Glutes,Machine
 Reverse Lunge (Barbell),Glutes,Barbell
 Reverse Lunge (Dumbbell),Glutes,Dumbbell
+Reverse Pec Dec Flye,Shoulders,Machine
 Seal Row,Back,Barbell
 Seated Cable Row,Back,Cable
 Seated Cable Row (Single Arm),Back,Cable
