@@ -1,6 +1,6 @@
 import 'package:intl/intl.dart';
 
-/// Date and time utility functions for YAWA Gym app
+/// Date and time utility functions for Yawa4u app
 class DateHelpers {
   DateHelpers._();
 
@@ -236,8 +236,8 @@ class DateHelpers {
   // ========== EXPORT/IMPORT FILENAME ==========
 
   /// Generate filename for export with current date
-  /// Example: "yawa_gym_backup_2025-01-31.json"
-  static String getExportFilename({String prefix = 'yawa_gym_backup'}) {
+  /// Example: "yawa4u_backup_2025-01-31.json"
+  static String getExportFilename({String prefix = 'yawa4u_backup'}) {
     final dateStr = isoDate.format(DateTime.now());
     return '${prefix}_$dateStr.json';
   }

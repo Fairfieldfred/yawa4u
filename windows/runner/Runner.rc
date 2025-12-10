@@ -89,13 +89,13 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "com.example" "\0"
-            VALUE "FileDescription", "yawa_gym" "\0"
+            VALUE "CompanyName", "com.fredblair" "\0"
+            VALUE "FileDescription", "yawa4u" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "yawa_gym" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2025 com.example. All rights reserved." "\0"
-            VALUE "OriginalFilename", "yawa_gym.exe" "\0"
-            VALUE "ProductName", "yawa_gym" "\0"
+            VALUE "InternalName", "yawa4u" "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2025 com.fredblair. All rights reserved." "\0"
+            VALUE "OriginalFilename", "yawa4u.exe" "\0"
+            VALUE "ProductName", "yawa4u" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

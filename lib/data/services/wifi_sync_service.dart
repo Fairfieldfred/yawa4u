@@ -128,7 +128,7 @@ class WifiSyncService {
       
       // Health check endpoint
       router.get('/ping', (Request request) {
-        return Response.ok(jsonEncode({'status': 'ok', 'device': 'yawa_gym'}));
+        return Response.ok(jsonEncode({'status': 'ok', 'device': 'yawa4u'}));
       });
 
       // Get device info

@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:yawa_gym/data/models/mesocycle_template.dart';
-import 'package:yawa_gym/data/repositories/template_repository.dart';
+import 'package:yawa4u/data/models/mesocycle_template.dart';
+import 'package:yawa4u/data/repositories/template_repository.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

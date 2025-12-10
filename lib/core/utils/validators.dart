@@ -1,6 +1,6 @@
 import '../constants/app_constants.dart';
 
-/// Validation utility functions for YAWA Gym app
+/// Validation utility functions for Yawa4u app
 class Validators {
   Validators._();
 

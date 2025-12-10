@@ -13,6 +13,7 @@ import '../../data/models/exercise_set.dart';
 import '../../data/models/mesocycle.dart';
 import '../../data/models/workout.dart';
 import '../../domain/providers/mesocycle_providers.dart';
+import '../../domain/providers/repository_providers.dart';
 import '../../domain/providers/workout_providers.dart';
 import '../widgets/dialogs/exercise_info_dialog.dart';
 import 'add_exercise_screen.dart';
@@ -1511,21 +1512,112 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
     Mesocycle mesocycle,
     EditWorkoutController controller,
   ) {
+    // Get workouts for the current day
+    final workouts = ref.read(workoutsByMesocycleProvider(widget.mesocycleId));
+    final dayWorkouts = workouts
+        .where(
+          (w) =>
+              w.weekNumber == _selectedWeek &&
+              w.dayNumber == _selectedDayIndex + 1,
+        )
+        .toList();
+
+    // Create a map of existing muscle groups to their workouts
+    final muscleGroupWorkouts = <MuscleGroup, Workout>{};
+    for (final workout in dayWorkouts) {
+      if (workout.exercises.isNotEmpty) {
+        final muscleGroup = workout.exercises.first.muscleGroup;
+        if (!muscleGroupWorkouts.containsKey(muscleGroup)) {
+          muscleGroupWorkouts[muscleGroup] = workout;
+        }
+      }
+    }
+
+    // Show all muscle groups
+    final allMuscleGroups = MuscleGroup.values.toList()
+      ..sort((a, b) => a.displayName.compareTo(b.displayName));
+
     showModalBottomSheet(
       context: context,
-      isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => _MuscleGroupSelectorModal(
-        mesocycleId: mesocycle.id,
-        dayNumber: _selectedDayIndex + 1,
-        onMuscleGroupsSelected: (muscleGroups) {
-          controller.createWorkoutsForMuscleGroups(
-            muscleGroups: muscleGroups,
-            weekNumber: _selectedWeek,
-            dayNumber: _selectedDayIndex + 1,
-          );
-          GoRouter.of(context).pop();
-        },
+      isScrollControlled: true,
+      builder: (sheetContext) => Container(
+        height: MediaQuery.of(sheetContext).size.height * 0.8,
+        decoration: BoxDecoration(
+          color: Theme.of(sheetContext).colorScheme.surface,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: SafeArea(
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Text(
+                  'Select Muscle Group',
+                  style: Theme.of(sheetContext).textTheme.titleLarge,
+                ),
+              ),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: allMuscleGroups.length,
+                  itemBuilder: (listContext, index) {
+                    final muscleGroup = allMuscleGroups[index];
+                    final existingWorkout = muscleGroupWorkouts[muscleGroup];
+
+                    return ListTile(
+                      title: Text(muscleGroup.displayName),
+                      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                      onTap: () async {
+                        Navigator.pop(sheetContext);
+
+                        // If workout exists for this muscle group, use it
+                        if (existingWorkout != null) {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => AddExerciseScreen(
+                                mesocycleId: existingWorkout.mesocycleId,
+                                workoutId: existingWorkout.id,
+                                initialMuscleGroup: muscleGroup,
+                              ),
+                            ),
+                          );
+                        } else {
+                          // Create a new workout for this muscle group
+                          final newWorkout = Workout(
+                            id: const Uuid().v4(),
+                            mesocycleId: mesocycle.id,
+                            weekNumber: _selectedWeek,
+                            dayNumber: _selectedDayIndex + 1,
+                            label: muscleGroup.displayName,
+                            exercises: [],
+                          );
+
+                          // Save the new workout directly to repository
+                          await ref
+                              .read(workoutRepositoryProvider)
+                              .create(newWorkout);
+
+                          // Navigate to add exercise screen
+                          if (context.mounted) {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => AddExerciseScreen(
+                                  mesocycleId: newWorkout.mesocycleId,
+                                  workoutId: newWorkout.id,
+                                  initialMuscleGroup: muscleGroup,
+                                ),
+                              ),
+                            );
+                          }
+                        }
+                      },
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -1557,96 +1649,5 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
         );
       }
     }
-  }
-}
-
-/// Modal for selecting muscle groups
-class _MuscleGroupSelectorModal extends StatefulWidget {
-  final String mesocycleId;
-  final int dayNumber;
-  final Function(List<MuscleGroup>) onMuscleGroupsSelected;
-
-  const _MuscleGroupSelectorModal({
-    required this.mesocycleId,
-    required this.dayNumber,
-    required this.onMuscleGroupsSelected,
-  });
-
-  @override
-  State<_MuscleGroupSelectorModal> createState() =>
-      __MuscleGroupSelectorModalState();
-}
-
-class __MuscleGroupSelectorModalState extends State<_MuscleGroupSelectorModal> {
-  final Set<MuscleGroup> _selectedMuscleGroups = {};
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: MediaQuery.of(context).size.height * 0.8,
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      child: Column(
-        children: [
-          // Header
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text('Cancel'),
-                ),
-                Text(
-                  'Select Muscle Groups',
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-                TextButton(
-                  onPressed: _selectedMuscleGroups.isEmpty
-                      ? null
-                      : () => widget.onMuscleGroupsSelected(
-                          _selectedMuscleGroups.toList(),
-                        ),
-                  child: const Text('Add'),
-                ),
-              ],
-            ),
-          ),
-          const Divider(height: 1),
-          // List
-          Expanded(
-            child: ListView.builder(
-              itemCount: MuscleGroup.values.length,
-              itemBuilder: (context, index) {
-                final muscleGroup = MuscleGroup.values[index];
-                final isSelected = _selectedMuscleGroups.contains(muscleGroup);
-
-                return ListTile(
-                  title: Text(muscleGroup.displayName),
-                  trailing: isSelected
-                      ? Icon(
-                          Icons.check_circle,
-                          color: Theme.of(context).colorScheme.primary,
-                        )
-                      : const Icon(Icons.circle_outlined),
-                  onTap: () {
-                    setState(() {
-                      if (isSelected) {
-                        _selectedMuscleGroups.remove(muscleGroup);
-                      } else {
-                        _selectedMuscleGroups.add(muscleGroup);
-                      }
-                    });
-                  },
-                );
-              },
-            ),
-          ),
-        ],
-      ),
-    );
   }
 }

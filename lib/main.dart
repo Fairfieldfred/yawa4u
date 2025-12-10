@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:yawa_gym/core/utils/canvas_kit/unsupported.dart';
+import 'package:yawa4u/core/utils/canvas_kit/unsupported.dart';
 
 import 'core/config/sentry_config.dart';
 import 'core/constants/app_constants.dart';

@@ -5,18 +5,18 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "yawa_gym",
+            "name": "yawa4u",
             "request": "launch",
             "type": "dart"
         },
         {
-            "name": "yawa_gym (profile mode)",
+            "name": "yawa4u (profile mode)",
             "request": "launch",
             "type": "dart",
             "flutterMode": "profile"
         },
         {
-            "name": "yawa_gym (release mode)",
+            "name": "yawa4u (release mode)",
             "request": "launch",
             "type": "dart",
             "flutterMode": "release"

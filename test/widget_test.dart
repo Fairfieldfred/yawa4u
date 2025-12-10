@@ -1,9 +1,9 @@
-// This is a basic Flutter widget test for YAWA Gym app.
+// This is a basic Flutter widget test for Yawa4u app.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:yawa_gym/main.dart';
+import 'package:yawa4u/main.dart';
 
 void main() {
   testWidgets('App loads and shows welcome screen', (WidgetTester tester) async {
@@ -12,10 +12,10 @@ void main() {
     await tester.pumpAndSettle();
 
     // Verify that app name is displayed
-    expect(find.text('YAWA GYM'), findsWidgets);
+    expect(find.text('YAWA4U'), findsWidgets);
 
     // Verify welcome message
-    expect(find.text('Welcome to YAWA GYM'), findsOneWidget);
+    expect(find.text('Welcome to YAWA4U'), findsOneWidget);
 
     // Verify description text
     expect(

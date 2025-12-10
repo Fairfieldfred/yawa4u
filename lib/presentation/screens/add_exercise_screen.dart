@@ -422,7 +422,7 @@ class _AddExerciseScreenState extends ConsumerState<AddExerciseScreen> {
       name: exerciseDef.name,
       muscleGroup: exerciseDef.muscleGroup,
       equipmentType: exerciseDef.equipmentType,
-      orderIndex: 0, // Always first and only exercise
+      orderIndex: workout.exercises.length, // Add at the end
       videoUrl: exerciseDef.videoUrl,
       sets: [
         ExerciseSet(
@@ -440,8 +440,9 @@ class _AddExerciseScreenState extends ConsumerState<AddExerciseScreen> {
       ],
     );
 
-    // Replace all exercises with just this one (one exercise per muscle group)
-    final updatedWorkout = workout.copyWith(exercises: [newExercise]);
+    // Add this exercise to the existing exercises
+    final updatedExercises = [...workout.exercises, newExercise];
+    final updatedWorkout = workout.copyWith(exercises: updatedExercises);
     ref.read(workoutRepositoryProvider).update(updatedWorkout);
 
     // Show confirmation and go back

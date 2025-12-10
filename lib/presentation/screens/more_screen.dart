@@ -137,11 +137,11 @@ class _MoreScreenState extends ConsumerState<MoreScreen> {
           ListTile(
             leading: const Icon(Icons.share_outlined),
             title: const Text('Share App'),
-            subtitle: const Text('Share YAWA GYM with friends'),
+            subtitle: const Text('Share YAWA4U with friends'),
             trailing: const Icon(Icons.chevron_right),
             onTap: () async {
               await Share.share(
-                'Check out YAWA GYM - The best workout tracker! https://yawagym.com',
+                'Check out YAWA4U - The best workout tracker! https://yawa4u.com',
               );
             },
           ),

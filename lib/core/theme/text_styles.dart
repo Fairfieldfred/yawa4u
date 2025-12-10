@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'colors.dart';
 
-/// Typography scale for YAWA Gym app
+/// Typography scale for Yawa4u app
 /// Based on Material Design 3 and UI screenshots
 class AppTextStyles {
   AppTextStyles._();
@@ -224,7 +224,7 @@ class AppTextStyles {
   );
 
   // ========== CUSTOM TEXT STYLES ==========
-  // Specific to YAWA Gym UI patterns
+  // Specific to Yawa4u UI patterns
 
   /// Screen title style (large, bold, white)
   /// Example: "WEEK 2 DAY 4 Friday"

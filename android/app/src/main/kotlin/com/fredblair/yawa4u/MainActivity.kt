@@ -1,4 +1,4 @@
-package com.example.yawa_gym
+package com.fredblair.yawa4u
 
 import io.flutter.embedding.android.FlutterActivity
 

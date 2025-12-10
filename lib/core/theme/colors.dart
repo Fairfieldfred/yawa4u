@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// Color palette for YAWA Gym app
+/// Color palette for Yawa4u app
 /// Colors extracted from UI screenshots
 class AppColors {
   AppColors._();

@@ -1,5 +1,5 @@
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:yawa_gym/data/models/workout.dart';
+import 'package:yawa4u/data/models/workout.dart';
 
 /// Script to clear all preset dayNames from existing workouts
 /// This allows day names to be calculated dynamically from the mesocycle start date
