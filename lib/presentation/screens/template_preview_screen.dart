@@ -70,13 +70,10 @@ class _TemplatePreviewScreenState extends ConsumerState<TemplatePreviewScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
-      backgroundColor: const Color(0xFF1C1C1E),
-      appBar: AppBar(
-        title: Text(widget.template.name),
-        backgroundColor: const Color(0xFF2C2C2E),
-        elevation: 0,
-      ),
+      appBar: AppBar(title: Text(widget.template.name), elevation: 0),
       body: Column(
         children: [
           Expanded(
@@ -86,8 +83,8 @@ class _TemplatePreviewScreenState extends ConsumerState<TemplatePreviewScreen> {
                 // Description
                 Text(
                   widget.template.description,
-                  style: const TextStyle(
-                    color: Colors.white70,
+                  style: TextStyle(
+                    color: colorScheme.onSurfaceVariant,
                     fontSize: 16,
                     height: 1.5,
                   ),
@@ -99,10 +96,10 @@ class _TemplatePreviewScreenState extends ConsumerState<TemplatePreviewScreen> {
                 const SizedBox(height: 24),
 
                 // Workouts
-                const Text(
+                Text(
                   'Workouts',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: colorScheme.onSurface,
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                   ),
@@ -119,9 +116,9 @@ class _TemplatePreviewScreenState extends ConsumerState<TemplatePreviewScreen> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: const Color(0xFF2C2C2E),
+              color: colorScheme.surfaceContainerHighest,
               border: Border(
-                top: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
+                top: BorderSide(color: colorScheme.outlineVariant),
               ),
             ),
             child: SafeArea(
@@ -130,8 +127,8 @@ class _TemplatePreviewScreenState extends ConsumerState<TemplatePreviewScreen> {
                 child: ElevatedButton(
                   onPressed: _isLoading ? null : _createProgram,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
-                    foregroundColor: Colors.white,
+                    backgroundColor: colorScheme.primary,
+                    foregroundColor: colorScheme.onPrimary,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
@@ -163,10 +160,12 @@ class _TemplatePreviewScreenState extends ConsumerState<TemplatePreviewScreen> {
   }
 
   Widget _buildInfoSection() {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFF2C2C2E),
+        color: colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -194,14 +193,16 @@ class _TemplatePreviewScreenState extends ConsumerState<TemplatePreviewScreen> {
   }
 
   Widget _buildInfoItem(IconData icon, String value, String label) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Column(
       children: [
-        Icon(icon, color: Colors.blue, size: 24),
+        Icon(icon, color: colorScheme.primary, size: 24),
         const SizedBox(height: 8),
         Text(
           value,
-          style: const TextStyle(
-            color: Colors.white,
+          style: TextStyle(
+            color: colorScheme.onSurface,
             fontSize: 16,
             fontWeight: FontWeight.w600,
           ),
@@ -209,17 +210,19 @@ class _TemplatePreviewScreenState extends ConsumerState<TemplatePreviewScreen> {
         const SizedBox(height: 4),
         Text(
           label,
-          style: const TextStyle(color: Colors.white54, fontSize: 12),
+          style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 12),
         ),
       ],
     );
   }
 
   Widget _buildWorkoutCard(WorkoutTemplate workout) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: const Color(0xFF2C2C2E),
+        color: colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Theme(
@@ -227,14 +230,14 @@ class _TemplatePreviewScreenState extends ConsumerState<TemplatePreviewScreen> {
         child: ExpansionTile(
           title: Text(
             workout.dayName ?? 'Day ${workout.dayNumber}',
-            style: const TextStyle(
-              color: Colors.white,
+            style: TextStyle(
+              color: colorScheme.onSurface,
               fontWeight: FontWeight.w600,
             ),
           ),
           subtitle: Text(
             '${workout.exercises.length} Exercises',
-            style: const TextStyle(color: Colors.white54),
+            style: TextStyle(color: colorScheme.onSurfaceVariant),
           ),
           children: [
             Padding(
@@ -265,16 +268,16 @@ class _TemplatePreviewScreenState extends ConsumerState<TemplatePreviewScreen> {
                             children: [
                               Text(
                                 exercise.name,
-                                style: const TextStyle(
-                                  color: Colors.white,
+                                style: TextStyle(
+                                  color: colorScheme.onSurface,
                                   fontSize: 15,
                                 ),
                               ),
                               const SizedBox(height: 2),
                               Text(
                                 '${exercise.sets} sets × ${exercise.reps}',
-                                style: const TextStyle(
-                                  color: Colors.white54,
+                                style: TextStyle(
+                                  color: colorScheme.onSurfaceVariant,
                                   fontSize: 13,
                                 ),
                               ),

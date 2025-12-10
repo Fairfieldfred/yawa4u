@@ -15,25 +15,23 @@ class TemplateSelectionScreen extends ConsumerStatefulWidget {
 
 class _TemplateSelectionScreenState
     extends ConsumerState<TemplateSelectionScreen> {
-
   @override
   Widget build(BuildContext context) {
     final templatesAsync = ref.watch(availableTemplatesProvider);
 
     return Scaffold(
-      backgroundColor: const Color(0xFF1C1C1E),
-      appBar: AppBar(
-        title: const Text('Choose a Program'),
-        backgroundColor: const Color(0xFF2C2C2E),
-        elevation: 0,
-      ),
+      appBar: AppBar(title: const Text('Choose a Program'), elevation: 0),
       body: templatesAsync.when(
         data: (templates) {
           if (templates.isEmpty) {
-            return const Center(
+            return Center(
               child: Text(
                 'No templates available',
-                style: TextStyle(color: Colors.white54),
+                style: TextStyle(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.5),
+                ),
               ),
             );
           }
@@ -58,12 +56,11 @@ class _TemplateSelectionScreenState
     );
   }
 
-  Widget _buildTemplateCard(
-    BuildContext context,
-    MesocycleTemplate template,
-  ) {
+  Widget _buildTemplateCard(BuildContext context, MesocycleTemplate template) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Card(
-      color: const Color(0xFF2C2C2E),
+      color: colorScheme.surfaceContainerHighest,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: InkWell(
         onTap: () {
@@ -86,8 +83,8 @@ class _TemplateSelectionScreenState
                   Expanded(
                     child: Text(
                       template.name,
-                      style: const TextStyle(
-                        color: Colors.white,
+                      style: TextStyle(
+                        color: colorScheme.onSurface,
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                       ),
@@ -140,8 +137,8 @@ class _TemplateSelectionScreenState
               const SizedBox(height: 8),
               Text(
                 template.description,
-                style: const TextStyle(
-                  color: Color(0xFF8E8E93),
+                style: TextStyle(
+                  color: colorScheme.onSurfaceVariant,
                   fontSize: 14,
                   height: 1.4,
                 ),
@@ -151,30 +148,30 @@ class _TemplateSelectionScreenState
               const SizedBox(height: 16),
               Row(
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.calendar_today,
                     size: 16,
-                    color: Color(0xFF8E8E93),
+                    color: colorScheme.onSurfaceVariant,
                   ),
                   const SizedBox(width: 4),
                   Text(
                     '${template.weeksTotal} Weeks',
-                    style: const TextStyle(
-                      color: Color(0xFF8E8E93),
+                    style: TextStyle(
+                      color: colorScheme.onSurfaceVariant,
                       fontSize: 13,
                     ),
                   ),
                   const SizedBox(width: 16),
-                  const Icon(
+                  Icon(
                     Icons.fitness_center,
                     size: 16,
-                    color: Color(0xFF8E8E93),
+                    color: colorScheme.onSurfaceVariant,
                   ),
                   const SizedBox(width: 4),
                   Text(
                     '${template.workouts.length} Workouts',
-                    style: const TextStyle(
-                      color: Color(0xFF8E8E93),
+                    style: TextStyle(
+                      color: colorScheme.onSurfaceVariant,
                       fontSize: 13,
                     ),
                   ),
@@ -191,9 +188,7 @@ class _TemplateSelectionScreenState
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => Dialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         child: Container(
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
@@ -226,10 +221,9 @@ class _TemplateSelectionScreenState
               Text(
                 'Are you sure you want to delete "${template.name}"? This action cannot be undone.',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Theme.of(context)
-                      .colorScheme
-                      .onSurface
-                      .withValues(alpha: 0.8),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.8),
                 ),
               ),
               const SizedBox(height: 24),
