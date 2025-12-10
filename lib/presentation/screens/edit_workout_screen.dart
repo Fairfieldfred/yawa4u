@@ -544,7 +544,8 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
       },
       itemBuilder: (context, index) {
         final exercise = allExercises[index];
-        final showMuscleGroupBadge = index == 0 ||
+        final showMuscleGroupBadge =
+            index == 0 ||
             allExercises[index - 1].muscleGroup != exercise.muscleGroup;
 
         return _buildExerciseCard(
@@ -589,9 +590,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
                         children: [
                           Text(
                             exercise.name,
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleMedium
+                            style: Theme.of(context).textTheme.titleMedium
                                 ?.copyWith(
                                   fontSize: 17,
                                   fontWeight: FontWeight.w600,
@@ -600,12 +599,12 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
                           const SizedBox(height: 4),
                           Text(
                             equipmentType.displayName.toUpperCase(),
-                            style:
-                                Theme.of(context).textTheme.bodySmall?.copyWith(
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w500,
-                                      letterSpacing: 0.3,
-                                    ),
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w500,
+                                  letterSpacing: 0.3,
+                                ),
                           ),
                         ],
                       ),
@@ -627,8 +626,9 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
                           child: Text(
                             'i',
                             style: TextStyle(
-                              color:
-                                  Theme.of(context).textTheme.bodySmall?.color,
+                              color: Theme.of(
+                                context,
+                              ).textTheme.bodySmall?.color,
                               fontSize: 12,
                               fontWeight: FontWeight.bold,
                               fontStyle: FontStyle.italic,
@@ -759,13 +759,11 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
                           child: Text(
                             'SET',
                             style: TextStyle(
-                              color: Theme.of(context).brightness ==
+                              color:
+                                  Theme.of(context).brightness ==
                                       Brightness.light
-                                  ? Theme.of(context)
-                                      .textTheme
-                                      .bodySmall
-                                      ?.color
-                                      ?.withValues(alpha: 0.7)
+                                  ? Theme.of(context).textTheme.bodySmall?.color
+                                        ?.withValues(alpha: 0.7)
                                   : Colors.white,
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
@@ -778,13 +776,11 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
                           child: Text(
                             'REPS',
                             style: TextStyle(
-                              color: Theme.of(context).brightness ==
+                              color:
+                                  Theme.of(context).brightness ==
                                       Brightness.light
-                                  ? Theme.of(context)
-                                      .textTheme
-                                      .bodySmall
-                                      ?.color
-                                      ?.withValues(alpha: 0.7)
+                                  ? Theme.of(context).textTheme.bodySmall?.color
+                                        ?.withValues(alpha: 0.7)
                                   : Colors.white,
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
@@ -811,10 +807,9 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
                           child: PopupMenuButton<String>(
                             icon: Icon(
                               Icons.more_vert,
-                              color: Theme.of(context)
-                                  .iconTheme
-                                  .color
-                                  ?.withValues(alpha: 0.6),
+                              color: Theme.of(
+                                context,
+                              ).iconTheme.color?.withValues(alpha: 0.6),
                               size: 20,
                             ),
                             offset: const Offset(0, 40),
@@ -837,23 +832,43 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
                                   break;
                                 case 'regular':
                                   _updateSetType(
-                                      exercise, index, SetType.regular, controller);
+                                    exercise,
+                                    index,
+                                    SetType.regular,
+                                    controller,
+                                  );
                                   break;
                                 case 'myorep':
                                   _updateSetType(
-                                      exercise, index, SetType.myorep, controller);
+                                    exercise,
+                                    index,
+                                    SetType.myorep,
+                                    controller,
+                                  );
                                   break;
                                 case 'myorep_match':
-                                  _updateSetType(exercise, index,
-                                      SetType.myorepMatch, controller);
+                                  _updateSetType(
+                                    exercise,
+                                    index,
+                                    SetType.myorepMatch,
+                                    controller,
+                                  );
                                   break;
                                 case 'max_reps':
                                   _updateSetType(
-                                      exercise, index, SetType.maxReps, controller);
+                                    exercise,
+                                    index,
+                                    SetType.maxReps,
+                                    controller,
+                                  );
                                   break;
                                 case 'end_with_partials':
-                                  _updateSetType(exercise, index,
-                                      SetType.endWithPartials, controller);
+                                  _updateSetType(
+                                    exercise,
+                                    index,
+                                    SetType.endWithPartials,
+                                    controller,
+                                  );
                                   break;
                               }
                             },
@@ -879,18 +894,18 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
                                   children: [
                                     Icon(
                                       Icons.subdirectory_arrow_right,
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .onSurface,
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.onSurface,
                                       size: 20,
                                     ),
                                     const SizedBox(width: 12),
                                     Text(
                                       'Add set below',
                                       style: TextStyle(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .onSurface,
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.onSurface,
                                       ),
                                     ),
                                   ],
@@ -948,9 +963,9 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
                                     Text(
                                       'Regular',
                                       style: TextStyle(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .onSurface,
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.onSurface,
                                       ),
                                     ),
                                   ],
@@ -975,9 +990,9 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
                                     Text(
                                       'Myorep',
                                       style: TextStyle(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .onSurface,
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.onSurface,
                                       ),
                                     ),
                                   ],
@@ -1002,9 +1017,9 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
                                     Text(
                                       'Myorep match',
                                       style: TextStyle(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .onSurface,
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.onSurface,
                                       ),
                                     ),
                                   ],
@@ -1029,9 +1044,9 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
                                     Text(
                                       'Max reps',
                                       style: TextStyle(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .onSurface,
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.onSurface,
                                       ),
                                     ),
                                   ],
@@ -1049,17 +1064,17 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
                                           : Icons.radio_button_unchecked,
                                       color:
                                           set.setType == SetType.endWithPartials
-                                              ? Colors.red
-                                              : Colors.grey,
+                                          ? Colors.red
+                                          : Colors.grey,
                                       size: 20,
                                     ),
                                     const SizedBox(width: 12),
                                     Text(
                                       'End with partials',
                                       style: TextStyle(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .onSurface,
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.onSurface,
                                       ),
                                     ),
                                   ],
@@ -1074,9 +1089,9 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
                           child: Container(
                             height: 40,
                             decoration: BoxDecoration(
-                              color: Theme.of(context)
-                                  .inputDecorationTheme
-                                  .fillColor,
+                              color: Theme.of(
+                                context,
+                              ).inputDecorationTheme.fillColor,
                               borderRadius: BorderRadius.circular(4),
                               border: Border.all(
                                 color: Theme.of(context).dividerColor,
@@ -1100,9 +1115,9 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
                               Container(
                                 height: 40,
                                 decoration: BoxDecoration(
-                                  color: Theme.of(context)
-                                      .inputDecorationTheme
-                                      .fillColor,
+                                  color: Theme.of(
+                                    context,
+                                  ).inputDecorationTheme.fillColor,
                                   borderRadius: BorderRadius.circular(4),
                                   border: Border.all(
                                     color: Theme.of(context).dividerColor,
@@ -1112,22 +1127,28 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
                                   child: TextFormField(
                                     key: ValueKey('reps_${set.id}'),
                                     initialValue: set.reps,
-                                    style:
-                                        Theme.of(context).textTheme.bodyMedium,
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.bodyMedium,
                                     textAlign: TextAlign.center,
                                     keyboardType: TextInputType.number,
                                     decoration: InputDecoration(
                                       hintText: 'reps',
-                                      hintStyle: Theme.of(context)
-                                          .inputDecorationTheme
-                                          .hintStyle,
+                                      hintStyle: Theme.of(
+                                        context,
+                                      ).inputDecorationTheme.hintStyle,
                                       border: InputBorder.none,
-                                      contentPadding:
-                                          const EdgeInsets.only(bottom: 12),
+                                      contentPadding: const EdgeInsets.only(
+                                        bottom: 12,
+                                      ),
                                     ),
                                     onChanged: (value) {
                                       _updateSetReps(
-                                          exercise, index, value, controller);
+                                        exercise,
+                                        index,
+                                        value,
+                                        controller,
+                                      );
                                     },
                                   ),
                                 ),
@@ -1149,7 +1170,8 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
                                     child: Text(
                                       _getSetTypeBadge(set.setType)!,
                                       style: TextStyle(
-                                        color: Theme.of(context).brightness ==
+                                        color:
+                                            Theme.of(context).brightness ==
                                                 Brightness.light
                                             ? Colors.black
                                             : Colors.white,
@@ -1302,7 +1324,11 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
     );
 
     await controller.insertSetAtIndex(
-        exercise.workoutId, exercise.id, currentSetIndex + 1, newSet);
+      exercise.workoutId,
+      exercise.id,
+      currentSetIndex + 1,
+      newSet,
+    );
   }
 
   Future<void> _deleteSet(
@@ -1311,7 +1337,10 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
     EditWorkoutController controller,
   ) async {
     await controller.removeSetFromExercise(
-        exercise.workoutId, exercise.id, setIndex);
+      exercise.workoutId,
+      exercise.id,
+      setIndex,
+    );
   }
 
   Future<void> _updateSetType(
@@ -1321,7 +1350,11 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
     EditWorkoutController controller,
   ) async {
     await controller.updateSetType(
-        exercise.workoutId, exercise.id, setIndex, type);
+      exercise.workoutId,
+      exercise.id,
+      setIndex,
+      type,
+    );
   }
 
   Future<void> _updateSetReps(
@@ -1331,7 +1364,11 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
     EditWorkoutController controller,
   ) async {
     await controller.updateSetReps(
-        exercise.workoutId, exercise.id, setIndex, value);
+      exercise.workoutId,
+      exercise.id,
+      setIndex,
+      value,
+    );
   }
 
   Widget _buildEmptyState(

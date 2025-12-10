@@ -161,16 +161,14 @@ class EditWorkoutController {
   }
 
   /// Delete an exercise from a workout
-  Future<void> deleteExercise(
-    String workoutId,
-    String exerciseId,
-  ) async {
+  Future<void> deleteExercise(String workoutId, String exerciseId) async {
     final repository = ref.read(workoutRepositoryProvider);
     final workout = repository.getById(workoutId);
     if (workout == null) return;
 
-    final updatedExercises =
-        workout.exercises.where((e) => e.id != exerciseId).toList();
+    final updatedExercises = workout.exercises
+        .where((e) => e.id != exerciseId)
+        .toList();
     final updatedWorkout = workout.copyWith(exercises: updatedExercises);
 
     await repository.update(updatedWorkout);
