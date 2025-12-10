@@ -265,6 +265,45 @@ class EditWorkoutController {
       await mesocycleRepo.update(updatedMesocycle);
     }
   }
+
+  /// Add a day to the mesocycle
+  Future<void> addDay(Mesocycle mesocycle) async {
+    if (mesocycle.daysPerWeek >= 7) {
+      throw Exception('Cannot have more than 7 days per week');
+    }
+
+    final mesocycleRepo = ref.read(mesocycleRepositoryProvider);
+    final newDaysPerWeek = mesocycle.daysPerWeek + 1;
+
+    final updatedMesocycle = mesocycle.copyWith(daysPerWeek: newDaysPerWeek);
+    await mesocycleRepo.update(updatedMesocycle);
+  }
+
+  /// Remove a day from the mesocycle
+  Future<void> removeDay(Mesocycle mesocycle) async {
+    if (mesocycle.daysPerWeek <= 1) {
+      throw Exception('Cannot have fewer than 1 day per week');
+    }
+
+    final mesocycleRepo = ref.read(mesocycleRepositoryProvider);
+    final workoutRepo = ref.read(workoutRepositoryProvider);
+    final allWorkouts = ref.read(workoutsByMesocycleProvider(mesocycleId));
+
+    final dayToRemove = mesocycle.daysPerWeek;
+
+    // Delete all workouts for this day across all weeks
+    final workoutsToDelete = allWorkouts
+        .where((w) => w.dayNumber == dayToRemove)
+        .toList();
+    for (final workout in workoutsToDelete) {
+      await workoutRepo.delete(workout.id);
+    }
+
+    // Update the mesocycle
+    final newDaysPerWeek = mesocycle.daysPerWeek - 1;
+    final updatedMesocycle = mesocycle.copyWith(daysPerWeek: newDaysPerWeek);
+    await mesocycleRepo.update(updatedMesocycle);
+  }
 }
 
 /// Provider for the EditWorkoutController

@@ -89,7 +89,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
               _buildWeekSelector(mesocycle, controller),
 
               // Day selector
-              _buildDaySelector(mesocycle, workouts),
+              _buildDaySelector(mesocycle, workouts, controller),
 
               // Exercise list
               Expanded(
@@ -321,7 +321,11 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
     }
   }
 
-  Widget _buildDaySelector(Mesocycle mesocycle, List<Workout> workouts) {
+  Widget _buildDaySelector(
+    Mesocycle mesocycle,
+    List<Workout> workouts,
+    EditWorkoutController controller,
+  ) {
     // Build day labels as D1, D2, D3, etc.
     final dayLabels = <String>[];
     for (int dayNum = 1; dayNum <= mesocycle.daysPerWeek; dayNum++) {
@@ -331,41 +335,174 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
     return Container(
       height: 60,
       padding: const EdgeInsets.symmetric(vertical: 8),
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        itemCount: dayLabels.length,
-        itemBuilder: (context, index) {
-          final isSelected = index == _selectedDayIndex;
-          return Padding(
-            padding: const EdgeInsets.only(right: 8),
-            child: ChoiceChip(
-              label: Text(
-                dayLabels[index],
-                style: TextStyle(
-                  color: isSelected
-                      ? Theme.of(context).colorScheme.onPrimary
-                      : Theme.of(context).colorScheme.onSurface,
-                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                ),
-              ),
-              selected: isSelected,
-              onSelected: (selected) {
-                if (selected) {
-                  setState(() => _selectedDayIndex = index);
-                }
+      child: Row(
+        children: [
+          const SizedBox(width: 16),
+          Text(
+            'Day',
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(width: 4),
+          // Remove day button
+          IconButton(
+            icon: const Icon(Icons.remove_circle_outline, size: 20),
+            onPressed: mesocycle.daysPerWeek > 1
+                ? () => _removeDay(mesocycle, controller)
+                : null,
+            tooltip: 'Remove Day',
+            visualDensity: VisualDensity.compact,
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+          ),
+          // Add day button
+          IconButton(
+            icon: const Icon(Icons.add_circle_outline, size: 20),
+            onPressed: mesocycle.daysPerWeek < 7
+                ? () => _addDay(mesocycle, controller)
+                : null,
+            tooltip: 'Add Day',
+            visualDensity: VisualDensity.compact,
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: dayLabels.length,
+              itemBuilder: (context, index) {
+                final isSelected = index == _selectedDayIndex;
+                return Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: ChoiceChip(
+                    label: Text(
+                      dayLabels[index],
+                      style: TextStyle(
+                        color: isSelected
+                            ? Theme.of(context).colorScheme.onPrimary
+                            : Theme.of(context).colorScheme.onSurface,
+                        fontWeight: isSelected
+                            ? FontWeight.bold
+                            : FontWeight.normal,
+                      ),
+                    ),
+                    selected: isSelected,
+                    onSelected: (selected) {
+                      if (selected) {
+                        setState(() => _selectedDayIndex = index);
+                      }
+                    },
+                    selectedColor: Theme.of(context).colorScheme.primary,
+                    backgroundColor: Theme.of(
+                      context,
+                    ).colorScheme.surfaceContainerHighest,
+                    side: BorderSide.none,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
+                  ),
+                );
               },
-              selectedColor: Theme.of(context).colorScheme.primary,
-              backgroundColor: Theme.of(
-                context,
-              ).colorScheme.surfaceContainerHighest,
-              side: BorderSide.none,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             ),
-          );
-        },
+          ),
+        ],
       ),
     );
+  }
+
+  Future<void> _addDay(
+    Mesocycle mesocycle,
+    EditWorkoutController controller,
+  ) async {
+    try {
+      await controller.addDay(mesocycle);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Day ${mesocycle.daysPerWeek + 1} added'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error adding day: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _removeDay(
+    Mesocycle mesocycle,
+    EditWorkoutController controller,
+  ) async {
+    final dayToRemove = mesocycle.daysPerWeek;
+
+    // Check if there are any workouts on this day
+    final allWorkouts = ref.read(workoutsByMesocycleProvider(mesocycle.id));
+    final hasWorkoutsOnDay = allWorkouts.any((w) => w.dayNumber == dayToRemove);
+
+    if (hasWorkoutsOnDay) {
+      // Show confirmation dialog
+      final confirm = await showDialog<bool>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Remove Day'),
+          content: Text(
+            'Day $dayToRemove has exercises assigned. '
+            'Removing it will delete all exercises on this day across all weeks.\n\n'
+            'Are you sure you want to remove Day $dayToRemove?',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(context, true),
+              style: FilledButton.styleFrom(backgroundColor: Colors.red),
+              child: const Text('Remove'),
+            ),
+          ],
+        ),
+      );
+
+      if (confirm != true) return;
+    }
+
+    try {
+      await controller.removeDay(mesocycle);
+
+      // Adjust selected day if it no longer exists
+      if (_selectedDayIndex >= mesocycle.daysPerWeek - 1) {
+        setState(() => _selectedDayIndex = mesocycle.daysPerWeek - 2);
+      }
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Day $dayToRemove removed'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error removing day: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   Widget _buildExerciseList(
