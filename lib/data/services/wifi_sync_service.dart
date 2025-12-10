@@ -15,12 +15,12 @@ import 'data_backup_service.dart';
 /// Service for WiFi-based sync between devices
 class WifiSyncService {
   final DataBackupService _backupService;
-  
+
   HttpServer? _server;
   String? _serverIp;
   int? _serverPort;
   String? _syncCode;
-  
+
   // Callbacks for UI updates
   void Function(SyncStatus status)? onStatusChanged;
   void Function(String deviceName)? onDeviceConnected;
@@ -46,7 +46,7 @@ class WifiSyncService {
   /// Get device name
   Future<String> getDeviceName() async {
     final deviceInfo = DeviceInfoPlugin();
-    
+
     if (Platform.isIOS) {
       final info = await deviceInfo.iosInfo;
       return info.name;
@@ -85,7 +85,7 @@ class WifiSyncService {
         type: InternetAddressType.IPv4,
         includeLinkLocal: false,
       );
-      
+
       for (final interface in interfaces) {
         // Skip loopback and virtual interfaces
         if (interface.name.toLowerCase().contains('lo') ||
@@ -93,7 +93,7 @@ class WifiSyncService {
             interface.name.toLowerCase().contains('vbox')) {
           continue;
         }
-        
+
         for (final addr in interface.addresses) {
           // Skip loopback addresses
           if (!addr.address.startsWith('127.')) {
@@ -114,7 +114,7 @@ class WifiSyncService {
     try {
       // Get local IP address
       _serverIp = await _getLocalIpAddress();
-      
+
       if (_serverIp == null) {
         debugPrint('Could not get local IP address');
         return false;
@@ -122,10 +122,10 @@ class WifiSyncService {
 
       // Generate a random sync code
       _syncCode = _generateSyncCode();
-      
+
       // Create router
       final router = Router();
-      
+
       // Health check endpoint
       router.get('/ping', (Request request) {
         return Response.ok(jsonEncode({'status': 'ok', 'device': 'yawa4u'}));
@@ -155,10 +155,7 @@ class WifiSyncService {
         }
 
         final data = await _backupService.exportToJson();
-        return Response.ok(
-          data,
-          headers: {'Content-Type': 'application/json'},
-        );
+        return Response.ok(data, headers: {'Content-Type': 'application/json'});
       });
 
       // Import data endpoint
@@ -171,14 +168,19 @@ class WifiSyncService {
 
         final body = await request.readAsString();
         final replace = request.url.queryParameters['replace'] == 'true';
-        
-        final result = await _backupService.importFromJson(body, replace: replace);
-        
+
+        final result = await _backupService.importFromJson(
+          body,
+          replace: replace,
+        );
+
         if (result.success) {
-          onSyncComplete?.call(SyncResult(
-            success: true,
-            message: 'Imported ${result.totalImported} items',
-          ));
+          onSyncComplete?.call(
+            SyncResult(
+              success: true,
+              message: 'Imported ${result.totalImported} items',
+            ),
+          );
         }
 
         return Response.ok(
@@ -195,13 +197,13 @@ class WifiSyncService {
       final handler = const Pipeline()
           .addMiddleware(logRequests())
           .addHandler(router.call);
-      
+
       _server = await shelf_io.serve(handler, InternetAddress.anyIPv4, 0);
       _serverPort = _server!.port;
-      
+
       debugPrint('Sync server started at $_serverIp:$_serverPort');
       onStatusChanged?.call(SyncStatus.waiting);
-      
+
       return true;
     } catch (e) {
       debugPrint('Failed to start sync server: $e');
@@ -227,9 +229,9 @@ class WifiSyncService {
       final port = data['port'] as int;
       final code = data['code'] as String;
 
-      final response = await http.get(
-        Uri.parse('http://$ip:$port/info'),
-      ).timeout(const Duration(seconds: 5));
+      final response = await http
+          .get(Uri.parse('http://$ip:$port/info'))
+          .timeout(const Duration(seconds: 5));
 
       if (response.statusCode == 200) {
         final info = jsonDecode(response.body) as Map<String, dynamic>;
@@ -250,28 +252,42 @@ class WifiSyncService {
   }
 
   /// Pull data from another device (import from remote)
-  Future<SyncResult> pullFromDevice(DeviceInfo device, {bool replace = false}) async {
+  Future<SyncResult> pullFromDevice(
+    DeviceInfo device, {
+    bool replace = false,
+  }) async {
     try {
-      final response = await http.get(
-        Uri.parse('http://${device.ip}:${device.port}/export?code=${device.code}'),
-      ).timeout(const Duration(seconds: 30));
+      final response = await http
+          .get(
+            Uri.parse(
+              'http://${device.ip}:${device.port}/export?code=${device.code}',
+            ),
+          )
+          .timeout(const Duration(seconds: 30));
 
       if (response.statusCode == 200) {
         final result = await _backupService.importFromJson(
           response.body,
           replace: replace,
         );
-        
+
         if (result.success) {
           return SyncResult(
             success: true,
-            message: 'Imported ${result.totalImported} items from ${device.name}',
+            message:
+                'Imported ${result.totalImported} items from ${device.name}',
           );
         } else {
-          return SyncResult(success: false, message: result.error ?? 'Import failed');
+          return SyncResult(
+            success: false,
+            message: result.error ?? 'Import failed',
+          );
         }
       } else {
-        return SyncResult(success: false, message: 'Server returned ${response.statusCode}');
+        return SyncResult(
+          success: false,
+          message: 'Server returned ${response.statusCode}',
+        );
       }
     } catch (e) {
       return SyncResult(success: false, message: 'Connection failed: $e');
@@ -279,15 +295,22 @@ class WifiSyncService {
   }
 
   /// Push data to another device (export to remote)
-  Future<SyncResult> pushToDevice(DeviceInfo device, {bool replace = false}) async {
+  Future<SyncResult> pushToDevice(
+    DeviceInfo device, {
+    bool replace = false,
+  }) async {
     try {
       final data = await _backupService.exportToJson();
-      
-      final response = await http.post(
-        Uri.parse('http://${device.ip}:${device.port}/import?code=${device.code}&replace=$replace'),
-        headers: {'Content-Type': 'application/json'},
-        body: data,
-      ).timeout(const Duration(seconds: 30));
+
+      final response = await http
+          .post(
+            Uri.parse(
+              'http://${device.ip}:${device.port}/import?code=${device.code}&replace=$replace',
+            ),
+            headers: {'Content-Type': 'application/json'},
+            body: data,
+          )
+          .timeout(const Duration(seconds: 30));
 
       if (response.statusCode == 200) {
         final result = jsonDecode(response.body) as Map<String, dynamic>;
@@ -297,10 +320,16 @@ class WifiSyncService {
             message: 'Exported ${result['imported']} items to ${device.name}',
           );
         } else {
-          return SyncResult(success: false, message: result['error'] as String?);
+          return SyncResult(
+            success: false,
+            message: result['error'] as String?,
+          );
         }
       } else {
-        return SyncResult(success: false, message: 'Server returned ${response.statusCode}');
+        return SyncResult(
+          success: false,
+          message: 'Server returned ${response.statusCode}',
+        );
       }
     } catch (e) {
       return SyncResult(success: false, message: 'Connection failed: $e');
@@ -311,19 +340,15 @@ class WifiSyncService {
   String _generateSyncCode() {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     final random = DateTime.now().millisecondsSinceEpoch;
-    return List.generate(6, (i) => chars[(random + i * 7) % chars.length]).join();
+    return List.generate(
+      6,
+      (i) => chars[(random + i * 7) % chars.length],
+    ).join();
   }
 }
 
 /// Status of the sync service
-enum SyncStatus {
-  idle,
-  waiting,
-  connecting,
-  syncing,
-  complete,
-  error,
-}
+enum SyncStatus { idle, waiting, connecting, syncing, complete, error }
 
 /// Result of a sync operation
 class SyncResult {

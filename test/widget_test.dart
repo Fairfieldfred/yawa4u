@@ -1,8 +1,8 @@
 // This is a basic Flutter widget test for Yawa4u app.
 
 import 'package:flutter/material.dart';
-import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:yawa4u/main.dart';
 
 void main() {

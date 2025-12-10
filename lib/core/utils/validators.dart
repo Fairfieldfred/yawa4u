@@ -41,7 +41,10 @@ class Validators {
   }
 
   /// Combine multiple validators
-  static String? combine(String? value, List<String? Function(String?)> validators) {
+  static String? combine(
+    String? value,
+    List<String? Function(String?)> validators,
+  ) {
     for (final validator in validators) {
       final error = validator(value);
       if (error != null) return error;
@@ -101,7 +104,10 @@ class Validators {
   }
 
   /// Validate that a number is non-negative (>= 0)
-  static String? isNonNegative(String? value, {String fieldName = 'This field'}) {
+  static String? isNonNegative(
+    String? value, {
+    String fieldName = 'This field',
+  }) {
     if (value == null || value.trim().isEmpty) return null;
     final number = double.tryParse(value);
     if (number == null) {
@@ -130,11 +136,11 @@ class Validators {
       (v) => required(v, fieldName: 'Number of weeks'),
       (v) => isInteger(v, fieldName: 'Number of weeks'),
       (v) => numberRange(
-            v,
-            AppConstants.minWeeks.toDouble(),
-            AppConstants.maxWeeks.toDouble(),
-            fieldName: 'Number of weeks',
-          ),
+        v,
+        AppConstants.minWeeks.toDouble(),
+        AppConstants.maxWeeks.toDouble(),
+        fieldName: 'Number of weeks',
+      ),
     ]);
   }
 
@@ -144,11 +150,11 @@ class Validators {
       (v) => required(v, fieldName: 'Days per week'),
       (v) => isInteger(v, fieldName: 'Days per week'),
       (v) => numberRange(
-            v,
-            AppConstants.minDaysPerWeek.toDouble(),
-            AppConstants.maxDaysPerWeek.toDouble(),
-            fieldName: 'Days per week',
-          ),
+        v,
+        AppConstants.minDaysPerWeek.toDouble(),
+        AppConstants.maxDaysPerWeek.toDouble(),
+        fieldName: 'Days per week',
+      ),
     ]);
   }
 
@@ -156,12 +162,7 @@ class Validators {
   static String? deloadWeek(String? value, int totalWeeks) {
     return combine(value, [
       (v) => isInteger(v, fieldName: 'Deload week'),
-      (v) => numberRange(
-            v,
-            1,
-            totalWeeks.toDouble(),
-            fieldName: 'Deload week',
-          ),
+      (v) => numberRange(v, 1, totalWeeks.toDouble(), fieldName: 'Deload week'),
     ]);
   }
 
@@ -214,7 +215,8 @@ class Validators {
       (v) => required(v, fieldName: 'Bodyweight'),
       (v) => isNumber(v, fieldName: 'Bodyweight'),
       (v) => isPositive(v, fieldName: 'Bodyweight'),
-      (v) => numberRange(v, 20, 500, fieldName: 'Bodyweight'), // Reasonable range
+      (v) =>
+          numberRange(v, 20, 500, fieldName: 'Bodyweight'), // Reasonable range
     ]);
   }
 
