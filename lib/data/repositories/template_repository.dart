@@ -23,19 +23,44 @@ class TemplateRepository {
     final templates = <MesocycleTemplate>[];
     List<String> templatePaths = [];
 
-    // Try dynamic discovery first
+    // Try dynamic discovery using AssetManifest
     try {
-      final manifestContent = await rootBundle.loadString('AssetManifest.json');
-      final Map<String, dynamic> manifestMap = json.decode(manifestContent);
+      // First try the newer binary manifest format (Flutter 3.x+)
+      final assetManifest = await AssetManifest.loadFromAssetBundle(rootBundle);
+      final allAssets = assetManifest.listAssets();
 
-      templatePaths = manifestMap.keys
+      templatePaths = allAssets
           .where(
             (String key) =>
                 key.startsWith('assets/templates/') && key.endsWith('.json'),
           )
           .toList();
+
+      print(
+        'Found ${templatePaths.length} templates via AssetManifest: $templatePaths',
+      );
     } catch (e) {
       print('Error loading AssetManifest: $e');
+
+      // Fallback: try legacy JSON manifest
+      try {
+        final manifestContent = await rootBundle.loadString(
+          'AssetManifest.json',
+        );
+        final Map<String, dynamic> manifestMap = json.decode(manifestContent);
+
+        templatePaths = manifestMap.keys
+            .where(
+              (String key) =>
+                  key.startsWith('assets/templates/') && key.endsWith('.json'),
+            )
+            .toList();
+        print(
+          'Found ${templatePaths.length} templates via legacy manifest: $templatePaths',
+        );
+      } catch (e2) {
+        print('Error loading legacy AssetManifest: $e2');
+      }
     }
 
     // Fallback if dynamic discovery fails or returns empty
@@ -47,6 +72,8 @@ class TemplateRepository {
         'assets/templates/beginner_full_body.json',
         'assets/templates/upper_lower_split.json',
         'assets/templates/freds_full_body.json',
+        'assets/templates/5_day_full_body.json',
+        'assets/templates/short_test.json',
       ];
     }
 
