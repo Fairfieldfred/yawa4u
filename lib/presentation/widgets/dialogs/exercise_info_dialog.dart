@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:youtube_player_iframe/youtube_player_iframe.dart';
+import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 import '../../../core/constants/enums.dart';
 import '../../../core/constants/equipment_types.dart';
@@ -11,6 +11,51 @@ import '../../../data/models/exercise.dart';
 import '../../../data/models/mesocycle.dart';
 import '../../../data/models/workout.dart';
 import '../../../domain/providers/repository_providers.dart';
+
+/// Hardcoded YouTube video URLs for exercises
+/// Add video URLs here - supports full URLs or just video IDs
+const Map<String, String> _exerciseVideos = {
+  // Chest
+  'Bench Press':
+      'https://www.youtube.com/watch?v=fGm-ef-4PVk', // TODO: Add YouTube URL
+  'Bench Press (Incline)': 'https://www.youtube.com/watch?v=fGm-ef-4PVk',
+  'Incline Dumbbell Press': '',
+  'Dumbbell Bench Press': '',
+
+  // Back
+  'Barbell Row': '',
+  'Cable Row': '',
+  'Lat Pulldown': '',
+  'Face Pull': '',
+
+  // Shoulders
+  'Overhead Press': '',
+  'Dumbbell Lateral Raise': '',
+
+  // Arms
+  'Barbell Curl': '',
+  'Hammer Curl': '',
+  'Cable Triceps Pushdown (Bar)': '',
+  'Tricep Pushdown': '',
+  'Barbell Overhead Triceps Extension': '',
+  'Overhead Tricep Extension': '',
+  'Assisted Dip': '',
+
+  // Legs
+  'Barbell Squat': '',
+  'Front Squat': '',
+  'Belt Squat': '',
+  'Bulgarian Split Squat': '',
+  'Leg Press': '',
+  'Leg Extension': '',
+  'Leg Curl': '',
+  'Romanian Deadlift': '',
+
+  // Calves
+  'Calf Raise': '',
+  'Seated Calf Raise': '',
+  'Belt Squat Calves': '',
+};
 
 /// Dialog for displaying exercise information with Detail and History tabs.
 class ExerciseInfoDialog extends ConsumerStatefulWidget {
@@ -25,6 +70,7 @@ class ExerciseInfoDialog extends ConsumerStatefulWidget {
 class _ExerciseInfoDialogState extends ConsumerState<ExerciseInfoDialog> {
   bool _showDetail = true;
   YoutubePlayerController? _youtubeController;
+  String? _videoUrl;
 
   @override
   void initState() {
@@ -33,15 +79,17 @@ class _ExerciseInfoDialogState extends ConsumerState<ExerciseInfoDialog> {
   }
 
   void _initializeYoutubeController() {
-    final videoId = _extractVideoId(widget.exercise.videoUrl);
+    // Try exercise.videoUrl first, then fall back to hardcoded map
+    _videoUrl =
+        widget.exercise.videoUrl ?? _exerciseVideos[widget.exercise.name];
+    final videoId = _extractVideoId(_videoUrl);
     if (videoId != null) {
-      _youtubeController = YoutubePlayerController.fromVideoId(
-        videoId: videoId,
-        autoPlay: false,
-        params: const YoutubePlayerParams(
-          showFullscreenButton: true,
-          showControls: true,
+      _youtubeController = YoutubePlayerController(
+        initialVideoId: videoId,
+        flags: const YoutubePlayerFlags(
+          autoPlay: false,
           mute: false,
+          enableCaption: false,
         ),
       );
     }
@@ -74,7 +122,7 @@ class _ExerciseInfoDialogState extends ConsumerState<ExerciseInfoDialog> {
 
   @override
   void dispose() {
-    _youtubeController?.close();
+    _youtubeController?.dispose();
     super.dispose();
   }
 
@@ -210,9 +258,10 @@ class _ExerciseInfoDialogState extends ConsumerState<ExerciseInfoDialog> {
           if (_youtubeController != null) ...[
             ClipRRect(
               borderRadius: BorderRadius.circular(12),
-              child: AspectRatio(
-                aspectRatio: 16 / 9,
-                child: YoutubePlayer(controller: _youtubeController!),
+              child: YoutubePlayer(
+                controller: _youtubeController!,
+                showVideoProgressIndicator: true,
+                progressIndicatorColor: Theme.of(context).colorScheme.primary,
               ),
             ),
             const SizedBox(height: 16),
@@ -565,7 +614,9 @@ class _ExerciseInfoDialogState extends ConsumerState<ExerciseInfoDialog> {
   }
 
   Future<void> _openYouTube() async {
-    final url = widget.exercise.videoUrl;
+    // Try exercise.videoUrl first, then fall back to hardcoded map
+    final url =
+        widget.exercise.videoUrl ?? _exerciseVideos[widget.exercise.name];
     if (url == null || url.isEmpty) return;
 
     final uri = Uri.parse(url);
