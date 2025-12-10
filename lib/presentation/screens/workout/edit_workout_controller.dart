@@ -160,6 +160,120 @@ class EditWorkoutController {
     await repository.update(updatedWorkout);
   }
 
+  /// Delete an exercise from a workout
+  Future<void> deleteExercise(
+    String workoutId,
+    String exerciseId,
+  ) async {
+    final repository = ref.read(workoutRepositoryProvider);
+    final workout = repository.getById(workoutId);
+    if (workout == null) return;
+
+    final updatedExercises =
+        workout.exercises.where((e) => e.id != exerciseId).toList();
+    final updatedWorkout = workout.copyWith(exercises: updatedExercises);
+
+    await repository.update(updatedWorkout);
+  }
+
+  /// Insert a set at a specific index
+  Future<void> insertSetAtIndex(
+    String workoutId,
+    String exerciseId,
+    int index,
+    ExerciseSet newSet,
+  ) async {
+    final repository = ref.read(workoutRepositoryProvider);
+    final workout = repository.getById(workoutId);
+    if (workout == null) return;
+
+    final exerciseIndex = workout.exercises.indexWhere(
+      (e) => e.id == exerciseId,
+    );
+    if (exerciseIndex == -1) return;
+
+    final exercise = workout.exercises[exerciseIndex];
+    final updatedSets = List<ExerciseSet>.from(exercise.sets);
+    updatedSets.insert(index, newSet);
+
+    // Re-number sets
+    for (var i = 0; i < updatedSets.length; i++) {
+      updatedSets[i] = updatedSets[i].copyWith(setNumber: i + 1);
+    }
+
+    final updatedExercise = exercise.copyWith(sets: updatedSets);
+    final updatedWorkout = workout.updateExercise(
+      exerciseIndex,
+      updatedExercise,
+    );
+
+    await repository.update(updatedWorkout);
+  }
+
+  /// Update a set's type
+  Future<void> updateSetType(
+    String workoutId,
+    String exerciseId,
+    int setIndex,
+    SetType type,
+  ) async {
+    final repository = ref.read(workoutRepositoryProvider);
+    final workout = repository.getById(workoutId);
+    if (workout == null) return;
+
+    final exerciseIndex = workout.exercises.indexWhere(
+      (e) => e.id == exerciseId,
+    );
+    if (exerciseIndex == -1) return;
+
+    final exercise = workout.exercises[exerciseIndex];
+    if (setIndex >= exercise.sets.length) return;
+
+    final updatedSet = exercise.sets[setIndex].copyWith(setType: type);
+    final updatedSets = List<ExerciseSet>.from(exercise.sets);
+    updatedSets[setIndex] = updatedSet;
+
+    final updatedExercise = exercise.copyWith(sets: updatedSets);
+    final updatedWorkout = workout.updateExercise(
+      exerciseIndex,
+      updatedExercise,
+    );
+
+    await repository.update(updatedWorkout);
+  }
+
+  /// Update a set's reps
+  Future<void> updateSetReps(
+    String workoutId,
+    String exerciseId,
+    int setIndex,
+    String reps,
+  ) async {
+    final repository = ref.read(workoutRepositoryProvider);
+    final workout = repository.getById(workoutId);
+    if (workout == null) return;
+
+    final exerciseIndex = workout.exercises.indexWhere(
+      (e) => e.id == exerciseId,
+    );
+    if (exerciseIndex == -1) return;
+
+    final exercise = workout.exercises[exerciseIndex];
+    if (setIndex >= exercise.sets.length) return;
+
+    final updatedSet = exercise.sets[setIndex].copyWith(reps: reps);
+    final updatedSets = List<ExerciseSet>.from(exercise.sets);
+    updatedSets[setIndex] = updatedSet;
+
+    final updatedExercise = exercise.copyWith(sets: updatedSets);
+    final updatedWorkout = workout.updateExercise(
+      exerciseIndex,
+      updatedExercise,
+    );
+
+    await repository.update(updatedWorkout);
+  }
+
   /// Add a week to the mesocycle (inserted before the deload week)
   Future<void> addWeek(Mesocycle mesocycle) async {
     final mesocycleRepo = ref.read(mesocycleRepositoryProvider);

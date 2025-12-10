@@ -5,8 +5,8 @@ import 'package:go_router/go_router.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../core/constants/enums.dart';
+import '../../core/constants/equipment_types.dart';
 import '../../core/constants/muscle_groups.dart';
-import '../../core/theme/app_theme.dart';
 import '../../core/utils/template_exporter.dart';
 import '../../data/models/exercise.dart';
 import '../../data/models/exercise_set.dart';
@@ -14,6 +14,8 @@ import '../../data/models/mesocycle.dart';
 import '../../data/models/workout.dart';
 import '../../domain/providers/mesocycle_providers.dart';
 import '../../domain/providers/workout_providers.dart';
+import '../widgets/dialogs/exercise_info_dialog.dart';
+import 'add_exercise_screen.dart';
 import 'workout/edit_workout_controller.dart';
 
 /// Edit workout screen - Edit draft mesocycle design
@@ -514,410 +516,822 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
       return _buildEmptyState(context, null, controller);
     }
 
-    // Group workouts by category based on their muscle group label
-    final upperPush = <MuscleGroup>[
-      MuscleGroup.chest,
-      MuscleGroup.triceps,
-      MuscleGroup.shoulders,
-    ];
-    final upperPull = <MuscleGroup>[MuscleGroup.back, MuscleGroup.biceps];
-    final legs = <MuscleGroup>[
-      MuscleGroup.quads,
-      MuscleGroup.hamstrings,
-      MuscleGroup.glutes,
-      MuscleGroup.calves,
-    ];
-    final coreAndAccessories = <MuscleGroup>[
-      MuscleGroup.traps,
-      MuscleGroup.forearms,
-      MuscleGroup.abs,
-    ];
-
-    // Separate workouts by category
-    final upperPushWorkouts = <Workout>[];
-    final upperPullWorkouts = <Workout>[];
-    final legsWorkouts = <Workout>[];
-    final coreAndAccessoriesWorkouts = <Workout>[];
-    final otherWorkouts = <Workout>[];
-
-    for (final workout in dayWorkouts) {
-      final muscleGroup = MuscleGroup.values.firstWhere(
-        (mg) => mg.displayName.toLowerCase() == workout.label?.toLowerCase(),
-        orElse: () => MuscleGroup.chest,
-      );
-
-      if (upperPush.contains(muscleGroup)) {
-        upperPushWorkouts.add(workout);
-      } else if (upperPull.contains(muscleGroup)) {
-        upperPullWorkouts.add(workout);
-      } else if (legs.contains(muscleGroup)) {
-        legsWorkouts.add(workout);
-      } else if (coreAndAccessories.contains(muscleGroup)) {
-        coreAndAccessoriesWorkouts.add(workout);
-      } else {
-        otherWorkouts.add(workout);
-      }
+    // Collect all exercises from all workouts for this day
+    final allExercises = <Exercise>[];
+    for (var workout in dayWorkouts) {
+      allExercises.addAll(workout.exercises);
     }
 
-    return ListView(
-      padding: const EdgeInsets.all(16),
+    if (allExercises.isEmpty) {
+      return _buildEmptyState(context, null, controller);
+    }
+
+    return ListView.separated(
+      padding: const EdgeInsets.only(bottom: 80, top: 24),
+      itemCount: allExercises.length,
+      separatorBuilder: (context, index) {
+        // Check if next exercise is same muscle group
+        final currentMuscleGroup = allExercises[index].muscleGroup;
+        final nextMuscleGroup = index + 1 < allExercises.length
+            ? allExercises[index + 1].muscleGroup
+            : null;
+        final isSameMuscleGroup = currentMuscleGroup == nextMuscleGroup;
+
+        // Thin grey divider for same muscle group, black spacer for different
+        return isSameMuscleGroup
+            ? Container(height: 1, color: const Color(0xFF3A3A3C))
+            : const SizedBox(height: 32);
+      },
+      itemBuilder: (context, index) {
+        final exercise = allExercises[index];
+        final showMuscleGroupBadge = index == 0 ||
+            allExercises[index - 1].muscleGroup != exercise.muscleGroup;
+
+        return _buildExerciseCard(
+          context,
+          exercise,
+          controller,
+          showMuscleGroupBadge: showMuscleGroupBadge,
+        );
+      },
+    );
+  }
+
+  Widget _buildExerciseCard(
+    BuildContext context,
+    Exercise exercise,
+    EditWorkoutController controller, {
+    required bool showMuscleGroupBadge,
+  }) {
+    final muscleGroup = exercise.muscleGroup;
+    final equipmentType = exercise.equipmentType;
+
+    return Stack(
+      clipBehavior: Clip.none,
       children: [
-        // Upper push section
-        if (upperPushWorkouts.isNotEmpty) ...[
-          _buildCategoryHeader('Upper push'),
-          ...upperPushWorkouts.map((workout) {
-            final muscleGroup = MuscleGroup.values.firstWhere(
-              (mg) =>
-                  mg.displayName.toLowerCase() == workout.label?.toLowerCase(),
-              orElse: () => MuscleGroup.chest,
-            );
-            return _buildMuscleGroupSection(
-              muscleGroup,
-              workout.exercises,
-              workout.id,
-              controller,
-            );
-          }),
-          const SizedBox(height: 24),
-        ],
+        // Exercise card
+        Container(
+          width: double.infinity,
+          decoration: BoxDecoration(
+            color: Theme.of(context).cardTheme.color,
+            borderRadius: BorderRadius.circular(0),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            exercise.name,
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium
+                                ?.copyWith(
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            equipmentType.displayName.toUpperCase(),
+                            style:
+                                Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w500,
+                                      letterSpacing: 0.3,
+                                    ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    // Info button
+                    IconButton(
+                      icon: Container(
+                        width: 24,
+                        height: 24,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: const Color(0xFF8E8E93),
+                            width: 2,
+                          ),
+                        ),
+                        child: Center(
+                          child: Text(
+                            'i',
+                            style: TextStyle(
+                              color:
+                                  Theme.of(context).textTheme.bodySmall?.color,
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              fontStyle: FontStyle.italic,
+                            ),
+                          ),
+                        ),
+                      ),
+                      onPressed: () =>
+                          showExerciseInfoDialog(context, exercise),
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(
+                        minWidth: 24,
+                        minHeight: 24,
+                      ),
+                    ),
+                    const SizedBox(width: 0),
+                    // Overflow menu button
+                    PopupMenuButton<String>(
+                      icon: Icon(
+                        Icons.more_vert,
+                        color: Theme.of(context).textTheme.bodySmall?.color,
+                        size: 24,
+                      ),
+                      offset: const Offset(-180, 40),
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(minWidth: 250),
+                      color: const Color(0xFF2C2C2E),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        side: BorderSide(
+                          color: Colors.white.withValues(alpha: 0.1),
+                        ),
+                      ),
+                      onSelected: (value) {
+                        switch (value) {
+                          case 'replace':
+                            _replaceExercise(exercise);
+                            break;
+                          case 'add_set':
+                            _addSetToExercise(exercise, controller);
+                            break;
+                          case 'delete':
+                            _deleteExercise(exercise, controller);
+                            break;
+                        }
+                      },
+                      itemBuilder: (context) => [
+                        // Header
+                        const PopupMenuItem<String>(
+                          enabled: false,
+                          height: 32,
+                          child: Text(
+                            'EXERCISE',
+                            style: TextStyle(
+                              color: Colors.grey,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                        // Replace
+                        const PopupMenuItem<String>(
+                          value: 'replace',
+                          height: 48,
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.swap_horiz,
+                                color: Colors.white,
+                                size: 20,
+                              ),
+                              SizedBox(width: 12),
+                              Text(
+                                'Replace',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            ],
+                          ),
+                        ),
+                        // Add set
+                        const PopupMenuItem<String>(
+                          value: 'add_set',
+                          height: 48,
+                          child: Row(
+                            children: [
+                              Icon(Icons.add, color: Colors.white, size: 20),
+                              SizedBox(width: 12),
+                              Text(
+                                'Add set',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            ],
+                          ),
+                        ),
+                        // Delete exercise
+                        const PopupMenuItem<String>(
+                          value: 'delete',
+                          height: 48,
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.delete_outline,
+                                color: Colors.red,
+                                size: 20,
+                              ),
+                              SizedBox(width: 12),
+                              Text(
+                                'Delete exercise',
+                                style: TextStyle(color: Colors.red),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
 
-        // Upper pull section
-        if (upperPullWorkouts.isNotEmpty) ...[
-          _buildCategoryHeader('Upper pull'),
-          ...upperPullWorkouts.map((workout) {
-            final muscleGroup = MuscleGroup.values.firstWhere(
-              (mg) =>
-                  mg.displayName.toLowerCase() == workout.label?.toLowerCase(),
-              orElse: () => MuscleGroup.back,
-            );
-            return _buildMuscleGroupSection(
-              muscleGroup,
-              workout.exercises,
-              workout.id,
-              controller,
-            );
-          }),
-          const SizedBox(height: 24),
-        ],
+                // Column headers
+                if (exercise.sets.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: Row(
+                      children: [
+                        const SizedBox(width: 24), // Spacer for set menu
+                        Expanded(
+                          child: Text(
+                            'SET',
+                            style: TextStyle(
+                              color: Theme.of(context).brightness ==
+                                      Brightness.light
+                                  ? Theme.of(context)
+                                      .textTheme
+                                      .bodySmall
+                                      ?.color
+                                      ?.withValues(alpha: 0.7)
+                                  : Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Text(
+                            'REPS',
+                            style: TextStyle(
+                              color: Theme.of(context).brightness ==
+                                      Brightness.light
+                                  ? Theme.of(context)
+                                      .textTheme
+                                      .bodySmall
+                                      ?.color
+                                      ?.withValues(alpha: 0.7)
+                                  : Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        const SizedBox(width: 40), // Spacer for actions
+                      ],
+                    ),
+                  ),
 
-        // Legs section
-        if (legsWorkouts.isNotEmpty) ...[
-          _buildCategoryHeader('Legs'),
-          ...legsWorkouts.map((workout) {
-            final muscleGroup = MuscleGroup.values.firstWhere(
-              (mg) =>
-                  mg.displayName.toLowerCase() == workout.label?.toLowerCase(),
-              orElse: () => MuscleGroup.quads,
-            );
-            return _buildMuscleGroupSection(
-              muscleGroup,
-              workout.exercises,
-              workout.id,
-              controller,
-            );
-          }),
-          const SizedBox(height: 24),
-        ],
+                // Sets list
+                ...List.generate(exercise.sets.length, (index) {
+                  final set = exercise.sets[index];
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: Row(
+                      children: [
+                        // Set menu (3 dots)
+                        SizedBox(
+                          width: 24,
+                          child: PopupMenuButton<String>(
+                            icon: Icon(
+                              Icons.more_vert,
+                              color: Theme.of(context)
+                                  .iconTheme
+                                  .color
+                                  ?.withValues(alpha: 0.6),
+                              size: 20,
+                            ),
+                            offset: const Offset(0, 40),
+                            padding: EdgeInsets.zero,
+                            constraints: const BoxConstraints(minWidth: 250),
+                            color: Theme.of(context).cardTheme.color,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              side: BorderSide(
+                                color: Theme.of(context).dividerColor,
+                              ),
+                            ),
+                            onSelected: (value) {
+                              switch (value) {
+                                case 'add_below':
+                                  _addSetBelow(exercise, index, controller);
+                                  break;
+                                case 'delete':
+                                  _deleteSet(exercise, index, controller);
+                                  break;
+                                case 'regular':
+                                  _updateSetType(
+                                      exercise, index, SetType.regular, controller);
+                                  break;
+                                case 'myorep':
+                                  _updateSetType(
+                                      exercise, index, SetType.myorep, controller);
+                                  break;
+                                case 'myorep_match':
+                                  _updateSetType(exercise, index,
+                                      SetType.myorepMatch, controller);
+                                  break;
+                                case 'max_reps':
+                                  _updateSetType(
+                                      exercise, index, SetType.maxReps, controller);
+                                  break;
+                                case 'end_with_partials':
+                                  _updateSetType(exercise, index,
+                                      SetType.endWithPartials, controller);
+                                  break;
+                              }
+                            },
+                            itemBuilder: (context) => [
+                              // SET Header
+                              const PopupMenuItem<String>(
+                                enabled: false,
+                                height: 32,
+                                child: Text(
+                                  'SET',
+                                  style: TextStyle(
+                                    color: Colors.grey,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                              // Add set below
+                              PopupMenuItem<String>(
+                                value: 'add_below',
+                                height: 40,
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.subdirectory_arrow_right,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurface,
+                                      size: 20,
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Text(
+                                      'Add set below',
+                                      style: TextStyle(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onSurface,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              // Delete set
+                              const PopupMenuItem<String>(
+                                value: 'delete',
+                                height: 40,
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.delete_outline,
+                                      color: Colors.red,
+                                      size: 20,
+                                    ),
+                                    SizedBox(width: 12),
+                                    Text(
+                                      'Delete set',
+                                      style: TextStyle(color: Colors.red),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const PopupMenuDivider(),
+                              // SET TYPE Header
+                              const PopupMenuItem<String>(
+                                enabled: false,
+                                height: 32,
+                                child: Text(
+                                  'SET TYPE',
+                                  style: TextStyle(
+                                    color: Colors.grey,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                              // Regular
+                              PopupMenuItem<String>(
+                                value: 'regular',
+                                height: 40,
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      set.setType == SetType.regular
+                                          ? Icons.radio_button_checked
+                                          : Icons.radio_button_unchecked,
+                                      color: set.setType == SetType.regular
+                                          ? Colors.red
+                                          : Colors.grey,
+                                      size: 20,
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Text(
+                                      'Regular',
+                                      style: TextStyle(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onSurface,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              // Myorep
+                              PopupMenuItem<String>(
+                                value: 'myorep',
+                                height: 40,
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      set.setType == SetType.myorep
+                                          ? Icons.radio_button_checked
+                                          : Icons.radio_button_unchecked,
+                                      color: set.setType == SetType.myorep
+                                          ? Colors.red
+                                          : Colors.grey,
+                                      size: 20,
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Text(
+                                      'Myorep',
+                                      style: TextStyle(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onSurface,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              // Myorep match
+                              PopupMenuItem<String>(
+                                value: 'myorep_match',
+                                height: 40,
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      set.setType == SetType.myorepMatch
+                                          ? Icons.radio_button_checked
+                                          : Icons.radio_button_unchecked,
+                                      color: set.setType == SetType.myorepMatch
+                                          ? Colors.red
+                                          : Colors.grey,
+                                      size: 20,
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Text(
+                                      'Myorep match',
+                                      style: TextStyle(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onSurface,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              // Max reps
+                              PopupMenuItem<String>(
+                                value: 'max_reps',
+                                height: 40,
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      set.setType == SetType.maxReps
+                                          ? Icons.radio_button_checked
+                                          : Icons.radio_button_unchecked,
+                                      color: set.setType == SetType.maxReps
+                                          ? Colors.red
+                                          : Colors.grey,
+                                      size: 20,
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Text(
+                                      'Max reps',
+                                      style: TextStyle(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onSurface,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              // End with partials
+                              PopupMenuItem<String>(
+                                value: 'end_with_partials',
+                                height: 40,
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      set.setType == SetType.endWithPartials
+                                          ? Icons.radio_button_checked
+                                          : Icons.radio_button_unchecked,
+                                      color:
+                                          set.setType == SetType.endWithPartials
+                                              ? Colors.red
+                                              : Colors.grey,
+                                      size: 20,
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Text(
+                                      'End with partials',
+                                      style: TextStyle(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onSurface,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
 
-        // Core & Accessories section
-        if (coreAndAccessoriesWorkouts.isNotEmpty) ...[
-          _buildCategoryHeader('Core & Accessories'),
-          ...coreAndAccessoriesWorkouts.map((workout) {
-            final muscleGroup = MuscleGroup.values.firstWhere(
-              (mg) =>
-                  mg.displayName.toLowerCase() == workout.label?.toLowerCase(),
-              orElse: () => MuscleGroup.abs,
-            );
-            return _buildMuscleGroupSection(
-              muscleGroup,
-              workout.exercises,
-              workout.id,
-              controller,
-            );
-          }),
-          const SizedBox(height: 24),
-        ],
+                        // Set number display
+                        Expanded(
+                          child: Container(
+                            height: 40,
+                            decoration: BoxDecoration(
+                              color: Theme.of(context)
+                                  .inputDecorationTheme
+                                  .fillColor,
+                              borderRadius: BorderRadius.circular(4),
+                              border: Border.all(
+                                color: Theme.of(context).dividerColor,
+                              ),
+                            ),
+                            child: Center(
+                              child: Text(
+                                '${set.setNumber}',
+                                style: Theme.of(context).textTheme.bodyMedium,
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 16),
 
-        // Other workouts (if any)
-        if (otherWorkouts.isNotEmpty) ...[
-          const SizedBox(height: 24),
-          ...otherWorkouts.map((workout) {
-            final muscleGroup = MuscleGroup.values.firstWhere(
-              (mg) =>
-                  mg.displayName.toLowerCase() == workout.label?.toLowerCase(),
-              orElse: () => MuscleGroup.chest,
-            );
-            return _buildMuscleGroupSection(
-              muscleGroup,
-              workout.exercises,
-              workout.id,
-              controller,
-            );
-          }),
-        ],
+                        // Reps Input
+                        Expanded(
+                          child: Stack(
+                            children: [
+                              Container(
+                                height: 40,
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context)
+                                      .inputDecorationTheme
+                                      .fillColor,
+                                  borderRadius: BorderRadius.circular(4),
+                                  border: Border.all(
+                                    color: Theme.of(context).dividerColor,
+                                  ),
+                                ),
+                                child: Center(
+                                  child: TextFormField(
+                                    key: ValueKey('reps_${set.id}'),
+                                    initialValue: set.reps,
+                                    style:
+                                        Theme.of(context).textTheme.bodyMedium,
+                                    textAlign: TextAlign.center,
+                                    keyboardType: TextInputType.number,
+                                    decoration: InputDecoration(
+                                      hintText: 'reps',
+                                      hintStyle: Theme.of(context)
+                                          .inputDecorationTheme
+                                          .hintStyle,
+                                      border: InputBorder.none,
+                                      contentPadding:
+                                          const EdgeInsets.only(bottom: 12),
+                                    ),
+                                    onChanged: (value) {
+                                      _updateSetReps(
+                                          exercise, index, value, controller);
+                                    },
+                                  ),
+                                ),
+                              ),
+                              // Badge for non-regular set types
+                              if (_getSetTypeBadge(set.setType) != null)
+                                Positioned(
+                                  top: 2,
+                                  right: 4,
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 4,
+                                      vertical: 2,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey.withValues(alpha: 0.6),
+                                      borderRadius: BorderRadius.circular(3),
+                                    ),
+                                    child: Text(
+                                      _getSetTypeBadge(set.setType)!,
+                                      style: TextStyle(
+                                        color: Theme.of(context).brightness ==
+                                                Brightness.light
+                                            ? Colors.black
+                                            : Colors.white,
+                                        fontSize: 9,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+
+                        // Placeholder for alignment (no LOG checkbox in edit mode)
+                        const SizedBox(width: 40),
+                      ],
+                    ),
+                  );
+                }),
+              ],
+            ),
+          ),
+        ),
+
+        // Muscle group badge - overlays the card
+        if (showMuscleGroupBadge)
+          Positioned(
+            top: -20,
+            left: 16,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: muscleGroup.color.withValues(alpha: 0.4),
+                borderRadius: BorderRadius.circular(0),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 4,
+                    height: 16,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    muscleGroup.displayName.toUpperCase(),
+                    style: TextStyle(
+                      color: Theme.of(context).brightness == Brightness.light
+                          ? Colors.grey.shade700
+                          : Colors.white,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
       ],
     );
   }
 
-  Widget _buildCategoryHeader(String category) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Text(
-        category,
-        style: Theme.of(
-          context,
-        ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+  String? _getSetTypeBadge(SetType setType) {
+    switch (setType) {
+      case SetType.myorep:
+        return 'MYO';
+      case SetType.myorepMatch:
+        return 'M-M';
+      case SetType.maxReps:
+        return 'MAX';
+      case SetType.endWithPartials:
+        return 'EWP';
+      default:
+        return null;
+    }
+  }
+
+  // Exercise action methods
+  void _replaceExercise(Exercise exercise) {
+    // Navigate to add exercise screen with the same muscle group
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => AddExerciseScreen(
+          mesocycleId: widget.mesocycleId,
+          workoutId: exercise.workoutId,
+          initialMuscleGroup: exercise.muscleGroup,
+        ),
       ),
     );
   }
 
-  Widget _buildMuscleGroupSection(
-    MuscleGroup muscleGroup,
-    List<Exercise> exercises,
-    String workoutId,
+  Future<void> _addSetToExercise(
+    Exercise exercise,
     EditWorkoutController controller,
-  ) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 2),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(1),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Muscle group header
-          Padding(
-            padding: const EdgeInsets.all(4),
-            child: Row(
-              children: [
-                Container(
-                  width: 8,
-                  height: 8,
-                  decoration: BoxDecoration(
-                    color: _getMuscleGroupColor(muscleGroup),
-                    shape: BoxShape.circle,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Text(
-                  muscleGroup.displayName,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const Spacer(),
-                IconButton(
-                  icon: const Icon(Icons.delete_outline, size: 20),
-                  onPressed: () =>
-                      _deleteMuscleGroup(context, controller, workoutId),
-                  visualDensity: VisualDensity.compact,
-                  tooltip: 'Delete muscle group',
-                ),
-              ],
-            ),
-          ),
+  ) async {
+    final newSet = ExerciseSet(
+      id: const Uuid().v4(),
+      setNumber: exercise.sets.length + 1,
+      reps: '',
+      setType: SetType.regular,
+    );
 
-          // Exercise list or "Choose an exercise" placeholder
-          Padding(
-            padding: const EdgeInsets.fromLTRB(12, 0, 12, 0),
-            child: Column(
-              children: [
-                if (exercises.isEmpty)
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surface,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.outline.withValues(alpha: 0.3),
-                      ),
-                    ),
-                    child: InkWell(
-                      onTap: () {
-                        // Navigate to exercise selection for this muscle group
-                        GoRouter.of(context).push(
-                          '/mesocycles/${widget.mesocycleId}/workouts/$workoutId/choose-exercise?muscleGroup=${muscleGroup.name}',
-                        );
-                      },
-                      child: Center(
-                        child: Text(
-                          'Choose an exercise',
-                          style: Theme.of(context).textTheme.bodyMedium
-                              ?.copyWith(
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.onSurface.withValues(alpha: 0.6),
-                              ),
-                        ),
-                      ),
-                    ),
-                  )
-                else
-                  ...exercises.map((exercise) {
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 6),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: TextButton(
-                              onPressed: () {
-                                // Navigate back to add_exercise screen with muscle group pre-filtered
-                                GoRouter.of(context).push(
-                                  '/mesocycles/${widget.mesocycleId}/workouts/$workoutId/choose-exercise?muscleGroup=${muscleGroup.name}',
-                                );
-                              },
-                              style: TextButton.styleFrom(
-                                alignment: Alignment.centerLeft,
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                  vertical: 4,
-                                ),
-                                backgroundColor: Theme.of(
-                                  context,
-                                ).colorScheme.surface,
-                                foregroundColor: Theme.of(
-                                  context,
-                                ).colorScheme.onSurface,
-                                minimumSize: const Size(0, 40),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                              ),
-                              child: Text(
-                                exercise.name,
-                                style: Theme.of(context).textTheme.bodyLarge,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          // Set counter with +/- buttons
-                          Container(
-                            height: 40,
-                            decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.surface,
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.outline.withValues(alpha: 0.2),
-                              ),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                IconButton(
-                                  icon: const Icon(Icons.remove, size: 16),
-                                  onPressed: exercise.sets.length > 1
-                                      ? () => _removeSet(
-                                          controller,
-                                          workoutId,
-                                          exercise,
-                                        )
-                                      : null,
-                                  padding: EdgeInsets.zero,
-                                  constraints: const BoxConstraints(
-                                    minWidth: 32,
-                                    minHeight: 32,
-                                  ),
-                                  tooltip: 'Remove set',
-                                ),
-                                Container(
-                                  width: 24,
-                                  alignment: Alignment.center,
-                                  child: Text(
-                                    '${exercise.sets.length}',
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                                IconButton(
-                                  icon: const Icon(Icons.add, size: 16),
-                                  onPressed: () =>
-                                      _addSet(controller, workoutId, exercise),
-                                  padding: EdgeInsets.zero,
-                                  constraints: const BoxConstraints(
-                                    minWidth: 32,
-                                    minHeight: 32,
-                                  ),
-                                  tooltip: 'Add set',
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  }),
-              ],
-            ),
+    await controller.addSetToExercise(exercise.workoutId, exercise.id, newSet);
+  }
+
+  Future<void> _deleteExercise(
+    Exercise exercise,
+    EditWorkoutController controller,
+  ) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Exercise'),
+        content: Text('Are you sure you want to delete "${exercise.name}"?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: FilledButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text('Delete'),
           ),
         ],
       ),
     );
+
+    if (confirmed == true) {
+      await controller.deleteExercise(exercise.workoutId, exercise.id);
+    }
   }
 
-  Future<void> _addSet(
-    EditWorkoutController controller,
-    String workoutId,
+  // Set action methods
+  Future<void> _addSetBelow(
     Exercise exercise,
+    int currentSetIndex,
+    EditWorkoutController controller,
   ) async {
-    final newSetNumber = exercise.sets.length + 1;
     final newSet = ExerciseSet(
       id: const Uuid().v4(),
-      setNumber: newSetNumber,
-      reps: '', // Default empty to show hint
+      setNumber: exercise.sets.length + 1,
+      reps: '',
       setType: SetType.regular,
     );
 
-    await controller.addSetToExercise(workoutId, exercise.id, newSet);
+    await controller.insertSetAtIndex(
+        exercise.workoutId, exercise.id, currentSetIndex + 1, newSet);
   }
 
-  Future<void> _removeSet(
-    EditWorkoutController controller,
-    String workoutId,
+  Future<void> _deleteSet(
     Exercise exercise,
+    int setIndex,
+    EditWorkoutController controller,
   ) async {
-    if (exercise.sets.isEmpty) return;
-
-    // Remove the last set
     await controller.removeSetFromExercise(
-      workoutId,
-      exercise.id,
-      exercise.sets.length - 1,
-    );
+        exercise.workoutId, exercise.id, setIndex);
   }
 
-  Color _getMuscleGroupColor(MuscleGroup muscleGroup) {
-    final colors = Theme.of(context).extension<MuscleGroupColors>();
-    if (colors == null) return Colors.teal;
+  Future<void> _updateSetType(
+    Exercise exercise,
+    int setIndex,
+    SetType type,
+    EditWorkoutController controller,
+  ) async {
+    await controller.updateSetType(
+        exercise.workoutId, exercise.id, setIndex, type);
+  }
 
-    // Upper push = pink/magenta
-    if ([
-      MuscleGroup.chest,
-      MuscleGroup.triceps,
-      MuscleGroup.shoulders,
-    ].contains(muscleGroup)) {
-      return colors.upperPush ?? Colors.pink;
-    }
-    // Upper pull = blue/cyan
-    if ([MuscleGroup.back, MuscleGroup.biceps].contains(muscleGroup)) {
-      return colors.upperPull ?? Colors.cyan;
-    }
-    // Core & Accessories = purple
-    if ([
-      MuscleGroup.traps,
-      MuscleGroup.forearms,
-      MuscleGroup.abs,
-    ].contains(muscleGroup)) {
-      return colors.coreAndAccessories ?? Colors.purple;
-    }
-    // Legs = green/teal
-    return colors.legs ?? Colors.teal;
+  Future<void> _updateSetReps(
+    Exercise exercise,
+    int setIndex,
+    String value,
+    EditWorkoutController controller,
+  ) async {
+    await controller.updateSetReps(
+        exercise.workoutId, exercise.id, setIndex, value);
   }
 
   Widget _buildEmptyState(
@@ -1000,54 +1414,6 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Error mirroring week: $e'),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
-      }
-    }
-  }
-
-  Future<void> _deleteMuscleGroup(
-    BuildContext context,
-    EditWorkoutController controller,
-    String workoutId,
-  ) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete Muscle Group'),
-        content: const Text(
-          'Are you sure you want to delete this muscle group and all its exercises?',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: FilledButton.styleFrom(backgroundColor: Colors.red),
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
-    );
-
-    if (confirmed == true && context.mounted) {
-      try {
-        await controller.deleteMuscleGroup(workoutId);
-
-        if (context.mounted) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(const SnackBar(content: Text('Muscle group deleted')));
-        }
-      } catch (e) {
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Error deleting muscle group: $e'),
               backgroundColor: Colors.red,
             ),
           );
