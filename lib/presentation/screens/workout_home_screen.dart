@@ -610,10 +610,31 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     }
 
     // Check if ALL workouts in the mesocycle are now completed
+    // We need to verify that every week/day combination has at least one completed workout
     final allWorkouts = repository.getByMesocycleId(mesocycle.id);
-    final allCompleted = allWorkouts.every(
-      (w) => w.status == WorkoutStatus.completed,
-    );
+
+    // Build a set of completed week/day combinations
+    final completedDays = <String>{};
+    for (final workout in allWorkouts) {
+      if (workout.status == WorkoutStatus.completed) {
+        completedDays.add('${workout.weekNumber}-${workout.dayNumber}');
+      }
+    }
+
+    // Check if all expected week/day combinations are completed
+    final totalWeeks = mesocycle.weeksTotal;
+    final daysPerWeek = mesocycle.daysPerWeek;
+    bool allCompleted = true;
+
+    for (int week = 1; week <= totalWeeks; week++) {
+      for (int day = 1; day <= daysPerWeek; day++) {
+        if (!completedDays.contains('$week-$day')) {
+          allCompleted = false;
+          break;
+        }
+      }
+      if (!allCompleted) break;
+    }
 
     if (allCompleted) {
       // Complete the mesocycle
@@ -703,7 +724,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
       int displayDay;
 
       if (_homeState.selectedWeek != null && _homeState.selectedDay != null) {
-        // User has manually selected a specific workout
+        // User has manually selected a specific workout (or we locked it in)
         displayWeek = _homeState.selectedWeek!;
         displayDay = _homeState.selectedDay!;
       } else {
@@ -726,6 +747,12 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
             );
           })();
         }
+
+        // Lock in the selected day so we don't auto-navigate on rebuild
+        // This ensures user stays on current day until they press "Finish Workout"
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _controller.selectDay(displayWeek, displayDay);
+        });
       }
 
       debugPrint('Display week: $displayWeek, Display day: $displayDay');

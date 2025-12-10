@@ -76,17 +76,7 @@ class _PlanAMesocycleScreenState extends ConsumerState<PlanAMesocycleScreen> {
                 );
               },
             ),
-            const SizedBox(height: 16),
-            _OptionCard(
-              icon: Icons.science_outlined,
-              iconColor: Colors.cyan,
-              title: 'Meso Builder',
-              subtitle: 'Build a meso based on your muscle group priorities.',
-              badge: '🧪',
-              onTap: () {
-                // Navigate to meso builder screen
-              },
-            ),
+
             const SizedBox(height: 16),
             _OptionCard(
               icon: Icons.note_outlined,

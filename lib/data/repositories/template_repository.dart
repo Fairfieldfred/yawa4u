@@ -95,8 +95,10 @@ class TemplateRepository {
 
   /// Load saved (user-created) templates from Hive
   Future<List<MesocycleTemplate>> loadSavedTemplates() async {
+    print('=== loadSavedTemplates called ===');
     try {
       final box = await Hive.openBox<String>(_savedTemplatesBoxName);
+      print('Saved templates box opened, contains ${box.length} items');
       final savedTemplates = <MesocycleTemplate>[];
 
       for (final jsonString in box.values) {
@@ -104,12 +106,14 @@ class TemplateRepository {
           final template = MesocycleTemplate.fromJson(
             json.decode(jsonString) as Map<String, dynamic>,
           );
+          print('Loaded saved template: ${template.name}');
           savedTemplates.add(template);
         } catch (e) {
           print('Error parsing saved template: $e');
         }
       }
 
+      print('Total saved templates loaded: ${savedTemplates.length}');
       return savedTemplates;
     } catch (e) {
       print('Error loading saved templates: $e');
@@ -152,10 +156,24 @@ class TemplateRepository {
     String name,
     String description,
   ) async {
+    print('=== saveAsTemplate called ===');
+    print('Mesocycle name: ${mesocycle.name}');
+    print('Template name: $name');
+    print('Description: $description');
+    print('Workouts count: ${mesocycle.workouts.length}');
+
     final template = _convertMesocycleToTemplate(mesocycle, name, description);
+    print(
+      'Template created with ${template.workouts.length} workout templates',
+    );
+
     final box = await Hive.openBox<String>(_savedTemplatesBoxName);
     final jsonString = json.encode(template.toJson());
+    print('JSON string length: ${jsonString.length}');
+
     await box.put(template.id, jsonString);
+    print('Template saved with ID: ${template.id}');
+    print('Box now contains ${box.length} templates');
   }
 
   /// Convert a Mesocycle to a MesocycleTemplate

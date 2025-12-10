@@ -784,6 +784,8 @@ class _SaveTemplateDialog extends StatefulWidget {
 class _SaveTemplateDialogState extends State<_SaveTemplateDialog> {
   late final TextEditingController nameController;
   late final TextEditingController descriptionController;
+  String? nameError;
+  String? descriptionError;
 
   @override
   void initState() {
@@ -797,6 +799,38 @@ class _SaveTemplateDialogState extends State<_SaveTemplateDialog> {
     nameController.dispose();
     descriptionController.dispose();
     super.dispose();
+  }
+
+  void _validateAndSave() {
+    setState(() {
+      nameError = null;
+      descriptionError = null;
+    });
+
+    final trimmedName = nameController.text.trim();
+    final trimmedDescription = descriptionController.text.trim();
+
+    bool isValid = true;
+
+    if (trimmedName.isEmpty) {
+      setState(() {
+        nameError = 'Please enter a template name';
+      });
+      isValid = false;
+    }
+
+    if (trimmedDescription.isEmpty) {
+      setState(() {
+        descriptionError = 'Please enter a description';
+      });
+      isValid = false;
+    }
+
+    if (isValid) {
+      Navigator.of(
+        context,
+      ).pop((name: trimmedName, description: trimmedDescription));
+    }
   }
 
   @override
@@ -844,6 +878,7 @@ class _SaveTemplateDialogState extends State<_SaveTemplateDialog> {
               autofocus: true,
               decoration: InputDecoration(
                 hintText: 'e.g., "Upper Lower Split"',
+                errorText: nameError,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -867,6 +902,7 @@ class _SaveTemplateDialogState extends State<_SaveTemplateDialog> {
               maxLines: 3,
               decoration: InputDecoration(
                 hintText: 'e.g., "Great for building strength and size"',
+                errorText: descriptionError,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -895,18 +931,7 @@ class _SaveTemplateDialogState extends State<_SaveTemplateDialog> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: FilledButton(
-                    onPressed: () {
-                      final trimmedName = nameController.text.trim();
-                      final trimmedDescription = descriptionController.text
-                          .trim();
-                      if (trimmedName.isNotEmpty &&
-                          trimmedDescription.isNotEmpty) {
-                        Navigator.of(context).pop((
-                          name: trimmedName,
-                          description: trimmedDescription,
-                        ));
-                      }
-                    },
+                    onPressed: _validateAndSave,
                     style: FilledButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
