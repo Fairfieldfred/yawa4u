@@ -1,6 +1,7 @@
 import 'package:feedback_sentry/feedback_sentry.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -120,6 +121,16 @@ class _MoreScreenState extends ConsumerState<MoreScreen> {
             ),
           ),
           const SizedBox(height: 24),
+          const Divider(height: 1),
+
+          // Sync Data
+          ListTile(
+            leading: const Icon(Icons.sync),
+            title: const Text('Sync Data'),
+            subtitle: const Text('Sync with another device via WiFi'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => context.push('/sync'),
+          ),
           const Divider(height: 1),
 
           // Share App

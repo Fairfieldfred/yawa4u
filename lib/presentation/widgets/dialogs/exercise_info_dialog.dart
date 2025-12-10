@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -11,6 +13,10 @@ import '../../../data/models/exercise.dart';
 import '../../../data/models/mesocycle.dart';
 import '../../../data/models/workout.dart';
 import '../../../domain/providers/repository_providers.dart';
+
+/// Check if running on desktop platform
+bool get _isDesktop =>
+    Platform.isMacOS || Platform.isWindows || Platform.isLinux;
 
 /// Hardcoded YouTube video URLs for exercises
 /// Add video URLs here - supports full URLs or just video IDs
@@ -249,13 +255,53 @@ class _ExerciseInfoDialogState extends ConsumerState<ExerciseInfoDialog> {
   }
 
   Widget _buildDetailTab(BuildContext context) {
+    final hasVideo = _videoUrl != null && _videoUrl!.isNotEmpty;
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // YouTube Video
-          if (_youtubeController != null) ...[
+          // YouTube Video - Desktop shows button only, mobile shows embedded player
+          if (hasVideo && _isDesktop) ...[
+            // Desktop: Show a nice card with "Watch on YouTube" button
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
+                children: [
+                  Icon(Icons.play_circle_outline, size: 64, color: Colors.red),
+                  const SizedBox(height: 12),
+                  Text(
+                    'Video Available',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton.icon(
+                    onPressed: () => _openYouTube(),
+                    icon: const Icon(Icons.open_in_new),
+                    label: const Text('Watch on YouTube'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 12,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+          ] else if (_youtubeController != null && !_isDesktop) ...[
+            // Mobile: Show embedded player
             ClipRRect(
               borderRadius: BorderRadius.circular(12),
               child: YoutubePlayer(

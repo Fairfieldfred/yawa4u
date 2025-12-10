@@ -9,6 +9,7 @@ import '../screens/edit_workout_screen.dart';
 import '../screens/home_screen.dart';
 import '../screens/mesocycle_create_screen.dart';
 import '../screens/plan_a_mesocycle_screen.dart';
+import '../screens/sync_screen.dart';
 
 /// Navigation routes
 class AppRoutes {
@@ -93,6 +94,13 @@ final routerProvider = Provider<GoRouter>((ref) {
             initialMuscleGroup: initialMuscleGroup,
           );
         },
+      ),
+
+      // Sync screen
+      GoRoute(
+        path: '/sync',
+        name: 'sync',
+        builder: (context, state) => const SyncScreen(),
       ),
     ],
 
