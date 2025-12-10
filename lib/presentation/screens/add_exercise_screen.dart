@@ -19,12 +19,15 @@ class AddExerciseScreen extends ConsumerStatefulWidget {
   final String mesocycleId;
   final String workoutId;
   final MuscleGroup? initialMuscleGroup;
+  /// If provided, the selected exercise will replace this exercise instead of being added
+  final String? replaceExerciseId;
 
   const AddExerciseScreen({
     super.key,
     required this.mesocycleId,
     required this.workoutId,
     this.initialMuscleGroup,
+    this.replaceExerciseId,
   });
 
   @override
@@ -415,6 +418,12 @@ class _AddExerciseScreenState extends ConsumerState<AddExerciseScreen> {
     final workout = ref.read(workoutProvider(widget.workoutId));
     if (workout == null) return;
 
+    // Check if we're replacing an existing exercise
+    final isReplacing = widget.replaceExerciseId != null;
+    final existingExercise = isReplacing
+        ? workout.exercises.where((e) => e.id == widget.replaceExerciseId).firstOrNull
+        : null;
+
     // Create new exercise from definition
     final newExercise = Exercise(
       id: const Uuid().v4(),
@@ -422,9 +431,9 @@ class _AddExerciseScreenState extends ConsumerState<AddExerciseScreen> {
       name: exerciseDef.name,
       muscleGroup: exerciseDef.muscleGroup,
       equipmentType: exerciseDef.equipmentType,
-      orderIndex: workout.exercises.length, // Add at the end
+      orderIndex: existingExercise?.orderIndex ?? workout.exercises.length,
       videoUrl: exerciseDef.videoUrl,
-      sets: [
+      sets: existingExercise?.sets ?? [
         ExerciseSet(
           id: const Uuid().v4(),
           setNumber: 1,
@@ -440,15 +449,29 @@ class _AddExerciseScreenState extends ConsumerState<AddExerciseScreen> {
       ],
     );
 
-    // Add this exercise to the existing exercises
-    final updatedExercises = [...workout.exercises, newExercise];
+    List<Exercise> updatedExercises;
+    if (isReplacing) {
+      // Replace the existing exercise with the new one
+      updatedExercises = workout.exercises.map((e) {
+        if (e.id == widget.replaceExerciseId) {
+          return newExercise;
+        }
+        return e;
+      }).toList();
+    } else {
+      // Add this exercise to the existing exercises
+      updatedExercises = [...workout.exercises, newExercise];
+    }
+    
     final updatedWorkout = workout.copyWith(exercises: updatedExercises);
     ref.read(workoutRepositoryProvider).update(updatedWorkout);
 
     // Show confirmation and go back
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('${exerciseDef.name} added'),
+        content: Text(isReplacing 
+            ? '${existingExercise?.name ?? "Exercise"} replaced with ${exerciseDef.name}'
+            : '${exerciseDef.name} added'),
         duration: const Duration(seconds: 2),
       ),
     );

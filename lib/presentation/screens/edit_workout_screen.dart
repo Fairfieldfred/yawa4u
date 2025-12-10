@@ -1257,13 +1257,14 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
 
   // Exercise action methods
   void _replaceExercise(Exercise exercise) {
-    // Navigate to add exercise screen with the same muscle group
+    // Navigate to add exercise screen with replace mode
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => AddExerciseScreen(
           mesocycleId: widget.mesocycleId,
           workoutId: exercise.workoutId,
           initialMuscleGroup: exercise.muscleGroup,
+          replaceExerciseId: exercise.id,
         ),
       ),
     );
