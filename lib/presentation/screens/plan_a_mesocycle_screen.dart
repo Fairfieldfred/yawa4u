@@ -40,27 +40,27 @@ class _PlanAMesocycleScreenState extends ConsumerState<PlanAMesocycleScreen> {
         padding: const EdgeInsets.all(24.0),
         child: ListView(
           children: [
-            _OptionCard(
-              icon: Icons.copy_outlined,
-              iconColor: Colors.pink,
-              title: 'Copy a mesocycle',
-              subtitle:
-                  'Ensure long-term progressive overload by keeping your training similar over time.',
-              badge: '✨',
-              onTap: () {
-                // Navigate to copy mesocycle screen
-              },
-            ),
-            const SizedBox(height: 16),
-            _OptionCard(
-              icon: Icons.play_arrow,
-              iconColor: Colors.purple,
-              title: 'Resume plan in progress',
-              subtitle: 'Pick up where you left off.',
-              onTap: () {
-                // Navigate to resume plan screen
-              },
-            ),
+            // _OptionCard(
+            //   icon: Icons.copy_outlined,
+            //   iconColor: Colors.pink,
+            //   title: 'Copy a mesocycle',
+            //   subtitle:
+            //       'Ensure long-term progressive overload by keeping your training similar over time.',
+            //   badge: '✨',
+            //   onTap: () {
+            //     // Navigate to copy mesocycle screen
+            //   },
+            // ),
+            // const SizedBox(height: 16),
+            // _OptionCard(
+            //   icon: Icons.play_arrow,
+            //   iconColor: Colors.purple,
+            //   title: 'Resume plan in progress',
+            //   subtitle: 'Pick up where you left off.',
+            //   onTap: () {
+            //     // Navigate to resume plan screen
+            //   },
+            // ),
             const SizedBox(height: 16),
             _OptionCard(
               icon: Icons.grid_view_outlined,
