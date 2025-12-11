@@ -10,7 +10,7 @@ class AppColors {
   /// Dark theme backgrounds
   static const Color darkScaffoldBackground = Color(0xFF1C1C1E);
   static const Color darkCardBackground = Color(0xFF2C2C2E);
-  static const Color darkInputBackground = Color(0xFF3A3A3C);
+  static const Color darkInputBackground = Color.fromARGB(255, 21, 21, 22);
   static const Color darkDivider = Color(0xFF48484A);
 
   /// Dark theme text colors

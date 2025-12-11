@@ -60,57 +60,60 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
             )
             .toList();
 
-        return Scaffold(
-          appBar: AppBar(
-            leading: IconButton(
-              icon: const Icon(Icons.arrow_back),
-              onPressed: () => GoRouter.of(context).pop(),
-            ),
-            title: Text(mesocycle.name),
-            actions: [
-              // Export template button (Debug only)
-              if (kDebugMode)
-                IconButton(
-                  icon: const Icon(Icons.save_alt),
-                  onPressed: () =>
-                      _exportTemplate(context, mesocycle, workouts),
-                  tooltip: 'Export Template (Debug)',
-                ),
-              // Start mesocycle button (if draft)
-              if (mesocycle.status == MesocycleStatus.draft)
-                IconButton(
-                  icon: const Icon(Icons.play_arrow),
-                  onPressed: () =>
-                      _startMesocycle(context, controller, mesocycle),
-                  tooltip: 'Start mesocycle',
-                ),
-            ],
-          ),
-          body: Column(
-            children: [
-              // Week selector
-              _buildWeekSelector(mesocycle, controller),
-
-              // Day selector
-              _buildDaySelector(mesocycle, workouts, controller),
-
-              // Exercise list
-              Expanded(
-                child: dayWorkouts.isEmpty
-                    ? _buildEmptyState(context, mesocycle, controller)
-                    : _buildExerciseList(context, dayWorkouts, controller),
+        return GestureDetector(
+          onTap: () => FocusScope.of(context).unfocus(),
+          child: Scaffold(
+            appBar: AppBar(
+              leading: IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: () => GoRouter.of(context).pop(),
               ),
-            ],
+              title: Text(mesocycle.name),
+              actions: [
+                // Export template button (Debug only)
+                if (kDebugMode)
+                  IconButton(
+                    icon: const Icon(Icons.save_alt),
+                    onPressed: () =>
+                        _exportTemplate(context, mesocycle, workouts),
+                    tooltip: 'Export Template (Debug)',
+                  ),
+                // Start mesocycle button (if draft)
+                if (mesocycle.status == MesocycleStatus.draft)
+                  IconButton(
+                    icon: const Icon(Icons.play_arrow),
+                    onPressed: () =>
+                        _startMesocycle(context, controller, mesocycle),
+                    tooltip: 'Start mesocycle',
+                  ),
+              ],
+            ),
+            body: Column(
+              children: [
+                // Week selector
+                _buildWeekSelector(mesocycle, controller),
+
+                // Day selector
+                _buildDaySelector(mesocycle, workouts, controller),
+
+                // Exercise list
+                Expanded(
+                  child: dayWorkouts.isEmpty
+                      ? _buildEmptyState(context, mesocycle, controller)
+                      : _buildExerciseList(context, dayWorkouts, controller),
+                ),
+              ],
+            ),
+            floatingActionButton: FloatingActionButton.extended(
+              onPressed: () =>
+                  _showMuscleGroupSelector(context, mesocycle, controller),
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              label: const Text('Add Exercise'),
+              icon: const Icon(Icons.add),
+            ),
+            floatingActionButtonLocation:
+                FloatingActionButtonLocation.centerFloat,
           ),
-          floatingActionButton: FloatingActionButton.extended(
-            onPressed: () =>
-                _showMuscleGroupSelector(context, mesocycle, controller),
-            backgroundColor: Theme.of(context).colorScheme.primary,
-            label: const Text('Add Exercise'),
-            icon: const Icon(Icons.add),
-          ),
-          floatingActionButtonLocation:
-              FloatingActionButtonLocation.centerFloat,
         );
       },
       loading: () =>

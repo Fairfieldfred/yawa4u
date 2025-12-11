@@ -2569,11 +2569,11 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                             ],
                           ),
                         ),
-
+                        const SizedBox(width: 24),
                         // Weight Input
                         Expanded(
                           child: Container(
-                            height: 40,
+                            height: 36,
                             decoration: BoxDecoration(
                               color: Theme.of(
                                 context,
@@ -2615,14 +2615,14 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                             ),
                           ),
                         ),
-                        const SizedBox(width: 16),
+                        const SizedBox(width: 24),
 
                         // Reps Input
                         Expanded(
                           child: Stack(
                             children: [
                               Container(
-                                height: 40,
+                                height: 36,
                                 decoration: BoxDecoration(
                                   color: Theme.of(
                                     context,
@@ -2695,12 +2695,12 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                             ],
                           ),
                         ),
-                        const SizedBox(width: 16),
+                        const SizedBox(width: 24),
 
                         // Log Checkbox
                         SizedBox(
-                          width: 40,
-                          height: 40,
+                          width: 36,
+                          height: 36,
                           child: Container(
                             decoration: BoxDecoration(
                               color: set.isLogged
