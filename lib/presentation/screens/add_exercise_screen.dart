@@ -19,6 +19,7 @@ class AddExerciseScreen extends ConsumerStatefulWidget {
   final String mesocycleId;
   final String workoutId;
   final MuscleGroup? initialMuscleGroup;
+
   /// If provided, the selected exercise will replace this exercise instead of being added
   final String? replaceExerciseId;
 
@@ -421,7 +422,9 @@ class _AddExerciseScreenState extends ConsumerState<AddExerciseScreen> {
     // Check if we're replacing an existing exercise
     final isReplacing = widget.replaceExerciseId != null;
     final existingExercise = isReplacing
-        ? workout.exercises.where((e) => e.id == widget.replaceExerciseId).firstOrNull
+        ? workout.exercises
+              .where((e) => e.id == widget.replaceExerciseId)
+              .firstOrNull
         : null;
 
     // Create new exercise from definition
@@ -433,20 +436,22 @@ class _AddExerciseScreenState extends ConsumerState<AddExerciseScreen> {
       equipmentType: exerciseDef.equipmentType,
       orderIndex: existingExercise?.orderIndex ?? workout.exercises.length,
       videoUrl: exerciseDef.videoUrl,
-      sets: existingExercise?.sets ?? [
-        ExerciseSet(
-          id: const Uuid().v4(),
-          setNumber: 1,
-          reps: '',
-          setType: SetType.regular,
-        ),
-        ExerciseSet(
-          id: const Uuid().v4(),
-          setNumber: 2,
-          reps: '',
-          setType: SetType.regular,
-        ),
-      ],
+      sets:
+          existingExercise?.sets ??
+          [
+            ExerciseSet(
+              id: const Uuid().v4(),
+              setNumber: 1,
+              reps: '',
+              setType: SetType.regular,
+            ),
+            ExerciseSet(
+              id: const Uuid().v4(),
+              setNumber: 2,
+              reps: '',
+              setType: SetType.regular,
+            ),
+          ],
     );
 
     List<Exercise> updatedExercises;
@@ -462,16 +467,18 @@ class _AddExerciseScreenState extends ConsumerState<AddExerciseScreen> {
       // Add this exercise to the existing exercises
       updatedExercises = [...workout.exercises, newExercise];
     }
-    
+
     final updatedWorkout = workout.copyWith(exercises: updatedExercises);
     ref.read(workoutRepositoryProvider).update(updatedWorkout);
 
     // Show confirmation and go back
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(isReplacing 
-            ? '${existingExercise?.name ?? "Exercise"} replaced with ${exerciseDef.name}'
-            : '${exerciseDef.name} added'),
+        content: Text(
+          isReplacing
+              ? '${existingExercise?.name ?? "Exercise"} replaced with ${exerciseDef.name}'
+              : '${exerciseDef.name} added',
+        ),
         duration: const Duration(seconds: 2),
       ),
     );
