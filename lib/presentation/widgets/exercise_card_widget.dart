@@ -439,7 +439,7 @@ class ExerciseCardWidget extends StatelessWidget {
             width: 24,
             child: _buildSetOverflowMenu(context, set, index),
           ),
-
+          const SizedBox(width: 24),
           // Weight Input
           Expanded(
             child: Container(
@@ -471,7 +471,7 @@ class ExerciseCardWidget extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: 24),
 
           // Reps Input
           Expanded(
@@ -535,7 +535,7 @@ class ExerciseCardWidget extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: 24),
 
           // Log Checkbox
           SizedBox(
