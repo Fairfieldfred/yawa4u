@@ -31,8 +31,9 @@ final routerProvider = Provider<GoRouter>((ref) {
     debugLogDiagnostics: true,
     redirect: (context, state) {
       // Read onboarding status fresh each time redirect is called
-      final isOnboardingComplete =
-          ref.read(onboardingServiceProvider).isOnboardingComplete;
+      final isOnboardingComplete = ref
+          .read(onboardingServiceProvider)
+          .isOnboardingComplete;
 
       // If onboarding is not complete, redirect to onboarding
       // unless already on onboarding screens

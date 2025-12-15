@@ -91,7 +91,7 @@ class UserProfileNotifier extends Notifier<UserProfile> {
     await _service.setEquipment(state.equipment);
     await _service.setTrainingCycleTerm(state.trainingCycleTerm);
     await _service.markOnboardingComplete();
-    
+
     // Invalidate providers so router re-evaluates onboarding status
     ref.invalidate(onboardingServiceProvider);
     ref.invalidate(isOnboardingCompleteProvider);
