@@ -3,17 +3,20 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/constants/muscle_groups.dart';
+import '../../domain/providers/onboarding_providers.dart';
 import '../screens/add_exercise_screen.dart';
 import '../screens/completed_mesocycle_workout_screen.dart';
 import '../screens/edit_workout_screen.dart';
 import '../screens/home_screen.dart';
 import '../screens/mesocycle_create_screen.dart';
+import '../screens/onboarding/onboarding_profile_screen.dart';
 import '../screens/plan_a_mesocycle_screen.dart';
 import '../screens/sync_screen.dart';
 
 /// Navigation routes
 class AppRoutes {
   static const String home = '/';
+  static const String onboarding = '/onboarding';
   static const String mesocycleList = '/mesocycles';
   static const String planMesocycle = '/plan-mesocycle';
   static const String mesocycleCreate = '/mesocycles/create';
@@ -26,7 +29,29 @@ final routerProvider = Provider<GoRouter>((ref) {
   return GoRouter(
     initialLocation: AppRoutes.home,
     debugLogDiagnostics: true,
+    redirect: (context, state) {
+      // Read onboarding status fresh each time redirect is called
+      final isOnboardingComplete =
+          ref.read(onboardingServiceProvider).isOnboardingComplete;
+
+      // If onboarding is not complete, redirect to onboarding
+      // unless already on onboarding screens
+      if (!isOnboardingComplete) {
+        final isOnOnboarding = state.matchedLocation.startsWith('/onboarding');
+        if (!isOnOnboarding) {
+          return AppRoutes.onboarding;
+        }
+      }
+      return null;
+    },
     routes: [
+      // Onboarding screen
+      GoRoute(
+        path: AppRoutes.onboarding,
+        name: 'onboarding',
+        builder: (context, state) => const OnboardingProfileScreen(),
+      ),
+
       // Home screen with bottom navigation
       GoRoute(
         path: AppRoutes.home,

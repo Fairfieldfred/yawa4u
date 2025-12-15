@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:yawa4u/core/utils/canvas_kit/unsupported.dart';
 
 import 'core/config/sentry_config.dart';
@@ -11,6 +12,7 @@ import 'core/constants/app_constants.dart';
 import 'core/theme/app_theme.dart';
 import 'data/services/csv_loader_service.dart';
 import 'data/services/database_service.dart';
+import 'domain/providers/onboarding_providers.dart';
 import 'domain/providers/theme_provider.dart';
 import 'firebase_options.dart';
 import 'presentation/navigation/app_router.dart';
@@ -22,11 +24,22 @@ Future<void> main() async {
   // Initialize Firebase
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
+  // Initialize SharedPreferences
+  final sharedPrefs = await SharedPreferences.getInstance();
+
   // Initialize Hive database
   await DatabaseService().initialize();
 
   // Load exercises from CSV
   await CsvLoaderService().loadExercises();
+
+  // Create app widget with SharedPreferences override
+  Widget createApp() => ProviderScope(
+    overrides: [sharedPreferencesProvider.overrideWithValue(sharedPrefs)],
+    child: !kIsWeb || isCanvasKitRenderer()
+        ? BetterFeedback(child: const MyApp())
+        : const MyApp(),
+  );
 
   // Initialize Sentry and run app
   if (SentryConfig.shouldInitialize) {
@@ -55,17 +68,9 @@ Future<void> main() async {
         // Add custom filtering logic here if needed
         return event;
       };
-    }, appRunner: () => runApp(const ProviderScope(child: MyApp())));
+    }, appRunner: () => runApp(createApp()));
   } else {
-    runApp(
-      ProviderScope(
-        child: // * Don't wrap with BetterFeedback if web HTML renderer is used
-            // https://pub.dev/packages/feedback#-known-issues-and-limitations
-            !kIsWeb || isCanvasKitRenderer()
-            ? BetterFeedback(child: MyApp())
-            : MyApp(),
-      ),
-    );
+    runApp(createApp());
   }
 }
 
