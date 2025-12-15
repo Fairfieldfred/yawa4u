@@ -122,3 +122,15 @@ final trainingCycleTermPluralProvider = Provider<String>((ref) {
   final service = ref.watch(onboardingServiceProvider);
   return service.trainingCycleDisplayNamePlural;
 });
+
+/// Provider for whether user prefers metric units
+final useMetricProvider = Provider<bool>((ref) {
+  final service = ref.watch(onboardingServiceProvider);
+  return service.useMetric;
+});
+
+/// Provider for the weight unit label (kg or lbs)
+final weightUnitProvider = Provider<String>((ref) {
+  final useMetric = ref.watch(useMetricProvider);
+  return useMetric ? 'kg' : 'lbs';
+});

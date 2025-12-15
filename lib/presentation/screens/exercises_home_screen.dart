@@ -6,6 +6,7 @@ import '../../data/models/exercise.dart';
 import '../../data/models/exercise_set.dart';
 import '../../data/models/workout.dart';
 import '../../domain/providers/mesocycle_providers.dart';
+import '../../domain/providers/onboarding_providers.dart';
 import '../../domain/providers/repository_providers.dart';
 import '../../domain/providers/theme_provider.dart';
 import '../../domain/providers/workout_providers.dart';
@@ -272,6 +273,7 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
                             exercise: exercise,
                             showMuscleGroupBadge: showMuscleGroupBadge,
                             targetRir: null, // Could calculate this if needed
+                            weightUnit: ref.watch(weightUnitProvider),
                             onAddNote: (exerciseId) =>
                                 _addNote(source.workout.id, exerciseId),
                             showMoveDown:

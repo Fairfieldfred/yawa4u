@@ -13,6 +13,7 @@ class ExerciseCardWidget extends StatelessWidget {
   final Exercise exercise;
   final bool showMuscleGroupBadge;
   final int? targetRir;
+  final String weightUnit;
   final Function(String exerciseId) onAddNote;
   final Function(String exerciseId)? onMoveDown;
   final bool showMoveDown;
@@ -34,6 +35,7 @@ class ExerciseCardWidget extends StatelessWidget {
     required this.exercise,
     required this.showMuscleGroupBadge,
     this.targetRir,
+    this.weightUnit = 'lbs',
     required this.onAddNote,
     this.onMoveDown,
     this.showMoveDown = true,
@@ -456,7 +458,7 @@ class ExerciseCardWidget extends StatelessWidget {
                   style: Theme.of(context).textTheme.bodyMedium,
                   textAlign: TextAlign.center,
                   decoration: InputDecoration(
-                    hintText: 'lbs',
+                    hintText: weightUnit,
                     hintStyle: Theme.of(context).inputDecorationTheme.hintStyle,
                     border: InputBorder.none,
                     contentPadding: const EdgeInsets.only(bottom: 12),

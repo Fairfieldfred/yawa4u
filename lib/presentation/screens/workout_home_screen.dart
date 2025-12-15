@@ -11,6 +11,7 @@ import '../../data/models/exercise_set.dart';
 import '../../data/models/workout.dart';
 import '../../domain/controllers/workout_home_controller.dart';
 import '../../domain/providers/mesocycle_providers.dart';
+import '../../domain/providers/onboarding_providers.dart';
 import '../../domain/providers/repository_providers.dart';
 import '../../domain/providers/theme_provider.dart';
 import '../../domain/providers/workout_providers.dart';
@@ -2590,7 +2591,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                                 style: Theme.of(context).textTheme.bodyMedium,
                                 textAlign: TextAlign.center,
                                 decoration: InputDecoration(
-                                  hintText: 'lbs',
+                                  hintText: ref.watch(weightUnitProvider),
                                   hintStyle: Theme.of(
                                     context,
                                   ).inputDecorationTheme.hintStyle,

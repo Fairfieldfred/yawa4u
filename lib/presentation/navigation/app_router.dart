@@ -11,6 +11,7 @@ import '../screens/home_screen.dart';
 import '../screens/mesocycle_create_screen.dart';
 import '../screens/onboarding/onboarding_profile_screen.dart';
 import '../screens/plan_a_mesocycle_screen.dart';
+import '../screens/settings_screen.dart';
 import '../screens/sync_screen.dart';
 
 /// Navigation routes
@@ -127,6 +128,13 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/sync',
         name: 'sync',
         builder: (context, state) => const SyncScreen(),
+      ),
+
+      // Settings screen
+      GoRoute(
+        path: '/settings',
+        name: 'settings',
+        builder: (context, state) => const SettingsScreen(),
       ),
     ],
 

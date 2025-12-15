@@ -147,8 +147,15 @@ class _MoreScreenState extends ConsumerState<MoreScreen> {
           ),
           const Divider(height: 1),
 
-          // Other Apps (Placeholder if needed, skipping based on user request specific items)
-          // User asked for: Share -> Feedback -> Website -> Language -> Privacy
+          // Settings
+          ListTile(
+            leading: const Icon(Icons.settings_outlined),
+            title: const Text('Settings'),
+            subtitle: const Text('Units, terminology, equipment'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => context.push('/settings'),
+          ),
+          const Divider(height: 1),
 
           // Send Feedback
           ListTile(
