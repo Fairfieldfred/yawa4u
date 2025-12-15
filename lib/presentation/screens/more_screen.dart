@@ -141,7 +141,7 @@ class _MoreScreenState extends ConsumerState<MoreScreen> {
             trailing: const Icon(Icons.chevron_right),
             onTap: () async {
               await Share.share(
-                'Check out YAWA4U - The best workout tracker! https://yawa4u.com',
+                'Check out YAWA4U - The best workout tracker! https://testflight.apple.com/join/YVQsRjzD',
               );
             },
           ),
