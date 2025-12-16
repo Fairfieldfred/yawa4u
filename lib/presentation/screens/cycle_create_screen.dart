@@ -12,6 +12,7 @@ import '../../data/models/training_cycle.dart';
 import '../../data/models/training_cycle_template.dart';
 import '../../data/models/workout.dart';
 import '../../data/services/analytics_service.dart';
+import '../../domain/providers/onboarding_providers.dart';
 import '../../domain/providers/repository_providers.dart';
 import '../../domain/providers/template_providers.dart';
 
@@ -24,7 +25,8 @@ class TrainingCycleCreateScreen extends ConsumerStatefulWidget {
       _TrainingCycleCreateScreenState();
 }
 
-class _TrainingCycleCreateScreenState extends ConsumerState<TrainingCycleCreateScreen> {
+class _TrainingCycleCreateScreenState
+    extends ConsumerState<TrainingCycleCreateScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _uuid = const Uuid();
@@ -82,10 +84,11 @@ class _TrainingCycleCreateScreenState extends ConsumerState<TrainingCycleCreateS
       );
 
       if (mounted) {
+        final cycleTerm = ref.read(trainingCycleTermProvider);
         // Show success message
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('TrainingCycle "${trainingCycle.name}" created!'),
+            content: Text('$cycleTerm "${trainingCycle.name}" created!'),
             backgroundColor: Colors.green,
           ),
         );
@@ -179,9 +182,11 @@ class _TrainingCycleCreateScreenState extends ConsumerState<TrainingCycleCreateS
 
   @override
   Widget build(BuildContext context) {
+    final cycleTerm = ref.watch(trainingCycleTermProvider);
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Create TrainingCycle'),
+        title: Text('Create $cycleTerm'),
         leading: IconButton(
           icon: const Icon(Icons.close),
           onPressed: () => context.pop(),
@@ -194,14 +199,14 @@ class _TrainingCycleCreateScreenState extends ConsumerState<TrainingCycleCreateS
           children: [
             // Header
             Text(
-              'New Training TrainingCycle',
+              'New $cycleTerm',
               style: Theme.of(
                 context,
               ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             Text(
-              'A trainingCycle is a multi-week training program with progressive overload',
+              'A $cycleTerm is a multi-week training program with progressive overload, often followed by a recovery week to allow your body to rest and adapt.',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: Theme.of(
                   context,
@@ -213,8 +218,8 @@ class _TrainingCycleCreateScreenState extends ConsumerState<TrainingCycleCreateS
             // Name field
             TextFormField(
               controller: _nameController,
-              decoration: const InputDecoration(
-                labelText: 'TrainingCycle Name',
+              decoration: InputDecoration(
+                labelText: '$cycleTerm Name',
                 hintText: 'e.g., Spring 2025 Hypertrophy',
                 border: OutlineInputBorder(),
                 prefixIcon: Icon(Icons.fitness_center),
@@ -270,7 +275,7 @@ class _TrainingCycleCreateScreenState extends ConsumerState<TrainingCycleCreateS
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
                   : const Icon(Icons.check),
-              label: Text(_isSubmitting ? 'Creating...' : 'Create TrainingCycle'),
+              label: Text(_isSubmitting ? 'Creating...' : 'Create $cycleTerm'),
               style: FilledButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 textStyle: const TextStyle(fontSize: 16),
@@ -494,40 +499,41 @@ class _TrainingCycleCreateScreenState extends ConsumerState<TrainingCycleCreateS
                 'Error loading templates: $error',
                 style: TextStyle(color: Theme.of(context).colorScheme.error),
               ),
-              data: (templates) => DropdownButtonFormField<TrainingCycleTemplate?>(
-                initialValue: _selectedTemplate,
-                decoration: const InputDecoration(
-                  labelText: 'Choose a Template',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.library_books),
-                ),
-                items: [
-                  const DropdownMenuItem<TrainingCycleTemplate?>(
-                    value: null,
-                    child: Text('None (Custom)'),
-                  ),
-                  ...templates.map(
-                    (template) => DropdownMenuItem<TrainingCycleTemplate?>(
-                      value: template,
-                      child: Text(template.name),
+              data: (templates) =>
+                  DropdownButtonFormField<TrainingCycleTemplate?>(
+                    initialValue: _selectedTemplate,
+                    decoration: const InputDecoration(
+                      labelText: 'Choose a Template',
+                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.library_books),
                     ),
+                    items: [
+                      const DropdownMenuItem<TrainingCycleTemplate?>(
+                        value: null,
+                        child: Text('None (Custom)'),
+                      ),
+                      ...templates.map(
+                        (template) => DropdownMenuItem<TrainingCycleTemplate?>(
+                          value: template,
+                          child: Text(template.name),
+                        ),
+                      ),
+                    ],
+                    onChanged: (template) {
+                      setState(() {
+                        _selectedTemplate = template;
+                        // Optionally update form values from template
+                        if (template != null) {
+                          _weeksTotal = template.weeksTotal;
+                          _daysPerWeek = template.daysPerWeek;
+                          if (template.deloadWeek != null) {
+                            _hasDeload = true;
+                            _deloadWeek = template.deloadWeek;
+                          }
+                        }
+                      });
+                    },
                   ),
-                ],
-                onChanged: (template) {
-                  setState(() {
-                    _selectedTemplate = template;
-                    // Optionally update form values from template
-                    if (template != null) {
-                      _weeksTotal = template.weeksTotal;
-                      _daysPerWeek = template.daysPerWeek;
-                      if (template.deloadWeek != null) {
-                        _hasDeload = true;
-                        _deloadWeek = template.deloadWeek;
-                      }
-                    }
-                  });
-                },
-              ),
             ),
             const SizedBox(height: 8),
             Text(

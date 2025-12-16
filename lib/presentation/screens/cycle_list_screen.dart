@@ -6,11 +6,12 @@ import 'package:go_router/go_router.dart';
 import '../../core/constants/enums.dart';
 import '../../core/utils/template_exporter.dart';
 import '../../data/models/training_cycle.dart';
-import '../../domain/providers/training_cycle_providers.dart';
 import '../../domain/providers/navigation_providers.dart';
+import '../../domain/providers/onboarding_providers.dart';
 import '../../domain/providers/repository_providers.dart';
 import '../../domain/providers/template_providers.dart';
 import '../../domain/providers/theme_provider.dart';
+import '../../domain/providers/training_cycle_providers.dart';
 import '../../domain/providers/workout_providers.dart';
 import '../widgets/cycle_summary_dialog.dart';
 import 'template_selection_screen.dart';
@@ -27,10 +28,12 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
   @override
   Widget build(BuildContext context) {
     final trainingCyclesAsync = ref.watch(trainingCyclesProvider);
+    final cycleTerm = ref.watch(trainingCycleTermProvider);
+    final cycleTermPlural = ref.watch(trainingCycleTermPluralProvider);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('TrainingCycles'),
+        title: Text(cycleTermPlural),
         actions: [
           // Theme toggle
           IconButton(
@@ -78,32 +81,44 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
             children: [
               // Draft TrainingCycles Section
               if (draftTrainingCycles.isNotEmpty) ...[
-                _buildSectionHeader(context, 'Draft TrainingCycle'),
+                _buildSectionHeader(context, 'Draft $cycleTerm'),
                 const SizedBox(height: 12),
                 ...draftTrainingCycles.map(
-                  (trainingCycle) =>
-                      _buildTrainingCycleCard(context, trainingCycle, isDraft: true),
+                  (trainingCycle) => _buildTrainingCycleCard(
+                    context,
+                    trainingCycle,
+                    isDraft: true,
+                  ),
                 ),
                 const SizedBox(height: 24),
               ],
 
               // Current TrainingCycle Section
               if (currentTrainingCycles.isNotEmpty) ...[
-                _buildSectionHeader(context, 'Current TrainingCycle'),
+                _buildSectionHeader(context, 'Current $cycleTerm'),
                 const SizedBox(height: 12),
                 ...currentTrainingCycles.map(
-                  (trainingCycle) =>
-                      _buildTrainingCycleCard(context, trainingCycle, isCurrent: true),
+                  (trainingCycle) => _buildTrainingCycleCard(
+                    context,
+                    trainingCycle,
+                    isCurrent: true,
+                  ),
                 ),
                 const SizedBox(height: 20),
               ],
 
               // Completed TrainingCycles Section
               if (completedTrainingCycles.isNotEmpty) ...[
-                _buildSectionHeader(context, 'Completed TrainingCycles'),
+                _buildSectionHeader(
+                  context,
+                  completedTrainingCycles.length == 1
+                      ? 'Completed $cycleTerm'
+                      : 'Completed $cycleTermPlural',
+                ),
                 const SizedBox(height: 12),
                 ...completedTrainingCycles.map(
-                  (trainingCycle) => _buildTrainingCycleCard(context, trainingCycle),
+                  (trainingCycle) =>
+                      _buildTrainingCycleCard(context, trainingCycle),
                 ),
               ],
             ],
@@ -140,7 +155,9 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
 
   /// Check if ALL days in ALL weeks have at least one exercise
   bool _hasExercisesForAllDays(TrainingCycle trainingCycle) {
-    final workouts = ref.read(workoutsByTrainingCycleProvider(trainingCycle.id));
+    final workouts = ref.read(
+      workoutsByTrainingCycleProvider(trainingCycle.id),
+    );
 
     // Check EVERY week in the trainingCycle
     for (int week = 1; week <= trainingCycle.weeksTotal; week++) {
@@ -231,7 +248,8 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
                                 ),
                           ),
                         )
-                      else if (trainingCycle.status == TrainingCycleStatus.completed &&
+                      else if (trainingCycle.status ==
+                              TrainingCycleStatus.completed &&
                           trainingCycle.endDate != null)
                         Row(
                           children: [
@@ -275,23 +293,27 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
                               ],
                             ),
                           ),
-                          const PopupMenuItem(
+                          PopupMenuItem(
                             value: 'rename',
                             child: Row(
                               children: [
-                                Icon(Icons.edit_outlined),
-                                SizedBox(width: 12),
-                                Text('Rename the trainingCycle'),
+                                const Icon(Icons.edit_outlined),
+                                const SizedBox(width: 12),
+                                Text(
+                                  'Rename the ${ref.watch(trainingCycleTermProvider)}',
+                                ),
                               ],
                             ),
                           ),
-                          const PopupMenuItem(
+                          PopupMenuItem(
                             value: 'copy',
                             child: Row(
                               children: [
-                                Icon(Icons.copy_outlined),
-                                SizedBox(width: 12),
-                                Text('Copy the TrainingCycle'),
+                                const Icon(Icons.copy_outlined),
+                                const SizedBox(width: 12),
+                                Text(
+                                  'Copy the ${ref.watch(trainingCycleTermProvider)}',
+                                ),
                               ],
                             ),
                           ),
@@ -338,15 +360,18 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
                                 ],
                               ),
                             ),
-                          const PopupMenuItem(
+                          PopupMenuItem(
                             value: 'delete',
                             child: Row(
                               children: [
-                                Icon(Icons.delete_outline, color: Colors.red),
-                                SizedBox(width: 12),
+                                const Icon(
+                                  Icons.delete_outline,
+                                  color: Colors.red,
+                                ),
+                                const SizedBox(width: 12),
                                 Text(
-                                  'Delete meso',
-                                  style: TextStyle(color: Colors.red),
+                                  'Delete ${ref.watch(trainingCycleTermProvider)}',
+                                  style: const TextStyle(color: Colors.red),
                                 ),
                               ],
                             ),
@@ -451,7 +476,10 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
     );
   }
 
-  Future<void> _handleMenuAction(String action, TrainingCycle trainingCycle) async {
+  Future<void> _handleMenuAction(
+    String action,
+    TrainingCycle trainingCycle,
+  ) async {
     switch (action) {
       case 'note':
         // TODO: Implement write note functionality
@@ -471,7 +499,8 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
       case 'summary':
         await showDialog(
           context: context,
-          builder: (context) => CycleSummaryDialog(trainingCycle: trainingCycle),
+          builder: (context) =>
+              CycleSummaryDialog(trainingCycle: trainingCycle),
         );
         break;
       case 'template':
@@ -490,13 +519,16 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
     final result = await showDialog<({String name, String description})>(
       context: context,
       barrierDismissible: false,
-      builder: (context) => _SaveTemplateDialog(initialName: trainingCycle.name),
+      builder: (context) =>
+          _SaveTemplateDialog(initialName: trainingCycle.name),
     );
 
     if (result != null && mounted) {
       try {
         // Load the full trainingCycle with workouts
-        final workouts = ref.read(workoutsByTrainingCycleProvider(trainingCycle.id));
+        final workouts = ref.read(
+          workoutsByTrainingCycleProvider(trainingCycle.id),
+        );
         final fullTrainingCycle = trainingCycle.copyWith(workouts: workouts);
 
         final repository = ref.read(templateRepositoryProvider);
@@ -534,7 +566,9 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
   Future<void> _exportTemplate(TrainingCycle trainingCycle) async {
     try {
       // Load the full trainingCycle with workouts
-      final workouts = ref.read(workoutsByTrainingCycleProvider(trainingCycle.id));
+      final workouts = ref.read(
+        workoutsByTrainingCycleProvider(trainingCycle.id),
+      );
       final trainingCycleToExport = trainingCycle.copyWith(workouts: workouts);
       await TemplateExporter.exportToClipboard(trainingCycleToExport);
       if (mounted) {
@@ -557,11 +591,14 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
     }
   }
 
-  Future<void> _showRenameTrainingCycleModal(TrainingCycle trainingCycle) async {
+  Future<void> _showRenameTrainingCycleModal(
+    TrainingCycle trainingCycle,
+  ) async {
     final newName = await showDialog<String>(
       context: context,
       barrierDismissible: false,
-      builder: (context) => _RenameTrainingCycleDialog(initialName: trainingCycle.name),
+      builder: (context) =>
+          _RenameTrainingCycleDialog(initialName: trainingCycle.name),
     );
 
     if (newName != null && newName != trainingCycle.name && mounted) {
@@ -662,10 +699,12 @@ class _RenameTrainingCycleDialog extends StatefulWidget {
   const _RenameTrainingCycleDialog({required this.initialName});
 
   @override
-  State<_RenameTrainingCycleDialog> createState() => _RenameTrainingCycleDialogState();
+  State<_RenameTrainingCycleDialog> createState() =>
+      _RenameTrainingCycleDialogState();
 }
 
-class _RenameTrainingCycleDialogState extends State<_RenameTrainingCycleDialog> {
+class _RenameTrainingCycleDialogState
+    extends State<_RenameTrainingCycleDialog> {
   late final TextEditingController nameController;
 
   @override

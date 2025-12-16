@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/constants/enums.dart';
 import '../../data/models/training_cycle.dart';
+import '../../domain/providers/onboarding_providers.dart';
 import '../../domain/providers/workout_providers.dart';
 import 'muscle_group_stats_dialog.dart';
 
@@ -26,7 +27,9 @@ class CycleSummaryDialog extends ConsumerWidget {
       child: workoutsAsync.when(
         data: (allWorkouts) {
           final workouts =
-              allWorkouts.where((w) => w.trainingCycleId == trainingCycle.id).toList()
+              allWorkouts
+                  .where((w) => w.trainingCycleId == trainingCycle.id)
+                  .toList()
                 ..sort((a, b) {
                   final weekCompare = a.weekNumber.compareTo(b.weekNumber);
                   if (weekCompare != 0) return weekCompare;
@@ -58,7 +61,7 @@ class CycleSummaryDialog extends ConsumerWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'TrainingCycle summary',
+                            '${ref.watch(trainingCycleTermProvider)} summary',
                             style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,

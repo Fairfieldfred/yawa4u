@@ -13,6 +13,7 @@ import '../../data/models/exercise_set.dart';
 import '../../data/models/training_cycle.dart';
 import '../../data/models/workout.dart';
 import '../../domain/providers/training_cycle_providers.dart';
+import '../../domain/providers/onboarding_providers.dart';
 import '../../domain/providers/repository_providers.dart';
 import '../../domain/providers/workout_providers.dart';
 import '../widgets/dialogs/exercise_info_dialog.dart';
@@ -1469,12 +1470,13 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
     EditWorkoutController controller,
     TrainingCycle trainingCycle,
   ) async {
+    final cycleTerm = ref.read(trainingCycleTermProvider);
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Start TrainingCycle'),
+        title: Text('Start $cycleTerm'),
         content: Text(
-          'Start "${trainingCycle.name}"? This will set it as your current trainingCycle.',
+          'Start "${trainingCycle.name}"? This will set it as your current $cycleTerm.',
         ),
         actions: [
           TextButton(
@@ -1495,8 +1497,8 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
 
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('TrainingCycle started!'),
+            SnackBar(
+              content: Text('$cycleTerm started!'),
               backgroundColor: Colors.green,
             ),
           );

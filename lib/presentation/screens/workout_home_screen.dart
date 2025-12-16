@@ -11,10 +11,10 @@ import '../../data/models/exercise.dart';
 import '../../data/models/exercise_set.dart';
 import '../../data/models/workout.dart';
 import '../../domain/controllers/workout_home_controller.dart';
-import '../../domain/providers/training_cycle_providers.dart';
 import '../../domain/providers/onboarding_providers.dart';
 import '../../domain/providers/repository_providers.dart';
 import '../../domain/providers/theme_provider.dart';
+import '../../domain/providers/training_cycle_providers.dart';
 import '../../domain/providers/workout_providers.dart';
 import '../widgets/cycle_summary_dialog.dart';
 import '../widgets/dialogs/exercise_info_dialog.dart';
@@ -643,12 +643,13 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
       await trainingCycleRepository.update(trainingCycle.complete());
 
       if (mounted) {
+        final cycleTerm = ref.read(trainingCycleTermProvider);
         showDialog(
           context: context,
           builder: (context) => AlertDialog(
-            title: const Text('TrainingCycle Completed!'),
-            content: const Text(
-              'Congratulations! You have finished all workouts in this trainingCycle.',
+            title: Text('$cycleTerm Completed!'),
+            content: Text(
+              'Congratulations! You have finished all workouts in this $cycleTerm.',
             ),
             actions: [
               FilledButton(
@@ -1257,8 +1258,9 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
         ),
         _buildMenuItem(
           icon: Icons.stop_circle_outlined,
-          text: 'End meso',
+          text: 'End ${ref.watch(trainingCycleTermProvider)}',
           onTap: () => _endTrainingCycle(trainingCycle),
+          color: Colors.red,
         ),
         const PopupMenuDivider(height: 1),
 
@@ -1336,6 +1338,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     required String text,
     required VoidCallback onTap,
     bool enabled = true,
+    Color? color,
   }) {
     return PopupMenuItem<void>(
       enabled: enabled,
@@ -1346,7 +1349,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
           Icon(
             icon,
             color: enabled
-                ? Theme.of(context).iconTheme.color
+                ? (color ?? Theme.of(context).iconTheme.color)
                 : Theme.of(context).disabledColor,
             size: 20,
           ),
@@ -1357,7 +1360,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
               fontSize: 16,
               fontWeight: FontWeight.w400,
               color: enabled
-                  ? Theme.of(context).textTheme.bodyMedium?.color
+                  ? (color ?? Theme.of(context).textTheme.bodyMedium?.color)
                   : Theme.of(context).disabledColor,
             ),
           ),
@@ -1413,10 +1416,11 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
   }
 
   Future<void> _endTrainingCycle(dynamic trainingCycle) async {
+    final cycleTerm = ref.read(trainingCycleTermProvider);
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('End TrainingCycle'),
+        title: Text('End $cycleTerm'),
         content: Text(
           'Are you sure you want to end "${trainingCycle.name}"? This will mark it as completed.',
         ),
@@ -1427,7 +1431,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('END TRAINING CYCLE'),
+            child: Text('END ${cycleTerm.toUpperCase()}'),
           ),
         ],
       ),

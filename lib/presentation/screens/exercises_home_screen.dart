@@ -5,10 +5,10 @@ import '../../core/constants/enums.dart';
 import '../../data/models/exercise.dart';
 import '../../data/models/exercise_set.dart';
 import '../../data/models/workout.dart';
-import '../../domain/providers/training_cycle_providers.dart';
 import '../../domain/providers/onboarding_providers.dart';
 import '../../domain/providers/repository_providers.dart';
 import '../../domain/providers/theme_provider.dart';
+import '../../domain/providers/training_cycle_providers.dart';
 import '../../domain/providers/workout_providers.dart';
 import '../widgets/cycle_summary_dialog.dart';
 import '../widgets/exercise_card_widget.dart';
@@ -487,7 +487,7 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       items: <PopupMenuEntry<void>>[
         // TRAINING CYCLE Section
-        _buildMenuHeader('TRAINING CYCLE'),
+        _buildMenuHeader(ref.watch(trainingCycleTermProvider).toUpperCase()),
         _buildMenuItem(
           icon: Icons.summarize_outlined,
           text: 'Summary',

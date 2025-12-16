@@ -3,8 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/constants/enums.dart';
-import '../../domain/providers/training_cycle_providers.dart';
+import '../../domain/providers/onboarding_providers.dart';
 import '../../domain/providers/repository_providers.dart';
+import '../../domain/providers/training_cycle_providers.dart';
 import 'template_selection_screen.dart';
 
 /// Plan a trainingCycle screen - Shows different options for creating a trainingCycle
@@ -16,7 +17,8 @@ class PlanATrainingCycleScreen extends ConsumerStatefulWidget {
       _PlanATrainingCycleScreenState();
 }
 
-class _PlanATrainingCycleScreenState extends ConsumerState<PlanATrainingCycleScreen> {
+class _PlanATrainingCycleScreenState
+    extends ConsumerState<PlanATrainingCycleScreen> {
   final int _selectedIndex = 1; // Keep on TrainingCycles tab
 
   void _onItemTapped(int index) {
@@ -28,13 +30,23 @@ class _PlanATrainingCycleScreenState extends ConsumerState<PlanATrainingCycleScr
 
   @override
   Widget build(BuildContext context) {
+    final cycleTerm = ref.watch(trainingCycleTermProvider);
+
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.pop(),
+          onPressed: () {
+            // Check if we can pop (i.e., there's a route to go back to)
+            // If not (e.g., coming from onboarding), navigate to home
+            if (context.canPop()) {
+              context.pop();
+            } else {
+              context.go('/');
+            }
+          },
         ),
-        title: const Text('Plan a trainingCycle'),
+        title: Text('Plan a $cycleTerm'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(24.0),
@@ -82,7 +94,8 @@ class _PlanATrainingCycleScreenState extends ConsumerState<PlanATrainingCycleScr
               icon: Icons.note_outlined,
               iconColor: Colors.teal,
               title: 'Start from scratch',
-              subtitle: 'Build your own meso from a completely blank slate.',
+              subtitle:
+                  'Build your own $cycleTerm from a completely blank slate.',
               onTap: () => _handleStartFromScratch(),
             ),
           ],
@@ -124,6 +137,8 @@ class _PlanATrainingCycleScreenState extends ConsumerState<PlanATrainingCycleScr
 
     if (!mounted) return;
 
+    final cycleTerm = ref.read(trainingCycleTermProvider);
+
     if (draftTrainingCycles.isNotEmpty) {
       // Show warning dialog
       final confirmed = await showDialog<bool>(
@@ -164,7 +179,7 @@ class _PlanATrainingCycleScreenState extends ConsumerState<PlanATrainingCycleScr
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  'You have a draft trainingCycle plan already in progress. By starting a new trainingCycle, your draft will be overwritten.',
+                  'You have a draft $cycleTerm plan already in progress. By starting a new $cycleTerm, your draft will be overwritten.',
                   style: Theme.of(context).textTheme.bodyLarge,
                 ),
                 const SizedBox(height: 16),
@@ -188,7 +203,7 @@ class _PlanATrainingCycleScreenState extends ConsumerState<PlanATrainingCycleScr
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
-                          'This will delete your current draft trainingCycle plan.',
+                          'This will delete your current draft $cycleTerm plan.',
                           style: Theme.of(context).textTheme.bodyMedium
                               ?.copyWith(
                                 color: Theme.of(context).colorScheme.onSurface,

@@ -43,9 +43,9 @@ class _OnboardingTerminologyScreenState
     // Mark onboarding as complete
     await ref.read(userProfileProvider.notifier).completeOnboarding();
 
-    // Navigate to plan mesocycle screen
+    // Navigate to plan training cycle screen
     if (mounted) {
-      context.go('/plan-mesocycle');
+      context.go('/plan-trainingCycle');
     }
   }
 

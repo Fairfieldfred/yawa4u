@@ -3,7 +3,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// Service to manage onboarding state and user preferences
 class OnboardingService {
   static const String _keyOnboardingComplete = 'onboarding_complete';
-  static const String _keyFirstTrainingCycleCreated = 'has_created_first_trainingCycle';
+  static const String _keyFirstTrainingCycleCreated =
+      'has_created_first_trainingCycle';
   static const String _keyHeightCm = 'user_height_cm';
   static const String _keyWeightKg = 'user_weight_kg';
   static const String _keyUseMetric = 'user_use_metric';
@@ -67,16 +68,17 @@ class OnboardingService {
   String get trainingCycleDisplayName {
     switch (trainingCycleTerm) {
       case 'block':
-        return 'Block';
+        return 'Training Block';
+      case 'mesocycle':
+        return 'Mesocycle';
       case 'phase':
-        return 'Phase';
+        return 'Training Phase';
       case 'module':
         return 'Module';
       case 'wave':
-        return 'Wave';
-      case 'trainingCycle':
+        return 'Training Wave';
       default:
-        return 'TrainingCycle';
+        return 'Training Cycle';
     }
   }
 
@@ -84,16 +86,17 @@ class OnboardingService {
   String get trainingCycleDisplayNamePlural {
     switch (trainingCycleTerm) {
       case 'block':
-        return 'Blocks';
+        return 'Training Blocks';
+      case 'mesocycle':
+        return 'Mesocycles';
       case 'phase':
-        return 'Phases';
+        return 'Training Phases';
       case 'module':
-        return 'Modules';
+        return 'Training Modules';
       case 'wave':
-        return 'Waves';
-      case 'trainingCycle':
+        return 'Training Waves';
       default:
-        return 'TrainingCycles';
+        return 'Training Cycles';
     }
   }
 }
