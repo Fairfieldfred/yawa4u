@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../core/constants/enums.dart';
 import '../../core/constants/equipment_types.dart';
 import '../../core/constants/muscle_groups.dart';
+import '../../core/utils/weight_conversion.dart';
 import '../../data/models/exercise.dart';
 import '../../data/models/exercise_set.dart';
 import 'dialogs/exercise_info_dialog.dart';
@@ -14,6 +15,7 @@ class ExerciseCardWidget extends StatelessWidget {
   final bool showMuscleGroupBadge;
   final int? targetRir;
   final String weightUnit;
+  final bool useMetric;
   final Function(String exerciseId) onAddNote;
   final Function(String exerciseId)? onMoveDown;
   final bool showMoveDown;
@@ -36,6 +38,7 @@ class ExerciseCardWidget extends StatelessWidget {
     required this.showMuscleGroupBadge,
     this.targetRir,
     this.weightUnit = 'lbs',
+    this.useMetric = false,
     required this.onAddNote,
     this.onMoveDown,
     this.showMoveDown = true,
@@ -453,8 +456,8 @@ class ExerciseCardWidget extends StatelessWidget {
               ),
               child: Center(
                 child: TextFormField(
-                  key: ValueKey('weight_${set.id}'),
-                  initialValue: set.weight?.toString() ?? '',
+                  key: ValueKey('weight_${set.id}_$useMetric'),
+                  initialValue: formatWeightForDisplay(set.weight, useMetric),
                   style: Theme.of(context).textTheme.bodyMedium,
                   textAlign: TextAlign.center,
                   decoration: InputDecoration(
@@ -467,7 +470,14 @@ class ExerciseCardWidget extends StatelessWidget {
                     decimal: true,
                   ),
                   onChanged: (value) {
-                    onUpdateSetWeight(index, value);
+                    // Convert user input back to storage unit (lbs)
+                    final displayWeight = double.tryParse(value);
+                    if (displayWeight == null && value.isNotEmpty) return;
+                    final storageWeight = convertWeightForStorage(
+                      displayWeight,
+                      useMetric,
+                    );
+                    onUpdateSetWeight(index, storageWeight?.toString() ?? '');
                   },
                 ),
               ),

@@ -6,6 +6,7 @@ import 'package:uuid/uuid.dart';
 import '../../core/constants/enums.dart';
 import '../../core/constants/equipment_types.dart';
 import '../../core/constants/muscle_groups.dart';
+import '../../core/utils/weight_conversion.dart';
 import '../../data/models/exercise.dart';
 import '../../data/models/exercise_set.dart';
 import '../../data/models/workout.dart';
@@ -2586,8 +2587,13 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                             ),
                             child: Center(
                               child: TextFormField(
-                                key: ValueKey('weight_${set.id}'),
-                                initialValue: set.weight?.toString() ?? '',
+                                key: ValueKey(
+                                  'weight_${set.id}_${ref.watch(useMetricProvider)}',
+                                ),
+                                initialValue: formatWeightForDisplay(
+                                  set.weight,
+                                  ref.watch(useMetricProvider),
+                                ),
                                 style: Theme.of(context).textTheme.bodyMedium,
                                 textAlign: TextAlign.center,
                                 decoration: InputDecoration(
@@ -2605,11 +2611,19 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                                       decimal: true,
                                     ),
                                 onChanged: (value) {
+                                  // Convert display value back to storage (lbs)
+                                  final displayWeight = double.tryParse(value);
+                                  if (displayWeight == null && value.isNotEmpty)
+                                    return;
+                                  final storageWeight = convertWeightForStorage(
+                                    displayWeight,
+                                    ref.read(useMetricProvider),
+                                  );
                                   _updateSetWeight(
                                     exercise.workoutId,
                                     exercise.id,
                                     index,
-                                    value,
+                                    storageWeight?.toString() ?? '',
                                   );
                                 },
                               ),

@@ -5,11 +5,13 @@ import 'package:go_router/go_router.dart';
 import '../../core/constants/enums.dart';
 import '../../core/constants/equipment_types.dart';
 import '../../core/constants/muscle_groups.dart';
+import '../../core/utils/weight_conversion.dart';
 import '../../data/models/exercise.dart';
 import '../../data/models/exercise_set.dart';
 import '../../data/models/mesocycle.dart';
 import '../../data/models/workout.dart';
 import '../../domain/providers/mesocycle_providers.dart';
+import '../../domain/providers/onboarding_providers.dart';
 import '../../domain/providers/theme_provider.dart';
 import '../../domain/providers/workout_providers.dart';
 import '../widgets/dialogs/exercise_info_dialog.dart';
@@ -529,7 +531,12 @@ class _CompletedMesocycleWorkoutScreenState
                             ),
                             child: Center(
                               child: Text(
-                                set.weight != null ? '${set.weight}' : '-',
+                                set.weight != null
+                                    ? formatWeightForDisplay(
+                                        set.weight,
+                                        ref.watch(useMetricProvider),
+                                      )
+                                    : '-',
                                 style: Theme.of(context).textTheme.bodyMedium
                                     ?.copyWith(
                                       color: set.weight != null

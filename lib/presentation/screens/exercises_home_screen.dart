@@ -268,12 +268,13 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
                           ),
                           child: ExerciseCardWidget(
                             key: ValueKey(
-                              '${exercise.id}_${exercise.sets.length}_${exercise.sets.map((s) => s.id).join(",")}',
+                              '${exercise.id}_${exercise.sets.length}_${exercise.sets.map((s) => s.id).join(",")}_${ref.watch(useMetricProvider)}',
                             ),
                             exercise: exercise,
                             showMuscleGroupBadge: showMuscleGroupBadge,
                             targetRir: null, // Could calculate this if needed
                             weightUnit: ref.watch(weightUnitProvider),
+                            useMetric: ref.watch(useMetricProvider),
                             onAddNote: (exerciseId) =>
                                 _addNote(source.workout.id, exerciseId),
                             showMoveDown:
