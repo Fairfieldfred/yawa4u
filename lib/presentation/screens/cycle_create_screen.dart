@@ -379,9 +379,9 @@ class _TrainingCycleCreateScreenState
             const SizedBox(height: 12),
             Slider(
               value: _daysPerWeek.toDouble(),
-              min: 3,
-              max: 6,
-              divisions: 3,
+              min: 2,
+              max: 7,
+              divisions: 5,
               label: '$_daysPerWeek days',
               onChanged: (value) {
                 setState(() => _daysPerWeek = value.toInt());
@@ -403,6 +403,8 @@ class _TrainingCycleCreateScreenState
 
   String _getDaysPerWeekDescription() {
     switch (_daysPerWeek) {
+      case 2:
+        return 'Minimalist full body split';
       case 3:
         return 'Full body or Push/Pull/Legs split';
       case 4:
@@ -411,6 +413,8 @@ class _TrainingCycleCreateScreenState
         return 'Push/Pull/Legs/Upper/Lower split';
       case 6:
         return 'Push/Pull/Legs twice per week';
+      case 7:
+        return 'Daily training (advanced)';
       default:
         return '';
     }
