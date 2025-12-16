@@ -31,11 +31,11 @@ class AnalyticsService {
   }
 
   // =============================================================================
-  // Mesocycle Events
+  // TrainingCycle Events
   // =============================================================================
 
-  /// Track when a mesocycle is created
-  Future<void> logMesocycleCreated({
+  /// Track when a trainingCycle is created
+  Future<void> logTrainingCycleCreated({
     required int weeks,
     required int daysPerWeek,
     required String gender,
@@ -43,7 +43,7 @@ class AnalyticsService {
   }) async {
     try {
       await _analytics.logEvent(
-        name: AppConstants.eventMesocycleCreated,
+        name: AppConstants.eventTrainingCycleCreated,
         parameters: {
           'weeks': weeks,
           'days_per_week': daysPerWeek,
@@ -56,14 +56,14 @@ class AnalyticsService {
     }
   }
 
-  /// Track when a mesocycle is started
-  Future<void> logMesocycleStarted({
+  /// Track when a trainingCycle is started
+  Future<void> logTrainingCycleStarted({
     required int weeks,
     required int daysPerWeek,
   }) async {
     try {
       await _analytics.logEvent(
-        name: AppConstants.eventMesocycleStarted,
+        name: AppConstants.eventTrainingCycleStarted,
         parameters: {
           'weeks': weeks,
           'days_per_week': daysPerWeek,
@@ -74,15 +74,15 @@ class AnalyticsService {
     }
   }
 
-  /// Track when a mesocycle is completed
-  Future<void> logMesocycleCompleted({
+  /// Track when a trainingCycle is completed
+  Future<void> logTrainingCycleCompleted({
     required int weeks,
     required int workoutsCompleted,
     required int totalWorkouts,
   }) async {
     try {
       await _analytics.logEvent(
-        name: AppConstants.eventMesocycleCompleted,
+        name: AppConstants.eventTrainingCycleCompleted,
         parameters: {
           'weeks': weeks,
           'workouts_completed': workoutsCompleted,
@@ -96,14 +96,14 @@ class AnalyticsService {
     }
   }
 
-  /// Track when a mesocycle is deleted
-  Future<void> logMesocycleDeleted({
+  /// Track when a trainingCycle is deleted
+  Future<void> logTrainingCycleDeleted({
     required int weeks,
     required String status,
   }) async {
     try {
       await _analytics.logEvent(
-        name: AppConstants.eventMesocycleDeleted,
+        name: AppConstants.eventTrainingCycleDeleted,
         parameters: {
           'weeks': weeks,
           'status': status,
@@ -242,7 +242,7 @@ class AnalyticsService {
 
   /// Track when data is exported
   Future<void> logDataExported({
-    required int mesocycleCount,
+    required int trainingCycleCount,
     required int workoutCount,
     required int exerciseCount,
   }) async {
@@ -250,7 +250,7 @@ class AnalyticsService {
       await _analytics.logEvent(
         name: AppConstants.eventDataExported,
         parameters: {
-          'mesocycle_count': mesocycleCount,
+          'trainingCycle_count': trainingCycleCount,
           'workout_count': workoutCount,
           'exercise_count': exerciseCount,
         },
@@ -262,7 +262,7 @@ class AnalyticsService {
 
   /// Track when data is imported
   Future<void> logDataImported({
-    required int mesocycleCount,
+    required int trainingCycleCount,
     required int workoutCount,
     required int exerciseCount,
     required String importMode,
@@ -271,7 +271,7 @@ class AnalyticsService {
       await _analytics.logEvent(
         name: AppConstants.eventDataImported,
         parameters: {
-          'mesocycle_count': mesocycleCount,
+          'trainingCycle_count': trainingCycleCount,
           'workout_count': workoutCount,
           'exercise_count': exerciseCount,
           'import_mode': importMode, // 'merge' or 'replace'

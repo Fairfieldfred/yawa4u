@@ -5,12 +5,12 @@ import 'package:go_router/go_router.dart';
 import '../../core/constants/muscle_groups.dart';
 import '../../domain/providers/onboarding_providers.dart';
 import '../screens/add_exercise_screen.dart';
-import '../screens/completed_mesocycle_workout_screen.dart';
+import '../screens/completed_cycle_workout_screen.dart';
+import '../screens/cycle_create_screen.dart';
 import '../screens/edit_workout_screen.dart';
 import '../screens/home_screen.dart';
-import '../screens/mesocycle_create_screen.dart';
 import '../screens/onboarding/onboarding_profile_screen.dart';
-import '../screens/plan_a_mesocycle_screen.dart';
+import '../screens/plan_a_cycle_screen.dart';
 import '../screens/settings_screen.dart';
 import '../screens/sync_screen.dart';
 
@@ -18,11 +18,12 @@ import '../screens/sync_screen.dart';
 class AppRoutes {
   static const String home = '/';
   static const String onboarding = '/onboarding';
-  static const String mesocycleList = '/mesocycles';
-  static const String planMesocycle = '/plan-mesocycle';
-  static const String mesocycleCreate = '/mesocycles/create';
-  static const String workoutList = '/mesocycles/:mesocycleId/workouts';
-  static const String completedMesocycleView = '/mesocycles/:mesocycleId/view';
+  static const String trainingCycleList = '/trainingCycles';
+  static const String planTrainingCycle = '/plan-trainingCycle';
+  static const String trainingCycleCreate = '/trainingCycles/create';
+  static const String workoutList = '/trainingCycles/:trainingCycleId/workouts';
+  static const String completedTrainingCycleView =
+      '/trainingCycles/:trainingCycleId/view';
 }
 
 /// Provider for GoRouter instance
@@ -61,46 +62,47 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const HomeScreen(),
       ),
 
-      // Plan a mesocycle screen
+      // Plan a trainingCycle screen
       GoRoute(
-        path: AppRoutes.planMesocycle,
-        name: 'plan-mesocycle',
-        builder: (context, state) => const PlanAMesocycleScreen(),
+        path: AppRoutes.planTrainingCycle,
+        name: 'plan-trainingCycle',
+        builder: (context, state) => const PlanATrainingCycleScreen(),
       ),
 
-      // Mesocycle creation screen
+      // TrainingCycle creation screen
       GoRoute(
-        path: AppRoutes.mesocycleCreate,
-        name: 'mesocycle-create',
-        builder: (context, state) => const MesocycleCreateScreen(),
+        path: AppRoutes.trainingCycleCreate,
+        name: 'trainingCycle-create',
+        builder: (context, state) => const TrainingCycleCreateScreen(),
       ),
 
-      // Edit workout screen for a mesocycle
+      // Edit workout screen for a trainingCycle
       GoRoute(
-        path: '/mesocycles/:mesocycleId/workouts',
+        path: '/trainingCycles/:trainingCycleId/workouts',
         name: 'workout-list',
         builder: (context, state) {
-          final mesocycleId = state.pathParameters['mesocycleId']!;
-          return EditWorkoutScreen(mesocycleId: mesocycleId);
+          final trainingCycleId = state.pathParameters['trainingCycleId']!;
+          return EditWorkoutScreen(trainingCycleId: trainingCycleId);
         },
       ),
 
-      // Read-only view of a completed mesocycle
+      // Read-only view of a completed trainingCycle
       GoRoute(
-        path: '/mesocycles/:mesocycleId/view',
-        name: 'completed-mesocycle-view',
+        path: '/trainingCycles/:trainingCycleId/view',
+        name: 'completed-trainingCycle-view',
         builder: (context, state) {
-          final mesocycleId = state.pathParameters['mesocycleId']!;
-          return CompletedMesocycleWorkoutScreen(mesocycleId: mesocycleId);
+          final trainingCycleId = state.pathParameters['trainingCycleId']!;
+          return CompletedCycleWorkoutScreen(trainingCycleId: trainingCycleId);
         },
       ),
 
       // Add exercise screen (choose from library)
       GoRoute(
-        path: '/mesocycles/:mesocycleId/workouts/:workoutId/choose-exercise',
+        path:
+            '/trainingCycles/:trainingCycleId/workouts/:workoutId/choose-exercise',
         name: 'add-exercise',
         builder: (context, state) {
-          final mesocycleId = state.pathParameters['mesocycleId']!;
+          final trainingCycleId = state.pathParameters['trainingCycleId']!;
           final workoutId = state.pathParameters['workoutId']!;
           final muscleGroupParam = state.uri.queryParameters['muscleGroup'];
 
@@ -116,7 +118,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           }
 
           return AddExerciseScreen(
-            mesocycleId: mesocycleId,
+            trainingCycleId: trainingCycleId,
             workoutId: workoutId,
             initialMuscleGroup: initialMuscleGroup,
           );

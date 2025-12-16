@@ -8,23 +8,23 @@ import '../../core/constants/equipment_types.dart';
 import '../../core/constants/muscle_groups.dart';
 import '../../data/models/exercise.dart';
 import '../../data/models/exercise_set.dart';
-import '../../data/models/mesocycle.dart';
-import '../../data/models/mesocycle_template.dart';
+import '../../data/models/training_cycle.dart';
+import '../../data/models/training_cycle_template.dart';
 import '../../data/models/workout.dart';
 import '../../data/services/analytics_service.dart';
 import '../../domain/providers/repository_providers.dart';
 import '../../domain/providers/template_providers.dart';
 
-/// Mesocycle creation screen with form
-class MesocycleCreateScreen extends ConsumerStatefulWidget {
-  const MesocycleCreateScreen({super.key});
+/// TrainingCycle creation screen with form
+class TrainingCycleCreateScreen extends ConsumerStatefulWidget {
+  const TrainingCycleCreateScreen({super.key});
 
   @override
-  ConsumerState<MesocycleCreateScreen> createState() =>
-      _MesocycleCreateScreenState();
+  ConsumerState<TrainingCycleCreateScreen> createState() =>
+      _TrainingCycleCreateScreenState();
 }
 
-class _MesocycleCreateScreenState extends ConsumerState<MesocycleCreateScreen> {
+class _TrainingCycleCreateScreenState extends ConsumerState<TrainingCycleCreateScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _uuid = const Uuid();
@@ -33,7 +33,7 @@ class _MesocycleCreateScreenState extends ConsumerState<MesocycleCreateScreen> {
   int _weeksTotal = 4;
   int _daysPerWeek = 4;
   int? _deloadWeek;
-  MesocycleTemplate? _selectedTemplate;
+  TrainingCycleTemplate? _selectedTemplate;
   bool _hasDeload = false;
   bool _isSubmitting = false;
 
@@ -43,7 +43,7 @@ class _MesocycleCreateScreenState extends ConsumerState<MesocycleCreateScreen> {
     super.dispose();
   }
 
-  Future<void> _createMesocycle() async {
+  Future<void> _createTrainingCycle() async {
     if (!_formKey.currentState!.validate()) {
       return;
     }
@@ -51,17 +51,17 @@ class _MesocycleCreateScreenState extends ConsumerState<MesocycleCreateScreen> {
     setState(() => _isSubmitting = true);
 
     try {
-      final repository = ref.read(mesocycleRepositoryProvider);
+      final repository = ref.read(trainingCycleRepositoryProvider);
       final analytics = AnalyticsService();
 
-      // Create mesocycle
-      final mesocycle = Mesocycle(
+      // Create trainingCycle
+      final trainingCycle = TrainingCycle(
         id: _uuid.v4(),
         name: _nameController.text.trim(),
         weeksTotal: _weeksTotal,
         daysPerWeek: _daysPerWeek,
         deloadWeek: _hasDeload ? _deloadWeek : null,
-        status: MesocycleStatus.draft,
+        status: TrainingCycleStatus.draft,
         gender:
             Gender.male, // Default value - will be set from onboarding later
         createdDate: DateTime.now(),
@@ -71,10 +71,10 @@ class _MesocycleCreateScreenState extends ConsumerState<MesocycleCreateScreen> {
       );
 
       // Save to database
-      await repository.create(mesocycle);
+      await repository.create(trainingCycle);
 
       // Log analytics
-      await analytics.logMesocycleCreated(
+      await analytics.logTrainingCycleCreated(
         weeks: _weeksTotal,
         daysPerWeek: _daysPerWeek,
         gender: 'not_specified', // Will be set from onboarding later
@@ -85,7 +85,7 @@ class _MesocycleCreateScreenState extends ConsumerState<MesocycleCreateScreen> {
         // Show success message
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Mesocycle "${mesocycle.name}" created!'),
+            content: Text('TrainingCycle "${trainingCycle.name}" created!'),
             backgroundColor: Colors.green,
           ),
         );
@@ -97,7 +97,7 @@ class _MesocycleCreateScreenState extends ConsumerState<MesocycleCreateScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error creating mesocycle: $e'),
+            content: Text('Error creating trainingCycle: $e'),
             backgroundColor: Colors.red,
           ),
         );
@@ -109,7 +109,7 @@ class _MesocycleCreateScreenState extends ConsumerState<MesocycleCreateScreen> {
     }
   }
 
-  /// Generate workout templates for the mesocycle
+  /// Generate workout templates for the trainingCycle
   /// If a template is selected, uses its exercises; otherwise creates empty workouts
   List<Workout> _generateWorkouts() {
     final workouts = <Workout>[];
@@ -127,7 +127,7 @@ class _MesocycleCreateScreenState extends ConsumerState<MesocycleCreateScreen> {
         workouts.add(
           Workout(
             id: _uuid.v4(),
-            mesocycleId: '', // Will be set when mesocycle is created
+            trainingCycleId: '', // Will be set when trainingCycle is created
             weekNumber: week,
             dayNumber: day,
             dayName: templateWorkout?.dayName,
@@ -181,7 +181,7 @@ class _MesocycleCreateScreenState extends ConsumerState<MesocycleCreateScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Create Mesocycle'),
+        title: const Text('Create TrainingCycle'),
         leading: IconButton(
           icon: const Icon(Icons.close),
           onPressed: () => context.pop(),
@@ -194,14 +194,14 @@ class _MesocycleCreateScreenState extends ConsumerState<MesocycleCreateScreen> {
           children: [
             // Header
             Text(
-              'New Training Mesocycle',
+              'New Training TrainingCycle',
               style: Theme.of(
                 context,
               ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             Text(
-              'A mesocycle is a multi-week training program with progressive overload',
+              'A trainingCycle is a multi-week training program with progressive overload',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: Theme.of(
                   context,
@@ -214,7 +214,7 @@ class _MesocycleCreateScreenState extends ConsumerState<MesocycleCreateScreen> {
             TextFormField(
               controller: _nameController,
               decoration: const InputDecoration(
-                labelText: 'Mesocycle Name',
+                labelText: 'TrainingCycle Name',
                 hintText: 'e.g., Spring 2025 Hypertrophy',
                 border: OutlineInputBorder(),
                 prefixIcon: Icon(Icons.fitness_center),
@@ -262,7 +262,7 @@ class _MesocycleCreateScreenState extends ConsumerState<MesocycleCreateScreen> {
 
             // Create button
             FilledButton.icon(
-              onPressed: _isSubmitting ? null : _createMesocycle,
+              onPressed: _isSubmitting ? null : _createTrainingCycle,
               icon: _isSubmitting
                   ? const SizedBox(
                       width: 20,
@@ -270,7 +270,7 @@ class _MesocycleCreateScreenState extends ConsumerState<MesocycleCreateScreen> {
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
                   : const Icon(Icons.check),
-              label: Text(_isSubmitting ? 'Creating...' : 'Create Mesocycle'),
+              label: Text(_isSubmitting ? 'Creating...' : 'Create TrainingCycle'),
               style: FilledButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 textStyle: const TextStyle(fontSize: 16),
@@ -494,7 +494,7 @@ class _MesocycleCreateScreenState extends ConsumerState<MesocycleCreateScreen> {
                 'Error loading templates: $error',
                 style: TextStyle(color: Theme.of(context).colorScheme.error),
               ),
-              data: (templates) => DropdownButtonFormField<MesocycleTemplate?>(
+              data: (templates) => DropdownButtonFormField<TrainingCycleTemplate?>(
                 initialValue: _selectedTemplate,
                 decoration: const InputDecoration(
                   labelText: 'Choose a Template',
@@ -502,12 +502,12 @@ class _MesocycleCreateScreenState extends ConsumerState<MesocycleCreateScreen> {
                   prefixIcon: Icon(Icons.library_books),
                 ),
                 items: [
-                  const DropdownMenuItem<MesocycleTemplate?>(
+                  const DropdownMenuItem<TrainingCycleTemplate?>(
                     value: null,
                     child: Text('None (Custom)'),
                   ),
                   ...templates.map(
-                    (template) => DropdownMenuItem<MesocycleTemplate?>(
+                    (template) => DropdownMenuItem<TrainingCycleTemplate?>(
                       value: template,
                       child: Text(template.name),
                     ),

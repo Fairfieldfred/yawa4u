@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/constants/muscle_groups.dart';
-import '../../data/models/mesocycle.dart';
+import '../../data/models/training_cycle.dart';
 import '../../domain/providers/workout_providers.dart';
 
 class MuscleGroupStatsDialog extends ConsumerWidget {
-  final Mesocycle mesocycle;
+  final TrainingCycle trainingCycle;
 
-  const MuscleGroupStatsDialog({super.key, required this.mesocycle});
+  const MuscleGroupStatsDialog({super.key, required this.trainingCycle});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -25,16 +25,16 @@ class MuscleGroupStatsDialog extends ConsumerWidget {
       insetPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 24),
       child: workoutsAsync.when(
         data: (allWorkouts) {
-          // 1. Filter workouts for this mesocycle
+          // 1. Filter workouts for this trainingCycle
           final workouts = allWorkouts
-              .where((w) => w.mesocycleId == mesocycle.id)
+              .where((w) => w.trainingCycleId == trainingCycle.id)
               .toList();
 
           if (workouts.isEmpty) {
             return Padding(
               padding: const EdgeInsets.all(20.0),
               child: Text(
-                'No workouts found for this mesocycle.',
+                'No workouts found for this trainingCycle.',
                 style: TextStyle(color: textColor),
               ),
             );
@@ -104,7 +104,7 @@ class MuscleGroupStatsDialog extends ConsumerWidget {
                       child: SizedBox(),
                     ), // Space for Muscle Group Name
                     ...weeks.map((week) {
-                      final isDeload = week == mesocycle.deloadWeek;
+                      final isDeload = week == trainingCycle.deloadWeek;
                       return Expanded(
                         child: Center(
                           child: Text(

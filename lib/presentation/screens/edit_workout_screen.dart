@@ -10,20 +10,20 @@ import '../../core/constants/muscle_groups.dart';
 import '../../core/utils/template_exporter.dart';
 import '../../data/models/exercise.dart';
 import '../../data/models/exercise_set.dart';
-import '../../data/models/mesocycle.dart';
+import '../../data/models/training_cycle.dart';
 import '../../data/models/workout.dart';
-import '../../domain/providers/mesocycle_providers.dart';
+import '../../domain/providers/training_cycle_providers.dart';
 import '../../domain/providers/repository_providers.dart';
 import '../../domain/providers/workout_providers.dart';
 import '../widgets/dialogs/exercise_info_dialog.dart';
 import 'add_exercise_screen.dart';
 import 'workout/edit_workout_controller.dart';
 
-/// Edit workout screen - Edit draft mesocycle design
+/// Edit workout screen - Edit draft trainingCycle design
 class EditWorkoutScreen extends ConsumerStatefulWidget {
-  final String mesocycleId;
+  final String trainingCycleId;
 
-  const EditWorkoutScreen({super.key, required this.mesocycleId});
+  const EditWorkoutScreen({super.key, required this.trainingCycleId});
 
   @override
   ConsumerState<EditWorkoutScreen> createState() => _EditWorkoutScreenState();
@@ -35,20 +35,20 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final mesocyclesAsync = ref.watch(mesocyclesProvider);
+    final trainingCyclesAsync = ref.watch(trainingCyclesProvider);
     final controller = ref.watch(
-      editWorkoutControllerProvider(widget.mesocycleId),
+      editWorkoutControllerProvider(widget.trainingCycleId),
     );
 
-    return mesocyclesAsync.when(
-      data: (mesocycles) {
-        final mesocycle = mesocycles.firstWhere(
-          (m) => m.id == widget.mesocycleId,
-          orElse: () => mesocycles.first,
+    return trainingCyclesAsync.when(
+      data: (trainingCycles) {
+        final trainingCycle = trainingCycles.firstWhere(
+          (m) => m.id == widget.trainingCycleId,
+          orElse: () => trainingCycles.first,
         );
 
         final workouts = ref.watch(
-          workoutsByMesocycleProvider(widget.mesocycleId),
+          workoutsByTrainingCycleProvider(widget.trainingCycleId),
         );
 
         // Get workouts for the selected week and day
@@ -68,45 +68,45 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
                 icon: const Icon(Icons.arrow_back),
                 onPressed: () => GoRouter.of(context).pop(),
               ),
-              title: Text(mesocycle.name),
+              title: Text(trainingCycle.name),
               actions: [
                 // Export template button (Debug only)
                 if (kDebugMode)
                   IconButton(
                     icon: const Icon(Icons.save_alt),
                     onPressed: () =>
-                        _exportTemplate(context, mesocycle, workouts),
+                        _exportTemplate(context, trainingCycle, workouts),
                     tooltip: 'Export Template (Debug)',
                   ),
-                // Start mesocycle button (if draft)
-                if (mesocycle.status == MesocycleStatus.draft)
+                // Start trainingCycle button (if draft)
+                if (trainingCycle.status == TrainingCycleStatus.draft)
                   IconButton(
                     icon: const Icon(Icons.play_arrow),
                     onPressed: () =>
-                        _startMesocycle(context, controller, mesocycle),
-                    tooltip: 'Start mesocycle',
+                        _startTrainingCycle(context, controller, trainingCycle),
+                    tooltip: 'Start trainingCycle',
                   ),
               ],
             ),
             body: Column(
               children: [
                 // Week selector
-                _buildWeekSelector(mesocycle, controller),
+                _buildWeekSelector(trainingCycle, controller),
 
                 // Day selector
-                _buildDaySelector(mesocycle, workouts, controller),
+                _buildDaySelector(trainingCycle, workouts, controller),
 
                 // Exercise list
                 Expanded(
                   child: dayWorkouts.isEmpty
-                      ? _buildEmptyState(context, mesocycle, controller)
+                      ? _buildEmptyState(context, trainingCycle, controller)
                       : _buildExerciseList(context, dayWorkouts, controller),
                 ),
               ],
             ),
             floatingActionButton: FloatingActionButton.extended(
               onPressed: () =>
-                  _showMuscleGroupSelector(context, mesocycle, controller),
+                  _showMuscleGroupSelector(context, trainingCycle, controller),
               backgroundColor: Theme.of(context).colorScheme.primary,
               label: const Text('Add Exercise'),
               icon: const Icon(Icons.add),
@@ -124,11 +124,11 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
   }
 
   Widget _buildWeekSelector(
-    Mesocycle mesocycle,
+    TrainingCycle trainingCycle,
     EditWorkoutController controller,
   ) {
     final allWorkouts = ref.watch(
-      workoutsByMesocycleProvider(widget.mesocycleId),
+      workoutsByTrainingCycleProvider(widget.trainingCycleId),
     );
     final week1HasWorkouts = allWorkouts.any((w) => w.weekNumber == 1);
 
@@ -154,8 +154,8 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
           // Remove week button
           IconButton(
             icon: const Icon(Icons.remove_circle_outline, size: 20),
-            onPressed: mesocycle.weeksTotal > 2
-                ? () => _showRemoveWeekDialog(mesocycle, controller)
+            onPressed: trainingCycle.weeksTotal > 2
+                ? () => _showRemoveWeekDialog(trainingCycle, controller)
                 : null,
             tooltip: 'Remove Week',
             visualDensity: VisualDensity.compact,
@@ -165,7 +165,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
           // Add week button
           IconButton(
             icon: const Icon(Icons.add_circle_outline, size: 20),
-            onPressed: () => _addWeek(mesocycle, controller),
+            onPressed: () => _addWeek(trainingCycle, controller),
             tooltip: 'Add Week',
             visualDensity: VisualDensity.compact,
             padding: EdgeInsets.zero,
@@ -176,10 +176,10 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
             child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: Row(
-                children: List.generate(mesocycle.weeksTotal, (index) {
+                children: List.generate(trainingCycle.weeksTotal, (index) {
                   final weekNumber = index + 1;
                   final isSelected = weekNumber == _selectedWeek;
-                  final isDeloadWeek = weekNumber == mesocycle.weeksTotal;
+                  final isDeloadWeek = weekNumber == trainingCycle.weeksTotal;
 
                   return Padding(
                     padding: const EdgeInsets.only(right: 4),
@@ -219,7 +219,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
             IconButton(
               icon: const Icon(Icons.content_copy, size: 20),
               onPressed: () =>
-                  _mirrorWeek1ToSelectedWeek(mesocycle, controller),
+                  _mirrorWeek1ToSelectedWeek(trainingCycle, controller),
               tooltip: 'Mirror Week 1',
               style: IconButton.styleFrom(
                 backgroundColor: Theme.of(context).colorScheme.primaryContainer,
@@ -234,15 +234,15 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
   }
 
   Future<void> _addWeek(
-    Mesocycle mesocycle,
+    TrainingCycle trainingCycle,
     EditWorkoutController controller,
   ) async {
     try {
-      await controller.addWeek(mesocycle);
+      await controller.addWeek(trainingCycle);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Week ${mesocycle.weeksTotal} added'),
+            content: Text('Week ${trainingCycle.weeksTotal} added'),
             backgroundColor: Colors.green,
           ),
         );
@@ -260,10 +260,10 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
   }
 
   Future<void> _showRemoveWeekDialog(
-    Mesocycle mesocycle,
+    TrainingCycle trainingCycle,
     EditWorkoutController controller,
   ) async {
-    final lastNonDeloadWeek = mesocycle.weeksTotal - 1;
+    final lastNonDeloadWeek = trainingCycle.weeksTotal - 1;
 
     final result = await showDialog<String>(
       context: context,
@@ -295,11 +295,11 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
     if (result != null && mounted) {
       try {
         final removeDeload = result == 'deload';
-        await controller.removeWeek(mesocycle, removeDeload: removeDeload);
+        await controller.removeWeek(trainingCycle, removeDeload: removeDeload);
 
         // Adjust selected week if it no longer exists
-        if (_selectedWeek > mesocycle.weeksTotal - 1) {
-          setState(() => _selectedWeek = mesocycle.weeksTotal - 1);
+        if (_selectedWeek > trainingCycle.weeksTotal - 1) {
+          setState(() => _selectedWeek = trainingCycle.weeksTotal - 1);
         }
 
         if (mounted) {
@@ -328,13 +328,13 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
   }
 
   Widget _buildDaySelector(
-    Mesocycle mesocycle,
+    TrainingCycle trainingCycle,
     List<Workout> workouts,
     EditWorkoutController controller,
   ) {
     // Build day labels as D1, D2, D3, etc.
     final dayLabels = <String>[];
-    for (int dayNum = 1; dayNum <= mesocycle.daysPerWeek; dayNum++) {
+    for (int dayNum = 1; dayNum <= trainingCycle.daysPerWeek; dayNum++) {
       dayLabels.add('D$dayNum');
     }
 
@@ -354,8 +354,8 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
           // Remove day button
           IconButton(
             icon: const Icon(Icons.remove_circle_outline, size: 20),
-            onPressed: mesocycle.daysPerWeek > 1
-                ? () => _removeDay(mesocycle, controller)
+            onPressed: trainingCycle.daysPerWeek > 1
+                ? () => _removeDay(trainingCycle, controller)
                 : null,
             tooltip: 'Remove Day',
             visualDensity: VisualDensity.compact,
@@ -365,8 +365,8 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
           // Add day button
           IconButton(
             icon: const Icon(Icons.add_circle_outline, size: 20),
-            onPressed: mesocycle.daysPerWeek < 7
-                ? () => _addDay(mesocycle, controller)
+            onPressed: trainingCycle.daysPerWeek < 7
+                ? () => _addDay(trainingCycle, controller)
                 : null,
             tooltip: 'Add Day',
             visualDensity: VisualDensity.compact,
@@ -420,15 +420,15 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
   }
 
   Future<void> _addDay(
-    Mesocycle mesocycle,
+    TrainingCycle trainingCycle,
     EditWorkoutController controller,
   ) async {
     try {
-      await controller.addDay(mesocycle);
+      await controller.addDay(trainingCycle);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Day ${mesocycle.daysPerWeek + 1} added'),
+            content: Text('Day ${trainingCycle.daysPerWeek + 1} added'),
             backgroundColor: Colors.green,
           ),
         );
@@ -446,13 +446,13 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
   }
 
   Future<void> _removeDay(
-    Mesocycle mesocycle,
+    TrainingCycle trainingCycle,
     EditWorkoutController controller,
   ) async {
-    final dayToRemove = mesocycle.daysPerWeek;
+    final dayToRemove = trainingCycle.daysPerWeek;
 
     // Check if there are any workouts on this day
-    final allWorkouts = ref.read(workoutsByMesocycleProvider(mesocycle.id));
+    final allWorkouts = ref.read(workoutsByTrainingCycleProvider(trainingCycle.id));
     final hasWorkoutsOnDay = allWorkouts.any((w) => w.dayNumber == dayToRemove);
 
     if (hasWorkoutsOnDay) {
@@ -484,11 +484,11 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
     }
 
     try {
-      await controller.removeDay(mesocycle);
+      await controller.removeDay(trainingCycle);
 
       // Adjust selected day if it no longer exists
-      if (_selectedDayIndex >= mesocycle.daysPerWeek - 1) {
-        setState(() => _selectedDayIndex = mesocycle.daysPerWeek - 2);
+      if (_selectedDayIndex >= trainingCycle.daysPerWeek - 1) {
+        setState(() => _selectedDayIndex = trainingCycle.daysPerWeek - 2);
       }
 
       if (mounted) {
@@ -1264,7 +1264,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => AddExerciseScreen(
-          mesocycleId: widget.mesocycleId,
+          trainingCycleId: widget.trainingCycleId,
           workoutId: exercise.workoutId,
           initialMuscleGroup: exercise.muscleGroup,
           replaceExerciseId: exercise.id,
@@ -1378,7 +1378,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
 
   Widget _buildEmptyState(
     BuildContext context,
-    Mesocycle? mesocycle,
+    TrainingCycle? trainingCycle,
     EditWorkoutController controller,
   ) {
     return Center(
@@ -1394,18 +1394,18 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
           Text('No Workouts', style: Theme.of(context).textTheme.headlineSmall),
           const SizedBox(height: 8),
           Text(
-            'This mesocycle has no workouts yet',
+            'This trainingCycle has no workouts yet',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               color: Theme.of(
                 context,
               ).colorScheme.onSurface.withValues(alpha: 0.7),
             ),
           ),
-          if (mesocycle != null) ...[
+          if (trainingCycle != null) ...[
             const SizedBox(height: 24),
             FilledButton.icon(
               onPressed: () =>
-                  _showMuscleGroupSelector(context, mesocycle, controller),
+                  _showMuscleGroupSelector(context, trainingCycle, controller),
               icon: const Icon(Icons.add),
               label: const Text('Add First Workout'),
             ),
@@ -1416,7 +1416,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
   }
 
   Future<void> _mirrorWeek1ToSelectedWeek(
-    Mesocycle mesocycle,
+    TrainingCycle trainingCycle,
     EditWorkoutController controller,
   ) async {
     final confirmed = await showDialog<bool>(
@@ -1441,7 +1441,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
 
     if (confirmed == true && mounted) {
       try {
-        await controller.mirrorWeek1ToSelectedWeek(mesocycle, _selectedWeek);
+        await controller.mirrorWeek1ToSelectedWeek(trainingCycle, _selectedWeek);
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -1464,17 +1464,17 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
     }
   }
 
-  Future<void> _startMesocycle(
+  Future<void> _startTrainingCycle(
     BuildContext context,
     EditWorkoutController controller,
-    Mesocycle mesocycle,
+    TrainingCycle trainingCycle,
   ) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Start Mesocycle'),
+        title: const Text('Start TrainingCycle'),
         content: Text(
-          'Start "${mesocycle.name}"? This will set it as your current mesocycle.',
+          'Start "${trainingCycle.name}"? This will set it as your current trainingCycle.',
         ),
         actions: [
           TextButton(
@@ -1491,12 +1491,12 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
 
     if (confirmed == true && context.mounted) {
       try {
-        await controller.startMesocycle(mesocycle);
+        await controller.startTrainingCycle(trainingCycle);
 
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Mesocycle started!'),
+              content: Text('TrainingCycle started!'),
               backgroundColor: Colors.green,
             ),
           );
@@ -1513,11 +1513,11 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
 
   void _showMuscleGroupSelector(
     BuildContext context,
-    Mesocycle mesocycle,
+    TrainingCycle trainingCycle,
     EditWorkoutController controller,
   ) {
     // Get workouts for the current day
-    final workouts = ref.read(workoutsByMesocycleProvider(widget.mesocycleId));
+    final workouts = ref.read(workoutsByTrainingCycleProvider(widget.trainingCycleId));
     final dayWorkouts = workouts
         .where(
           (w) =>
@@ -1579,7 +1579,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
                           Navigator.of(context).push(
                             MaterialPageRoute(
                               builder: (context) => AddExerciseScreen(
-                                mesocycleId: existingWorkout.mesocycleId,
+                                trainingCycleId: existingWorkout.trainingCycleId,
                                 workoutId: existingWorkout.id,
                                 initialMuscleGroup: muscleGroup,
                               ),
@@ -1589,7 +1589,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
                           // Create a new workout for this muscle group
                           final newWorkout = Workout(
                             id: const Uuid().v4(),
-                            mesocycleId: mesocycle.id,
+                            trainingCycleId: trainingCycle.id,
                             weekNumber: _selectedWeek,
                             dayNumber: _selectedDayIndex + 1,
                             label: muscleGroup.displayName,
@@ -1606,7 +1606,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
                             Navigator.of(context).push(
                               MaterialPageRoute(
                                 builder: (context) => AddExerciseScreen(
-                                  mesocycleId: newWorkout.mesocycleId,
+                                  trainingCycleId: newWorkout.trainingCycleId,
                                   workoutId: newWorkout.id,
                                   initialMuscleGroup: muscleGroup,
                                 ),
@@ -1628,13 +1628,13 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
 
   Future<void> _exportTemplate(
     BuildContext context,
-    Mesocycle mesocycle,
+    TrainingCycle trainingCycle,
     List<Workout> workouts,
   ) async {
     try {
-      // Create a copy of the mesocycle with the latest workouts
-      final mesocycleToExport = mesocycle.copyWith(workouts: workouts);
-      await TemplateExporter.exportToClipboard(mesocycleToExport);
+      // Create a copy of the trainingCycle with the latest workouts
+      final trainingCycleToExport = trainingCycle.copyWith(workouts: workouts);
+      await TemplateExporter.exportToClipboard(trainingCycleToExport);
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(

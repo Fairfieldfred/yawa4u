@@ -3,8 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../domain/providers/navigation_providers.dart';
 import '../../domain/providers/onboarding_providers.dart';
+import 'cycle_list_screen.dart';
 import 'exercises_home_screen.dart';
-import 'mesocycle_list_screen.dart';
 import 'more_screen.dart';
 import 'workout_home_screen.dart';
 
@@ -19,7 +19,7 @@ class HomeScreen extends ConsumerStatefulWidget {
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   static const List<Widget> _screens = [
     WorkoutHomeScreen(),
-    MesocycleListScreen(),
+    CycleListScreen(),
     ExercisesHomeScreen(),
     MoreScreen(),
   ];

@@ -138,7 +138,7 @@ class WifiSyncService {
         return Response.ok(
           jsonEncode({
             'deviceName': deviceName,
-            'mesocycles': stats.mesocycleCount,
+            'trainingCycles': stats.trainingCycleCount,
             'workouts': stats.workoutCount,
             'exercises': stats.exerciseCount,
           }),
@@ -240,7 +240,7 @@ class WifiSyncService {
           port: port,
           code: code,
           name: info['deviceName'] as String,
-          mesocycleCount: info['mesocycles'] as int,
+          trainingCycleCount: info['trainingCycles'] as int,
           workoutCount: info['workouts'] as int,
           exerciseCount: info['exercises'] as int,
         );
@@ -364,7 +364,7 @@ class DeviceInfo {
   final int port;
   final String code;
   final String name;
-  final int mesocycleCount;
+  final int trainingCycleCount;
   final int workoutCount;
   final int exerciseCount;
 
@@ -373,10 +373,10 @@ class DeviceInfo {
     required this.port,
     required this.code,
     required this.name,
-    required this.mesocycleCount,
+    required this.trainingCycleCount,
     required this.workoutCount,
     required this.exerciseCount,
   });
 
-  int get totalItems => mesocycleCount + workoutCount + exerciseCount;
+  int get totalItems => trainingCycleCount + workoutCount + exerciseCount;
 }

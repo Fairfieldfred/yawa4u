@@ -4,7 +4,7 @@ import 'package:uuid/uuid.dart';
 import '../../../core/constants/enums.dart';
 import '../../../core/constants/muscle_groups.dart';
 import '../../../data/models/exercise_set.dart';
-import '../../../data/models/mesocycle.dart';
+import '../../../data/models/training_cycle.dart';
 import '../../../data/models/workout.dart';
 import '../../../domain/providers/repository_providers.dart';
 import '../../../domain/providers/workout_providers.dart';
@@ -12,20 +12,20 @@ import '../../../domain/providers/workout_providers.dart';
 /// Controller for the EditWorkoutScreen
 ///
 /// Handles business logic for managing workouts, mirroring weeks,
-/// and starting mesocycles.
+/// and starting trainingCycles.
 class WorkoutListController {
   final Ref ref;
-  final String mesocycleId;
+  final String trainingCycleId;
 
-  WorkoutListController(this.ref, this.mesocycleId);
+  WorkoutListController(this.ref, this.trainingCycleId);
 
   /// Mirror Week 1 workouts to the selected week
   Future<void> mirrorWeek1ToSelectedWeek(
-    Mesocycle mesocycle,
+    TrainingCycle trainingCycle,
     int selectedWeek,
   ) async {
     final repository = ref.read(workoutRepositoryProvider);
-    final allWorkouts = ref.read(workoutsByMesocycleProvider(mesocycleId));
+    final allWorkouts = ref.read(workoutsByTrainingCycleProvider(trainingCycleId));
 
     // Get all Week 1 workouts
     final week1Workouts = allWorkouts.where((w) => w.weekNumber == 1).toList();
@@ -47,7 +47,7 @@ class WorkoutListController {
       final newWorkoutId = const Uuid().v4();
       final newWorkout = Workout(
         id: newWorkoutId,
-        mesocycleId: mesocycle.id,
+        trainingCycleId: trainingCycle.id,
         weekNumber: selectedWeek,
         dayNumber: workout.dayNumber,
         label: workout.label,
@@ -82,10 +82,10 @@ class WorkoutListController {
     await repository.delete(workoutId);
   }
 
-  /// Start the mesocycle
-  Future<void> startMesocycle(Mesocycle mesocycle) async {
-    final repository = ref.read(mesocycleRepositoryProvider);
-    await repository.setAsCurrent(mesocycle.id);
+  /// Start the trainingCycle
+  Future<void> startTrainingCycle(TrainingCycle trainingCycle) async {
+    final repository = ref.read(trainingCycleRepositoryProvider);
+    await repository.setAsCurrent(trainingCycle.id);
   }
 
   /// Create workouts for selected muscle groups
@@ -99,7 +99,7 @@ class WorkoutListController {
     for (final muscleGroup in muscleGroups) {
       final newWorkout = Workout(
         id: const Uuid().v4(),
-        mesocycleId: mesocycleId,
+        trainingCycleId: trainingCycleId,
         weekNumber: weekNumber,
         dayNumber: dayNumber,
         label: muscleGroup.displayName,
@@ -164,5 +164,5 @@ class WorkoutListController {
 /// Provider for the WorkoutListController
 final workoutListControllerProvider =
     Provider.family<WorkoutListController, String>(
-      (ref, mesocycleId) => WorkoutListController(ref, mesocycleId),
+      (ref, trainingCycleId) => WorkoutListController(ref, trainingCycleId),
     );

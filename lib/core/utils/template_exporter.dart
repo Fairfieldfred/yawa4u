@@ -3,37 +3,37 @@ import 'dart:convert';
 import 'package:flutter/services.dart';
 
 import '../../data/models/exercise.dart';
-import '../../data/models/mesocycle.dart';
-import '../../data/models/mesocycle_template.dart';
+import '../../data/models/training_cycle.dart';
+import '../../data/models/training_cycle_template.dart';
 import '../../data/models/workout.dart';
 
 class TemplateExporter {
-  /// Converts a Mesocycle to a JSON string compatible with the template system
+  /// Converts a TrainingCycle to a JSON string compatible with the template system
   /// and copies it to the clipboard.
-  static Future<void> exportToClipboard(Mesocycle mesocycle) async {
-    final template = _convertMesocycleToTemplate(mesocycle);
+  static Future<void> exportToClipboard(TrainingCycle trainingCycle) async {
+    final template = _convertTrainingCycleToTemplate(trainingCycle);
     final jsonMap = template.toJson();
     final jsonString = const JsonEncoder.withIndent('    ').convert(jsonMap);
 
     await Clipboard.setData(ClipboardData(text: jsonString));
   }
 
-  static MesocycleTemplate _convertMesocycleToTemplate(Mesocycle mesocycle) {
+  static TrainingCycleTemplate _convertTrainingCycleToTemplate(TrainingCycle trainingCycle) {
     // Sort workouts to ensure they are in order
-    final sortedWorkouts = List<Workout>.from(mesocycle.workouts)
+    final sortedWorkouts = List<Workout>.from(trainingCycle.workouts)
       ..sort((a, b) {
         final weekComp = a.weekNumber.compareTo(b.weekNumber);
         if (weekComp != 0) return weekComp;
         return a.dayNumber.compareTo(b.dayNumber);
       });
 
-    return MesocycleTemplate(
-      id: mesocycle.name.toLowerCase().replaceAll(' ', '_'),
-      name: mesocycle.name,
-      description: 'Exported from app: ${mesocycle.name}',
-      weeksTotal: mesocycle.weeksTotal,
-      daysPerWeek: mesocycle.daysPerWeek,
-      deloadWeek: mesocycle.deloadWeek,
+    return TrainingCycleTemplate(
+      id: trainingCycle.name.toLowerCase().replaceAll(' ', '_'),
+      name: trainingCycle.name,
+      description: 'Exported from app: ${trainingCycle.name}',
+      weeksTotal: trainingCycle.weeksTotal,
+      daysPerWeek: trainingCycle.daysPerWeek,
+      deloadWeek: trainingCycle.deloadWeek,
       workouts: sortedWorkouts.map(_convertWorkoutToTemplate).toList(),
     );
   }

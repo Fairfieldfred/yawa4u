@@ -17,13 +17,13 @@ final workoutsProvider = StreamProvider<List<Workout>>((ref) async* {
   }
 });
 
-/// Provider for workouts by mesocycle ID
-final workoutsByMesocycleProvider =
-    Provider.family<List<Workout>, String>((ref, mesocycleId) {
+/// Provider for workouts by trainingCycle ID
+final workoutsByTrainingCycleProvider =
+    Provider.family<List<Workout>, String>((ref, trainingCycleId) {
   // Watch the workouts stream to get reactive updates
   final workouts = ref.watch(workoutsProvider);
   return workouts.when(
-    data: (list) => list.where((w) => w.mesocycleId == mesocycleId).toList()
+    data: (list) => list.where((w) => w.trainingCycleId == trainingCycleId).toList()
       ..sort((a, b) {
         // Sort by week, then by day
         final weekCompare = a.weekNumber.compareTo(b.weekNumber);
@@ -37,10 +37,10 @@ final workoutsByMesocycleProvider =
 
 /// Provider for workouts by week
 final workoutsByWeekProvider =
-    Provider.family<List<Workout>, ({String mesocycleId, int weekNumber})>(
+    Provider.family<List<Workout>, ({String trainingCycleId, int weekNumber})>(
   (ref, params) {
     final repository = ref.watch(workoutRepositoryProvider);
-    return repository.getByWeek(params.mesocycleId, params.weekNumber);
+    return repository.getByWeek(params.trainingCycleId, params.weekNumber);
   },
 );
 
@@ -89,9 +89,9 @@ final workoutStatsProvider = Provider<Map<String, dynamic>>((ref) {
   return repository.getStats();
 });
 
-/// Provider for workout statistics by mesocycle
-final workoutStatsForMesocycleProvider =
-    Provider.family<Map<String, dynamic>, String>((ref, mesocycleId) {
+/// Provider for workout statistics by trainingCycle
+final workoutStatsForTrainingCycleProvider =
+    Provider.family<Map<String, dynamic>, String>((ref, trainingCycleId) {
   final repository = ref.watch(workoutRepositoryProvider);
-  return repository.getStatsForMesocycle(mesocycleId);
+  return repository.getStatsForTrainingCycle(trainingCycleId);
 });

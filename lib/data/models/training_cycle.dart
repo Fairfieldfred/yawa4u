@@ -3,13 +3,13 @@ import '../../core/constants/enums.dart';
 import '../../core/utils/date_helpers.dart';
 import 'workout.dart';
 
-part 'mesocycle.g.dart';
+part 'training_cycle.g.dart';
 
-/// Represents a mesocycle (multi-week training program)
+/// Represents a trainingCycle (multi-week training program)
 ///
-/// Contains mesocycle configuration, workouts, and progression tracking.
+/// Contains trainingCycle configuration, workouts, and progression tracking.
 @HiveType(typeId: 4)
-class Mesocycle {
+class TrainingCycle {
   @HiveField(0)
   final String id;
 
@@ -26,7 +26,7 @@ class Mesocycle {
   final int deloadWeek;
 
   @HiveField(5)
-  final MesocycleStatus status;
+  final TrainingCycleStatus status;
 
   @HiveField(6)
   final Gender? gender;
@@ -53,13 +53,13 @@ class Mesocycle {
   @HiveField(13)
   final String? notes;
 
-  Mesocycle({
+  TrainingCycle({
     required this.id,
     required this.name,
     required this.weeksTotal,
     required this.daysPerWeek,
     int? deloadWeek,
-    this.status = MesocycleStatus.draft,
+    this.status = TrainingCycleStatus.draft,
     this.gender,
     DateTime? createdDate,
     this.startDate,
@@ -75,7 +75,7 @@ class Mesocycle {
   /// Calculate end date based on start date and weeks
   DateTime? getEndDate() {
     if (startDate == null) return null;
-    return DateHelpers.getMesocycleEndDate(startDate!, weeksTotal);
+    return DateHelpers.getTrainingCycleEndDate(startDate!, weeksTotal);
   }
 
   /// Get current week number (1-based) based on today's date
@@ -100,14 +100,14 @@ class Mesocycle {
     return completedWorkouts / workouts.length;
   }
 
-  /// Check if mesocycle is active (current status)
-  bool get isActive => status == MesocycleStatus.current;
+  /// Check if trainingCycle is active (current status)
+  bool get isActive => status == TrainingCycleStatus.current;
 
-  /// Check if mesocycle is completed
-  bool get isCompleted => status == MesocycleStatus.completed;
+  /// Check if trainingCycle is completed
+  bool get isCompleted => status == TrainingCycleStatus.completed;
 
-  /// Check if mesocycle is draft
-  bool get isDraft => status == MesocycleStatus.draft;
+  /// Check if trainingCycle is draft
+  bool get isDraft => status == TrainingCycleStatus.draft;
 
   /// Get total number of workouts completed
   int get completedWorkoutCount {
@@ -122,31 +122,31 @@ class Mesocycle {
   /// Get total number of workouts
   int get totalWorkoutCount => workouts.length;
 
-  /// Start the mesocycle
-  Mesocycle start({DateTime? date}) {
+  /// Start the trainingCycle
+  TrainingCycle start({DateTime? date}) {
     return copyWith(
-      status: MesocycleStatus.current,
+      status: TrainingCycleStatus.current,
       startDate: date ?? DateTime.now(),
       endDate: getEndDate(),
     );
   }
 
-  /// Complete the mesocycle
-  Mesocycle complete() {
+  /// Complete the trainingCycle
+  TrainingCycle complete() {
     return copyWith(
-      status: MesocycleStatus.completed,
+      status: TrainingCycleStatus.completed,
     );
   }
 
   /// Add a workout
-  Mesocycle addWorkout(Workout workout) {
+  TrainingCycle addWorkout(Workout workout) {
     return copyWith(
       workouts: [...workouts, workout],
     );
   }
 
   /// Update a workout at a specific index
-  Mesocycle updateWorkout(int index, Workout workout) {
+  TrainingCycle updateWorkout(int index, Workout workout) {
     if (index < 0 || index >= workouts.length) return this;
     final newWorkouts = List<Workout>.from(workouts);
     newWorkouts[index] = workout;
@@ -168,13 +168,13 @@ class Mesocycle {
   }
 
   /// Create a copy with updated fields
-  Mesocycle copyWith({
+  TrainingCycle copyWith({
     String? id,
     String? name,
     int? weeksTotal,
     int? daysPerWeek,
     int? deloadWeek,
-    MesocycleStatus? status,
+    TrainingCycleStatus? status,
     Gender? gender,
     DateTime? createdDate,
     DateTime? startDate,
@@ -184,7 +184,7 @@ class Mesocycle {
     String? templateName,
     String? notes,
   }) {
-    return Mesocycle(
+    return TrainingCycle(
       id: id ?? this.id,
       name: name ?? this.name,
       weeksTotal: weeksTotal ?? this.weeksTotal,
@@ -223,16 +223,16 @@ class Mesocycle {
   }
 
   /// Create from JSON for import
-  factory Mesocycle.fromJson(Map<String, dynamic> json) {
-    return Mesocycle(
+  factory TrainingCycle.fromJson(Map<String, dynamic> json) {
+    return TrainingCycle(
       id: json['id'] as String,
       name: json['name'] as String,
       weeksTotal: json['weeksTotal'] as int,
       daysPerWeek: json['daysPerWeek'] as int,
       deloadWeek: json['deloadWeek'] as int?,
-      status: MesocycleStatus.values.firstWhere(
+      status: TrainingCycleStatus.values.firstWhere(
         (e) => e.name == json['status'],
-        orElse: () => MesocycleStatus.draft,
+        orElse: () => TrainingCycleStatus.draft,
       ),
       gender: json['gender'] != null
           ? Gender.values.firstWhere(
@@ -262,14 +262,14 @@ class Mesocycle {
 
   @override
   String toString() {
-    return 'Mesocycle(name: $name, weeks: $weeksTotal, days/week: $daysPerWeek, status: ${status.name})';
+    return 'TrainingCycle(name: $name, weeks: $weeksTotal, days/week: $daysPerWeek, status: ${status.name})';
   }
 
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
 
-    return other is Mesocycle &&
+    return other is TrainingCycle &&
         other.id == id &&
         other.name == name &&
         other.weeksTotal == weeksTotal &&

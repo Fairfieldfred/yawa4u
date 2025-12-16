@@ -10,7 +10,7 @@ import '../../../core/constants/enums.dart';
 import '../../../core/constants/equipment_types.dart';
 import '../../../core/constants/muscle_groups.dart';
 import '../../../data/models/exercise.dart';
-import '../../../data/models/mesocycle.dart';
+import '../../../data/models/training_cycle.dart';
 import '../../../data/models/workout.dart';
 import '../../../domain/providers/repository_providers.dart';
 
@@ -397,14 +397,14 @@ class _ExerciseInfoDialogState extends ConsumerState<ExerciseInfoDialog> {
 
   Widget _buildHistoryTab(BuildContext context) {
     final workoutRepo = ref.read(workoutRepositoryProvider);
-    final mesocycleRepo = ref.read(mesocycleRepositoryProvider);
+    final trainingCycleRepo = ref.read(trainingCycleRepositoryProvider);
     final allWorkouts = workoutRepo.getAll();
-    final allMesocycles = mesocycleRepo.getAll();
+    final allTrainingCycles = trainingCycleRepo.getAll();
 
-    // Create a map of mesocycleId -> mesocycle for quick lookup
-    final mesocycleMap = {for (var m in allMesocycles) m.id: m};
+    // Create a map of trainingCycleId -> trainingCycle for quick lookup
+    final trainingCycleMap = {for (var m in allTrainingCycles) m.id: m};
 
-    // Find all exercises with the same name from all workouts (across all mesocycles)
+    // Find all exercises with the same name from all workouts (across all trainingCycles)
     final List<_HistoryEntry> historyEntries = [];
 
     for (final workout in allWorkouts) {
@@ -412,12 +412,12 @@ class _ExerciseInfoDialogState extends ConsumerState<ExerciseInfoDialog> {
         if (exercise.name.toLowerCase() == widget.exercise.name.toLowerCase()) {
           // Only include exercises with at least one logged set
           if (exercise.sets.any((s) => s.isLogged)) {
-            final mesocycle = mesocycleMap[workout.mesocycleId];
+            final trainingCycle = trainingCycleMap[workout.trainingCycleId];
             historyEntries.add(
               _HistoryEntry(
                 exercise: exercise,
                 workout: workout,
-                mesocycle: mesocycle,
+                trainingCycle: trainingCycle,
                 completedDate: workout.completedDate ?? exercise.lastPerformed,
               ),
             );
@@ -478,23 +478,23 @@ class _ExerciseInfoDialogState extends ConsumerState<ExerciseInfoDialog> {
       );
     }
 
-    // Group entries by mesocycle
-    final Map<String, List<_HistoryEntry>> groupedByMesocycle = {};
+    // Group entries by trainingCycle
+    final Map<String, List<_HistoryEntry>> groupedByTrainingCycle = {};
     for (final entry in filteredHistory) {
-      final mesocycleId = entry.mesocycle?.id ?? 'unknown';
-      groupedByMesocycle.putIfAbsent(mesocycleId, () => []).add(entry);
+      final trainingCycleId = entry.trainingCycle?.id ?? 'unknown';
+      groupedByTrainingCycle.putIfAbsent(trainingCycleId, () => []).add(entry);
     }
 
-    // Build list with mesocycle headers
+    // Build list with trainingCycle headers
     final List<Widget> children = [];
-    for (final mesocycleId in groupedByMesocycle.keys) {
-      final entries = groupedByMesocycle[mesocycleId]!;
-      final mesocycle = entries.first.mesocycle;
+    for (final trainingCycleId in groupedByTrainingCycle.keys) {
+      final entries = groupedByTrainingCycle[trainingCycleId]!;
+      final trainingCycle = entries.first.trainingCycle;
 
-      // Add mesocycle header
-      children.add(_buildMesocycleHeader(context, mesocycle));
+      // Add trainingCycle header
+      children.add(_buildTrainingCycleHeader(context, trainingCycle));
 
-      // Add entries for this mesocycle
+      // Add entries for this trainingCycle
       for (final entry in entries) {
         children.add(_buildHistoryRow(context, entry));
       }
@@ -507,9 +507,9 @@ class _ExerciseInfoDialogState extends ConsumerState<ExerciseInfoDialog> {
     );
   }
 
-  Widget _buildMesocycleHeader(BuildContext context, Mesocycle? mesocycle) {
-    final name = mesocycle?.name ?? 'Unknown Mesocycle';
-    final weeks = mesocycle?.weeksTotal ?? 0;
+  Widget _buildTrainingCycleHeader(BuildContext context, TrainingCycle? trainingCycle) {
+    final name = trainingCycle?.name ?? 'Unknown TrainingCycle';
+    final weeks = trainingCycle?.weeksTotal ?? 0;
 
     return Padding(
       padding: const EdgeInsets.only(top: 8, bottom: 12),
@@ -534,8 +534,8 @@ class _ExerciseInfoDialogState extends ConsumerState<ExerciseInfoDialog> {
 
     final loggedSets = entry.exercise.sets.where((s) => s.isLogged).toList();
     final isDeload =
-        entry.mesocycle != null &&
-        entry.workout.weekNumber == entry.mesocycle!.deloadWeek;
+        entry.trainingCycle != null &&
+        entry.workout.weekNumber == entry.trainingCycle!.deloadWeek;
 
     // Build the weight × reps string with set type badges
     final weight = loggedSets.isNotEmpty && loggedSets.first.weight != null
@@ -687,13 +687,13 @@ Future<void> showExerciseInfoDialog(
 class _HistoryEntry {
   final Exercise exercise;
   final Workout workout;
-  final Mesocycle? mesocycle;
+  final TrainingCycle? trainingCycle;
   final DateTime? completedDate;
 
   _HistoryEntry({
     required this.exercise,
     required this.workout,
-    this.mesocycle,
+    this.trainingCycle,
     this.completedDate,
   });
 }

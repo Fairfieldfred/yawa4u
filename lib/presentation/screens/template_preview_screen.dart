@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/constants/muscle_groups.dart';
-import '../../data/models/mesocycle_template.dart';
+import '../../data/models/training_cycle_template.dart';
 import '../../domain/providers/repository_providers.dart';
 import '../../domain/providers/template_providers.dart';
 
 class TemplatePreviewScreen extends ConsumerStatefulWidget {
-  final MesocycleTemplate template;
+  final TrainingCycleTemplate template;
 
   const TemplatePreviewScreen({super.key, required this.template});
 
@@ -29,20 +29,20 @@ class _TemplatePreviewScreenState extends ConsumerState<TemplatePreviewScreen> {
       const userName = 'User';
 
       final repository = ref.read(templateRepositoryProvider);
-      final mesocycle = await repository.createMesocycleFromTemplate(
+      final trainingCycle = await repository.createTrainingCycleFromTemplate(
         widget.template,
         userName,
       );
 
-      // Save mesocycle
-      final mesocycleRepository = ref.read(mesocycleRepositoryProvider);
-      await mesocycleRepository.create(mesocycle);
+      // Save trainingCycle
+      final trainingCycleRepository = ref.read(trainingCycleRepositoryProvider);
+      await trainingCycleRepository.create(trainingCycle);
 
       // Save workouts and exercises
       final workoutRepository = ref.read(workoutRepositoryProvider);
       final exerciseRepository = ref.read(exerciseRepositoryProvider);
 
-      for (final workout in mesocycle.workouts) {
+      for (final workout in trainingCycle.workouts) {
         await workoutRepository.create(workout);
         for (final exercise in workout.exercises) {
           await exerciseRepository.create(exercise);

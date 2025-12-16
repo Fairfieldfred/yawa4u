@@ -4,7 +4,7 @@ import 'exercise.dart';
 
 part 'workout.g.dart';
 
-/// Represents a workout session within a mesocycle
+/// Represents a workout session within a trainingCycle
 ///
 /// Contains workout details, exercises, and completion status.
 @HiveType(typeId: 3)
@@ -13,7 +13,7 @@ class Workout {
   final String id;
 
   @HiveField(1)
-  final String mesocycleId;
+  final String trainingCycleId;
 
   @HiveField(2)
   final int weekNumber;
@@ -44,7 +44,7 @@ class Workout {
 
   Workout({
     required this.id,
-    required this.mesocycleId,
+    required this.trainingCycleId,
     required this.weekNumber,
     required this.dayNumber,
     this.dayName,
@@ -150,7 +150,7 @@ class Workout {
   /// Create a copy with updated fields
   Workout copyWith({
     String? id,
-    String? mesocycleId,
+    String? trainingCycleId,
     int? weekNumber,
     int? dayNumber,
     String? dayName,
@@ -163,7 +163,7 @@ class Workout {
   }) {
     return Workout(
       id: id ?? this.id,
-      mesocycleId: mesocycleId ?? this.mesocycleId,
+      trainingCycleId: trainingCycleId ?? this.trainingCycleId,
       weekNumber: weekNumber ?? this.weekNumber,
       dayNumber: dayNumber ?? this.dayNumber,
       dayName: dayName ?? this.dayName,
@@ -180,7 +180,7 @@ class Workout {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'mesocycleId': mesocycleId,
+      'trainingCycleId': trainingCycleId,
       'weekNumber': weekNumber,
       'dayNumber': dayNumber,
       'dayName': dayName,
@@ -197,7 +197,7 @@ class Workout {
   factory Workout.fromJson(Map<String, dynamic> json) {
     return Workout(
       id: json['id'] as String,
-      mesocycleId: json['mesocycleId'] as String,
+      trainingCycleId: json['trainingCycleId'] as String,
       weekNumber: json['weekNumber'] as int,
       dayNumber: json['dayNumber'] as int,
       dayName: json['dayName'] as String?,
@@ -231,7 +231,7 @@ class Workout {
 
     return other is Workout &&
         other.id == id &&
-        other.mesocycleId == mesocycleId &&
+        other.trainingCycleId == trainingCycleId &&
         other.weekNumber == weekNumber &&
         other.dayNumber == dayNumber;
   }
@@ -240,7 +240,7 @@ class Workout {
   int get hashCode {
     return Object.hash(
       id,
-      mesocycleId,
+      trainingCycleId,
       weekNumber,
       dayNumber,
     );

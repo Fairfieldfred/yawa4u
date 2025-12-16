@@ -14,7 +14,7 @@ class AppConstants {
   static const String exportFilePrefix = 'yawa4u_backup';
   static const String exportFileExtension = 'json';
 
-  // Mesocycle Constraints
+  // TrainingCycle Constraints
   static const int minWeeks = 1;
   static const int maxWeeks = 8;
   static const int minDaysPerWeek = 1;
@@ -54,7 +54,7 @@ class AppConstants {
       'How sore did you get in your $muscleGroup AFTER training it LAST TIME?';
 
   // UI Text
-  static const String draftBannerText = 'CONTINUE EDITING DRAFT MESOCYCLE';
+  static const String draftBannerText = 'CONTINUE EDITING DRAFT TRAINING CYCLE';
   static const String noExercisesTitle = 'No exercises';
   static const String noExercisesMessage =
       'Your custom exercises will appear here.';
@@ -85,7 +85,7 @@ class AppConstants {
 
   // Bottom Navigation Labels
   static const String navWorkout = 'Workout';
-  static const String navMesocycles = 'Mesocycles';
+  static const String navTrainingCycles = 'TrainingCycles';
   static const String navExercises = 'Exercises';
   static const String navMore = 'More';
 
@@ -105,10 +105,10 @@ class AppConstants {
   static const String helpUrl = 'https://example.com/help';
 
   // Analytics Event Names
-  static const String eventMesocycleCreated = 'mesocycle_created';
-  static const String eventMesocycleStarted = 'mesocycle_started';
-  static const String eventMesocycleCompleted = 'mesocycle_completed';
-  static const String eventMesocycleDeleted = 'mesocycle_deleted';
+  static const String eventTrainingCycleCreated = 'trainingCycle_created';
+  static const String eventTrainingCycleStarted = 'trainingCycle_started';
+  static const String eventTrainingCycleCompleted = 'trainingCycle_completed';
+  static const String eventTrainingCycleDeleted = 'trainingCycle_deleted';
   static const String eventWorkoutCompleted = 'workout_completed';
   static const String eventWorkoutSkipped = 'workout_skipped';
   static const String eventWorkoutReset = 'workout_reset';

@@ -119,14 +119,14 @@ class Validators {
     return null;
   }
 
-  // ========== MESOCYCLE VALIDATORS ==========
+  // ========== TRAINING CYCLE VALIDATORS ==========
 
-  /// Validate mesocycle name
-  static String? mesocycleName(String? value) {
+  /// Validate trainingCycle name
+  static String? trainingCycleName(String? value) {
     return combine(value, [
-      (v) => required(v, fieldName: 'Mesocycle name'),
-      (v) => minLength(v, 1, fieldName: 'Mesocycle name'),
-      (v) => maxLength(v, 100, fieldName: 'Mesocycle name'),
+      (v) => required(v, fieldName: 'TrainingCycle name'),
+      (v) => minLength(v, 1, fieldName: 'TrainingCycle name'),
+      (v) => maxLength(v, 100, fieldName: 'TrainingCycle name'),
     ]);
   }
 

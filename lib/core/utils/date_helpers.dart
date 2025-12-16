@@ -144,32 +144,32 @@ class DateHelpers {
     );
   }
 
-  // ========== MESOCYCLE HELPERS ==========
+  // ========== TRAINING CYCLE HELPERS ==========
 
-  /// Calculate the end date of a mesocycle given start date and duration
+  /// Calculate the end date of a trainingCycle given start date and duration
   /// Duration is in weeks
-  static DateTime getMesocycleEndDate(DateTime startDate, int weeks) {
+  static DateTime getTrainingCycleEndDate(DateTime startDate, int weeks) {
     return addWeeks(startDate, weeks).subtract(const Duration(days: 1));
   }
 
-  /// Get the date for a specific week and day in a mesocycle
+  /// Get the date for a specific week and day in a trainingCycle
   /// Week number: 1-based (1 = first week)
   /// Day number: 0-based (0 = Sunday, 6 = Saturday)
   static DateTime getWorkoutDate(
-    DateTime mesocycleStart,
+    DateTime trainingCycleStart,
     int weekNumber,
     int dayNumber,
   ) {
     final weekOffset = weekNumber - 1; // Convert to 0-based
     final daysOffset = (weekOffset * 7) + dayNumber;
-    return addDays(mesocycleStart, daysOffset);
+    return addDays(trainingCycleStart, daysOffset);
   }
 
-  /// Get the current week number in a mesocycle (1-based)
-  /// Returns null if date is before mesocycle start
-  static int? getCurrentWeek(DateTime mesocycleStart, DateTime date) {
-    if (date.isBefore(mesocycleStart)) return null;
-    final days = daysBetween(mesocycleStart, date);
+  /// Get the current week number in a trainingCycle (1-based)
+  /// Returns null if date is before trainingCycle start
+  static int? getCurrentWeek(DateTime trainingCycleStart, DateTime date) {
+    if (date.isBefore(trainingCycleStart)) return null;
+    final days = daysBetween(trainingCycleStart, date);
     return (days ~/ 7) + 1;
   }
 
@@ -244,8 +244,8 @@ class DateHelpers {
 
   // ========== VALIDATION ==========
 
-  /// Check if a date is valid for a mesocycle start (not in the past)
-  static bool isValidMesocycleStartDate(DateTime date) {
+  /// Check if a date is valid for a trainingCycle start (not in the past)
+  static bool isValidTrainingCycleStartDate(DateTime date) {
     return !isPast(date) || isToday(date);
   }
 

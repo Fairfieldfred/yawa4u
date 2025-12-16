@@ -9,18 +9,18 @@ import '../../core/constants/equipment_types.dart';
 import '../../core/constants/muscle_groups.dart';
 import '../models/exercise.dart';
 import '../models/exercise_set.dart';
-import '../models/mesocycle.dart';
-import '../models/mesocycle_template.dart';
+import '../models/training_cycle.dart';
+import '../models/training_cycle_template.dart';
 import '../models/workout.dart';
 
-/// Repository for managing mesocycle templates
+/// Repository for managing trainingCycle templates
 class TemplateRepository {
   final _uuid = const Uuid();
   static const String _savedTemplatesBoxName = 'saved_templates';
 
   /// Load all available templates from assets
-  Future<List<MesocycleTemplate>> loadTemplates() async {
-    final templates = <MesocycleTemplate>[];
+  Future<List<TrainingCycleTemplate>> loadTemplates() async {
+    final templates = <TrainingCycleTemplate>[];
     List<String> templatePaths = [];
 
     // Try dynamic discovery using AssetManifest
@@ -81,7 +81,7 @@ class TemplateRepository {
       try {
         final jsonString = await rootBundle.loadString(path);
         templates.add(
-          MesocycleTemplate.fromJson(
+          TrainingCycleTemplate.fromJson(
             json.decode(jsonString) as Map<String, dynamic>,
           ),
         );
@@ -94,16 +94,16 @@ class TemplateRepository {
   }
 
   /// Load saved (user-created) templates from Hive
-  Future<List<MesocycleTemplate>> loadSavedTemplates() async {
+  Future<List<TrainingCycleTemplate>> loadSavedTemplates() async {
     print('=== loadSavedTemplates called ===');
     try {
       final box = await Hive.openBox<String>(_savedTemplatesBoxName);
       print('Saved templates box opened, contains ${box.length} items');
-      final savedTemplates = <MesocycleTemplate>[];
+      final savedTemplates = <TrainingCycleTemplate>[];
 
       for (final jsonString in box.values) {
         try {
-          final template = MesocycleTemplate.fromJson(
+          final template = TrainingCycleTemplate.fromJson(
             json.decode(jsonString) as Map<String, dynamic>,
           );
           print('Loaded saved template: ${template.name}');
@@ -122,7 +122,7 @@ class TemplateRepository {
   }
 
   /// Get all available templates (both built-in and user-saved)
-  Future<List<MesocycleTemplate>> getAllTemplates() async {
+  Future<List<TrainingCycleTemplate>> getAllTemplates() async {
     final builtInTemplates = await loadTemplates();
     final savedTemplates = await loadSavedTemplates();
     return [...builtInTemplates, ...savedTemplates];
@@ -150,19 +150,19 @@ class TemplateRepository {
     }
   }
 
-  /// Save a mesocycle as a template
+  /// Save a trainingCycle as a template
   Future<void> saveAsTemplate(
-    Mesocycle mesocycle,
+    TrainingCycle trainingCycle,
     String name,
     String description,
   ) async {
     print('=== saveAsTemplate called ===');
-    print('Mesocycle name: ${mesocycle.name}');
+    print('TrainingCycle name: ${trainingCycle.name}');
     print('Template name: $name');
     print('Description: $description');
-    print('Workouts count: ${mesocycle.workouts.length}');
+    print('Workouts count: ${trainingCycle.workouts.length}');
 
-    final template = _convertMesocycleToTemplate(mesocycle, name, description);
+    final template = _convertTrainingCycleToTemplate(trainingCycle, name, description);
     print(
       'Template created with ${template.workouts.length} workout templates',
     );
@@ -176,17 +176,17 @@ class TemplateRepository {
     print('Box now contains ${box.length} templates');
   }
 
-  /// Convert a Mesocycle to a MesocycleTemplate
-  MesocycleTemplate _convertMesocycleToTemplate(
-    Mesocycle mesocycle,
+  /// Convert a TrainingCycle to a TrainingCycleTemplate
+  TrainingCycleTemplate _convertTrainingCycleToTemplate(
+    TrainingCycle trainingCycle,
     String name,
     String description,
   ) {
     // Get workouts from week 1 only (template structure)
-    final week1Workouts = mesocycle.workouts.where((w) => w.weekNumber == 1);
+    final week1Workouts = trainingCycle.workouts.where((w) => w.weekNumber == 1);
 
-    print('Converting mesocycle "${mesocycle.name}" to template');
-    print('Total workouts in mesocycle: ${mesocycle.workouts.length}');
+    print('Converting trainingCycle "${trainingCycle.name}" to template');
+    print('Total workouts in trainingCycle: ${trainingCycle.workouts.length}');
     print('Week 1 workouts: ${week1Workouts.length}');
 
     final workoutTemplates = <WorkoutTemplate>[];
@@ -219,19 +219,19 @@ class TemplateRepository {
       );
     }
 
-    return MesocycleTemplate(
+    return TrainingCycleTemplate(
       id: _uuid.v4(),
       name: name,
       description: description,
-      weeksTotal: mesocycle.weeksTotal,
-      daysPerWeek: mesocycle.daysPerWeek,
-      deloadWeek: mesocycle.deloadWeek,
+      weeksTotal: trainingCycle.weeksTotal,
+      daysPerWeek: trainingCycle.daysPerWeek,
+      deloadWeek: trainingCycle.deloadWeek,
       workouts: workoutTemplates,
     );
   }
 
   /// Get a specific template by ID
-  Future<MesocycleTemplate?> getTemplateById(String id) async {
+  Future<TrainingCycleTemplate?> getTemplateById(String id) async {
     final templates = await loadTemplates();
     try {
       return templates.firstWhere((t) => t.id == id);
@@ -240,12 +240,12 @@ class TemplateRepository {
     }
   }
 
-  /// Create a mesocycle from a template
-  Future<Mesocycle> createMesocycleFromTemplate(
-    MesocycleTemplate template,
+  /// Create a trainingCycle from a template
+  Future<TrainingCycle> createTrainingCycleFromTemplate(
+    TrainingCycleTemplate template,
     String userName,
   ) async {
-    final mesocycleId = _uuid.v4();
+    final trainingCycleId = _uuid.v4();
     final now = DateTime.now();
 
     // Create workouts from template
@@ -323,7 +323,7 @@ class TemplateRepository {
         workouts.add(
           Workout(
             id: workoutId,
-            mesocycleId: mesocycleId,
+            trainingCycleId: trainingCycleId,
             weekNumber: workoutTemplate.weekNumber,
             dayNumber: workoutTemplate.dayNumber,
             label: muscleGroup.displayName, // Use muscle group as label
@@ -333,8 +333,8 @@ class TemplateRepository {
       }
     }
 
-    return Mesocycle(
-      id: mesocycleId,
+    return TrainingCycle(
+      id: trainingCycleId,
       name: '${template.name} - $userName',
       startDate: now,
       weeksTotal: template.weeksTotal,

@@ -8,7 +8,7 @@ import '../models/custom_exercise_definition.dart';
 import '../models/exercise.dart';
 import '../models/exercise_feedback.dart';
 import '../models/exercise_set.dart';
-import '../models/mesocycle.dart';
+import '../models/training_cycle.dart';
 import '../models/workout.dart';
 
 /// Database service for Hive initialization and management
@@ -20,13 +20,13 @@ class DatabaseService {
   DatabaseService._internal();
 
   /// Box names
-  static const String mesocyclesBoxName = 'mesocycles';
+  static const String trainingCyclesBoxName = 'trainingCycles';
   static const String workoutsBoxName = 'workouts';
   static const String exercisesBoxName = 'exercises';
   static const String customExercisesBoxName = 'custom_exercises';
 
   /// Hive boxes
-  Box<Mesocycle>? _mesocyclesBox;
+  Box<TrainingCycle>? _trainingCyclesBox;
   Box<Workout>? _workoutsBox;
   Box<Exercise>? _exercisesBox;
   Box<CustomExerciseDefinition>? _customExercisesBox;
@@ -44,7 +44,7 @@ class DatabaseService {
     await Hive.initFlutter();
 
     // Register TypeAdapters for models
-    Hive.registerAdapter(MesocycleAdapter());
+    Hive.registerAdapter(TrainingCycleAdapter());
     Hive.registerAdapter(WorkoutAdapter());
     Hive.registerAdapter(ExerciseAdapter());
     Hive.registerAdapter(ExerciseSetAdapter());
@@ -52,7 +52,7 @@ class DatabaseService {
     Hive.registerAdapter(CustomExerciseDefinitionAdapter());
 
     // Register TypeAdapters for enums
-    Hive.registerAdapter(MesocycleStatusAdapter());
+    Hive.registerAdapter(TrainingCycleStatusAdapter());
     Hive.registerAdapter(WorkoutStatusAdapter());
     Hive.registerAdapter(SetTypeAdapter());
     Hive.registerAdapter(JointPainAdapter());
@@ -64,7 +64,7 @@ class DatabaseService {
     Hive.registerAdapter(EquipmentTypeAdapter());
 
     // Open boxes
-    _mesocyclesBox = await Hive.openBox<Mesocycle>(mesocyclesBoxName);
+    _trainingCyclesBox = await Hive.openBox<TrainingCycle>(trainingCyclesBoxName);
     _workoutsBox = await Hive.openBox<Workout>(workoutsBoxName);
     _exercisesBox = await Hive.openBox<Exercise>(exercisesBoxName);
     _customExercisesBox = await Hive.openBox<CustomExerciseDefinition>(
@@ -74,14 +74,14 @@ class DatabaseService {
     _initialized = true;
   }
 
-  /// Get mesocycles box
-  Box<Mesocycle> get mesocyclesBox {
-    if (_mesocyclesBox == null) {
+  /// Get trainingCycles box
+  Box<TrainingCycle> get trainingCyclesBox {
+    if (_trainingCyclesBox == null) {
       throw StateError(
         'DatabaseService not initialized. Call initialize() first.',
       );
     }
-    return _mesocyclesBox!;
+    return _trainingCyclesBox!;
   }
 
   /// Get workouts box
@@ -122,7 +122,7 @@ class DatabaseService {
 
   /// Clear all data from all boxes
   Future<void> clearDatabase() async {
-    await _mesocyclesBox?.clear();
+    await _trainingCyclesBox?.clear();
     await _workoutsBox?.clear();
     await _exercisesBox?.clear();
     await _customExercisesBox?.clear();
@@ -130,7 +130,7 @@ class DatabaseService {
 
   /// Close all boxes
   Future<void> close() async {
-    await _mesocyclesBox?.close();
+    await _trainingCyclesBox?.close();
     await _workoutsBox?.close();
     await _exercisesBox?.close();
     await _customExercisesBox?.close();
@@ -139,7 +139,7 @@ class DatabaseService {
 
   /// Compact all boxes to reclaim disk space
   Future<void> compact() async {
-    await _mesocyclesBox?.compact();
+    await _trainingCyclesBox?.compact();
     await _workoutsBox?.compact();
     await _exercisesBox?.compact();
     await _customExercisesBox?.compact();
@@ -148,7 +148,7 @@ class DatabaseService {
   /// Get database stats
   Map<String, dynamic> getStats() {
     return {
-      'mesocycles': _mesocyclesBox?.length ?? 0,
+      'trainingCycles': _trainingCyclesBox?.length ?? 0,
       'workouts': _workoutsBox?.length ?? 0,
       'exercises': _exercisesBox?.length ?? 0,
       'customExercises': _customExercisesBox?.length ?? 0,

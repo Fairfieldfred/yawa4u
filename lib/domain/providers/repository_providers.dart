@@ -2,14 +2,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/repositories/custom_exercise_repository.dart';
 import '../../data/repositories/exercise_repository.dart';
-import '../../data/repositories/mesocycle_repository.dart';
+import '../../data/repositories/training_cycle_repository.dart';
 import '../../data/repositories/workout_repository.dart';
 import 'database_providers.dart';
 
-/// Provider for MesocycleRepository
-final mesocycleRepositoryProvider = Provider<MesocycleRepository>((ref) {
-  final box = ref.watch(mesocyclesBoxProvider);
-  return MesocycleRepository(box);
+/// Provider for TrainingCycleRepository
+final trainingCycleRepositoryProvider = Provider<TrainingCycleRepository>((ref) {
+  final box = ref.watch(trainingCyclesBoxProvider);
+  return TrainingCycleRepository(box);
 });
 
 /// Provider for WorkoutRepository

@@ -19,7 +19,7 @@ void main() {
 
     // Verify description text
     expect(
-      find.text('Track your mesocycles, workouts, and progress'),
+      find.text('Track your trainingCycles, workouts, and progress'),
       findsOneWidget,
     );
 
@@ -38,7 +38,7 @@ void main() {
     // Verify database status items are present (regardless of initialization state)
     expect(find.text('Database'), findsOneWidget);
     expect(find.text('Exercises Library'), findsOneWidget);
-    expect(find.text('Mesocycles'), findsOneWidget);
+    expect(find.text('TrainingCycles'), findsOneWidget);
     expect(find.text('Workouts'), findsOneWidget);
     expect(find.text('Exercises Logged'), findsOneWidget);
   });

@@ -1,5 +1,5 @@
-/// Template for creating a mesocycle program
-class MesocycleTemplate {
+/// Template for creating a trainingCycle program
+class TrainingCycleTemplate {
   final String id;
   final String name;
   final String description;
@@ -8,7 +8,7 @@ class MesocycleTemplate {
   final int? deloadWeek;
   final List<WorkoutTemplate> workouts;
 
-  MesocycleTemplate({
+  TrainingCycleTemplate({
     required this.id,
     required this.name,
     required this.description,
@@ -18,8 +18,8 @@ class MesocycleTemplate {
     required this.workouts,
   });
 
-  factory MesocycleTemplate.fromJson(Map<String, dynamic> json) {
-    return MesocycleTemplate(
+  factory TrainingCycleTemplate.fromJson(Map<String, dynamic> json) {
+    return TrainingCycleTemplate(
       id: json['id'] as String,
       name: json['name'] as String,
       description: json['description'] as String,
@@ -45,7 +45,7 @@ class MesocycleTemplate {
   }
 }
 
-/// Template for a single workout within a mesocycle
+/// Template for a single workout within a trainingCycle
 class WorkoutTemplate {
   final int weekNumber;
   final int dayNumber;

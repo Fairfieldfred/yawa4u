@@ -63,7 +63,7 @@ class _OnboardingTerminologyScreenState
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'What do you call a training cycle?',
+                    'What do you call a trainingCycle?',
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),

@@ -3,21 +3,21 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/constants/enums.dart';
-import '../../domain/providers/mesocycle_providers.dart';
+import '../../domain/providers/training_cycle_providers.dart';
 import '../../domain/providers/repository_providers.dart';
 import 'template_selection_screen.dart';
 
-/// Plan a mesocycle screen - Shows different options for creating a mesocycle
-class PlanAMesocycleScreen extends ConsumerStatefulWidget {
-  const PlanAMesocycleScreen({super.key});
+/// Plan a trainingCycle screen - Shows different options for creating a trainingCycle
+class PlanATrainingCycleScreen extends ConsumerStatefulWidget {
+  const PlanATrainingCycleScreen({super.key});
 
   @override
-  ConsumerState<PlanAMesocycleScreen> createState() =>
-      _PlanAMesocycleScreenState();
+  ConsumerState<PlanATrainingCycleScreen> createState() =>
+      _PlanATrainingCycleScreenState();
 }
 
-class _PlanAMesocycleScreenState extends ConsumerState<PlanAMesocycleScreen> {
-  final int _selectedIndex = 1; // Keep on Mesocycles tab
+class _PlanATrainingCycleScreenState extends ConsumerState<PlanATrainingCycleScreen> {
+  final int _selectedIndex = 1; // Keep on TrainingCycles tab
 
   void _onItemTapped(int index) {
     if (index != _selectedIndex) {
@@ -34,7 +34,7 @@ class _PlanAMesocycleScreenState extends ConsumerState<PlanAMesocycleScreen> {
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.pop(),
         ),
-        title: const Text('Plan a mesocycle'),
+        title: const Text('Plan a trainingCycle'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(24.0),
@@ -43,12 +43,12 @@ class _PlanAMesocycleScreenState extends ConsumerState<PlanAMesocycleScreen> {
             // _OptionCard(
             //   icon: Icons.copy_outlined,
             //   iconColor: Colors.pink,
-            //   title: 'Copy a mesocycle',
+            //   title: 'Copy a trainingCycle',
             //   subtitle:
             //       'Ensure long-term progressive overload by keeping your training similar over time.',
             //   badge: '✨',
             //   onTap: () {
-            //     // Navigate to copy mesocycle screen
+            //     // Navigate to copy trainingCycle screen
             //   },
             // ),
             // const SizedBox(height: 16),
@@ -103,7 +103,7 @@ class _PlanAMesocycleScreenState extends ConsumerState<PlanAMesocycleScreen> {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.analytics),
-            label: 'Mesocycles',
+            label: 'TrainingCycles',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.fitness_center),
@@ -116,15 +116,15 @@ class _PlanAMesocycleScreenState extends ConsumerState<PlanAMesocycleScreen> {
   }
 
   Future<void> _handleStartFromScratch() async {
-    // Check if there's a draft mesocycle
-    final mesocycles = await ref.read(mesocyclesProvider.future);
-    final draftMesocycles = mesocycles
-        .where((m) => m.status == MesocycleStatus.draft)
+    // Check if there's a draft trainingCycle
+    final trainingCycles = await ref.read(trainingCyclesProvider.future);
+    final draftTrainingCycles = trainingCycles
+        .where((m) => m.status == TrainingCycleStatus.draft)
         .toList();
 
     if (!mounted) return;
 
-    if (draftMesocycles.isNotEmpty) {
+    if (draftTrainingCycles.isNotEmpty) {
       // Show warning dialog
       final confirmed = await showDialog<bool>(
         context: context,
@@ -164,7 +164,7 @@ class _PlanAMesocycleScreenState extends ConsumerState<PlanAMesocycleScreen> {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  'You have a draft mesocycle plan already in progress. By starting a new mesocycle, your draft will be overwritten.',
+                  'You have a draft trainingCycle plan already in progress. By starting a new trainingCycle, your draft will be overwritten.',
                   style: Theme.of(context).textTheme.bodyLarge,
                 ),
                 const SizedBox(height: 16),
@@ -188,7 +188,7 @@ class _PlanAMesocycleScreenState extends ConsumerState<PlanAMesocycleScreen> {
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
-                          'This will delete your current draft mesocycle plan.',
+                          'This will delete your current draft trainingCycle plan.',
                           style: Theme.of(context).textTheme.bodyMedium
                               ?.copyWith(
                                 color: Theme.of(context).colorScheme.onSurface,
@@ -235,16 +235,16 @@ class _PlanAMesocycleScreenState extends ConsumerState<PlanAMesocycleScreen> {
       );
 
       if (confirmed == true && mounted) {
-        // Delete all draft mesocycles
+        // Delete all draft trainingCycles
         try {
-          final repository = ref.read(mesocycleRepositoryProvider);
-          for (final draft in draftMesocycles) {
+          final repository = ref.read(trainingCycleRepositoryProvider);
+          for (final draft in draftTrainingCycles) {
             await repository.delete(draft.id);
           }
 
           if (mounted) {
             // Navigate to create screen
-            context.push('/mesocycles/create');
+            context.push('/trainingCycles/create');
           }
         } catch (e) {
           if (mounted) {
@@ -259,7 +259,7 @@ class _PlanAMesocycleScreenState extends ConsumerState<PlanAMesocycleScreen> {
       }
     } else {
       // No drafts, go directly to create screen
-      context.push('/mesocycles/create');
+      context.push('/trainingCycles/create');
     }
   }
 }

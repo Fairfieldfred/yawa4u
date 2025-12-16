@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import '../models/custom_exercise_definition.dart';
 import '../models/exercise.dart';
-import '../models/mesocycle.dart';
+import '../models/training_cycle.dart';
 import '../models/workout.dart';
 import 'database_service.dart';
 
@@ -14,7 +14,7 @@ class DataBackupService {
 
   /// Export all data to a JSON string
   Future<String> exportToJson() async {
-    final mesocycles = _databaseService.mesocyclesBox.values.toList();
+    final trainingCycles = _databaseService.trainingCyclesBox.values.toList();
     final workouts = _databaseService.workoutsBox.values.toList();
     final exercises = _databaseService.exercisesBox.values.toList();
     final customExercises = _databaseService.customExercisesBox.values.toList();
@@ -22,7 +22,7 @@ class DataBackupService {
     final data = {
       'version': 2,
       'exportedAt': DateTime.now().toIso8601String(),
-      'mesocycles': mesocycles.map((m) => m.toJson()).toList(),
+      'trainingCycles': trainingCycles.map((m) => m.toJson()).toList(),
       'workouts': workouts.map((w) => w.toJson()).toList(),
       'exercises': exercises.map((e) => e.toJson()).toList(),
       'customExercises': customExercises.map((e) => e.toJson()).toList(),
@@ -50,14 +50,14 @@ class DataBackupService {
       }
 
       // Parse data
-      final mesocyclesJson = data['mesocycles'] as List<dynamic>? ?? [];
+      final trainingCyclesJson = data['trainingCycles'] as List<dynamic>? ?? [];
       final workoutsJson = data['workouts'] as List<dynamic>? ?? [];
       final exercisesJson = data['exercises'] as List<dynamic>? ?? [];
       final customExercisesJson =
           data['customExercises'] as List<dynamic>? ?? [];
 
-      final mesocycles = mesocyclesJson
-          .map((m) => Mesocycle.fromJson(m as Map<String, dynamic>))
+      final trainingCycles = trainingCyclesJson
+          .map((m) => TrainingCycle.fromJson(m as Map<String, dynamic>))
           .toList();
       final workouts = workoutsJson
           .map((w) => Workout.fromJson(w as Map<String, dynamic>))
@@ -73,21 +73,21 @@ class DataBackupService {
 
       // Clear existing data if replacing
       if (replace) {
-        await _databaseService.mesocyclesBox.clear();
+        await _databaseService.trainingCyclesBox.clear();
         await _databaseService.workoutsBox.clear();
         await _databaseService.exercisesBox.clear();
         await _databaseService.customExercisesBox.clear();
       }
 
-      // Import mesocycles
-      int mesocyclesImported = 0;
-      for (final mesocycle in mesocycles) {
+      // Import trainingCycles
+      int trainingCyclesImported = 0;
+      for (final trainingCycle in trainingCycles) {
         if (!replace &&
-            _databaseService.mesocyclesBox.containsKey(mesocycle.id)) {
+            _databaseService.trainingCyclesBox.containsKey(trainingCycle.id)) {
           continue; // Skip if already exists and not replacing
         }
-        await _databaseService.mesocyclesBox.put(mesocycle.id, mesocycle);
-        mesocyclesImported++;
+        await _databaseService.trainingCyclesBox.put(trainingCycle.id, trainingCycle);
+        trainingCyclesImported++;
       }
 
       // Import workouts
@@ -129,7 +129,7 @@ class DataBackupService {
 
       return ImportResult(
         success: true,
-        mesocyclesImported: mesocyclesImported,
+        trainingCyclesImported: trainingCyclesImported,
         workoutsImported: workoutsImported,
         exercisesImported: exercisesImported,
         customExercisesImported: customExercisesImported,
@@ -142,7 +142,7 @@ class DataBackupService {
   /// Get stats about current data
   DataStats getStats() {
     return DataStats(
-      mesocycleCount: _databaseService.mesocyclesBox.length,
+      trainingCycleCount: _databaseService.trainingCyclesBox.length,
       workoutCount: _databaseService.workoutsBox.length,
       exerciseCount: _databaseService.exercisesBox.length,
       customExerciseCount: _databaseService.customExercisesBox.length,
@@ -154,7 +154,7 @@ class DataBackupService {
 class ImportResult {
   final bool success;
   final String? error;
-  final int mesocyclesImported;
+  final int trainingCyclesImported;
   final int workoutsImported;
   final int exercisesImported;
   final int customExercisesImported;
@@ -162,14 +162,14 @@ class ImportResult {
   ImportResult({
     required this.success,
     this.error,
-    this.mesocyclesImported = 0,
+    this.trainingCyclesImported = 0,
     this.workoutsImported = 0,
     this.exercisesImported = 0,
     this.customExercisesImported = 0,
   });
 
   int get totalImported =>
-      mesocyclesImported +
+      trainingCyclesImported +
       workoutsImported +
       exercisesImported +
       customExercisesImported;
@@ -177,18 +177,18 @@ class ImportResult {
 
 /// Statistics about current data
 class DataStats {
-  final int mesocycleCount;
+  final int trainingCycleCount;
   final int workoutCount;
   final int exerciseCount;
   final int customExerciseCount;
 
   DataStats({
-    required this.mesocycleCount,
+    required this.trainingCycleCount,
     required this.workoutCount,
     required this.exerciseCount,
     required this.customExerciseCount,
   });
 
   int get total =>
-      mesocycleCount + workoutCount + exerciseCount + customExerciseCount;
+      trainingCycleCount + workoutCount + exerciseCount + customExerciseCount;
 }

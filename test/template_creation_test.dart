@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:yawa4u/data/models/mesocycle_template.dart';
+import 'package:yawa4u/data/models/training_cycle_template.dart';
 import 'package:yawa4u/data/repositories/template_repository.dart';
 
 void main() {
@@ -7,12 +7,12 @@ void main() {
 
   group('Template Creation Tests', () {
     test(
-      'createMesocycleFromTemplate splits workouts by muscle group',
+      'createTrainingCycleFromTemplate splits workouts by muscle group',
       () async {
         final repository = TemplateRepository();
 
         // Create a mock template with mixed muscle groups
-        final template = MesocycleTemplate(
+        final template = TrainingCycleTemplate(
           id: 'test_template',
           name: 'Test Template',
           description: 'Test Description',
@@ -44,21 +44,21 @@ void main() {
           ],
         );
 
-        final mesocycle = await repository.createMesocycleFromTemplate(
+        final trainingCycle = await repository.createTrainingCycleFromTemplate(
           template,
           'Test User',
         );
 
         // Should create 2 workouts (one for Chest, one for Back)
-        expect(mesocycle.workouts.length, 2);
+        expect(trainingCycle.workouts.length, 2);
 
-        final chestWorkout = mesocycle.workouts.firstWhere(
+        final chestWorkout = trainingCycle.workouts.firstWhere(
           (w) => w.label == 'Chest',
         );
         expect(chestWorkout.exercises.length, 1);
         expect(chestWorkout.exercises.first.name, 'Bench Press');
 
-        final backWorkout = mesocycle.workouts.firstWhere(
+        final backWorkout = trainingCycle.workouts.firstWhere(
           (w) => w.label == 'Back',
         );
         expect(backWorkout.exercises.length, 1);

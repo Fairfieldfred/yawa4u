@@ -18,7 +18,7 @@ class WorkoutAdapter extends TypeAdapter<Workout> {
     };
     return Workout(
       id: fields[0] as String,
-      mesocycleId: fields[1] as String,
+      trainingCycleId: fields[1] as String,
       weekNumber: fields[2] as int,
       dayNumber: fields[3] as int,
       dayName: fields[4] as String?,
@@ -38,7 +38,7 @@ class WorkoutAdapter extends TypeAdapter<Workout> {
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
-      ..write(obj.mesocycleId)
+      ..write(obj.trainingCycleId)
       ..writeByte(2)
       ..write(obj.weekNumber)
       ..writeByte(3)

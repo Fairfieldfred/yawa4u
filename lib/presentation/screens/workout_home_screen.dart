@@ -11,14 +11,14 @@ import '../../data/models/exercise.dart';
 import '../../data/models/exercise_set.dart';
 import '../../data/models/workout.dart';
 import '../../domain/controllers/workout_home_controller.dart';
-import '../../domain/providers/mesocycle_providers.dart';
+import '../../domain/providers/training_cycle_providers.dart';
 import '../../domain/providers/onboarding_providers.dart';
 import '../../domain/providers/repository_providers.dart';
 import '../../domain/providers/theme_provider.dart';
 import '../../domain/providers/workout_providers.dart';
+import '../widgets/cycle_summary_dialog.dart';
 import '../widgets/dialogs/exercise_info_dialog.dart';
 import '../widgets/dialogs/workout_dialogs.dart';
-import '../widgets/mesocycle_summary_dialog.dart';
 import 'add_exercise_screen.dart';
 
 /// Workout home screen - shows current/upcoming workouts
@@ -323,18 +323,18 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     );
     final repository = ref.read(workoutRepositoryProvider);
 
-    // Get the current mesocycle to find all workouts for today
-    final mesocycle = ref.read(currentMesocycleProvider);
-    if (mesocycle == null) {
-      debugPrint('No current mesocycle');
+    // Get the current trainingCycle to find all workouts for today
+    final trainingCycle = ref.read(currentTrainingCycleProvider);
+    if (trainingCycle == null) {
+      debugPrint('No current trainingCycle');
       return;
     }
 
-    // Get all workouts for this mesocycle
-    final allWorkouts = ref.read(workoutsByMesocycleProvider(mesocycle.id));
+    // Get all workouts for this trainingCycle
+    final allWorkouts = ref.read(workoutsByTrainingCycleProvider(trainingCycle.id));
 
     // Get current week and day
-    final currentWeek = mesocycle.getCurrentWeek();
+    final currentWeek = trainingCycle.getCurrentWeek();
     if (currentWeek == null) {
       debugPrint('Could not determine current week');
       return;
@@ -346,7 +346,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
         _homeState.selectedDay ??
         (() {
           final daysSinceStart = DateTime.now()
-              .difference(mesocycle.startDate!)
+              .difference(trainingCycle.startDate!)
               .inDays;
           final daysSinceWeekStart = daysSinceStart % 7;
           return (daysSinceWeekStart + 1).clamp(1, 7);
@@ -474,7 +474,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
       Navigator.of(context).push(
         MaterialPageRoute(
           builder: (context) => AddExerciseScreen(
-            mesocycleId: workout.mesocycleId,
+            trainingCycleId: workout.trainingCycleId,
             workoutId: workout.id,
             initialMuscleGroup: exercise.muscleGroup,
           ),
@@ -568,9 +568,9 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     return true;
   }
 
-  /// Calculate target RIR for a given week based on mesocycle deload schedule
-  int _calculateRIR(int weekNumber, dynamic mesocycle) {
-    final deloadWeek = mesocycle.deloadWeek;
+  /// Calculate target RIR for a given week based on trainingCycle deload schedule
+  int _calculateRIR(int weekNumber, dynamic trainingCycle) {
+    final deloadWeek = trainingCycle.deloadWeek;
 
     // Deload week has 8 RIR
     if (weekNumber == deloadWeek) {
@@ -597,10 +597,10 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     if (workouts.isEmpty) return;
 
     final repository = ref.read(workoutRepositoryProvider);
-    final mesocycleRepository = ref.read(mesocycleRepositoryProvider);
-    final mesocycle = ref.read(currentMesocycleProvider);
+    final trainingCycleRepository = ref.read(trainingCycleRepositoryProvider);
+    final trainingCycle = ref.read(currentTrainingCycleProvider);
 
-    if (mesocycle == null) return;
+    if (trainingCycle == null) return;
 
     // Mark ALL workouts for this day as completed
     for (final workout in workouts) {
@@ -611,9 +611,9 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
       await repository.update(updatedWorkout);
     }
 
-    // Check if ALL workouts in the mesocycle are now completed
+    // Check if ALL workouts in the trainingCycle are now completed
     // We need to verify that every week/day combination has at least one completed workout
-    final allWorkouts = repository.getByMesocycleId(mesocycle.id);
+    final allWorkouts = repository.getByTrainingCycleId(trainingCycle.id);
 
     // Build a set of completed week/day combinations
     final completedDays = <String>{};
@@ -624,8 +624,8 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     }
 
     // Check if all expected week/day combinations are completed
-    final totalWeeks = mesocycle.weeksTotal;
-    final daysPerWeek = mesocycle.daysPerWeek;
+    final totalWeeks = trainingCycle.weeksTotal;
+    final daysPerWeek = trainingCycle.daysPerWeek;
     bool allCompleted = true;
 
     for (int week = 1; week <= totalWeeks; week++) {
@@ -639,16 +639,16 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     }
 
     if (allCompleted) {
-      // Complete the mesocycle
-      await mesocycleRepository.update(mesocycle.complete());
+      // Complete the trainingCycle
+      await trainingCycleRepository.update(trainingCycle.complete());
 
       if (mounted) {
         showDialog(
           context: context,
           builder: (context) => AlertDialog(
-            title: const Text('Mesocycle Completed!'),
+            title: const Text('TrainingCycle Completed!'),
             content: const Text(
-              'Congratulations! You have finished all workouts in this mesocycle.',
+              'Congratulations! You have finished all workouts in this trainingCycle.',
             ),
             actions: [
               FilledButton(
@@ -673,7 +673,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     int nextWeek = firstWorkout.weekNumber;
 
     // Check if we need to move to next week
-    if (nextDay > mesocycle.daysPerWeek) {
+    if (nextDay > trainingCycle.daysPerWeek) {
       nextDay = 1;
       nextWeek++;
     }
@@ -684,19 +684,19 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final currentMesocycle = ref.watch(currentMesocycleProvider);
+    final currentTrainingCycle = ref.watch(currentTrainingCycleProvider);
 
     // Debug logging
     debugPrint('=== WorkoutHomeScreen Debug ===');
-    debugPrint('Current mesocycle: ${currentMesocycle?.name}');
-    debugPrint('Start date: ${currentMesocycle?.startDate}');
-    debugPrint('Status: ${currentMesocycle?.status}');
+    debugPrint('Current trainingCycle: ${currentTrainingCycle?.name}');
+    debugPrint('Start date: ${currentTrainingCycle?.startDate}');
+    debugPrint('Status: ${currentTrainingCycle?.status}');
 
-    // If there's a current mesocycle, show today's workout
-    if (currentMesocycle != null && currentMesocycle.startDate != null) {
+    // If there's a current trainingCycle, show today's workout
+    if (currentTrainingCycle != null && currentTrainingCycle.startDate != null) {
       // Get workouts from the workout repository instead of embedded workouts
       final allWorkouts = ref.watch(
-        workoutsByMesocycleProvider(currentMesocycle.id),
+        workoutsByTrainingCycleProvider(currentTrainingCycle.id),
       );
 
       debugPrint('Total workouts from repository: ${allWorkouts.length}');
@@ -709,15 +709,15 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
         }
       }
 
-      final currentWeek = currentMesocycle.getCurrentWeek();
+      final currentWeek = currentTrainingCycle.getCurrentWeek();
       debugPrint('Current week: $currentWeek');
 
       if (currentWeek == null) {
-        // Mesocycle hasn't started yet or has ended
+        // TrainingCycle hasn't started yet or has ended
         return _buildEmptyState(
           context,
-          'Mesocycle Not Active',
-          'The mesocycle is scheduled for a future date or has ended',
+          'TrainingCycle Not Active',
+          'The trainingCycle is scheduled for a future date or has ended',
         );
       }
 
@@ -740,12 +740,12 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
           displayWeek = currentWeek;
           displayDay = (() {
             final daysSinceStart = DateTime.now()
-                .difference(currentMesocycle.startDate!)
+                .difference(currentTrainingCycle.startDate!)
                 .inDays;
             final daysSinceWeekStart = daysSinceStart % 7;
             return (daysSinceWeekStart + 1).clamp(
               1,
-              currentMesocycle.daysPerWeek,
+              currentTrainingCycle.daysPerWeek,
             );
           })();
         }
@@ -775,7 +775,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
         return _buildTodaysWorkoutView(
           context,
           ref,
-          currentMesocycle,
+          currentTrainingCycle,
           todaysWorkouts,
           displayWeek,
           displayDay,
@@ -788,7 +788,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
       return _buildNoWorkoutForDay(
         context,
         ref,
-        currentMesocycle,
+        currentTrainingCycle,
         displayWeek,
         displayDay,
         currentWeek: currentWeek,
@@ -796,11 +796,11 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
       );
     }
 
-    // If no current mesocycle, show empty state
+    // If no current trainingCycle, show empty state
     return _buildEmptyState(
       context,
-      'No Active Mesocycle',
-      'Create and start a mesocycle to begin',
+      'No Active TrainingCycle',
+      'Create and start a trainingCycle to begin',
     );
   }
 
@@ -809,7 +809,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
   Widget _buildNoWorkoutForDay(
     BuildContext context,
     WidgetRef ref,
-    dynamic mesocycle,
+    dynamic trainingCycle,
     int displayWeek,
     int displayDay, {
     required int currentWeek,
@@ -825,7 +825,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                mesocycle.name.toUpperCase(),
+                trainingCycle.name.toUpperCase(),
                 style: TextStyle(
                   color: Theme.of(context).textTheme.bodySmall?.color,
                   fontSize: 12,
@@ -912,7 +912,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                 left: 0,
                 right: 0,
                 child: _CalendarDropdown(
-                  mesocycle: mesocycle,
+                  trainingCycle: trainingCycle,
                   currentWeek: currentWeek,
                   currentDay: displayDay,
                   selectedWeek: displayWeek,
@@ -966,23 +966,23 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
   Widget _buildTodaysWorkoutView(
     BuildContext context,
     WidgetRef ref,
-    dynamic mesocycle,
+    dynamic trainingCycle,
     List<Workout> workouts,
     int displayWeek,
     int displayDay, {
     required int currentWeek,
     required List<Workout> allWorkouts,
   }) {
-    // Calculate day name based on the mesocycle start date
+    // Calculate day name based on the trainingCycle start date
     final defaultDayNames = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
     String dayName;
 
     // Debug logging
     debugPrint('=== DAY NAME CALCULATION ===');
-    debugPrint('Start date: ${mesocycle.startDate}');
-    debugPrint('Start date weekday: ${mesocycle.startDate?.weekday}');
+    debugPrint('Start date: ${trainingCycle.startDate}');
+    debugPrint('Start date weekday: ${trainingCycle.startDate?.weekday}');
     debugPrint('Display week: $displayWeek, Display day: $displayDay');
-    debugPrint('Days per week: ${mesocycle.daysPerWeek}');
+    debugPrint('Days per week: ${trainingCycle.daysPerWeek}');
     debugPrint(
       'Has custom dayName: ${workouts.isNotEmpty && workouts.first.dayName != null}',
     );
@@ -994,16 +994,16 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
       // Use custom day name from workout if available
       dayName = workouts.first.dayName!.substring(0, 3).toUpperCase();
       debugPrint('Using custom dayName: $dayName');
-    } else if (mesocycle.startDate != null) {
+    } else if (trainingCycle.startDate != null) {
       // Calculate based on start date
-      // Get the day of week when mesocycle started (0 = Sunday, 6 = Saturday)
+      // Get the day of week when trainingCycle started (0 = Sunday, 6 = Saturday)
       final startDayOfWeek =
-          mesocycle.startDate!.weekday % 7; // Convert Monday=1 to Sunday=0
+          trainingCycle.startDate!.weekday % 7; // Convert Monday=1 to Sunday=0
       debugPrint('Start day of week (after conversion): $startDayOfWeek');
 
       // Calculate days elapsed since start
       final daysElapsed =
-          ((displayWeek - 1) * mesocycle.daysPerWeek) + (displayDay - 1);
+          ((displayWeek - 1) * trainingCycle.daysPerWeek) + (displayDay - 1);
       debugPrint('Days elapsed: $daysElapsed');
 
       // Calculate actual day of week
@@ -1043,7 +1043,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                mesocycle.name.toUpperCase(),
+                trainingCycle.name.toUpperCase(),
                 style: TextStyle(
                   color: Theme.of(context).textTheme.bodySmall?.color,
                   fontSize: 12,
@@ -1082,7 +1082,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
             Builder(
               builder: (context) => IconButton(
                 icon: const Icon(Icons.more_vert),
-                onPressed: () => _showWorkoutMenu(context, mesocycle, workouts),
+                onPressed: () => _showWorkoutMenu(context, trainingCycle, workouts),
               ),
             ),
           ],
@@ -1123,7 +1123,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                               exercise.muscleGroup;
 
                       // Calculate target RIR for current week
-                      final weekRir = _calculateRIR(displayWeek, mesocycle);
+                      final weekRir = _calculateRIR(displayWeek, trainingCycle);
 
                       return _buildExerciseCard(
                         context,
@@ -1152,7 +1152,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                 left: 0,
                 right: 0,
                 child: _CalendarDropdown(
-                  mesocycle: mesocycle,
+                  trainingCycle: trainingCycle,
                   currentWeek: currentWeek,
                   currentDay: displayDay,
                   selectedWeek: displayWeek,
@@ -1214,7 +1214,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
 
   void _showWorkoutMenu(
     BuildContext context,
-    dynamic mesocycle,
+    dynamic trainingCycle,
     List<Workout> workouts,
   ) {
     final RenderBox button = context.findRenderObject() as RenderBox;
@@ -1238,27 +1238,27 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
       color: Theme.of(context).cardTheme.color,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       items: <PopupMenuEntry<void>>[
-        // MESOCYCLE Section
-        _buildMenuHeader('MESOCYCLE'),
+        // TRAINING CYCLE Section
+        _buildMenuHeader('TRAINING CYCLE'),
         _buildMenuItem(
           icon: Icons.edit_note,
           text: 'View notes',
-          onTap: () => _viewMesocycleNotes(mesocycle),
+          onTap: () => _viewTrainingCycleNotes(trainingCycle),
         ),
         _buildMenuItem(
           icon: Icons.summarize_outlined,
           text: 'Summary',
-          onTap: () => _showMesocycleSummary(mesocycle),
+          onTap: () => _showTrainingCycleSummary(trainingCycle),
         ),
         _buildMenuItem(
           icon: Icons.edit,
           text: 'Rename',
-          onTap: () => _renameMesocycle(mesocycle),
+          onTap: () => _renameTrainingCycle(trainingCycle),
         ),
         _buildMenuItem(
           icon: Icons.stop_circle_outlined,
           text: 'End meso',
-          onTap: () => _endMesocycle(mesocycle),
+          onTap: () => _endTrainingCycle(trainingCycle),
         ),
         const PopupMenuDivider(height: 1),
 
@@ -1277,7 +1277,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
         _buildMenuItem(
           icon: Icons.clear_all,
           text: 'Clear all day labels',
-          onTap: () => _clearAllDayNames(mesocycle),
+          onTap: () => _clearAllDayNames(trainingCycle),
         ),
         _buildMenuItem(
           icon: Icons.add,
@@ -1367,29 +1367,29 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
   }
 
   // Placeholder actions
-  void _viewMesocycleNotes(dynamic mesocycle) {
+  void _viewTrainingCycleNotes(dynamic trainingCycle) {
     debugPrint('View notes');
   }
 
-  void _showMesocycleSummary(dynamic mesocycle) {
+  void _showTrainingCycleSummary(dynamic trainingCycle) {
     showDialog(
       context: context,
-      builder: (context) => MesocycleSummaryDialog(mesocycle: mesocycle),
+      builder: (context) => CycleSummaryDialog(trainingCycle: trainingCycle),
     );
   }
 
-  Future<void> _renameMesocycle(dynamic mesocycle) async {
+  Future<void> _renameTrainingCycle(dynamic trainingCycle) async {
     final newName = await showDialog<String>(
       context: context,
       barrierDismissible: false,
-      builder: (context) => RenameMesocycleDialog(initialName: mesocycle.name),
+      builder: (context) => RenameTrainingCycleDialog(initialName: trainingCycle.name),
     );
 
-    if (newName != null && newName != mesocycle.name && mounted) {
+    if (newName != null && newName != trainingCycle.name && mounted) {
       try {
-        final repository = ref.read(mesocycleRepositoryProvider);
-        final updatedMesocycle = mesocycle.copyWith(name: newName);
-        await repository.update(updatedMesocycle);
+        final repository = ref.read(trainingCycleRepositoryProvider);
+        final updatedTrainingCycle = trainingCycle.copyWith(name: newName);
+        await repository.update(updatedTrainingCycle);
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -1403,7 +1403,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Error renaming mesocycle: $e'),
+              content: Text('Error renaming trainingCycle: $e'),
               backgroundColor: Colors.red,
             ),
           );
@@ -1412,13 +1412,13 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     }
   }
 
-  Future<void> _endMesocycle(dynamic mesocycle) async {
+  Future<void> _endTrainingCycle(dynamic trainingCycle) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('End Mesocycle'),
+        title: const Text('End TrainingCycle'),
         content: Text(
-          'Are you sure you want to end "${mesocycle.name}"? This will mark it as completed.',
+          'Are you sure you want to end "${trainingCycle.name}"? This will mark it as completed.',
         ),
         actions: [
           TextButton(
@@ -1427,7 +1427,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('END MESOCYCLE'),
+            child: const Text('END TRAINING CYCLE'),
           ),
         ],
       ),
@@ -1435,17 +1435,17 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
 
     if (confirmed == true && mounted) {
       try {
-        final repository = ref.read(mesocycleRepositoryProvider);
-        final updatedMesocycle = mesocycle.copyWith(
-          status: MesocycleStatus.completed,
+        final repository = ref.read(trainingCycleRepositoryProvider);
+        final updatedTrainingCycle = trainingCycle.copyWith(
+          status: TrainingCycleStatus.completed,
           endDate: DateTime.now(),
         );
-        await repository.update(updatedMesocycle);
+        await repository.update(updatedTrainingCycle);
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('"${mesocycle.name}" completed'),
+              content: Text('"${trainingCycle.name}" completed'),
               backgroundColor: Colors.green,
             ),
           );
@@ -1454,7 +1454,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Error ending mesocycle: $e'),
+              content: Text('Error ending trainingCycle: $e'),
               backgroundColor: Colors.red,
             ),
           );
@@ -1530,9 +1530,9 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
         final repository = ref.read(workoutRepositoryProvider);
 
         if (result.applyToAll) {
-          // Update all workouts with the same day number in this mesocycle
+          // Update all workouts with the same day number in this trainingCycle
           final allWorkouts = ref.read(
-            workoutsByMesocycleProvider(workout.mesocycleId),
+            workoutsByTrainingCycleProvider(workout.trainingCycleId),
           );
           final workoutsToUpdate = allWorkouts
               .where((w) => w.dayNumber == workout.dayNumber)
@@ -1582,11 +1582,11 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
           // Verify the update by checking all workouts again
           debugPrint('=== VERIFICATION ===');
           final allWorkoutsAfter = ref.read(
-            workoutsByMesocycleProvider(workout.mesocycleId),
+            workoutsByTrainingCycleProvider(workout.trainingCycleId),
           );
 
           // Show ALL workouts grouped by week
-          debugPrint('All workouts in mesocycle after update:');
+          debugPrint('All workouts in trainingCycle after update:');
           for (int week = 1; week <= 5; week++) {
             final weekWorkouts = allWorkoutsAfter
                 .where((w) => w.weekNumber == week)
@@ -1624,13 +1624,13 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     }
   }
 
-  Future<void> _clearAllDayNames(dynamic mesocycle) async {
+  Future<void> _clearAllDayNames(dynamic trainingCycle) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Clear All Day Labels'),
         content: const Text(
-          'This will remove all custom day labels from workouts in this mesocycle. '
+          'This will remove all custom day labels from workouts in this trainingCycle. '
           'Day names will be calculated automatically based on the start date.\n\n'
           'This cannot be undone.',
         ),
@@ -1651,7 +1651,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     if (confirmed == true && mounted) {
       try {
         final repository = ref.read(workoutRepositoryProvider);
-        final allWorkouts = ref.read(workoutsByMesocycleProvider(mesocycle.id));
+        final allWorkouts = ref.read(workoutsByTrainingCycleProvider(trainingCycle.id));
 
         debugPrint('Clearing dayName from ${allWorkouts.length} workouts');
 
@@ -1697,8 +1697,8 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
   void _showMuscleGroupSelector(List<Workout> workouts) async {
     if (workouts.isEmpty) return;
 
-    // Get the mesocycle info from the first workout
-    final mesocycleId = workouts.first.mesocycleId;
+    // Get the trainingCycle info from the first workout
+    final trainingCycleId = workouts.first.trainingCycleId;
     final dayNumber = workouts.first.dayNumber;
     final weekNumber = workouts.first.weekNumber;
     final dayName = workouts.first.dayName;
@@ -1756,7 +1756,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                           Navigator.of(context).push(
                             MaterialPageRoute(
                               builder: (context) => AddExerciseScreen(
-                                mesocycleId: existingWorkout.mesocycleId,
+                                trainingCycleId: existingWorkout.trainingCycleId,
                                 workoutId: existingWorkout.id,
                                 initialMuscleGroup: muscleGroup,
                               ),
@@ -1766,7 +1766,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                           // Create a new workout for this muscle group
                           final newWorkout = Workout(
                             id: const Uuid().v4(),
-                            mesocycleId: mesocycleId,
+                            trainingCycleId: trainingCycleId,
                             weekNumber: weekNumber,
                             dayNumber: dayNumber,
                             dayName: dayName,
@@ -1784,7 +1784,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                             Navigator.of(context).push(
                               MaterialPageRoute(
                                 builder: (context) => AddExerciseScreen(
-                                  mesocycleId: newWorkout.mesocycleId,
+                                  trainingCycleId: newWorkout.trainingCycleId,
                                   workoutId: newWorkout.id,
                                   initialMuscleGroup: muscleGroup,
                                 ),
@@ -2806,7 +2806,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
 
 /// Dropdown for selecting week and day (appears below AppBar)
 class _CalendarDropdown extends ConsumerStatefulWidget {
-  final dynamic mesocycle;
+  final dynamic trainingCycle;
   final int currentWeek;
   final int currentDay;
   final int selectedWeek;
@@ -2815,7 +2815,7 @@ class _CalendarDropdown extends ConsumerStatefulWidget {
   final Function(int week, int day) onDaySelected;
 
   const _CalendarDropdown({
-    required this.mesocycle,
+    required this.trainingCycle,
     required this.currentWeek,
     required this.currentDay,
     required this.selectedWeek,
@@ -2841,21 +2841,21 @@ class _CalendarDropdownState extends ConsumerState<_CalendarDropdown> {
 
   Future<void> _addWeek() async {
     // Add a new week before the deload week
-    final mesocycle = widget.mesocycle;
-    final newWeekNumber = mesocycle
+    final trainingCycle = widget.trainingCycle;
+    final newWeekNumber = trainingCycle
         .weeksTotal; // This will be the new week number (before deload)
 
     // Get all existing workouts
     final repository = ref.read(workoutRepositoryProvider);
-    final allWorkouts = ref.read(workoutsByMesocycleProvider(mesocycle.id));
+    final allWorkouts = ref.read(workoutsByTrainingCycleProvider(trainingCycle.id));
 
     // Get the last non-deload week as a template
     // If weeksTotal is 4 (1, 2, 3, 4=DL), we want to copy week 3.
     // templateWeek = 4 - 1 = 3.
-    final templateWeek = mesocycle.weeksTotal - 1;
+    final templateWeek = trainingCycle.weeksTotal - 1;
 
     // Safety check: if we only have 1 week (which is deload), we can't really copy "previous" week.
-    // But usually a mesocycle starts with at least some weeks.
+    // But usually a trainingCycle starts with at least some weeks.
     // If templateWeek < 1, we might need to copy the deload week but change it?
     // Or just assume there's always at least one normal week if we are adding.
     // If weeksTotal is 1 (just deload?), templateWeek is 0.
@@ -2871,7 +2871,7 @@ class _CalendarDropdownState extends ConsumerState<_CalendarDropdown> {
       // Let's just try to find ANY week to copy, or copy the deload week but reset RIR?
       // For now, let's assume we copy the week before deload.
       templateWorkouts = allWorkouts
-          .where((w) => w.weekNumber == mesocycle.weeksTotal)
+          .where((w) => w.weekNumber == trainingCycle.weeksTotal)
           .toList();
     }
 
@@ -2888,24 +2888,24 @@ class _CalendarDropdownState extends ConsumerState<_CalendarDropdown> {
     }
 
     // 1. Shift Deload Week: Update deload week workouts to be one week later
-    // Current deload week is at `mesocycle.weeksTotal`. New position will be `mesocycle.weeksTotal + 1`.
+    // Current deload week is at `trainingCycle.weeksTotal`. New position will be `trainingCycle.weeksTotal + 1`.
     final deloadWorkouts = allWorkouts
-        .where((w) => w.weekNumber == mesocycle.weeksTotal)
+        .where((w) => w.weekNumber == trainingCycle.weeksTotal)
         .toList();
     for (var workout in deloadWorkouts) {
       final updatedWorkout = workout.copyWith(
-        weekNumber: mesocycle.weeksTotal + 1,
+        weekNumber: trainingCycle.weeksTotal + 1,
       );
       await repository.update(updatedWorkout);
     }
 
     // 2. Create New Week: Create new workouts for the new week based on template
-    // The new week will take the place of the old deload week index (which is `mesocycle.weeksTotal` before increment).
+    // The new week will take the place of the old deload week index (which is `trainingCycle.weeksTotal` before increment).
     // Wait, if we have weeks 1, 2, 3(DL). weeksTotal=3.
     // We want 1, 2, 3, 4(DL).
     // Old DL was 3. New DL is 4.
     // New week is 3.
-    // So newWeekNumber = mesocycle.weeksTotal (which is 3). Correct.
+    // So newWeekNumber = trainingCycle.weeksTotal (which is 3). Correct.
 
     for (var templateWorkout in templateWorkouts) {
       final newWorkout = templateWorkout.copyWith(
@@ -2951,13 +2951,13 @@ class _CalendarDropdownState extends ConsumerState<_CalendarDropdown> {
       await repository.create(finalWorkout);
     }
 
-    // Update mesocycle weeks total and deload week
-    final mesocycleRepository = ref.read(mesocycleRepositoryProvider);
-    final updatedMesocycle = mesocycle.copyWith(
-      weeksTotal: mesocycle.weeksTotal + 1,
-      deloadWeek: mesocycle.deloadWeek + 1,
+    // Update trainingCycle weeks total and deload week
+    final trainingCycleRepository = ref.read(trainingCycleRepositoryProvider);
+    final updatedTrainingCycle = trainingCycle.copyWith(
+      weeksTotal: trainingCycle.weeksTotal + 1,
+      deloadWeek: trainingCycle.deloadWeek + 1,
     );
-    await mesocycleRepository.update(updatedMesocycle);
+    await trainingCycleRepository.update(updatedTrainingCycle);
 
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -2971,12 +2971,12 @@ class _CalendarDropdownState extends ConsumerState<_CalendarDropdown> {
 
   Future<void> _removeWeek() async {
     // Remove the last week before the deload week
-    final mesocycle = widget.mesocycle;
+    final trainingCycle = widget.trainingCycle;
 
     // If we have weeks 1, 2, 3, 4(DL). weeksTotal=4.
     // We want to remove week 3.
     // weekToRemove = 4 - 1 = 3.
-    final weekToRemove = mesocycle.weeksTotal - 1;
+    final weekToRemove = trainingCycle.weeksTotal - 1;
 
     if (weekToRemove < 1) {
       if (mounted) {
@@ -2992,7 +2992,7 @@ class _CalendarDropdownState extends ConsumerState<_CalendarDropdown> {
 
     // Get all workouts
     final repository = ref.read(workoutRepositoryProvider);
-    final allWorkouts = ref.read(workoutsByMesocycleProvider(mesocycle.id));
+    final allWorkouts = ref.read(workoutsByTrainingCycleProvider(trainingCycle.id));
 
     // 1. Delete Week: Delete all workouts for the week to remove
     final workoutsToRemove = allWorkouts
@@ -3003,22 +3003,22 @@ class _CalendarDropdownState extends ConsumerState<_CalendarDropdown> {
     }
 
     // 2. Shift Deload Week: Update deload week workouts to be one week earlier
-    // Current deload is `mesocycle.weeksTotal`. New position is `weekToRemove` (which is weeksTotal - 1).
+    // Current deload is `trainingCycle.weeksTotal`. New position is `weekToRemove` (which is weeksTotal - 1).
     final deloadWorkouts = allWorkouts
-        .where((w) => w.weekNumber == mesocycle.weeksTotal)
+        .where((w) => w.weekNumber == trainingCycle.weeksTotal)
         .toList();
     for (var workout in deloadWorkouts) {
       final updatedWorkout = workout.copyWith(weekNumber: weekToRemove);
       await repository.update(updatedWorkout);
     }
 
-    // Update mesocycle weeks total and deload week
-    final mesocycleRepository = ref.read(mesocycleRepositoryProvider);
-    final updatedMesocycle = mesocycle.copyWith(
-      weeksTotal: mesocycle.weeksTotal - 1,
-      deloadWeek: mesocycle.deloadWeek - 1,
+    // Update trainingCycle weeks total and deload week
+    final trainingCycleRepository = ref.read(trainingCycleRepositoryProvider);
+    final updatedTrainingCycle = trainingCycle.copyWith(
+      weeksTotal: trainingCycle.weeksTotal - 1,
+      deloadWeek: trainingCycle.deloadWeek - 1,
     );
-    await mesocycleRepository.update(updatedMesocycle);
+    await trainingCycleRepository.update(updatedTrainingCycle);
 
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -3029,10 +3029,10 @@ class _CalendarDropdownState extends ConsumerState<_CalendarDropdown> {
       );
 
       // If selected week was removed or is now out of bounds, go to previous week
-      if (_selectedWeek >= updatedMesocycle.weeksTotal) {
+      if (_selectedWeek >= updatedTrainingCycle.weeksTotal) {
         setState(() {
           _selectedWeek =
-              updatedMesocycle.weeksTotal; // Go to new last week (deload)
+              updatedTrainingCycle.weeksTotal; // Go to new last week (deload)
         });
         widget.onDaySelected(_selectedWeek, _selectedDay);
       }
@@ -3041,7 +3041,7 @@ class _CalendarDropdownState extends ConsumerState<_CalendarDropdown> {
 
   @override
   Widget build(BuildContext context) {
-    // Calculate day names based on mesocycle start date
+    // Calculate day names based on trainingCycle start date
     // Note: Day names are now calculated per-week inside _buildWeekColumn
 
     // Calculate dynamic height based on number of workout days
@@ -3056,7 +3056,7 @@ class _CalendarDropdownState extends ConsumerState<_CalendarDropdown> {
     final calculatedHeight =
         headerHeight +
         weekHeaderHeight +
-        (widget.mesocycle.daysPerWeek * (dayButtonHeight + dayMargin)) +
+        (widget.trainingCycle.daysPerWeek * (dayButtonHeight + dayMargin)) +
         bottomPadding;
 
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
@@ -3105,7 +3105,7 @@ class _CalendarDropdownState extends ConsumerState<_CalendarDropdown> {
                         color: Theme.of(context).colorScheme.onSurface,
                         size: 20,
                       ),
-                      onPressed: widget.mesocycle.weeksTotal > 1
+                      onPressed: widget.trainingCycle.weeksTotal > 1
                           ? () => _removeWeek()
                           : null,
                       style: IconButton.styleFrom(
@@ -3144,14 +3144,14 @@ class _CalendarDropdownState extends ConsumerState<_CalendarDropdown> {
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: List.generate(widget.mesocycle.weeksTotal, (
+                children: List.generate(widget.trainingCycle.weeksTotal, (
                   weekIndex,
                 ) {
                   final weekNumber = weekIndex + 1;
                   return Expanded(
                     child: _buildWeekColumn(
                       weekNumber,
-                      widget.mesocycle.deloadWeek == weekNumber,
+                      widget.trainingCycle.deloadWeek == weekNumber,
                     ),
                   );
                 }),
@@ -3166,7 +3166,7 @@ class _CalendarDropdownState extends ConsumerState<_CalendarDropdown> {
   Widget _buildWeekColumn(int weekNumber, bool isDeload) {
     // Calculate day names specific to THIS week
     final defaultDayNames = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
-    final weekDayNames = List.generate(widget.mesocycle.daysPerWeek, (index) {
+    final weekDayNames = List.generate(widget.trainingCycle.daysPerWeek, (index) {
       final dayNumber = index + 1;
 
       // Check if there's a custom label for this day in THIS SPECIFIC week
@@ -3189,14 +3189,14 @@ class _CalendarDropdownState extends ConsumerState<_CalendarDropdown> {
         }
       }
 
-      // Otherwise, calculate based on mesocycle start date
-      if (widget.mesocycle.startDate != null) {
-        // Get the day of week when mesocycle started (0 = Sunday, 6 = Saturday)
-        final startDayOfWeek = widget.mesocycle.startDate!.weekday % 7;
+      // Otherwise, calculate based on trainingCycle start date
+      if (widget.trainingCycle.startDate != null) {
+        // Get the day of week when trainingCycle started (0 = Sunday, 6 = Saturday)
+        final startDayOfWeek = widget.trainingCycle.startDate!.weekday % 7;
 
         // Calculate which actual day this workout falls on
         final daysElapsed =
-            ((weekNumber - 1) * widget.mesocycle.daysPerWeek) + (dayNumber - 1);
+            ((weekNumber - 1) * widget.trainingCycle.daysPerWeek) + (dayNumber - 1);
 
         // Calculate actual day of week
         final actualDayOfWeek = (startDayOfWeek + daysElapsed) % 7;
@@ -3310,7 +3310,7 @@ class _CalendarDropdownState extends ConsumerState<_CalendarDropdown> {
   }
 
   int _calculateRIR(int weekNumber) {
-    final deloadWeek = widget.mesocycle.deloadWeek;
+    final deloadWeek = widget.trainingCycle.deloadWeek;
 
     // Deload week has 8 RIR
     if (weekNumber == deloadWeek) {
@@ -3336,12 +3336,12 @@ class _CalendarDropdownState extends ConsumerState<_CalendarDropdown> {
 
 /// Old modal widget - kept for reference but not used
 class _WeekSelectorModal extends StatefulWidget {
-  final dynamic mesocycle;
+  final dynamic trainingCycle;
   final int currentWeek;
   final int currentDay;
 
   const _WeekSelectorModal({
-    required this.mesocycle,
+    required this.trainingCycle,
     required this.currentWeek,
     required this.currentDay,
   });
@@ -3364,7 +3364,7 @@ class _WeekSelectorModalState extends State<_WeekSelectorModal> {
   @override
   Widget build(BuildContext context) {
     final dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    final availableDays = dayNames.take(widget.mesocycle.daysPerWeek).toList();
+    final availableDays = dayNames.take(widget.trainingCycle.daysPerWeek).toList();
 
     return Container(
       height: MediaQuery.of(context).size.height * 0.6,
@@ -3426,7 +3426,7 @@ class _WeekSelectorModalState extends State<_WeekSelectorModal> {
                     Icons.add,
                     color: Theme.of(context).colorScheme.onSurface,
                   ),
-                  onPressed: _selectedWeek < widget.mesocycle.weeksTotal
+                  onPressed: _selectedWeek < widget.trainingCycle.weeksTotal
                       ? () {
                           setState(() {
                             _selectedWeek++;
@@ -3450,14 +3450,14 @@ class _WeekSelectorModalState extends State<_WeekSelectorModal> {
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: List.generate(widget.mesocycle.weeksTotal, (
+                children: List.generate(widget.trainingCycle.weeksTotal, (
                   weekIndex,
                 ) {
                   final weekNumber = weekIndex + 1;
                   return _buildWeekColumn(
                     weekNumber,
                     availableDays,
-                    widget.mesocycle.deloadWeek == weekNumber,
+                    widget.trainingCycle.deloadWeek == weekNumber,
                   );
                 }),
               ),
@@ -3606,7 +3606,7 @@ class _WeekSelectorModalState extends State<_WeekSelectorModal> {
   }
 
   int _calculateRIR(int weekNumber) {
-    final deloadWeek = widget.mesocycle.deloadWeek;
+    final deloadWeek = widget.trainingCycle.deloadWeek;
 
     // Deload week has 8 RIR
     if (weekNumber == deloadWeek) {

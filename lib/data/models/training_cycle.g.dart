@@ -1,28 +1,28 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'mesocycle.dart';
+part of 'training_cycle.dart';
 
 // **************************************************************************
 // TypeAdapterGenerator
 // **************************************************************************
 
-class MesocycleAdapter extends TypeAdapter<Mesocycle> {
+class TrainingCycleAdapter extends TypeAdapter<TrainingCycle> {
   @override
   final int typeId = 4;
 
   @override
-  Mesocycle read(BinaryReader reader) {
+  TrainingCycle read(BinaryReader reader) {
     final numOfFields = reader.readByte();
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-    return Mesocycle(
+    return TrainingCycle(
       id: fields[0] as String,
       name: fields[1] as String,
       weeksTotal: fields[2] as int,
       daysPerWeek: fields[3] as int,
       deloadWeek: fields[4] as int?,
-      status: fields[5] as MesocycleStatus,
+      status: fields[5] as TrainingCycleStatus,
       gender: fields[6] as Gender?,
       createdDate: fields[7] as DateTime?,
       startDate: fields[8] as DateTime?,
@@ -35,7 +35,7 @@ class MesocycleAdapter extends TypeAdapter<Mesocycle> {
   }
 
   @override
-  void write(BinaryWriter writer, Mesocycle obj) {
+  void write(BinaryWriter writer, TrainingCycle obj) {
     writer
       ..writeByte(14)
       ..writeByte(0)
@@ -74,7 +74,7 @@ class MesocycleAdapter extends TypeAdapter<Mesocycle> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is MesocycleAdapter &&
+      other is TrainingCycleAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }

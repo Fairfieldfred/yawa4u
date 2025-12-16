@@ -16,7 +16,7 @@ import '../widgets/dialogs/create_custom_exercise_dialog.dart';
 
 /// Screen for adding exercises from the library to a workout
 class AddExerciseScreen extends ConsumerStatefulWidget {
-  final String mesocycleId;
+  final String trainingCycleId;
   final String workoutId;
   final MuscleGroup? initialMuscleGroup;
 
@@ -25,7 +25,7 @@ class AddExerciseScreen extends ConsumerStatefulWidget {
 
   const AddExerciseScreen({
     super.key,
-    required this.mesocycleId,
+    required this.trainingCycleId,
     required this.workoutId,
     this.initialMuscleGroup,
     this.replaceExerciseId,

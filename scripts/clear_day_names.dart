@@ -2,7 +2,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:yawa4u/data/models/workout.dart';
 
 /// Script to clear all preset dayNames from existing workouts
-/// This allows day names to be calculated dynamically from the mesocycle start date
+/// This allows day names to be calculated dynamically from the trainingCycle start date
 Future<void> clearWorkoutDayNames() async {
   // Initialize Hive
   await Hive.initFlutter();
@@ -34,7 +34,7 @@ Future<void> clearWorkoutDayNames() async {
 
   print('\nCompleted! Cleared dayName from $updatedCount workouts.');
   print(
-    'Day names will now be calculated dynamically from mesocycle start dates.',
+    'Day names will now be calculated dynamically from trainingCycle start dates.',
   );
 
   await box.close();

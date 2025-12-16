@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// Tab indices for HomeScreen
 class HomeTab {
   static const int workout = 0;
-  static const int mesocycles = 1;
+  static const int trainingCycles = 1;
   static const int exercises = 2;
   static const int more = 3;
 }

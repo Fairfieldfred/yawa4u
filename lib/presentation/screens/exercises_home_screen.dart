@@ -5,13 +5,13 @@ import '../../core/constants/enums.dart';
 import '../../data/models/exercise.dart';
 import '../../data/models/exercise_set.dart';
 import '../../data/models/workout.dart';
-import '../../domain/providers/mesocycle_providers.dart';
+import '../../domain/providers/training_cycle_providers.dart';
 import '../../domain/providers/onboarding_providers.dart';
 import '../../domain/providers/repository_providers.dart';
 import '../../domain/providers/theme_provider.dart';
 import '../../domain/providers/workout_providers.dart';
+import '../widgets/cycle_summary_dialog.dart';
 import '../widgets/exercise_card_widget.dart';
-import '../widgets/mesocycle_summary_dialog.dart';
 
 /// Exercises library home screen
 class ExercisesHomeScreen extends ConsumerWidget {
@@ -19,12 +19,12 @@ class ExercisesHomeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final currentMesocycle = ref.watch(currentMesocycleProvider);
+    final currentTrainingCycle = ref.watch(currentTrainingCycleProvider);
 
-    if (currentMesocycle == null) {
+    if (currentTrainingCycle == null) {
       return Scaffold(
         appBar: AppBar(title: const Text('Exercises')),
-        body: const Center(child: Text('No active mesocycle')),
+        body: const Center(child: Text('No active trainingCycle')),
       );
     }
 
@@ -34,9 +34,9 @@ class ExercisesHomeScreen extends ConsumerWidget {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
-    // Get workouts for the current mesocycle
+    // Get workouts for the current trainingCycle
     final allWorkouts = ref.watch(
-      workoutsByMesocycleProvider(currentMesocycle.id),
+      workoutsByTrainingCycleProvider(currentTrainingCycle.id),
     );
 
     // Find the first incomplete workout day (not just workout/muscle group)
@@ -156,7 +156,7 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
   Widget build(BuildContext context) {
     // Use the first workout's display info for the appBar
     final firstWorkout = widget.workouts.first;
-    final currentMesocycle = ref.watch(currentMesocycleProvider);
+    final currentTrainingCycle = ref.watch(currentTrainingCycleProvider);
 
     final displayWeek = firstWorkout.weekNumber;
     final displayDay = firstWorkout.dayNumber;
@@ -180,7 +180,7 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                currentMesocycle?.name.toUpperCase() ?? 'MESOCYCLE',
+                currentTrainingCycle?.name.toUpperCase() ?? 'TRAINING CYCLE',
                 style: TextStyle(
                   color: Theme.of(context).textTheme.bodySmall?.color,
                   fontSize: 12,
@@ -221,7 +221,7 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
                 icon: const Icon(Icons.more_vert),
                 onPressed: () => _showWorkoutMenu(
                   context,
-                  currentMesocycle,
+                  currentTrainingCycle,
                   widget.workouts,
                 ),
               ),
@@ -391,17 +391,17 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
   // ========== Navigation ==========
   void _finishWorkout() {
     final workoutRepo = ref.read(workoutRepositoryProvider);
-    final currentMesocycle = ref.read(currentMesocycleProvider);
-    if (currentMesocycle == null) return;
+    final currentTrainingCycle = ref.read(currentTrainingCycleProvider);
+    if (currentTrainingCycle == null) return;
 
     // Mark all workouts for this day as completed
     for (var workout in widget.workouts) {
       workoutRepo.markAsCompleted(workout.id);
     }
 
-    // Get all workouts for the mesocycle
+    // Get all workouts for the trainingCycle
     final allWorkouts = ref.read(
-      workoutsByMesocycleProvider(currentMesocycle.id),
+      workoutsByTrainingCycleProvider(currentTrainingCycle.id),
     );
 
     // Find the next workout day with incomplete exercises
@@ -462,7 +462,7 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
 
   void _showWorkoutMenu(
     BuildContext context,
-    dynamic mesocycle,
+    dynamic trainingCycle,
     List<Workout> workouts,
   ) {
     final RenderBox button = context.findRenderObject() as RenderBox;
@@ -486,12 +486,12 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
       color: Theme.of(context).cardTheme.color,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       items: <PopupMenuEntry<void>>[
-        // MESOCYCLE Section
-        _buildMenuHeader('MESOCYCLE'),
+        // TRAINING CYCLE Section
+        _buildMenuHeader('TRAINING CYCLE'),
         _buildMenuItem(
           icon: Icons.summarize_outlined,
           text: 'Summary',
-          onTap: () => _showMesocycleSummary(mesocycle),
+          onTap: () => _showTrainingCycleSummary(trainingCycle),
         ),
         const PopupMenuDivider(height: 1),
 
@@ -574,10 +574,10 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
     );
   }
 
-  void _showMesocycleSummary(dynamic mesocycle) {
+  void _showTrainingCycleSummary(dynamic trainingCycle) {
     showDialog(
       context: context,
-      builder: (context) => MesocycleSummaryDialog(mesocycle: mesocycle),
+      builder: (context) => CycleSummaryDialog(trainingCycle: trainingCycle),
     );
   }
 

@@ -210,7 +210,7 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      _buildStatItem('Mesocycles', stats.mesocycleCount),
+                      _buildStatItem('TrainingCycles', stats.trainingCycleCount),
                       _buildStatItem('Workouts', stats.workoutCount),
                       _buildStatItem('Exercises', stats.exerciseCount),
                     ],
@@ -475,8 +475,8 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
                       _buildStatItem(
-                        'Mesocycles',
-                        _connectedDevice!.mesocycleCount,
+                        'TrainingCycles',
+                        _connectedDevice!.trainingCycleCount,
                       ),
                       _buildStatItem(
                         'Workouts',

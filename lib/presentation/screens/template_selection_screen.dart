@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../data/models/mesocycle_template.dart';
+import '../../data/models/training_cycle_template.dart';
 import '../../domain/providers/template_providers.dart';
 import 'template_preview_screen.dart';
 
@@ -56,7 +56,7 @@ class _TemplateSelectionScreenState
     );
   }
 
-  Widget _buildTemplateCard(BuildContext context, MesocycleTemplate template) {
+  Widget _buildTemplateCard(BuildContext context, TrainingCycleTemplate template) {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Card(
@@ -184,7 +184,7 @@ class _TemplateSelectionScreenState
     );
   }
 
-  Future<void> _confirmDelete(MesocycleTemplate template) async {
+  Future<void> _confirmDelete(TrainingCycleTemplate template) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => Dialog(

@@ -2,9 +2,9 @@ import 'package:hive/hive.dart';
 
 part 'enums.g.dart';
 
-/// Status of a mesocycle
+/// Status of a trainingCycle
 @HiveType(typeId: 10)
-enum MesocycleStatus {
+enum TrainingCycleStatus {
   @HiveField(0)
   draft,
   @HiveField(1)
@@ -13,21 +13,21 @@ enum MesocycleStatus {
   completed,
 }
 
-extension MesocycleStatusExtension on MesocycleStatus {
+extension TrainingCycleStatusExtension on TrainingCycleStatus {
   String get displayName {
     switch (this) {
-      case MesocycleStatus.draft:
+      case TrainingCycleStatus.draft:
         return 'Draft';
-      case MesocycleStatus.current:
+      case TrainingCycleStatus.current:
         return 'Current';
-      case MesocycleStatus.completed:
+      case TrainingCycleStatus.completed:
         return 'Completed';
     }
   }
 
-  bool get isDraft => this == MesocycleStatus.draft;
-  bool get isCurrent => this == MesocycleStatus.current;
-  bool get isCompleted => this == MesocycleStatus.completed;
+  bool get isDraft => this == TrainingCycleStatus.draft;
+  bool get isCurrent => this == TrainingCycleStatus.current;
+  bool get isCompleted => this == TrainingCycleStatus.completed;
 }
 
 /// Status of a workout

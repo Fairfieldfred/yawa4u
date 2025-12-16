@@ -171,7 +171,7 @@ class RIRParser {
 
   // ========== WEEK PROGRESSION ==========
 
-  /// Get recommended RIR for a given week in a mesocycle
+  /// Get recommended RIR for a given week in a trainingCycle
   /// Common progression: Week 1 (3 RIR) -> Week 4 (0 RIR)
   /// This implements a linear progression model
   static int getRecommendedRIRForWeek(int weekNumber, int totalWeeks) {

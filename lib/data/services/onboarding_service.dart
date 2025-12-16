@@ -3,7 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// Service to manage onboarding state and user preferences
 class OnboardingService {
   static const String _keyOnboardingComplete = 'onboarding_complete';
-  static const String _keyFirstMesocycleCreated = 'has_created_first_mesocycle';
+  static const String _keyFirstTrainingCycleCreated = 'has_created_first_trainingCycle';
   static const String _keyHeightCm = 'user_height_cm';
   static const String _keyWeightKg = 'user_weight_kg';
   static const String _keyUseMetric = 'user_use_metric';
@@ -24,14 +24,14 @@ class OnboardingService {
     await _prefs.setBool(_keyOnboardingComplete, true);
   }
 
-  /// Check if this is a first time user (hasn't created a mesocycle yet)
+  /// Check if this is a first time user (hasn't created a trainingCycle yet)
   bool get isFirstTimeUser {
-    return !_prefs.containsKey(_keyFirstMesocycleCreated);
+    return !_prefs.containsKey(_keyFirstTrainingCycleCreated);
   }
 
-  /// Mark that the user has created their first mesocycle
-  Future<void> markFirstMesocycleCreated() async {
-    await _prefs.setBool(_keyFirstMesocycleCreated, true);
+  /// Mark that the user has created their first trainingCycle
+  Future<void> markFirstTrainingCycleCreated() async {
+    await _prefs.setBool(_keyFirstTrainingCycleCreated, true);
   }
 
   // User profile getters
@@ -40,7 +40,7 @@ class OnboardingService {
   bool get useMetric => _prefs.getBool(_keyUseMetric) ?? false;
   List<String> get equipment => _prefs.getStringList(_keyEquipment) ?? [];
   String get trainingCycleTerm =>
-      _prefs.getString(_keyTrainingCycleTerm) ?? 'mesocycle';
+      _prefs.getString(_keyTrainingCycleTerm) ?? 'trainingCycle';
 
   // User profile setters
   Future<void> setHeightCm(double value) async {
@@ -63,7 +63,7 @@ class OnboardingService {
     await _prefs.setString(_keyTrainingCycleTerm, value);
   }
 
-  /// Get display name for the training cycle term
+  /// Get display name for the trainingCycle term
   String get trainingCycleDisplayName {
     switch (trainingCycleTerm) {
       case 'block':
@@ -74,13 +74,13 @@ class OnboardingService {
         return 'Module';
       case 'wave':
         return 'Wave';
-      case 'mesocycle':
+      case 'trainingCycle':
       default:
-        return 'Mesocycle';
+        return 'TrainingCycle';
     }
   }
 
-  /// Get plural display name for the training cycle term
+  /// Get plural display name for the trainingCycle term
   String get trainingCycleDisplayNamePlural {
     switch (trainingCycleTerm) {
       case 'block':
@@ -91,9 +91,9 @@ class OnboardingService {
         return 'Modules';
       case 'wave':
         return 'Waves';
-      case 'mesocycle':
+      case 'trainingCycle':
       default:
-        return 'Mesocycles';
+        return 'TrainingCycles';
     }
   }
 }

@@ -3,7 +3,7 @@ import 'package:hive/hive.dart';
 
 import '../../data/models/custom_exercise_definition.dart';
 import '../../data/models/exercise.dart';
-import '../../data/models/mesocycle.dart';
+import '../../data/models/training_cycle.dart';
 import '../../data/models/workout.dart';
 import '../../data/services/csv_loader_service.dart';
 import '../../data/services/database_service.dart';
@@ -18,10 +18,10 @@ final csvLoaderServiceProvider = Provider<CsvLoaderService>((ref) {
   return CsvLoaderService();
 });
 
-/// Provider for Mesocycle Hive box
-final mesocyclesBoxProvider = Provider<Box<Mesocycle>>((ref) {
+/// Provider for TrainingCycle Hive box
+final trainingCyclesBoxProvider = Provider<Box<TrainingCycle>>((ref) {
   final dbService = ref.watch(databaseServiceProvider);
-  return dbService.mesocyclesBox;
+  return dbService.trainingCyclesBox;
 });
 
 /// Provider for Workout Hive box

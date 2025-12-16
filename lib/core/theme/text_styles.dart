@@ -237,7 +237,7 @@ class AppTextStyles {
   );
 
   /// Subtitle/metadata style (small, gray, uppercase)
-  /// Example: "SECOND MESOCYCLE CASEY KELLY", "MACHINE"
+  /// Example: "SECOND TRAINING CYCLE CASEY KELLY", "MACHINE"
   static const TextStyle subtitle = TextStyle(
     fontSize: 11,
     fontWeight: FontWeight.w500,
@@ -298,7 +298,7 @@ class AppTextStyles {
   );
 
   /// Section header style (uppercase, gray)
-  /// Example: "MESOCYCLE", "WORKOUT", "SET TYPE"
+  /// Example: "TRAINING CYCLE", "WORKOUT", "SET TYPE"
   static const TextStyle sectionHeader = TextStyle(
     fontSize: 13,
     fontWeight: FontWeight.w600,

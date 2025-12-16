@@ -27,7 +27,7 @@ class UserProfile {
     this.weightKg,
     this.useMetric = false,
     this.equipment = const [],
-    this.trainingCycleTerm = 'mesocycle',
+    this.trainingCycleTerm = 'trainingCycle',
   });
 
   UserProfile copyWith({
@@ -111,13 +111,13 @@ final isOnboardingCompleteProvider = Provider<bool>((ref) {
   return service.isOnboardingComplete;
 });
 
-/// Provider for the user's preferred training cycle term display name
+/// Provider for the user's preferred trainingCycle term display name
 final trainingCycleTermProvider = Provider<String>((ref) {
   final service = ref.watch(onboardingServiceProvider);
   return service.trainingCycleDisplayName;
 });
 
-/// Provider for the user's preferred training cycle term plural display name
+/// Provider for the user's preferred trainingCycle term plural display name
 final trainingCycleTermPluralProvider = Provider<String>((ref) {
   final service = ref.watch(onboardingServiceProvider);
   return service.trainingCycleDisplayNamePlural;

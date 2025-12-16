@@ -21,10 +21,10 @@ class WorkoutRepository {
     return _box.get(id);
   }
 
-  /// Get workouts by mesocycle ID
-  List<Workout> getByMesocycleId(String mesocycleId) {
+  /// Get workouts by trainingCycle ID
+  List<Workout> getByTrainingCycleId(String trainingCycleId) {
     return _box.values
-        .where((w) => w.mesocycleId == mesocycleId)
+        .where((w) => w.trainingCycleId == trainingCycleId)
         .toList()
       ..sort((a, b) {
         // Sort by week, then by day
@@ -54,25 +54,25 @@ class WorkoutRepository {
     return getByStatus(WorkoutStatus.skipped);
   }
 
-  /// Get workouts for a specific week in a mesocycle
-  List<Workout> getByWeek(String mesocycleId, int weekNumber) {
+  /// Get workouts for a specific week in a trainingCycle
+  List<Workout> getByWeek(String trainingCycleId, int weekNumber) {
     return _box.values
         .where((w) =>
-            w.mesocycleId == mesocycleId && w.weekNumber == weekNumber)
+            w.trainingCycleId == trainingCycleId && w.weekNumber == weekNumber)
         .toList()
       ..sort((a, b) => a.dayNumber.compareTo(b.dayNumber));
   }
 
-  /// Get a specific workout by mesocycle, week, and day
+  /// Get a specific workout by trainingCycle, week, and day
   Workout? getByWeekAndDay(
-    String mesocycleId,
+    String trainingCycleId,
     int weekNumber,
     int dayNumber,
   ) {
     try {
       return _box.values.firstWhere(
         (w) =>
-            w.mesocycleId == mesocycleId &&
+            w.trainingCycleId == trainingCycleId &&
             w.weekNumber == weekNumber &&
             w.dayNumber == dayNumber,
       );
@@ -96,9 +96,9 @@ class WorkoutRepository {
     await _box.delete(id);
   }
 
-  /// Delete all workouts for a mesocycle
-  Future<void> deleteByMesocycleId(String mesocycleId) async {
-    final workouts = getByMesocycleId(mesocycleId);
+  /// Delete all workouts for a trainingCycle
+  Future<void> deleteByTrainingCycleId(String trainingCycleId) async {
+    final workouts = getByTrainingCycleId(trainingCycleId);
     for (final workout in workouts) {
       await delete(workout.id);
     }
@@ -182,9 +182,9 @@ class WorkoutRepository {
     };
   }
 
-  /// Get statistics for a specific mesocycle
-  Map<String, dynamic> getStatsForMesocycle(String mesocycleId) {
-    final workouts = getByMesocycleId(mesocycleId);
+  /// Get statistics for a specific trainingCycle
+  Map<String, dynamic> getStatsForTrainingCycle(String trainingCycleId) {
+    final workouts = getByTrainingCycleId(trainingCycleId);
     final completed = workouts.where((w) => w.isCompleted).length;
     final skipped = workouts.where((w) => w.isSkipped).length;
 

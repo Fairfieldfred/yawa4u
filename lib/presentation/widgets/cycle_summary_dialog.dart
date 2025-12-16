@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/constants/enums.dart';
-import '../../data/models/mesocycle.dart';
+import '../../data/models/training_cycle.dart';
 import '../../domain/providers/workout_providers.dart';
 import 'muscle_group_stats_dialog.dart';
 
-class MesocycleSummaryDialog extends ConsumerWidget {
-  final Mesocycle mesocycle;
+class CycleSummaryDialog extends ConsumerWidget {
+  final TrainingCycle trainingCycle;
 
-  const MesocycleSummaryDialog({super.key, required this.mesocycle});
+  const CycleSummaryDialog({super.key, required this.trainingCycle});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -26,7 +26,7 @@ class MesocycleSummaryDialog extends ConsumerWidget {
       child: workoutsAsync.when(
         data: (allWorkouts) {
           final workouts =
-              allWorkouts.where((w) => w.mesocycleId == mesocycle.id).toList()
+              allWorkouts.where((w) => w.trainingCycleId == trainingCycle.id).toList()
                 ..sort((a, b) {
                   final weekCompare = a.weekNumber.compareTo(b.weekNumber);
                   if (weekCompare != 0) return weekCompare;
@@ -58,7 +58,7 @@ class MesocycleSummaryDialog extends ConsumerWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Mesocycle summary',
+                            'TrainingCycle summary',
                             style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
@@ -67,7 +67,7 @@ class MesocycleSummaryDialog extends ConsumerWidget {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            mesocycle.name.toUpperCase(),
+                            trainingCycle.name.toUpperCase(),
                             style: TextStyle(
                               fontSize: 12,
                               color: secondaryTextColor,
@@ -145,7 +145,7 @@ class MesocycleSummaryDialog extends ConsumerWidget {
                     showDialog(
                       context: context,
                       builder: (context) =>
-                          MuscleGroupStatsDialog(mesocycle: mesocycle),
+                          MuscleGroupStatsDialog(trainingCycle: trainingCycle),
                     );
                   },
                 ),

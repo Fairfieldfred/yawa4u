@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 
-/// Dialog for renaming a mesocycle.
-class RenameMesocycleDialog extends StatefulWidget {
+/// Dialog for renaming a trainingCycle.
+class RenameTrainingCycleDialog extends StatefulWidget {
   final String initialName;
 
-  const RenameMesocycleDialog({super.key, required this.initialName});
+  const RenameTrainingCycleDialog({super.key, required this.initialName});
 
   @override
-  State<RenameMesocycleDialog> createState() => _RenameMesocycleDialogState();
+  State<RenameTrainingCycleDialog> createState() => _RenameTrainingCycleDialogState();
 }
 
-class _RenameMesocycleDialogState extends State<RenameMesocycleDialog> {
+class _RenameTrainingCycleDialogState extends State<RenameTrainingCycleDialog> {
   late final TextEditingController _nameController;
 
   @override
@@ -76,7 +76,7 @@ class _RenameMesocycleDialogState extends State<RenameMesocycleDialog> {
       controller: _nameController,
       autofocus: true,
       decoration: InputDecoration(
-        hintText: 'Mesocycle name',
+        hintText: 'TrainingCycle name',
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
         filled: true,
         fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,

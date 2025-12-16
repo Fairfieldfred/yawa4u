@@ -4,9 +4,9 @@ import 'package:uuid/uuid.dart';
 import '../../core/constants/enums.dart';
 import '../../data/models/exercise.dart';
 import '../../data/models/exercise_set.dart';
-import '../../data/models/mesocycle.dart';
+import '../../data/models/training_cycle.dart';
 import '../../data/models/workout.dart';
-import '../providers/mesocycle_providers.dart';
+import '../providers/training_cycle_providers.dart';
 import '../providers/repository_providers.dart';
 import '../providers/workout_providers.dart';
 
@@ -42,7 +42,7 @@ class WorkoutHomeState {
 /// - Set management (add, update, delete, toggle log/skip)
 /// - Exercise management (add, delete, move, replace)
 /// - Workout operations (finish, reset, skip)
-/// - Mesocycle operations (rename, end, notes)
+/// - TrainingCycle operations (rename, end, notes)
 class WorkoutHomeController extends Notifier<WorkoutHomeState> {
   @override
   WorkoutHomeState build() {
@@ -328,10 +328,10 @@ class WorkoutHomeController extends Notifier<WorkoutHomeState> {
     int displayDay,
   ) async {
     final repository = ref.read(workoutRepositoryProvider);
-    final mesocycle = ref.read(currentMesocycleProvider);
-    if (mesocycle == null) return;
+    final trainingCycle = ref.read(currentTrainingCycleProvider);
+    if (trainingCycle == null) return;
 
-    final allWorkouts = ref.read(workoutsByMesocycleProvider(mesocycle.id));
+    final allWorkouts = ref.read(workoutsByTrainingCycleProvider(trainingCycle.id));
 
     final todaysWorkouts = allWorkouts
         .where((w) => w.weekNumber == displayWeek && w.dayNumber == displayDay)
@@ -475,10 +475,10 @@ class WorkoutHomeController extends Notifier<WorkoutHomeState> {
     if (workouts.isEmpty) return false;
 
     final repository = ref.read(workoutRepositoryProvider);
-    final mesocycleRepository = ref.read(mesocycleRepositoryProvider);
-    final mesocycle = ref.read(currentMesocycleProvider);
+    final trainingCycleRepository = ref.read(trainingCycleRepositoryProvider);
+    final trainingCycle = ref.read(currentTrainingCycleProvider);
 
-    if (mesocycle == null) return false;
+    if (trainingCycle == null) return false;
 
     // Mark ALL workouts for this day as completed
     for (final workout in workouts) {
@@ -489,15 +489,15 @@ class WorkoutHomeController extends Notifier<WorkoutHomeState> {
       await repository.update(updatedWorkout);
     }
 
-    // Check if ALL workouts in the mesocycle are now completed
-    final allWorkouts = repository.getByMesocycleId(mesocycle.id);
+    // Check if ALL workouts in the trainingCycle are now completed
+    final allWorkouts = repository.getByTrainingCycleId(trainingCycle.id);
     final allCompleted = allWorkouts.every(
       (w) => w.status == WorkoutStatus.completed,
     );
 
     if (allCompleted) {
-      await mesocycleRepository.update(mesocycle.complete());
-      return true; // Indicates mesocycle completed
+      await trainingCycleRepository.update(trainingCycle.complete());
+      return true; // Indicates trainingCycle completed
     }
 
     // Navigate to next workout
@@ -557,7 +557,7 @@ class WorkoutHomeController extends Notifier<WorkoutHomeState> {
 
     if (applyToAll) {
       final allWorkouts = ref.read(
-        workoutsByMesocycleProvider(workout.mesocycleId),
+        workoutsByTrainingCycleProvider(workout.trainingCycleId),
       );
       final workoutsToUpdate = allWorkouts
           .where((w) => w.dayNumber == workout.dayNumber)
@@ -578,9 +578,9 @@ class WorkoutHomeController extends Notifier<WorkoutHomeState> {
     }
   }
 
-  Future<void> clearAllDayNames(String mesocycleId) async {
+  Future<void> clearAllDayNames(String trainingCycleId) async {
     final repository = ref.read(workoutRepositoryProvider);
-    final allWorkouts = ref.read(workoutsByMesocycleProvider(mesocycleId));
+    final allWorkouts = ref.read(workoutsByTrainingCycleProvider(trainingCycleId));
 
     for (final workout in allWorkouts) {
       if (workout.dayName != null) {
@@ -590,7 +590,7 @@ class WorkoutHomeController extends Notifier<WorkoutHomeState> {
   }
 
   Future<void> createWorkoutForMuscleGroup({
-    required String mesocycleId,
+    required String trainingCycleId,
     required int weekNumber,
     required int dayNumber,
     required String? dayName,
@@ -600,7 +600,7 @@ class WorkoutHomeController extends Notifier<WorkoutHomeState> {
 
     final newWorkout = Workout(
       id: const Uuid().v4(),
-      mesocycleId: mesocycleId,
+      trainingCycleId: trainingCycleId,
       weekNumber: weekNumber,
       dayNumber: dayNumber,
       dayName: dayName,
@@ -612,34 +612,34 @@ class WorkoutHomeController extends Notifier<WorkoutHomeState> {
   }
 
   // ---------------------------------------------------------------------------
-  // Mesocycle Operations
+  // TrainingCycle Operations
   // ---------------------------------------------------------------------------
 
-  Future<void> renameMesocycle(Mesocycle mesocycle, String newName) async {
-    final repository = ref.read(mesocycleRepositoryProvider);
-    final updatedMesocycle = mesocycle.copyWith(name: newName);
-    await repository.update(updatedMesocycle);
+  Future<void> renameTrainingCycle(TrainingCycle trainingCycle, String newName) async {
+    final repository = ref.read(trainingCycleRepositoryProvider);
+    final updatedTrainingCycle = trainingCycle.copyWith(name: newName);
+    await repository.update(updatedTrainingCycle);
   }
 
-  Future<void> endMesocycle(Mesocycle mesocycle) async {
-    final repository = ref.read(mesocycleRepositoryProvider);
-    final updatedMesocycle = mesocycle.copyWith(
-      status: MesocycleStatus.completed,
+  Future<void> endTrainingCycle(TrainingCycle trainingCycle) async {
+    final repository = ref.read(trainingCycleRepositoryProvider);
+    final updatedTrainingCycle = trainingCycle.copyWith(
+      status: TrainingCycleStatus.completed,
       endDate: DateTime.now(),
     );
-    await repository.update(updatedMesocycle);
+    await repository.update(updatedTrainingCycle);
   }
 
   // ---------------------------------------------------------------------------
   // Week Management
   // ---------------------------------------------------------------------------
 
-  Future<void> addWeek(dynamic mesocycle) async {
+  Future<void> addWeek(dynamic trainingCycle) async {
     final repository = ref.read(workoutRepositoryProvider);
-    final allWorkouts = ref.read(workoutsByMesocycleProvider(mesocycle.id));
-    final newWeekNumber = mesocycle.weeksTotal;
+    final allWorkouts = ref.read(workoutsByTrainingCycleProvider(trainingCycle.id));
+    final newWeekNumber = trainingCycle.weeksTotal;
 
-    final templateWeek = mesocycle.weeksTotal - 1;
+    final templateWeek = trainingCycle.weeksTotal - 1;
 
     List<Workout> templateWorkouts = [];
     if (templateWeek >= 1) {
@@ -648,7 +648,7 @@ class WorkoutHomeController extends Notifier<WorkoutHomeState> {
           .toList();
     } else {
       templateWorkouts = allWorkouts
-          .where((w) => w.weekNumber == mesocycle.weeksTotal)
+          .where((w) => w.weekNumber == trainingCycle.weeksTotal)
           .toList();
     }
 
@@ -656,11 +656,11 @@ class WorkoutHomeController extends Notifier<WorkoutHomeState> {
 
     // Shift deload week
     final deloadWorkouts = allWorkouts
-        .where((w) => w.weekNumber == mesocycle.weeksTotal)
+        .where((w) => w.weekNumber == trainingCycle.weeksTotal)
         .toList();
     for (var workout in deloadWorkouts) {
       await repository.update(
-        workout.copyWith(weekNumber: mesocycle.weeksTotal + 1),
+        workout.copyWith(weekNumber: trainingCycle.weeksTotal + 1),
       );
     }
 
@@ -697,20 +697,20 @@ class WorkoutHomeController extends Notifier<WorkoutHomeState> {
       await repository.create(newWorkout);
     }
 
-    // Update mesocycle
-    final mesocycleRepository = ref.read(mesocycleRepositoryProvider);
-    await mesocycleRepository.update(
-      mesocycle.copyWith(
-        weeksTotal: mesocycle.weeksTotal + 1,
-        deloadWeek: mesocycle.deloadWeek + 1,
+    // Update trainingCycle
+    final trainingCycleRepository = ref.read(trainingCycleRepositoryProvider);
+    await trainingCycleRepository.update(
+      trainingCycle.copyWith(
+        weeksTotal: trainingCycle.weeksTotal + 1,
+        deloadWeek: trainingCycle.deloadWeek + 1,
       ),
     );
   }
 
-  Future<void> removeWeek(dynamic mesocycle) async {
+  Future<void> removeWeek(dynamic trainingCycle) async {
     final repository = ref.read(workoutRepositoryProvider);
-    final allWorkouts = ref.read(workoutsByMesocycleProvider(mesocycle.id));
-    final weekToRemove = mesocycle.weeksTotal - 1;
+    final allWorkouts = ref.read(workoutsByTrainingCycleProvider(trainingCycle.id));
+    final weekToRemove = trainingCycle.weeksTotal - 1;
 
     if (weekToRemove < 1) return;
 
@@ -724,18 +724,18 @@ class WorkoutHomeController extends Notifier<WorkoutHomeState> {
 
     // Shift deload week
     final deloadWorkouts = allWorkouts
-        .where((w) => w.weekNumber == mesocycle.weeksTotal)
+        .where((w) => w.weekNumber == trainingCycle.weeksTotal)
         .toList();
     for (var workout in deloadWorkouts) {
       await repository.update(workout.copyWith(weekNumber: weekToRemove));
     }
 
-    // Update mesocycle
-    final mesocycleRepository = ref.read(mesocycleRepositoryProvider);
-    await mesocycleRepository.update(
-      mesocycle.copyWith(
-        weeksTotal: mesocycle.weeksTotal - 1,
-        deloadWeek: mesocycle.deloadWeek - 1,
+    // Update trainingCycle
+    final trainingCycleRepository = ref.read(trainingCycleRepositoryProvider);
+    await trainingCycleRepository.update(
+      trainingCycle.copyWith(
+        weeksTotal: trainingCycle.weeksTotal - 1,
+        deloadWeek: trainingCycle.deloadWeek - 1,
       ),
     );
   }
@@ -751,7 +751,7 @@ final workoutHomeControllerProvider =
       return WorkoutHomeController();
     });
 
-/// Find the first incomplete workout in the mesocycle.
+/// Find the first incomplete workout in the trainingCycle.
 (int, int)? findFirstIncompleteWorkout(List<Workout> allWorkouts) {
   final Map<String, List<Workout>> workoutsByDay = {};
   for (var workout in allWorkouts) {
@@ -797,7 +797,7 @@ bool isWorkoutComplete(Workout workout) {
   return true;
 }
 
-/// Calculate target RIR for a given week based on mesocycle deload schedule.
+/// Calculate target RIR for a given week based on trainingCycle deload schedule.
 int calculateRIR(int weekNumber, int deloadWeek) {
   if (weekNumber == deloadWeek) {
     return 8;
@@ -830,7 +830,7 @@ String? getSetTypeBadge(SetType setType) {
   }
 }
 
-/// Calculate day name based on mesocycle start date.
+/// Calculate day name based on trainingCycle start date.
 String calculateDayName({
   required List<Workout> workouts,
   required DateTime? startDate,

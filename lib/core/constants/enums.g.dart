@@ -6,34 +6,34 @@ part of 'enums.dart';
 // TypeAdapterGenerator
 // **************************************************************************
 
-class MesocycleStatusAdapter extends TypeAdapter<MesocycleStatus> {
+class TrainingCycleStatusAdapter extends TypeAdapter<TrainingCycleStatus> {
   @override
   final int typeId = 10;
 
   @override
-  MesocycleStatus read(BinaryReader reader) {
+  TrainingCycleStatus read(BinaryReader reader) {
     switch (reader.readByte()) {
       case 0:
-        return MesocycleStatus.draft;
+        return TrainingCycleStatus.draft;
       case 1:
-        return MesocycleStatus.current;
+        return TrainingCycleStatus.current;
       case 2:
-        return MesocycleStatus.completed;
+        return TrainingCycleStatus.completed;
       default:
-        return MesocycleStatus.draft;
+        return TrainingCycleStatus.draft;
     }
   }
 
   @override
-  void write(BinaryWriter writer, MesocycleStatus obj) {
+  void write(BinaryWriter writer, TrainingCycleStatus obj) {
     switch (obj) {
-      case MesocycleStatus.draft:
+      case TrainingCycleStatus.draft:
         writer.writeByte(0);
         break;
-      case MesocycleStatus.current:
+      case TrainingCycleStatus.current:
         writer.writeByte(1);
         break;
-      case MesocycleStatus.completed:
+      case TrainingCycleStatus.completed:
         writer.writeByte(2);
         break;
     }
@@ -45,7 +45,7 @@ class MesocycleStatusAdapter extends TypeAdapter<MesocycleStatus> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is MesocycleStatusAdapter &&
+      other is TrainingCycleStatusAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }
