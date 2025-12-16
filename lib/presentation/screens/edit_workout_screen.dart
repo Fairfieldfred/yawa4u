@@ -12,9 +12,9 @@ import '../../data/models/exercise.dart';
 import '../../data/models/exercise_set.dart';
 import '../../data/models/training_cycle.dart';
 import '../../data/models/workout.dart';
-import '../../domain/providers/training_cycle_providers.dart';
 import '../../domain/providers/onboarding_providers.dart';
 import '../../domain/providers/repository_providers.dart';
+import '../../domain/providers/training_cycle_providers.dart';
 import '../../domain/providers/workout_providers.dart';
 import '../widgets/dialogs/exercise_info_dialog.dart';
 import 'add_exercise_screen.dart';
@@ -453,7 +453,9 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
     final dayToRemove = trainingCycle.daysPerWeek;
 
     // Check if there are any workouts on this day
-    final allWorkouts = ref.read(workoutsByTrainingCycleProvider(trainingCycle.id));
+    final allWorkouts = ref.read(
+      workoutsByTrainingCycleProvider(trainingCycle.id),
+    );
     final hasWorkoutsOnDay = allWorkouts.any((w) => w.dayNumber == dayToRemove);
 
     if (hasWorkoutsOnDay) {
@@ -1442,7 +1444,10 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
 
     if (confirmed == true && mounted) {
       try {
-        await controller.mirrorWeek1ToSelectedWeek(trainingCycle, _selectedWeek);
+        await controller.mirrorWeek1ToSelectedWeek(
+          trainingCycle,
+          _selectedWeek,
+        );
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -1519,7 +1524,9 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
     EditWorkoutController controller,
   ) {
     // Get workouts for the current day
-    final workouts = ref.read(workoutsByTrainingCycleProvider(widget.trainingCycleId));
+    final workouts = ref.read(
+      workoutsByTrainingCycleProvider(widget.trainingCycleId),
+    );
     final dayWorkouts = workouts
         .where(
           (w) =>
@@ -1581,7 +1588,8 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
                           Navigator.of(context).push(
                             MaterialPageRoute(
                               builder: (context) => AddExerciseScreen(
-                                trainingCycleId: existingWorkout.trainingCycleId,
+                                trainingCycleId:
+                                    existingWorkout.trainingCycleId,
                                 workoutId: existingWorkout.id,
                                 initialMuscleGroup: muscleGroup,
                               ),

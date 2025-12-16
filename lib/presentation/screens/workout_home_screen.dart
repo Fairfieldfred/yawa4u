@@ -331,7 +331,9 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     }
 
     // Get all workouts for this trainingCycle
-    final allWorkouts = ref.read(workoutsByTrainingCycleProvider(trainingCycle.id));
+    final allWorkouts = ref.read(
+      workoutsByTrainingCycleProvider(trainingCycle.id),
+    );
 
     // Get current week and day
     final currentWeek = trainingCycle.getCurrentWeek();
@@ -694,7 +696,8 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     debugPrint('Status: ${currentTrainingCycle?.status}');
 
     // If there's a current trainingCycle, show today's workout
-    if (currentTrainingCycle != null && currentTrainingCycle.startDate != null) {
+    if (currentTrainingCycle != null &&
+        currentTrainingCycle.startDate != null) {
       // Get workouts from the workout repository instead of embedded workouts
       final allWorkouts = ref.watch(
         workoutsByTrainingCycleProvider(currentTrainingCycle.id),
@@ -1083,7 +1086,8 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
             Builder(
               builder: (context) => IconButton(
                 icon: const Icon(Icons.more_vert),
-                onPressed: () => _showWorkoutMenu(context, trainingCycle, workouts),
+                onPressed: () =>
+                    _showWorkoutMenu(context, trainingCycle, workouts),
               ),
             ),
           ],
@@ -1385,7 +1389,8 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     final newName = await showDialog<String>(
       context: context,
       barrierDismissible: false,
-      builder: (context) => RenameTrainingCycleDialog(initialName: trainingCycle.name),
+      builder: (context) =>
+          RenameTrainingCycleDialog(initialName: trainingCycle.name),
     );
 
     if (newName != null && newName != trainingCycle.name && mounted) {
@@ -1655,7 +1660,9 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     if (confirmed == true && mounted) {
       try {
         final repository = ref.read(workoutRepositoryProvider);
-        final allWorkouts = ref.read(workoutsByTrainingCycleProvider(trainingCycle.id));
+        final allWorkouts = ref.read(
+          workoutsByTrainingCycleProvider(trainingCycle.id),
+        );
 
         debugPrint('Clearing dayName from ${allWorkouts.length} workouts');
 
@@ -1760,7 +1767,8 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                           Navigator.of(context).push(
                             MaterialPageRoute(
                               builder: (context) => AddExerciseScreen(
-                                trainingCycleId: existingWorkout.trainingCycleId,
+                                trainingCycleId:
+                                    existingWorkout.trainingCycleId,
                                 workoutId: existingWorkout.id,
                                 initialMuscleGroup: muscleGroup,
                               ),
@@ -2851,7 +2859,9 @@ class _CalendarDropdownState extends ConsumerState<_CalendarDropdown> {
 
     // Get all existing workouts
     final repository = ref.read(workoutRepositoryProvider);
-    final allWorkouts = ref.read(workoutsByTrainingCycleProvider(trainingCycle.id));
+    final allWorkouts = ref.read(
+      workoutsByTrainingCycleProvider(trainingCycle.id),
+    );
 
     // Get the last non-deload week as a template
     // If weeksTotal is 4 (1, 2, 3, 4=DL), we want to copy week 3.
@@ -2996,7 +3006,9 @@ class _CalendarDropdownState extends ConsumerState<_CalendarDropdown> {
 
     // Get all workouts
     final repository = ref.read(workoutRepositoryProvider);
-    final allWorkouts = ref.read(workoutsByTrainingCycleProvider(trainingCycle.id));
+    final allWorkouts = ref.read(
+      workoutsByTrainingCycleProvider(trainingCycle.id),
+    );
 
     // 1. Delete Week: Delete all workouts for the week to remove
     final workoutsToRemove = allWorkouts
@@ -3170,7 +3182,9 @@ class _CalendarDropdownState extends ConsumerState<_CalendarDropdown> {
   Widget _buildWeekColumn(int weekNumber, bool isDeload) {
     // Calculate day names specific to THIS week
     final defaultDayNames = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
-    final weekDayNames = List.generate(widget.trainingCycle.daysPerWeek, (index) {
+    final weekDayNames = List.generate(widget.trainingCycle.daysPerWeek, (
+      index,
+    ) {
       final dayNumber = index + 1;
 
       // Check if there's a custom label for this day in THIS SPECIFIC week
@@ -3200,7 +3214,8 @@ class _CalendarDropdownState extends ConsumerState<_CalendarDropdown> {
 
         // Calculate which actual day this workout falls on
         final daysElapsed =
-            ((weekNumber - 1) * widget.trainingCycle.daysPerWeek) + (dayNumber - 1);
+            ((weekNumber - 1) * widget.trainingCycle.daysPerWeek) +
+            (dayNumber - 1);
 
         // Calculate actual day of week
         final actualDayOfWeek = (startDayOfWeek + daysElapsed) % 7;
@@ -3368,7 +3383,9 @@ class _WeekSelectorModalState extends State<_WeekSelectorModal> {
   @override
   Widget build(BuildContext context) {
     final dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    final availableDays = dayNames.take(widget.trainingCycle.daysPerWeek).toList();
+    final availableDays = dayNames
+        .take(widget.trainingCycle.daysPerWeek)
+        .toList();
 
     return Container(
       height: MediaQuery.of(context).size.height * 0.6,
