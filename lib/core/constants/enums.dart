@@ -304,3 +304,50 @@ extension GenderExtension on Gender {
     }
   }
 }
+
+/// Recovery week type for training cycles
+@HiveType(typeId: 23)
+enum RecoveryWeekType {
+  @HiveField(0)
+  deload,
+  @HiveField(1)
+  taper,
+  @HiveField(2)
+  recovery,
+}
+
+extension RecoveryWeekTypeExtension on RecoveryWeekType {
+  String get displayName {
+    switch (this) {
+      case RecoveryWeekType.deload:
+        return 'Deload';
+      case RecoveryWeekType.taper:
+        return 'Taper';
+      case RecoveryWeekType.recovery:
+        return 'Recovery';
+    }
+  }
+
+  /// Abbreviation for calendar display
+  String get abbreviation {
+    switch (this) {
+      case RecoveryWeekType.deload:
+        return 'DL';
+      case RecoveryWeekType.taper:
+        return 'TP';
+      case RecoveryWeekType.recovery:
+        return 'R';
+    }
+  }
+
+  String get description {
+    switch (this) {
+      case RecoveryWeekType.deload:
+        return 'Reduce weight while maintaining volume';
+      case RecoveryWeekType.taper:
+        return 'Reduce volume while maintaining intensity';
+      case RecoveryWeekType.recovery:
+        return 'Light training to promote active recovery';
+    }
+  }
+}

@@ -377,3 +377,47 @@ class GenderAdapter extends TypeAdapter<Gender> {
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }
+
+class RecoveryWeekTypeAdapter extends TypeAdapter<RecoveryWeekType> {
+  @override
+  final int typeId = 23;
+
+  @override
+  RecoveryWeekType read(BinaryReader reader) {
+    switch (reader.readByte()) {
+      case 0:
+        return RecoveryWeekType.deload;
+      case 1:
+        return RecoveryWeekType.taper;
+      case 2:
+        return RecoveryWeekType.recovery;
+      default:
+        return RecoveryWeekType.deload;
+    }
+  }
+
+  @override
+  void write(BinaryWriter writer, RecoveryWeekType obj) {
+    switch (obj) {
+      case RecoveryWeekType.deload:
+        writer.writeByte(0);
+        break;
+      case RecoveryWeekType.taper:
+        writer.writeByte(1);
+        break;
+      case RecoveryWeekType.recovery:
+        writer.writeByte(2);
+        break;
+    }
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is RecoveryWeekTypeAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}

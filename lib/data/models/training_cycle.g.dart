@@ -37,7 +37,7 @@ class TrainingCycleAdapter extends TypeAdapter<TrainingCycle> {
   @override
   void write(BinaryWriter writer, TrainingCycle obj) {
     writer
-      ..writeByte(14)
+      ..writeByte(15)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -65,7 +65,9 @@ class TrainingCycleAdapter extends TypeAdapter<TrainingCycle> {
       ..writeByte(12)
       ..write(obj.templateName)
       ..writeByte(13)
-      ..write(obj.notes);
+      ..write(obj.notes)
+      ..writeByte(14)
+      ..write(obj._recoveryWeekType);
   }
 
   @override

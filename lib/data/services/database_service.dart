@@ -62,9 +62,12 @@ class DatabaseService {
     Hive.registerAdapter(GenderAdapter());
     Hive.registerAdapter(MuscleGroupAdapter());
     Hive.registerAdapter(EquipmentTypeAdapter());
+    Hive.registerAdapter(RecoveryWeekTypeAdapter());
 
     // Open boxes
-    _trainingCyclesBox = await Hive.openBox<TrainingCycle>(trainingCyclesBoxName);
+    _trainingCyclesBox = await Hive.openBox<TrainingCycle>(
+      trainingCyclesBoxName,
+    );
     _workoutsBox = await Hive.openBox<Workout>(workoutsBoxName);
     _exercisesBox = await Hive.openBox<Exercise>(exercisesBoxName);
     _customExercisesBox = await Hive.openBox<CustomExerciseDefinition>(

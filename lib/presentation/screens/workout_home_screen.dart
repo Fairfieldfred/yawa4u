@@ -9,6 +9,7 @@ import '../../core/constants/muscle_groups.dart';
 import '../../core/utils/weight_conversion.dart';
 import '../../data/models/exercise.dart';
 import '../../data/models/exercise_set.dart';
+import '../../data/models/training_cycle.dart';
 import '../../data/models/workout.dart';
 import '../../domain/controllers/workout_home_controller.dart';
 import '../../domain/providers/onboarding_providers.dart';
@@ -2818,7 +2819,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
 
 /// Dropdown for selecting week and day (appears below AppBar)
 class _CalendarDropdown extends ConsumerStatefulWidget {
-  final dynamic trainingCycle;
+  final TrainingCycle trainingCycle;
   final int currentWeek;
   final int currentDay;
   final int selectedWeek;
@@ -3240,7 +3241,9 @@ class _CalendarDropdownState extends ConsumerState<_CalendarDropdown> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  isDeload ? 'DL' : '$weekNumber',
+                  isDeload
+                      ? widget.trainingCycle.recoveryWeekType.abbreviation
+                      : '$weekNumber',
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.onSurface,
                     fontSize: 18,
@@ -3355,7 +3358,7 @@ class _CalendarDropdownState extends ConsumerState<_CalendarDropdown> {
 
 /// Old modal widget - kept for reference but not used
 class _WeekSelectorModal extends StatefulWidget {
-  final dynamic trainingCycle;
+  final TrainingCycle trainingCycle;
   final int currentWeek;
   final int currentDay;
 

@@ -25,7 +25,9 @@ class EditWorkoutController {
     int selectedWeek,
   ) async {
     final repository = ref.read(workoutRepositoryProvider);
-    final allWorkouts = ref.read(workoutsByTrainingCycleProvider(trainingCycleId));
+    final allWorkouts = ref.read(
+      workoutsByTrainingCycleProvider(trainingCycleId),
+    );
 
     // Get all Week 1 workouts
     final week1Workouts = allWorkouts.where((w) => w.weekNumber == 1).toList();
@@ -276,7 +278,9 @@ class EditWorkoutController {
   Future<void> addWeek(TrainingCycle trainingCycle) async {
     final trainingCycleRepo = ref.read(trainingCycleRepositoryProvider);
     final workoutRepo = ref.read(workoutRepositoryProvider);
-    final allWorkouts = ref.read(workoutsByTrainingCycleProvider(trainingCycleId));
+    final allWorkouts = ref.read(
+      workoutsByTrainingCycleProvider(trainingCycleId),
+    );
 
     final newWeeksTotal = trainingCycle.weeksTotal + 1;
     final oldDeloadWeek = trainingCycle.deloadWeek;
@@ -319,7 +323,9 @@ class EditWorkoutController {
 
     final trainingCycleRepo = ref.read(trainingCycleRepositoryProvider);
     final workoutRepo = ref.read(workoutRepositoryProvider);
-    final allWorkouts = ref.read(workoutsByTrainingCycleProvider(trainingCycleId));
+    final allWorkouts = ref.read(
+      workoutsByTrainingCycleProvider(trainingCycleId),
+    );
 
     final oldDeloadWeek = trainingCycle.deloadWeek;
     final lastNonDeloadWeek = oldDeloadWeek - 1;
@@ -387,7 +393,9 @@ class EditWorkoutController {
     final trainingCycleRepo = ref.read(trainingCycleRepositoryProvider);
     final newDaysPerWeek = trainingCycle.daysPerWeek + 1;
 
-    final updatedTrainingCycle = trainingCycle.copyWith(daysPerWeek: newDaysPerWeek);
+    final updatedTrainingCycle = trainingCycle.copyWith(
+      daysPerWeek: newDaysPerWeek,
+    );
     await trainingCycleRepo.update(updatedTrainingCycle);
   }
 
@@ -399,7 +407,9 @@ class EditWorkoutController {
 
     final trainingCycleRepo = ref.read(trainingCycleRepositoryProvider);
     final workoutRepo = ref.read(workoutRepositoryProvider);
-    final allWorkouts = ref.read(workoutsByTrainingCycleProvider(trainingCycleId));
+    final allWorkouts = ref.read(
+      workoutsByTrainingCycleProvider(trainingCycleId),
+    );
 
     final dayToRemove = trainingCycle.daysPerWeek;
 
@@ -413,7 +423,21 @@ class EditWorkoutController {
 
     // Update the trainingCycle
     final newDaysPerWeek = trainingCycle.daysPerWeek - 1;
-    final updatedTrainingCycle = trainingCycle.copyWith(daysPerWeek: newDaysPerWeek);
+    final updatedTrainingCycle = trainingCycle.copyWith(
+      daysPerWeek: newDaysPerWeek,
+    );
+    await trainingCycleRepo.update(updatedTrainingCycle);
+  }
+
+  /// Update the recovery week type
+  Future<void> updateRecoveryWeekType(
+    TrainingCycle trainingCycle,
+    RecoveryWeekType newType,
+  ) async {
+    final trainingCycleRepo = ref.read(trainingCycleRepositoryProvider);
+    final updatedTrainingCycle = trainingCycle.copyWith(
+      recoveryWeekType: newType,
+    );
     await trainingCycleRepo.update(updatedTrainingCycle);
   }
 }

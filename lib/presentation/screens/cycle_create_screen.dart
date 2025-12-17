@@ -35,6 +35,7 @@ class _TrainingCycleCreateScreenState
   int _weeksTotal = 4;
   int _daysPerWeek = 4;
   int? _deloadWeek;
+  RecoveryWeekType _recoveryWeekType = RecoveryWeekType.deload;
   TrainingCycleTemplate? _selectedTemplate;
   bool _hasDeload = false;
   bool _isSubmitting = false;
@@ -63,6 +64,7 @@ class _TrainingCycleCreateScreenState
         weeksTotal: _weeksTotal,
         daysPerWeek: _daysPerWeek,
         deloadWeek: _hasDeload ? _deloadWeek : null,
+        recoveryWeekType: _recoveryWeekType,
         status: TrainingCycleStatus.draft,
         gender:
             Gender.male, // Default value - will be set from onboarding later
@@ -249,13 +251,15 @@ class _TrainingCycleCreateScreenState
             _buildDaysPerWeekSelector(),
             const SizedBox(height: 24),
 
-            // Deload week
-            _buildSectionHeader('Deload Week (Optional)'),
+            // Recovery week
+            _buildSectionHeader('Recovery Week (Optional)'),
             const SizedBox(height: 12),
-            _buildDeloadSwitch(),
+            _buildRecoverySwitch(),
             if (_hasDeload) ...[
               const SizedBox(height: 12),
-              _buildDeloadWeekSelector(),
+              _buildRecoveryTypeSelector(),
+              const SizedBox(height: 12),
+              _buildRecoveryWeekSelector(),
             ],
             const SizedBox(height: 24),
 
@@ -420,10 +424,10 @@ class _TrainingCycleCreateScreenState
     }
   }
 
-  Widget _buildDeloadSwitch() {
+  Widget _buildRecoverySwitch() {
     return Card(
       child: SwitchListTile(
-        title: const Text('Include Deload Week'),
+        title: const Text('Include Recovery Week'),
         subtitle: const Text(
           'A lighter week to aid recovery and prevent overtraining',
         ),
@@ -440,7 +444,43 @@ class _TrainingCycleCreateScreenState
     );
   }
 
-  Widget _buildDeloadWeekSelector() {
+  Widget _buildRecoveryTypeSelector() {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Recovery Type', style: Theme.of(context).textTheme.bodyLarge),
+            const SizedBox(height: 12),
+            ...RecoveryWeekType.values.map((type) {
+              return RadioListTile<RecoveryWeekType>(
+                title: Text(type.displayName),
+                subtitle: Text(
+                  type.description,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.6),
+                  ),
+                ),
+                value: type,
+                groupValue: _recoveryWeekType,
+                contentPadding: EdgeInsets.zero,
+                onChanged: (value) {
+                  if (value != null) {
+                    setState(() => _recoveryWeekType = value);
+                  }
+                },
+              );
+            }),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRecoveryWeekSelector() {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -451,7 +491,7 @@ class _TrainingCycleCreateScreenState
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Deload on Week',
+                  '${_recoveryWeekType.displayName} on Week',
                   style: Theme.of(context).textTheme.bodyLarge,
                 ),
                 Text(
@@ -475,7 +515,7 @@ class _TrainingCycleCreateScreenState
               },
             ),
             Text(
-              'Most people deload on the last week',
+              'Most people schedule this on the last week',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: Theme.of(
                   context,

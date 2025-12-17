@@ -180,36 +180,48 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
                 children: List.generate(trainingCycle.weeksTotal, (index) {
                   final weekNumber = index + 1;
                   final isSelected = weekNumber == _selectedWeek;
-                  final isDeloadWeek = weekNumber == trainingCycle.weeksTotal;
+                  final isDeloadWeek = weekNumber == trainingCycle.deloadWeek;
+
+                  final chip = ChoiceChip(
+                    label: Text(
+                      isDeloadWeek
+                          ? trainingCycle.recoveryWeekType.abbreviation
+                          : '$weekNumber',
+                      style: TextStyle(
+                        color: isSelected
+                            ? Theme.of(context).colorScheme.onPrimary
+                            : Theme.of(context).colorScheme.onSurface,
+                        fontWeight: isSelected
+                            ? FontWeight.bold
+                            : FontWeight.normal,
+                      ),
+                    ),
+                    selected: isSelected,
+                    onSelected: (selected) {
+                      if (selected) {
+                        setState(() => _selectedWeek = weekNumber);
+                      }
+                    },
+                    selectedColor: Theme.of(context).colorScheme.primary,
+                    backgroundColor: Theme.of(context).colorScheme.surface,
+                    side: BorderSide.none,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 4,
+                      vertical: 4,
+                    ),
+                  );
 
                   return Padding(
                     padding: const EdgeInsets.only(right: 4),
-                    child: ChoiceChip(
-                      label: Text(
-                        isDeloadWeek ? 'DL' : '$weekNumber',
-                        style: TextStyle(
-                          color: isSelected
-                              ? Theme.of(context).colorScheme.onPrimary
-                              : Theme.of(context).colorScheme.onSurface,
-                          fontWeight: isSelected
-                              ? FontWeight.bold
-                              : FontWeight.normal,
-                        ),
-                      ),
-                      selected: isSelected,
-                      onSelected: (selected) {
-                        if (selected) {
-                          setState(() => _selectedWeek = weekNumber);
-                        }
-                      },
-                      selectedColor: Theme.of(context).colorScheme.primary,
-                      backgroundColor: Theme.of(context).colorScheme.surface,
-                      side: BorderSide.none,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 4,
-                        vertical: 4,
-                      ),
-                    ),
+                    child: isDeloadWeek
+                        ? GestureDetector(
+                            onLongPress: () => _showRecoveryTypeSelector(
+                              trainingCycle,
+                              controller,
+                            ),
+                            child: chip,
+                          )
+                        : chip,
                   );
                 }),
               ),
@@ -320,6 +332,72 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Error removing week: $e'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    }
+  }
+
+  Future<void> _showRecoveryTypeSelector(
+    TrainingCycle trainingCycle,
+    EditWorkoutController controller,
+  ) async {
+    final result = await showDialog<RecoveryWeekType>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Recovery Week Type'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: RecoveryWeekType.values.map((type) {
+            final isSelected = type == trainingCycle.recoveryWeekType;
+            return ListTile(
+              title: Text(type.displayName),
+              subtitle: Text(type.description),
+              leading: Radio<RecoveryWeekType>(
+                value: type,
+                groupValue: trainingCycle.recoveryWeekType,
+                onChanged: (value) => Navigator.pop(context, value),
+              ),
+              trailing: Text(
+                type.abbreviation,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: isSelected
+                      ? Theme.of(context).colorScheme.primary
+                      : null,
+                ),
+              ),
+              onTap: () => Navigator.pop(context, type),
+            );
+          }).toList(),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+        ],
+      ),
+    );
+
+    if (result != null && result != trainingCycle.recoveryWeekType && mounted) {
+      try {
+        await controller.updateRecoveryWeekType(trainingCycle, result);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Recovery week changed to ${result.displayName}'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error updating recovery type: $e'),
               backgroundColor: Colors.red,
             ),
           );
