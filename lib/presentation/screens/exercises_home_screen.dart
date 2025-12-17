@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../core/constants/enums.dart';
 import '../../data/models/exercise.dart';
 import '../../data/models/exercise_set.dart';
+import '../../data/models/training_cycle.dart';
 import '../../data/models/workout.dart';
+import '../../data/repositories/training_cycle_repository.dart';
 import '../../domain/providers/onboarding_providers.dart';
 import '../../domain/providers/repository_providers.dart';
 import '../../domain/providers/theme_provider.dart';
@@ -24,7 +27,38 @@ class ExercisesHomeScreen extends ConsumerWidget {
     if (currentTrainingCycle == null) {
       return Scaffold(
         appBar: AppBar(title: const Text('Exercises')),
-        body: const Center(child: Text('No active trainingCycle')),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.fitness_center,
+                size: 80,
+                color: Theme.of(
+                  context,
+                ).colorScheme.primary.withValues(alpha: 0.5),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'No Active TrainingCycle',
+                style: Theme.of(context).textTheme.headlineSmall,
+              ),
+              const SizedBox(height: 8),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 32),
+                child: Text(
+                  'Create and start a trainingCycle to begin',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.7),
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ],
+          ),
+        ),
       );
     }
 
@@ -121,8 +155,13 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
     _allExercises = [];
     _exerciseSources = {};
 
+    // Fetch fresh workout data from repository
+    final repository = ref.read(workoutRepositoryProvider);
+
     // Collect all exercises from all workouts for this day
-    for (var workout in widget.workouts) {
+    for (var originalWorkout in widget.workouts) {
+      // Get the latest version from repository
+      final workout = repository.getById(originalWorkout.id) ?? originalWorkout;
       for (var exercise in workout.exercises) {
         final exerciseIndex = _allExercises.length;
         _exerciseSources[exerciseIndex] = _ExerciseSource(
@@ -389,75 +428,96 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
   }
 
   // ========== Navigation ==========
-  void _finishWorkout() {
+  Future<void> _finishWorkout() async {
+    // Read ALL provider values upfront before any async operations
     final workoutRepo = ref.read(workoutRepositoryProvider);
     final currentTrainingCycle = ref.read(currentTrainingCycleProvider);
+    final cycleTerm = ref.read(trainingCycleTermProvider);
+    final trainingCycleRepository = ref.read(trainingCycleRepositoryProvider);
+
     if (currentTrainingCycle == null) return;
 
-    // Mark all workouts for this day as completed
+    // Mark all workouts for this day as completed (await each update)
     for (var workout in widget.workouts) {
-      workoutRepo.markAsCompleted(workout.id);
+      final updatedWorkout = workout.copyWith(
+        status: WorkoutStatus.completed,
+        completedDate: DateTime.now(),
+      );
+      await workoutRepo.update(updatedWorkout);
     }
 
-    // Get all workouts for the trainingCycle
-    final allWorkouts = ref.read(
-      workoutsByTrainingCycleProvider(currentTrainingCycle.id),
+    // Get fresh workouts directly from repository (not provider which may have stale data)
+    final allWorkouts = workoutRepo.getByTrainingCycleId(
+      currentTrainingCycle.id,
     );
 
-    // Find the next workout day with incomplete exercises
-    final currentWeek = widget.workouts.first.weekNumber;
-    final currentDay = widget.workouts.first.dayNumber;
-
-    // Group all workouts by (week, day)
-    final Map<String, List<Workout>> workoutsByDay = {};
-    for (var workout in allWorkouts) {
-      final key = '${workout.weekNumber}-${workout.dayNumber}';
-      workoutsByDay.putIfAbsent(key, () => []).add(workout);
-    }
-
-    // Sort keys to find next day
-    final sortedKeys = workoutsByDay.keys.toList()
-      ..sort((a, b) {
-        final aParts = a.split('-').map(int.parse).toList();
-        final bParts = b.split('-').map(int.parse).toList();
-        if (aParts[0] != bParts[0])
-          return aParts[0].compareTo(bParts[0]); // Compare week
-        return aParts[1].compareTo(bParts[1]); // Compare day
-      });
-
-    // Find next incomplete day
-    final currentKey = '$currentWeek-$currentDay';
-    final currentIndex = sortedKeys.indexOf(currentKey);
-
-    for (int i = currentIndex + 1; i < sortedKeys.length; i++) {
-      final dayWorkouts = workoutsByDay[sortedKeys[i]]!;
-
-      // Check if this day has any incomplete exercises
-      final hasIncomplete = dayWorkouts.any(
-        (w) => w.exercises.any(
-          (e) => e.sets.any((s) => !s.isLogged && !s.isSkipped),
-        ),
-      );
-
-      if (hasIncomplete) {
-        // Navigate to this workout day
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (context) => _WorkoutSessionView(
-              key: ValueKey(sortedKeys[i]),
-              workouts: dayWorkouts,
-            ),
-          ),
-        );
-        return;
+    // Check if ALL workouts in the trainingCycle are now completed
+    final completedDays = <String>{};
+    for (final workout in allWorkouts) {
+      if (workout.status == WorkoutStatus.completed) {
+        completedDays.add('${workout.weekNumber}-${workout.dayNumber}');
       }
     }
 
-    // No more incomplete workouts - show completion message and go back
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('All workouts completed! Great job!')),
+    // Check if all expected week/day combinations are completed
+    final totalWeeks = currentTrainingCycle.weeksTotal;
+    final daysPerWeek = currentTrainingCycle.daysPerWeek;
+    bool allCompleted = true;
+
+    for (int week = 1; week <= totalWeeks; week++) {
+      for (int day = 1; day <= daysPerWeek; day++) {
+        if (!completedDays.contains('$week-$day')) {
+          allCompleted = false;
+          break;
+        }
+      }
+      if (!allCompleted) break;
+    }
+
+    if (allCompleted) {
+      // Complete the trainingCycle and show dialog
+      await _showCycleCompletedDialog(
+        currentTrainingCycle,
+        cycleTerm,
+        trainingCycleRepository,
+      );
+      return;
+    }
+
+    // There are more workouts - invalidate the provider to trigger rebuild
+    // But first check if still mounted
+    if (!mounted) return;
+    ref.invalidate(workoutsByTrainingCycleProvider(currentTrainingCycle.id));
+  }
+
+  Future<void> _showCycleCompletedDialog(
+    TrainingCycle trainingCycle,
+    String cycleTerm,
+    TrainingCycleRepository trainingCycleRepository,
+  ) async {
+    // Complete the trainingCycle first
+    await trainingCycleRepository.update(trainingCycle.complete());
+
+    if (!mounted) return;
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('$cycleTerm Completed!'),
+        content: Text(
+          'Congratulations! You have finished all workouts in this $cycleTerm.',
+        ),
+        actions: [
+          FilledButton(
+            onPressed: () {
+              Navigator.pop(context); // Close dialog
+              context.go('/'); // Go back to list screen
+            },
+            child: const Text('AWESOME'),
+          ),
+        ],
+      ),
     );
-    Navigator.of(context).pop();
   }
 
   void _showWorkoutMenu(
@@ -963,6 +1023,11 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
       updatedExercise,
     );
     repository.update(updatedWorkout);
+
+    // Force UI update to reflect isLoggable state
+    setState(() {
+      _buildExerciseList();
+    });
   }
 
   void _updateSetReps(
@@ -991,6 +1056,11 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
       updatedExercise,
     );
     repository.update(updatedWorkout);
+
+    // Force UI update to reflect isLoggable state
+    setState(() {
+      _buildExerciseList();
+    });
   }
 
   void _toggleSetLog(String workoutId, String exerciseId, int setIndex) {

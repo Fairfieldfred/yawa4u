@@ -47,6 +47,19 @@ class _TrainingCycleCreateScreenState
   }
 
   Future<void> _createTrainingCycle() async {
+    // Check if name is empty first and show a clear prompt
+    if (_nameController.text.trim().isEmpty) {
+      final cycleTerm = ref.read(trainingCycleTermProvider);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Please enter a name for your $cycleTerm'),
+          backgroundColor: Colors.orange,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+
     if (!_formKey.currentState!.validate()) {
       return;
     }

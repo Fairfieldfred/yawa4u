@@ -5,6 +5,7 @@ import '../../core/constants/muscle_groups.dart';
 import '../../data/models/training_cycle_template.dart';
 import '../../domain/providers/repository_providers.dart';
 import '../../domain/providers/template_providers.dart';
+import '../../domain/providers/workout_providers.dart';
 
 class TemplatePreviewScreen extends ConsumerStatefulWidget {
   final TrainingCycleTemplate template;
@@ -48,6 +49,9 @@ class _TemplatePreviewScreenState extends ConsumerState<TemplatePreviewScreen> {
           await exerciseRepository.create(exercise);
         }
       }
+
+      // Invalidate the workouts provider to ensure fresh data is loaded
+      ref.invalidate(workoutsProvider);
 
       if (mounted) {
         // Navigate to home/list screen

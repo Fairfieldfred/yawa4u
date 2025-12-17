@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../core/constants/enums.dart';
 import '../../domain/providers/onboarding_providers.dart';
 import '../../domain/providers/repository_providers.dart';
 import '../../domain/providers/training_cycle_providers.dart';
@@ -80,13 +79,7 @@ class _PlanATrainingCycleScreenState
               title: 'Start with a template',
               subtitle:
                   'Pick a template that fits your goals and get started ASAP.',
-              onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => const TemplateSelectionScreen(),
-                  ),
-                );
-              },
+              onTap: () => _handleStartWithTemplate(),
             ),
 
             const SizedBox(height: 16),
@@ -128,152 +121,162 @@ class _PlanATrainingCycleScreenState
     );
   }
 
-  Future<void> _handleStartFromScratch() async {
-    // Check if there's a draft trainingCycle
-    final trainingCycles = await ref.read(trainingCyclesProvider.future);
-    final draftTrainingCycles = trainingCycles
-        .where((m) => m.status == TrainingCycleStatus.draft)
-        .toList();
+  /// Shows a warning dialog if there are draft cycles, returns true if should proceed
+  Future<bool> _checkAndDeleteDrafts() async {
+    final draftTrainingCycles = ref.read(draftTrainingCyclesProvider);
 
-    if (!mounted) return;
+    if (!mounted) return false;
+
+    if (draftTrainingCycles.isEmpty) {
+      return true; // No drafts, proceed
+    }
 
     final cycleTerm = ref.read(trainingCycleTermProvider);
 
-    if (draftTrainingCycles.isNotEmpty) {
-      // Show warning dialog
-      final confirmed = await showDialog<bool>(
-        context: context,
-        builder: (context) => Dialog(
-          shape: RoundedRectangleBorder(
+    // Show warning dialog
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        child: Container(
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surface,
             borderRadius: BorderRadius.circular(20),
           ),
-          child: Container(
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface,
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const SizedBox(width: 40),
+                  const Spacer(),
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () => Navigator.pop(context, false),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Are you sure?',
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'You have a draft $cycleTerm plan already in progress. By starting a new $cycleTerm, your draft will be overwritten.',
+                style: Theme.of(context).textTheme.bodyLarge,
+              ),
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.orange.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: Colors.orange.withValues(alpha: 0.3),
+                    width: 1,
+                  ),
+                ),
+                child: Row(
                   children: [
-                    const SizedBox(width: 40),
-                    const Spacer(),
-                    IconButton(
-                      icon: const Icon(Icons.close),
-                      onPressed: () => Navigator.pop(context, false),
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'Are you sure?',
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'You have a draft $cycleTerm plan already in progress. By starting a new $cycleTerm, your draft will be overwritten.',
-                  style: Theme.of(context).textTheme.bodyLarge,
-                ),
-                const SizedBox(height: 16),
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.orange.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: Colors.orange.withValues(alpha: 0.3),
-                      width: 1,
-                    ),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(
-                        Icons.warning_amber_rounded,
-                        color: Colors.orange,
-                        size: 24,
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          'This will delete your current draft $cycleTerm plan.',
-                          style: Theme.of(context).textTheme.bodyMedium
-                              ?.copyWith(
-                                color: Theme.of(context).colorScheme.onSurface,
-                              ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 24),
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: () => Navigator.pop(context, false),
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          side: BorderSide(
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.outline.withValues(alpha: 0.5),
-                          ),
-                        ),
-                        child: const Text('CANCEL'),
-                      ),
+                    const Icon(
+                      Icons.warning_amber_rounded,
+                      color: Colors.orange,
+                      size: 24,
                     ),
                     const SizedBox(width: 12),
                     Expanded(
-                      child: FilledButton(
-                        onPressed: () => Navigator.pop(context, true),
-                        style: FilledButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          backgroundColor: Colors.red,
+                      child: Text(
+                        'This will delete your current draft $cycleTerm plan.',
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
-                        child: const Text('CONTINUE'),
                       ),
                     ),
                   ],
                 ),
-              ],
-            ),
+              ),
+              const SizedBox(height: 24),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.pop(context, false),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        side: BorderSide(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.outline.withValues(alpha: 0.5),
+                        ),
+                      ),
+                      child: const Text('CANCEL'),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: FilledButton(
+                      onPressed: () => Navigator.pop(context, true),
+                      style: FilledButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        backgroundColor: Colors.red,
+                      ),
+                      child: const Text('CONTINUE'),
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
         ),
-      );
+      ),
+    );
 
-      if (confirmed == true && mounted) {
-        // Delete all draft trainingCycles
-        try {
-          final repository = ref.read(trainingCycleRepositoryProvider);
-          for (final draft in draftTrainingCycles) {
-            await repository.delete(draft.id);
-          }
-
-          if (mounted) {
-            // Navigate to create screen
-            context.push('/trainingCycles/create');
-          }
-        } catch (e) {
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('Error deleting draft: $e'),
-                backgroundColor: Colors.red,
-              ),
-            );
-          }
+    if (confirmed == true && mounted) {
+      // Delete all draft trainingCycles
+      try {
+        final repository = ref.read(trainingCycleRepositoryProvider);
+        for (final draft in draftTrainingCycles) {
+          await repository.delete(draft.id);
         }
+        return true; // Proceed after deleting
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error deleting draft: $e'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+        return false;
       }
-    } else {
-      // No drafts, go directly to create screen
+    }
+
+    return false; // User cancelled
+  }
+
+  Future<void> _handleStartWithTemplate() async {
+    final shouldProceed = await _checkAndDeleteDrafts();
+    if (shouldProceed && mounted) {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => const TemplateSelectionScreen(),
+        ),
+      );
+    }
+  }
+
+  Future<void> _handleStartFromScratch() async {
+    final shouldProceed = await _checkAndDeleteDrafts();
+    if (shouldProceed && mounted) {
       context.push('/trainingCycles/create');
     }
   }

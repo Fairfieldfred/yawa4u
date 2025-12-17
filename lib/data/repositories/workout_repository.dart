@@ -1,6 +1,7 @@
 import 'package:hive/hive.dart';
-import '../models/workout.dart';
+
 import '../../core/constants/enums.dart';
+import '../models/workout.dart';
 
 /// Repository for Workout CRUD operations
 class WorkoutRepository {
@@ -57,8 +58,11 @@ class WorkoutRepository {
   /// Get workouts for a specific week in a trainingCycle
   List<Workout> getByWeek(String trainingCycleId, int weekNumber) {
     return _box.values
-        .where((w) =>
-            w.trainingCycleId == trainingCycleId && w.weekNumber == weekNumber)
+        .where(
+          (w) =>
+              w.trainingCycleId == trainingCycleId &&
+              w.weekNumber == weekNumber,
+        )
         .toList()
       ..sort((a, b) => a.dayNumber.compareTo(b.dayNumber));
   }
@@ -146,10 +150,8 @@ class WorkoutRepository {
   List<Workout> getByDateRange(DateTime start, DateTime end) {
     return _box.values.where((w) {
       if (w.scheduledDate == null) return false;
-      return w.scheduledDate!.isAfter(start) &&
-          w.scheduledDate!.isBefore(end);
-    }).toList()
-      ..sort((a, b) => a.scheduledDate!.compareTo(b.scheduledDate!));
+      return w.scheduledDate!.isAfter(start) && w.scheduledDate!.isBefore(end);
+    }).toList()..sort((a, b) => a.scheduledDate!.compareTo(b.scheduledDate!));
   }
 
   /// Get upcoming workouts (scheduled but incomplete)
@@ -159,8 +161,7 @@ class WorkoutRepository {
       if (w.status != WorkoutStatus.incomplete) return false;
       if (w.scheduledDate == null) return false;
       return w.scheduledDate!.isAfter(now);
-    }).toList()
-      ..sort((a, b) => a.scheduledDate!.compareTo(b.scheduledDate!));
+    }).toList()..sort((a, b) => a.scheduledDate!.compareTo(b.scheduledDate!));
   }
 
   /// Get today's workouts
