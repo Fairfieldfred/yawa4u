@@ -2,7 +2,11 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/constants/muscle_groups.dart';
 
-/// A badge widget displaying a muscle group with colored background
+/// A badge widget displaying a muscle group with colored background.
+///
+/// This is an inline (non-positioned) variant used within list items.
+/// For overlay badges on cards, use [PositionedMuscleGroupBadge] from
+/// the centralized widgets folder.
 ///
 /// Features:
 /// - Colored background based on muscle group

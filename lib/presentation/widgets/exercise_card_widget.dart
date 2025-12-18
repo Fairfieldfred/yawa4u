@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 
 import '../../core/constants/enums.dart';
 import '../../core/constants/equipment_types.dart';
-import '../../core/constants/muscle_groups.dart';
 import '../../core/utils/weight_conversion.dart';
 import '../../data/models/exercise.dart';
 import '../../data/models/exercise_set.dart';
 import 'dialogs/exercise_info_dialog.dart';
+import 'muscle_group_badge.dart';
 
 /// Shared widget for displaying an exercise card with sets.
 /// Used in both workout_home_screen and exercises_home_screen.
@@ -221,42 +221,7 @@ class ExerciseCardWidget extends StatelessWidget {
 
         // Muscle group badge - overlays the card
         if (showMuscleGroupBadge)
-          Positioned(
-            top: -20,
-            left: 16,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              decoration: BoxDecoration(
-                color: muscleGroup.color.withValues(alpha: 0.4),
-                borderRadius: BorderRadius.circular(0),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    width: 4,
-                    height: 16,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    muscleGroup.displayName.toUpperCase(),
-                    style: TextStyle(
-                      color: Theme.of(context).brightness == Brightness.light
-                          ? Colors.grey.shade700
-                          : Colors.white,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      letterSpacing: 1.0,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
+          MuscleGroupBadge.compact(muscleGroup: muscleGroup),
       ],
     );
   }

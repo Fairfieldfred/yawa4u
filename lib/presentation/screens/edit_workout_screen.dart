@@ -18,6 +18,7 @@ import '../../domain/providers/repository_providers.dart';
 import '../../domain/providers/training_cycle_providers.dart';
 import '../../domain/providers/workout_providers.dart';
 import '../widgets/dialogs/exercise_info_dialog.dart';
+import '../widgets/muscle_group_badge.dart';
 import 'add_exercise_screen.dart';
 import 'workout/edit_workout_controller.dart';
 
@@ -1285,42 +1286,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
 
         // Muscle group badge - overlays the card
         if (showMuscleGroupBadge)
-          Positioned(
-            top: -20,
-            left: 16,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              decoration: BoxDecoration(
-                color: muscleGroup.color.withValues(alpha: 0.4),
-                borderRadius: BorderRadius.circular(0),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    width: 4,
-                    height: 16,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    muscleGroup.displayName.toUpperCase(),
-                    style: TextStyle(
-                      color: Theme.of(context).brightness == Brightness.light
-                          ? Colors.grey.shade700
-                          : Colors.white,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: 0.5,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
+          MuscleGroupBadge.compact(muscleGroup: muscleGroup),
       ],
     );
   }
