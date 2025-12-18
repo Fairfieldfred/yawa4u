@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 
 import '../../core/constants/enums.dart';
 import '../../data/models/exercise.dart';
@@ -15,6 +16,21 @@ import '../../domain/providers/training_cycle_providers.dart';
 import '../../domain/providers/workout_providers.dart';
 import '../widgets/cycle_summary_dialog.dart';
 import '../widgets/exercise_card_widget.dart';
+
+/// Helper class to hold history entry data
+class _HistoryEntry {
+  final Exercise exercise;
+  final Workout workout;
+  final TrainingCycle? trainingCycle;
+  final DateTime? completedDate;
+
+  _HistoryEntry({
+    required this.exercise,
+    required this.workout,
+    this.trainingCycle,
+    this.completedDate,
+  });
+}
 
 /// Exercises library home screen
 class ExercisesHomeScreen extends ConsumerWidget {
@@ -305,74 +321,88 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
                                 ? 100
                                 : 24, // Extra padding for button
                           ),
-                          child: ExerciseCardWidget(
-                            key: ValueKey(
-                              '${exercise.id}_${exercise.sets.length}_${exercise.sets.map((s) => s.id).join(",")}_${ref.watch(useMetricProvider)}',
-                            ),
-                            exercise: exercise,
-                            showMuscleGroupBadge: showMuscleGroupBadge,
-                            targetRir: null, // Could calculate this if needed
-                            weightUnit: ref.watch(weightUnitProvider),
-                            useMetric: ref.watch(useMetricProvider),
-                            onAddNote: (exerciseId) =>
-                                _addNote(source.workout.id, exerciseId),
-                            showMoveDown:
-                                false, // Single exercise view, no reordering needed
-                            onReplace: (exerciseId) =>
-                                _replaceExercise(source.workout.id, exerciseId),
-                            onJointPain: (exerciseId) =>
-                                _logJointPain(source.workout.id, exerciseId),
-                            onAddSet: (exerciseId) => _addSetToExercise(
-                              source.workout.id,
-                              exerciseId,
-                            ),
-                            onSkipSets: (exerciseId) => _skipExerciseSets(
-                              source.workout.id,
-                              exerciseId,
-                            ),
-                            onDelete: (exerciseId) =>
-                                _deleteExercise(source.workout.id, exerciseId),
-                            onAddSetBelow: (setIndex) => _addSetBelow(
-                              source.workout.id,
-                              exercise.id,
-                              setIndex,
-                            ),
-                            onToggleSetSkip: (setIndex) => _toggleSetSkip(
-                              source.workout.id,
-                              exercise.id,
-                              setIndex,
-                            ),
-                            onDeleteSet: (setIndex) => _deleteSet(
-                              source.workout.id,
-                              exercise.id,
-                              setIndex,
-                            ),
-                            onUpdateSetType: (setIndex, setType) =>
-                                _updateSetType(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              ExerciseCardWidget(
+                                key: ValueKey(
+                                  '${exercise.id}_${exercise.sets.length}_${exercise.sets.map((s) => s.id).join(",")}_${ref.watch(useMetricProvider)}',
+                                ),
+                                exercise: exercise,
+                                showMuscleGroupBadge: showMuscleGroupBadge,
+                                targetRir:
+                                    null, // Could calculate this if needed
+                                weightUnit: ref.watch(weightUnitProvider),
+                                useMetric: ref.watch(useMetricProvider),
+                                onAddNote: (exerciseId) =>
+                                    _addNote(source.workout.id, exerciseId),
+                                showMoveDown:
+                                    false, // Single exercise view, no reordering needed
+                                onReplace: (exerciseId) => _replaceExercise(
+                                  source.workout.id,
+                                  exerciseId,
+                                ),
+                                onJointPain: (exerciseId) => _logJointPain(
+                                  source.workout.id,
+                                  exerciseId,
+                                ),
+                                onAddSet: (exerciseId) => _addSetToExercise(
+                                  source.workout.id,
+                                  exerciseId,
+                                ),
+                                onSkipSets: (exerciseId) => _skipExerciseSets(
+                                  source.workout.id,
+                                  exerciseId,
+                                ),
+                                onDelete: (exerciseId) => _deleteExercise(
+                                  source.workout.id,
+                                  exerciseId,
+                                ),
+                                onAddSetBelow: (setIndex) => _addSetBelow(
                                   source.workout.id,
                                   exercise.id,
                                   setIndex,
-                                  setType,
                                 ),
-                            onUpdateSetWeight: (setIndex, value) =>
-                                _updateSetWeight(
+                                onToggleSetSkip: (setIndex) => _toggleSetSkip(
                                   source.workout.id,
                                   exercise.id,
                                   setIndex,
-                                  value,
                                 ),
-                            onUpdateSetReps: (setIndex, value) =>
-                                _updateSetReps(
+                                onDeleteSet: (setIndex) => _deleteSet(
                                   source.workout.id,
                                   exercise.id,
                                   setIndex,
-                                  value,
                                 ),
-                            onToggleSetLog: (setIndex) => _toggleSetLog(
-                              source.workout.id,
-                              exercise.id,
-                              setIndex,
-                            ),
+                                onUpdateSetType: (setIndex, setType) =>
+                                    _updateSetType(
+                                      source.workout.id,
+                                      exercise.id,
+                                      setIndex,
+                                      setType,
+                                    ),
+                                onUpdateSetWeight: (setIndex, value) =>
+                                    _updateSetWeight(
+                                      source.workout.id,
+                                      exercise.id,
+                                      setIndex,
+                                      value,
+                                    ),
+                                onUpdateSetReps: (setIndex, value) =>
+                                    _updateSetReps(
+                                      source.workout.id,
+                                      exercise.id,
+                                      setIndex,
+                                      value,
+                                    ),
+                                onToggleSetLog: (setIndex) => _toggleSetLog(
+                                  source.workout.id,
+                                  exercise.id,
+                                  setIndex,
+                                ),
+                              ),
+                              // Exercise History Section
+                              _buildExerciseHistory(context, exercise),
+                            ],
                           ),
                         ),
                       );
@@ -1089,6 +1119,265 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
     setState(() {
       _buildExerciseList();
     });
+  }
+
+  // ========== Exercise History ==========
+  Widget _buildExerciseHistory(BuildContext context, Exercise exercise) {
+    final workoutRepo = ref.read(workoutRepositoryProvider);
+    final trainingCycleRepo = ref.read(trainingCycleRepositoryProvider);
+    final allWorkouts = workoutRepo.getAll();
+    final allTrainingCycles = trainingCycleRepo.getAll();
+
+    // Create a map of trainingCycleId -> trainingCycle for quick lookup
+    final trainingCycleMap = {for (var m in allTrainingCycles) m.id: m};
+
+    // Find all exercises with the same name from all workouts (across all trainingCycles)
+    final List<_HistoryEntry> historyEntries = [];
+
+    for (final workout in allWorkouts) {
+      for (final ex in workout.exercises) {
+        if (ex.name.toLowerCase() == exercise.name.toLowerCase()) {
+          // Only include exercises with at least one logged set
+          if (ex.sets.any((s) => s.isLogged)) {
+            final trainingCycle = trainingCycleMap[workout.trainingCycleId];
+            historyEntries.add(
+              _HistoryEntry(
+                exercise: ex,
+                workout: workout,
+                trainingCycle: trainingCycle,
+                completedDate: workout.completedDate ?? ex.lastPerformed,
+              ),
+            );
+          }
+        }
+      }
+    }
+
+    // Sort by date (most recent first)
+    historyEntries.sort((a, b) {
+      if (a.completedDate == null && b.completedDate == null) return 0;
+      if (a.completedDate == null) return 1;
+      if (b.completedDate == null) return -1;
+      return b.completedDate!.compareTo(a.completedDate!);
+    });
+
+    // Exclude the current exercise instance from history
+    final filteredHistory = historyEntries
+        .where((entry) => entry.exercise.id != exercise.id)
+        .toList();
+
+    if (filteredHistory.isEmpty) {
+      return const SizedBox.shrink(); // No history to show
+    }
+
+    // Group entries by trainingCycle
+    final Map<String, List<_HistoryEntry>> groupedByTrainingCycle = {};
+    for (final entry in filteredHistory) {
+      final trainingCycleId = entry.trainingCycle?.id ?? 'unknown';
+      groupedByTrainingCycle.putIfAbsent(trainingCycleId, () => []).add(entry);
+    }
+
+    // Build list with trainingCycle headers
+    final List<Widget> children = [];
+    for (final trainingCycleId in groupedByTrainingCycle.keys) {
+      final entries = groupedByTrainingCycle[trainingCycleId]!;
+      final trainingCycle = entries.first.trainingCycle;
+
+      // Add trainingCycle header
+      children.add(_buildTrainingCycleHeader(context, trainingCycle));
+
+      // Add entries for this trainingCycle
+      for (final entry in entries) {
+        children.add(_buildHistoryRow(context, entry));
+      }
+    }
+
+    return Container(
+      margin: const EdgeInsets.only(top: 24),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardTheme.color,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                Icons.history,
+                size: 20,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                'History',
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          ...children,
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTrainingCycleHeader(
+    BuildContext context,
+    TrainingCycle? trainingCycle,
+  ) {
+    final name = trainingCycle?.name ?? 'Unknown TrainingCycle';
+    final weeks = trainingCycle?.weeksTotal ?? 0;
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 8, bottom: 12),
+      child: Text(
+        '$name - $weeks WEEKS'.toUpperCase(),
+        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+          color: Theme.of(
+            context,
+          ).colorScheme.onSurface.withAlpha((255 * 0.6).round()),
+          fontWeight: FontWeight.w600,
+          letterSpacing: 0.5,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHistoryRow(BuildContext context, _HistoryEntry entry) {
+    final dateFormat = DateFormat('MMM d, yyyy');
+    final dateStr = entry.completedDate != null
+        ? dateFormat.format(entry.completedDate!)
+        : 'Unknown date';
+
+    final loggedSets = entry.exercise.sets.where((s) => s.isLogged).toList();
+    final isDeload =
+        entry.trainingCycle != null &&
+        entry.workout.weekNumber == entry.trainingCycle!.deloadWeek;
+
+    // Build the weight × reps string with set type badges
+    final weight = loggedSets.isNotEmpty && loggedSets.first.weight != null
+        ? loggedSets.first.weight!
+        : null;
+    final weightStr = weight != null
+        ? weight.toStringAsFixed(weight % 1 == 0 ? 0 : 1)
+        : 'BW';
+
+    // Collect reps with their badges
+    final repsWithBadges = loggedSets.map((set) {
+      final badge = set.setType.badge;
+      if (badge != null) {
+        return '${set.reps} $badge';
+      }
+      return set.reps;
+    }).toList();
+
+    final repsStr = repsWithBadges.join(',  ');
+
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurface.withAlpha((255 * 0.1).round()),
+          ),
+        ),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Left side: Weight × Reps + Deload indicator
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                RichText(
+                  text: TextSpan(
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                    children: [
+                      TextSpan(
+                        text: weightStr,
+                        style: const TextStyle(fontSize: 18),
+                      ),
+                      TextSpan(
+                        text: ' lbs',
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w400,
+                          color: Theme.of(context).colorScheme.onSurface
+                              .withAlpha((255 * 0.7).round()),
+                        ),
+                      ),
+                      const TextSpan(text: '  x  '),
+                      TextSpan(
+                        text: repsStr,
+                        style: const TextStyle(fontSize: 18),
+                      ),
+                    ],
+                  ),
+                ),
+                if (isDeload) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    'DELOAD',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withAlpha((255 * 0.5).round()),
+                      fontWeight: FontWeight.w500,
+                      fontSize: 11,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+          // Right side: Week/Day + Date
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              RichText(
+                text: TextSpan(
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withAlpha((255 * 0.6).round()),
+                  ),
+                  children: [
+                    const TextSpan(text: 'WEEK '),
+                    TextSpan(
+                      text: '${entry.workout.weekNumber}',
+                      style: const TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                    const TextSpan(text: ' - DAY '),
+                    TextSpan(
+                      text: '${entry.workout.dayNumber}',
+                      style: const TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                dateStr,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withAlpha((255 * 0.5).round()),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
   }
 }
 
