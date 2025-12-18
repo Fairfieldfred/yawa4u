@@ -2780,7 +2780,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
             top: -20,
             left: 16,
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               decoration: BoxDecoration(
                 color: muscleGroup.color.withValues(alpha: 0.4),
                 borderRadius: BorderRadius.circular(0),

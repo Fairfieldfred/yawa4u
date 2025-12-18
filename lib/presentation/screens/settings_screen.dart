@@ -180,7 +180,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 ...TrainingCycleTerm.values.map((term) {
                   final isSelected = _selectedTerminology == term.name;
                   return Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
+                    padding: const EdgeInsets.only(bottom: 4),
                     child: InkWell(
                       onTap: () {
                         setState(() {
@@ -188,14 +188,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           _hasChanges = true;
                         });
                       },
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(8),
                       child: Container(
-                        padding: const EdgeInsets.all(12),
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
                         decoration: BoxDecoration(
                           color: Theme.of(
                             context,
                           ).colorScheme.surfaceContainerHighest,
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(8),
                           border: Border.all(
                             color: isSelected
                                 ? Theme.of(context).colorScheme.primary
@@ -282,9 +282,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   physics: const NeverScrollableScrollPhysics(),
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
-                    childAspectRatio: 2.5,
-                    crossAxisSpacing: 12,
-                    mainAxisSpacing: 12,
+                    childAspectRatio: 5.0,
+                    crossAxisSpacing: 8,
+                    mainAxisSpacing: 8,
                   ),
                   itemCount: EquipmentOption.values.length,
                   itemBuilder: (context, index) {
@@ -295,13 +295,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
                     return InkWell(
                       onTap: () => _toggleEquipment(equipment),
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(8),
                       child: Container(
                         decoration: BoxDecoration(
                           color: Theme.of(
                             context,
                           ).colorScheme.surfaceContainerHighest,
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(8),
                           border: Border.all(
                             color: isSelected
                                 ? Theme.of(context).colorScheme.primary
