@@ -26,12 +26,21 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
   bool _isScanning = false;
   MobileScannerController? _scannerController;
 
+  // Store reference to sync service for safe disposal
+  late final WifiSyncService _syncService;
+
+  @override
+  void initState() {
+    super.initState();
+    // Store the sync service reference early so we can use it in dispose
+    _syncService = ref.read(wifiSyncServiceProvider);
+  }
+
   @override
   void dispose() {
     // Stop scanner and server when leaving screen
     _scannerController?.dispose();
-    final syncService = ref.read(wifiSyncServiceProvider);
-    syncService.stopServer();
+    _syncService.stopServer();
     super.dispose();
   }
 
@@ -210,7 +219,10 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      _buildStatItem('TrainingCycles', stats.trainingCycleCount),
+                      _buildStatItem(
+                        'TrainingCycles',
+                        stats.trainingCycleCount,
+                      ),
                       _buildStatItem('Workouts', stats.workoutCount),
                       _buildStatItem('Exercises', stats.exerciseCount),
                     ],
