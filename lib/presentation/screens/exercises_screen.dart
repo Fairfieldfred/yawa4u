@@ -14,6 +14,7 @@ import '../../domain/providers/repository_providers.dart';
 import '../../domain/providers/theme_provider.dart';
 import '../../domain/providers/training_cycle_providers.dart';
 import '../../domain/providers/workout_providers.dart';
+import '../widgets/calendar_dropdown.dart';
 import '../widgets/cycle_summary_dialog.dart';
 import '../widgets/dialogs/add_exercise_dialog.dart';
 import '../widgets/exercise_card_widget.dart';
@@ -34,11 +35,27 @@ class _HistoryEntry {
 }
 
 /// Exercises library home screen
-class ExercisesHomeScreen extends ConsumerWidget {
+class ExercisesHomeScreen extends ConsumerStatefulWidget {
   const ExercisesHomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ExercisesHomeScreen> createState() =>
+      _ExercisesHomeScreenState();
+}
+
+class _ExercisesHomeScreenState extends ConsumerState<ExercisesHomeScreen> {
+  int? _selectedWeek;
+  int? _selectedDay;
+
+  void _onDaySelected(int week, int day) {
+    setState(() {
+      _selectedWeek = week;
+      _selectedDay = day;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final currentTrainingCycle = ref.watch(currentTrainingCycleProvider);
 
     if (currentTrainingCycle == null) {
@@ -98,37 +115,69 @@ class ExercisesHomeScreen extends ConsumerWidget {
       workoutsByDay.putIfAbsent(key, () => []).add(workout);
     }
 
-    // Find first day with any incomplete workout
-    String? firstIncompleteDay;
+    // Find first day with any incomplete workout (for "current" marker)
+    int currentWeek = 1;
+    int currentDay = 1;
     for (var entry in workoutsByDay.entries) {
       if (entry.value.any((w) => w.status == WorkoutStatus.incomplete)) {
-        firstIncompleteDay = entry.key;
+        final parts = entry.key.split('-');
+        currentWeek = int.parse(parts[0]);
+        currentDay = int.parse(parts[1]);
         break;
       }
     }
 
-    if (firstIncompleteDay == null) {
+    // Use selected week/day if set, otherwise use current (first incomplete)
+    final displayWeek = _selectedWeek ?? currentWeek;
+    final displayDay = _selectedDay ?? currentDay;
+    final displayKey = '$displayWeek-$displayDay';
+
+    // Check if selected day has workouts
+    if (!workoutsByDay.containsKey(displayKey)) {
       return Scaffold(
         appBar: AppBar(title: const Text('Exercises')),
-        body: const Center(child: Text('All workouts completed!')),
+        body: const Center(child: Text('No workouts for selected day')),
       );
     }
 
-    // Get all workouts for that day
-    final dayWorkouts = workoutsByDay[firstIncompleteDay]!;
+    // Get workouts for the display day
+    final dayWorkouts = workoutsByDay[displayKey]!;
 
     return _WorkoutSessionView(
-      key: ValueKey(firstIncompleteDay), // Rebuild if day changes
+      key: ValueKey(displayKey), // Rebuild if day changes
       workouts: dayWorkouts,
+      trainingCycle: currentTrainingCycle,
+      allWorkouts: allWorkouts,
+      currentWeek: currentWeek,
+      currentDay: currentDay,
+      selectedWeek: displayWeek,
+      selectedDay: displayDay,
+      onDaySelected: _onDaySelected,
     );
   }
 }
 
 class _WorkoutSessionView extends ConsumerStatefulWidget {
   final List<Workout> workouts;
+  final TrainingCycle trainingCycle;
+  final List<Workout> allWorkouts;
+  final int currentWeek;
+  final int currentDay;
+  final int selectedWeek;
+  final int selectedDay;
+  final Function(int week, int day) onDaySelected;
 
-  const _WorkoutSessionView({required Key key, required this.workouts})
-    : super(key: key);
+  const _WorkoutSessionView({
+    required Key key,
+    required this.workouts,
+    required this.trainingCycle,
+    required this.allWorkouts,
+    required this.currentWeek,
+    required this.currentDay,
+    required this.selectedWeek,
+    required this.selectedDay,
+    required this.onDaySelected,
+  }) : super(key: key);
 
   @override
   ConsumerState<_WorkoutSessionView> createState() =>
@@ -212,7 +261,7 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
   Widget build(BuildContext context) {
     // Use the first workout's display info for the appBar
     final firstWorkout = widget.workouts.first;
-    final currentTrainingCycle = ref.watch(currentTrainingCycleProvider);
+    final trainingCycle = widget.trainingCycle;
 
     final displayWeek = firstWorkout.weekNumber;
     final displayDay = firstWorkout.dayNumber;
@@ -236,7 +285,7 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                currentTrainingCycle?.name.toUpperCase() ?? 'TRAINING CYCLE',
+                trainingCycle.name.toUpperCase(),
                 style: TextStyle(
                   color: Theme.of(context).textTheme.bodySmall?.color,
                   fontSize: 12,
@@ -275,11 +324,8 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
             Builder(
               builder: (context) => IconButton(
                 icon: const Icon(Icons.more_vert),
-                onPressed: () => _showWorkoutMenu(
-                  context,
-                  currentTrainingCycle,
-                  widget.workouts,
-                ),
+                onPressed: () =>
+                    _showWorkoutMenu(context, trainingCycle, widget.workouts),
               ),
             ),
           ],
@@ -452,6 +498,42 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
                   ),
                 ),
               ),
+
+            // Week selector overlay (shown on top when toggled)
+            if (_showWeekSelector) ...[
+              // Barrier to dismiss on tap outside
+              Positioned.fill(
+                child: GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      _showWeekSelector = false;
+                    });
+                  },
+                  behavior: HitTestBehavior.opaque,
+                  child: Container(color: Colors.transparent),
+                ),
+              ),
+              // The dropdown itself
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                child: CalendarDropdown(
+                  trainingCycle: widget.trainingCycle,
+                  currentWeek: widget.currentWeek,
+                  currentDay: widget.currentDay,
+                  selectedWeek: widget.selectedWeek,
+                  selectedDay: widget.selectedDay,
+                  allWorkouts: widget.allWorkouts,
+                  onDaySelected: (week, day) {
+                    setState(() {
+                      _showWeekSelector = false;
+                    });
+                    widget.onDaySelected(week, day);
+                  },
+                ),
+              ),
+            ],
           ],
         ),
       ),
