@@ -191,7 +191,6 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
   late Map<int, _ExerciseSource>
   _exerciseSources; // Maps exercise index to its source workout
   bool _showWeekSelector = false;
-  bool _showHistory = true;
 
   @override
   void initState() {
@@ -211,9 +210,7 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
   }
 
   void _toggleHistory() {
-    setState(() {
-      _showHistory = !_showHistory;
-    });
+    ref.read(showExerciseHistoryProvider.notifier).toggle();
   }
 
   @override
@@ -332,7 +329,7 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
             IconButton(
               icon: Icon(
                 Icons.history,
-                color: _showHistory
+                color: ref.watch(showExerciseHistoryProvider)
                     ? Theme.of(context).colorScheme.primary
                     : null,
               ),
@@ -466,7 +463,7 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
                                 ),
                               ),
                               // Exercise History Section
-                              if (_showHistory)
+                              if (ref.watch(showExerciseHistoryProvider))
                                 _buildExerciseHistory(context, exercise),
                             ],
                           ),

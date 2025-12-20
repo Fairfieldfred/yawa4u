@@ -95,3 +95,18 @@ final workoutStatsForTrainingCycleProvider =
   final repository = ref.watch(workoutRepositoryProvider);
   return repository.getStatsForTrainingCycle(trainingCycleId);
 });
+
+/// Notifier for show exercise history preference (persists across navigation)
+class ShowExerciseHistoryNotifier extends Notifier<bool> {
+  @override
+  bool build() => true; // Default to showing history
+
+  void toggle() {
+    state = !state;
+  }
+}
+
+final showExerciseHistoryProvider =
+    NotifierProvider<ShowExerciseHistoryNotifier, bool>(
+  ShowExerciseHistoryNotifier.new,
+);
