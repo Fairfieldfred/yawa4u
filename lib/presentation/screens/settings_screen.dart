@@ -2,29 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../domain/providers/onboarding_providers.dart';
-
-/// Available equipment options for the user to select
-enum EquipmentOption {
-  dumbbells('Dumbbells', Icons.fitness_center),
-  homeGymRack('Home Gym Rack', Icons.home),
-  functionalTrainer('Functional (Cable) Trainer', Icons.cable),
-  gymMachines('Gym Machines', Icons.precision_manufacturing),
-  barbells('Barbells', Icons.fitness_center_outlined),
-  kettlebells('Kettlebells', Icons.sports_mma),
-  resistanceBands('Resistance Bands', Icons.show_chart),
-  treadmill('Treadmill', Icons.directions_run),
-  exerciseBike('Exercise Bike', Icons.directions_bike),
-  rowingMachine('Rowing Machine', Icons.rowing),
-  lapPool('Lap Pool', Icons.pool),
-  crossfitGym('Crossfit Gym', Icons.sports),
-  pullUpBar('Pull-up Bar', Icons.accessibility_new),
-  suspensionTrainer('Suspension Trainer (TRX)', Icons.swap_vert);
-
-  const EquipmentOption(this.displayName, this.icon);
-
-  final String displayName;
-  final IconData icon;
-}
+import '../widgets/available_equipment_filter.dart';
 
 /// Training cycle terminology options
 enum TrainingCycleTerm {
@@ -54,8 +32,6 @@ class SettingsScreen extends ConsumerStatefulWidget {
 class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   late bool _useMetric;
   late String _selectedTerminology;
-  late Set<String> _selectedEquipment;
-  late bool _equipmentFilterEnabled;
   bool _hasChanges = false;
 
   @override
@@ -68,16 +44,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final service = ref.read(onboardingServiceProvider);
     _useMetric = service.useMetric;
     _selectedTerminology = service.trainingCycleTerm;
-    _selectedEquipment = service.equipment.toSet();
-    _equipmentFilterEnabled = service.equipmentFilterEnabled;
   }
 
   Future<void> _saveSettings() async {
     final service = ref.read(onboardingServiceProvider);
     await service.setUseMetric(_useMetric);
     await service.setTrainingCycleTerm(_selectedTerminology);
-    await service.setEquipment(_selectedEquipment.toList());
-    await service.setEquipmentFilterEnabled(_equipmentFilterEnabled);
 
     // Invalidate providers to refresh the UI
     ref.invalidate(onboardingServiceProvider);
@@ -85,8 +57,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     ref.invalidate(weightUnitProvider);
     ref.invalidate(trainingCycleTermProvider);
     ref.invalidate(trainingCycleTermPluralProvider);
-    ref.invalidate(equipmentFilterEnabledProvider);
-    ref.invalidate(selectedEquipmentProvider);
 
     setState(() {
       _hasChanges = false;
@@ -97,17 +67,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         context,
       ).showSnackBar(const SnackBar(content: Text('Settings saved')));
     }
-  }
-
-  void _toggleEquipment(EquipmentOption equipment) {
-    setState(() {
-      if (_selectedEquipment.contains(equipment.name)) {
-        _selectedEquipment.remove(equipment.name);
-      } else {
-        _selectedEquipment.add(equipment.name);
-      }
-      _hasChanges = true;
-    });
   }
 
   @override
@@ -263,146 +222,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           ),
           const Divider(height: 1),
 
-          // Equipment Section
+          // Equipment Section (using shared widget)
           Padding(
             padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Filter by Available Equipment',
-                            style: Theme.of(context).textTheme.titleMedium
-                                ?.copyWith(fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            'Only show exercises for equipment you have',
-                            style: Theme.of(context).textTheme.bodySmall
-                                ?.copyWith(
-                                  color: Theme.of(context).colorScheme.onSurface
-                                      .withValues(alpha: 0.7),
-                                ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Switch(
-                      value: _equipmentFilterEnabled,
-                      onChanged: (value) {
-                        setState(() {
-                          _equipmentFilterEnabled = value;
-                          _hasChanges = true;
-                        });
-                      },
-                    ),
-                  ],
-                ),
-                if (_equipmentFilterEnabled) ...[
-                  const SizedBox(height: 16),
-                  Text(
-                    'Select equipment you have access to',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.onSurface.withValues(alpha: 0.7),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  GridView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          childAspectRatio: 5.0,
-                          crossAxisSpacing: 8,
-                          mainAxisSpacing: 8,
-                        ),
-                    itemCount: EquipmentOption.values.length,
-                    itemBuilder: (context, index) {
-                      final equipment = EquipmentOption.values[index];
-                      final isSelected = _selectedEquipment.contains(
-                        equipment.name,
-                      );
-
-                      return InkWell(
-                        onTap: () => _toggleEquipment(equipment),
-                        borderRadius: BorderRadius.circular(8),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.surfaceContainerHighest,
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(
-                              color: isSelected
-                                  ? Theme.of(context).colorScheme.primary
-                                  : Colors.transparent,
-                              width: 2,
-                            ),
-                          ),
-                          child: Row(
-                            children: [
-                              const SizedBox(width: 8),
-                              // Checkbox
-                              Container(
-                                width: 20,
-                                height: 20,
-                                decoration: BoxDecoration(
-                                  border: Border.all(
-                                    color: isSelected
-                                        ? Colors.red
-                                        : Theme.of(context).colorScheme.outline,
-                                    width: 2,
-                                  ),
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                                child: isSelected
-                                    ? const Icon(
-                                        Icons.check,
-                                        size: 14,
-                                        color: Colors.red,
-                                      )
-                                    : null,
-                              ),
-                              const SizedBox(width: 8),
-                              Icon(
-                                equipment.icon,
-                                color: Theme.of(context).colorScheme.onSurface,
-                                size: 24,
-                              ),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Text(
-                                  equipment.displayName,
-                                  style: TextStyle(
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.onSurface,
-                                    fontWeight: isSelected
-                                        ? FontWeight.bold
-                                        : FontWeight.normal,
-                                    fontSize: 13,
-                                  ),
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ],
-              ],
+            child: AvailableEquipmentFilter(
+              compact: false,
+              autoSave: true,
             ),
           ),
           const SizedBox(height: 32),
