@@ -255,6 +255,31 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
     return 0;
   }
 
+  /// Calculate target RIR for a given week based on trainingCycle deload schedule
+  int _calculateRIR(int weekNumber) {
+    final deloadWeek = widget.trainingCycle.deloadWeek;
+
+    // Deload week has 8 RIR
+    if (weekNumber == deloadWeek) {
+      return 8;
+    }
+
+    // Calculate weeks until deload
+    final weeksUntilDeload = deloadWeek - weekNumber;
+
+    // Week before deload = 0 RIR
+    // 2 weeks before = 1 RIR
+    // 3 weeks before = 2 RIR, etc.
+    if (weeksUntilDeload == 1) {
+      return 0;
+    } else if (weeksUntilDeload > 1) {
+      return weeksUntilDeload - 1;
+    } else {
+      // After deload week
+      return 0;
+    }
+  }
+
   @override
   void dispose() {
     _pageController.dispose();
@@ -392,8 +417,9 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
                                 ),
                                 exercise: exercise,
                                 showMuscleGroupBadge: showMuscleGroupBadge,
-                                targetRir:
-                                    null, // Could calculate this if needed
+                                targetRir: _calculateRIR(
+                                  source.workout.weekNumber,
+                                ),
                                 weightUnit: ref.watch(weightUnitProvider),
                                 useMetric: ref.watch(useMetricProvider),
                                 onAddNote: (exerciseId) =>

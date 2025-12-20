@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../data/models/workout.dart';
+
 import '../../core/constants/enums.dart';
+import '../../data/models/workout.dart';
 import 'repository_providers.dart';
 
 /// Provider for all workouts
@@ -18,18 +19,21 @@ final workoutsProvider = StreamProvider<List<Workout>>((ref) async* {
 });
 
 /// Provider for workouts by trainingCycle ID
-final workoutsByTrainingCycleProvider =
-    Provider.family<List<Workout>, String>((ref, trainingCycleId) {
+final workoutsByTrainingCycleProvider = Provider.family<List<Workout>, String>((
+  ref,
+  trainingCycleId,
+) {
   // Watch the workouts stream to get reactive updates
   final workouts = ref.watch(workoutsProvider);
   return workouts.when(
-    data: (list) => list.where((w) => w.trainingCycleId == trainingCycleId).toList()
-      ..sort((a, b) {
-        // Sort by week, then by day
-        final weekCompare = a.weekNumber.compareTo(b.weekNumber);
-        if (weekCompare != 0) return weekCompare;
-        return a.dayNumber.compareTo(b.dayNumber);
-      }),
+    data: (list) =>
+        list.where((w) => w.trainingCycleId == trainingCycleId).toList()
+          ..sort((a, b) {
+            // Sort by week, then by day
+            final weekCompare = a.weekNumber.compareTo(b.weekNumber);
+            if (weekCompare != 0) return weekCompare;
+            return a.dayNumber.compareTo(b.dayNumber);
+          }),
     loading: () => [],
     error: (_, __) => [],
   );
@@ -37,12 +41,13 @@ final workoutsByTrainingCycleProvider =
 
 /// Provider for workouts by week
 final workoutsByWeekProvider =
-    Provider.family<List<Workout>, ({String trainingCycleId, int weekNumber})>(
-  (ref, params) {
-    final repository = ref.watch(workoutRepositoryProvider);
-    return repository.getByWeek(params.trainingCycleId, params.weekNumber);
-  },
-);
+    Provider.family<List<Workout>, ({String trainingCycleId, int weekNumber})>((
+      ref,
+      params,
+    ) {
+      final repository = ref.watch(workoutRepositoryProvider);
+      return repository.getByWeek(params.trainingCycleId, params.weekNumber);
+    });
 
 /// Provider for a specific workout by ID
 final workoutProvider = Provider.family<Workout?, String>((ref, id) {
@@ -92,9 +97,9 @@ final workoutStatsProvider = Provider<Map<String, dynamic>>((ref) {
 /// Provider for workout statistics by trainingCycle
 final workoutStatsForTrainingCycleProvider =
     Provider.family<Map<String, dynamic>, String>((ref, trainingCycleId) {
-  final repository = ref.watch(workoutRepositoryProvider);
-  return repository.getStatsForTrainingCycle(trainingCycleId);
-});
+      final repository = ref.watch(workoutRepositoryProvider);
+      return repository.getStatsForTrainingCycle(trainingCycleId);
+    });
 
 /// Notifier for show exercise history preference (persists across navigation)
 class ShowExerciseHistoryNotifier extends Notifier<bool> {
@@ -108,5 +113,5 @@ class ShowExerciseHistoryNotifier extends Notifier<bool> {
 
 final showExerciseHistoryProvider =
     NotifierProvider<ShowExerciseHistoryNotifier, bool>(
-  ShowExerciseHistoryNotifier.new,
-);
+      ShowExerciseHistoryNotifier.new,
+    );
