@@ -2,10 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import 'package:uuid/uuid.dart';
 
 import '../../core/constants/enums.dart';
-import '../../core/constants/muscle_groups.dart';
 import '../../data/models/exercise.dart';
 import '../../data/models/exercise_set.dart';
 import '../../data/models/training_cycle.dart';
@@ -17,8 +15,8 @@ import '../../domain/providers/theme_provider.dart';
 import '../../domain/providers/training_cycle_providers.dart';
 import '../../domain/providers/workout_providers.dart';
 import '../widgets/cycle_summary_dialog.dart';
+import '../widgets/dialogs/add_exercise_dialog.dart';
 import '../widgets/exercise_card_widget.dart';
-import 'add_exercise_screen.dart';
 
 /// Helper class to hold history entry data
 class _HistoryEntry {
@@ -681,119 +679,10 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
 
   void _addExerciseToWorkout(List<Workout> workouts) {
     if (workouts.isEmpty) return;
-
-    // Always show muscle group selector to allow adding any muscle group
-    _showMuscleGroupSelector(workouts);
-  }
-
-  void _showMuscleGroupSelector(List<Workout> workouts) async {
-    if (workouts.isEmpty) return;
-
-    // Get the trainingCycle info from the first workout
-    final trainingCycleId = workouts.first.trainingCycleId;
-    final dayNumber = workouts.first.dayNumber;
-    final weekNumber = workouts.first.weekNumber;
-    final dayName = workouts.first.dayName;
-
-    // Create a map of existing muscle groups to their workouts
-    final muscleGroupWorkouts = <MuscleGroup, Workout>{};
-    for (final workout in workouts) {
-      if (workout.exercises.isNotEmpty) {
-        final muscleGroup = workout.exercises.first.muscleGroup;
-        if (!muscleGroupWorkouts.containsKey(muscleGroup)) {
-          muscleGroupWorkouts[muscleGroup] = workout;
-        }
-      }
-    }
-
-    // Show all muscle groups
-    final allMuscleGroups = MuscleGroup.values.toList()
-      ..sort((a, b) => a.displayName.compareTo(b.displayName));
-
-    showModalBottomSheet(
+    showAddExerciseDialogFromWorkouts(
       context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      builder: (sheetContext) => Container(
-        height: MediaQuery.of(sheetContext).size.height * 0.8,
-        decoration: BoxDecoration(
-          color: Theme.of(sheetContext).colorScheme.surface,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-        ),
-        child: SafeArea(
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: Text(
-                  'Select Muscle Group',
-                  style: Theme.of(sheetContext).textTheme.titleLarge,
-                ),
-              ),
-              Expanded(
-                child: ListView.builder(
-                  itemCount: allMuscleGroups.length,
-                  itemBuilder: (listContext, index) {
-                    final muscleGroup = allMuscleGroups[index];
-                    final existingWorkout = muscleGroupWorkouts[muscleGroup];
-
-                    return ListTile(
-                      title: Text(muscleGroup.displayName),
-                      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                      onTap: () async {
-                        Navigator.pop(sheetContext);
-
-                        // If workout exists for this muscle group, use it
-                        if (existingWorkout != null) {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => AddExerciseScreen(
-                                trainingCycleId:
-                                    existingWorkout.trainingCycleId,
-                                workoutId: existingWorkout.id,
-                                initialMuscleGroup: muscleGroup,
-                              ),
-                            ),
-                          );
-                        } else {
-                          // Create a new workout for this muscle group
-                          final newWorkout = Workout(
-                            id: const Uuid().v4(),
-                            trainingCycleId: trainingCycleId,
-                            weekNumber: weekNumber,
-                            dayNumber: dayNumber,
-                            dayName: dayName,
-                            label: muscleGroup.displayName,
-                            exercises: [],
-                          );
-
-                          // Save the new workout
-                          await ref
-                              .read(workoutRepositoryProvider)
-                              .create(newWorkout);
-
-                          // Navigate to add exercise screen
-                          if (mounted) {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (context) => AddExerciseScreen(
-                                  trainingCycleId: newWorkout.trainingCycleId,
-                                  workoutId: newWorkout.id,
-                                  initialMuscleGroup: muscleGroup,
-                                ),
-                              ),
-                            );
-                          }
-                        }
-                      },
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
+      ref: ref,
+      workouts: workouts,
     );
   }
 

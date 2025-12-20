@@ -134,3 +134,15 @@ final weightUnitProvider = Provider<String>((ref) {
   final useMetric = ref.watch(useMetricProvider);
   return useMetric ? 'kg' : 'lbs';
 });
+
+/// Provider for whether equipment filter is enabled
+final equipmentFilterEnabledProvider = Provider<bool>((ref) {
+  final service = ref.watch(onboardingServiceProvider);
+  return service.equipmentFilterEnabled;
+});
+
+/// Provider for the user's selected equipment list
+final selectedEquipmentProvider = Provider<List<String>>((ref) {
+  final service = ref.watch(onboardingServiceProvider);
+  return service.equipment;
+});

@@ -9,6 +9,7 @@ class OnboardingService {
   static const String _keyWeightKg = 'user_weight_kg';
   static const String _keyUseMetric = 'user_use_metric';
   static const String _keyEquipment = 'user_equipment';
+  static const String _keyEquipmentFilterEnabled = 'equipment_filter_enabled';
   static const String _keyTrainingCycleTerm = 'user_training_cycle_term';
 
   final SharedPreferences _prefs;
@@ -40,6 +41,8 @@ class OnboardingService {
   double? get weightKg => _prefs.getDouble(_keyWeightKg);
   bool get useMetric => _prefs.getBool(_keyUseMetric) ?? false;
   List<String> get equipment => _prefs.getStringList(_keyEquipment) ?? [];
+  bool get equipmentFilterEnabled =>
+      _prefs.getBool(_keyEquipmentFilterEnabled) ?? false;
   String get trainingCycleTerm =>
       _prefs.getString(_keyTrainingCycleTerm) ?? 'trainingCycle';
 
@@ -58,6 +61,10 @@ class OnboardingService {
 
   Future<void> setEquipment(List<String> value) async {
     await _prefs.setStringList(_keyEquipment, value);
+  }
+
+  Future<void> setEquipmentFilterEnabled(bool value) async {
+    await _prefs.setBool(_keyEquipmentFilterEnabled, value);
   }
 
   Future<void> setTrainingCycleTerm(String value) async {
