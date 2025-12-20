@@ -10,6 +10,7 @@ import '../../data/models/exercise.dart';
 import '../../data/models/exercise_definition.dart';
 import '../../data/models/exercise_set.dart';
 import '../../domain/providers/exercise_providers.dart';
+import '../../domain/providers/onboarding_providers.dart';
 import '../../domain/providers/repository_providers.dart';
 import '../../domain/providers/workout_providers.dart';
 import '../widgets/dialogs/create_custom_exercise_dialog.dart';
@@ -279,11 +280,26 @@ class _AddExerciseScreenState extends ConsumerState<AddExerciseScreen> {
           .toList();
     }
 
-    // Filter by equipment types
+    // Filter by selected equipment types (manual filter in modal)
     if (_selectedEquipment.isNotEmpty) {
       filtered = filtered
           .where((e) => _selectedEquipment.contains(e.equipmentType))
           .toList();
+    }
+
+    // Filter by user's available equipment (persisted setting)
+    final equipmentFilterEnabled = ref.watch(equipmentFilterEnabledProvider);
+    if (equipmentFilterEnabled) {
+      final availableEquipment = ref.watch(selectedEquipmentProvider);
+      if (availableEquipment.isNotEmpty) {
+        final availableTypes = availableEquipment
+            .map((e) => EquipmentTypes.parse(e))
+            .whereType<EquipmentType>()
+            .toSet();
+        filtered = filtered
+            .where((e) => availableTypes.contains(e.equipmentType))
+            .toList();
+      }
     }
 
     return filtered;
@@ -402,6 +418,7 @@ class _AddExerciseScreenState extends ConsumerState<AddExerciseScreen> {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => _FilterModal(
+        ref: ref,
         selectedMuscleGroup: _selectedMuscleGroup,
         selectedEquipment: _selectedEquipment,
         onApply: (muscleGroup, equipment) {
@@ -488,36 +505,62 @@ class _AddExerciseScreenState extends ConsumerState<AddExerciseScreen> {
 }
 
 /// Filter modal for selecting muscle group and equipment
-class _FilterModal extends StatefulWidget {
+class _FilterModal extends ConsumerStatefulWidget {
   final MuscleGroup? selectedMuscleGroup;
   final Set<EquipmentType> selectedEquipment;
   final Function(MuscleGroup?, Set<EquipmentType>) onApply;
+  final WidgetRef ref;
 
   const _FilterModal({
+    required this.ref,
     required this.selectedMuscleGroup,
     required this.selectedEquipment,
     required this.onApply,
   });
 
   @override
-  State<_FilterModal> createState() => _FilterModalState();
+  ConsumerState<_FilterModal> createState() => _FilterModalState();
 }
 
-class _FilterModalState extends State<_FilterModal> {
+class _FilterModalState extends ConsumerState<_FilterModal> {
   MuscleGroup? _tempMuscleGroup;
   final Set<EquipmentType> _tempEquipment = {};
+  bool _showAvailableEquipmentOnly = false;
+  final Set<EquipmentType> _availableEquipment = {};
 
   @override
   void initState() {
     super.initState();
     _tempMuscleGroup = widget.selectedMuscleGroup;
     _tempEquipment.addAll(widget.selectedEquipment);
+    
+    // Load persisted settings
+    final service = widget.ref.read(onboardingServiceProvider);
+    _showAvailableEquipmentOnly = service.equipmentFilterEnabled;
+    final savedEquipment = service.equipment;
+    for (final equipStr in savedEquipment) {
+      final type = EquipmentTypes.parse(equipStr);
+      if (type != null) {
+        _availableEquipment.add(type);
+      }
+    }
+  }
+
+  Future<void> _saveAvailableEquipmentSettings() async {
+    final service = widget.ref.read(onboardingServiceProvider);
+    await service.setEquipmentFilterEnabled(_showAvailableEquipmentOnly);
+    await service.setEquipment(
+      _availableEquipment.map((e) => e.displayName).toList(),
+    );
+    // Invalidate providers to refresh the filter
+    widget.ref.invalidate(equipmentFilterEnabledProvider);
+    widget.ref.invalidate(selectedEquipmentProvider);
   }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: MediaQuery.of(context).size.height * 0.75,
+      height: MediaQuery.of(context).size.height * 0.85,
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
@@ -552,6 +595,113 @@ class _FilterModalState extends State<_FilterModal> {
             child: ListView(
               padding: const EdgeInsets.all(16),
               children: [
+                // Available Equipment Toggle Section
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                    borderRadius: BorderRadius.circular(12),
+                    border: _showAvailableEquipmentOnly
+                        ? Border.all(
+                            color: Theme.of(context).colorScheme.primary,
+                            width: 2,
+                          )
+                        : null,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.fitness_center,
+                            color: _showAvailableEquipmentOnly
+                                ? Theme.of(context).colorScheme.primary
+                                : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Show Only Available Equipment',
+                                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                Text(
+                                  'Filter exercises to equipment you have access to',
+                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Switch(
+                            value: _showAvailableEquipmentOnly,
+                            onChanged: (value) {
+                              setState(() {
+                                _showAvailableEquipmentOnly = value;
+                              });
+                            },
+                          ),
+                        ],
+                      ),
+                      if (_showAvailableEquipmentOnly) ...[
+                        const SizedBox(height: 16),
+                        Text(
+                          'Select your available equipment:',
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: EquipmentType.values.map((equipment) {
+                            final isAvailable = _availableEquipment.contains(equipment);
+                            return FilterChip(
+                              label: Text(equipment.displayName),
+                              selected: isAvailable,
+                              onSelected: (selected) {
+                                setState(() {
+                                  if (selected) {
+                                    _availableEquipment.add(equipment);
+                                  } else {
+                                    _availableEquipment.remove(equipment);
+                                  }
+                                });
+                              },
+                              selectedColor: Theme.of(context).colorScheme.primaryContainer,
+                              checkmarkColor: Theme.of(context).colorScheme.primary,
+                              labelStyle: TextStyle(
+                                color: isAvailable
+                                    ? Theme.of(context).colorScheme.onPrimaryContainer
+                                    : null,
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                        if (_availableEquipment.isEmpty)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 8),
+                            child: Text(
+                              'Select at least one equipment type',
+                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: Theme.of(context).colorScheme.error,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 24),
+
                 // Muscle Group section
                 Text(
                   'Muscle Group',
@@ -590,11 +740,18 @@ class _FilterModalState extends State<_FilterModal> {
 
                 const SizedBox(height: 24),
 
-                // Equipment Type section
+                // Equipment Type section (manual filter for this session)
                 Text(
-                  'Equipment',
+                  'Filter by Equipment',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Temporarily filter to specific equipment types',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -637,10 +794,15 @@ class _FilterModalState extends State<_FilterModal> {
               child: SizedBox(
                 width: double.infinity,
                 child: FilledButton(
-                  onPressed: () {
-                    widget.onApply(_tempMuscleGroup, _tempEquipment);
-                    Navigator.pop(context);
-                  },
+                  onPressed: (_showAvailableEquipmentOnly && _availableEquipment.isEmpty)
+                      ? null
+                      : () async {
+                          await _saveAvailableEquipmentSettings();
+                          widget.onApply(_tempMuscleGroup, _tempEquipment);
+                          if (context.mounted) {
+                            Navigator.pop(context);
+                          }
+                        },
                   child: const Text('APPLY FILTERS'),
                 ),
               ),

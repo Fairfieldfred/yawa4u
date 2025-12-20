@@ -1,10 +1,13 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../data/models/training_cycle.dart';
+
 import '../../core/constants/enums.dart';
+import '../../data/models/training_cycle.dart';
 import 'repository_providers.dart';
 
 /// Provider for all trainingCycles
-final trainingCyclesProvider = StreamProvider<List<TrainingCycle>>((ref) async* {
+final trainingCyclesProvider = StreamProvider<List<TrainingCycle>>((
+  ref,
+) async* {
   final repository = ref.watch(trainingCycleRepositoryProvider);
   final box = repository.box;
 
@@ -29,7 +32,7 @@ final currentTrainingCycleProvider = Provider<TrainingCycle?>((ref) {
       }
     },
     loading: () => null,
-    error: (_, __) => null,
+    error: (_, _) => null,
   );
 });
 
@@ -40,7 +43,7 @@ final draftTrainingCyclesProvider = Provider<List<TrainingCycle>>((ref) {
     data: (list) =>
         list.where((m) => m.status == TrainingCycleStatus.draft).toList(),
     loading: () => [],
-    error: (_, __) => [],
+    error: (_, _) => [],
   );
 });
 
@@ -51,13 +54,15 @@ final completedTrainingCyclesProvider = Provider<List<TrainingCycle>>((ref) {
     data: (list) =>
         list.where((m) => m.status == TrainingCycleStatus.completed).toList(),
     loading: () => [],
-    error: (_, __) => [],
+    error: (_, _) => [],
   );
 });
 
 /// Provider for a specific trainingCycle by ID
-final trainingCycleProvider =
-    Provider.family<TrainingCycle?, String>((ref, id) {
+final trainingCycleProvider = Provider.family<TrainingCycle?, String>((
+  ref,
+  id,
+) {
   final trainingCycles = ref.watch(trainingCyclesProvider);
   return trainingCycles.when(
     data: (list) {
@@ -68,7 +73,7 @@ final trainingCycleProvider =
       }
     },
     loading: () => null,
-    error: (_, __) => null,
+    error: (_, _) => null,
   );
 });
 

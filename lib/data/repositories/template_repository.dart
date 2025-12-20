@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
 import 'package:uuid/uuid.dart';
@@ -36,11 +37,11 @@ class TemplateRepository {
           )
           .toList();
 
-      print(
+      debugPrint(
         'Found ${templatePaths.length} templates via AssetManifest: $templatePaths',
       );
     } catch (e) {
-      print('Error loading AssetManifest: $e');
+      debugPrint('Error loading AssetManifest: $e');
 
       // Fallback: try legacy JSON manifest
       try {
@@ -55,17 +56,17 @@ class TemplateRepository {
                   key.startsWith('assets/templates/') && key.endsWith('.json'),
             )
             .toList();
-        print(
+        debugPrint(
           'Found ${templatePaths.length} templates via legacy manifest: $templatePaths',
         );
       } catch (e2) {
-        print('Error loading legacy AssetManifest: $e2');
+        debugPrint('Error loading legacy AssetManifest: $e2');
       }
     }
 
     // Fallback if dynamic discovery fails or returns empty
     if (templatePaths.isEmpty) {
-      print(
+      debugPrint(
         'Dynamic template loading failed or found no files. Using fallback list.',
       );
       templatePaths = [
@@ -86,7 +87,7 @@ class TemplateRepository {
           ),
         );
       } catch (e) {
-        print('Error loading template from $path: $e');
+        debugPrint('Error loading template from $path: $e');
       }
     }
 
@@ -95,10 +96,10 @@ class TemplateRepository {
 
   /// Load saved (user-created) templates from Hive
   Future<List<TrainingCycleTemplate>> loadSavedTemplates() async {
-    print('=== loadSavedTemplates called ===');
+    debugPrint('=== loadSavedTemplates called ===');
     try {
       final box = await Hive.openBox<String>(_savedTemplatesBoxName);
-      print('Saved templates box opened, contains ${box.length} items');
+      debugPrint('Saved templates box opened, contains ${box.length} items');
       final savedTemplates = <TrainingCycleTemplate>[];
 
       for (final jsonString in box.values) {
@@ -106,17 +107,17 @@ class TemplateRepository {
           final template = TrainingCycleTemplate.fromJson(
             json.decode(jsonString) as Map<String, dynamic>,
           );
-          print('Loaded saved template: ${template.name}');
+          debugPrint('Loaded saved template: ${template.name}');
           savedTemplates.add(template);
         } catch (e) {
-          print('Error parsing saved template: $e');
+          debugPrint('Error parsing saved template: $e');
         }
       }
 
-      print('Total saved templates loaded: ${savedTemplates.length}');
+      debugPrint('Total saved templates loaded: ${savedTemplates.length}');
       return savedTemplates;
     } catch (e) {
-      print('Error loading saved templates: $e');
+      debugPrint('Error loading saved templates: $e');
       return [];
     }
   }
@@ -134,7 +135,7 @@ class TemplateRepository {
       final box = await Hive.openBox<String>(_savedTemplatesBoxName);
       return box.containsKey(templateId);
     } catch (e) {
-      print('Error checking if template is saved: $e');
+      debugPrint('Error checking if template is saved: $e');
       return false;
     }
   }
@@ -145,7 +146,7 @@ class TemplateRepository {
       final box = await Hive.openBox<String>(_savedTemplatesBoxName);
       await box.delete(templateId);
     } catch (e) {
-      print('Error deleting template: $e');
+      debugPrint('Error deleting template: $e');
       rethrow;
     }
   }
@@ -156,24 +157,28 @@ class TemplateRepository {
     String name,
     String description,
   ) async {
-    print('=== saveAsTemplate called ===');
-    print('TrainingCycle name: ${trainingCycle.name}');
-    print('Template name: $name');
-    print('Description: $description');
-    print('Workouts count: ${trainingCycle.workouts.length}');
+    debugPrint('=== saveAsTemplate called ===');
+    debugPrint('TrainingCycle name: ${trainingCycle.name}');
+    debugPrint('Template name: $name');
+    debugPrint('Description: $description');
+    debugPrint('Workouts count: ${trainingCycle.workouts.length}');
 
-    final template = _convertTrainingCycleToTemplate(trainingCycle, name, description);
-    print(
+    final template = _convertTrainingCycleToTemplate(
+      trainingCycle,
+      name,
+      description,
+    );
+    debugPrint(
       'Template created with ${template.workouts.length} workout templates',
     );
 
     final box = await Hive.openBox<String>(_savedTemplatesBoxName);
     final jsonString = json.encode(template.toJson());
-    print('JSON string length: ${jsonString.length}');
+    debugPrint('JSON string length: ${jsonString.length}');
 
     await box.put(template.id, jsonString);
-    print('Template saved with ID: ${template.id}');
-    print('Box now contains ${box.length} templates');
+    debugPrint('Template saved with ID: ${template.id}');
+    debugPrint('Box now contains ${box.length} templates');
   }
 
   /// Convert a TrainingCycle to a TrainingCycleTemplate
@@ -183,15 +188,19 @@ class TemplateRepository {
     String description,
   ) {
     // Get workouts from week 1 only (template structure)
-    final week1Workouts = trainingCycle.workouts.where((w) => w.weekNumber == 1);
+    final week1Workouts = trainingCycle.workouts.where(
+      (w) => w.weekNumber == 1,
+    );
 
-    print('Converting trainingCycle "${trainingCycle.name}" to template');
-    print('Total workouts in trainingCycle: ${trainingCycle.workouts.length}');
-    print('Week 1 workouts: ${week1Workouts.length}');
+    debugPrint('Converting trainingCycle "${trainingCycle.name}" to template');
+    debugPrint(
+      'Total workouts in trainingCycle: ${trainingCycle.workouts.length}',
+    );
+    debugPrint('Week 1 workouts: ${week1Workouts.length}');
 
     final workoutTemplates = <WorkoutTemplate>[];
     for (final workout in week1Workouts) {
-      print(
+      debugPrint(
         'Processing workout: Day ${workout.dayNumber}, ${workout.exercises.length} exercises',
       );
       final exerciseTemplates = workout.exercises.map((exercise) {
