@@ -143,12 +143,12 @@ class ExerciseCardWidget extends StatelessWidget {
                     _buildExerciseOverflowMenu(context),
                   ],
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 8),
 
                 // Column headers
                 if (exercise.sets.isNotEmpty)
                   Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
+                    padding: const EdgeInsets.only(bottom: 4),
                     child: Row(
                       children: [
                         const SizedBox(
@@ -170,7 +170,7 @@ class ExerciseCardWidget extends StatelessWidget {
                             textAlign: TextAlign.center,
                           ),
                         ),
-                        const SizedBox(width: 16),
+                        const SizedBox(width: 8),
                         Expanded(
                           child: Text(
                             'REPS',
@@ -187,7 +187,7 @@ class ExerciseCardWidget extends StatelessWidget {
                             textAlign: TextAlign.center,
                           ),
                         ),
-                        const SizedBox(width: 16),
+                        const SizedBox(width: 32),
                         SizedBox(
                           width: 40,
                           child: Text(
@@ -512,7 +512,7 @@ class ExerciseCardWidget extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(width: 24),
+          const SizedBox(width: 48),
 
           // Log Checkbox
           SizedBox(
