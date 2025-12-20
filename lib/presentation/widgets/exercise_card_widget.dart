@@ -9,7 +9,7 @@ import 'dialogs/exercise_info_dialog.dart';
 import 'muscle_group_badge.dart';
 
 /// Shared widget for displaying an exercise card with sets.
-/// Used in both workout_home_screen and exercises_home_screen.
+/// Used in both workout_screen and exercises_screen.
 class ExerciseCardWidget extends StatelessWidget {
   final Exercise exercise;
   final bool showMuscleGroupBadge;

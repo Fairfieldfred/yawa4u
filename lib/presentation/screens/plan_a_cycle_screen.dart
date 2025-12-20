@@ -295,8 +295,8 @@ class _OptionCard extends StatelessWidget {
     required this.iconColor,
     required this.title,
     required this.subtitle,
-    this.badge,
     required this.onTap,
+    this.badge,
   });
 
   @override

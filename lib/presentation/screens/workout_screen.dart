@@ -2519,8 +2519,10 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                                 onChanged: (value) {
                                   // Convert display value back to storage (lbs)
                                   final displayWeight = double.tryParse(value);
-                                  if (displayWeight == null && value.isNotEmpty)
+                                  if (displayWeight == null &&
+                                      value.isNotEmpty) {
                                     return;
+                                  }
                                   final storageWeight = convertWeightForStorage(
                                     displayWeight,
                                     ref.read(useMetricProvider),

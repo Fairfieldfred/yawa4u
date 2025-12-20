@@ -1233,7 +1233,7 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
               ),
             ],
           ),
-          const SizedBox(height: 12),
+
           ...children,
         ],
       ),
@@ -1248,7 +1248,7 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
     final weeks = trainingCycle?.weeksTotal ?? 0;
 
     return Padding(
-      padding: const EdgeInsets.only(top: 8, bottom: 12),
+      padding: const EdgeInsets.only(top: 4, bottom: 0),
       child: Text(
         '$name - $weeks WEEKS'.toUpperCase(),
         style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -1293,7 +1293,7 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
     final repsStr = repsWithBadges.join(',  ');
 
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 12),
+      padding: const EdgeInsets.symmetric(vertical: 4),
       decoration: BoxDecoration(
         border: Border(
           bottom: BorderSide(
