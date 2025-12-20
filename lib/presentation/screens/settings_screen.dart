@@ -225,10 +225,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           // Equipment Section (using shared widget)
           Padding(
             padding: const EdgeInsets.all(16),
-            child: AvailableEquipmentFilter(
-              compact: false,
-              autoSave: true,
-            ),
+            child: AvailableEquipmentFilter(compact: false, autoSave: true),
           ),
           const SizedBox(height: 32),
         ],

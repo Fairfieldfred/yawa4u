@@ -294,8 +294,9 @@ class _AddExerciseScreenState extends ConsumerState<AddExerciseScreen> {
       final availableEquipment = ref.watch(selectedEquipmentProvider);
       if (availableEquipment.isNotEmpty) {
         // Use the mapping from EquipmentOption to EquipmentType
-        final availableTypes =
-            EquipmentOption.getEquipmentTypes(availableEquipment.toSet());
+        final availableTypes = EquipmentOption.getEquipmentTypes(
+          availableEquipment.toSet(),
+        );
         filtered = filtered
             .where((e) => availableTypes.contains(e.equipmentType))
             .toList();
@@ -572,10 +573,7 @@ class _FilterModalState extends ConsumerState<_FilterModal> {
               padding: const EdgeInsets.all(16),
               children: [
                 // Available Equipment Filter (shared widget)
-                const AvailableEquipmentFilter(
-                  compact: true,
-                  autoSave: true,
-                ),
+                const AvailableEquipmentFilter(compact: true, autoSave: true),
 
                 const SizedBox(height: 24),
 
