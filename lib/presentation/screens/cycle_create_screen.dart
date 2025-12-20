@@ -15,6 +15,7 @@ import '../../data/services/analytics_service.dart';
 import '../../domain/providers/onboarding_providers.dart';
 import '../../domain/providers/repository_providers.dart';
 import '../../domain/providers/template_providers.dart';
+import '../../domain/providers/training_cycle_providers.dart';
 
 /// TrainingCycle creation screen with form
 class TrainingCycleCreateScreen extends ConsumerStatefulWidget {
@@ -89,6 +90,9 @@ class _TrainingCycleCreateScreenState
 
       // Save to database
       await repository.create(trainingCycle);
+
+      // Invalidate provider to ensure fresh data is loaded
+      ref.invalidate(trainingCyclesProvider);
 
       // Log analytics
       await analytics.logTrainingCycleCreated(
