@@ -72,7 +72,7 @@ class ExerciseCardWidget extends StatelessWidget {
             borderRadius: BorderRadius.circular(0),
           ),
           child: Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -401,7 +401,7 @@ class ExerciseCardWidget extends StatelessWidget {
     final isLoggable = set.weight != null && set.reps.isNotEmpty;
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.only(bottom: 6),
       child: Row(
         children: [
           // Set menu (3 dots)
@@ -413,7 +413,7 @@ class ExerciseCardWidget extends StatelessWidget {
           // Weight Input
           Expanded(
             child: Container(
-              height: 40,
+              height: 30,
               decoration: BoxDecoration(
                 color: Theme.of(context).inputDecorationTheme.fillColor,
                 borderRadius: BorderRadius.circular(4),
@@ -455,7 +455,7 @@ class ExerciseCardWidget extends StatelessWidget {
             child: Stack(
               children: [
                 Container(
-                  height: 40,
+                  height: 30,
                   decoration: BoxDecoration(
                     color: Theme.of(context).inputDecorationTheme.fillColor,
                     borderRadius: BorderRadius.circular(4),
@@ -516,8 +516,8 @@ class ExerciseCardWidget extends StatelessWidget {
 
           // Log Checkbox
           SizedBox(
-            width: 40,
-            height: 40,
+            width: 30,
+            height: 30,
             child: Container(
               decoration: BoxDecoration(
                 color: set.isLogged
