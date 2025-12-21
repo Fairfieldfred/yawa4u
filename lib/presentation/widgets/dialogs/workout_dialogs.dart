@@ -1,5 +1,172 @@
 import 'package:flutter/material.dart';
 
+/// Type of note being edited - determines dialog title and hint text
+enum NoteType { trainingCycle, workout, exercise }
+
+/// A reusable dialog for adding/editing notes.
+/// Can be used for Training Cycle, Workout, or Exercise notes.
+class NoteDialog extends StatefulWidget {
+  final String? initialNote;
+  final NoteType noteType;
+  final String? customTitle;
+  final String? customHint;
+
+  const NoteDialog({
+    super.key,
+    this.initialNote,
+    required this.noteType,
+    this.customTitle,
+    this.customHint,
+  });
+
+  @override
+  State<NoteDialog> createState() => _NoteDialogState();
+
+  /// Get the default title for a note type
+  static String getTitleForType(NoteType type) {
+    switch (type) {
+      case NoteType.trainingCycle:
+        return 'Training Cycle Note';
+      case NoteType.workout:
+        return 'Workout Note';
+      case NoteType.exercise:
+        return 'Exercise Note';
+    }
+  }
+
+  /// Get the default hint text for a note type
+  static String getHintForType(NoteType type) {
+    switch (type) {
+      case NoteType.trainingCycle:
+        return 'Enter note for this training cycle...';
+      case NoteType.workout:
+        return 'Enter note for this workout...';
+      case NoteType.exercise:
+        return 'Enter note for this exercise...';
+    }
+  }
+}
+
+class _NoteDialogState extends State<NoteDialog> {
+  late final TextEditingController _noteController;
+
+  @override
+  void initState() {
+    super.initState();
+    _noteController = TextEditingController(text: widget.initialNote);
+  }
+
+  @override
+  void dispose() {
+    _noteController.dispose();
+    super.dispose();
+  }
+
+  String get _title =>
+      widget.customTitle ?? NoteDialog.getTitleForType(widget.noteType);
+
+  String get _hint =>
+      widget.customHint ?? NoteDialog.getHintForType(widget.noteType);
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      child: Container(
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _buildHeader(context),
+            const SizedBox(height: 24),
+            _buildNoteField(context),
+            const SizedBox(height: 24),
+            _buildActions(context),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHeader(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        const SizedBox(width: 40),
+        Flexible(
+          child: Text(
+            _title,
+            style: Theme.of(
+              context,
+            ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+            textAlign: TextAlign.center,
+          ),
+        ),
+        IconButton(
+          icon: const Icon(Icons.close),
+          onPressed: () => Navigator.of(context).pop(),
+          padding: EdgeInsets.zero,
+          constraints: const BoxConstraints(),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildNoteField(BuildContext context) {
+    return TextField(
+      controller: _noteController,
+      autofocus: true,
+      maxLines: 5,
+      decoration: InputDecoration(
+        hintText: _hint,
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+        filled: true,
+        fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+      ),
+      style: Theme.of(context).textTheme.bodyLarge,
+    );
+  }
+
+  Widget _buildActions(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: OutlinedButton(
+            onPressed: () => Navigator.of(context).pop(),
+            style: OutlinedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            child: const Text('CANCEL'),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: FilledButton(
+            onPressed: () {
+              Navigator.of(context).pop(_noteController.text.trim());
+            },
+            style: FilledButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            child: const Text('SAVE'),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 /// Dialog for renaming a trainingCycle.
 class RenameTrainingCycleDialog extends StatefulWidget {
   final String initialName;
@@ -7,7 +174,8 @@ class RenameTrainingCycleDialog extends StatefulWidget {
   const RenameTrainingCycleDialog({super.key, required this.initialName});
 
   @override
-  State<RenameTrainingCycleDialog> createState() => _RenameTrainingCycleDialogState();
+  State<RenameTrainingCycleDialog> createState() =>
+      _RenameTrainingCycleDialogState();
 }
 
 class _RenameTrainingCycleDialogState extends State<RenameTrainingCycleDialog> {
@@ -124,123 +292,15 @@ class _RenameTrainingCycleDialogState extends State<RenameTrainingCycleDialog> {
 }
 
 /// Dialog for adding or editing a workout note.
-class WorkoutNoteDialog extends StatefulWidget {
+/// This is a convenience wrapper around [NoteDialog] for backward compatibility.
+class WorkoutNoteDialog extends StatelessWidget {
   final String? initialNote;
 
   const WorkoutNoteDialog({super.key, this.initialNote});
 
   @override
-  State<WorkoutNoteDialog> createState() => _WorkoutNoteDialogState();
-}
-
-class _WorkoutNoteDialogState extends State<WorkoutNoteDialog> {
-  late final TextEditingController _noteController;
-
-  @override
-  void initState() {
-    super.initState();
-    _noteController = TextEditingController(text: widget.initialNote);
-  }
-
-  @override
-  void dispose() {
-    _noteController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      child: Container(
-        padding: const EdgeInsets.all(24),
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _buildHeader(context),
-            const SizedBox(height: 24),
-            _buildNoteField(context),
-            const SizedBox(height: 24),
-            _buildActions(context),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildHeader(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        const SizedBox(width: 40),
-        Text(
-          'Workout Note',
-          style: Theme.of(
-            context,
-          ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-        ),
-        IconButton(
-          icon: const Icon(Icons.close),
-          onPressed: () => Navigator.of(context).pop(),
-          padding: EdgeInsets.zero,
-          constraints: const BoxConstraints(),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildNoteField(BuildContext context) {
-    return TextField(
-      controller: _noteController,
-      autofocus: true,
-      maxLines: 5,
-      decoration: InputDecoration(
-        hintText: 'Enter note for this workout...',
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-        filled: true,
-        fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-      ),
-      style: Theme.of(context).textTheme.bodyLarge,
-    );
-  }
-
-  Widget _buildActions(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          child: OutlinedButton(
-            onPressed: () => Navigator.of(context).pop(),
-            style: OutlinedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-            child: const Text('CANCEL'),
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: FilledButton(
-            onPressed: () {
-              Navigator.of(context).pop(_noteController.text.trim());
-            },
-            style: FilledButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-            child: const Text('SAVE'),
-          ),
-        ),
-      ],
-    );
+    return NoteDialog(initialNote: initialNote, noteType: NoteType.workout);
   }
 }
 

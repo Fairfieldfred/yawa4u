@@ -17,6 +17,7 @@ import '../../domain/providers/workout_providers.dart';
 import '../widgets/calendar_dropdown.dart';
 import '../widgets/cycle_summary_dialog.dart';
 import '../widgets/dialogs/add_exercise_dialog.dart';
+import '../widgets/dialogs/workout_dialogs.dart';
 import '../widgets/exercise_card_widget.dart';
 
 /// Helper class to hold history entry data
@@ -704,6 +705,11 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
         // TRAINING CYCLE Section
         _buildMenuHeader(ref.watch(trainingCycleTermProvider).toUpperCase()),
         _buildMenuItem(
+          icon: Icons.edit_note,
+          text: 'Note',
+          onTap: () => _writeTrainingCycleNote(trainingCycle),
+        ),
+        _buildMenuItem(
           icon: Icons.summarize_outlined,
           text: 'Summary',
           onTap: () => _showTrainingCycleSummary(trainingCycle),
@@ -714,7 +720,7 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
         _buildMenuHeader('WORKOUT'),
         _buildMenuItem(
           icon: Icons.edit,
-          text: 'New note',
+          text: 'Note',
           onTap: () => _newWorkoutNote(workouts),
         ),
         _buildMenuItem(
@@ -801,6 +807,49 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
     );
   }
 
+  Future<void> _writeTrainingCycleNote(dynamic trainingCycle) async {
+    final cycleTerm = ref.read(trainingCycleTermProvider);
+    final currentNote = trainingCycle.notes as String?;
+
+    final newNote = await showDialog<String>(
+      context: context,
+      builder: (context) => NoteDialog(
+        initialNote: currentNote,
+        noteType: NoteType.trainingCycle,
+        customTitle: '$cycleTerm Note',
+        customHint: 'Enter note for this $cycleTerm...',
+      ),
+    );
+
+    if (newNote != null && newNote != currentNote && mounted) {
+      try {
+        final repository = ref.read(trainingCycleRepositoryProvider);
+        final updatedTrainingCycle = trainingCycle.copyWith(
+          notes: newNote.isEmpty ? null : newNote,
+        );
+        await repository.update(updatedTrainingCycle);
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Note saved'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error saving note: $e'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    }
+  }
+
   void _addExerciseToWorkout(List<Workout> workouts) {
     if (workouts.isEmpty) return;
     showAddExerciseDialogFromWorkouts(
@@ -818,12 +867,15 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
 
     final newNote = await showDialog<String>(
       context: context,
-      builder: (context) => _WorkoutNoteDialog(initialNote: currentNote),
+      builder: (context) =>
+          NoteDialog(initialNote: currentNote, noteType: NoteType.workout),
     );
 
     if (newNote != null && newNote != currentNote && mounted) {
       final repository = ref.read(workoutRepositoryProvider);
-      final updatedWorkout = workout.copyWith(notes: newNote);
+      final updatedWorkout = workout.copyWith(
+        notes: newNote.isEmpty ? null : newNote,
+      );
       await repository.update(updatedWorkout);
 
       if (mounted) {
@@ -906,32 +958,11 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
     if (workout == null) return;
 
     final exercise = workout.exercises.firstWhere((e) => e.id == exerciseId);
-    final noteController = TextEditingController(text: exercise.notes ?? '');
 
     final result = await showDialog<String>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Exercise Note'),
-        content: TextField(
-          controller: noteController,
-          decoration: const InputDecoration(
-            hintText: 'Enter your note here...',
-            border: OutlineInputBorder(),
-          ),
-          maxLines: 5,
-          autofocus: true,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('CANCEL'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(context, noteController.text),
-            child: const Text('SAVE'),
-          ),
-        ],
-      ),
+      builder: (context) =>
+          NoteDialog(initialNote: exercise.notes, noteType: NoteType.exercise),
     );
 
     if (result != null && mounted) {
@@ -1526,117 +1557,4 @@ class _ExerciseSource {
   final int exerciseIndex; // Index within that workout's exercises list
 
   _ExerciseSource({required this.workout, required this.exerciseIndex});
-}
-
-/// Dialog for adding/editing workout notes
-class _WorkoutNoteDialog extends StatefulWidget {
-  final String? initialNote;
-
-  const _WorkoutNoteDialog({this.initialNote});
-
-  @override
-  State<_WorkoutNoteDialog> createState() => _WorkoutNoteDialogState();
-}
-
-class _WorkoutNoteDialogState extends State<_WorkoutNoteDialog> {
-  late final TextEditingController noteController;
-
-  @override
-  void initState() {
-    super.initState();
-    noteController = TextEditingController(text: widget.initialNote);
-  }
-
-  @override
-  void dispose() {
-    noteController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      child: Container(
-        padding: const EdgeInsets.all(24),
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const SizedBox(width: 40),
-                Text(
-                  'Workout Note',
-                  style: Theme.of(
-                    context,
-                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.close),
-                  onPressed: () => Navigator.of(context).pop(),
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
-                ),
-              ],
-            ),
-            const SizedBox(height: 24),
-            TextField(
-              controller: noteController,
-              autofocus: true,
-              maxLines: 5,
-              decoration: InputDecoration(
-                hintText: 'Enter note for this workout...',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                filled: true,
-                fillColor: Theme.of(
-                  context,
-                ).colorScheme.surfaceContainerHighest,
-              ),
-              style: Theme.of(context).textTheme.bodyLarge,
-            ),
-            const SizedBox(height: 24),
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: const Text('CANCEL'),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: FilledButton(
-                    onPressed: () {
-                      Navigator.of(context).pop(noteController.text.trim());
-                    },
-                    style: FilledButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: const Text('SAVE'),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }

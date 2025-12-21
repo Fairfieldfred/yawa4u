@@ -14,6 +14,7 @@ import '../../domain/providers/theme_provider.dart';
 import '../../domain/providers/training_cycle_providers.dart';
 import '../../domain/providers/workout_providers.dart';
 import '../widgets/cycle_summary_dialog.dart';
+import '../widgets/dialogs/workout_dialogs.dart';
 import 'template_selection_screen.dart';
 
 /// TrainingCycle list screen - organized by Draft/Current/Completed
@@ -482,10 +483,7 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
   ) async {
     switch (action) {
       case 'note':
-        // TODO: Implement write note functionality
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Write note - Coming soon')),
-        );
+        await _writeTrainingCycleNote(trainingCycle);
         break;
       case 'rename':
         await _showRenameTrainingCycleModal(trainingCycle);
@@ -512,6 +510,49 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
       case 'delete':
         await _deleteTrainingCycle(trainingCycle);
         break;
+    }
+  }
+
+  Future<void> _writeTrainingCycleNote(TrainingCycle trainingCycle) async {
+    final cycleTerm = ref.read(trainingCycleTermProvider);
+    final currentNote = trainingCycle.notes;
+
+    final newNote = await showDialog<String>(
+      context: context,
+      builder: (context) => NoteDialog(
+        initialNote: currentNote,
+        noteType: NoteType.trainingCycle,
+        customTitle: '$cycleTerm Note',
+        customHint: 'Enter note for this $cycleTerm...',
+      ),
+    );
+
+    if (newNote != null && newNote != currentNote && mounted) {
+      try {
+        final repository = ref.read(trainingCycleRepositoryProvider);
+        final updatedTrainingCycle = trainingCycle.copyWith(
+          notes: newNote.isEmpty ? null : newNote,
+        );
+        await repository.update(updatedTrainingCycle);
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Note saved'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error saving note: $e'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
     }
   }
 

@@ -277,32 +277,11 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     if (workout == null) return;
 
     final exercise = workout.exercises.firstWhere((e) => e.id == exerciseId);
-    final noteController = TextEditingController(text: exercise.notes ?? '');
 
     final result = await showDialog<String>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Exercise Note'),
-        content: TextField(
-          controller: noteController,
-          decoration: const InputDecoration(
-            hintText: 'Enter your note here...',
-            border: OutlineInputBorder(),
-          ),
-          maxLines: 5,
-          autofocus: true,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('CANCEL'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(context, noteController.text),
-            child: const Text('SAVE'),
-          ),
-        ],
-      ),
+      builder: (context) =>
+          NoteDialog(initialNote: exercise.notes, noteType: NoteType.exercise),
     );
 
     if (result != null) {
@@ -1305,7 +1284,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
         _buildMenuHeader('TRAINING CYCLE'),
         _buildMenuItem(
           icon: Icons.edit_note,
-          text: 'View notes',
+          text: 'Note',
           onTap: () => _viewTrainingCycleNotes(trainingCycle),
         ),
         _buildMenuItem(
@@ -1431,9 +1410,48 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     );
   }
 
-  // Placeholder actions
-  void _viewTrainingCycleNotes(dynamic trainingCycle) {
-    debugPrint('View notes');
+  // Training Cycle actions
+  Future<void> _viewTrainingCycleNotes(dynamic trainingCycle) async {
+    final cycleTerm = ref.read(trainingCycleTermProvider);
+    final currentNote = trainingCycle.notes as String?;
+
+    final newNote = await showDialog<String>(
+      context: context,
+      builder: (context) => NoteDialog(
+        initialNote: currentNote,
+        noteType: NoteType.trainingCycle,
+        customTitle: '$cycleTerm Note',
+        customHint: 'Enter note for this $cycleTerm...',
+      ),
+    );
+
+    if (newNote != null && newNote != currentNote && mounted) {
+      try {
+        final repository = ref.read(trainingCycleRepositoryProvider);
+        final updatedTrainingCycle = trainingCycle.copyWith(
+          notes: newNote.isEmpty ? null : newNote,
+        );
+        await repository.update(updatedTrainingCycle);
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Note saved'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error saving note: $e'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    }
   }
 
   void _showTrainingCycleSummary(dynamic trainingCycle) {
