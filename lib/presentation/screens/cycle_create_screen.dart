@@ -470,27 +470,31 @@ class _TrainingCycleCreateScreenState
           children: [
             Text('Recovery Type', style: Theme.of(context).textTheme.bodyLarge),
             const SizedBox(height: 12),
-            ...RecoveryWeekType.values.map((type) {
-              return RadioListTile<RecoveryWeekType>(
-                title: Text(type.displayName),
-                subtitle: Text(
-                  type.description,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.6),
-                  ),
-                ),
-                value: type,
-                groupValue: _recoveryWeekType,
-                contentPadding: EdgeInsets.zero,
-                onChanged: (value) {
-                  if (value != null) {
-                    setState(() => _recoveryWeekType = value);
-                  }
-                },
-              );
-            }),
+            RadioGroup<RecoveryWeekType>(
+              groupValue: _recoveryWeekType,
+              onChanged: (value) {
+                if (value != null) {
+                  setState(() => _recoveryWeekType = value);
+                }
+              },
+              child: Column(
+                children: RecoveryWeekType.values.map((type) {
+                  return RadioListTile<RecoveryWeekType>(
+                    title: Text(type.displayName),
+                    subtitle: Text(
+                      type.description,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.6),
+                      ),
+                    ),
+                    value: type,
+                    contentPadding: EdgeInsets.zero,
+                  );
+                }).toList(),
+              ),
+            ),
           ],
         ),
       ),

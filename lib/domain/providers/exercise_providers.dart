@@ -43,7 +43,7 @@ final exerciseProvider = Provider.family<Exercise?, String>((ref, id) {
       }
     },
     loading: () => null,
-    error: (_, __) => null,
+    error: (_, _) => null,
   );
 });
 
@@ -186,7 +186,7 @@ final allExerciseDefinitionsProvider = Provider<List<ExerciseDefinition>>((
   final customList = customExercises.when(
     data: (list) => list.map((e) => e.toExerciseDefinition()).toList(),
     loading: () => <ExerciseDefinition>[],
-    error: (_, __) => <ExerciseDefinition>[],
+    error: (_, _) => <ExerciseDefinition>[],
   );
 
   // Combine and sort by name

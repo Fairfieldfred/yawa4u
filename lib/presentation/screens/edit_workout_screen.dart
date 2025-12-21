@@ -358,8 +358,12 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
               subtitle: Text(type.description),
               leading: Radio<RecoveryWeekType>(
                 value: type,
-                groupValue: trainingCycle.recoveryWeekType,
-                onChanged: (value) => Navigator.pop(context, value),
+                fillColor: WidgetStateProperty.resolveWith((states) {
+                  if (type == trainingCycle.recoveryWeekType) {
+                    return Theme.of(context).colorScheme.primary;
+                  }
+                  return null;
+                }),
               ),
               trailing: Text(
                 type.abbreviation,

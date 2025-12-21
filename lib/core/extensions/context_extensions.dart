@@ -46,8 +46,11 @@ extension ContextExtensions on BuildContext {
   /// Get device pixel ratio
   double get devicePixelRatio => mediaQuery.devicePixelRatio;
 
-  /// Get text scale factor
-  double get textScaleFactor => mediaQuery.textScaleFactor;
+  /// Get text scaler
+  TextScaler get textScaler => mediaQuery.textScaler;
+
+  /// Get text scale factor (for compatibility)
+  double get textScaleFactor => mediaQuery.textScaler.scale(1.0);
 
   /// Get safe area padding (e.g., for notches, status bar)
   EdgeInsets get padding => mediaQuery.padding;
@@ -205,9 +208,7 @@ extension ContextExtensions on BuildContext {
   }
 
   /// Show a delete confirmation dialog
-  Future<bool> showDeleteConfirmDialog({
-    required String itemName,
-  }) {
+  Future<bool> showDeleteConfirmDialog({required String itemName}) {
     return showConfirmDialog(
       title: 'Delete $itemName?',
       message: 'This action cannot be undone.',
@@ -226,9 +227,7 @@ extension ContextExtensions on BuildContext {
           children: [
             const CircularProgressIndicator(),
             const SizedBox(width: 16),
-            Expanded(
-              child: Text(message ?? 'Loading...'),
-            ),
+            Expanded(child: Text(message ?? 'Loading...')),
           ],
         ),
       ),

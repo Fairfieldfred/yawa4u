@@ -35,7 +35,7 @@ final workoutsByTrainingCycleProvider = Provider.family<List<Workout>, String>((
             return a.dayNumber.compareTo(b.dayNumber);
           }),
     loading: () => [],
-    error: (_, __) => [],
+    error: (_, _) => [],
   );
 });
 
@@ -61,7 +61,7 @@ final workoutProvider = Provider.family<Workout?, String>((ref, id) {
       }
     },
     loading: () => null,
-    error: (_, __) => null,
+    error: (_, _) => null,
   );
 });
 
@@ -72,7 +72,7 @@ final completedWorkoutsProvider = Provider<List<Workout>>((ref) {
     data: (list) =>
         list.where((w) => w.status == WorkoutStatus.completed).toList(),
     loading: () => [],
-    error: (_, __) => [],
+    error: (_, _) => [],
   );
 });
 
