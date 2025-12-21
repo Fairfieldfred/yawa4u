@@ -252,7 +252,6 @@ class TemplateRepository {
   /// Create a trainingCycle from a template
   Future<TrainingCycle> createTrainingCycleFromTemplate(
     TrainingCycleTemplate template,
-    String userName,
   ) async {
     final trainingCycleId = _uuid.v4();
     final now = DateTime.now();
@@ -344,7 +343,7 @@ class TemplateRepository {
 
     return TrainingCycle(
       id: trainingCycleId,
-      name: '${template.name} - $userName',
+      name: template.name,
       startDate: now,
       weeksTotal: template.weeksTotal,
       daysPerWeek: template.daysPerWeek,

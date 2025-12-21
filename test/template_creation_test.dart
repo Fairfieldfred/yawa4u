@@ -46,7 +46,6 @@ void main() {
 
         final trainingCycle = await repository.createTrainingCycleFromTemplate(
           template,
-          'Test User',
         );
 
         // Should create 2 workouts (one for Chest, one for Back)

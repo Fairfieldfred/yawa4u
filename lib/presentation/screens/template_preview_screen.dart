@@ -27,13 +27,9 @@ class _TemplatePreviewScreenState extends ConsumerState<TemplatePreviewScreen> {
     });
 
     try {
-      // TODO: Get actual user name
-      const userName = 'User';
-
       final repository = ref.read(templateRepositoryProvider);
       final trainingCycle = await repository.createTrainingCycleFromTemplate(
         widget.template,
-        userName,
       );
 
       // Save trainingCycle
