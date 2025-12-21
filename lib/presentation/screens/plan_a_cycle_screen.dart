@@ -287,7 +287,6 @@ class _OptionCard extends StatelessWidget {
   final Color iconColor;
   final String title;
   final String subtitle;
-  final String? badge;
   final VoidCallback onTap;
 
   const _OptionCard({
@@ -296,7 +295,6 @@ class _OptionCard extends StatelessWidget {
     required this.title,
     required this.subtitle,
     required this.onTap,
-    this.badge,
   });
 
   @override
@@ -340,10 +338,6 @@ class _OptionCard extends StatelessWidget {
                                 ),
                           ),
                         ),
-                        if (badge != null) ...[
-                          const SizedBox(width: 6),
-                          Text(badge!, style: const TextStyle(fontSize: 16)),
-                        ],
                       ],
                     ),
                     const SizedBox(height: 6),

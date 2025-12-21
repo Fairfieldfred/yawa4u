@@ -16,7 +16,6 @@ class MuscleGroupStatsDialog extends ConsumerWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final backgroundColor = isDark ? const Color(0xFF2C2C2E) : Colors.white;
     final textColor = isDark ? Colors.white : Colors.black87;
-    final secondaryTextColor = isDark ? Colors.grey[400] : Colors.grey[600];
     final cellBackgroundColor = isDark ? Colors.grey[700] : Colors.grey[200];
 
     return Dialog(

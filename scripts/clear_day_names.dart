@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:yawa4u/data/models/workout.dart';
 
@@ -14,7 +15,7 @@ Future<void> clearWorkoutDayNames() async {
   // Open workouts box
   final box = await Hive.openBox<Workout>('workouts');
 
-  print('Found ${box.length} workouts in database');
+  debugPrint('Found ${box.length} workouts in database');
 
   int updatedCount = 0;
 
@@ -26,14 +27,14 @@ Future<void> clearWorkoutDayNames() async {
       final updatedWorkout = workout.copyWith(dayName: null);
       await box.put(key, updatedWorkout);
       updatedCount++;
-      print(
+      debugPrint(
         'Cleared dayName from workout: Week ${workout.weekNumber}, Day ${workout.dayNumber} (was: "${workout.dayName}")',
       );
     }
   }
 
-  print('\nCompleted! Cleared dayName from $updatedCount workouts.');
-  print(
+  debugPrint('\nCompleted! Cleared dayName from $updatedCount workouts.');
+  debugPrint(
     'Day names will now be calculated dynamically from trainingCycle start dates.',
   );
 
