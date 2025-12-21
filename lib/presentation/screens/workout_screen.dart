@@ -2058,7 +2058,7 @@ class _WeekSelectorModalState extends State<_WeekSelectorModal> {
                   _selectedWeek = weekNumber;
                   _selectedDay = dayNumber;
                 });
-                // TODO: Navigate to selected workout
+
                 Navigator.pop(context);
               },
               child: Container(

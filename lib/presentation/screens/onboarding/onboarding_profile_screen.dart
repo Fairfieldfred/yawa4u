@@ -15,7 +15,8 @@ class OnboardingProfileScreen extends ConsumerStatefulWidget {
 }
 
 class _OnboardingProfileScreenState
-    extends ConsumerState<OnboardingProfileScreen> {
+    extends ConsumerState<OnboardingProfileScreen>
+    with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   final _heightFeetController = TextEditingController();
   final _heightInchesController = TextEditingController();
@@ -25,14 +26,245 @@ class _OnboardingProfileScreenState
   final _heightCmController = TextEditingController();
   final _weightKgController = TextEditingController();
 
+  // App icon selection
+  int _selectedIconIndex = 1; // Default to center (yawa4u-icon)
+  late AnimationController _animationController;
+  late Animation<double> _animation;
+
+  final List<String> _iconPaths = [
+    'assets/common/app-icon.png',
+    'assets/common/yawa4u-icon.png',
+    'assets/common/female-app-icon.png',
+  ];
+
+  // BMI calculation
+  double? _bmi;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+    _animation = CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeInOut,
+    );
+
+    // Add listeners to recalculate BMI when inputs change
+    _heightFeetController.addListener(_calculateBmi);
+    _heightInchesController.addListener(_calculateBmi);
+    _weightController.addListener(_calculateBmi);
+    _heightCmController.addListener(_calculateBmi);
+    _weightKgController.addListener(_calculateBmi);
+  }
+
   @override
   void dispose() {
+    _heightFeetController.removeListener(_calculateBmi);
+    _heightInchesController.removeListener(_calculateBmi);
+    _weightController.removeListener(_calculateBmi);
+    _heightCmController.removeListener(_calculateBmi);
+    _weightKgController.removeListener(_calculateBmi);
     _heightFeetController.dispose();
     _heightInchesController.dispose();
     _weightController.dispose();
     _heightCmController.dispose();
     _weightKgController.dispose();
+    _animationController.dispose();
     super.dispose();
+  }
+
+  void _calculateBmi() {
+    double? heightCm;
+    double? weightKg;
+
+    if (_useMetric) {
+      final cm = double.tryParse(_heightCmController.text);
+      final kg = double.tryParse(_weightKgController.text);
+      if (cm != null && cm > 0 && kg != null && kg > 0) {
+        heightCm = cm;
+        weightKg = kg;
+      }
+    } else {
+      final feet = int.tryParse(_heightFeetController.text);
+      final inches = int.tryParse(_heightInchesController.text) ?? 0;
+      final lbs = double.tryParse(_weightController.text);
+      if (feet != null && feet > 0 && lbs != null && lbs > 0) {
+        final totalInches = (feet * 12) + inches;
+        heightCm = totalInches * 2.54;
+        weightKg = lbs * 0.453592;
+      }
+    }
+
+    setState(() {
+      if (heightCm != null && weightKg != null) {
+        final heightM = heightCm / 100;
+        _bmi = weightKg / (heightM * heightM);
+      } else {
+        _bmi = null;
+      }
+    });
+  }
+
+  String _getBmiCategory(double bmi) {
+    if (bmi < 18.5) return 'Underweight';
+    if (bmi < 25) return 'Normal';
+    if (bmi < 30) return 'Overweight';
+    return 'Obese';
+  }
+
+  Color _getBmiColor(double bmi) {
+    if (bmi < 18.5) return Colors.blue;
+    if (bmi < 25) return Colors.green;
+    if (bmi < 30) return Colors.orange;
+    return Colors.red;
+  }
+
+  Widget _buildBmiIndicator() {
+    if (_bmi == null) {
+      return Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surfaceContainerHighest,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.monitor_weight_outlined,
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.5),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              'Enter height and weight to see BMI',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.5),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    final category = _getBmiCategory(_bmi!);
+    final color = _getBmiColor(_bmi!);
+
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 60,
+            height: 60,
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.2),
+              shape: BoxShape.circle,
+            ),
+            child: Center(
+              child: Text(
+                _bmi!.toStringAsFixed(1),
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: color,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Your BMI',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.7),
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  category,
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: color,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _selectIcon(int index) {
+    if (index != _selectedIconIndex) {
+      setState(() {
+        _selectedIconIndex = index;
+      });
+      _animationController.forward(from: 0);
+    }
+  }
+
+  List<int> _getOrderedIndices() {
+    // Returns indices ordered so selected is in center
+    switch (_selectedIconIndex) {
+      case 0:
+        return [1, 0, 2]; // Move 0 to center
+      case 1:
+        return [0, 1, 2]; // 1 already in center
+      case 2:
+        return [0, 2, 1]; // Move 2 to center
+      default:
+        return [0, 1, 2];
+    }
+  }
+
+  Widget _buildSelectableIcon(int iconIndex, {required bool isCenter}) {
+    final isSelected = iconIndex == _selectedIconIndex;
+    final size = isCenter ? 100.0 : 70.0;
+    final borderWidth = isSelected ? 3.0 : 0.0;
+
+    return GestureDetector(
+      onTap: () => _selectIcon(iconIndex),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+        margin: const EdgeInsets.symmetric(horizontal: 8),
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(isCenter ? 20 : 14),
+          border: Border.all(
+            color: isSelected
+                ? Theme.of(context).colorScheme.primary
+                : Colors.transparent,
+            width: borderWidth,
+          ),
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(isCenter ? 17 : 11),
+          child: Image.asset(_iconPaths[iconIndex], fit: BoxFit.cover),
+        ),
+      ),
+    );
   }
 
   void _continue() {
@@ -88,11 +320,32 @@ class _OnboardingProfileScreenState
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'This helps us personalize your experience and track your progress.',
+                      'Your preferred app icon.',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: Theme.of(
                           context,
                         ).colorScheme.onSurface.withValues(alpha: 0.7),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+
+                    // App icon selection row
+                    Center(
+                      child: AnimatedBuilder(
+                        animation: _animation,
+                        builder: (context, child) {
+                          final orderedIndices = _getOrderedIndices();
+                          return Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              for (int i = 0; i < 3; i++)
+                                _buildSelectableIcon(
+                                  orderedIndices[i],
+                                  isCenter: i == 1,
+                                ),
+                            ],
+                          );
+                        },
                       ),
                     ),
                     const SizedBox(height: 32),
@@ -118,6 +371,7 @@ class _OnboardingProfileScreenState
                             setState(() {
                               _useMetric = selection.first;
                             });
+                            _calculateBmi();
                           },
                         ),
                       ],
@@ -139,6 +393,10 @@ class _OnboardingProfileScreenState
                         ],
                         decoration: const InputDecoration(
                           labelText: 'Centimeters',
+                          labelStyle: TextStyle(
+                            fontSize: 18,
+                            color: Colors.grey,
+                          ),
                           suffixText: 'cm',
                           border: OutlineInputBorder(),
                         ),
@@ -165,6 +423,10 @@ class _OnboardingProfileScreenState
                               ],
                               decoration: const InputDecoration(
                                 labelText: 'Feet',
+                                labelStyle: TextStyle(
+                                  fontSize: 18,
+                                  color: Colors.grey,
+                                ),
                                 suffixText: 'ft',
                                 border: OutlineInputBorder(),
                               ),
@@ -190,6 +452,10 @@ class _OnboardingProfileScreenState
                               ],
                               decoration: const InputDecoration(
                                 labelText: 'Inches',
+                                labelStyle: TextStyle(
+                                  fontSize: 18,
+                                  color: Colors.grey,
+                                ),
                                 suffixText: 'in',
                                 border: OutlineInputBorder(),
                               ),
@@ -230,6 +496,10 @@ class _OnboardingProfileScreenState
                       ],
                       decoration: InputDecoration(
                         labelText: _useMetric ? 'Kilograms' : 'Pounds',
+                        labelStyle: const TextStyle(
+                          fontSize: 18,
+                          color: Colors.grey,
+                        ),
                         suffixText: _useMetric ? 'kg' : 'lbs',
                         border: const OutlineInputBorder(),
                       ),
@@ -254,7 +524,12 @@ class _OnboardingProfileScreenState
                       },
                     ),
 
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 24),
+
+                    // BMI Indicator
+                    _buildBmiIndicator(),
+
+                    const SizedBox(height: 24),
 
                     // Continue button
                     SizedBox(

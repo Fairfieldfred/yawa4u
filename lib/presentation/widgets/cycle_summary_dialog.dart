@@ -153,21 +153,21 @@ class CycleSummaryDialog extends ConsumerWidget {
                   },
                 ),
                 _buildDivider(dividerColor),
-                _buildNavigationRow(
-                  context,
-                  label: 'Exercises',
-                  textColor: textColor,
-                  secondaryTextColor: secondaryTextColor,
-                  onTap: () {
-                    // TODO: Navigate to exercise stats
-                    Navigator.of(context).pop();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Exercise stats - Coming soon'),
-                      ),
-                    );
-                  },
-                ),
+                // _buildNavigationRow(
+                //   context,
+                //   label: 'Exercises',
+                //   textColor: textColor,
+                //   secondaryTextColor: secondaryTextColor,
+                //   onTap: () {
+                //     // TODO: Navigate to exercise stats
+                //     Navigator.of(context).pop();
+                //     ScaffoldMessenger.of(context).showSnackBar(
+                //       const SnackBar(
+                //         content: Text('Exercise stats - Coming soon'),
+                //       ),
+                //     );
+                //   },
+                // ),
                 const SizedBox(height: 24),
 
                 // Footer

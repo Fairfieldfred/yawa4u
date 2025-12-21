@@ -507,7 +507,10 @@ class _ExerciseInfoDialogState extends ConsumerState<ExerciseInfoDialog> {
     );
   }
 
-  Widget _buildTrainingCycleHeader(BuildContext context, TrainingCycle? trainingCycle) {
+  Widget _buildTrainingCycleHeader(
+    BuildContext context,
+    TrainingCycle? trainingCycle,
+  ) {
     final name = trainingCycle?.name ?? 'Unknown TrainingCycle';
     final weeks = trainingCycle?.weeksTotal ?? 0;
 
