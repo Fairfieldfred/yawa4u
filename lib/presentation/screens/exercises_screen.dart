@@ -19,6 +19,7 @@ import '../widgets/cycle_summary_dialog.dart';
 import '../widgets/dialogs/add_exercise_dialog.dart';
 import '../widgets/dialogs/workout_dialogs.dart';
 import '../widgets/exercise_card_widget.dart';
+import 'add_exercise_screen.dart';
 
 /// Helper class to hold history entry data
 class _HistoryEntry {
@@ -983,10 +984,36 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
   }
 
   void _replaceExercise(String workoutId, String exerciseId) {
-    // TODO: Implement replace exercise
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Replace exercise feature coming soon')),
+    final repository = ref.read(workoutRepositoryProvider);
+    final workout = repository.getById(workoutId);
+    if (workout == null) return;
+
+    final exercise = workout.exercises.firstWhere(
+      (e) => e.id == exerciseId,
+      orElse: () => throw Exception('Exercise not found'),
     );
+
+    // Navigate to AddExerciseScreen with replaceExerciseId
+    // This will replace the exercise in-place, preserving sets and order
+    Navigator.of(context)
+        .push(
+          MaterialPageRoute(
+            builder: (context) => AddExerciseScreen(
+              trainingCycleId: workout.trainingCycleId,
+              workoutId: workout.id,
+              initialMuscleGroup: exercise.muscleGroup,
+              replaceExerciseId: exerciseId,
+            ),
+          ),
+        )
+        .then((_) {
+          // Rebuild exercise list when returning from AddExerciseScreen
+          if (mounted) {
+            setState(() {
+              _buildExerciseList();
+            });
+          }
+        });
   }
 
   void _logJointPain(String workoutId, String exerciseId) {
