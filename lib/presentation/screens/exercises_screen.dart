@@ -1056,10 +1056,33 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
   }
 
   void _skipExerciseSets(String workoutId, String exerciseId) {
-    // TODO: Implement skip sets
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Skip sets feature coming soon')),
+    final repository = ref.read(workoutRepositoryProvider);
+    final workout = repository.getById(workoutId);
+    if (workout == null) return;
+
+    final exerciseIndex = workout.exercises.indexWhere(
+      (e) => e.id == exerciseId,
     );
+    if (exerciseIndex == -1) return;
+
+    final exercise = workout.exercises[exerciseIndex];
+
+    // Only skip unlogged sets
+    final updatedSets = exercise.sets
+        .map((s) => !s.isLogged ? s.copyWith(isSkipped: true) : s)
+        .toList();
+
+    final updatedExercise = exercise.copyWith(sets: updatedSets);
+    final updatedWorkout = workout.updateExercise(
+      exerciseIndex,
+      updatedExercise,
+    );
+    repository.update(updatedWorkout);
+
+    // Force UI update
+    setState(() {
+      _buildExerciseList();
+    });
   }
 
   void _deleteExercise(String workoutId, String exerciseId) {
