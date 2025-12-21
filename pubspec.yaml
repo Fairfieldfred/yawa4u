@@ -120,15 +120,15 @@ sentry:
 flutter_launcher_icons:
   ios: true
   android: true
-  image_path_ios: "assets/common/app-icon.png"
-  image_path_ios_dark_transparent: "assets/common/app-icon-transparent.png"
-  image_path_android: "assets/android/app-icon-android.png"
+  image_path_ios: "assets/common/yawa4u-icon.png"
+  image_path_ios_dark_transparent: "assets/common/yawa4u-icon-mask.png"
+  image_path_android: "assets/common/yawa4u-icon.png"
   adaptive_icon_background: "assets/android/app-icon-background.png"
-  adaptive_icon_foreground: "assets/android/app-icon-foreground.png"
+  adaptive_icon_foreground: "assets/common/yawa4u-icon-mask.png"
   remove_alpha_ios: true
   web:
     generate: true
-    image_path: "assets/common/app-icon.png"
+    image_path: "assets/common/yawa4u-icon.png"
 
 # Flutter Native Splash configuration
 flutter_native_splash:
@@ -138,4 +138,4 @@ flutter_native_splash:
   android_12:
     color: "#ffffff"
     icon_background_color: "#FFFFFF"
-    image: "assets/images/rhino_rack.png"
+    image: "assets/images/yawa4u-icon-mask.png"

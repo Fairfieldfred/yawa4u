@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../core/constants/enums.dart';
 import '../../core/utils/template_exporter.dart';
@@ -308,12 +309,19 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
                           ),
                           PopupMenuItem(
                             value: 'copy',
+                            enabled: !isDraft,
                             child: Row(
                               children: [
-                                const Icon(Icons.copy_outlined),
+                                Icon(
+                                  Icons.copy_outlined,
+                                  color: isDraft ? Colors.grey : null,
+                                ),
                                 const SizedBox(width: 12),
                                 Text(
                                   'Copy the ${ref.watch(trainingCycleTermProvider)}',
+                                  style: TextStyle(
+                                    color: isDraft ? Colors.grey : null,
+                                  ),
                                 ),
                               ],
                             ),
@@ -489,10 +497,7 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
         await _showRenameTrainingCycleModal(trainingCycle);
         break;
       case 'copy':
-        // TODO: Implement copy functionality
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Copy trainingCycle - Coming soon')),
-        );
+        await _copyTrainingCycle(trainingCycle);
         break;
       case 'summary':
         await showDialog(
@@ -552,6 +557,245 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
             ),
           );
         }
+      }
+    }
+  }
+
+  /// Shows a warning dialog if there are draft cycles, returns true if should proceed
+  Future<bool> _checkAndDeleteDrafts() async {
+    final draftTrainingCycles = ref.read(draftTrainingCyclesProvider);
+
+    if (!mounted) return false;
+
+    if (draftTrainingCycles.isEmpty) {
+      return true; // No drafts, proceed
+    }
+
+    final cycleTerm = ref.read(trainingCycleTermProvider);
+
+    // Show warning dialog
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        child: Container(
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surface,
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const SizedBox(width: 40),
+                  const Spacer(),
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () => Navigator.pop(context, false),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Are you sure?',
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'You have a draft $cycleTerm plan already in progress. By copying this $cycleTerm, your draft will be overwritten.',
+                style: Theme.of(context).textTheme.bodyLarge,
+              ),
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.orange.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: Colors.orange.withValues(alpha: 0.3),
+                    width: 1,
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.warning_amber_rounded,
+                      color: Colors.orange,
+                      size: 24,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        'This will delete your current draft $cycleTerm plan.',
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 24),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.pop(context, false),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        side: BorderSide(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.outline.withValues(alpha: 0.5),
+                        ),
+                      ),
+                      child: const Text('CANCEL'),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: FilledButton(
+                      onPressed: () => Navigator.pop(context, true),
+                      style: FilledButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        backgroundColor: Colors.red,
+                      ),
+                      child: const Text('CONTINUE'),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    if (confirmed == true && mounted) {
+      // Delete all draft trainingCycles
+      try {
+        final repository = ref.read(trainingCycleRepositoryProvider);
+        for (final draft in draftTrainingCycles) {
+          await repository.delete(draft.id);
+        }
+        return true; // Proceed after deleting
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error deleting draft: $e'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+        return false;
+      }
+    }
+
+    return false; // User cancelled
+  }
+
+  Future<void> _copyTrainingCycle(TrainingCycle trainingCycle) async {
+    // Check and delete any existing drafts first
+    final shouldProceed = await _checkAndDeleteDrafts();
+    if (!shouldProceed || !mounted) return;
+
+    final cycleTerm = ref.read(trainingCycleTermProvider);
+    const uuid = Uuid();
+
+    try {
+      // Get all workouts for this training cycle
+      final workouts = ref.read(
+        workoutsByTrainingCycleProvider(trainingCycle.id),
+      );
+
+      // Generate new ID for the copied training cycle
+      final newTrainingCycleId = uuid.v4();
+
+      // Create copied workouts with new IDs and reset status
+      final copiedWorkouts = workouts.map((workout) {
+        final newWorkoutId = uuid.v4();
+
+        // Copy exercises with new IDs and reset logged sets
+        final copiedExercises = workout.exercises.map((exercise) {
+          final newExerciseId = uuid.v4();
+
+          // Copy sets with new IDs and reset logged data
+          final copiedSets = exercise.sets.map((set) {
+            return set.copyWith(
+              id: uuid.v4(),
+              isLogged: false,
+              weight: null, // Clear weight
+              reps: '', // Clear reps
+            );
+          }).toList();
+
+          return exercise.copyWith(
+            id: newExerciseId,
+            workoutId: newWorkoutId,
+            sets: copiedSets,
+            notes: null, // Clear exercise notes
+            feedback: null, // Clear feedback
+            lastPerformed: null, // Clear last performed
+          );
+        }).toList();
+
+        return workout.copyWith(
+          id: newWorkoutId,
+          trainingCycleId: newTrainingCycleId,
+          status: WorkoutStatus.incomplete,
+          completedDate: null,
+          exercises: copiedExercises,
+          notes: null, // Clear workout notes
+        );
+      }).toList();
+
+      // Create the copied training cycle
+      final copiedTrainingCycle = trainingCycle.copyWith(
+        id: newTrainingCycleId,
+        name: '${trainingCycle.name} (Copy)',
+        status: TrainingCycleStatus.draft,
+        createdDate: DateTime.now(),
+        startDate: null, // Clear start date
+        endDate: null, // Clear end date
+        workouts: copiedWorkouts,
+        notes: null, // Clear training cycle notes
+      );
+
+      // Save the new training cycle
+      final trainingCycleRepository = ref.read(trainingCycleRepositoryProvider);
+      await trainingCycleRepository.create(copiedTrainingCycle);
+
+      // Save all workouts
+      final workoutRepository = ref.read(workoutRepositoryProvider);
+      for (final workout in copiedWorkouts) {
+        await workoutRepository.create(workout);
+      }
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('$cycleTerm copied as draft!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error copying $cycleTerm: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
       }
     }
   }
