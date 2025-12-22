@@ -11,6 +11,7 @@ class OnboardingService {
   static const String _keyEquipment = 'user_equipment';
   static const String _keyEquipmentFilterEnabled = 'equipment_filter_enabled';
   static const String _keyTrainingCycleTerm = 'user_training_cycle_term';
+  static const String _keyAppIconIndex = 'user_app_icon_index';
 
   final SharedPreferences _prefs;
 
@@ -45,6 +46,8 @@ class OnboardingService {
       _prefs.getBool(_keyEquipmentFilterEnabled) ?? false;
   String get trainingCycleTerm =>
       _prefs.getString(_keyTrainingCycleTerm) ?? 'trainingCycle';
+  int get appIconIndex =>
+      _prefs.getInt(_keyAppIconIndex) ?? 1; // Default to center icon
 
   // User profile setters
   Future<void> setHeightCm(double value) async {
@@ -69,6 +72,10 @@ class OnboardingService {
 
   Future<void> setTrainingCycleTerm(String value) async {
     await _prefs.setString(_keyTrainingCycleTerm, value);
+  }
+
+  Future<void> setAppIconIndex(int value) async {
+    await _prefs.setInt(_keyAppIconIndex, value);
   }
 
   /// Get display name for the trainingCycle term

@@ -7,6 +7,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/constants/app_constants.dart';
+import '../../domain/providers/onboarding_providers.dart';
 import '../../domain/providers/theme_provider.dart';
 
 /// More/Settings screen
@@ -17,13 +18,37 @@ class MoreScreen extends ConsumerStatefulWidget {
   ConsumerState<MoreScreen> createState() => _MoreScreenState();
 }
 
-class _MoreScreenState extends ConsumerState<MoreScreen> {
+class _MoreScreenState extends ConsumerState<MoreScreen>
+    with SingleTickerProviderStateMixin {
   String _version = '';
+
+  late AnimationController _animationController;
+  late Animation<double> _animation;
+
+  final List<String> _iconPaths = [
+    'assets/common/app-icon.png',
+    'assets/common/yawa4u-icon.png',
+    'assets/common/female-app-icon.png',
+  ];
 
   @override
   void initState() {
     super.initState();
     _loadVersion();
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+    _animation = CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeInOut,
+    );
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadVersion() async {
@@ -35,9 +60,67 @@ class _MoreScreenState extends ConsumerState<MoreScreen> {
     }
   }
 
+  void _selectIcon(int index) {
+    final currentIndex = ref.read(userProfileProvider).appIconIndex;
+    if (index != currentIndex) {
+      // Save the new icon index
+      ref.read(userProfileProvider.notifier).saveAppIconIndex(index);
+      _animationController.forward(from: 0);
+    }
+  }
+
+  List<int> _getOrderedIndices(int selectedIconIndex) {
+    // Returns indices ordered so selected is in center
+    switch (selectedIconIndex) {
+      case 0:
+        return [1, 0, 2]; // Move 0 to center
+      case 1:
+        return [0, 1, 2]; // 1 already in center
+      case 2:
+        return [0, 2, 1]; // Move 2 to center
+      default:
+        return [0, 1, 2];
+    }
+  }
+
+  Widget _buildSelectableIcon(
+    int iconIndex,
+    int selectedIconIndex, {
+    required bool isCenter,
+  }) {
+    final isSelected = iconIndex == selectedIconIndex;
+    final size = isCenter ? 100.0 : 70.0;
+    final borderWidth = isSelected ? 3.0 : 0.0;
+
+    return GestureDetector(
+      onTap: () => _selectIcon(iconIndex),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+        margin: const EdgeInsets.symmetric(horizontal: 8),
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(isCenter ? 20 : 14),
+          border: Border.all(
+            color: isSelected
+                ? Theme.of(context).colorScheme.primary
+                : Colors.transparent,
+            width: borderWidth,
+          ),
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(isCenter ? 17 : 11),
+          child: Image.asset(_iconPaths[iconIndex], fit: BoxFit.cover),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final themeMode = ref.watch(themeModeProvider);
+    final selectedIconIndex = ref.watch(userProfileProvider).appIconIndex;
 
     return Scaffold(
       appBar: AppBar(title: const Text('YAWA4U'), centerTitle: true),
@@ -48,47 +131,24 @@ class _MoreScreenState extends ConsumerState<MoreScreen> {
           Center(
             child: Column(
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      width: 80,
-                      height: 80,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(16),
-                        image: const DecorationImage(
-                          image: AssetImage('assets/common/app-icon.png'),
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Container(
-                      width: 100,
-                      height: 100,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        image: const DecorationImage(
-                          image: AssetImage('assets/common/yawa4u-icon.png'),
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Container(
-                      width: 80,
-                      height: 80,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(16),
-                        image: const DecorationImage(
-                          image: AssetImage(
-                            'assets/common/female-app-icon.png',
+                AnimatedBuilder(
+                  animation: _animation,
+                  builder: (context, child) {
+                    final orderedIndices = _getOrderedIndices(
+                      selectedIconIndex,
+                    );
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        for (int i = 0; i < 3; i++)
+                          _buildSelectableIcon(
+                            orderedIndices[i],
+                            selectedIconIndex,
+                            isCenter: i == 1,
                           ),
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    ),
-                  ],
+                      ],
+                    );
+                  },
                 ),
                 const SizedBox(height: 16),
 

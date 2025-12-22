@@ -289,6 +289,11 @@ class _OnboardingProfileScreenState
           .read(userProfileProvider.notifier)
           .updateProfile(heightCm, weightKg, _useMetric);
 
+      // Save the selected app icon
+      ref
+          .read(userProfileProvider.notifier)
+          .updateAppIconIndex(_selectedIconIndex);
+
       Navigator.of(context).push(
         MaterialPageRoute(
           builder: (context) => const OnboardingEquipmentScreen(),

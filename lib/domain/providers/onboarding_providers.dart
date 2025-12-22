@@ -21,6 +21,7 @@ class UserProfile {
   final bool useMetric;
   final List<String> equipment;
   final String trainingCycleTerm;
+  final int appIconIndex;
 
   const UserProfile({
     this.heightCm,
@@ -28,6 +29,7 @@ class UserProfile {
     this.useMetric = false,
     this.equipment = const [],
     this.trainingCycleTerm = 'trainingCycle',
+    this.appIconIndex = 1,
   });
 
   UserProfile copyWith({
@@ -36,6 +38,7 @@ class UserProfile {
     bool? useMetric,
     List<String>? equipment,
     String? trainingCycleTerm,
+    int? appIconIndex,
   }) {
     return UserProfile(
       heightCm: heightCm ?? this.heightCm,
@@ -43,6 +46,7 @@ class UserProfile {
       useMetric: useMetric ?? this.useMetric,
       equipment: equipment ?? this.equipment,
       trainingCycleTerm: trainingCycleTerm ?? this.trainingCycleTerm,
+      appIconIndex: appIconIndex ?? this.appIconIndex,
     );
   }
 }
@@ -58,6 +62,7 @@ class UserProfileNotifier extends Notifier<UserProfile> {
       useMetric: service.useMetric,
       equipment: service.equipment,
       trainingCycleTerm: service.trainingCycleTerm,
+      appIconIndex: service.appIconIndex,
     );
   }
 
@@ -79,6 +84,16 @@ class UserProfileNotifier extends Notifier<UserProfile> {
     state = state.copyWith(trainingCycleTerm: term);
   }
 
+  void updateAppIconIndex(int index) {
+    state = state.copyWith(appIconIndex: index);
+  }
+
+  /// Save app icon index immediately (for settings changes)
+  Future<void> saveAppIconIndex(int index) async {
+    state = state.copyWith(appIconIndex: index);
+    await _service.setAppIconIndex(index);
+  }
+
   Future<void> completeOnboarding() async {
     // Save all data to SharedPreferences
     if (state.heightCm != null) {
@@ -90,6 +105,7 @@ class UserProfileNotifier extends Notifier<UserProfile> {
     await _service.setUseMetric(state.useMetric);
     await _service.setEquipment(state.equipment);
     await _service.setTrainingCycleTerm(state.trainingCycleTerm);
+    await _service.setAppIconIndex(state.appIconIndex);
     await _service.markOnboardingComplete();
 
     // Invalidate providers so router re-evaluates onboarding status
