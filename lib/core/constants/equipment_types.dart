@@ -23,6 +23,8 @@ enum EquipmentType {
   machineAssistance,
   @HiveField(8)
   smithMachine,
+  @HiveField(9)
+  bandAssistance,
 }
 
 extension EquipmentTypeExtension on EquipmentType {
@@ -47,6 +49,8 @@ extension EquipmentTypeExtension on EquipmentType {
         return 'Machine Assistance';
       case EquipmentType.smithMachine:
         return 'Smith Machine';
+      case EquipmentType.bandAssistance:
+        return 'Band Assistance';
     }
   }
 
@@ -80,16 +84,17 @@ class EquipmentTypes {
     if (normalized.contains('bodyweight loadable')) {
       return EquipmentType.bodyweightLoadable;
     }
-    if (normalized.contains('bodyweight only') ||
-        normalized == 'bodyweight') {
+    if (normalized.contains('bodyweight only') || normalized == 'bodyweight') {
       return EquipmentType.bodyweightOnly;
     }
     if (normalized.contains('machine assistance')) {
       return EquipmentType.machineAssistance;
     }
-    if (normalized.contains('smith machine') ||
-        normalized == 'smith') {
+    if (normalized.contains('smith machine') || normalized == 'smith') {
       return EquipmentType.smithMachine;
+    }
+    if (normalized.contains('band assistance') || normalized == 'band') {
+      return EquipmentType.bandAssistance;
     }
 
     return null;

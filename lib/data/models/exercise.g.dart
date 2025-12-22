@@ -138,4 +138,5 @@ const _$EquipmentTypeEnumMap = {
   EquipmentType.machine: 'machine',
   EquipmentType.machineAssistance: 'machineAssistance',
   EquipmentType.smithMachine: 'smithMachine',
+  EquipmentType.bandAssistance: 'bandAssistance',
 };

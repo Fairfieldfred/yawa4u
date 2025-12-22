@@ -2,7 +2,11 @@ Name,Muscle Group,Equipment
 45 Degree Cable Rear Delt Pull,Shoulders,Cable
 Ab Wheel,Abs,Bodyweight Only
 Arnold Press,Shoulders,Dumbbell
-Assisted Dip,Triceps,Machine Assistance
+Assisted Dip,Triceps,Band Assistance
+Assisted Pullup (Normal Grip),Back,Band Assistance
+Assisted Pullup (Parallel Grip),Back,Band Assistance
+Assisted Pullup (Underhand Grip),Back,Band Assistance
+Assisted Pullup (Wide Grip),Back,Band Assistance
 Assisted Pullup (Normal Grip),Back,Machine Assistance
 Assisted Pullup (Parallel Grip),Back,Machine Assistance
 Assisted Pullup (Underhand Grip),Back,Machine Assistance
@@ -63,6 +67,7 @@ Cable Shrug,Traps,Cable
 Cable Side Shrug,Traps,Cable
 Cable Single Arm Rear Delt Raise,Shoulders,Cable
 Cable Single Arm Side Shrug,Traps,Cable
+Cable Shoulder Press, Shoulders,Cable
 Cable Triceps Pushdown (Bar),Triceps,Cable
 Cable Triceps Pushdown (Rope),Triceps,Cable
 Cable Triceps Pushdown (SIngle Arm),Triceps,Cable
@@ -173,6 +178,7 @@ Inverted Row,Back,Bodyweight Only
 Inverted Skullcrusher,Triceps,Bodyweight Only
 JM Press,Triceps,Barbell
 Landmine Row,Back,Barbell
+Lat Pulldown,Back,Cable
 Lawnmowers,Back,Barbell
 Leg Curl (Standing),Hamstrings,Machine
 Leg extension,Quads,Machine

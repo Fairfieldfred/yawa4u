@@ -31,6 +31,8 @@ class EquipmentTypeAdapter extends TypeAdapter<EquipmentType> {
         return EquipmentType.machineAssistance;
       case 8:
         return EquipmentType.smithMachine;
+      case 9:
+        return EquipmentType.bandAssistance;
       default:
         return EquipmentType.barbell;
     }
@@ -65,6 +67,9 @@ class EquipmentTypeAdapter extends TypeAdapter<EquipmentType> {
         break;
       case EquipmentType.smithMachine:
         writer.writeByte(8);
+        break;
+      case EquipmentType.bandAssistance:
+        writer.writeByte(9);
         break;
     }
   }
