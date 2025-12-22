@@ -25,11 +25,24 @@ class _MoreScreenState extends ConsumerState<MoreScreen>
   late AnimationController _animationController;
   late Animation<double> _animation;
 
-  final List<String> _iconPaths = [
+  // Light mode icons
+  static const List<String> _lightIconPaths = [
     'assets/common/app-icon.png',
     'assets/common/yawa4u-icon.png',
     'assets/common/female-app-icon.png',
   ];
+
+  // Dark mode icons
+  static const List<String> _darkIconPaths = [
+    'assets/common/app-icon-dark.png',
+    'assets/common/yawa4u-icon-dark.png',
+    'assets/common/female-app-icon-dark.png',
+  ];
+
+  List<String> _getIconPaths(BuildContext context) {
+    final brightness = Theme.of(context).brightness;
+    return brightness == Brightness.dark ? _darkIconPaths : _lightIconPaths;
+  }
 
   @override
   void initState() {
@@ -111,7 +124,7 @@ class _MoreScreenState extends ConsumerState<MoreScreen>
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(isCenter ? 17 : 11),
-          child: Image.asset(_iconPaths[iconIndex], fit: BoxFit.cover),
+          child: Image.asset(_getIconPaths(context)[iconIndex], fit: BoxFit.cover),
         ),
       ),
     );
