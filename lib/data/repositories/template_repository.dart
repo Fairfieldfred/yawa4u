@@ -151,6 +151,37 @@ class TemplateRepository {
     }
   }
 
+  /// Save a template directly (used for importing shared templates)
+  Future<void> saveTemplateDirectly(TrainingCycleTemplate template) async {
+    debugPrint('=== saveTemplateDirectly called ===');
+    debugPrint('Template name: ${template.name}');
+
+    try {
+      final box = await Hive.openBox<String>(_savedTemplatesBoxName);
+      final jsonString = json.encode(template.toJson());
+      debugPrint('JSON string length: ${jsonString.length}');
+
+      // Generate a new ID to avoid conflicts
+      final newId = _uuid.v4();
+      final templateWithNewId = TrainingCycleTemplate(
+        id: newId,
+        name: template.name,
+        description: template.description,
+        weeksTotal: template.weeksTotal,
+        daysPerWeek: template.daysPerWeek,
+        deloadWeek: template.deloadWeek,
+        workouts: template.workouts,
+      );
+
+      await box.put(newId, json.encode(templateWithNewId.toJson()));
+      debugPrint('Template saved with ID: $newId');
+      debugPrint('Box now contains ${box.length} templates');
+    } catch (e) {
+      debugPrint('Error saving template directly: $e');
+      rethrow;
+    }
+  }
+
   /// Save a trainingCycle as a template
   Future<void> saveAsTemplate(
     TrainingCycle trainingCycle,

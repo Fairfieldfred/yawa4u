@@ -13,6 +13,7 @@ import '../screens/onboarding/onboarding_profile_screen.dart';
 import '../screens/plan_a_cycle_screen.dart';
 import '../screens/settings_screen.dart';
 import '../screens/sync_screen.dart';
+import '../screens/template_share_screen.dart';
 
 /// Navigation routes
 class AppRoutes {
@@ -130,6 +131,13 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/sync',
         name: 'sync',
         builder: (context, state) => const SyncScreen(),
+      ),
+
+      // Template share screen
+      GoRoute(
+        path: '/template-share',
+        name: 'template-share',
+        builder: (context, state) => const TemplateShareScreen(),
       ),
 
       // Settings screen

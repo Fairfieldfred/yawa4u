@@ -40,7 +40,7 @@ class _MoreScreenState extends ConsumerState<MoreScreen> {
     final themeMode = ref.watch(themeModeProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Settings'), centerTitle: true),
+      appBar: AppBar(title: const Text('YAWA4U'), centerTitle: true),
       body: ListView(
         children: [
           const SizedBox(height: 32),
@@ -91,12 +91,7 @@ class _MoreScreenState extends ConsumerState<MoreScreen> {
                   ],
                 ),
                 const SizedBox(height: 16),
-                Text(
-                  AppConstants.appName,
-                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+
                 const SizedBox(height: 8),
                 Text(
                   _version,
@@ -178,6 +173,16 @@ class _MoreScreenState extends ConsumerState<MoreScreen> {
                 ),
               );
             },
+          ),
+          const Divider(height: 1),
+
+          // Share Template
+          ListTile(
+            leading: const Icon(Icons.file_copy_outlined),
+            title: const Text('Share Template'),
+            subtitle: const Text('Share workout templates via WiFi'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => context.push('/template-share'),
           ),
           const Divider(height: 1),
 
