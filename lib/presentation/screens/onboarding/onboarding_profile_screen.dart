@@ -123,8 +123,10 @@ class _OnboardingProfileScreenState
   }
 
   // BMI categories with their ranges (in descending order)
-  static const List<({String label, double minBmi, double? maxBmi, Color color})>
-      _bmiCategories = [
+  static const List<
+    ({String label, double minBmi, double? maxBmi, Color color})
+  >
+  _bmiCategories = [
     (label: 'Obese', minBmi: 30, maxBmi: null, color: Colors.red),
     (label: 'Overweight', minBmi: 25, maxBmi: 30, color: Colors.orange),
     (label: 'Normal', minBmi: 18.5, maxBmi: 25, color: Colors.green),
@@ -182,16 +184,16 @@ class _OnboardingProfileScreenState
                 Text(
                   'BMI Range',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context)
-                        .colorScheme
-                        .onSurface
-                        .withValues(alpha: 0.7),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.7),
                     fontWeight: FontWeight.w500,
                   ),
                 ),
                 const SizedBox(height: 8),
                 ..._bmiCategories.map((cat) {
-                  final isSelected = _bmi! >= cat.minBmi &&
+                  final isSelected =
+                      _bmi! >= cat.minBmi &&
                       (cat.maxBmi == null || _bmi! < cat.maxBmi!);
                   return Padding(
                     padding: const EdgeInsets.symmetric(vertical: 2),
@@ -212,14 +214,13 @@ class _OnboardingProfileScreenState
                           cat.label,
                           style: TextStyle(
                             fontSize: 13,
-                            fontWeight:
-                                isSelected ? FontWeight.bold : FontWeight.normal,
+                            fontWeight: isSelected
+                                ? FontWeight.bold
+                                : FontWeight.normal,
                             color: isSelected
                                 ? cat.color
-                                : Theme.of(context)
-                                    .colorScheme
-                                    .onSurface
-                                    .withValues(alpha: 0.5),
+                                : Theme.of(context).colorScheme.onSurface
+                                      .withValues(alpha: 0.5),
                           ),
                         ),
                         const SizedBox(width: 4),
@@ -231,10 +232,8 @@ class _OnboardingProfileScreenState
                             fontSize: 11,
                             color: isSelected
                                 ? cat.color.withValues(alpha: 0.8)
-                                : Theme.of(context)
-                                    .colorScheme
-                                    .onSurface
-                                    .withValues(alpha: 0.3),
+                                : Theme.of(context).colorScheme.onSurface
+                                      .withValues(alpha: 0.3),
                           ),
                         ),
                       ],
