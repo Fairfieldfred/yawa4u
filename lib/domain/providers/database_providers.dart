@@ -4,7 +4,9 @@ import 'package:hive/hive.dart';
 import '../../data/models/custom_exercise_definition.dart';
 import '../../data/models/exercise.dart';
 import '../../data/models/training_cycle.dart';
+import '../../data/models/user_measurement.dart';
 import '../../data/models/workout.dart';
+import '../../data/repositories/user_measurement_repository.dart';
 import '../../data/services/csv_loader_service.dart';
 import '../../data/services/database_service.dart';
 
@@ -42,6 +44,20 @@ final customExercisesBoxProvider = Provider<Box<CustomExerciseDefinition>>((
 ) {
   final dbService = ref.watch(databaseServiceProvider);
   return dbService.customExercisesBox;
+});
+
+/// Provider for User Measurement Hive box
+final userMeasurementsBoxProvider = Provider<Box<UserMeasurement>>((ref) {
+  final dbService = ref.watch(databaseServiceProvider);
+  return dbService.userMeasurementsBox;
+});
+
+/// Provider for UserMeasurementRepository
+final userMeasurementRepositoryProvider = Provider<UserMeasurementRepository>((
+  ref,
+) {
+  final box = ref.watch(userMeasurementsBoxProvider);
+  return UserMeasurementRepository(box);
 });
 
 /// Provider for database initialization status

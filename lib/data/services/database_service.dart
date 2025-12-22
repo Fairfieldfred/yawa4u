@@ -9,6 +9,7 @@ import '../models/exercise.dart';
 import '../models/exercise_feedback.dart';
 import '../models/exercise_set.dart';
 import '../models/training_cycle.dart';
+import '../models/user_measurement.dart';
 import '../models/workout.dart';
 
 /// Database service for Hive initialization and management
@@ -24,12 +25,14 @@ class DatabaseService {
   static const String workoutsBoxName = 'workouts';
   static const String exercisesBoxName = 'exercises';
   static const String customExercisesBoxName = 'custom_exercises';
+  static const String userMeasurementsBoxName = 'user_measurements';
 
   /// Hive boxes
   Box<TrainingCycle>? _trainingCyclesBox;
   Box<Workout>? _workoutsBox;
   Box<Exercise>? _exercisesBox;
   Box<CustomExerciseDefinition>? _customExercisesBox;
+  Box<UserMeasurement>? _userMeasurementsBox;
 
   bool _initialized = false;
 
@@ -63,6 +66,7 @@ class DatabaseService {
     Hive.registerAdapter(MuscleGroupAdapter());
     Hive.registerAdapter(EquipmentTypeAdapter());
     Hive.registerAdapter(RecoveryWeekTypeAdapter());
+    Hive.registerAdapter(UserMeasurementAdapter());
 
     // Open boxes
     _trainingCyclesBox = await Hive.openBox<TrainingCycle>(
@@ -72,6 +76,9 @@ class DatabaseService {
     _exercisesBox = await Hive.openBox<Exercise>(exercisesBoxName);
     _customExercisesBox = await Hive.openBox<CustomExerciseDefinition>(
       customExercisesBoxName,
+    );
+    _userMeasurementsBox = await Hive.openBox<UserMeasurement>(
+      userMeasurementsBoxName,
     );
 
     _initialized = true;
@@ -117,6 +124,16 @@ class DatabaseService {
     return _customExercisesBox!;
   }
 
+  /// Get user measurements box
+  Box<UserMeasurement> get userMeasurementsBox {
+    if (_userMeasurementsBox == null) {
+      throw StateError(
+        'DatabaseService not initialized. Call initialize() first.',
+      );
+    }
+    return _userMeasurementsBox!;
+  }
+
   /// Get database path
   Future<String> getDatabasePath() async {
     final dir = await getApplicationDocumentsDirectory();
@@ -129,6 +146,7 @@ class DatabaseService {
     await _workoutsBox?.clear();
     await _exercisesBox?.clear();
     await _customExercisesBox?.clear();
+    await _userMeasurementsBox?.clear();
   }
 
   /// Close all boxes
@@ -137,6 +155,7 @@ class DatabaseService {
     await _workoutsBox?.close();
     await _exercisesBox?.close();
     await _customExercisesBox?.close();
+    await _userMeasurementsBox?.close();
     _initialized = false;
   }
 
@@ -146,6 +165,7 @@ class DatabaseService {
     await _workoutsBox?.compact();
     await _exercisesBox?.compact();
     await _customExercisesBox?.compact();
+    await _userMeasurementsBox?.compact();
   }
 
   /// Get database stats
@@ -155,6 +175,7 @@ class DatabaseService {
       'workouts': _workoutsBox?.length ?? 0,
       'exercises': _exercisesBox?.length ?? 0,
       'customExercises': _customExercisesBox?.length ?? 0,
+      'userMeasurements': _userMeasurementsBox?.length ?? 0,
       'initialized': _initialized,
     };
   }

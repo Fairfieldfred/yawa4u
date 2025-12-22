@@ -26,6 +26,11 @@ class _OnboardingProfileScreenState
   final _heightCmController = TextEditingController();
   final _weightKgController = TextEditingController();
 
+  // DEXA scan results (optional)
+  final _bodyFatController = TextEditingController();
+  final _leanMassController = TextEditingController();
+  bool _showDexaFields = false;
+
   // App icon selection
   int _selectedIconIndex = 1; // Default to center (yawa4u-icon)
   late AnimationController _animationController;
@@ -72,6 +77,8 @@ class _OnboardingProfileScreenState
     _weightController.dispose();
     _heightCmController.dispose();
     _weightKgController.dispose();
+    _bodyFatController.dispose();
+    _leanMassController.dispose();
     _animationController.dispose();
     super.dispose();
   }
@@ -106,13 +113,6 @@ class _OnboardingProfileScreenState
         _bmi = null;
       }
     });
-  }
-
-  String _getBmiCategory(double bmi) {
-    if (bmi < 18.5) return 'Underweight';
-    if (bmi < 25) return 'Normal';
-    if (bmi < 30) return 'Overweight';
-    return 'Obese';
   }
 
   Color _getBmiColor(double bmi) {
@@ -334,7 +334,7 @@ class _OnboardingProfileScreenState
     );
   }
 
-  void _continue() {
+  void _continue() async {
     if (_formKey.currentState!.validate()) {
       double heightCm;
       double weightKg;
@@ -351,21 +351,41 @@ class _OnboardingProfileScreenState
         weightKg = weightLbs * 0.453592;
       }
 
-      // Save to provider and navigate
+      // Parse optional DEXA data
+      final bodyFatPercent = double.tryParse(_bodyFatController.text);
+      double? leanMassKg = double.tryParse(_leanMassController.text);
+      // Convert lean mass to kg if using imperial
+      if (leanMassKg != null && !_useMetric) {
+        leanMassKg = leanMassKg * 0.453592;
+      }
+
+      // Save to provider (updates state with useMetric)
       ref
           .read(userProfileProvider.notifier)
           .updateProfile(heightCm, weightKg, _useMetric);
+
+      // Save height/weight/DEXA to both SharedPreferences and database
+      await ref
+          .read(userProfileProvider.notifier)
+          .saveHeightAndWeight(
+            heightCm,
+            weightKg,
+            bodyFatPercent: bodyFatPercent,
+            leanMassKg: leanMassKg,
+          );
 
       // Save the selected app icon
       ref
           .read(userProfileProvider.notifier)
           .updateAppIconIndex(_selectedIconIndex);
 
-      Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (context) => const OnboardingEquipmentScreen(),
-        ),
-      );
+      if (mounted) {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => const OnboardingEquipmentScreen(),
+          ),
+        );
+      }
     }
   }
 
@@ -600,6 +620,135 @@ class _OnboardingProfileScreenState
 
                     // BMI Indicator
                     _buildBmiIndicator(),
+
+                    const SizedBox(height: 24),
+
+                    // DEXA Scan Results (Optional - collapsible)
+                    InkWell(
+                      onTap: () {
+                        setState(() {
+                          _showDexaFields = !_showDexaFields;
+                        });
+                      },
+                      borderRadius: BorderRadius.circular(8),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.surfaceContainerHighest,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.biotech_outlined,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'DEXA Scan Results',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleSmall
+                                        ?.copyWith(fontWeight: FontWeight.w600),
+                                  ),
+                                  Text(
+                                    'Optional - for bodybuilders',
+                                    style: Theme.of(context).textTheme.bodySmall
+                                        ?.copyWith(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onSurface
+                                              .withValues(alpha: 0.6),
+                                        ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Icon(
+                              _showDexaFields
+                                  ? Icons.expand_less
+                                  : Icons.expand_more,
+                              color: Theme.of(context).colorScheme.onSurface,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+
+                    // DEXA fields (shown when expanded)
+                    if (_showDexaFields) ...[
+                      const SizedBox(height: 16),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: TextFormField(
+                              controller: _bodyFatController,
+                              keyboardType:
+                                  const TextInputType.numberWithOptions(
+                                    decimal: true,
+                                  ),
+                              inputFormatters: [
+                                FilteringTextInputFormatter.allow(
+                                  RegExp(r'^\d+\.?\d{0,1}'),
+                                ),
+                              ],
+                              decoration: const InputDecoration(
+                                labelText: 'Body Fat',
+                                suffixText: '%',
+                                border: OutlineInputBorder(),
+                              ),
+                              validator: (value) {
+                                if (value != null && value.isNotEmpty) {
+                                  final bf = double.tryParse(value);
+                                  if (bf == null || bf < 3 || bf > 60) {
+                                    return 'Invalid (3-60%)';
+                                  }
+                                }
+                                return null;
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: TextFormField(
+                              controller: _leanMassController,
+                              keyboardType:
+                                  const TextInputType.numberWithOptions(
+                                    decimal: true,
+                                  ),
+                              inputFormatters: [
+                                FilteringTextInputFormatter.allow(
+                                  RegExp(r'^\d+\.?\d{0,1}'),
+                                ),
+                              ],
+                              decoration: InputDecoration(
+                                labelText: 'Lean Mass',
+                                suffixText: _useMetric ? 'kg' : 'lbs',
+                                border: const OutlineInputBorder(),
+                              ),
+                              validator: (value) {
+                                if (value != null && value.isNotEmpty) {
+                                  final lm = double.tryParse(value);
+                                  if (lm == null || lm < 20 || lm > 150) {
+                                    return 'Invalid';
+                                  }
+                                }
+                                return null;
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
 
                     const SizedBox(height: 24),
 

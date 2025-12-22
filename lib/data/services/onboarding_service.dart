@@ -12,6 +12,8 @@ class OnboardingService {
   static const String _keyEquipmentFilterEnabled = 'equipment_filter_enabled';
   static const String _keyTrainingCycleTerm = 'user_training_cycle_term';
   static const String _keyAppIconIndex = 'user_app_icon_index';
+  static const String _keyBodyFatPercent = 'user_body_fat_percent';
+  static const String _keyLeanMassKg = 'user_lean_mass_kg';
 
   final SharedPreferences _prefs;
 
@@ -48,6 +50,8 @@ class OnboardingService {
       _prefs.getString(_keyTrainingCycleTerm) ?? 'trainingCycle';
   int get appIconIndex =>
       _prefs.getInt(_keyAppIconIndex) ?? 1; // Default to center icon
+  double? get bodyFatPercent => _prefs.getDouble(_keyBodyFatPercent);
+  double? get leanMassKg => _prefs.getDouble(_keyLeanMassKg);
 
   // User profile setters
   Future<void> setHeightCm(double value) async {
@@ -76,6 +80,22 @@ class OnboardingService {
 
   Future<void> setAppIconIndex(int value) async {
     await _prefs.setInt(_keyAppIconIndex, value);
+  }
+
+  Future<void> setBodyFatPercent(double? value) async {
+    if (value != null) {
+      await _prefs.setDouble(_keyBodyFatPercent, value);
+    } else {
+      await _prefs.remove(_keyBodyFatPercent);
+    }
+  }
+
+  Future<void> setLeanMassKg(double? value) async {
+    if (value != null) {
+      await _prefs.setDouble(_keyLeanMassKg, value);
+    } else {
+      await _prefs.remove(_keyLeanMassKg);
+    }
   }
 
   /// Get display name for the trainingCycle term

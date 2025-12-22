@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../data/services/onboarding_service.dart';
+import 'database_providers.dart';
 
 /// Provider for SharedPreferences instance
 final sharedPreferencesProvider = Provider<SharedPreferences>((ref) {
@@ -22,6 +23,8 @@ class UserProfile {
   final List<String> equipment;
   final String trainingCycleTerm;
   final int appIconIndex;
+  final double? bodyFatPercent;
+  final double? leanMassKg;
 
   const UserProfile({
     this.heightCm,
@@ -30,6 +33,8 @@ class UserProfile {
     this.equipment = const [],
     this.trainingCycleTerm = 'trainingCycle',
     this.appIconIndex = 1,
+    this.bodyFatPercent,
+    this.leanMassKg,
   });
 
   UserProfile copyWith({
@@ -39,6 +44,8 @@ class UserProfile {
     List<String>? equipment,
     String? trainingCycleTerm,
     int? appIconIndex,
+    double? bodyFatPercent,
+    double? leanMassKg,
   }) {
     return UserProfile(
       heightCm: heightCm ?? this.heightCm,
@@ -47,6 +54,8 @@ class UserProfile {
       equipment: equipment ?? this.equipment,
       trainingCycleTerm: trainingCycleTerm ?? this.trainingCycleTerm,
       appIconIndex: appIconIndex ?? this.appIconIndex,
+      bodyFatPercent: bodyFatPercent ?? this.bodyFatPercent,
+      leanMassKg: leanMassKg ?? this.leanMassKg,
     );
   }
 }
@@ -63,6 +72,8 @@ class UserProfileNotifier extends Notifier<UserProfile> {
       equipment: service.equipment,
       trainingCycleTerm: service.trainingCycleTerm,
       appIconIndex: service.appIconIndex,
+      bodyFatPercent: service.bodyFatPercent,
+      leanMassKg: service.leanMassKg,
     );
   }
 
@@ -73,6 +84,36 @@ class UserProfileNotifier extends Notifier<UserProfile> {
       heightCm: heightCm,
       weightKg: weightKg,
       useMetric: useMetric,
+    );
+  }
+
+  /// Save height and weight to both SharedPreferences and database
+  Future<void> saveHeightAndWeight(
+    double heightCm,
+    double weightKg, {
+    double? bodyFatPercent,
+    double? leanMassKg,
+  }) async {
+    state = state.copyWith(
+      heightCm: heightCm,
+      weightKg: weightKg,
+      bodyFatPercent: bodyFatPercent,
+      leanMassKg: leanMassKg,
+    );
+
+    // Save to SharedPreferences (for quick access)
+    await _service.setHeightCm(heightCm);
+    await _service.setWeightKg(weightKg);
+    await _service.setBodyFatPercent(bodyFatPercent);
+    await _service.setLeanMassKg(leanMassKg);
+
+    // Save to database with timestamp (for BMI history tracking)
+    final measurementRepo = ref.read(userMeasurementRepositoryProvider);
+    await measurementRepo.add(
+      heightCm: heightCm,
+      weightKg: weightKg,
+      bodyFatPercent: bodyFatPercent,
+      leanMassKg: leanMassKg,
     );
   }
 
