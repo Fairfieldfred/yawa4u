@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../core/constants/muscle_groups.dart';
 import '../../data/models/training_cycle_template.dart';
+import '../../domain/providers/navigation_providers.dart';
 import '../../domain/providers/repository_providers.dart';
 import '../../domain/providers/template_providers.dart';
 import '../../domain/providers/training_cycle_providers.dart';
@@ -52,8 +54,10 @@ class _TemplatePreviewScreenState extends ConsumerState<TemplatePreviewScreen> {
       ref.invalidate(workoutsProvider);
 
       if (mounted) {
-        // Navigate to home/list screen
-        Navigator.of(context).popUntil((route) => route.isFirst);
+        // Set tab to TrainingCycles (index 1) to show the draft
+        ref.read(homeTabIndexProvider.notifier).setTab(HomeTab.trainingCycles);
+        // Navigate to home
+        context.go('/');
       }
     } catch (e) {
       if (mounted) {

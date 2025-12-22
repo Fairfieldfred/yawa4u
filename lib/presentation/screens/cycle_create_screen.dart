@@ -12,6 +12,7 @@ import '../../data/models/training_cycle.dart';
 import '../../data/models/training_cycle_template.dart';
 import '../../data/models/workout.dart';
 import '../../data/services/analytics_service.dart';
+import '../../domain/providers/navigation_providers.dart';
 import '../../domain/providers/onboarding_providers.dart';
 import '../../domain/providers/repository_providers.dart';
 import '../../domain/providers/template_providers.dart';
@@ -112,6 +113,8 @@ class _TrainingCycleCreateScreenState
           ),
         );
 
+        // Set tab to TrainingCycles (index 1) to show the draft
+        ref.read(homeTabIndexProvider.notifier).setTab(HomeTab.trainingCycles);
         // Navigate to HomeScreen
         context.go('/');
       }
