@@ -122,6 +122,15 @@ class _OnboardingProfileScreenState
     return Colors.red;
   }
 
+  // BMI categories with their ranges (in descending order)
+  static const List<({String label, double minBmi, double? maxBmi, Color color})>
+      _bmiCategories = [
+    (label: 'Obese', minBmi: 30, maxBmi: null, color: Colors.red),
+    (label: 'Overweight', minBmi: 25, maxBmi: 30, color: Colors.orange),
+    (label: 'Normal', minBmi: 18.5, maxBmi: 25, color: Colors.green),
+    (label: 'Underweight', minBmi: 0, maxBmi: 18.5, color: Colors.blue),
+  ];
+
   Widget _buildBmiIndicator() {
     if (_bmi == null) {
       return Container(
@@ -153,60 +162,119 @@ class _OnboardingProfileScreenState
       );
     }
 
-    final category = _getBmiCategory(_bmi!);
     final color = _getBmiColor(_bmi!);
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
+        color: Theme.of(context).colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Row(
         children: [
-          Container(
-            width: 60,
-            height: 60,
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.2),
-              shape: BoxShape.circle,
-            ),
-            child: Center(
-              child: Text(
-                _bmi!.toStringAsFixed(1),
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: color,
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 16),
+          // BMI category list on the left
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'Your BMI',
+                  'BMI Range',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.7),
+                    color: Theme.of(context)
+                        .colorScheme
+                        .onSurface
+                        .withValues(alpha: 0.7),
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  category,
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: color,
-                  ),
-                ),
+                const SizedBox(height: 8),
+                ..._bmiCategories.map((cat) {
+                  final isSelected = _bmi! >= cat.minBmi &&
+                      (cat.maxBmi == null || _bmi! < cat.maxBmi!);
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 2),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 8,
+                          height: 8,
+                          decoration: BoxDecoration(
+                            color: isSelected
+                                ? cat.color
+                                : cat.color.withValues(alpha: 0.3),
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          cat.label,
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight:
+                                isSelected ? FontWeight.bold : FontWeight.normal,
+                            color: isSelected
+                                ? cat.color
+                                : Theme.of(context)
+                                    .colorScheme
+                                    .onSurface
+                                    .withValues(alpha: 0.5),
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          cat.maxBmi == null
+                              ? '(${cat.minBmi.toInt()}+)'
+                              : '(${cat.minBmi == 0 ? '<' : ''}${cat.minBmi == 0 ? cat.maxBmi!.toStringAsFixed(1) : '${cat.minBmi.toStringAsFixed(1)}-${cat.maxBmi!.toInt()}'})',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: isSelected
+                                ? cat.color.withValues(alpha: 0.8)
+                                : Theme.of(context)
+                                    .colorScheme
+                                    .onSurface
+                                    .withValues(alpha: 0.3),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }),
               ],
+            ),
+          ),
+          const SizedBox(width: 16),
+          // BMI circle on the right
+          Container(
+            width: 70,
+            height: 70,
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.15),
+              shape: BoxShape.circle,
+              border: Border.all(color: color, width: 2),
+            ),
+            child: Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    _bmi!.toStringAsFixed(1),
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: color,
+                    ),
+                  ),
+                  Text(
+                    'BMI',
+                    style: TextStyle(
+                      fontSize: 10,
+                      color: color.withValues(alpha: 0.8),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ],
