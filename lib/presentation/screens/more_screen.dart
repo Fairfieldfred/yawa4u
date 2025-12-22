@@ -124,7 +124,10 @@ class _MoreScreenState extends ConsumerState<MoreScreen>
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(isCenter ? 17 : 11),
-          child: Image.asset(_getIconPaths(context)[iconIndex], fit: BoxFit.cover),
+          child: Image.asset(
+            _getIconPaths(context)[iconIndex],
+            fit: BoxFit.cover,
+          ),
         ),
       ),
     );
