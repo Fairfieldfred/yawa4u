@@ -396,10 +396,8 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
                     itemBuilder: (context, index) {
                       final source = _exerciseSources[index]!;
                       final exercise = _allExercises[index];
-                      final showMuscleGroupBadge =
-                          index == 0 ||
-                          _allExercises[index - 1].muscleGroup !=
-                              exercise.muscleGroup;
+                      // Always show muscle group badge on exercises screen
+                      const showMuscleGroupBadge = true;
 
                       return GestureDetector(
                         onTap: () => FocusScope.of(context).unfocus(),

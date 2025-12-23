@@ -37,9 +37,9 @@ class _OnboardingProfileScreenState
   late Animation<double> _animation;
 
   final List<String> _iconPaths = [
-    'assets/common/app-icon.png',
-    'assets/common/yawa4u-icon.png',
-    'assets/common/female-app-icon.png',
+    'assets/common/app-icon-dark.png',
+    'assets/common/yawa4u-icon-dark.png',
+    'assets/common/female-app-icon-dark.png',
   ];
 
   // BMI calculation
