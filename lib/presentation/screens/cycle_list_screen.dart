@@ -14,6 +14,7 @@ import '../../domain/providers/template_providers.dart';
 import '../../domain/providers/theme_provider.dart';
 import '../../domain/providers/training_cycle_providers.dart';
 import '../../domain/providers/workout_providers.dart';
+import '../widgets/app_icon_widget.dart';
 import '../widgets/cycle_summary_dialog.dart';
 import '../widgets/dialogs/workout_dialogs.dart';
 import 'template_selection_screen.dart';
@@ -35,6 +36,8 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
 
     return Scaffold(
       appBar: AppBar(
+        leading: const AppIconWidget(),
+        leadingWidth: kToolbarHeight + 12,
         title: Text(cycleTermPlural),
         actions: [
           // Theme toggle

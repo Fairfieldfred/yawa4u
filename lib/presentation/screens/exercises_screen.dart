@@ -14,6 +14,7 @@ import '../../domain/providers/repository_providers.dart';
 import '../../domain/providers/theme_provider.dart';
 import '../../domain/providers/training_cycle_providers.dart';
 import '../../domain/providers/workout_providers.dart';
+import '../widgets/app_icon_widget.dart';
 import '../widgets/calendar_dropdown.dart';
 import '../widgets/cycle_summary_dialog.dart';
 import '../widgets/dialogs/add_exercise_dialog.dart';
@@ -312,6 +313,8 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
         appBar: AppBar(
           elevation: 0,
           automaticallyImplyLeading: false,
+          leading: const AppIconWidget(),
+          leadingWidth: kToolbarHeight + 12,
           title: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
