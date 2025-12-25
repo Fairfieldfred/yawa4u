@@ -88,6 +88,7 @@ class ExerciseTemplate {
   final int sets;
   final String reps;
   final String setType;
+  final String? notes;
 
   ExerciseTemplate({
     required this.name,
@@ -96,6 +97,7 @@ class ExerciseTemplate {
     required this.sets,
     required this.reps,
     this.setType = 'regular',
+    this.notes,
   });
 
   factory ExerciseTemplate.fromJson(Map<String, dynamic> json) {
@@ -106,6 +108,7 @@ class ExerciseTemplate {
       sets: json['sets'] as int,
       reps: json['reps'] as String,
       setType: json['setType'] as String? ?? 'regular',
+      notes: json['notes'] as String?,
     );
   }
 
@@ -117,6 +120,7 @@ class ExerciseTemplate {
       'sets': sets,
       'reps': reps,
       'setType': setType,
+      if (notes != null && notes!.isNotEmpty) 'notes': notes,
     };
   }
 }

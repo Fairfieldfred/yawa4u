@@ -396,7 +396,7 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
               ),
               const SizedBox(height: 12),
 
-              // Info row
+              // Info row with optional Start button for drafts
               Row(
                 children: [
                   Icon(
@@ -432,6 +432,24 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
                       ).colorScheme.onSurface.withValues(alpha: 0.8),
                     ),
                   ),
+                  // Start button for draft cycles
+                  if (isDraft) ...[
+                    const Spacer(),
+                    FilledButton(
+                      onPressed: () => _startTrainingCycle(trainingCycle),
+                      style: FilledButton.styleFrom(
+                        backgroundColor: Colors.green,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
+                        minimumSize: Size.zero,
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
+                      child: const Text('Start'),
+                    ),
+                  ],
                 ],
               ),
             ],
@@ -518,6 +536,48 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
       case 'delete':
         await _deleteTrainingCycle(trainingCycle);
         break;
+    }
+  }
+
+  Future<void> _startTrainingCycle(TrainingCycle trainingCycle) async {
+    final cycleTerm = ref.read(trainingCycleTermProvider);
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Start $cycleTerm'),
+        content: Text(
+          'Start "${trainingCycle.name}"? This will set it as your current $cycleTerm.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Start'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && mounted) {
+      try {
+        final repository = ref.read(trainingCycleRepositoryProvider);
+        await repository.setAsCurrent(trainingCycle.id);
+
+        if (mounted) {
+          // Navigate to workout tab on home screen
+          ref.read(homeTabIndexProvider.notifier).setTab(HomeTab.workout);
+          context.go('/');
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+          );
+        }
+      }
     }
   }
 

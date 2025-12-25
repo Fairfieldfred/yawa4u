@@ -186,6 +186,7 @@ class _TrainingCycleCreateScreenState
             EquipmentType.barbell,
         sets: _generateSetsFromTemplate(template),
         orderIndex: index,
+        notes: template.notes,
       );
     }).toList();
   }

@@ -246,6 +246,7 @@ class TemplateRepository {
           setType: exercise.sets.isNotEmpty
               ? exercise.sets.first.setType.name
               : 'regular',
+          notes: exercise.notes,
         );
       }).toList();
 
@@ -340,6 +341,7 @@ class TemplateRepository {
           muscleGroup: muscleGroup,
           equipmentType: equipmentType,
           sets: sets,
+          notes: exerciseTemplate.notes,
         );
 
         if (!exercisesByMuscleGroup.containsKey(muscleGroup)) {

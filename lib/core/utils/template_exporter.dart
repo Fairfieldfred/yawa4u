@@ -18,7 +18,9 @@ class TemplateExporter {
     await Clipboard.setData(ClipboardData(text: jsonString));
   }
 
-  static TrainingCycleTemplate _convertTrainingCycleToTemplate(TrainingCycle trainingCycle) {
+  static TrainingCycleTemplate _convertTrainingCycleToTemplate(
+    TrainingCycle trainingCycle,
+  ) {
     // Sort workouts to ensure they are in order
     final sortedWorkouts = List<Workout>.from(trainingCycle.workouts)
       ..sort((a, b) {
@@ -70,6 +72,7 @@ class TemplateExporter {
       sets: exercise.sets.length,
       reps: reps,
       setType: setType,
+      notes: exercise.notes,
     );
   }
 }

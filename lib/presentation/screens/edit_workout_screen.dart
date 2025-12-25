@@ -84,11 +84,41 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
                   ),
                 // Start trainingCycle button (if draft)
                 if (trainingCycle.status == TrainingCycleStatus.draft)
-                  IconButton(
-                    icon: const Icon(Icons.play_arrow),
-                    onPressed: () =>
-                        _startTrainingCycle(context, controller, trainingCycle),
-                    tooltip: 'Start trainingCycle',
+                  Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: InkWell(
+                      onTap: () => _startTrainingCycle(
+                        context,
+                        controller,
+                        trainingCycle,
+                      ),
+                      borderRadius: BorderRadius.circular(8),
+                      child: const Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.play_arrow,
+                              color: Colors.green,
+                              size: 24,
+                            ),
+                            Text(
+                              'Start',
+                              style: TextStyle(
+                                color: Colors.green,
+                                fontSize: 10,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                   ),
               ],
             ),
@@ -1615,22 +1645,29 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
   }
 
   Future<void> _newExerciseNote(Exercise exercise) async {
-    // Get the workout for this exercise
+    // Get the workout containing this exercise
     final workout = ref.read(workoutProvider(exercise.workoutId));
     if (workout == null) return;
 
-    final currentNote = workout.notes;
+    final currentNote = exercise.notes;
 
     final newNote = await showDialog<String>(
       context: context,
       barrierDismissible: false,
-      builder: (context) => WorkoutNoteDialog(initialNote: currentNote),
+      builder: (context) =>
+          NoteDialog(initialNote: currentNote, noteType: NoteType.exercise),
     );
 
-    if (newNote != null && newNote != currentNote && mounted) {
+    if (newNote != null && mounted) {
       try {
         final repository = ref.read(workoutRepositoryProvider);
-        final updatedWorkout = workout.copyWith(notes: newNote);
+        final updatedExercise = exercise.copyWith(
+          notes: newNote.isEmpty ? null : newNote,
+        );
+        final updatedExercises = workout.exercises
+            .map((e) => e.id == exercise.id ? updatedExercise : e)
+            .toList();
+        final updatedWorkout = workout.copyWith(exercises: updatedExercises);
         await repository.update(updatedWorkout);
 
         if (mounted) {
