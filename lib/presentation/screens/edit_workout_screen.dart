@@ -15,8 +15,10 @@ import '../../domain/providers/navigation_providers.dart';
 import '../../domain/providers/onboarding_providers.dart';
 import '../../domain/providers/training_cycle_providers.dart';
 import '../../domain/providers/workout_providers.dart';
+import '../../domain/providers/repository_providers.dart';
 import '../widgets/dialogs/add_exercise_dialog.dart';
 import '../widgets/dialogs/exercise_info_dialog.dart';
+import '../widgets/dialogs/workout_dialogs.dart';
 import '../widgets/muscle_group_badge.dart';
 import 'add_exercise_screen.dart';
 import 'workout/edit_workout_controller.dart';
@@ -754,6 +756,9 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
                       ),
                       onSelected: (value) {
                         switch (value) {
+                          case 'note':
+                            _newExerciseNote(exercise);
+                            break;
                           case 'replace':
                             _replaceExercise(exercise);
                             break;
@@ -777,6 +782,25 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
                             ),
+                          ),
+                        ),
+                        // New note
+                        const PopupMenuItem<String>(
+                          value: 'note',
+                          height: 48,
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.edit_outlined,
+                                color: Colors.white,
+                                size: 20,
+                              ),
+                              SizedBox(width: 12),
+                              Text(
+                                'New note',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            ],
                           ),
                         ),
                         // Replace
@@ -1588,6 +1612,46 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
       weekNumber: _selectedWeek,
       dayNumber: _selectedDayIndex + 1,
     );
+  }
+
+  Future<void> _newExerciseNote(Exercise exercise) async {
+    // Get the workout for this exercise
+    final workout = ref.read(workoutProvider(exercise.workoutId));
+    if (workout == null) return;
+
+    final currentNote = workout.notes;
+
+    final newNote = await showDialog<String>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => WorkoutNoteDialog(initialNote: currentNote),
+    );
+
+    if (newNote != null && newNote != currentNote && mounted) {
+      try {
+        final repository = ref.read(workoutRepositoryProvider);
+        final updatedWorkout = workout.copyWith(notes: newNote);
+        await repository.update(updatedWorkout);
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Note saved'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error saving note: $e'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    }
   }
 
   Future<void> _exportTemplate(

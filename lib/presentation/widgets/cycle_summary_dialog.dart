@@ -159,7 +159,7 @@ class CycleSummaryDialog extends ConsumerWidget {
                 //   textColor: textColor,
                 //   secondaryTextColor: secondaryTextColor,
                 //   onTap: () {
-                //     // TODO: Navigate to exercise stats
+
                 //     Navigator.of(context).pop();
                 //     ScaffoldMessenger.of(context).showSnackBar(
                 //       const SnackBar(
