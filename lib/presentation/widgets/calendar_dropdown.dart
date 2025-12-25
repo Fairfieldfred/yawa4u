@@ -262,7 +262,7 @@ class _CalendarDropdownState extends ConsumerState<CalendarDropdown> {
     final weekHeaderHeight = 60.0;
     final dayButtonHeight = 48.0;
     final dayMargin = 6.0;
-    final bottomPadding = 12.0;
+    final bottomPadding = 16.0;
 
     final calculatedHeight =
         headerHeight +
@@ -270,10 +270,15 @@ class _CalendarDropdownState extends ConsumerState<CalendarDropdown> {
         (widget.trainingCycle.daysPerWeek * (dayButtonHeight + dayMargin)) +
         bottomPadding;
 
+    // Get available screen height and limit the dropdown height
+    final screenHeight = MediaQuery.of(context).size.height;
+    final maxHeight = screenHeight * 0.5; // Max 50% of screen height
+    final constrainedHeight = calculatedHeight.clamp(0.0, maxHeight);
+
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
-      height: calculatedHeight,
+      height: constrainedHeight,
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
         boxShadow: [
@@ -353,19 +358,21 @@ class _CalendarDropdownState extends ConsumerState<CalendarDropdown> {
           Expanded(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: List.generate(widget.trainingCycle.weeksTotal, (
-                  weekIndex,
-                ) {
-                  final weekNumber = weekIndex + 1;
-                  return Expanded(
-                    child: _buildWeekColumn(
-                      weekNumber,
-                      widget.trainingCycle.deloadWeek == weekNumber,
-                    ),
-                  );
-                }),
+              child: SingleChildScrollView(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: List.generate(widget.trainingCycle.weeksTotal, (
+                    weekIndex,
+                  ) {
+                    final weekNumber = weekIndex + 1;
+                    return Expanded(
+                      child: _buildWeekColumn(
+                        weekNumber,
+                        widget.trainingCycle.deloadWeek == weekNumber,
+                      ),
+                    );
+                  }),
+                ),
               ),
             ),
           ),
