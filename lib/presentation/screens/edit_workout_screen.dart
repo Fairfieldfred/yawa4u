@@ -6,6 +6,7 @@ import 'package:uuid/uuid.dart';
 
 import '../../core/constants/enums.dart';
 import '../../core/constants/equipment_types.dart';
+import '../../core/theme/skins/skins.dart';
 import '../../core/utils/template_exporter.dart';
 import '../../data/models/exercise.dart';
 import '../../data/models/exercise_set.dart';
@@ -93,8 +94,8 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
                         trainingCycle,
                       ),
                       borderRadius: BorderRadius.circular(8),
-                      child: const Padding(
-                        padding: EdgeInsets.symmetric(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
                           horizontal: 8,
                           vertical: 4,
                         ),
@@ -104,13 +105,13 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
                           children: [
                             Icon(
                               Icons.play_arrow,
-                              color: Colors.green,
+                              color: context.successColor,
                               size: 24,
                             ),
                             Text(
                               'Start',
                               style: TextStyle(
-                                color: Colors.green,
+                                color: context.successColor,
                                 fontSize: 10,
                                 fontWeight: FontWeight.w600,
                               ),

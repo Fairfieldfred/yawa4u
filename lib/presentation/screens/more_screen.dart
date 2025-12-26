@@ -226,6 +226,16 @@ class _MoreScreenState extends ConsumerState<MoreScreen>
           const SizedBox(height: 24),
           const Divider(height: 1),
 
+          // Appearance / Skins
+          ListTile(
+            leading: const Icon(Icons.palette_outlined),
+            title: const Text('Appearance'),
+            subtitle: const Text('Choose your app theme'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => context.push('/skins'),
+          ),
+          const Divider(height: 1),
+
           // Sync Data
           ListTile(
             leading: const Icon(Icons.sync),

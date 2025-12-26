@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../core/constants/enums.dart';
+import '../../core/theme/skins/skins.dart';
 import '../../core/utils/template_exporter.dart';
 import '../../data/models/training_cycle.dart';
 import '../../domain/providers/navigation_providers.dart';
@@ -275,9 +276,9 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
                               ),
                             ),
                             const SizedBox(width: 8),
-                            const Icon(
+                            Icon(
                               Icons.check_circle,
-                              color: Colors.green,
+                              color: context.successColor,
                               size: 20,
                             ),
                           ],
@@ -438,7 +439,7 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
                     FilledButton(
                       onPressed: () => _startTrainingCycle(trainingCycle),
                       style: FilledButton.styleFrom(
-                        backgroundColor: Colors.green,
+                        backgroundColor: context.successColor,
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(
                           horizontal: 16,

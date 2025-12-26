@@ -14,6 +14,7 @@ import '../screens/onboarding/onboarding_profile_screen.dart';
 import '../screens/plan_a_cycle_screen.dart';
 import '../screens/sentry_debug_screen.dart';
 import '../screens/settings_screen.dart';
+import '../screens/skin_selection_screen.dart';
 import '../screens/sync_screen.dart';
 import '../screens/template_share_screen.dart';
 
@@ -140,6 +141,13 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/template-share',
         name: 'template-share',
         builder: (context, state) => const TemplateShareScreen(),
+      ),
+
+      // Skin/Theme selection screen
+      GoRoute(
+        path: '/skins',
+        name: 'skins',
+        builder: (context, state) => const SkinSelectionScreen(),
       ),
 
       // Settings screen

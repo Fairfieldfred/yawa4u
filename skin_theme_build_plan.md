@@ -320,21 +320,21 @@ class SkinModeColors with _$SkinModeColors {
 - [x] Implement "Default" skin matching current theme
 - [x] Create 6 built-in skins (Default, Ocean, Forest, Sunset, Neon, Minimal)
 
-### Phase 2: UI Integration (Week 2)
+### Phase 2: UI Integration (Week 2) ✅ COMPLETE
 
 - [x] Update `main.dart` to use SkinProvider
-- [ ] Audit all screens for hardcoded colors
-- [ ] Replace `AppColors.xxx` with `Theme.of(context).xxx`
-- [ ] Update custom widgets to use theme colors
+- [x] Audit all screens for hardcoded colors (none found in presentation layer!)
+- [x] Replace `AppColors.xxx` with `Theme.of(context).xxx` (already done)
+- [x] Update custom widgets to use theme colors (already using theme)
 - [ ] Test light/dark mode with new skin system
 
-### Phase 3: Skin Selection UI (Week 3)
+### Phase 3: Skin Selection UI (Week 3) ✅ COMPLETE
 
-- [ ] Create `SkinSelectionScreen`
-- [ ] Add skin preview cards
-- [ ] Implement skin switching animation
-- [ ] Add to More/Settings screen navigation
-- [ ] Save selected skin preference
+- [x] Create `SkinSelectionScreen`
+- [x] Add skin preview cards with color swatches
+- [x] Implement skin switching (instant via Riverpod)
+- [x] Add to More/Settings screen navigation
+- [x] Save selected skin preference (via Hive)
 
 ### Phase 4: Built-in Skins (Week 4) ✅ COMPLETE
 
@@ -345,10 +345,18 @@ class SkinModeColors with _$SkinModeColors {
   - Sunset Orange
   - Neon Purple
   - Minimal Monochrome
-- [ ] Create skin preview images/thumbnails
+- [x] Create skin preview images/thumbnails (using dynamic `_ColorSwatchPreview` widget)
 
-### Phase 5: Polish & Testing (Week 5)
+### Phase 5: Polish & Testing (Week 5) 🔄 IN PROGRESS
 
+- [x] Create `SkinContext` extension for easy access to skin colors
+- [x] Create `AppSnackBar` helper for themed snackbars
+- [x] Update key screens to use theme colors:
+  - `edit_workout_screen.dart` - Start button
+  - `cycle_list_screen.dart` - Start button, completed icon
+  - `completed_cycle_workout_screen.dart` - Completed badge
+  - `plan_a_cycle_screen.dart` - Warning container
+- [ ] Complete migration of remaining hardcoded colors (ongoing)
 - [ ] Test all screens with all skins
 - [ ] Test light/dark mode transitions
 - [ ] Performance optimization

@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../core/constants/enums.dart';
 import '../../core/constants/equipment_types.dart';
 import '../../core/constants/muscle_groups.dart';
+import '../../core/theme/skins/skins.dart';
 import '../../core/utils/weight_conversion.dart';
 import '../../data/models/exercise.dart';
 import '../../data/models/exercise_set.dart';
@@ -212,24 +213,29 @@ class _CompletedCycleWorkoutScreenState
                     ),
                   ),
                   const SizedBox(width: 8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 6,
-                      vertical: 2,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.green.withValues(alpha: 0.2),
-                      borderRadius: BorderRadius.circular(4),
-                      border: Border.all(color: Colors.green, width: 1),
-                    ),
-                    child: const Text(
-                      'COMPLETED',
-                      style: TextStyle(
-                        color: Colors.green,
-                        fontSize: 9,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                  Builder(
+                    builder: (context) {
+                      final successColor = context.successColor;
+                      return Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: successColor.withValues(alpha: 0.2),
+                          borderRadius: BorderRadius.circular(4),
+                          border: Border.all(color: successColor, width: 1),
+                        ),
+                        child: Text(
+                          'COMPLETED',
+                          style: TextStyle(
+                            color: successColor,
+                            fontSize: 9,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      );
+                    },
                   ),
                 ],
               ),
