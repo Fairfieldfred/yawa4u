@@ -1,0 +1,59 @@
+import '../skin_model.dart';
+
+/// Forest Green skin - natural and grounded.
+const SkinModel forestSkinDefinition = SkinModel(
+  id: 'forest_green',
+  name: 'Forest Green',
+  description: 'A natural, earthy theme for grounded training',
+  author: 'YAWA4U',
+  version: '1.0.0',
+  isPremium: false,
+  isBuiltIn: true,
+  colors: SkinColors(
+    primary: '#388E3C',
+    primaryDark: '#2E7D32',
+    primaryLight: '#4CAF50',
+    secondary: '#8D6E63',
+    success: '#66BB6A',
+    warning: '#FFA000',
+    error: '#E57373',
+    info: '#81C784',
+  ),
+  lightMode: SkinModeColors(
+    scaffoldBackground: '#E8F5E9',
+    cardBackground: '#FFFFFF',
+    inputBackground: '#F1F8E9',
+    divider: '#C8E6C9',
+    textPrimary: '#1B5E20',
+    textSecondary: '#388E3C',
+    textDisabled: '#A5D6A7',
+  ),
+  darkMode: SkinModeColors(
+    scaffoldBackground: '#1A2E1A',
+    cardBackground: '#263826',
+    inputBackground: '#1E2E1E',
+    divider: '#2E4A2E',
+    textPrimary: '#E8F5E9',
+    textSecondary: '#A5D6A7',
+    textDisabled: '#4A6A4A',
+  ),
+  muscleGroups: SkinMuscleGroupColors(
+    upperPush: '#F06292',
+    upperPull: '#4DD0E1',
+    legs: '#4DB6AC',
+    coreAndAccessories: '#BA68C8',
+  ),
+  workoutStatus: SkinWorkoutStatusColors(
+    current: '#388E3C',
+    completed: '#66BB6A',
+    skipped: '#8D8D8D',
+    deload: '#FFA000',
+  ),
+  components: SkinComponents(
+    cardBorderRadius: 8,
+    buttonBorderRadius: 8,
+    inputBorderRadius: 8,
+    cardElevation: 2,
+    buttonElevation: 2,
+  ),
+);

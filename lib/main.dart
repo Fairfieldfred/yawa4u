@@ -10,7 +10,7 @@ import 'package:yawa4u/core/utils/canvas_kit/unsupported.dart';
 import 'core/constants/app_constants.dart';
 import 'core/env/env.dart';
 import 'core/services/sentry_service.dart';
-import 'core/theme/app_theme.dart';
+import 'core/theme/skins/skins.dart';
 import 'data/services/csv_loader_service.dart';
 import 'data/services/database_service.dart';
 import 'domain/providers/onboarding_providers.dart';
@@ -35,6 +35,9 @@ Future<void> main() async {
 
   // Initialize Hive database
   await DatabaseService().initialize();
+
+  // Initialize Skin Repository
+  await SkinRepository().initialize();
 
   // Load exercises from CSV
   await CsvLoaderService().loadExercises();
@@ -62,14 +65,15 @@ class MyApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final themeMode = ref.watch(themeModeProvider);
     final router = ref.watch(routerProvider);
+    final skinState = ref.watch(skinProvider);
 
     return MaterialApp.router(
       title: AppConstants.appName,
       debugShowCheckedModeBanner: false,
 
-      // Theme configuration with Riverpod
-      theme: AppTheme.lightTheme,
-      darkTheme: AppTheme.darkTheme,
+      // Theme configuration from skin system
+      theme: skinState.lightTheme,
+      darkTheme: skinState.darkTheme,
       themeMode: themeMode,
 
       // Router configuration
