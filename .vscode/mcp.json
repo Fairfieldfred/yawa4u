@@ -1,0 +1,8 @@
+{
+  "servers": {
+    "Sentry": {
+      "url": "https://mcp.sentry.dev/mcp/blairhouse-apps/yawa4u",
+      "type": "http"
+    }
+  }
+}

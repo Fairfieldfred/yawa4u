@@ -1,4 +1,4 @@
-import 'package:feedback_sentry/feedback_sentry.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -7,6 +7,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/constants/app_constants.dart';
+import '../../core/services/sentry_service.dart';
 import '../../domain/providers/onboarding_providers.dart';
 import '../../domain/providers/theme_provider.dart';
 
@@ -277,10 +278,22 @@ class _MoreScreenState extends ConsumerState<MoreScreen>
             title: const Text('Send feedback'),
             trailing: const Icon(Icons.chevron_right),
             onTap: () {
-              BetterFeedback.of(context).showAndUploadToSentry();
+              SentryService.instance.showBetterFeedback(context);
             },
           ),
           const Divider(height: 1),
+
+          // Sentry Debug (debug builds only)
+          if (kDebugMode) ...[
+            ListTile(
+              leading: const Icon(Icons.bug_report, color: Colors.orange),
+              title: const Text('Sentry Debug'),
+              subtitle: const Text('Test Sentry integration'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => context.push('/sentry-debug'),
+            ),
+            const Divider(height: 1),
+          ],
 
           // Website
           ListTile(

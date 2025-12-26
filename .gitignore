@@ -45,6 +45,7 @@ app.*.map.json
 /android/app/release
 
 sentry.properties
+.env
 firebase.json
 
 # Firebase configuration files (contain API keys)
@@ -59,5 +60,6 @@ CLAUDE.md
 app_description.md
 ui_photo_descriptions.md
 SETUP.md
-/ui_photos/
 /android/gradle/key.properties
+sentry.properties
+.vscode/launch.json

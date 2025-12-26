@@ -7,8 +7,9 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:yawa4u/core/utils/canvas_kit/unsupported.dart';
 
-import 'core/config/sentry_config.dart';
 import 'core/constants/app_constants.dart';
+import 'core/env/env.dart';
+import 'core/services/sentry_service.dart';
 import 'core/theme/app_theme.dart';
 import 'data/services/csv_loader_service.dart';
 import 'data/services/database_service.dart';
@@ -18,8 +19,13 @@ import 'firebase_options.dart';
 import 'presentation/navigation/app_router.dart';
 
 Future<void> main() async {
-  // Ensure Flutter bindings are initialized
-  WidgetsFlutterBinding.ensureInitialized();
+  // Use SentryWidgetsFlutterBinding for better Sentry integration
+  SentryWidgetsFlutterBinding.ensureInitialized();
+
+  // Debug: Print environment status
+  if (kDebugMode) {
+    Env.debugPrintStatus();
+  }
 
   // Initialize Firebase
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
@@ -41,37 +47,12 @@ Future<void> main() async {
         : const MyApp(),
   );
 
-  // Initialize Sentry and run app
-  if (SentryConfig.shouldInitialize) {
-    await SentryFlutter.init((options) {
-      options.dsn = SentryConfig.dsn;
-      options.environment = SentryConfig.environment;
-      options.release = SentryConfig.release;
-      options.tracesSampleRate = SentryConfig.tracesSampleRate;
-
-      // IMPORTANT: Do not send PII (Personal Identifiable Information)
-      options.sendDefaultPii = false;
-
-      // Enable performance monitoring
-      options.enableAutoPerformanceTracing = true;
-
-      // Disable automatic breadcrumbs for sensitive data
-      options.enableAutoNativeBreadcrumbs = false;
-
-      // Session replay settings (optional)
-      options.replay.sessionSampleRate = 0.0; // Disabled by default
-      options.replay.onErrorSampleRate = 0.1; // 10% of errors
-
-      // Before send callback to filter out sensitive data
-      options.beforeSend = (event, hint) {
-        // Filter out any events that might contain sensitive data
-        // Add custom filtering logic here if needed
-        return event;
-      };
-    }, appRunner: () => runApp(createApp()));
-  } else {
-    runApp(createApp());
-  }
+  // Initialize Sentry using the service and run app
+  await SentryService.instance.initialize(
+    appRunner: () async {
+      runApp(createApp());
+    },
+  );
 }
 
 class MyApp extends ConsumerWidget {

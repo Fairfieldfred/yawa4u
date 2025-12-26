@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -11,6 +12,7 @@ import '../screens/edit_workout_screen.dart';
 import '../screens/home_screen.dart';
 import '../screens/onboarding/onboarding_profile_screen.dart';
 import '../screens/plan_a_cycle_screen.dart';
+import '../screens/sentry_debug_screen.dart';
 import '../screens/settings_screen.dart';
 import '../screens/sync_screen.dart';
 import '../screens/template_share_screen.dart';
@@ -146,6 +148,14 @@ final routerProvider = Provider<GoRouter>((ref) {
         name: 'settings',
         builder: (context, state) => const SettingsScreen(),
       ),
+
+      // Sentry debug screen (debug builds only)
+      if (kDebugMode)
+        GoRoute(
+          path: '/sentry-debug',
+          name: 'sentry-debug',
+          builder: (context, state) => const SentryDebugScreen(),
+        ),
     ],
 
     // Error page

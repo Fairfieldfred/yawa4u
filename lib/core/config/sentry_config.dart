@@ -1,8 +1,10 @@
+import 'package:yawa4u/core/env/env.dart';
+
 /// Sentry configuration for crash reporting and error tracking
 class SentryConfig {
   /// Sentry DSN (Data Source Name) for the project
   /// Replace this with your actual Sentry DSN from https://sentry.io
-  static const String dsn = 'YOUR_SENTRY_DSN_HERE';
+  static final String dsn = Env.sentryDsn;
 
   /// Environment name (development, staging, production)
   static const String environment = String.fromEnvironment(

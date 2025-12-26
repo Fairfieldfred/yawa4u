@@ -7,19 +7,28 @@
         {
             "name": "yawa4u",
             "request": "launch",
-            "type": "dart"
+            "type": "dart",
+            "toolArgs": [
+                "--dart-define=SENTRY_DSN=https://ddd1444ccc319031230da424d8023613@o4508127854526464.ingest.us.sentry.io/4510596522180608"
+            ]
         },
         {
             "name": "yawa4u (profile mode)",
             "request": "launch",
             "type": "dart",
-            "flutterMode": "profile"
+            "flutterMode": "profile",
+            "toolArgs": [
+                "--dart-define=SENTRY_DSN=https://ddd1444ccc319031230da424d8023613@o4508127854526464.ingest.us.sentry.io/4510596522180608"
+            ]
         },
         {
             "name": "yawa4u (release mode)",
             "request": "launch",
             "type": "dart",
-            "flutterMode": "release"
+            "flutterMode": "release",
+            "toolArgs": [
+                "--dart-define=SENTRY_DSN=https://ddd1444ccc319031230da424d8023613@o4508127854526464.ingest.us.sentry.io/4510596522180608"
+            ]
         }
     ]
 }
