@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/theme/skins/skins.dart';
 import '../../../domain/providers/onboarding_providers.dart';
 import 'onboarding_terminology_screen.dart';
 
@@ -135,17 +136,17 @@ class _OnboardingEquipmentScreenState
                             decoration: BoxDecoration(
                               border: Border.all(
                                 color: isSelected
-                                    ? Colors.red
+                                    ? context.selectedIndicatorColor
                                     : Theme.of(context).colorScheme.outline,
                                 width: 2,
                               ),
                               borderRadius: BorderRadius.circular(4),
                             ),
                             child: isSelected
-                                ? const Icon(
+                                ? Icon(
                                     Icons.check,
                                     size: 14,
-                                    color: Colors.red,
+                                    color: context.selectedIndicatorColor,
                                   )
                                 : null,
                           ),

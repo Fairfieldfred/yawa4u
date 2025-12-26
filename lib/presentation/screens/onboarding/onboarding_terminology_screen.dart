@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/theme/skins/skins.dart';
 import '../../../domain/providers/onboarding_providers.dart';
 
 /// Training cycle terminology options
@@ -126,7 +127,7 @@ class _OnboardingTerminologyScreenState
                             children: [
                               Radio<TrainingCycleTerm>(
                                 value: term,
-                                activeColor: Colors.red,
+                                activeColor: context.selectedIndicatorColor,
                               ),
                               const SizedBox(width: 8),
                               Expanded(

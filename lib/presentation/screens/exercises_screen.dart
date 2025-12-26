@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../core/constants/enums.dart';
+import '../../core/theme/skins/skins.dart';
 import '../../data/models/exercise.dart';
 import '../../data/models/exercise_set.dart';
 import '../../data/models/training_cycle.dart';
@@ -523,7 +524,7 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
                     child: ElevatedButton(
                       onPressed: () => _finishWorkout(),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green,
+                        backgroundColor: context.successColor,
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
@@ -833,9 +834,9 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Note saved'),
-              backgroundColor: Colors.green,
+            SnackBar(
+              content: const Text('Note saved'),
+              backgroundColor: context.successColor,
             ),
           );
         }
@@ -844,7 +845,7 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Error saving note: $e'),
-              backgroundColor: Colors.red,
+              backgroundColor: context.errorColor,
             ),
           );
         }
@@ -882,9 +883,9 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Note saved'),
-            backgroundColor: Colors.green,
+          SnackBar(
+            content: const Text('Note saved'),
+            backgroundColor: context.successColor,
           ),
         );
       }
@@ -907,7 +908,7 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, true),
-            style: FilledButton.styleFrom(backgroundColor: Colors.red),
+            style: FilledButton.styleFrom(backgroundColor: context.errorColor),
             child: const Text('RESET'),
           ),
         ],
@@ -944,9 +945,9 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Workout reset'),
-            backgroundColor: Colors.green,
+          SnackBar(
+            content: const Text('Workout reset'),
+            backgroundColor: context.successColor,
           ),
         );
       }

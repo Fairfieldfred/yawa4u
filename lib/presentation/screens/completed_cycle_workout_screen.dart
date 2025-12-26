@@ -146,7 +146,7 @@ class _CompletedCycleWorkoutScreenState
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.error_outline, size: 64, color: Colors.red),
+              Icon(Icons.error_outline, size: 64, color: context.errorColor),
               const SizedBox(height: 16),
               Text('Error loading trainingCycle: $error'),
             ],
@@ -640,31 +640,33 @@ class _CompletedCycleWorkoutScreenState
                           child: Container(
                             decoration: BoxDecoration(
                               color: set.isLogged
-                                  ? Colors.green.withValues(alpha: 0.2)
+                                  ? context.successColor.withValues(alpha: 0.2)
                                   : (set.isSkipped
-                                        ? Colors.orange.withValues(alpha: 0.2)
+                                        ? context.warningColor.withValues(
+                                            alpha: 0.2,
+                                          )
                                         : Colors.grey.withValues(alpha: 0.1)),
                               borderRadius: BorderRadius.circular(4),
                               border: Border.all(
                                 color: set.isLogged
-                                    ? Colors.green
+                                    ? context.successColor
                                     : (set.isSkipped
-                                          ? Colors.orange
+                                          ? context.warningColor
                                           : Theme.of(context).dividerColor
                                                 .withValues(alpha: 0.3)),
                                 width: set.isLogged || set.isSkipped ? 2 : 1,
                               ),
                             ),
                             child: set.isLogged
-                                ? const Icon(
+                                ? Icon(
                                     Icons.check,
-                                    color: Colors.green,
+                                    color: context.successColor,
                                     size: 20,
                                   )
                                 : (set.isSkipped
-                                      ? const Icon(
+                                      ? Icon(
                                           Icons.fast_forward,
-                                          color: Colors.orange,
+                                          color: context.warningColor,
                                           size: 16,
                                         )
                                       : null),
@@ -792,13 +794,13 @@ class _ReadOnlyCalendarDropdownState extends State<_ReadOnlyCalendarDropdown> {
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.green.withValues(alpha: 0.2),
+                    color: context.successColor.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(4),
                   ),
-                  child: const Text(
+                  child: Text(
                     'COMPLETED',
                     style: TextStyle(
-                      color: Colors.green,
+                      color: context.successColor,
                       fontSize: 10,
                       fontWeight: FontWeight.bold,
                     ),
@@ -922,7 +924,7 @@ class _ReadOnlyCalendarDropdownState extends State<_ReadOnlyCalendarDropdown> {
             Color textColor;
 
             if (isCompleted) {
-              backgroundColor = Colors.green;
+              backgroundColor = context.successColor;
               textColor = Colors.white;
             } else {
               backgroundColor = Theme.of(
@@ -946,7 +948,7 @@ class _ReadOnlyCalendarDropdownState extends State<_ReadOnlyCalendarDropdown> {
                   color: backgroundColor,
                   borderRadius: BorderRadius.circular(8),
                   border: isSelected
-                      ? Border.all(color: Colors.orange, width: 2)
+                      ? Border.all(color: context.warningColor, width: 2)
                       : null,
                 ),
                 alignment: Alignment.center,

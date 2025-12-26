@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/theme/skins/skins.dart';
 import '../../data/models/training_cycle_template.dart';
 import '../../domain/providers/template_providers.dart';
 import 'template_preview_screen.dart';
@@ -49,14 +50,17 @@ class _TemplateSelectionScreenState
         error: (error, stack) => Center(
           child: Text(
             'Error: $error',
-            style: const TextStyle(color: Colors.red),
+            style: TextStyle(color: context.errorColor),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildTemplateCard(BuildContext context, TrainingCycleTemplate template) {
+  Widget _buildTemplateCard(
+    BuildContext context,
+    TrainingCycleTemplate template,
+  ) {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Card(
@@ -117,9 +121,9 @@ class _TemplateSelectionScreenState
                         builder: (context, snapshot) {
                           if (snapshot.data == true) {
                             return IconButton(
-                              icon: const Icon(
+                              icon: Icon(
                                 Icons.delete_outline,
-                                color: Colors.red,
+                                color: context.errorColor,
                                 size: 20,
                               ),
                               onPressed: () => _confirmDelete(template),
@@ -203,7 +207,7 @@ class _TemplateSelectionScreenState
                 children: [
                   Icon(
                     Icons.warning_amber_rounded,
-                    color: Colors.orange,
+                    color: context.warningColor,
                     size: 28,
                   ),
                   const SizedBox(width: 12),
@@ -246,7 +250,7 @@ class _TemplateSelectionScreenState
                     child: FilledButton(
                       onPressed: () => Navigator.pop(context, true),
                       style: FilledButton.styleFrom(
-                        backgroundColor: Colors.red,
+                        backgroundColor: context.errorColor,
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -275,7 +279,7 @@ class _TemplateSelectionScreenState
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Template "${template.name}" deleted'),
-              backgroundColor: Colors.green,
+              backgroundColor: context.successColor,
               behavior: SnackBarBehavior.floating,
             ),
           );
@@ -285,7 +289,7 @@ class _TemplateSelectionScreenState
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Failed to delete template: $e'),
-              backgroundColor: Colors.red,
+              backgroundColor: context.errorColor,
               behavior: SnackBarBehavior.floating,
             ),
           );

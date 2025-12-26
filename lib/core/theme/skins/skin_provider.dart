@@ -51,36 +51,19 @@ class SkinNotifier extends Notifier<SkinState> {
   @override
   SkinState build() {
     _repository = SkinRepository();
-    // Start with default skin, then load from preferences
-    _initialize();
+
+    // Since SkinRepository is already initialized in main.dart before runApp,
+    // we can synchronously get the active skin here
+    final activeSkin = _repository.getActiveSkin();
+    final availableSkins = _repository.getAllSkins();
+
+    debugPrint('[SkinNotifier] Built with skin: ${activeSkin.name}');
+
     return SkinState(
-      activeSkin: BuiltInSkins.defaultSkin,
-      availableSkins: BuiltInSkins.all,
+      activeSkin: activeSkin,
+      availableSkins: availableSkins,
+      isLoading: false,
     );
-  }
-
-  Future<void> _initialize() async {
-    state = state.copyWith(isLoading: true, error: null);
-
-    try {
-      await _repository.initialize();
-      final activeSkin = _repository.getActiveSkin();
-      final availableSkins = _repository.getAllSkins();
-
-      state = SkinState(
-        activeSkin: activeSkin,
-        availableSkins: availableSkins,
-        isLoading: false,
-      );
-
-      debugPrint('[SkinNotifier] Initialized with skin: ${activeSkin.name}');
-    } on Exception catch (e) {
-      debugPrint('[SkinNotifier] Error initializing: $e');
-      state = state.copyWith(
-        isLoading: false,
-        error: 'Failed to load skin preferences: $e',
-      );
-    }
   }
 
   /// Change the active skin

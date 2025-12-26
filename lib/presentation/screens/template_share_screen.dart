@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
+import '../../core/theme/skins/skins.dart';
 import '../../data/models/training_cycle_template.dart';
 import '../../data/services/template_share_service.dart';
 import '../../domain/providers/template_providers.dart';
@@ -139,7 +140,9 @@ class _TemplateShareScreenState extends ConsumerState<TemplateShareScreen> {
                     ? 'Templates received!'
                     : 'Failed to receive templates'),
           ),
-          backgroundColor: result.success ? Colors.green : Colors.red,
+          backgroundColor: result.success
+              ? context.successColor
+              : context.errorColor,
         ),
       );
 
@@ -167,7 +170,7 @@ class _TemplateShareScreenState extends ConsumerState<TemplateShareScreen> {
               error: (error, stack) => Center(
                 child: Text(
                   'Error: $error',
-                  style: const TextStyle(color: Colors.red),
+                  style: TextStyle(color: context.errorColor),
                 ),
               ),
             ),
@@ -233,12 +236,12 @@ class _TemplateShareScreenState extends ConsumerState<TemplateShareScreen> {
             child: Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.red.withValues(alpha: 0.1),
+                color: context.errorColor.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
                 _errorMessage!,
-                style: const TextStyle(color: Colors.red),
+                style: TextStyle(color: context.errorColor),
               ),
             ),
           ),
@@ -591,10 +594,10 @@ class _TemplateShareScreenState extends ConsumerState<TemplateShareScreen> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.error_outline,
                       size: 64,
-                      color: Colors.red,
+                      color: context.errorColor,
                     ),
                     const SizedBox(height: 16),
                     Text(

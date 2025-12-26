@@ -6,6 +6,7 @@ import 'package:uuid/uuid.dart';
 import '../../core/constants/enums.dart';
 import '../../core/constants/equipment_types.dart';
 import '../../core/constants/muscle_groups.dart';
+import '../../core/theme/skins/skins.dart';
 import '../../data/models/exercise.dart';
 import '../../data/models/exercise_set.dart';
 import '../../data/models/training_cycle.dart';
@@ -55,7 +56,7 @@ class _TrainingCycleCreateScreenState
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Please enter a name for your $cycleTerm'),
-          backgroundColor: Colors.orange,
+          backgroundColor: context.warningColor,
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -109,7 +110,7 @@ class _TrainingCycleCreateScreenState
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('$cycleTerm "${trainingCycle.name}" created!'),
-            backgroundColor: Colors.green,
+            backgroundColor: context.successColor,
           ),
         );
 
@@ -123,7 +124,7 @@ class _TrainingCycleCreateScreenState
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error creating trainingCycle: $e'),
-            backgroundColor: Colors.red,
+            backgroundColor: context.errorColor,
           ),
         );
       }

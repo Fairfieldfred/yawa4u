@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
+import '../../core/theme/skins/skins.dart';
 import '../../data/services/data_backup_service.dart';
 import '../../data/services/wifi_sync_service.dart';
 import '../../domain/providers/sync_providers.dart';
@@ -132,7 +133,9 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
             result.message ??
                 (result.success ? 'Sync complete!' : 'Sync failed'),
           ),
-          backgroundColor: result.success ? Colors.green : Colors.red,
+          backgroundColor: result.success
+              ? context.successColor
+              : context.errorColor,
         ),
       );
 
@@ -167,7 +170,9 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
             result.message ??
                 (result.success ? 'Sync complete!' : 'Sync failed'),
           ),
-          backgroundColor: result.success ? Colors.green : Colors.red,
+          backgroundColor: result.success
+              ? context.successColor
+              : context.errorColor,
         ),
       );
 
@@ -254,12 +259,12 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.red.withValues(alpha: .1),
+                color: context.errorColor.withValues(alpha: .1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
                 _errorMessage!,
-                style: const TextStyle(color: Colors.red),
+                style: TextStyle(color: context.errorColor),
               ),
             ),
             const SizedBox(height: 16),
@@ -388,10 +393,10 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.error_outline,
                       size: 64,
-                      color: Colors.red,
+                      color: context.errorColor,
                     ),
                     const SizedBox(height: 16),
                     Text(

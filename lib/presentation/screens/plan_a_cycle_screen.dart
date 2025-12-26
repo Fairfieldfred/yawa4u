@@ -235,7 +235,7 @@ class _PlanATrainingCycleScreenState
                       onPressed: () => Navigator.pop(context, true),
                       style: FilledButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
-                        backgroundColor: Colors.red,
+                        backgroundColor: context.errorColor,
                       ),
                       child: const Text('CONTINUE'),
                     ),
@@ -261,7 +261,7 @@ class _PlanATrainingCycleScreenState
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Error deleting draft: $e'),
-              backgroundColor: Colors.red,
+              backgroundColor: context.errorColor,
             ),
           );
         }

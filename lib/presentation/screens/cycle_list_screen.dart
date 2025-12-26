@@ -135,7 +135,7 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.error_outline, size: 64, color: Colors.red),
+              Icon(Icons.error_outline, size: 64, color: context.errorColor),
               const SizedBox(height: 16),
               Text('Error loading trainingCycles: $error'),
             ],
@@ -375,18 +375,20 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
                             ),
                           PopupMenuItem(
                             value: 'delete',
-                            child: Row(
-                              children: [
-                                const Icon(
-                                  Icons.delete_outline,
-                                  color: Colors.red,
-                                ),
-                                const SizedBox(width: 12),
-                                Text(
-                                  'Delete ${ref.watch(trainingCycleTermProvider)}',
-                                  style: const TextStyle(color: Colors.red),
-                                ),
-                              ],
+                            child: Builder(
+                              builder: (context) => Row(
+                                children: [
+                                  Icon(
+                                    Icons.delete_outline,
+                                    color: context.errorColor,
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Text(
+                                    'Delete ${ref.watch(trainingCycleTermProvider)}',
+                                    style: TextStyle(color: context.errorColor),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ],
@@ -575,7 +577,10 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+            SnackBar(
+              content: Text('Error: $e'),
+              backgroundColor: context.errorColor,
+            ),
           );
         }
       }
@@ -606,9 +611,9 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Note saved'),
-              backgroundColor: Colors.green,
+            SnackBar(
+              content: const Text('Note saved'),
+              backgroundColor: context.successColor,
             ),
           );
         }
@@ -617,7 +622,7 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Error saving note: $e'),
-              backgroundColor: Colors.red,
+              backgroundColor: context.errorColor,
             ),
           );
         }
@@ -681,18 +686,18 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.orange.withValues(alpha: 0.1),
+                  color: context.warningColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: Colors.orange.withValues(alpha: 0.3),
+                    color: context.warningColor.withValues(alpha: 0.3),
                     width: 1,
                   ),
                 ),
                 child: Row(
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.warning_amber_rounded,
-                      color: Colors.orange,
+                      color: context.warningColor,
                       size: 24,
                     ),
                     const SizedBox(width: 12),
@@ -730,7 +735,7 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
                       onPressed: () => Navigator.pop(context, true),
                       style: FilledButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
-                        backgroundColor: Colors.red,
+                        backgroundColor: context.errorColor,
                       ),
                       child: const Text('CONTINUE'),
                     ),
@@ -756,7 +761,7 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Error deleting draft: $e'),
-              backgroundColor: Colors.red,
+              backgroundColor: context.errorColor,
             ),
           );
         }
@@ -848,7 +853,7 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('$cycleTerm copied as draft!'),
-            backgroundColor: Colors.green,
+            backgroundColor: context.successColor,
           ),
         );
       }
@@ -857,7 +862,7 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error copying $cycleTerm: $e'),
-            backgroundColor: Colors.red,
+            backgroundColor: context.errorColor,
           ),
         );
       }
@@ -891,7 +896,7 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Template "${result.name}" saved!'),
-              backgroundColor: Colors.green,
+              backgroundColor: context.successColor,
             ),
           );
 
@@ -903,7 +908,7 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Error saving template: $e'),
-              backgroundColor: Colors.red,
+              backgroundColor: context.errorColor,
             ),
           );
         }
@@ -922,9 +927,9 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
       await TemplateExporter.exportToClipboard(trainingCycleToExport);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Template JSON copied to clipboard!'),
-            backgroundColor: Colors.green,
+          SnackBar(
+            content: const Text('Template JSON copied to clipboard!'),
+            backgroundColor: context.successColor,
           ),
         );
       }
@@ -933,7 +938,7 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error exporting template: $e'),
-            backgroundColor: Colors.red,
+            backgroundColor: context.errorColor,
           ),
         );
       }
@@ -960,7 +965,7 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Renamed to "$newName"'),
-              backgroundColor: Colors.green,
+              backgroundColor: context.successColor,
             ),
           );
         }
@@ -969,7 +974,7 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Error renaming trainingCycle: $e'),
-              backgroundColor: Colors.red,
+              backgroundColor: context.errorColor,
             ),
           );
         }
@@ -992,7 +997,7 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, true),
-            style: FilledButton.styleFrom(backgroundColor: Colors.red),
+            style: FilledButton.styleFrom(backgroundColor: context.errorColor),
             child: const Text('Delete'),
           ),
         ],
@@ -1014,7 +1019,7 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Error deleting trainingCycle: $e'),
-              backgroundColor: Colors.red,
+              backgroundColor: context.errorColor,
             ),
           );
         }

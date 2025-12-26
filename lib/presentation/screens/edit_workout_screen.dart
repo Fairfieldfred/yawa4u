@@ -290,7 +290,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Week ${trainingCycle.weeksTotal} added'),
-            backgroundColor: Colors.green,
+            backgroundColor: context.successColor,
           ),
         );
       }
@@ -299,7 +299,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error adding week: $e'),
-            backgroundColor: Colors.red,
+            backgroundColor: context.errorColor,
           ),
         );
       }
@@ -332,7 +332,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, 'training'),
-            style: FilledButton.styleFrom(backgroundColor: Colors.red),
+            style: FilledButton.styleFrom(backgroundColor: context.errorColor),
             child: Text('Remove Week $lastNonDeloadWeek'),
           ),
         ],
@@ -357,7 +357,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
                     ? 'Deload week removed'
                     : 'Week $lastNonDeloadWeek removed',
               ),
-              backgroundColor: Colors.green,
+              backgroundColor: context.successColor,
             ),
           );
         }
@@ -366,7 +366,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Error removing week: $e'),
-              backgroundColor: Colors.red,
+              backgroundColor: context.errorColor,
             ),
           );
         }
@@ -427,7 +427,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Recovery week changed to ${result.displayName}'),
-              backgroundColor: Colors.green,
+              backgroundColor: context.successColor,
             ),
           );
         }
@@ -436,7 +436,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Error updating recovery type: $e'),
-              backgroundColor: Colors.red,
+              backgroundColor: context.errorColor,
             ),
           );
         }
@@ -546,7 +546,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Day ${trainingCycle.daysPerWeek + 1} added'),
-            backgroundColor: Colors.green,
+            backgroundColor: context.successColor,
           ),
         );
       }
@@ -555,7 +555,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error adding day: $e'),
-            backgroundColor: Colors.red,
+            backgroundColor: context.errorColor,
           ),
         );
       }
@@ -592,7 +592,9 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
             ),
             FilledButton(
               onPressed: () => Navigator.pop(context, true),
-              style: FilledButton.styleFrom(backgroundColor: Colors.red),
+              style: FilledButton.styleFrom(
+                backgroundColor: context.errorColor,
+              ),
               child: const Text('Remove'),
             ),
           ],
@@ -614,7 +616,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Day $dayToRemove removed'),
-            backgroundColor: Colors.green,
+            backgroundColor: context.successColor,
           ),
         );
       }
@@ -623,7 +625,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error removing day: $e'),
-            backgroundColor: Colors.red,
+            backgroundColor: context.errorColor,
           ),
         );
       }
@@ -869,20 +871,20 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
                           ),
                         ),
                         // Delete exercise
-                        const PopupMenuItem<String>(
+                        PopupMenuItem<String>(
                           value: 'delete',
                           height: 48,
                           child: Row(
                             children: [
                               Icon(
                                 Icons.delete_outline,
-                                color: Colors.red,
+                                color: context.errorColor,
                                 size: 20,
                               ),
-                              SizedBox(width: 12),
+                              const SizedBox(width: 12),
                               Text(
                                 'Delete exercise',
-                                style: TextStyle(color: Colors.red),
+                                style: TextStyle(color: context.errorColor),
                               ),
                             ],
                           ),
@@ -1057,20 +1059,22 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
                                 ),
                               ),
                               // Delete set
-                              const PopupMenuItem<String>(
+                              PopupMenuItem<String>(
                                 value: 'delete',
                                 height: 40,
                                 child: Row(
                                   children: [
                                     Icon(
                                       Icons.delete_outline,
-                                      color: Colors.red,
+                                      color: context.errorColor,
                                       size: 20,
                                     ),
-                                    SizedBox(width: 12),
+                                    const SizedBox(width: 12),
                                     Text(
                                       'Delete set',
-                                      style: TextStyle(color: Colors.red),
+                                      style: TextStyle(
+                                        color: context.errorColor,
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -1100,7 +1104,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
                                           ? Icons.radio_button_checked
                                           : Icons.radio_button_unchecked,
                                       color: set.setType == SetType.regular
-                                          ? Colors.red
+                                          ? context.selectedIndicatorColor
                                           : Colors.grey,
                                       size: 20,
                                     ),
@@ -1127,7 +1131,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
                                           ? Icons.radio_button_checked
                                           : Icons.radio_button_unchecked,
                                       color: set.setType == SetType.myorep
-                                          ? Colors.red
+                                          ? context.selectedIndicatorColor
                                           : Colors.grey,
                                       size: 20,
                                     ),
@@ -1154,7 +1158,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
                                           ? Icons.radio_button_checked
                                           : Icons.radio_button_unchecked,
                                       color: set.setType == SetType.myorepMatch
-                                          ? Colors.red
+                                          ? context.selectedIndicatorColor
                                           : Colors.grey,
                                       size: 20,
                                     ),
@@ -1181,7 +1185,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
                                           ? Icons.radio_button_checked
                                           : Icons.radio_button_unchecked,
                                       color: set.setType == SetType.maxReps
-                                          ? Colors.red
+                                          ? context.selectedIndicatorColor
                                           : Colors.grey,
                                       size: 20,
                                     ),
@@ -1209,7 +1213,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
                                           : Icons.radio_button_unchecked,
                                       color:
                                           set.setType == SetType.endWithPartials
-                                          ? Colors.red
+                                          ? context.selectedIndicatorColor
                                           : Colors.grey,
                                       size: 20,
                                     ),
@@ -1409,7 +1413,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, true),
-            style: FilledButton.styleFrom(backgroundColor: Colors.red),
+            style: FilledButton.styleFrom(backgroundColor: context.errorColor),
             child: const Text('Delete'),
           ),
         ],
@@ -1556,7 +1560,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Week 1 mirrored to Week $_selectedWeek'),
-              backgroundColor: Colors.green,
+              backgroundColor: context.successColor,
             ),
           );
         }
@@ -1565,7 +1569,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Error mirroring week: $e'),
-              backgroundColor: Colors.red,
+              backgroundColor: context.errorColor,
             ),
           );
         }
@@ -1611,7 +1615,10 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
       } catch (e) {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+            SnackBar(
+              content: Text('Error: $e'),
+              backgroundColor: context.errorColor,
+            ),
           );
         }
       }
@@ -1673,9 +1680,9 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Note saved'),
-              backgroundColor: Colors.green,
+            SnackBar(
+              content: const Text('Note saved'),
+              backgroundColor: context.successColor,
             ),
           );
         }
@@ -1684,7 +1691,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Error saving note: $e'),
-              backgroundColor: Colors.red,
+              backgroundColor: context.errorColor,
             ),
           );
         }
@@ -1703,9 +1710,9 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
       await TemplateExporter.exportToClipboard(trainingCycleToExport);
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Template JSON copied to clipboard!'),
-            backgroundColor: Colors.green,
+          SnackBar(
+            content: const Text('Template JSON copied to clipboard!'),
+            backgroundColor: context.successColor,
           ),
         );
       }
@@ -1714,7 +1721,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error exporting template: $e'),
-            backgroundColor: Colors.red,
+            backgroundColor: context.errorColor,
           ),
         );
       }

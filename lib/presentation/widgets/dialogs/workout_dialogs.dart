@@ -479,8 +479,8 @@ class _RelabelDayDialogState extends State<RelabelDayDialog> {
             ).pop((label: _selectedLabel, applyToAll: _applyToAll));
           },
           style: FilledButton.styleFrom(
-            backgroundColor: Colors.red,
-            foregroundColor: Colors.white,
+            backgroundColor: Theme.of(context).colorScheme.primary,
+            foregroundColor: Theme.of(context).colorScheme.onPrimary,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8),
             ),

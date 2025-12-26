@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/theme/skins/skins.dart';
 import '../../domain/providers/onboarding_providers.dart';
 import '../widgets/available_equipment_filter.dart';
 
@@ -152,11 +153,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     });
   }
 
-  Color _getBmiColor(double bmi) {
+  Color _getBmiColor(BuildContext context, double bmi) {
     if (bmi < 18.5) return Colors.blue;
-    if (bmi < 25) return Colors.green;
-    if (bmi < 30) return Colors.orange;
-    return Colors.red;
+    if (bmi < 25) return context.successColor;
+    if (bmi < 30) return context.warningColor;
+    return context.errorColor;
   }
 
   void _convertUnits() {
@@ -445,10 +446,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             vertical: 6,
                           ),
                           decoration: BoxDecoration(
-                            color: _getBmiColor(_bmi!).withValues(alpha: 0.15),
+                            color: _getBmiColor(
+                              context,
+                              _bmi!,
+                            ).withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(16),
                             border: Border.all(
-                              color: _getBmiColor(_bmi!),
+                              color: _getBmiColor(context, _bmi!),
                               width: 1.5,
                             ),
                           ),
@@ -456,7 +460,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             _bmi!.toStringAsFixed(1),
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
-                              color: _getBmiColor(_bmi!),
+                              color: _getBmiColor(context, _bmi!),
                             ),
                           ),
                         ),
@@ -647,7 +651,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                               children: [
                                 Radio<String>(
                                   value: term.name,
-                                  activeColor: Colors.red,
+                                  activeColor: context.selectedIndicatorColor,
                                 ),
                                 const SizedBox(width: 8),
                                 Expanded(

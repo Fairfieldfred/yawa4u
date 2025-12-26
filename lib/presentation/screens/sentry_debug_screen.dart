@@ -5,6 +5,7 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 import '../../core/config/sentry_config.dart';
 import '../../core/env/env.dart';
 import '../../core/services/sentry_service.dart';
+import '../../core/theme/skins/skins.dart';
 
 /// Debug screen for testing and troubleshooting Sentry integration.
 ///
@@ -183,8 +184,8 @@ class _SentryDebugScreenState extends State<SentryDebugScreen> {
                   icon: const Icon(Icons.dangerous),
                   label: const Text('Test Crash'),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
-                    foregroundColor: Colors.white,
+                    backgroundColor: context.errorColor,
+                    foregroundColor: Theme.of(context).colorScheme.onError,
                   ),
                 ),
               ],

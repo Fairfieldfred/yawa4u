@@ -32,6 +32,9 @@ extension SkinContext on BuildContext {
   Color get infoColor =>
       skinColors?.info ?? Theme.of(this).colorScheme.secondary;
 
+  /// Get error/danger color from theme (for destructive actions, errors).
+  Color get errorColor => Theme.of(this).colorScheme.error;
+
   /// Get current workout indicator color.
   Color get workoutCurrentColor =>
       skinColors?.workoutCurrent ?? Theme.of(this).colorScheme.primary;
@@ -46,4 +49,10 @@ extension SkinContext on BuildContext {
 
   /// Get deload week color.
   Color get workoutDeloadColor => skinColors?.workoutDeload ?? warningColor;
+
+  /// Get YouTube/video red color (brand-specific, kept consistent).
+  Color get youtubeColor => const Color(0xFFFF0000);
+
+  /// Get selected/active indicator color (for radio buttons, checkboxes in menus).
+  Color get selectedIndicatorColor => Theme.of(this).colorScheme.primary;
 }

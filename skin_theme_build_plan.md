@@ -352,11 +352,26 @@ class SkinModeColors with _$SkinModeColors {
 - [x] Create `SkinContext` extension for easy access to skin colors
 - [x] Create `AppSnackBar` helper for themed snackbars
 - [x] Update key screens to use theme colors:
-  - `edit_workout_screen.dart` - Start button
-  - `cycle_list_screen.dart` - Start button, completed icon
-  - `completed_cycle_workout_screen.dart` - Completed badge
-  - `plan_a_cycle_screen.dart` - Warning container
-- [ ] Complete migration of remaining hardcoded colors (ongoing)
+  - [x] `edit_workout_screen.dart` - SnackBars, delete buttons, set type radio buttons
+  - [x] `cycle_list_screen.dart` - SnackBars, delete buttons, warning containers
+  - [x] `workout_screen.dart` - SnackBars, menu items, finish button
+  - [x] `calendar_dropdown.dart` - SnackBars, day indicators
+  - [x] `exercise_card_widget.dart` - Log checkbox, delete buttons, set type radio buttons
+  - [x] `completed_cycle_workout_screen.dart` - Completed badge
+  - [x] `plan_a_cycle_screen.dart` - Warning container
+  - [x] `exercise_info_dialog.dart` - YouTube button colors
+  - [x] `available_equipment_filter.dart` - Checkbox selected indicator
+  - [x] `muscle_group_stats_dialog.dart` - Error text color
+  - [x] `sentry_debug_screen.dart` - Test crash button
+- [ ] Complete migration of remaining hardcoded colors:
+  - [ ] `exercises_screen.dart`
+  - [ ] `sync_screen.dart`
+  - [ ] `settings_screen.dart`
+  - [ ] `cycle_create_screen.dart`
+  - [ ] `template_selection_screen.dart`
+  - [ ] `template_share_screen.dart`
+  - [ ] `onboarding/*.dart` screens
+  - [ ] `app_router.dart` (error screen)
 - [ ] Test all screens with all skins
 - [ ] Test light/dark mode transitions
 - [ ] Performance optimization

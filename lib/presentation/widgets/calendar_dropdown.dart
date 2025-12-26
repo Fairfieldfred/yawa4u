@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../core/constants/enums.dart';
+import '../../core/theme/skins/skins.dart';
 import '../../data/models/training_cycle.dart';
 import '../../data/models/workout.dart';
 import '../../domain/providers/repository_providers.dart';
@@ -87,9 +88,9 @@ class _CalendarDropdownState extends ConsumerState<CalendarDropdown> {
     if (templateWorkouts.isEmpty) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Cannot add week: No template workouts found'),
-            backgroundColor: Colors.red,
+          SnackBar(
+            content: const Text('Cannot add week: No template workouts found'),
+            backgroundColor: context.errorColor,
           ),
         );
       }
@@ -172,7 +173,7 @@ class _CalendarDropdownState extends ConsumerState<CalendarDropdown> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Week $newWeekNumber added'),
-          backgroundColor: Colors.green,
+          backgroundColor: context.successColor,
         ),
       );
     }
@@ -190,9 +191,9 @@ class _CalendarDropdownState extends ConsumerState<CalendarDropdown> {
     if (weekToRemove < 1) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Cannot remove: Must have at least 1 week'),
-            backgroundColor: Colors.red,
+          SnackBar(
+            content: const Text('Cannot remove: Must have at least 1 week'),
+            backgroundColor: context.errorColor,
           ),
         );
       }
@@ -235,7 +236,7 @@ class _CalendarDropdownState extends ConsumerState<CalendarDropdown> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Week $weekToRemove removed'),
-          backgroundColor: Colors.green,
+          backgroundColor: context.successColor,
         ),
       );
 
@@ -487,10 +488,10 @@ class _CalendarDropdownState extends ConsumerState<CalendarDropdown> {
             Color textColor;
 
             if (isCompleted) {
-              backgroundColor = Colors.green;
+              backgroundColor = context.successColor;
               textColor = Colors.white;
             } else if (isCurrentWeek && isCurrentDay) {
-              backgroundColor = Colors.red;
+              backgroundColor = context.workoutCurrentColor;
               textColor = Colors.white;
             } else {
               backgroundColor = Theme.of(
@@ -510,7 +511,7 @@ class _CalendarDropdownState extends ConsumerState<CalendarDropdown> {
                   color: backgroundColor,
                   borderRadius: BorderRadius.circular(8),
                   border: isSelected
-                      ? Border.all(color: Colors.orange, width: 2)
+                      ? Border.all(color: context.warningColor, width: 2)
                       : null,
                 ),
                 alignment: Alignment.center,

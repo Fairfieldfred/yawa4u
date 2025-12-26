@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/constants/equipment_types.dart';
+import '../../core/theme/skins/skins.dart';
 import '../../domain/providers/onboarding_providers.dart';
 
 /// Available equipment options for the user to select.
@@ -320,14 +321,18 @@ class _AvailableEquipmentFilterState
                   decoration: BoxDecoration(
                     border: Border.all(
                       color: isSelected
-                          ? Colors.red
+                          ? context.selectedIndicatorColor
                           : Theme.of(context).colorScheme.outline,
                       width: 2,
                     ),
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: isSelected
-                      ? const Icon(Icons.check, size: 14, color: Colors.red)
+                      ? Icon(
+                          Icons.check,
+                          size: 14,
+                          color: context.selectedIndicatorColor,
+                        )
                       : null,
                 ),
                 const SizedBox(width: 8),

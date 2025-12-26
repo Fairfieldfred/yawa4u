@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/constants/enums.dart';
+import '../../core/theme/skins/skins.dart';
 import '../../data/models/training_cycle.dart';
 import '../../domain/providers/onboarding_providers.dart';
 import '../../domain/providers/workout_providers.dart';
@@ -197,7 +198,7 @@ class CycleSummaryDialog extends ConsumerWidget {
           child: Center(
             child: Text(
               'Error: $error',
-              style: const TextStyle(color: Colors.red),
+              style: TextStyle(color: context.errorColor),
             ),
           ),
         ),

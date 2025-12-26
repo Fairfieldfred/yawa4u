@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/constants/muscle_groups.dart';
+import '../../core/theme/skins/skins.dart';
 import '../../domain/providers/onboarding_providers.dart';
 import '../screens/add_exercise_screen.dart';
 import '../screens/completed_cycle_workout_screen.dart';
@@ -173,7 +174,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.error_outline, size: 64, color: Colors.red),
+            Icon(Icons.error_outline, size: 64, color: context.errorColor),
             const SizedBox(height: 16),
             Text(
               'Page not found: ${state.matchedLocation}',

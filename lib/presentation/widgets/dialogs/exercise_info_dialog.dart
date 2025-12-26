@@ -9,6 +9,7 @@ import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import '../../../core/constants/enums.dart';
 import '../../../core/constants/equipment_types.dart';
 import '../../../core/constants/muscle_groups.dart';
+import '../../../core/theme/skins/skins.dart';
 import '../../../data/models/exercise.dart';
 import '../../../data/models/training_cycle.dart';
 import '../../../data/models/workout.dart';
@@ -274,7 +275,11 @@ class _ExerciseInfoDialogState extends ConsumerState<ExerciseInfoDialog> {
               ),
               child: Column(
                 children: [
-                  Icon(Icons.play_circle_outline, size: 64, color: Colors.red),
+                  Icon(
+                    Icons.play_circle_outline,
+                    size: 64,
+                    color: context.youtubeColor,
+                  ),
                   const SizedBox(height: 12),
                   Text(
                     'Video Available',
@@ -288,7 +293,7 @@ class _ExerciseInfoDialogState extends ConsumerState<ExerciseInfoDialog> {
                     icon: const Icon(Icons.open_in_new),
                     label: const Text('Watch on YouTube'),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red,
+                      backgroundColor: context.youtubeColor,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(
                         horizontal: 24,

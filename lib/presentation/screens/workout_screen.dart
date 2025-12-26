@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../core/constants/enums.dart';
+import '../../core/theme/skins/skins.dart';
 import '../../data/models/exercise.dart';
 import '../../data/models/exercise_set.dart';
 import '../../data/models/training_cycle.dart';
@@ -1233,7 +1234,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                     child: ElevatedButton(
                       onPressed: () => _finishWorkout(workouts),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.red,
+                        backgroundColor: context.successColor,
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
@@ -1306,7 +1307,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
           icon: Icons.stop_circle_outlined,
           text: 'End ${ref.watch(trainingCycleTermProvider)}',
           onTap: () => _endTrainingCycle(trainingCycle),
-          color: Colors.red,
+          color: context.errorColor,
         ),
         const PopupMenuDivider(height: 1),
 
@@ -1440,9 +1441,9 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Note saved'),
-              backgroundColor: Colors.green,
+            SnackBar(
+              content: const Text('Note saved'),
+              backgroundColor: context.successColor,
             ),
           );
         }
@@ -1451,7 +1452,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Error saving note: $e'),
-              backgroundColor: Colors.red,
+              backgroundColor: context.errorColor,
             ),
           );
         }
@@ -1484,7 +1485,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Renamed to "$newName"'),
-              backgroundColor: Colors.green,
+              backgroundColor: context.successColor,
             ),
           );
         }
@@ -1493,7 +1494,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Error renaming trainingCycle: $e'),
-              backgroundColor: Colors.red,
+              backgroundColor: context.errorColor,
             ),
           );
         }
@@ -1536,7 +1537,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('"${trainingCycle.name}" completed'),
-              backgroundColor: Colors.green,
+              backgroundColor: context.successColor,
             ),
           );
         }
@@ -1545,7 +1546,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Error ending trainingCycle: $e'),
-              backgroundColor: Colors.red,
+              backgroundColor: context.errorColor,
             ),
           );
         }
@@ -1574,9 +1575,9 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Note saved'),
-              backgroundColor: Colors.green,
+            SnackBar(
+              content: const Text('Note saved'),
+              backgroundColor: context.successColor,
             ),
           );
         }
@@ -1585,7 +1586,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Error saving note: $e'),
-              backgroundColor: Colors.red,
+              backgroundColor: context.errorColor,
             ),
           );
         }
@@ -1645,7 +1646,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                 content: Text(
                   'Updated label for all Day ${workout.dayNumber} workouts',
                 ),
-                backgroundColor: Colors.green,
+                backgroundColor: context.successColor,
               ),
             );
           }
@@ -1693,9 +1694,9 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
 
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Label updated'),
-                backgroundColor: Colors.green,
+              SnackBar(
+                content: const Text('Label updated'),
+                backgroundColor: context.successColor,
               ),
             );
           }
@@ -1706,7 +1707,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Error updating label: $e'),
-              backgroundColor: Colors.red,
+              backgroundColor: context.errorColor,
             ),
           );
         }
@@ -1731,7 +1732,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, true),
-            style: FilledButton.styleFrom(backgroundColor: Colors.red),
+            style: FilledButton.styleFrom(backgroundColor: context.errorColor),
             child: const Text('CLEAR ALL'),
           ),
         ],
@@ -1759,9 +1760,9 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('All day labels cleared'),
-              backgroundColor: Colors.green,
+            SnackBar(
+              content: const Text('All day labels cleared'),
+              backgroundColor: context.successColor,
             ),
           );
         }
@@ -1771,7 +1772,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Error clearing labels: $e'),
-              backgroundColor: Colors.red,
+              backgroundColor: context.errorColor,
             ),
           );
         }
@@ -1838,9 +1839,9 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
 
                 if (!mounted) return;
                 ScaffoldMessenger.of(this.context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Workout reset'),
-                    backgroundColor: Colors.green,
+                  SnackBar(
+                    content: const Text('Workout reset'),
+                    backgroundColor: this.context.successColor,
                   ),
                 );
               } catch (e) {
@@ -1848,12 +1849,12 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                 ScaffoldMessenger.of(this.context).showSnackBar(
                   SnackBar(
                     content: Text('Error resetting workout: $e'),
-                    backgroundColor: Colors.red,
+                    backgroundColor: this.context.errorColor,
                   ),
                 );
               }
             },
-            style: FilledButton.styleFrom(backgroundColor: Colors.red),
+            style: FilledButton.styleFrom(backgroundColor: context.errorColor),
             child: const Text('RESET'),
           ),
         ],
@@ -2072,9 +2073,9 @@ class _WeekSelectorModalState extends State<_WeekSelectorModal> {
                 margin: const EdgeInsets.only(bottom: 8),
                 decoration: BoxDecoration(
                   color: isCompleted
-                      ? Colors.green
+                      ? context.successColor
                       : (isCurrentWeek && isCurrentDay)
-                      ? Colors.red
+                      ? context.errorColor
                       : Theme.of(context).colorScheme.surfaceContainerHighest,
                   borderRadius: BorderRadius.circular(8),
                   border: isSelected

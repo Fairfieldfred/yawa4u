@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/theme/skins/skins.dart';
 import '../../../domain/providers/onboarding_providers.dart';
 import 'onboarding_equipment_screen.dart';
 
@@ -115,21 +116,20 @@ class _OnboardingProfileScreenState
     });
   }
 
-  Color _getBmiColor(double bmi) {
+  Color _getBmiColor(BuildContext context, double bmi) {
     if (bmi < 18.5) return Colors.blue;
-    if (bmi < 25) return Colors.green;
-    if (bmi < 30) return Colors.orange;
-    return Colors.red;
+    if (bmi < 25) return context.successColor;
+    if (bmi < 30) return context.warningColor;
+    return context.errorColor;
   }
 
   // BMI categories with their ranges (in descending order)
-  static const List<
-    ({String label, double minBmi, double? maxBmi, Color color})
-  >
-  _bmiCategories = [
-    (label: 'Obese', minBmi: 30, maxBmi: null, color: Colors.red),
-    (label: 'Overweight', minBmi: 25, maxBmi: 30, color: Colors.orange),
-    (label: 'Normal', minBmi: 18.5, maxBmi: 25, color: Colors.green),
+  // Colors are computed at runtime to support theming
+  List<({String label, double minBmi, double? maxBmi, Color color})>
+  _getBmiCategories(BuildContext context) => [
+    (label: 'Obese', minBmi: 30, maxBmi: null, color: context.errorColor),
+    (label: 'Overweight', minBmi: 25, maxBmi: 30, color: context.warningColor),
+    (label: 'Normal', minBmi: 18.5, maxBmi: 25, color: context.successColor),
     (label: 'Underweight', minBmi: 0, maxBmi: 18.5, color: Colors.blue),
   ];
 
@@ -164,7 +164,7 @@ class _OnboardingProfileScreenState
       );
     }
 
-    final color = _getBmiColor(_bmi!);
+    final color = _getBmiColor(context, _bmi!);
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
@@ -191,7 +191,7 @@ class _OnboardingProfileScreenState
                   ),
                 ),
                 const SizedBox(height: 8),
-                ..._bmiCategories.map((cat) {
+                ..._getBmiCategories(context).map((cat) {
                   final isSelected =
                       _bmi! >= cat.minBmi &&
                       (cat.maxBmi == null || _bmi! < cat.maxBmi!);

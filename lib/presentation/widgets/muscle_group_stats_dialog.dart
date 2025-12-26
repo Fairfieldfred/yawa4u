@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/constants/muscle_groups.dart';
+import '../../core/theme/skins/skins.dart';
 import '../../data/models/training_cycle.dart';
 import '../../domain/providers/workout_providers.dart';
 
@@ -278,7 +279,7 @@ class MuscleGroupStatsDialog extends ConsumerWidget {
           child: Center(
             child: Text(
               'Error: $error',
-              style: const TextStyle(color: Colors.red),
+              style: TextStyle(color: context.errorColor),
             ),
           ),
         ),

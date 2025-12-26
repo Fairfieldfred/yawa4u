@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../core/constants/enums.dart';
 import '../../core/constants/equipment_types.dart';
+import '../../core/theme/skins/skins.dart';
 import '../../core/utils/weight_conversion.dart';
 import '../../data/models/exercise.dart';
 import '../../data/models/exercise_set.dart';
@@ -372,25 +373,27 @@ class ExerciseCardWidget extends StatelessWidget {
           value: 'delete',
           enabled: !exercise.sets.any((s) => s.isLogged),
           height: 48,
-          child: Row(
-            children: [
-              Icon(
-                Icons.delete_outline,
-                color: exercise.sets.any((s) => s.isLogged)
-                    ? Colors.grey
-                    : Colors.red,
-                size: 20,
-              ),
-              const SizedBox(width: 12),
-              Text(
-                'Delete exercise',
-                style: TextStyle(
+          child: Builder(
+            builder: (context) => Row(
+              children: [
+                Icon(
+                  Icons.delete_outline,
                   color: exercise.sets.any((s) => s.isLogged)
                       ? Colors.grey
-                      : Colors.red,
+                      : context.errorColor,
+                  size: 20,
                 ),
-              ),
-            ],
+                const SizedBox(width: 12),
+                Text(
+                  'Delete exercise',
+                  style: TextStyle(
+                    color: exercise.sets.any((s) => s.isLogged)
+                        ? Colors.grey
+                        : context.errorColor,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ],
@@ -521,16 +524,16 @@ class ExerciseCardWidget extends StatelessWidget {
             child: Container(
               decoration: BoxDecoration(
                 color: set.isLogged
-                    ? Colors.green.withValues(alpha: 0.2)
+                    ? context.successColor.withValues(alpha: 0.2)
                     : (isLoggable
                           ? Theme.of(context).inputDecorationTheme.fillColor
                           : Colors.grey.withValues(alpha: 0.1)),
                 borderRadius: BorderRadius.circular(4),
                 border: Border.all(
                   color: set.isLogged
-                      ? Colors.green
+                      ? context.successColor
                       : (isLoggable
-                            ? Colors.green
+                            ? context.successColor
                             : Theme.of(
                                 context,
                               ).dividerColor.withValues(alpha: 0.3)),
@@ -540,7 +543,7 @@ class ExerciseCardWidget extends StatelessWidget {
               child: InkWell(
                 onTap: isLoggable ? () => onToggleSetLog(index) : null,
                 child: set.isLogged
-                    ? const Icon(Icons.check, color: Colors.green)
+                    ? Icon(Icons.check, color: context.successColor)
                     : null,
               ),
             ),
@@ -654,15 +657,17 @@ class ExerciseCardWidget extends StatelessWidget {
           ),
         ),
         // Delete set
-        const PopupMenuItem<String>(
+        PopupMenuItem<String>(
           value: 'delete',
           height: 40,
-          child: Row(
-            children: [
-              Icon(Icons.delete_outline, color: Colors.red, size: 20),
-              SizedBox(width: 12),
-              Text('Delete set', style: TextStyle(color: Colors.red)),
-            ],
+          child: Builder(
+            builder: (context) => Row(
+              children: [
+                Icon(Icons.delete_outline, color: context.errorColor, size: 20),
+                const SizedBox(width: 12),
+                Text('Delete set', style: TextStyle(color: context.errorColor)),
+              ],
+            ),
           ),
         ),
         const PopupMenuDivider(),
@@ -690,7 +695,7 @@ class ExerciseCardWidget extends StatelessWidget {
                     ? Icons.radio_button_checked
                     : Icons.radio_button_unchecked,
                 color: set.setType == SetType.regular
-                    ? Colors.red
+                    ? context.selectedIndicatorColor
                     : Colors.grey,
                 size: 20,
               ),
@@ -714,7 +719,9 @@ class ExerciseCardWidget extends StatelessWidget {
                 set.setType == SetType.myorep
                     ? Icons.radio_button_checked
                     : Icons.radio_button_unchecked,
-                color: set.setType == SetType.myorep ? Colors.red : Colors.grey,
+                color: set.setType == SetType.myorep
+                    ? context.selectedIndicatorColor
+                    : Colors.grey,
                 size: 20,
               ),
               const SizedBox(width: 12),
@@ -738,7 +745,7 @@ class ExerciseCardWidget extends StatelessWidget {
                     ? Icons.radio_button_checked
                     : Icons.radio_button_unchecked,
                 color: set.setType == SetType.myorepMatch
-                    ? Colors.red
+                    ? context.selectedIndicatorColor
                     : Colors.grey,
                 size: 20,
               ),
@@ -763,7 +770,7 @@ class ExerciseCardWidget extends StatelessWidget {
                     ? Icons.radio_button_checked
                     : Icons.radio_button_unchecked,
                 color: set.setType == SetType.maxReps
-                    ? Colors.red
+                    ? context.selectedIndicatorColor
                     : Colors.grey,
                 size: 20,
               ),
@@ -788,7 +795,7 @@ class ExerciseCardWidget extends StatelessWidget {
                     ? Icons.radio_button_checked
                     : Icons.radio_button_unchecked,
                 color: set.setType == SetType.endWithPartials
-                    ? Colors.red
+                    ? context.selectedIndicatorColor
                     : Colors.grey,
                 size: 20,
               ),
