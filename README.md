@@ -36,12 +36,14 @@ YAWA4U is a comprehensive gym workout tracking application designed to help you 
 ## ✨ Features
 
 ### Training Cycle Management
+
 - Create and manage training cycles (mesocycles)
 - Customizable weeks, days per week, and deload weeks
 - Set muscle group priorities to emphasize specific areas
 - Track progress with comprehensive summaries
 
 ### Workout Logging
+
 - Intuitive workout interface with easy set logging
 - Support for weight, reps, and RIR (Reps In Reserve) tracking
 - Multiple set types: Regular, Myorep, Myorep Match
@@ -49,23 +51,27 @@ YAWA4U is a comprehensive gym workout tracking application designed to help you 
 - Workout notes and exercise notes
 
 ### Exercise Library
+
 - Extensive exercise database with muscle groups and equipment types
 - Create custom exercises
 - Exercise history tracking
 - YouTube video integration for exercise demonstrations
 
 ### Templates
+
 - Pre-built workout templates to get started quickly
 - Browse templates by days per week and category
 - Create training cycles from templates
 - Community-contributed templates
 
 ### Calendar Navigation
+
 - Visual calendar view of your training cycle
 - Quick navigation between workout days
 - Color-coded completion status (completed, current, upcoming)
 
 ### Data Management
+
 - **Local-first storage** using Hive database
 - **Manual export/import** - Export your data as JSON
 - **Share functionality** - Share your workout data easily
@@ -101,14 +107,14 @@ YAWA4U is a comprehensive gym workout tracking application designed to help you 
 
 ## 🛠 Technology Stack
 
-| Category | Technology |
-|----------|------------|
-| Framework | Flutter |
-| Database | Hive |
-| State Management | Riverpod |
-| Routing | go_router |
-| Analytics | Firebase Analytics |
-| Error Tracking | Sentry |
+| Category         | Technology         |
+| ---------------- | ------------------ |
+| Framework        | Flutter            |
+| Database         | Hive               |
+| State Management | Riverpod           |
+| Routing          | go_router          |
+| Analytics        | Firebase Analytics |
+| Error Tracking   | Sentry             |
 
 ---
 
@@ -209,6 +215,7 @@ We welcome contributions from the community! Here's how you can help:
 ### Feature Requests
 
 Open an issue with the "enhancement" label describing:
+
 - The feature you'd like to see
 - Why it would be useful
 - Any implementation ideas
