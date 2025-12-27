@@ -39,7 +39,7 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
       appBar: AppBar(
         leading: const AppIconWidget(),
         leadingWidth: kToolbarHeight + 12,
-        title: Text(cycleTermPlural),
+        title: Text(cycleTermPlural, style: const TextStyle(fontSize: 18)),
         actions: [
           // Theme toggle
           IconButton(
@@ -52,6 +52,7 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
               ref.read(themeModeProvider.notifier).toggleTheme();
             },
             tooltip: 'Toggle theme',
+            visualDensity: VisualDensity.compact,
           ),
           // New trainingCycle button
           TextButton.icon(
@@ -62,10 +63,11 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
               foregroundColor: Theme.of(context).colorScheme.primary,
             ),
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 4),
         ],
       ),
-      body: trainingCyclesAsync.when(
+      body: 
+      trainingCyclesAsync.when(
         data: (trainingCycles) {
           if (trainingCycles.isEmpty) {
             return _buildEmptyState(context);
@@ -83,7 +85,7 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
               .toList();
 
           return ListView(
-            padding: const EdgeInsets.all(0.0),
+            padding: const EdgeInsets.only(top: 20),
             children: [
               // Draft TrainingCycles Section
               if (draftTrainingCycles.isNotEmpty) ...[
