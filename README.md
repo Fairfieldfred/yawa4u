@@ -37,7 +37,7 @@ YAWA4U is a comprehensive gym workout tracking application designed to help you 
 
 ### Training Cycle Management
 
-- Create and manage training cycles (mesocycles)
+- Create and manage training cycles, blocks, phases, waves, mesocycles
 - Customizable weeks, days per week, and deload weeks
 - Set muscle group priorities to emphasize specific areas
 - Track progress with comprehensive summaries
@@ -268,7 +268,6 @@ lib/
 - [ ] Apple Watch companion app
 - [ ] Workout statistics and analytics
 - [ ] Exercise progression recommendations
-- [ ] Social features (share workouts)
 - [ ] Cloud sync (optional)
 
 ---
