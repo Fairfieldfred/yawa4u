@@ -38,7 +38,7 @@ YAWA4U is a comprehensive gym workout tracking application designed to help you 
 ### Training Cycle Management
 
 - Create and manage training cycles, blocks, phases, waves, mesocycles
-- Customizable weeks, days per week, and deload weeks
+- Customizable weeks, days per week, and taper, recover/rest, deload weeks
 - Set muscle group priorities to emphasize specific areas
 - Track progress with comprehensive summaries
 
