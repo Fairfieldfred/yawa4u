@@ -383,208 +383,208 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
           child: Stack(
             children: [
               Column(
-              children: [
-                // Progress Indicator
-                LinearProgressIndicator(
-                  value: (_allExercises.isEmpty)
-                      ? 0
-                      : (_currentPage + 1) / _allExercises.length,
-                  backgroundColor: Theme.of(context).dividerColor,
-                ),
+                children: [
+                  // Progress Indicator
+                  LinearProgressIndicator(
+                    value: (_allExercises.isEmpty)
+                        ? 0
+                        : (_currentPage + 1) / _allExercises.length,
+                    backgroundColor: Theme.of(context).dividerColor,
+                  ),
 
-                Expanded(
-                  child: PageView.builder(
-                    controller: _pageController,
-                    itemCount: _allExercises.length,
-                    onPageChanged: (index) {
-                      setState(() {
-                        _currentPage = index;
-                      });
-                    },
-                    itemBuilder: (context, index) {
-                      final source = _exerciseSources[index]!;
-                      final exercise = _allExercises[index];
-                      // Always show muscle group badge on exercises screen
-                      const showMuscleGroupBadge = true;
+                  Expanded(
+                    child: PageView.builder(
+                      controller: _pageController,
+                      itemCount: _allExercises.length,
+                      onPageChanged: (index) {
+                        setState(() {
+                          _currentPage = index;
+                        });
+                      },
+                      itemBuilder: (context, index) {
+                        final source = _exerciseSources[index]!;
+                        final exercise = _allExercises[index];
+                        // Always show muscle group badge on exercises screen
+                        const showMuscleGroupBadge = true;
 
-                      return GestureDetector(
-                        onTap: () => FocusScope.of(context).unfocus(),
-                        child: SingleChildScrollView(
-                          padding: EdgeInsets.only(
-                            top: 24,
-                            bottom: allExercisesCompleted
-                                ? 100
-                                : 24, // Extra padding for button
+                        return GestureDetector(
+                          onTap: () => FocusScope.of(context).unfocus(),
+                          child: SingleChildScrollView(
+                            padding: EdgeInsets.only(
+                              top: 24,
+                              bottom: allExercisesCompleted
+                                  ? 100
+                                  : 24, // Extra padding for button
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                ExerciseCardWidget(
+                                  key: ValueKey(
+                                    '${exercise.id}_${exercise.sets.length}_${exercise.sets.map((s) => s.id).join(",")}_${ref.watch(useMetricProvider)}',
+                                  ),
+                                  exercise: exercise,
+                                  showMuscleGroupBadge: showMuscleGroupBadge,
+                                  targetRir: _calculateRIR(
+                                    source.workout.weekNumber,
+                                  ),
+                                  weightUnit: ref.watch(weightUnitProvider),
+                                  useMetric: ref.watch(useMetricProvider),
+                                  onAddNote: (exerciseId) =>
+                                      _addNote(source.workout.id, exerciseId),
+                                  showMoveDown:
+                                      false, // Single exercise view, no reordering needed
+                                  onReplace: (exerciseId) => _replaceExercise(
+                                    source.workout.id,
+                                    exerciseId,
+                                  ),
+                                  onJointPain: (exerciseId) => _logJointPain(
+                                    source.workout.id,
+                                    exerciseId,
+                                  ),
+                                  onAddSet: (exerciseId) => _addSetToExercise(
+                                    source.workout.id,
+                                    exerciseId,
+                                  ),
+                                  onSkipSets: (exerciseId) => _skipExerciseSets(
+                                    source.workout.id,
+                                    exerciseId,
+                                  ),
+                                  onDelete: (exerciseId) => _deleteExercise(
+                                    source.workout.id,
+                                    exerciseId,
+                                  ),
+                                  onAddSetBelow: (setIndex) => _addSetBelow(
+                                    source.workout.id,
+                                    exercise.id,
+                                    setIndex,
+                                  ),
+                                  onToggleSetSkip: (setIndex) => _toggleSetSkip(
+                                    source.workout.id,
+                                    exercise.id,
+                                    setIndex,
+                                  ),
+                                  onDeleteSet: (setIndex) => _deleteSet(
+                                    source.workout.id,
+                                    exercise.id,
+                                    setIndex,
+                                  ),
+                                  onUpdateSetType: (setIndex, setType) =>
+                                      _updateSetType(
+                                        source.workout.id,
+                                        exercise.id,
+                                        setIndex,
+                                        setType,
+                                      ),
+                                  onUpdateSetWeight: (setIndex, value) =>
+                                      _updateSetWeight(
+                                        source.workout.id,
+                                        exercise.id,
+                                        setIndex,
+                                        value,
+                                      ),
+                                  onUpdateSetReps: (setIndex, value) =>
+                                      _updateSetReps(
+                                        source.workout.id,
+                                        exercise.id,
+                                        setIndex,
+                                        value,
+                                      ),
+                                  onToggleSetLog: (setIndex) => _toggleSetLog(
+                                    source.workout.id,
+                                    exercise.id,
+                                    setIndex,
+                                  ),
+                                ),
+                                // Exercise History Section
+                                if (ref.watch(showExerciseHistoryProvider))
+                                  _buildExerciseHistory(context, exercise),
+                              ],
+                            ),
                           ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              ExerciseCardWidget(
-                                key: ValueKey(
-                                  '${exercise.id}_${exercise.sets.length}_${exercise.sets.map((s) => s.id).join(",")}_${ref.watch(useMetricProvider)}',
-                                ),
-                                exercise: exercise,
-                                showMuscleGroupBadge: showMuscleGroupBadge,
-                                targetRir: _calculateRIR(
-                                  source.workout.weekNumber,
-                                ),
-                                weightUnit: ref.watch(weightUnitProvider),
-                                useMetric: ref.watch(useMetricProvider),
-                                onAddNote: (exerciseId) =>
-                                    _addNote(source.workout.id, exerciseId),
-                                showMoveDown:
-                                    false, // Single exercise view, no reordering needed
-                                onReplace: (exerciseId) => _replaceExercise(
-                                  source.workout.id,
-                                  exerciseId,
-                                ),
-                                onJointPain: (exerciseId) => _logJointPain(
-                                  source.workout.id,
-                                  exerciseId,
-                                ),
-                                onAddSet: (exerciseId) => _addSetToExercise(
-                                  source.workout.id,
-                                  exerciseId,
-                                ),
-                                onSkipSets: (exerciseId) => _skipExerciseSets(
-                                  source.workout.id,
-                                  exerciseId,
-                                ),
-                                onDelete: (exerciseId) => _deleteExercise(
-                                  source.workout.id,
-                                  exerciseId,
-                                ),
-                                onAddSetBelow: (setIndex) => _addSetBelow(
-                                  source.workout.id,
-                                  exercise.id,
-                                  setIndex,
-                                ),
-                                onToggleSetSkip: (setIndex) => _toggleSetSkip(
-                                  source.workout.id,
-                                  exercise.id,
-                                  setIndex,
-                                ),
-                                onDeleteSet: (setIndex) => _deleteSet(
-                                  source.workout.id,
-                                  exercise.id,
-                                  setIndex,
-                                ),
-                                onUpdateSetType: (setIndex, setType) =>
-                                    _updateSetType(
-                                      source.workout.id,
-                                      exercise.id,
-                                      setIndex,
-                                      setType,
-                                    ),
-                                onUpdateSetWeight: (setIndex, value) =>
-                                    _updateSetWeight(
-                                      source.workout.id,
-                                      exercise.id,
-                                      setIndex,
-                                      value,
-                                    ),
-                                onUpdateSetReps: (setIndex, value) =>
-                                    _updateSetReps(
-                                      source.workout.id,
-                                      exercise.id,
-                                      setIndex,
-                                      value,
-                                    ),
-                                onToggleSetLog: (setIndex) => _toggleSetLog(
-                                  source.workout.id,
-                                  exercise.id,
-                                  setIndex,
-                                ),
-                              ),
-                              // Exercise History Section
-                              if (ref.watch(showExerciseHistoryProvider))
-                                _buildExerciseHistory(context, exercise),
-                            ],
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+
+              // Finish Workout Button (appears when all exercises are complete)
+              if (allExercisesCompleted)
+                Positioned(
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  child: Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).scaffoldBackgroundColor,
+                      border: Border(
+                        top: BorderSide(color: Theme.of(context).dividerColor),
+                      ),
+                    ),
+                    child: SafeArea(
+                      top: false,
+                      child: ElevatedButton(
+                        onPressed: () => _finishWorkout(),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: context.successColor,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          elevation: 0,
+                        ),
+                        child: const Text(
+                          'FINISH WORKOUT',
+                          style: TextStyle(
+                            fontSize: 17,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 0.5,
                           ),
                         ),
-                      );
+                      ),
+                    ),
+                  ),
+                ),
+
+              // Week selector overlay (shown on top when toggled)
+              if (_showWeekSelector) ...[
+                // Barrier to dismiss on tap outside
+                Positioned.fill(
+                  child: GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _showWeekSelector = false;
+                      });
+                    },
+                    behavior: HitTestBehavior.opaque,
+                    child: Container(color: Colors.transparent),
+                  ),
+                ),
+                // The dropdown itself
+                Positioned(
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  child: CalendarDropdown(
+                    trainingCycle: widget.trainingCycle,
+                    currentWeek: widget.currentWeek,
+                    currentDay: widget.currentDay,
+                    selectedWeek: widget.selectedWeek,
+                    selectedDay: widget.selectedDay,
+                    allWorkouts: widget.allWorkouts,
+                    onDaySelected: (week, day) {
+                      setState(() {
+                        _showWeekSelector = false;
+                      });
+                      widget.onDaySelected(week, day);
                     },
                   ),
                 ),
               ],
-            ),
-
-            // Finish Workout Button (appears when all exercises are complete)
-            if (allExercisesCompleted)
-              Positioned(
-                bottom: 0,
-                left: 0,
-                right: 0,
-                child: Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).scaffoldBackgroundColor,
-                    border: Border(
-                      top: BorderSide(color: Theme.of(context).dividerColor),
-                    ),
-                  ),
-                  child: SafeArea(
-                    top: false,
-                    child: ElevatedButton(
-                      onPressed: () => _finishWorkout(),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: context.successColor,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        elevation: 0,
-                      ),
-                      child: const Text(
-                        'FINISH WORKOUT',
-                        style: TextStyle(
-                          fontSize: 17,
-                          fontWeight: FontWeight.w600,
-                          letterSpacing: 0.5,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-
-            // Week selector overlay (shown on top when toggled)
-            if (_showWeekSelector) ...[
-              // Barrier to dismiss on tap outside
-              Positioned.fill(
-                child: GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      _showWeekSelector = false;
-                    });
-                  },
-                  behavior: HitTestBehavior.opaque,
-                  child: Container(color: Colors.transparent),
-                ),
-              ),
-              // The dropdown itself
-              Positioned(
-                top: 0,
-                left: 0,
-                right: 0,
-                child: CalendarDropdown(
-                  trainingCycle: widget.trainingCycle,
-                  currentWeek: widget.currentWeek,
-                  currentDay: widget.currentDay,
-                  selectedWeek: widget.selectedWeek,
-                  selectedDay: widget.selectedDay,
-                  allWorkouts: widget.allWorkouts,
-                  onDaySelected: (week, day) {
-                    setState(() {
-                      _showWeekSelector = false;
-                    });
-                    widget.onDaySelected(week, day);
-                  },
-                ),
-              ),
             ],
-          ],
           ),
         ),
       ),

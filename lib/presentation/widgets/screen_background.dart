@@ -6,13 +6,7 @@ import '../../core/theme/skins/skin_provider.dart';
 import '../../domain/providers/theme_provider.dart';
 
 /// Screen identifiers for background selection.
-enum ScreenType {
-  workout,
-  cycles,
-  exercises,
-  more,
-  other,
-}
+enum ScreenType { workout, cycles, exercises, more, other }
 
 /// A widget that wraps screen content with an optional background image.
 ///
@@ -100,8 +94,9 @@ class ScreenBackground extends ConsumerWidget {
         // Overlay for readability
         Positioned.fill(
           child: Container(
-            color: (isDark ? Colors.black : Colors.white)
-                .withValues(alpha: overlayOpacity),
+            color: (isDark ? Colors.black : Colors.white).withValues(
+              alpha: overlayOpacity,
+            ),
           ),
         ),
 
@@ -175,10 +170,7 @@ class BackgroundScaffold extends ConsumerWidget {
       bottomNavigationBar: bottomNavigationBar,
       drawer: drawer,
       body: body != null
-          ? ScreenBackground(
-              screenType: screenType,
-              child: body!,
-            )
+          ? ScreenBackground(screenType: screenType, child: body!)
           : null,
     );
   }

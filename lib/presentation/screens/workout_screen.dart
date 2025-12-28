@@ -1085,180 +1085,187 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
             children: [
               // Exercise list
               allExercises.isEmpty
-                ? const Center(
-                    child: Text(
-                      'No exercises',
-                      style: TextStyle(color: Colors.white54),
+                  ? const Center(
+                      child: Text(
+                        'No exercises',
+                        style: TextStyle(color: Colors.white54),
+                      ),
+                    )
+                  : ListView.separated(
+                      padding: const EdgeInsets.only(bottom: 80, top: 24),
+                      itemCount: allExercises.length,
+                      separatorBuilder: (context, index) {
+                        // Check if next exercise is same muscle group
+                        final currentMuscleGroup =
+                            allExercises[index].muscleGroup;
+                        final nextMuscleGroup = index + 1 < allExercises.length
+                            ? allExercises[index + 1].muscleGroup
+                            : null;
+                        final isSameMuscleGroup =
+                            currentMuscleGroup == nextMuscleGroup;
+
+                        // Thin grey divider for same muscle group, black spacer for different
+                        return isSameMuscleGroup
+                            ? Container(
+                                height: 1,
+                                color: const Color(0xFF3A3A3C),
+                              )
+                            : const SizedBox(height: 32);
+                      },
+                      itemBuilder: (context, index) {
+                        final exercise = allExercises[index];
+                        final showMuscleGroupBadge =
+                            index == 0 ||
+                            allExercises[index - 1].muscleGroup !=
+                                exercise.muscleGroup;
+
+                        // Calculate target RIR for current week
+                        final weekRir = _calculateRIR(
+                          displayWeek,
+                          trainingCycle,
+                        );
+
+                        return ExerciseCardWidget(
+                          key: ValueKey(
+                            '${exercise.id}_${exercise.sets.length}_${exercise.sets.map((s) => s.id).join(",")}_${ref.watch(useMetricProvider)}',
+                          ),
+                          exercise: exercise,
+                          showMuscleGroupBadge: showMuscleGroupBadge,
+                          targetRir: weekRir,
+                          weightUnit: ref.watch(weightUnitProvider),
+                          useMetric: ref.watch(useMetricProvider),
+                          onAddNote: (exerciseId) =>
+                              _addNote(exercise.workoutId, exerciseId),
+                          onMoveDown: (exerciseId) =>
+                              _moveExerciseDown(exercise.workoutId, exerciseId),
+                          showMoveDown: true,
+                          onReplace: (exerciseId) =>
+                              _replaceExercise(exercise.workoutId, exerciseId),
+                          onJointPain: (exerciseId) =>
+                              _logJointPain(exercise.workoutId, exerciseId),
+                          onAddSet: (exerciseId) =>
+                              _addSetToExercise(exercise.workoutId, exerciseId),
+                          onSkipSets: (exerciseId) =>
+                              _skipExerciseSets(exercise.workoutId, exerciseId),
+                          onDelete: (exerciseId) =>
+                              _deleteExercise(exercise.workoutId, exerciseId),
+                          onAddSetBelow: (setIndex) => _addSetBelow(
+                            exercise.workoutId,
+                            exercise.id,
+                            setIndex,
+                          ),
+                          onToggleSetSkip: (setIndex) => _toggleSetSkip(
+                            exercise.workoutId,
+                            exercise.id,
+                            setIndex,
+                          ),
+                          onDeleteSet: (setIndex) => _deleteSet(
+                            exercise.workoutId,
+                            exercise.id,
+                            setIndex,
+                          ),
+                          onUpdateSetType: (setIndex, setType) =>
+                              _updateSetType(
+                                exercise.workoutId,
+                                exercise.id,
+                                setIndex,
+                                setType,
+                              ),
+                          onUpdateSetWeight: (setIndex, value) =>
+                              _updateSetWeight(
+                                exercise.workoutId,
+                                exercise.id,
+                                setIndex,
+                                value,
+                              ),
+                          onUpdateSetReps: (setIndex, value) => _updateSetReps(
+                            exercise.workoutId,
+                            exercise.id,
+                            setIndex,
+                            value,
+                          ),
+                          onToggleSetLog: (setIndex) => _toggleSetLog(
+                            exercise.workoutId,
+                            exercise.id,
+                            setIndex,
+                          ),
+                        );
+                      },
                     ),
-                  )
-                : ListView.separated(
-                    padding: const EdgeInsets.only(bottom: 80, top: 24),
-                    itemCount: allExercises.length,
-                    separatorBuilder: (context, index) {
-                      // Check if next exercise is same muscle group
-                      final currentMuscleGroup =
-                          allExercises[index].muscleGroup;
-                      final nextMuscleGroup = index + 1 < allExercises.length
-                          ? allExercises[index + 1].muscleGroup
-                          : null;
-                      final isSameMuscleGroup =
-                          currentMuscleGroup == nextMuscleGroup;
 
-                      // Thin grey divider for same muscle group, black spacer for different
-                      return isSameMuscleGroup
-                          ? Container(height: 1, color: const Color(0xFF3A3A3C))
-                          : const SizedBox(height: 32);
+              // Week selector overlay (shown on top when toggled)
+              if (_homeState.showWeekSelector) ...[
+                // Barrier to dismiss on tap outside
+                Positioned.fill(
+                  child: GestureDetector(
+                    onTap: () {
+                      _controller.hideWeekSelector();
                     },
-                    itemBuilder: (context, index) {
-                      final exercise = allExercises[index];
-                      final showMuscleGroupBadge =
-                          index == 0 ||
-                          allExercises[index - 1].muscleGroup !=
-                              exercise.muscleGroup;
-
-                      // Calculate target RIR for current week
-                      final weekRir = _calculateRIR(displayWeek, trainingCycle);
-
-                      return ExerciseCardWidget(
-                        key: ValueKey(
-                          '${exercise.id}_${exercise.sets.length}_${exercise.sets.map((s) => s.id).join(",")}_${ref.watch(useMetricProvider)}',
-                        ),
-                        exercise: exercise,
-                        showMuscleGroupBadge: showMuscleGroupBadge,
-                        targetRir: weekRir,
-                        weightUnit: ref.watch(weightUnitProvider),
-                        useMetric: ref.watch(useMetricProvider),
-                        onAddNote: (exerciseId) =>
-                            _addNote(exercise.workoutId, exerciseId),
-                        onMoveDown: (exerciseId) =>
-                            _moveExerciseDown(exercise.workoutId, exerciseId),
-                        showMoveDown: true,
-                        onReplace: (exerciseId) =>
-                            _replaceExercise(exercise.workoutId, exerciseId),
-                        onJointPain: (exerciseId) =>
-                            _logJointPain(exercise.workoutId, exerciseId),
-                        onAddSet: (exerciseId) =>
-                            _addSetToExercise(exercise.workoutId, exerciseId),
-                        onSkipSets: (exerciseId) =>
-                            _skipExerciseSets(exercise.workoutId, exerciseId),
-                        onDelete: (exerciseId) =>
-                            _deleteExercise(exercise.workoutId, exerciseId),
-                        onAddSetBelow: (setIndex) => _addSetBelow(
-                          exercise.workoutId,
-                          exercise.id,
-                          setIndex,
-                        ),
-                        onToggleSetSkip: (setIndex) => _toggleSetSkip(
-                          exercise.workoutId,
-                          exercise.id,
-                          setIndex,
-                        ),
-                        onDeleteSet: (setIndex) => _deleteSet(
-                          exercise.workoutId,
-                          exercise.id,
-                          setIndex,
-                        ),
-                        onUpdateSetType: (setIndex, setType) => _updateSetType(
-                          exercise.workoutId,
-                          exercise.id,
-                          setIndex,
-                          setType,
-                        ),
-                        onUpdateSetWeight: (setIndex, value) =>
-                            _updateSetWeight(
-                              exercise.workoutId,
-                              exercise.id,
-                              setIndex,
-                              value,
-                            ),
-                        onUpdateSetReps: (setIndex, value) => _updateSetReps(
-                          exercise.workoutId,
-                          exercise.id,
-                          setIndex,
-                          value,
-                        ),
-                        onToggleSetLog: (setIndex) => _toggleSetLog(
-                          exercise.workoutId,
-                          exercise.id,
-                          setIndex,
-                        ),
-                      );
-                    },
+                    behavior: HitTestBehavior.opaque,
+                    child: Container(color: Colors.transparent),
                   ),
+                ),
+                // The dropdown itself
+                Positioned(
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  child: CalendarDropdown(
+                    trainingCycle: trainingCycle,
+                    currentWeek: currentWeek,
+                    currentDay: displayDay,
+                    selectedWeek: displayWeek,
+                    selectedDay: displayDay,
+                    allWorkouts: allWorkouts,
+                    onDaySelected: _selectDay,
+                  ),
+                ),
+              ],
 
-            // Week selector overlay (shown on top when toggled)
-            if (_homeState.showWeekSelector) ...[
-              // Barrier to dismiss on tap outside
-              Positioned.fill(
-                child: GestureDetector(
-                  onTap: () {
-                    _controller.hideWeekSelector();
-                  },
-                  behavior: HitTestBehavior.opaque,
-                  child: Container(color: Colors.transparent),
+              // FINISH WORKOUT button (appears when all sets are logged or skipped)
+              if (workouts.isNotEmpty &&
+                  !workouts.every((w) => w.isCompleted) &&
+                  workouts.every((w) => _isWorkoutComplete(w)))
+                Positioned(
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  child: Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF1C1C1E),
+                      border: Border(
+                        top: BorderSide(
+                          color: Colors.white.withValues(alpha: 0.1),
+                        ),
+                      ),
+                    ),
+                    child: SafeArea(
+                      top: false,
+                      child: ElevatedButton(
+                        onPressed: () => _finishWorkout(workouts),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: context.successColor,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          elevation: 0,
+                        ),
+                        child: const Text(
+                          'FINISH WORKOUT',
+                          style: TextStyle(
+                            fontSize: 17,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
-              ),
-              // The dropdown itself
-              Positioned(
-                top: 0,
-                left: 0,
-                right: 0,
-                child: CalendarDropdown(
-                  trainingCycle: trainingCycle,
-                  currentWeek: currentWeek,
-                  currentDay: displayDay,
-                  selectedWeek: displayWeek,
-                  selectedDay: displayDay,
-                  allWorkouts: allWorkouts,
-                  onDaySelected: _selectDay,
-                ),
-              ),
             ],
-
-            // FINISH WORKOUT button (appears when all sets are logged or skipped)
-            if (workouts.isNotEmpty &&
-                !workouts.every((w) => w.isCompleted) &&
-                workouts.every((w) => _isWorkoutComplete(w)))
-              Positioned(
-                bottom: 0,
-                left: 0,
-                right: 0,
-                child: Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF1C1C1E),
-                    border: Border(
-                      top: BorderSide(
-                        color: Colors.white.withValues(alpha: 0.1),
-                      ),
-                    ),
-                  ),
-                  child: SafeArea(
-                    top: false,
-                    child: ElevatedButton(
-                      onPressed: () => _finishWorkout(workouts),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: context.successColor,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        elevation: 0,
-                      ),
-                      child: const Text(
-                        'FINISH WORKOUT',
-                        style: TextStyle(
-                          fontSize: 17,
-                          fontWeight: FontWeight.w600,
-                          letterSpacing: 0.5,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-          ],
           ),
         ),
       ),

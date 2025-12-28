@@ -145,207 +145,211 @@ class _MoreScreenState extends ConsumerState<MoreScreen>
       body: ScreenBackground.more(
         child: ListView(
           children: [
-          const SizedBox(height: 32),
-          // App Logo & Info
-          Center(
-            child: Column(
-              children: [
-                AnimatedBuilder(
-                  animation: _animation,
-                  builder: (context, child) {
-                    final orderedIndices = _getOrderedIndices(
-                      selectedIconIndex,
-                    );
-                    return Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        for (int i = 0; i < 3; i++)
-                          _buildSelectableIcon(
-                            orderedIndices[i],
-                            selectedIconIndex,
-                            isCenter: i == 1,
-                          ),
-                      ],
-                    );
-                  },
-                ),
-                const SizedBox(height: 16),
-
-                const SizedBox(height: 8),
-                Text(
-                  _version,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodyMedium?.copyWith(color: Colors.grey),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 32),
-
-          // Theme Mode
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(left: 12, bottom: 8),
-                  child: Text(
-                    'Theme mode',
-                    style: Theme.of(context).textTheme.bodyMedium,
+            const SizedBox(height: 32),
+            // App Logo & Info
+            Center(
+              child: Column(
+                children: [
+                  AnimatedBuilder(
+                    animation: _animation,
+                    builder: (context, child) {
+                      final orderedIndices = _getOrderedIndices(
+                        selectedIconIndex,
+                      );
+                      return Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          for (int i = 0; i < 3; i++)
+                            _buildSelectableIcon(
+                              orderedIndices[i],
+                              selectedIconIndex,
+                              isCenter: i == 1,
+                            ),
+                        ],
+                      );
+                    },
                   ),
-                ),
-                SegmentedButton<ThemeMode>(
-                  segments: const [
-                    ButtonSegment<ThemeMode>(
-                      value: ThemeMode.system,
-                      label: Text('System'),
-                    ),
-                    ButtonSegment<ThemeMode>(
-                      value: ThemeMode.light,
-                      label: Text('Light'),
-                    ),
-                    ButtonSegment<ThemeMode>(
-                      value: ThemeMode.dark,
-                      label: Text('Dark'),
-                    ),
-                  ],
-                  selected: {themeMode},
-                  onSelectionChanged: (Set<ThemeMode> newSelection) {
-                    ref
-                        .read(themeModeProvider.notifier)
-                        .setThemeMode(newSelection.first);
-                  },
-                  style: ButtonStyle(
-                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    visualDensity: VisualDensity.compact,
+                  const SizedBox(height: 16),
+
+                  const SizedBox(height: 8),
+                  Text(
+                    _version,
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodyMedium?.copyWith(color: Colors.grey),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          const SizedBox(height: 24),
-          const Divider(height: 1),
+            const SizedBox(height: 32),
 
-          // Appearance / Skins
-          ListTile(
-            leading: const Icon(Icons.palette_outlined),
-            title: const Text('Appearance'),
-            subtitle: const Text('Choose your app theme'),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => context.push('/skins'),
-          ),
-          const Divider(height: 1),
+            // Theme Mode
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(left: 12, bottom: 8),
+                    child: Text(
+                      'Theme mode',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                  ),
+                  SegmentedButton<ThemeMode>(
+                    segments: const [
+                      ButtonSegment<ThemeMode>(
+                        value: ThemeMode.system,
+                        label: Text('System'),
+                      ),
+                      ButtonSegment<ThemeMode>(
+                        value: ThemeMode.light,
+                        label: Text('Light'),
+                      ),
+                      ButtonSegment<ThemeMode>(
+                        value: ThemeMode.dark,
+                        label: Text('Dark'),
+                      ),
+                    ],
+                    selected: {themeMode},
+                    onSelectionChanged: (Set<ThemeMode> newSelection) {
+                      ref
+                          .read(themeModeProvider.notifier)
+                          .setThemeMode(newSelection.first);
+                    },
+                    style: ButtonStyle(
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      visualDensity: VisualDensity.compact,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+            const Divider(height: 1),
 
-          // Sync Data
-          ListTile(
-            leading: const Icon(Icons.sync),
-            title: const Text('Sync Data'),
-            subtitle: const Text('Sync with another device via WiFi'),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => context.push('/sync'),
-          ),
-          const Divider(height: 1),
-
-          // Share App
-          ListTile(
-            leading: const Icon(Icons.share_outlined),
-            title: const Text('Share App'),
-            subtitle: const Text('Share YAWA4U with friends'),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () async {
-              await SharePlus.instance.share(
-                ShareParams(
-                  text:
-                      'Check out YAWA4U - The best workout tracker! https://testflight.apple.com/join/YVQsRjzD',
-                ),
-              );
-            },
-          ),
-          const Divider(height: 1),
-
-          // Share Template
-          ListTile(
-            leading: const Icon(Icons.file_copy_outlined),
-            title: const Text('Share Template'),
-            subtitle: const Text('Share workout templates via WiFi'),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => context.push('/template-share'),
-          ),
-          const Divider(height: 1),
-
-          // Settings
-          ListTile(
-            leading: const Icon(Icons.settings_outlined),
-            title: const Text('Settings'),
-            subtitle: const Text('Units, terminology, equipment'),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => context.push('/settings'),
-          ),
-          const Divider(height: 1),
-
-          // Send Feedback
-          ListTile(
-            title: const Text('Send feedback'),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () {
-              SentryService.instance.showBetterFeedback(context);
-            },
-          ),
-          const Divider(height: 1),
-
-          // Sentry Debug (debug builds only)
-          if (kDebugMode) ...[
+            // Appearance / Skins
             ListTile(
-              leading: const Icon(Icons.bug_report, color: Colors.orange),
-              title: const Text('Sentry Debug'),
-              subtitle: const Text('Test Sentry integration'),
+              leading: const Icon(Icons.palette_outlined),
+              title: const Text('Appearance'),
+              subtitle: const Text('Choose your app theme'),
               trailing: const Icon(Icons.chevron_right),
-              onTap: () => context.push('/sentry-debug'),
+              onTap: () => context.push('/skins'),
             ),
             const Divider(height: 1),
+
+            // Sync Data
+            ListTile(
+              leading: const Icon(Icons.sync),
+              title: const Text('Sync Data'),
+              subtitle: const Text('Sync with another device via WiFi'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => context.push('/sync'),
+            ),
+            const Divider(height: 1),
+
+            // Share App
+            ListTile(
+              leading: const Icon(Icons.share_outlined),
+              title: const Text('Share App'),
+              subtitle: const Text('Share YAWA4U with friends'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () async {
+                await SharePlus.instance.share(
+                  ShareParams(
+                    text:
+                        'Check out YAWA4U - The best workout tracker! https://testflight.apple.com/join/YVQsRjzD',
+                  ),
+                );
+              },
+            ),
+            const Divider(height: 1),
+
+            // Share Template
+            ListTile(
+              leading: const Icon(Icons.file_copy_outlined),
+              title: const Text('Share Template'),
+              subtitle: const Text('Share workout templates via WiFi'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => context.push('/template-share'),
+            ),
+            const Divider(height: 1),
+
+            // Settings
+            ListTile(
+              leading: const Icon(Icons.settings_outlined),
+              title: const Text('Settings'),
+              subtitle: const Text('Units, terminology, equipment'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => context.push('/settings'),
+            ),
+            const Divider(height: 1),
+
+            // Send Feedback
+            ListTile(
+              title: const Text('Send feedback'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () {
+                SentryService.instance.showBetterFeedback(context);
+              },
+            ),
+            const Divider(height: 1),
+
+            // Sentry Debug (debug builds only)
+            if (kDebugMode) ...[
+              ListTile(
+                leading: const Icon(Icons.bug_report, color: Colors.orange),
+                title: const Text('Sentry Debug'),
+                subtitle: const Text('Test Sentry integration'),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => context.push('/sentry-debug'),
+              ),
+              const Divider(height: 1),
+            ],
+
+            // Website
+            ListTile(
+              title: const Text('Website'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () async {
+                final url = Uri.parse(
+                  'https://github.com/Fairfieldfred/yawa4u',
+                );
+                if (await canLaunchUrl(url)) {
+                  await launchUrl(url);
+                }
+              },
+            ),
+            const Divider(height: 1),
+
+            // Language
+            ListTile(
+              title: const Text('Language'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Language selection coming soon'),
+                  ),
+                );
+              },
+            ),
+            const Divider(height: 1),
+
+            // Privacy Policy
+            ListTile(
+              title: const Text('Privacy Policy'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () async {
+                final url = Uri.parse(AppConstants.privacyPolicyUrl);
+                if (await canLaunchUrl(url)) {
+                  await launchUrl(url);
+                }
+              },
+            ),
+            const Divider(height: 1),
+            const SizedBox(height: 32),
           ],
-
-          // Website
-          ListTile(
-            title: const Text('Website'),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () async {
-              final url = Uri.parse('https://github.com/Fairfieldfred/yawa4u');
-              if (await canLaunchUrl(url)) {
-                await launchUrl(url);
-              }
-            },
-          ),
-          const Divider(height: 1),
-
-          // Language
-          ListTile(
-            title: const Text('Language'),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Language selection coming soon')),
-              );
-            },
-          ),
-          const Divider(height: 1),
-
-          // Privacy Policy
-          ListTile(
-            title: const Text('Privacy Policy'),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () async {
-              final url = Uri.parse(AppConstants.privacyPolicyUrl);
-              if (await canLaunchUrl(url)) {
-                await launchUrl(url);
-              }
-            },
-          ),
-          const Divider(height: 1),
-          const SizedBox(height: 32),
-        ],
         ),
       ),
     );
