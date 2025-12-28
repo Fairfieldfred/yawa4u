@@ -10,6 +10,7 @@ import '../../core/constants/app_constants.dart';
 import '../../core/services/sentry_service.dart';
 import '../../domain/providers/onboarding_providers.dart';
 import '../../domain/providers/theme_provider.dart';
+import '../widgets/screen_background.dart';
 
 /// More/Settings screen
 class MoreScreen extends ConsumerStatefulWidget {
@@ -141,8 +142,9 @@ class _MoreScreenState extends ConsumerState<MoreScreen>
 
     return Scaffold(
       appBar: AppBar(title: const Text('YAWA4U'), centerTitle: true),
-      body: ListView(
-        children: [
+      body: ScreenBackground.more(
+        child: ListView(
+          children: [
           const SizedBox(height: 32),
           // App Logo & Info
           Center(
@@ -344,6 +346,7 @@ class _MoreScreenState extends ConsumerState<MoreScreen>
           const Divider(height: 1),
           const SizedBox(height: 32),
         ],
+        ),
       ),
     );
   }

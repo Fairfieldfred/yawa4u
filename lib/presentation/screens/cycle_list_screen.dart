@@ -18,6 +18,7 @@ import '../../domain/providers/workout_providers.dart';
 import '../widgets/app_icon_widget.dart';
 import '../widgets/cycle_summary_dialog.dart';
 import '../widgets/dialogs/workout_dialogs.dart';
+import '../widgets/screen_background.dart';
 import 'template_selection_screen.dart';
 
 /// TrainingCycle list screen - organized by Draft/Current/Completed
@@ -66,15 +67,15 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
           const SizedBox(width: 4),
         ],
       ),
-      body: 
-      trainingCyclesAsync.when(
-        data: (trainingCycles) {
-          if (trainingCycles.isEmpty) {
-            return _buildEmptyState(context);
-          }
+      body: ScreenBackground.cycles(
+        child: trainingCyclesAsync.when(
+          data: (trainingCycles) {
+            if (trainingCycles.isEmpty) {
+              return _buildEmptyState(context);
+            }
 
-          // Separate trainingCycles by status
-          final draftTrainingCycles = trainingCycles
+            // Separate trainingCycles by status
+            final draftTrainingCycles = trainingCycles
               .where((m) => m.status == TrainingCycleStatus.draft)
               .toList();
           final currentTrainingCycles = trainingCycles
@@ -142,6 +143,7 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
               Text('Error loading trainingCycles: $error'),
             ],
           ),
+        ),
         ),
       ),
     );

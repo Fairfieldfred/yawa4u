@@ -21,6 +21,7 @@ import '../widgets/cycle_summary_dialog.dart';
 import '../widgets/dialogs/add_exercise_dialog.dart';
 import '../widgets/dialogs/workout_dialogs.dart';
 import '../widgets/exercise_card_widget.dart';
+import '../widgets/screen_background.dart';
 import 'add_exercise_screen.dart';
 
 /// Workout home screen - shows current/upcoming workouts
@@ -918,33 +919,35 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
   Widget _buildEmptyState(BuildContext context, String title, String message) {
     return Scaffold(
       appBar: AppBar(title: const Text('Workout')),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.fitness_center,
-              size: 80,
-              color: Theme.of(
-                context,
-              ).colorScheme.primary.withValues(alpha: 0.5),
-            ),
-            const SizedBox(height: 16),
-            Text(title, style: Theme.of(context).textTheme.headlineSmall),
-            const SizedBox(height: 8),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 32),
-              child: Text(
-                message,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.onSurface.withValues(alpha: 0.7),
-                ),
-                textAlign: TextAlign.center,
+      body: ScreenBackground.workout(
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.fitness_center,
+                size: 80,
+                color: Theme.of(
+                  context,
+                ).colorScheme.primary.withValues(alpha: 0.5),
               ),
-            ),
-          ],
+              const SizedBox(height: 16),
+              Text(title, style: Theme.of(context).textTheme.headlineSmall),
+              const SizedBox(height: 8),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 32),
+                child: Text(
+                  message,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.7),
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -1077,10 +1080,11 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
             ),
           ],
         ),
-        body: Stack(
-          children: [
-            // Exercise list
-            allExercises.isEmpty
+        body: ScreenBackground.workout(
+          child: Stack(
+            children: [
+              // Exercise list
+              allExercises.isEmpty
                 ? const Center(
                     child: Text(
                       'No exercises',
@@ -1255,6 +1259,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                 ),
               ),
           ],
+          ),
         ),
       ),
     );

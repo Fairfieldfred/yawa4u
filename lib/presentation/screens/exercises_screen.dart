@@ -21,6 +21,7 @@ import '../widgets/cycle_summary_dialog.dart';
 import '../widgets/dialogs/add_exercise_dialog.dart';
 import '../widgets/dialogs/workout_dialogs.dart';
 import '../widgets/exercise_card_widget.dart';
+import '../widgets/screen_background.dart';
 import 'add_exercise_screen.dart';
 
 /// Helper class to hold history entry data
@@ -65,36 +66,38 @@ class _ExercisesHomeScreenState extends ConsumerState<ExercisesHomeScreen> {
     if (currentTrainingCycle == null) {
       return Scaffold(
         appBar: AppBar(title: const Text('Exercises')),
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.fitness_center,
-                size: 80,
-                color: Theme.of(
-                  context,
-                ).colorScheme.primary.withValues(alpha: 0.5),
-              ),
-              const SizedBox(height: 16),
-              Text(
-                'No Active TrainingCycle',
-                style: Theme.of(context).textTheme.headlineSmall,
-              ),
-              const SizedBox(height: 8),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 32),
-                child: Text(
-                  'Create and start a trainingCycle to begin',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.7),
-                  ),
-                  textAlign: TextAlign.center,
+        body: ScreenBackground.exercises(
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.fitness_center,
+                  size: 80,
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.primary.withValues(alpha: 0.5),
                 ),
-              ),
-            ],
+                const SizedBox(height: 16),
+                Text(
+                  'No Active TrainingCycle',
+                  style: Theme.of(context).textTheme.headlineSmall,
+                ),
+                const SizedBox(height: 8),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 32),
+                  child: Text(
+                    'Create and start a trainingCycle to begin',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.7),
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       );
@@ -376,9 +379,10 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
             ),
           ],
         ),
-        body: Stack(
-          children: [
-            Column(
+        body: ScreenBackground.exercises(
+          child: Stack(
+            children: [
+              Column(
               children: [
                 // Progress Indicator
                 LinearProgressIndicator(
@@ -581,6 +585,7 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
               ),
             ],
           ],
+          ),
         ),
       ),
     );

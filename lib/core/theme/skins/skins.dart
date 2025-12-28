@@ -6,6 +6,7 @@ library;
 import 'package:flutter/material.dart';
 
 import 'skin_builder.dart';
+import 'skin_model.dart';
 
 export 'built_in_skins/built_in_skins.dart';
 export 'skin_builder.dart';
@@ -55,4 +56,10 @@ extension SkinContext on BuildContext {
 
   /// Get selected/active indicator color (for radio buttons, checkboxes in menus).
   Color get selectedIndicatorColor => Theme.of(this).colorScheme.primary;
+
+  /// Get the backgrounds configuration from the current skin.
+  SkinBackgrounds? get backgrounds => skinColors?.backgrounds;
+
+  /// Check if the current skin has any background images configured.
+  bool get hasBackgrounds => backgrounds != null;
 }

@@ -36,6 +36,7 @@ class SkinBuilder {
           success: skin.colors.successColor,
           warning: skin.colors.warningColor,
           info: skin.colors.infoColor,
+          backgrounds: skin.backgrounds,
         ),
       ],
 
@@ -360,6 +361,7 @@ class SkinExtension extends ThemeExtension<SkinExtension> {
   final Color success;
   final Color warning;
   final Color info;
+  final SkinBackgrounds? backgrounds;
 
   const SkinExtension({
     required this.workoutCurrent,
@@ -369,6 +371,7 @@ class SkinExtension extends ThemeExtension<SkinExtension> {
     required this.success,
     required this.warning,
     required this.info,
+    this.backgrounds,
   });
 
   @override
@@ -380,6 +383,7 @@ class SkinExtension extends ThemeExtension<SkinExtension> {
     Color? success,
     Color? warning,
     Color? info,
+    SkinBackgrounds? backgrounds,
   }) {
     return SkinExtension(
       workoutCurrent: workoutCurrent ?? this.workoutCurrent,
@@ -389,6 +393,7 @@ class SkinExtension extends ThemeExtension<SkinExtension> {
       success: success ?? this.success,
       warning: warning ?? this.warning,
       info: info ?? this.info,
+      backgrounds: backgrounds ?? this.backgrounds,
     );
   }
 
@@ -409,6 +414,8 @@ class SkinExtension extends ThemeExtension<SkinExtension> {
       success: Color.lerp(success, other.success, t)!,
       warning: Color.lerp(warning, other.warning, t)!,
       info: Color.lerp(info, other.info, t)!,
+      // Backgrounds don't lerp, just take the target
+      backgrounds: t < 0.5 ? backgrounds : other.backgrounds,
     );
   }
 }

@@ -21,6 +21,7 @@ class SkinModel {
   final SkinMuscleGroupColors muscleGroups;
   final SkinWorkoutStatusColors workoutStatus;
   final SkinComponents components;
+  final SkinBackgrounds? backgrounds;
 
   const SkinModel({
     required this.id,
@@ -36,6 +37,7 @@ class SkinModel {
     required this.muscleGroups,
     required this.workoutStatus,
     required this.components,
+    this.backgrounds,
   });
 
   factory SkinModel.fromJson(Map<String, dynamic> json) =>
@@ -57,6 +59,7 @@ class SkinModel {
     SkinMuscleGroupColors? muscleGroups,
     SkinWorkoutStatusColors? workoutStatus,
     SkinComponents? components,
+    SkinBackgrounds? backgrounds,
   }) {
     return SkinModel(
       id: id ?? this.id,
@@ -72,6 +75,7 @@ class SkinModel {
       muscleGroups: muscleGroups ?? this.muscleGroups,
       workoutStatus: workoutStatus ?? this.workoutStatus,
       components: components ?? this.components,
+      backgrounds: backgrounds ?? this.backgrounds,
     );
   }
 }
@@ -231,4 +235,45 @@ class SkinComponents {
       _$SkinComponentsFromJson(json);
 
   Map<String, dynamic> toJson() => _$SkinComponentsToJson(this);
+}
+
+/// Background image configuration for screens.
+@JsonSerializable()
+class SkinBackgrounds {
+  /// Background image for the Workout screen (main tab).
+  final String? workout;
+
+  /// Background image for the Training Cycles list screen.
+  final String? cycles;
+
+  /// Background image for the Exercises screen.
+  final String? exercises;
+
+  /// Background image for the More screen.
+  final String? more;
+
+  /// Default background for all other/sub screens.
+  final String? defaultBackground;
+
+  /// Overlay opacity for light mode (0.0 to 1.0).
+  /// Higher values = more overlay = better text readability.
+  final double lightOverlayOpacity;
+
+  /// Overlay opacity for dark mode (0.0 to 1.0).
+  final double darkOverlayOpacity;
+
+  const SkinBackgrounds({
+    this.workout,
+    this.cycles,
+    this.exercises,
+    this.more,
+    this.defaultBackground,
+    this.lightOverlayOpacity = 0.7,
+    this.darkOverlayOpacity = 0.75,
+  });
+
+  factory SkinBackgrounds.fromJson(Map<String, dynamic> json) =>
+      _$SkinBackgroundsFromJson(json);
+
+  Map<String, dynamic> toJson() => _$SkinBackgroundsToJson(this);
 }

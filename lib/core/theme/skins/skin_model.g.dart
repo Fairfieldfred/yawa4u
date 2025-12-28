@@ -25,6 +25,10 @@ SkinModel _$SkinModelFromJson(Map<String, dynamic> json) => SkinModel(
           json['workoutStatus'] as Map<String, dynamic>),
       components:
           SkinComponents.fromJson(json['components'] as Map<String, dynamic>),
+      backgrounds: json['backgrounds'] == null
+          ? null
+          : SkinBackgrounds.fromJson(
+              json['backgrounds'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$SkinModelToJson(SkinModel instance) => <String, dynamic>{
@@ -41,6 +45,7 @@ Map<String, dynamic> _$SkinModelToJson(SkinModel instance) => <String, dynamic>{
       'muscleGroups': instance.muscleGroups.toJson(),
       'workoutStatus': instance.workoutStatus.toJson(),
       'components': instance.components.toJson(),
+      'backgrounds': instance.backgrounds?.toJson(),
     };
 
 SkinColors _$SkinColorsFromJson(Map<String, dynamic> json) => SkinColors(
@@ -140,4 +145,28 @@ Map<String, dynamic> _$SkinComponentsToJson(SkinComponents instance) =>
       'inputBorderRadius': instance.inputBorderRadius,
       'cardElevation': instance.cardElevation,
       'buttonElevation': instance.buttonElevation,
+    };
+
+SkinBackgrounds _$SkinBackgroundsFromJson(Map<String, dynamic> json) =>
+    SkinBackgrounds(
+      workout: json['workout'] as String?,
+      cycles: json['cycles'] as String?,
+      exercises: json['exercises'] as String?,
+      more: json['more'] as String?,
+      defaultBackground: json['defaultBackground'] as String?,
+      lightOverlayOpacity:
+          (json['lightOverlayOpacity'] as num?)?.toDouble() ?? 0.7,
+      darkOverlayOpacity:
+          (json['darkOverlayOpacity'] as num?)?.toDouble() ?? 0.75,
+    );
+
+Map<String, dynamic> _$SkinBackgroundsToJson(SkinBackgrounds instance) =>
+    <String, dynamic>{
+      'workout': instance.workout,
+      'cycles': instance.cycles,
+      'exercises': instance.exercises,
+      'more': instance.more,
+      'defaultBackground': instance.defaultBackground,
+      'lightOverlayOpacity': instance.lightOverlayOpacity,
+      'darkOverlayOpacity': instance.darkOverlayOpacity,
     };

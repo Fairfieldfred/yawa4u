@@ -56,4 +56,14 @@ const SkinModel oceanSkinDefinition = SkinModel(
     cardElevation: 1,
     buttonElevation: 1,
   ),
+  // ... existing properties ...
+  backgrounds: SkinBackgrounds(
+    workout: 'assets/backgrounds/workout_ocean.jpg',
+    cycles: 'assets/backgrounds/cycles_ocean.jpg',
+    exercises: 'assets/backgrounds/exercises_ocean.jpg',
+    more: 'assets/backgrounds/more_ocean.jpg',
+    defaultBackground: 'assets/backgrounds/default_ocean.jpg',
+    lightOverlayOpacity: 0.7, // 70% white overlay in light mode
+    darkOverlayOpacity: 0.75, // 75% black overlay in dark mode
+  ),
 );
