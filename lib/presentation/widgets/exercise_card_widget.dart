@@ -228,6 +228,8 @@ class ExerciseCardWidget extends StatelessWidget {
   }
 
   Widget _buildExerciseOverflowMenu(BuildContext context) {
+    final onSurfaceColor = Theme.of(context).colorScheme.onSurface;
+
     return PopupMenuButton<String>(
       icon: Icon(
         Icons.more_vert,
@@ -237,10 +239,10 @@ class ExerciseCardWidget extends StatelessWidget {
       offset: const Offset(-180, 40),
       padding: EdgeInsets.zero,
       constraints: const BoxConstraints(minWidth: 250),
-      color: const Color(0xFF2C2C2E),
+      color: Theme.of(context).cardTheme.color,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8),
-        side: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
+        side: BorderSide(color: Theme.of(context).dividerColor),
       ),
       onSelected: (value) {
         switch (value) {
@@ -282,39 +284,39 @@ class ExerciseCardWidget extends StatelessWidget {
           ),
         ),
         // New note
-        const PopupMenuItem<String>(
+        PopupMenuItem<String>(
           value: 'note',
           height: 48,
           child: Row(
             children: [
-              Icon(Icons.edit_outlined, color: Colors.white, size: 20),
-              SizedBox(width: 12),
-              Text('New note', style: TextStyle(color: Colors.white)),
+              Icon(Icons.edit_outlined, color: onSurfaceColor, size: 20),
+              const SizedBox(width: 12),
+              Text('New note', style: TextStyle(color: onSurfaceColor)),
             ],
           ),
         ),
         // Move down (conditionally shown)
         if (showMoveDown)
-          const PopupMenuItem<String>(
+          PopupMenuItem<String>(
             value: 'move_down',
             height: 48,
             child: Row(
               children: [
-                Icon(Icons.arrow_downward, color: Colors.white, size: 20),
-                SizedBox(width: 12),
-                Text('Move down', style: TextStyle(color: Colors.white)),
+                Icon(Icons.arrow_downward, color: onSurfaceColor, size: 20),
+                const SizedBox(width: 12),
+                Text('Move down', style: TextStyle(color: onSurfaceColor)),
               ],
             ),
           ),
         // Replace
-        const PopupMenuItem<String>(
+        PopupMenuItem<String>(
           value: 'replace',
           height: 48,
           child: Row(
             children: [
-              Icon(Icons.swap_horiz, color: Colors.white, size: 20),
-              SizedBox(width: 12),
-              Text('Replace', style: TextStyle(color: Colors.white)),
+              Icon(Icons.swap_horiz, color: onSurfaceColor, size: 20),
+              const SizedBox(width: 12),
+              Text('Replace', style: TextStyle(color: onSurfaceColor)),
             ],
           ),
         ),
@@ -328,7 +330,7 @@ class ExerciseCardWidget extends StatelessWidget {
               Icon(
                 Icons.healing,
                 color: exercise.sets.any((s) => s.isLogged)
-                    ? Colors.white
+                    ? onSurfaceColor
                     : Colors.grey,
                 size: 20,
               ),
@@ -337,7 +339,7 @@ class ExerciseCardWidget extends StatelessWidget {
                 'Joint pain',
                 style: TextStyle(
                   color: exercise.sets.any((s) => s.isLogged)
-                      ? Colors.white
+                      ? onSurfaceColor
                       : Colors.grey,
                 ),
               ),
@@ -345,26 +347,26 @@ class ExerciseCardWidget extends StatelessWidget {
           ),
         ),
         // Add set
-        const PopupMenuItem<String>(
+        PopupMenuItem<String>(
           value: 'add_set',
           height: 48,
           child: Row(
             children: [
-              Icon(Icons.add, color: Colors.white, size: 20),
-              SizedBox(width: 12),
-              Text('Add set', style: TextStyle(color: Colors.white)),
+              Icon(Icons.add, color: onSurfaceColor, size: 20),
+              const SizedBox(width: 12),
+              Text('Add set', style: TextStyle(color: onSurfaceColor)),
             ],
           ),
         ),
         // Skip sets
-        const PopupMenuItem<String>(
+        PopupMenuItem<String>(
           value: 'skip_sets',
           height: 48,
           child: Row(
             children: [
-              Icon(Icons.fast_forward, color: Colors.white, size: 20),
-              SizedBox(width: 12),
-              Text('Skip sets', style: TextStyle(color: Colors.white)),
+              Icon(Icons.fast_forward, color: onSurfaceColor, size: 20),
+              const SizedBox(width: 12),
+              Text('Skip sets', style: TextStyle(color: onSurfaceColor)),
             ],
           ),
         ),

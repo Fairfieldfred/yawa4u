@@ -89,8 +89,8 @@ class MuscleGroupBadge extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              width: 4,
-              height: 16,
+              width: 6,
+              height: 6,
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(2),
@@ -104,6 +104,15 @@ class MuscleGroupBadge extends StatelessWidget {
                 fontSize: fontSize,
                 fontWeight: fontWeight,
                 letterSpacing: letterSpacing,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Container(
+              width: 6,
+              height: 6,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(2),
               ),
             ),
           ],
