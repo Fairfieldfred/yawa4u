@@ -49,12 +49,12 @@ class ExercisesHomeScreen extends ConsumerStatefulWidget {
 }
 
 class _ExercisesHomeScreenState extends ConsumerState<ExercisesHomeScreen> {
-  int? _selectedWeek;
+  int? _selectedPeriod;
   int? _selectedDay;
 
-  void _onDaySelected(int week, int day) {
+  void _onDaySelected(int period, int day) {
     setState(() {
-      _selectedWeek = week;
+      _selectedPeriod = period;
       _selectedDay = day;
     });
   }
@@ -115,29 +115,29 @@ class _ExercisesHomeScreenState extends ConsumerState<ExercisesHomeScreen> {
     );
 
     // Find the first incomplete workout day (not just workout/muscle group)
-    // Group by (weekNumber, dayNumber) to find unique days
+    // Group by (periodNumber, dayNumber) to find unique days
     final Map<String, List<Workout>> workoutsByDay = {};
     for (var workout in allWorkouts) {
-      final key = '${workout.weekNumber}-${workout.dayNumber}';
+      final key = '${workout.periodNumber}-${workout.dayNumber}';
       workoutsByDay.putIfAbsent(key, () => []).add(workout);
     }
 
     // Find first day with any incomplete workout (for "current" marker)
-    int currentWeek = 1;
+    int currentPeriod = 1;
     int currentDay = 1;
     for (var entry in workoutsByDay.entries) {
       if (entry.value.any((w) => w.status == WorkoutStatus.incomplete)) {
         final parts = entry.key.split('-');
-        currentWeek = int.parse(parts[0]);
+        currentPeriod = int.parse(parts[0]);
         currentDay = int.parse(parts[1]);
         break;
       }
     }
 
-    // Use selected week/day if set, otherwise use current (first incomplete)
-    final displayWeek = _selectedWeek ?? currentWeek;
+    // Use selected period/day if set, otherwise use current (first incomplete)
+    final displayPeriod = _selectedPeriod ?? currentPeriod;
     final displayDay = _selectedDay ?? currentDay;
-    final displayKey = '$displayWeek-$displayDay';
+    final displayKey = '$displayPeriod-$displayDay';
 
     // Check if selected day has workouts
     if (!workoutsByDay.containsKey(displayKey)) {
@@ -155,9 +155,9 @@ class _ExercisesHomeScreenState extends ConsumerState<ExercisesHomeScreen> {
       workouts: dayWorkouts,
       trainingCycle: currentTrainingCycle,
       allWorkouts: allWorkouts,
-      currentWeek: currentWeek,
+      currentPeriod: currentPeriod,
       currentDay: currentDay,
-      selectedWeek: displayWeek,
+      selectedPeriod: displayPeriod,
       selectedDay: displayDay,
       onDaySelected: _onDaySelected,
     );
@@ -168,20 +168,20 @@ class _WorkoutSessionView extends ConsumerStatefulWidget {
   final List<Workout> workouts;
   final TrainingCycle trainingCycle;
   final List<Workout> allWorkouts;
-  final int currentWeek;
+  final int currentPeriod;
   final int currentDay;
-  final int selectedWeek;
+  final int selectedPeriod;
   final int selectedDay;
-  final Function(int week, int day) onDaySelected;
+  final Function(int period, int day) onDaySelected;
 
   const _WorkoutSessionView({
     required Key key,
     required this.workouts,
     required this.trainingCycle,
     required this.allWorkouts,
-    required this.currentWeek,
+    required this.currentPeriod,
     required this.currentDay,
-    required this.selectedWeek,
+    required this.selectedPeriod,
     required this.selectedDay,
     required this.onDaySelected,
   }) : super(key: key);
@@ -197,7 +197,7 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
   late List<Exercise> _allExercises;
   late Map<int, _ExerciseSource>
   _exerciseSources; // Maps exercise index to its source workout
-  bool _showWeekSelector = false;
+  bool _showPeriodSelector = false;
 
   @override
   void initState() {
@@ -210,9 +210,9 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
     _pageController = PageController(initialPage: initialPage);
   }
 
-  void _toggleWeekSelector() {
+  void _togglePeriodSelector() {
     setState(() {
-      _showWeekSelector = !_showWeekSelector;
+      _showPeriodSelector = !_showPeriodSelector;
     });
   }
 
@@ -262,27 +262,27 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
     return 0;
   }
 
-  /// Calculate target RIR for a given week based on trainingCycle deload schedule
-  int _calculateRIR(int weekNumber) {
-    final deloadWeek = widget.trainingCycle.deloadWeek;
+  /// Calculate target RIR for a given period based on trainingCycle recovery schedule
+  int _calculateRIR(int periodNumber) {
+    final recoveryPeriod = widget.trainingCycle.recoveryPeriod;
 
-    // Deload week has 8 RIR
-    if (weekNumber == deloadWeek) {
+    // Recovery period has 8 RIR
+    if (periodNumber == recoveryPeriod) {
       return 8;
     }
 
-    // Calculate weeks until deload
-    final weeksUntilDeload = deloadWeek - weekNumber;
+    // Calculate periods until recovery
+    final periodsUntilRecovery = recoveryPeriod - periodNumber;
 
-    // Week before deload = 0 RIR
-    // 2 weeks before = 1 RIR
-    // 3 weeks before = 2 RIR, etc.
-    if (weeksUntilDeload == 1) {
+    // Period before recovery = 0 RIR
+    // 2 periods before = 1 RIR
+    // 3 periods before = 2 RIR, etc.
+    if (periodsUntilRecovery == 1) {
       return 0;
-    } else if (weeksUntilDeload > 1) {
-      return weeksUntilDeload - 1;
+    } else if (periodsUntilRecovery > 1) {
+      return periodsUntilRecovery - 1;
     } else {
-      // After deload week
+      // After recovery period
       return 0;
     }
   }
@@ -299,7 +299,7 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
     final firstWorkout = widget.workouts.first;
     final trainingCycle = widget.trainingCycle;
 
-    final displayWeek = firstWorkout.weekNumber;
+    final displayPeriod = firstWorkout.periodNumber;
     final displayDay = firstWorkout.dayNumber;
     final dayName = firstWorkout.dayName ?? '';
 
@@ -333,7 +333,7 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
               ),
               const SizedBox(height: 2),
               Text(
-                'WEEK $displayWeek DAY $displayDay $dayName',
+                'PERIOD $displayPeriod DAY $displayDay $dayName',
                 style: TextStyle(
                   color: Theme.of(context).textTheme.titleLarge?.color,
                   fontSize: 17,
@@ -345,7 +345,7 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
           actions: [
             IconButton(
               icon: const Icon(Icons.calendar_today),
-              onPressed: _toggleWeekSelector,
+              onPressed: _togglePeriodSelector,
             ),
             // Theme toggle
             IconButton(
@@ -426,7 +426,7 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
                                   exercise: exercise,
                                   showMuscleGroupBadge: showMuscleGroupBadge,
                                   targetRir: _calculateRIR(
-                                    source.workout.weekNumber,
+                                    source.workout.periodNumber,
                                   ),
                                   weightUnit: ref.watch(weightUnitProvider),
                                   useMetric: ref.watch(useMetricProvider),
@@ -549,14 +549,14 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
                   ),
                 ),
 
-              // Week selector overlay (shown on top when toggled)
-              if (_showWeekSelector) ...[
+              // Period selector overlay (shown on top when toggled)
+              if (_showPeriodSelector) ...[
                 // Barrier to dismiss on tap outside
                 Positioned.fill(
                   child: GestureDetector(
                     onTap: () {
                       setState(() {
-                        _showWeekSelector = false;
+                        _showPeriodSelector = false;
                       });
                     },
                     behavior: HitTestBehavior.opaque,
@@ -570,16 +570,16 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
                   right: 0,
                   child: CalendarDropdown(
                     trainingCycle: widget.trainingCycle,
-                    currentWeek: widget.currentWeek,
+                    currentPeriod: widget.currentPeriod,
                     currentDay: widget.currentDay,
-                    selectedWeek: widget.selectedWeek,
+                    selectedPeriod: widget.selectedPeriod,
                     selectedDay: widget.selectedDay,
                     allWorkouts: widget.allWorkouts,
-                    onDaySelected: (week, day) {
+                    onDaySelected: (period, day) {
                       setState(() {
-                        _showWeekSelector = false;
+                        _showPeriodSelector = false;
                       });
-                      widget.onDaySelected(week, day);
+                      widget.onDaySelected(period, day);
                     },
                   ),
                 ),
@@ -619,18 +619,18 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
     final completedDays = <String>{};
     for (final workout in allWorkouts) {
       if (workout.status == WorkoutStatus.completed) {
-        completedDays.add('${workout.weekNumber}-${workout.dayNumber}');
+        completedDays.add('${workout.periodNumber}-${workout.dayNumber}');
       }
     }
 
-    // Check if all expected week/day combinations are completed
-    final totalWeeks = currentTrainingCycle.weeksTotal;
-    final daysPerWeek = currentTrainingCycle.daysPerWeek;
+    // Check if all expected period/day combinations are completed
+    final totalPeriods = currentTrainingCycle.periodsTotal;
+    final daysPerPeriod = currentTrainingCycle.daysPerPeriod;
     bool allCompleted = true;
 
-    for (int week = 1; week <= totalWeeks; week++) {
-      for (int day = 1; day <= daysPerWeek; day++) {
-        if (!completedDays.contains('$week-$day')) {
+    for (int period = 1; period <= totalPeriods; period++) {
+      for (int day = 1; day <= daysPerPeriod; day++) {
+        if (!completedDays.contains('$period-$day')) {
           allCompleted = false;
           break;
         }
@@ -1457,12 +1457,12 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
     TrainingCycle? trainingCycle,
   ) {
     final name = trainingCycle?.name ?? 'Unknown TrainingCycle';
-    final weeks = trainingCycle?.weeksTotal ?? 0;
+    final periods = trainingCycle?.periodsTotal ?? 0;
 
     return Padding(
       padding: const EdgeInsets.only(top: 4, bottom: 0),
       child: Text(
-        '$name - $weeks WEEKS'.toUpperCase(),
+        '$name - $periods PERIODS'.toUpperCase(),
         style: Theme.of(context).textTheme.bodySmall?.copyWith(
           color: Theme.of(
             context,
@@ -1481,9 +1481,9 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
         : 'Unknown date';
 
     final loggedSets = entry.exercise.sets.where((s) => s.isLogged).toList();
-    final isDeload =
+    final isRecovery =
         entry.trainingCycle != null &&
-        entry.workout.weekNumber == entry.trainingCycle!.deloadWeek;
+        entry.workout.periodNumber == entry.trainingCycle!.recoveryPeriod;
 
     // Build the weight × reps string with set type badges
     final weight = loggedSets.isNotEmpty && loggedSets.first.weight != null
@@ -1550,7 +1550,7 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
                     ],
                   ),
                 ),
-                if (isDeload) ...[
+                if (isRecovery) ...[
                   const SizedBox(height: 2),
                   Text(
                     'DELOAD',
@@ -1566,7 +1566,7 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
               ],
             ),
           ),
-          // Right side: Week/Day + Date
+          // Right side: Period/Day + Date
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
@@ -1578,9 +1578,9 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
                     ).colorScheme.onSurface.withAlpha((255 * 0.6).round()),
                   ),
                   children: [
-                    const TextSpan(text: 'WEEK '),
+                    const TextSpan(text: 'PERIOD '),
                     TextSpan(
-                      text: '${entry.workout.weekNumber}',
+                      text: '${entry.workout.periodNumber}',
                       style: const TextStyle(fontWeight: FontWeight.w600),
                     ),
                     const TextSpan(text: ' - DAY '),

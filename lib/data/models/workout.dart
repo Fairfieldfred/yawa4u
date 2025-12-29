@@ -7,7 +7,7 @@ part 'workout.g.dart';
 /// Represents a workout session within a trainingCycle
 ///
 /// Contains workout details, exercises, and completion status.
-@HiveType(typeId: 3)
+@HiveType(typeId: 103)
 class Workout {
   @HiveField(0)
   final String id;
@@ -16,7 +16,7 @@ class Workout {
   final String trainingCycleId;
 
   @HiveField(2)
-  final int weekNumber;
+  final int periodNumber;
 
   @HiveField(3)
   final int dayNumber;
@@ -45,7 +45,7 @@ class Workout {
   Workout({
     required this.id,
     required this.trainingCycleId,
-    required this.weekNumber,
+    required this.periodNumber,
     required this.dayNumber,
     this.dayName,
     this.label,
@@ -151,7 +151,7 @@ class Workout {
   Workout copyWith({
     String? id,
     String? trainingCycleId,
-    int? weekNumber,
+    int? periodNumber,
     int? dayNumber,
     String? dayName,
     String? label,
@@ -164,7 +164,7 @@ class Workout {
     return Workout(
       id: id ?? this.id,
       trainingCycleId: trainingCycleId ?? this.trainingCycleId,
-      weekNumber: weekNumber ?? this.weekNumber,
+      periodNumber: periodNumber ?? this.periodNumber,
       dayNumber: dayNumber ?? this.dayNumber,
       dayName: dayName ?? this.dayName,
       label: label ?? this.label,
@@ -181,7 +181,7 @@ class Workout {
     return {
       'id': id,
       'trainingCycleId': trainingCycleId,
-      'weekNumber': weekNumber,
+      'periodNumber': periodNumber,
       'dayNumber': dayNumber,
       'dayName': dayName,
       'label': label,
@@ -198,7 +198,7 @@ class Workout {
     return Workout(
       id: json['id'] as String,
       trainingCycleId: json['trainingCycleId'] as String,
-      weekNumber: json['weekNumber'] as int,
+      periodNumber: json['periodNumber'] as int,
       dayNumber: json['dayNumber'] as int,
       dayName: json['dayName'] as String?,
       label: json['label'] as String?,
@@ -222,7 +222,7 @@ class Workout {
 
   @override
   String toString() {
-    return 'Workout(week: $weekNumber, day: $dayNumber, status: ${status.name}, exercises: ${exercises.length})';
+    return 'Workout(period: $periodNumber, day: $dayNumber, status: ${status.name}, exercises: ${exercises.length})';
   }
 
   @override
@@ -232,7 +232,7 @@ class Workout {
     return other is Workout &&
         other.id == id &&
         other.trainingCycleId == trainingCycleId &&
-        other.weekNumber == weekNumber &&
+        other.periodNumber == periodNumber &&
         other.dayNumber == dayNumber;
   }
 
@@ -241,7 +241,7 @@ class Workout {
     return Object.hash(
       id,
       trainingCycleId,
-      weekNumber,
+      periodNumber,
       dayNumber,
     );
   }

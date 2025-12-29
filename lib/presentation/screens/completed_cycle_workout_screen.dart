@@ -32,7 +32,7 @@ class CompletedCycleWorkoutScreen extends ConsumerStatefulWidget {
 
 class _CompletedCycleWorkoutScreenState
     extends ConsumerState<CompletedCycleWorkoutScreen> {
-  int? _selectedWeek;
+  int? _selectedPeriod;
   int? _selectedDay;
   bool _showWeekSelector = false;
 
@@ -50,21 +50,21 @@ class _CompletedCycleWorkoutScreenState
 
   void _selectDay(int week, int day) {
     setState(() {
-      _selectedWeek = week;
+      _selectedPeriod = week;
       _selectedDay = day;
       _showWeekSelector = false;
     });
   }
 
   /// Calculate target RIR for a given week based on trainingCycle deload schedule
-  int _calculateRIR(int weekNumber, TrainingCycle trainingCycle) {
-    final deloadWeek = trainingCycle.deloadWeek;
+  int _calculateRIR(int periodNumber, TrainingCycle trainingCycle) {
+    final recoveryPeriod = trainingCycle.recoveryPeriod;
 
-    if (weekNumber == deloadWeek) {
+    if (periodNumber == recoveryPeriod) {
       return 8;
     }
 
-    final weeksUntilDeload = deloadWeek - weekNumber;
+    final weeksUntilDeload = recoveryPeriod - periodNumber;
 
     if (weeksUntilDeload == 1) {
       return 0;
@@ -105,12 +105,12 @@ class _CompletedCycleWorkoutScreenState
         );
 
         // Default to week 1, day 1 if not selected
-        final displayWeek = _selectedWeek ?? 1;
+        final displayPeriod = _selectedPeriod ?? 1;
         final displayDay = _selectedDay ?? 1;
 
         final todaysWorkouts = allWorkouts
             .where(
-              (w) => w.weekNumber == displayWeek && w.dayNumber == displayDay,
+              (w) => w.periodNumber == displayPeriod && w.dayNumber == displayDay,
             )
             .toList();
 
@@ -119,7 +119,7 @@ class _CompletedCycleWorkoutScreenState
           ref,
           trainingCycle,
           todaysWorkouts,
-          displayWeek,
+          displayPeriod,
           displayDay,
           allWorkouts: allWorkouts,
         );
@@ -161,7 +161,7 @@ class _CompletedCycleWorkoutScreenState
     WidgetRef ref,
     TrainingCycle trainingCycle,
     List<Workout> workouts,
-    int displayWeek,
+    int displayPeriod,
     int displayDay, {
     required List<Workout> allWorkouts,
   }) {
@@ -174,7 +174,7 @@ class _CompletedCycleWorkoutScreenState
     } else if (trainingCycle.startDate != null) {
       final startDayOfWeek = trainingCycle.startDate!.weekday % 7;
       final daysElapsed =
-          ((displayWeek - 1) * trainingCycle.daysPerWeek) + (displayDay - 1);
+          ((displayPeriod - 1) * trainingCycle.daysPerPeriod) + (displayDay - 1);
       final actualDayOfWeek = (startDayOfWeek + daysElapsed) % 7;
       dayName = defaultDayNames[actualDayOfWeek];
     } else {
@@ -241,7 +241,7 @@ class _CompletedCycleWorkoutScreenState
               ),
               const SizedBox(height: 2),
               Text(
-                'WEEK $displayWeek DAY $displayDay $dayName',
+                'WEEK $displayPeriod DAY $displayDay $dayName',
                 style: TextStyle(
                   color: Theme.of(context).textTheme.titleLarge?.color,
                   fontSize: 17,
@@ -306,7 +306,7 @@ class _CompletedCycleWorkoutScreenState
                           allExercises[index - 1].muscleGroup !=
                               exercise.muscleGroup;
 
-                      final weekRir = _calculateRIR(displayWeek, trainingCycle);
+                      final weekRir = _calculateRIR(displayPeriod, trainingCycle);
 
                       return _buildExerciseCard(
                         context,
@@ -332,7 +332,7 @@ class _CompletedCycleWorkoutScreenState
                 right: 0,
                 child: _ReadOnlyCalendarDropdown(
                   trainingCycle: trainingCycle,
-                  selectedWeek: displayWeek,
+                  selectedPeriod: displayPeriod,
                   selectedDay: displayDay,
                   allWorkouts: allWorkouts,
                   onDaySelected: _selectDay,
@@ -707,14 +707,14 @@ class _CompletedCycleWorkoutScreenState
 /// Read-only calendar dropdown for selecting week and day
 class _ReadOnlyCalendarDropdown extends StatefulWidget {
   final TrainingCycle trainingCycle;
-  final int selectedWeek;
+  final int selectedPeriod;
   final int selectedDay;
   final List<Workout> allWorkouts;
   final Function(int week, int day) onDaySelected;
 
   const _ReadOnlyCalendarDropdown({
     required this.trainingCycle,
-    required this.selectedWeek,
+    required this.selectedPeriod,
     required this.selectedDay,
     required this.allWorkouts,
     required this.onDaySelected,
@@ -726,13 +726,13 @@ class _ReadOnlyCalendarDropdown extends StatefulWidget {
 }
 
 class _ReadOnlyCalendarDropdownState extends State<_ReadOnlyCalendarDropdown> {
-  late int _selectedWeek;
+  late int _selectedPeriod;
   late int _selectedDay;
 
   @override
   void initState() {
     super.initState();
-    _selectedWeek = widget.selectedWeek;
+    _selectedPeriod = widget.selectedPeriod;
     _selectedDay = widget.selectedDay;
   }
 
@@ -747,7 +747,7 @@ class _ReadOnlyCalendarDropdownState extends State<_ReadOnlyCalendarDropdown> {
     final calculatedHeight =
         headerHeight +
         weekHeaderHeight +
-        (widget.trainingCycle.daysPerWeek * (dayButtonHeight + dayMargin)) +
+        (widget.trainingCycle.daysPerPeriod * (dayButtonHeight + dayMargin)) +
         bottomPadding;
 
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
@@ -816,14 +816,14 @@ class _ReadOnlyCalendarDropdownState extends State<_ReadOnlyCalendarDropdown> {
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: List.generate(widget.trainingCycle.weeksTotal, (
+                children: List.generate(widget.trainingCycle.periodsTotal, (
                   weekIndex,
                 ) {
-                  final weekNumber = weekIndex + 1;
+                  final periodNumber = weekIndex + 1;
                   return Expanded(
                     child: _buildWeekColumn(
-                      weekNumber,
-                      widget.trainingCycle.deloadWeek == weekNumber,
+                      periodNumber,
+                      widget.trainingCycle.recoveryPeriod == periodNumber,
                     ),
                   );
                 }),
@@ -835,15 +835,15 @@ class _ReadOnlyCalendarDropdownState extends State<_ReadOnlyCalendarDropdown> {
     );
   }
 
-  Widget _buildWeekColumn(int weekNumber, bool isDeload) {
+  Widget _buildWeekColumn(int periodNumber, bool isDeload) {
     final defaultDayNames = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
-    final weekDayNames = List.generate(widget.trainingCycle.daysPerWeek, (
+    final weekDayNames = List.generate(widget.trainingCycle.daysPerPeriod, (
       index,
     ) {
       final dayNumber = index + 1;
 
       final weekDayWorkouts = widget.allWorkouts
-          .where((w) => w.dayNumber == dayNumber && w.weekNumber == weekNumber)
+          .where((w) => w.dayNumber == dayNumber && w.periodNumber == periodNumber)
           .toList();
 
       if (weekDayWorkouts.isNotEmpty) {
@@ -862,7 +862,7 @@ class _ReadOnlyCalendarDropdownState extends State<_ReadOnlyCalendarDropdown> {
       if (widget.trainingCycle.startDate != null) {
         final startDayOfWeek = widget.trainingCycle.startDate!.weekday % 7;
         final daysElapsed =
-            ((weekNumber - 1) * widget.trainingCycle.daysPerWeek) +
+            ((periodNumber - 1) * widget.trainingCycle.daysPerPeriod) +
             (dayNumber - 1);
         final actualDayOfWeek = (startDayOfWeek + daysElapsed) % 7;
         return defaultDayNames[actualDayOfWeek];
@@ -884,7 +884,7 @@ class _ReadOnlyCalendarDropdownState extends State<_ReadOnlyCalendarDropdown> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  isDeload ? 'DL' : '$weekNumber',
+                  isDeload ? 'DL' : '$periodNumber',
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.onSurface,
                     fontSize: 18,
@@ -892,7 +892,7 @@ class _ReadOnlyCalendarDropdownState extends State<_ReadOnlyCalendarDropdown> {
                   ),
                 ),
                 Text(
-                  '${_calculateRIR(weekNumber)} RIR',
+                  '${_calculateRIR(periodNumber)} RIR',
                   style: TextStyle(
                     color: Theme.of(
                       context,
@@ -908,12 +908,12 @@ class _ReadOnlyCalendarDropdownState extends State<_ReadOnlyCalendarDropdown> {
           ...List.generate(weekDayNames.length, (dayIndex) {
             final dayNumber = dayIndex + 1;
             final isSelected =
-                weekNumber == _selectedWeek && dayNumber == _selectedDay;
+                periodNumber == _selectedPeriod && dayNumber == _selectedDay;
 
             // All days are completed in a completed trainingCycle
             final dayWorkouts = widget.allWorkouts
                 .where(
-                  (w) => w.weekNumber == weekNumber && w.dayNumber == dayNumber,
+                  (w) => w.periodNumber == periodNumber && w.dayNumber == dayNumber,
                 )
                 .toList();
             final isCompleted =
@@ -936,10 +936,10 @@ class _ReadOnlyCalendarDropdownState extends State<_ReadOnlyCalendarDropdown> {
             return GestureDetector(
               onTap: () {
                 setState(() {
-                  _selectedWeek = weekNumber;
+                  _selectedPeriod = periodNumber;
                   _selectedDay = dayNumber;
                 });
-                widget.onDaySelected(weekNumber, dayNumber);
+                widget.onDaySelected(periodNumber, dayNumber);
               },
               child: Container(
                 height: 48,
@@ -970,14 +970,14 @@ class _ReadOnlyCalendarDropdownState extends State<_ReadOnlyCalendarDropdown> {
     );
   }
 
-  int _calculateRIR(int weekNumber) {
-    final deloadWeek = widget.trainingCycle.deloadWeek;
+  int _calculateRIR(int periodNumber) {
+    final recoveryPeriod = widget.trainingCycle.recoveryPeriod;
 
-    if (weekNumber == deloadWeek) {
+    if (periodNumber == recoveryPeriod) {
       return 8;
     }
 
-    final weeksUntilDeload = deloadWeek - weekNumber;
+    final weeksUntilDeload = recoveryPeriod - periodNumber;
 
     if (weeksUntilDeload == 1) {
       return 0;

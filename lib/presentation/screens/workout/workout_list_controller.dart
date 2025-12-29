@@ -11,7 +11,7 @@ import '../../../domain/providers/workout_providers.dart';
 
 /// Controller for the EditWorkoutScreen
 ///
-/// Handles business logic for managing workouts, mirroring weeks,
+/// Handles business logic for managing workouts, mirroring periods,
 /// and starting trainingCycles.
 class WorkoutListController {
   final Ref ref;
@@ -19,43 +19,43 @@ class WorkoutListController {
 
   WorkoutListController(this.ref, this.trainingCycleId);
 
-  /// Mirror Week 1 workouts to the selected week
-  Future<void> mirrorWeek1ToSelectedWeek(
+  /// Mirror Period 1 workouts to the selected period
+  Future<void> mirrorPeriod1ToSelectedPeriod(
     TrainingCycle trainingCycle,
-    int selectedWeek,
+    int selectedPeriod,
   ) async {
     final repository = ref.read(workoutRepositoryProvider);
     final allWorkouts = ref.read(workoutsByTrainingCycleProvider(trainingCycleId));
 
-    // Get all Week 1 workouts
-    final week1Workouts = allWorkouts.where((w) => w.weekNumber == 1).toList();
+    // Get all Period 1 workouts
+    final period1Workouts = allWorkouts.where((w) => w.periodNumber == 1).toList();
 
-    if (week1Workouts.isEmpty) {
-      throw Exception('No workouts found in Week 1');
+    if (period1Workouts.isEmpty) {
+      throw Exception('No workouts found in Period 1');
     }
 
-    // Delete existing workouts for the selected week
+    // Delete existing workouts for the selected period
     final existingWorkouts = allWorkouts
-        .where((w) => w.weekNumber == selectedWeek)
+        .where((w) => w.periodNumber == selectedPeriod)
         .toList();
     for (final workout in existingWorkouts) {
       await repository.delete(workout.id);
     }
 
-    // Create copies of Week 1 workouts for the selected week
-    for (final workout in week1Workouts) {
+    // Create copies of Period 1 workouts for the selected period
+    for (final workout in period1Workouts) {
       final newWorkoutId = const Uuid().v4();
       final newWorkout = Workout(
         id: newWorkoutId,
         trainingCycleId: trainingCycle.id,
-        weekNumber: selectedWeek,
+        periodNumber: selectedPeriod,
         dayNumber: workout.dayNumber,
         label: workout.label,
         status: WorkoutStatus.incomplete,
         exercises: workout.exercises
             .map(
               (exercise) => exercise.copyWith(
-                id: const Uuid().v4(), // New exercise ID for the new week
+                id: const Uuid().v4(), // New exercise ID for the new period
                 workoutId: newWorkoutId, // Update to point to the new workout!
                 sets: exercise.sets
                     .map(
@@ -91,7 +91,7 @@ class WorkoutListController {
   /// Create workouts for selected muscle groups
   Future<void> createWorkoutsForMuscleGroups({
     required List<MuscleGroup> muscleGroups,
-    required int weekNumber,
+    required int periodNumber,
     required int dayNumber,
   }) async {
     final repository = ref.read(workoutRepositoryProvider);
@@ -100,7 +100,7 @@ class WorkoutListController {
       final newWorkout = Workout(
         id: const Uuid().v4(),
         trainingCycleId: trainingCycleId,
-        weekNumber: weekNumber,
+        periodNumber: periodNumber,
         dayNumber: dayNumber,
         label: muscleGroup.displayName,
         status: WorkoutStatus.incomplete,

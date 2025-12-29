@@ -104,9 +104,9 @@ class DateHelpers {
     return endDate.difference(startDate).inDays;
   }
 
-  /// Get the number of weeks between two dates
-  static int weeksBetween(DateTime start, DateTime end) {
-    return (daysBetween(start, end) / 7).ceil();
+  /// Get the number of periods between two dates
+  static int periodsBetween(DateTime start, DateTime end, int daysPerPeriod) {
+    return (daysBetween(start, end) / daysPerPeriod).ceil();
   }
 
   // ========== DATE ADDITIONS ==========
@@ -116,9 +116,9 @@ class DateHelpers {
     return date.add(Duration(days: days));
   }
 
-  /// Add weeks to a date
-  static DateTime addWeeks(DateTime date, int weeks) {
-    return date.add(Duration(days: weeks * 7));
+  /// Add periods to a date
+  static DateTime addPeriods(DateTime date, int periods, int daysPerPeriod) {
+    return date.add(Duration(days: periods * daysPerPeriod));
   }
 
   /// Add months to a date (handles month boundaries correctly)
@@ -147,30 +147,31 @@ class DateHelpers {
   // ========== TRAINING CYCLE HELPERS ==========
 
   /// Calculate the end date of a trainingCycle given start date and duration
-  /// Duration is in weeks
-  static DateTime getTrainingCycleEndDate(DateTime startDate, int weeks) {
-    return addWeeks(startDate, weeks).subtract(const Duration(days: 1));
+  /// Duration is in periods, each period has daysPerPeriod days
+  static DateTime getTrainingCycleEndDate(DateTime startDate, int periods, int daysPerPeriod) {
+    return addPeriods(startDate, periods, daysPerPeriod).subtract(const Duration(days: 1));
   }
 
-  /// Get the date for a specific week and day in a trainingCycle
-  /// Week number: 1-based (1 = first week)
-  /// Day number: 0-based (0 = Sunday, 6 = Saturday)
+  /// Get the date for a specific period and day in a trainingCycle
+  /// Period number: 1-based (1 = first period)
+  /// Day number: 1-based (1 = first day of period)
   static DateTime getWorkoutDate(
     DateTime trainingCycleStart,
-    int weekNumber,
+    int periodNumber,
     int dayNumber,
+    int daysPerPeriod,
   ) {
-    final weekOffset = weekNumber - 1; // Convert to 0-based
-    final daysOffset = (weekOffset * 7) + dayNumber;
+    final periodOffset = periodNumber - 1; // Convert to 0-based
+    final daysOffset = (periodOffset * daysPerPeriod) + (dayNumber - 1);
     return addDays(trainingCycleStart, daysOffset);
   }
 
-  /// Get the current week number in a trainingCycle (1-based)
+  /// Get the current period number in a trainingCycle (1-based)
   /// Returns null if date is before trainingCycle start
-  static int? getCurrentWeek(DateTime trainingCycleStart, DateTime date) {
+  static int? getCurrentPeriod(DateTime trainingCycleStart, DateTime date, int daysPerPeriod) {
     if (date.isBefore(trainingCycleStart)) return null;
     final days = daysBetween(trainingCycleStart, date);
-    return (days ~/ 7) + 1;
+    return (days ~/ daysPerPeriod) + 1;
   }
 
   // ========== RELATIVE DATE STRINGS ==========

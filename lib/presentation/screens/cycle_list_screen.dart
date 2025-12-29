@@ -170,11 +170,11 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
     );
 
     // Check EVERY week in the trainingCycle
-    for (int week = 1; week <= trainingCycle.weeksTotal; week++) {
-      final weekWorkouts = workouts.where((w) => w.weekNumber == week).toList();
+    for (int week = 1; week <= trainingCycle.periodsTotal; week++) {
+      final weekWorkouts = workouts.where((w) => w.periodNumber == week).toList();
 
       // Check EVERY day in this week
-      for (int day = 1; day <= trainingCycle.daysPerWeek; day++) {
+      for (int day = 1; day <= trainingCycle.daysPerPeriod; day++) {
         // Find workouts for this specific day in this specific week
         final dayWorkouts = weekWorkouts.where((w) => w.dayNumber == day);
 
@@ -415,7 +415,7 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
                   ),
                   const SizedBox(width: 4),
                   Text(
-                    '${trainingCycle.weeksTotal} weeks',
+                    '${trainingCycle.periodsTotal} weeks',
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: Theme.of(
                         context,
@@ -432,7 +432,7 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
                   ),
                   const SizedBox(width: 4),
                   Text(
-                    '${trainingCycle.daysPerWeek} days/week',
+                    '${trainingCycle.daysPerPeriod} days/week',
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: Theme.of(
                         context,

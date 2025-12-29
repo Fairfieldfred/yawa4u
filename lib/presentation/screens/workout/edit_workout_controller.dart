@@ -11,7 +11,7 @@ import '../../../domain/providers/workout_providers.dart';
 
 /// Controller for the EditWorkoutScreen
 ///
-/// Handles business logic for managing workouts, mirroring weeks,
+/// Handles business logic for managing workouts, mirroring periods,
 /// and starting trainingCycles.
 class EditWorkoutController {
   final Ref ref;
@@ -19,45 +19,45 @@ class EditWorkoutController {
 
   EditWorkoutController(this.ref, this.trainingCycleId);
 
-  /// Mirror Week 1 workouts to the selected week
-  Future<void> mirrorWeek1ToSelectedWeek(
+  /// Mirror Period 1 workouts to the selected period
+  Future<void> mirrorPeriod1ToSelectedPeriod(
     TrainingCycle trainingCycle,
-    int selectedWeek,
+    int selectedPeriod,
   ) async {
     final repository = ref.read(workoutRepositoryProvider);
     final allWorkouts = ref.read(
       workoutsByTrainingCycleProvider(trainingCycleId),
     );
 
-    // Get all Week 1 workouts
-    final week1Workouts = allWorkouts.where((w) => w.weekNumber == 1).toList();
+    // Get all Period 1 workouts
+    final period1Workouts = allWorkouts.where((w) => w.periodNumber == 1).toList();
 
-    if (week1Workouts.isEmpty) {
-      throw Exception('No workouts found in Week 1');
+    if (period1Workouts.isEmpty) {
+      throw Exception('No workouts found in Period 1');
     }
 
-    // Delete existing workouts for the selected week
+    // Delete existing workouts for the selected period
     final existingWorkouts = allWorkouts
-        .where((w) => w.weekNumber == selectedWeek)
+        .where((w) => w.periodNumber == selectedPeriod)
         .toList();
     for (final workout in existingWorkouts) {
       await repository.delete(workout.id);
     }
 
-    // Create copies of Week 1 workouts for the selected week
-    for (final workout in week1Workouts) {
+    // Create copies of Period 1 workouts for the selected period
+    for (final workout in period1Workouts) {
       final newWorkoutId = const Uuid().v4();
       final newWorkout = Workout(
         id: newWorkoutId,
         trainingCycleId: trainingCycle.id,
-        weekNumber: selectedWeek,
+        periodNumber: selectedPeriod,
         dayNumber: workout.dayNumber,
         label: workout.label,
         status: WorkoutStatus.incomplete,
         exercises: workout.exercises
             .map(
               (exercise) => exercise.copyWith(
-                id: const Uuid().v4(), // New exercise ID for the new week
+                id: const Uuid().v4(), // New exercise ID for the new period
                 workoutId: newWorkoutId, // Update to point to the new workout!
                 sets: exercise.sets
                     .map(
@@ -93,7 +93,7 @@ class EditWorkoutController {
   /// Create workouts for selected muscle groups
   Future<void> createWorkoutsForMuscleGroups({
     required List<MuscleGroup> muscleGroups,
-    required int weekNumber,
+    required int periodNumber,
     required int dayNumber,
   }) async {
     final repository = ref.read(workoutRepositoryProvider);
@@ -102,7 +102,7 @@ class EditWorkoutController {
       final newWorkout = Workout(
         id: const Uuid().v4(),
         trainingCycleId: trainingCycleId,
-        weekNumber: weekNumber,
+        periodNumber: periodNumber,
         dayNumber: dayNumber,
         label: muscleGroup.displayName,
         status: WorkoutStatus.incomplete,
@@ -274,27 +274,27 @@ class EditWorkoutController {
     await repository.update(updatedWorkout);
   }
 
-  /// Add a week to the trainingCycle (inserted before the deload week)
-  Future<void> addWeek(TrainingCycle trainingCycle) async {
+  /// Add a period to the trainingCycle (inserted before the recovery period)
+  Future<void> addPeriod(TrainingCycle trainingCycle) async {
     final trainingCycleRepo = ref.read(trainingCycleRepositoryProvider);
     final workoutRepo = ref.read(workoutRepositoryProvider);
     final allWorkouts = ref.read(
       workoutsByTrainingCycleProvider(trainingCycleId),
     );
 
-    final newWeeksTotal = trainingCycle.weeksTotal + 1;
-    final oldDeloadWeek = trainingCycle.deloadWeek;
-    final newDeloadWeek = newWeeksTotal; // Deload is always the last week
+    final newPeriodsTotal = trainingCycle.periodsTotal + 1;
+    final oldRecoveryPeriod = trainingCycle.recoveryPeriod;
+    final newRecoveryPeriod = newPeriodsTotal; // Recovery is always the last period
 
-    // First, update all workouts that are in the deload week to be in the new deload week
-    final deloadWorkouts = allWorkouts
-        .where((w) => w.weekNumber == oldDeloadWeek)
+    // First, update all workouts that are in the recovery period to be in the new recovery period
+    final recoveryWorkouts = allWorkouts
+        .where((w) => w.periodNumber == oldRecoveryPeriod)
         .toList();
-    for (final workout in deloadWorkouts) {
+    for (final workout in recoveryWorkouts) {
       final updatedWorkout = Workout(
         id: workout.id,
         trainingCycleId: workout.trainingCycleId,
-        weekNumber: newDeloadWeek,
+        periodNumber: newRecoveryPeriod,
         dayNumber: workout.dayNumber,
         label: workout.label,
         status: workout.status,
@@ -304,21 +304,21 @@ class EditWorkoutController {
       await workoutRepo.update(updatedWorkout);
     }
 
-    // Update the trainingCycle with new weeks total and deload week
+    // Update the trainingCycle with new periods total and recovery period
     final updatedTrainingCycle = trainingCycle.copyWith(
-      weeksTotal: newWeeksTotal,
-      deloadWeek: newDeloadWeek,
+      periodsTotal: newPeriodsTotal,
+      recoveryPeriod: newRecoveryPeriod,
     );
     await trainingCycleRepo.update(updatedTrainingCycle);
   }
 
-  /// Remove a week from the trainingCycle
-  Future<void> removeWeek(
+  /// Remove a period from the trainingCycle
+  Future<void> removePeriod(
     TrainingCycle trainingCycle, {
-    required bool removeDeload,
+    required bool removeRecovery,
   }) async {
-    if (trainingCycle.weeksTotal <= 2) {
-      throw Exception('Cannot have fewer than 2 weeks');
+    if (trainingCycle.periodsTotal <= 2) {
+      throw Exception('Cannot have fewer than 2 periods');
     }
 
     final trainingCycleRepo = ref.read(trainingCycleRepositoryProvider);
@@ -327,44 +327,44 @@ class EditWorkoutController {
       workoutsByTrainingCycleProvider(trainingCycleId),
     );
 
-    final oldDeloadWeek = trainingCycle.deloadWeek;
-    final lastNonDeloadWeek = oldDeloadWeek - 1;
+    final oldRecoveryPeriod = trainingCycle.recoveryPeriod;
+    final lastNonRecoveryPeriod = oldRecoveryPeriod - 1;
 
-    if (removeDeload) {
-      // Remove the deload week - delete deload workouts, keep everything else
-      final deloadWorkouts = allWorkouts
-          .where((w) => w.weekNumber == oldDeloadWeek)
+    if (removeRecovery) {
+      // Remove the recovery period - delete recovery workouts, keep everything else
+      final recoveryWorkouts = allWorkouts
+          .where((w) => w.periodNumber == oldRecoveryPeriod)
           .toList();
-      for (final workout in deloadWorkouts) {
+      for (final workout in recoveryWorkouts) {
         await workoutRepo.delete(workout.id);
       }
 
-      // Update trainingCycle: reduce weeks, deload is now the last week
-      final newWeeksTotal = trainingCycle.weeksTotal - 1;
+      // Update trainingCycle: reduce periods, recovery is now the last period
+      final newPeriodsTotal = trainingCycle.periodsTotal - 1;
       final updatedTrainingCycle = trainingCycle.copyWith(
-        weeksTotal: newWeeksTotal,
-        deloadWeek: newWeeksTotal,
+        periodsTotal: newPeriodsTotal,
+        recoveryPeriod: newPeriodsTotal,
       );
       await trainingCycleRepo.update(updatedTrainingCycle);
     } else {
-      // Remove the last non-deload week - delete those workouts,
-      // then move deload workouts down by 1 week
-      final lastWeekWorkouts = allWorkouts
-          .where((w) => w.weekNumber == lastNonDeloadWeek)
+      // Remove the last non-recovery period - delete those workouts,
+      // then move recovery workouts down by 1 period
+      final lastPeriodWorkouts = allWorkouts
+          .where((w) => w.periodNumber == lastNonRecoveryPeriod)
           .toList();
-      for (final workout in lastWeekWorkouts) {
+      for (final workout in lastPeriodWorkouts) {
         await workoutRepo.delete(workout.id);
       }
 
-      // Move deload workouts to the previous week number
-      final deloadWorkouts = allWorkouts
-          .where((w) => w.weekNumber == oldDeloadWeek)
+      // Move recovery workouts to the previous period number
+      final recoveryWorkouts = allWorkouts
+          .where((w) => w.periodNumber == oldRecoveryPeriod)
           .toList();
-      for (final workout in deloadWorkouts) {
+      for (final workout in recoveryWorkouts) {
         final updatedWorkout = Workout(
           id: workout.id,
           trainingCycleId: workout.trainingCycleId,
-          weekNumber: lastNonDeloadWeek,
+          periodNumber: lastNonRecoveryPeriod,
           dayNumber: workout.dayNumber,
           label: workout.label,
           status: workout.status,
@@ -375,10 +375,10 @@ class EditWorkoutController {
       }
 
       // Update trainingCycle
-      final newWeeksTotal = trainingCycle.weeksTotal - 1;
+      final newPeriodsTotal = trainingCycle.periodsTotal - 1;
       final updatedTrainingCycle = trainingCycle.copyWith(
-        weeksTotal: newWeeksTotal,
-        deloadWeek: newWeeksTotal,
+        periodsTotal: newPeriodsTotal,
+        recoveryPeriod: newPeriodsTotal,
       );
       await trainingCycleRepo.update(updatedTrainingCycle);
     }
@@ -386,23 +386,23 @@ class EditWorkoutController {
 
   /// Add a day to the trainingCycle
   Future<void> addDay(TrainingCycle trainingCycle) async {
-    if (trainingCycle.daysPerWeek >= 7) {
-      throw Exception('Cannot have more than 7 days per week');
+    if (trainingCycle.daysPerPeriod >= 7) {
+      throw Exception('Cannot have more than 7 days per period');
     }
 
     final trainingCycleRepo = ref.read(trainingCycleRepositoryProvider);
-    final newDaysPerWeek = trainingCycle.daysPerWeek + 1;
+    final newDaysPerPeriod = trainingCycle.daysPerPeriod + 1;
 
     final updatedTrainingCycle = trainingCycle.copyWith(
-      daysPerWeek: newDaysPerWeek,
+      daysPerPeriod: newDaysPerPeriod,
     );
     await trainingCycleRepo.update(updatedTrainingCycle);
   }
 
   /// Remove a day from the trainingCycle
   Future<void> removeDay(TrainingCycle trainingCycle) async {
-    if (trainingCycle.daysPerWeek <= 1) {
-      throw Exception('Cannot have fewer than 1 day per week');
+    if (trainingCycle.daysPerPeriod <= 1) {
+      throw Exception('Cannot have fewer than 1 day per period');
     }
 
     final trainingCycleRepo = ref.read(trainingCycleRepositoryProvider);
@@ -411,9 +411,9 @@ class EditWorkoutController {
       workoutsByTrainingCycleProvider(trainingCycleId),
     );
 
-    final dayToRemove = trainingCycle.daysPerWeek;
+    final dayToRemove = trainingCycle.daysPerPeriod;
 
-    // Delete all workouts for this day across all weeks
+    // Delete all workouts for this day across all periods
     final workoutsToDelete = allWorkouts
         .where((w) => w.dayNumber == dayToRemove)
         .toList();
@@ -422,21 +422,21 @@ class EditWorkoutController {
     }
 
     // Update the trainingCycle
-    final newDaysPerWeek = trainingCycle.daysPerWeek - 1;
+    final newDaysPerPeriod = trainingCycle.daysPerPeriod - 1;
     final updatedTrainingCycle = trainingCycle.copyWith(
-      daysPerWeek: newDaysPerWeek,
+      daysPerPeriod: newDaysPerPeriod,
     );
     await trainingCycleRepo.update(updatedTrainingCycle);
   }
 
-  /// Update the recovery week type
-  Future<void> updateRecoveryWeekType(
+  /// Update the recovery period type
+  Future<void> updateRecoveryPeriodType(
     TrainingCycle trainingCycle,
-    RecoveryWeekType newType,
+    RecoveryPeriodType newType,
   ) async {
     final trainingCycleRepo = ref.read(trainingCycleRepositoryProvider);
     final updatedTrainingCycle = trainingCycle.copyWith(
-      recoveryWeekType: newType,
+      recoveryPeriodType: newType,
     );
     await trainingCycleRepo.update(updatedTrainingCycle);
   }

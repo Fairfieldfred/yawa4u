@@ -36,7 +36,7 @@ class EditWorkoutScreen extends ConsumerStatefulWidget {
 
 class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
   int _selectedDayIndex = 0;
-  int _selectedWeek = 1;
+  int _selectedPeriod = 1;
 
   @override
   Widget build(BuildContext context) {
@@ -60,7 +60,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
         final dayWorkouts = workouts
             .where(
               (w) =>
-                  w.weekNumber == _selectedWeek &&
+                  w.periodNumber == _selectedPeriod &&
                   w.dayNumber == _selectedDayIndex + 1,
             )
             .toList();
@@ -165,7 +165,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
     final allWorkouts = ref.watch(
       workoutsByTrainingCycleProvider(widget.trainingCycleId),
     );
-    final week1HasWorkouts = allWorkouts.any((w) => w.weekNumber == 1);
+    final week1HasWorkouts = allWorkouts.any((w) => w.periodNumber == 1);
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -189,7 +189,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
           // Remove week button
           IconButton(
             icon: const Icon(Icons.remove_circle_outline, size: 20),
-            onPressed: trainingCycle.weeksTotal > 2
+            onPressed: trainingCycle.periodsTotal > 2
                 ? () => _showRemoveWeekDialog(trainingCycle, controller)
                 : null,
             tooltip: 'Remove Week',
@@ -200,7 +200,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
           // Add week button
           IconButton(
             icon: const Icon(Icons.add_circle_outline, size: 20),
-            onPressed: () => _addWeek(trainingCycle, controller),
+            onPressed: () => _addPeriod(trainingCycle, controller),
             tooltip: 'Add Week',
             visualDensity: VisualDensity.compact,
             padding: EdgeInsets.zero,
@@ -211,16 +211,16 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
             child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: Row(
-                children: List.generate(trainingCycle.weeksTotal, (index) {
-                  final weekNumber = index + 1;
-                  final isSelected = weekNumber == _selectedWeek;
-                  final isDeloadWeek = weekNumber == trainingCycle.deloadWeek;
+                children: List.generate(trainingCycle.periodsTotal, (index) {
+                  final periodNumber = index + 1;
+                  final isSelected = periodNumber == _selectedPeriod;
+                  final isRecoveryPeriod = periodNumber == trainingCycle.recoveryPeriod;
 
                   final chip = ChoiceChip(
                     label: Text(
-                      isDeloadWeek
-                          ? trainingCycle.recoveryWeekType.abbreviation
-                          : '$weekNumber',
+                      isRecoveryPeriod
+                          ? trainingCycle.recoveryPeriodType.abbreviation
+                          : '$periodNumber',
                       style: TextStyle(
                         color: isSelected
                             ? Theme.of(context).colorScheme.onPrimary
@@ -233,7 +233,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
                     selected: isSelected,
                     onSelected: (selected) {
                       if (selected) {
-                        setState(() => _selectedWeek = weekNumber);
+                        setState(() => _selectedPeriod = periodNumber);
                       }
                     },
                     selectedColor: Theme.of(context).colorScheme.primary,
@@ -247,7 +247,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
 
                   return Padding(
                     padding: const EdgeInsets.only(right: 4),
-                    child: isDeloadWeek
+                    child: isRecoveryPeriod
                         ? GestureDetector(
                             onLongPress: () => _showRecoveryTypeSelector(
                               trainingCycle,
@@ -262,12 +262,12 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
             ),
           ),
           // Mirror week 1 button (only show when not on week 1 and week 1 has workouts)
-          if (_selectedWeek > 1 && week1HasWorkouts)
+          if (_selectedPeriod > 1 && week1HasWorkouts)
             IconButton(
               icon: const Icon(Icons.content_copy, size: 20),
               onPressed: () =>
-                  _mirrorWeek1ToSelectedWeek(trainingCycle, controller),
-              tooltip: 'Mirror Week 1',
+                  _mirrorPeriod1ToSelectedPeriod(trainingCycle, controller),
+              tooltip: 'Mirror Period 1',
               style: IconButton.styleFrom(
                 backgroundColor: Theme.of(context).colorScheme.primaryContainer,
                 foregroundColor: Theme.of(
@@ -280,16 +280,16 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
     );
   }
 
-  Future<void> _addWeek(
+  Future<void> _addPeriod(
     TrainingCycle trainingCycle,
     EditWorkoutController controller,
   ) async {
     try {
-      await controller.addWeek(trainingCycle);
+      await controller.addPeriod(trainingCycle);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Week ${trainingCycle.weeksTotal} added'),
+            content: Text('Period ${trainingCycle.periodsTotal} added'),
             backgroundColor: context.successColor,
           ),
         );
@@ -310,7 +310,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
     TrainingCycle trainingCycle,
     EditWorkoutController controller,
   ) async {
-    final lastNonDeloadWeek = trainingCycle.weeksTotal - 1;
+    final lastNonRecoveryPeriod = trainingCycle.periodsTotal - 1;
 
     final result = await showDialog<String>(
       context: context,
@@ -318,7 +318,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
         title: const Text('Remove Week'),
         content: Text(
           'Which week would you like to remove?\n\n'
-          '• Week $lastNonDeloadWeek (last training week)\n'
+          '• Period $lastNonRecoveryPeriod (last training period)\n'
           '• Deload week',
         ),
         actions: [
@@ -333,7 +333,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
           FilledButton(
             onPressed: () => Navigator.pop(context, 'training'),
             style: FilledButton.styleFrom(backgroundColor: context.errorColor),
-            child: Text('Remove Week $lastNonDeloadWeek'),
+            child: Text('Remove Period $lastNonRecoveryPeriod'),
           ),
         ],
       ),
@@ -341,21 +341,21 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
 
     if (result != null && mounted) {
       try {
-        final removeDeload = result == 'deload';
-        await controller.removeWeek(trainingCycle, removeDeload: removeDeload);
+        final removeRecovery = result == 'deload';
+        await controller.removePeriod(trainingCycle, removeRecovery: removeRecovery);
 
-        // Adjust selected week if it no longer exists
-        if (_selectedWeek > trainingCycle.weeksTotal - 1) {
-          setState(() => _selectedWeek = trainingCycle.weeksTotal - 1);
+        // Adjust selected period if it no longer exists
+        if (_selectedPeriod > trainingCycle.periodsTotal - 1) {
+          setState(() => _selectedPeriod = trainingCycle.periodsTotal - 1);
         }
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                removeDeload
-                    ? 'Deload week removed'
-                    : 'Week $lastNonDeloadWeek removed',
+                removeRecovery
+                    ? 'Recovery period removed'
+                    : 'Period $lastNonRecoveryPeriod removed',
               ),
               backgroundColor: context.successColor,
             ),
@@ -365,7 +365,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Error removing week: $e'),
+              content: Text('Error removing period: $e'),
               backgroundColor: context.errorColor,
             ),
           );
@@ -378,21 +378,21 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
     TrainingCycle trainingCycle,
     EditWorkoutController controller,
   ) async {
-    final result = await showDialog<RecoveryWeekType>(
+    final result = await showDialog<RecoveryPeriodType>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Recovery Week Type'),
+        title: const Text('Recovery Period Type'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
-          children: RecoveryWeekType.values.map((type) {
-            final isSelected = type == trainingCycle.recoveryWeekType;
+          children: RecoveryPeriodType.values.map((type) {
+            final isSelected = type == trainingCycle.recoveryPeriodType;
             return ListTile(
               title: Text(type.displayName),
               subtitle: Text(type.description),
-              leading: Radio<RecoveryWeekType>(
+              leading: Radio<RecoveryPeriodType>(
                 value: type,
                 fillColor: WidgetStateProperty.resolveWith((states) {
-                  if (type == trainingCycle.recoveryWeekType) {
+                  if (type == trainingCycle.recoveryPeriodType) {
                     return Theme.of(context).colorScheme.primary;
                   }
                   return null;
@@ -420,9 +420,9 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
       ),
     );
 
-    if (result != null && result != trainingCycle.recoveryWeekType && mounted) {
+    if (result != null && result != trainingCycle.recoveryPeriodType && mounted) {
       try {
-        await controller.updateRecoveryWeekType(trainingCycle, result);
+        await controller.updateRecoveryPeriodType(trainingCycle, result);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -451,7 +451,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
   ) {
     // Build day labels as D1, D2, D3, etc.
     final dayLabels = <String>[];
-    for (int dayNum = 1; dayNum <= trainingCycle.daysPerWeek; dayNum++) {
+    for (int dayNum = 1; dayNum <= trainingCycle.daysPerPeriod; dayNum++) {
       dayLabels.add('D$dayNum');
     }
 
@@ -471,7 +471,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
           // Remove day button
           IconButton(
             icon: const Icon(Icons.remove_circle_outline, size: 20),
-            onPressed: trainingCycle.daysPerWeek > 1
+            onPressed: trainingCycle.daysPerPeriod > 1
                 ? () => _removeDay(trainingCycle, controller)
                 : null,
             tooltip: 'Remove Day',
@@ -482,7 +482,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
           // Add day button
           IconButton(
             icon: const Icon(Icons.add_circle_outline, size: 20),
-            onPressed: trainingCycle.daysPerWeek < 7
+            onPressed: trainingCycle.daysPerPeriod < 7
                 ? () => _addDay(trainingCycle, controller)
                 : null,
             tooltip: 'Add Day',
@@ -545,7 +545,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Day ${trainingCycle.daysPerWeek + 1} added'),
+            content: Text('Day ${trainingCycle.daysPerPeriod + 1} added'),
             backgroundColor: context.successColor,
           ),
         );
@@ -566,7 +566,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
     TrainingCycle trainingCycle,
     EditWorkoutController controller,
   ) async {
-    final dayToRemove = trainingCycle.daysPerWeek;
+    final dayToRemove = trainingCycle.daysPerPeriod;
 
     // Check if there are any workouts on this day
     final allWorkouts = ref.read(
@@ -608,8 +608,8 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
       await controller.removeDay(trainingCycle);
 
       // Adjust selected day if it no longer exists
-      if (_selectedDayIndex >= trainingCycle.daysPerWeek - 1) {
-        setState(() => _selectedDayIndex = trainingCycle.daysPerWeek - 2);
+      if (_selectedDayIndex >= trainingCycle.daysPerPeriod - 1) {
+        setState(() => _selectedDayIndex = trainingCycle.daysPerPeriod - 2);
       }
 
       if (mounted) {
@@ -1562,16 +1562,16 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
     );
   }
 
-  Future<void> _mirrorWeek1ToSelectedWeek(
+  Future<void> _mirrorPeriod1ToSelectedPeriod(
     TrainingCycle trainingCycle,
     EditWorkoutController controller,
   ) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Mirror Week 1'),
+        title: const Text('Mirror Period 1'),
         content: Text(
-          'Copy all workouts from Week 1 to Week $_selectedWeek? This will replace any existing workouts for Week $_selectedWeek.',
+          'Copy all workouts from Period 1 to Period $_selectedPeriod? This will replace any existing workouts for Period $_selectedPeriod.',
         ),
         actions: [
           TextButton(
@@ -1588,15 +1588,15 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
 
     if (confirmed == true && mounted) {
       try {
-        await controller.mirrorWeek1ToSelectedWeek(
+        await controller.mirrorPeriod1ToSelectedPeriod(
           trainingCycle,
-          _selectedWeek,
+          _selectedPeriod,
         );
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Week 1 mirrored to Week $_selectedWeek'),
+              content: Text('Period 1 mirrored to Period $_selectedPeriod'),
               backgroundColor: context.successColor,
             ),
           );
@@ -1605,7 +1605,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Error mirroring week: $e'),
+              content: Text('Error mirroring period: $e'),
               backgroundColor: context.errorColor,
             ),
           );
@@ -1674,7 +1674,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
     final dayWorkouts = workouts
         .where(
           (w) =>
-              w.weekNumber == _selectedWeek &&
+              w.periodNumber == _selectedPeriod &&
               w.dayNumber == _selectedDayIndex + 1,
         )
         .toList();
@@ -1684,7 +1684,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
       ref: ref,
       workouts: dayWorkouts,
       trainingCycleId: trainingCycle.id,
-      weekNumber: _selectedWeek,
+      periodNumber: _selectedPeriod,
       dayNumber: _selectedDayIndex + 1,
     );
   }

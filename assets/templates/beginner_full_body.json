@@ -2,12 +2,12 @@
     "id": "beginner_full_body",
     "name": "Beginner Full Body",
     "description": "A 3-day per week full body program perfect for beginners. Focuses on compound movements to build strength and muscle.",
-    "weeksTotal": 5,
-    "daysPerWeek": 3,
-    "deloadWeek": 5,
+    "periodsTotal": 5,
+    "daysPerPeriod": 3,
+    "recoveryPeriod": 5,
     "workouts": [
         {
-            "weekNumber": 1,
+            "periodNumber": 1,
             "dayNumber": 1,
             "dayName": "Monday",
             "exercises": [
@@ -46,7 +46,7 @@
             ]
         },
         {
-            "weekNumber": 1,
+            "periodNumber": 1,
             "dayNumber": 2,
             "dayName": "Wednesday",
             "exercises": [
@@ -85,7 +85,7 @@
             ]
         },
         {
-            "weekNumber": 1,
+            "periodNumber": 1,
             "dayNumber": 3,
             "dayName": "Friday",
             "exercises": [

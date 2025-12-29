@@ -32,8 +32,8 @@ class CycleSummaryDialog extends ConsumerWidget {
                   .where((w) => w.trainingCycleId == trainingCycle.id)
                   .toList()
                 ..sort((a, b) {
-                  final weekCompare = a.weekNumber.compareTo(b.weekNumber);
-                  if (weekCompare != 0) return weekCompare;
+                  final periodCompare = a.periodNumber.compareTo(b.periodNumber);
+                  if (periodCompare != 0) return periodCompare;
                   return a.dayNumber.compareTo(b.dayNumber);
                 });
 

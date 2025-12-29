@@ -95,9 +95,9 @@ class TrainingCycleRepository {
     final duplicated = TrainingCycle(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       name: newName,
-      weeksTotal: original.weeksTotal,
-      daysPerWeek: original.daysPerWeek,
-      deloadWeek: original.deloadWeek,
+      periodsTotal: original.periodsTotal,
+      daysPerPeriod: original.daysPerPeriod,
+      recoveryPeriod: original.recoveryPeriod,
       gender: original.gender,
       muscleGroupPriorities: original.muscleGroupPriorities,
       templateName: original.templateName,

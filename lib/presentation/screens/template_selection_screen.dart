@@ -106,7 +106,7 @@ class _TemplateSelectionScreenState
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
-                          '${template.daysPerWeek} Days/Week',
+                          '${template.daysPerPeriod} Days/Period',
                           style: const TextStyle(
                             color: Colors.blue,
                             fontSize: 12,
@@ -159,7 +159,7 @@ class _TemplateSelectionScreenState
                   ),
                   const SizedBox(width: 4),
                   Text(
-                    '${template.weeksTotal} Weeks',
+                    '${template.periodsTotal} Periods',
                     style: TextStyle(
                       color: colorScheme.onSurfaceVariant,
                       fontSize: 13,

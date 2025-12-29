@@ -17,7 +17,7 @@ import '../../screens/add_exercise_screen.dart';
 /// - [ref]: The WidgetRef for accessing providers
 /// - [workouts]: List of existing workouts for the current day
 /// - [trainingCycleId]: The ID of the training cycle
-/// - [weekNumber]: The week number for the workout
+/// - [periodNumber]: The period number for the workout
 /// - [dayNumber]: The day number for the workout
 /// - [dayName]: Optional day name for the workout
 void showAddExerciseDialog({
@@ -25,7 +25,7 @@ void showAddExerciseDialog({
   required WidgetRef ref,
   required List<Workout> workouts,
   required String trainingCycleId,
-  required int weekNumber,
+  required int periodNumber,
   required int dayNumber,
   String? dayName,
 }) {
@@ -95,7 +95,7 @@ void showAddExerciseDialog({
                         final newWorkout = Workout(
                           id: const Uuid().v4(),
                           trainingCycleId: trainingCycleId,
-                          weekNumber: weekNumber,
+                          periodNumber: periodNumber,
                           dayNumber: dayNumber,
                           dayName: dayName,
                           label: muscleGroup.displayName,
@@ -148,7 +148,7 @@ void showAddExerciseDialogFromWorkouts({
     ref: ref,
     workouts: workouts,
     trainingCycleId: firstWorkout.trainingCycleId,
-    weekNumber: firstWorkout.weekNumber,
+    periodNumber: firstWorkout.periodNumber,
     dayNumber: firstWorkout.dayNumber,
     dayName: firstWorkout.dayName,
   );

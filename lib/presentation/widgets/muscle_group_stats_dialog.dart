@@ -40,15 +40,15 @@ class MuscleGroupStatsDialog extends ConsumerWidget {
             );
           }
 
-          // 2. Determine the number of weeks
-          final maxWeek = workouts.fold(
+          // 2. Determine the number of periods
+          final maxPeriod = workouts.fold(
             0,
-            (max, w) => w.weekNumber > max ? w.weekNumber : max,
+            (max, w) => w.periodNumber > max ? w.periodNumber : max,
           );
-          final weeks = List.generate(maxWeek, (index) => index + 1);
+          final periods = List.generate(maxPeriod, (index) => index + 1);
 
-          // 3. Aggregate sets per muscle group per week
-          // Map<MuscleGroup, Map<WeekNumber, SetCount>>
+          // 3. Aggregate sets per muscle group per period
+          // Map<MuscleGroup, Map<PeriodNumber, SetCount>>
           final stats = <MuscleGroup, Map<int, int>>{};
           final muscleGroups = <MuscleGroup>{};
 
@@ -58,8 +58,8 @@ class MuscleGroupStatsDialog extends ConsumerWidget {
               muscleGroups.add(group);
 
               stats.putIfAbsent(group, () => {});
-              final currentCount = stats[group]![workout.weekNumber] ?? 0;
-              stats[group]![workout.weekNumber] =
+              final currentCount = stats[group]![workout.periodNumber] ?? 0;
+              stats[group]![workout.periodNumber] =
                   currentCount + exercise.sets.length;
             }
           }
@@ -96,19 +96,19 @@ class MuscleGroupStatsDialog extends ConsumerWidget {
                 ),
                 const SizedBox(height: 24),
 
-                // Column Headers (Weeks)
+                // Column Headers (Periods)
                 Row(
                   children: [
                     const Expanded(
                       flex: 2,
                       child: SizedBox(),
                     ), // Space for Muscle Group Name
-                    ...weeks.map((week) {
-                      final isDeload = week == trainingCycle.deloadWeek;
+                    ...periods.map((period) {
+                      final isRecovery = period == trainingCycle.recoveryPeriod;
                       return Expanded(
                         child: Center(
                           child: Text(
-                            isDeload ? 'DL' : 'wk $week',
+                            isRecovery ? 'DL' : 'pd $period',
                             style: TextStyle(fontSize: 12, color: textColor),
                           ),
                         ),
@@ -131,9 +131,9 @@ class MuscleGroupStatsDialog extends ConsumerWidget {
                             0,
                             (sum, count) => sum + count,
                           );
-                          final avgSets = weeks.isEmpty
+                          final avgSets = periods.isEmpty
                               ? 0
-                              : (totalSets / weeks.length).round();
+                              : (totalSets / periods.length).round();
                           avgSetsMap[group] = avgSets;
                         }
 
@@ -230,9 +230,9 @@ class MuscleGroupStatsDialog extends ConsumerWidget {
                                     ),
                                   ),
 
-                                  // Weekly Bars
-                                  ...weeks.map((week) {
-                                    final count = groupStats[week] ?? 0;
+                                  // Period Bars
+                                  ...periods.map((period) {
+                                    final count = groupStats[period] ?? 0;
                                     return Expanded(
                                       child: Container(
                                         margin: const EdgeInsets.symmetric(

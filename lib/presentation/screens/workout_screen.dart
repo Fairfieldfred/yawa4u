@@ -42,12 +42,12 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
 
   WorkoutHomeState get _homeState => ref.watch(workoutHomeControllerProvider);
 
-  void _toggleWeekSelector() {
-    _controller.toggleWeekSelector();
+  void _togglePeriodSelector() {
+    _controller.togglePeriodSelector();
   }
 
-  void _selectDay(int week, int day) {
-    _controller.selectDay(week, day);
+  void _selectDay(int period, int day) {
+    _controller.selectDay(period, day);
   }
 
   Future<void> _updateSetWeight(
@@ -317,27 +317,27 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
       workoutsByTrainingCycleProvider(trainingCycle.id),
     );
 
-    // Get current week and day
-    final currentWeek = trainingCycle.getCurrentWeek();
-    if (currentWeek == null) {
-      debugPrint('Could not determine current week');
+    // Get current period and day
+    final currentPeriod = trainingCycle.getCurrentPeriod();
+    if (currentPeriod == null) {
+      debugPrint('Could not determine current period');
       return;
     }
 
-    // Use selected week/day if available, otherwise use current
-    final displayWeek = _homeState.selectedWeek ?? currentWeek;
+    // Use selected period/day if available, otherwise use current
+    final displayPeriod = _homeState.selectedPeriod ?? currentPeriod;
     final displayDay =
         _homeState.selectedDay ??
         (() {
           final daysSinceStart = DateTime.now()
               .difference(trainingCycle.startDate!)
               .inDays;
-          final daysSinceWeekStart = daysSinceStart % 7;
-          return (daysSinceWeekStart + 1).clamp(1, 7);
+          final daysSincePeriodStart = daysSinceStart % trainingCycle.daysPerPeriod;
+          return (daysSincePeriodStart + 1).clamp(1, trainingCycle.daysPerPeriod);
         })();
 
     final todaysWorkouts = allWorkouts
-        .where((w) => w.weekNumber == displayWeek && w.dayNumber == displayDay)
+        .where((w) => w.periodNumber == displayPeriod && w.dayNumber == displayDay)
         .toList();
 
     // Collect all exercises from all workouts
@@ -552,27 +552,27 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     return true;
   }
 
-  /// Calculate target RIR for a given week based on trainingCycle deload schedule
-  int _calculateRIR(int weekNumber, dynamic trainingCycle) {
-    final deloadWeek = trainingCycle.deloadWeek;
+  /// Calculate target RIR for a given period based on trainingCycle recovery schedule
+  int _calculateRIR(int periodNumber, dynamic trainingCycle) {
+    final recoveryPeriod = trainingCycle.recoveryPeriod;
 
-    // Deload week has 8 RIR
-    if (weekNumber == deloadWeek) {
+    // Recovery period has 8 RIR
+    if (periodNumber == recoveryPeriod) {
       return 8;
     }
 
-    // Calculate weeks until deload
-    final weeksUntilDeload = deloadWeek - weekNumber;
+    // Calculate periods until recovery
+    final periodsUntilRecovery = recoveryPeriod - periodNumber;
 
-    // Week before deload = 0 RIR
-    // 2 weeks before = 1 RIR
-    // 3 weeks before = 2 RIR, etc.
-    if (weeksUntilDeload == 1) {
+    // Period before recovery = 0 RIR
+    // 2 periods before = 1 RIR
+    // 3 periods before = 2 RIR, etc.
+    if (periodsUntilRecovery == 1) {
       return 0;
-    } else if (weeksUntilDeload > 1) {
-      return weeksUntilDeload - 1;
+    } else if (periodsUntilRecovery > 1) {
+      return periodsUntilRecovery - 1;
     } else {
-      // After deload week
+      // After recovery period
       return 0;
     }
   }
@@ -596,25 +596,25 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     }
 
     // Check if ALL workouts in the trainingCycle are now completed
-    // We need to verify that every week/day combination has at least one completed workout
+    // We need to verify that every period/day combination has at least one completed workout
     final allWorkouts = repository.getByTrainingCycleId(trainingCycle.id);
 
-    // Build a set of completed week/day combinations
+    // Build a set of completed period/day combinations
     final completedDays = <String>{};
     for (final workout in allWorkouts) {
       if (workout.status == WorkoutStatus.completed) {
-        completedDays.add('${workout.weekNumber}-${workout.dayNumber}');
+        completedDays.add('${workout.periodNumber}-${workout.dayNumber}');
       }
     }
 
-    // Check if all expected week/day combinations are completed
-    final totalWeeks = trainingCycle.weeksTotal;
-    final daysPerWeek = trainingCycle.daysPerWeek;
+    // Check if all expected period/day combinations are completed
+    final totalPeriods = trainingCycle.periodsTotal;
+    final daysPerPeriod = trainingCycle.daysPerPeriod;
     bool allCompleted = true;
 
-    for (int week = 1; week <= totalWeeks; week++) {
-      for (int day = 1; day <= daysPerWeek; day++) {
-        if (!completedDays.contains('$week-$day')) {
+    for (int period = 1; period <= totalPeriods; period++) {
+      for (int day = 1; day <= daysPerPeriod; day++) {
+        if (!completedDays.contains('$period-$day')) {
           allCompleted = false;
           break;
         }
@@ -655,16 +655,16 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
 
     // Find next workout
     int nextDay = firstWorkout.dayNumber + 1;
-    int nextWeek = firstWorkout.weekNumber;
+    int nextPeriod = firstWorkout.periodNumber;
 
-    // Check if we need to move to next week
-    if (nextDay > trainingCycle.daysPerWeek) {
+    // Check if we need to move to next period
+    if (nextDay > trainingCycle.daysPerPeriod) {
       nextDay = 1;
-      nextWeek++;
+      nextPeriod++;
     }
 
     // Update selected day via controller
-    _controller.navigateToNextDay(nextWeek, nextDay);
+    _controller.navigateToNextDay(nextPeriod, nextDay);
   }
 
   @override
@@ -688,17 +688,17 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
       debugPrint('Total workouts from repository: ${allWorkouts.length}');
       for (var workout in allWorkouts.take(5)) {
         debugPrint(
-          '  Week ${workout.weekNumber} Day ${workout.dayNumber}: ${workout.exercises.length} exercises (ID: ${workout.id})',
+          '  Period ${workout.periodNumber} Day ${workout.dayNumber}: ${workout.exercises.length} exercises (ID: ${workout.id})',
         );
         for (var ex in workout.exercises) {
           debugPrint('    - ${ex.name}');
         }
       }
 
-      final currentWeek = currentTrainingCycle.getCurrentWeek();
-      debugPrint('Current week: $currentWeek');
+      final currentPeriod = currentTrainingCycle.getCurrentPeriod();
+      debugPrint('Current period: $currentPeriod');
 
-      if (currentWeek == null) {
+      if (currentPeriod == null) {
         // TrainingCycle hasn't started yet or has ended
         return _buildEmptyState(
           context,
@@ -707,31 +707,31 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
         );
       }
 
-      // Use selected week/day if available, otherwise find first incomplete workout
-      int displayWeek;
+      // Use selected period/day if available, otherwise find first incomplete workout
+      int displayPeriod;
       int displayDay;
 
-      if (_homeState.selectedWeek != null && _homeState.selectedDay != null) {
+      if (_homeState.selectedPeriod != null && _homeState.selectedDay != null) {
         // User has manually selected a specific workout (or we locked it in)
-        displayWeek = _homeState.selectedWeek!;
+        displayPeriod = _homeState.selectedPeriod!;
         displayDay = _homeState.selectedDay!;
       } else {
         // Find first incomplete workout
         final firstIncomplete = findFirstIncompleteWorkout(allWorkouts);
         if (firstIncomplete != null) {
-          displayWeek = firstIncomplete.$1;
+          displayPeriod = firstIncomplete.$1;
           displayDay = firstIncomplete.$2;
         } else {
-          // All workouts complete, fall back to current week/day
-          displayWeek = currentWeek;
+          // All workouts complete, fall back to current period/day
+          displayPeriod = currentPeriod;
           displayDay = (() {
             final daysSinceStart = DateTime.now()
                 .difference(currentTrainingCycle.startDate!)
                 .inDays;
-            final daysSinceWeekStart = daysSinceStart % 7;
-            return (daysSinceWeekStart + 1).clamp(
+            final daysSincePeriodStart = daysSinceStart % currentTrainingCycle.daysPerPeriod;
+            return (daysSincePeriodStart + 1).clamp(
               1,
-              currentTrainingCycle.daysPerWeek,
+              currentTrainingCycle.daysPerPeriod,
             );
           })();
         }
@@ -739,21 +739,21 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
         // Lock in the selected day so we don't auto-navigate on rebuild
         // This ensures user stays on current day until they press "Finish Workout"
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          _controller.selectDay(displayWeek, displayDay);
+          _controller.selectDay(displayPeriod, displayDay);
         });
       }
 
-      debugPrint('Display week: $displayWeek, Display day: $displayDay');
+      debugPrint('Display period: $displayPeriod, Display day: $displayDay');
 
-      // Get all workouts for the display week and day
+      // Get all workouts for the display period and day
       final todaysWorkouts = allWorkouts
           .where(
-            (w) => w.weekNumber == displayWeek && w.dayNumber == displayDay,
+            (w) => w.periodNumber == displayPeriod && w.dayNumber == displayDay,
           )
           .toList();
 
       debugPrint(
-        'Found ${todaysWorkouts.length} workouts for W$displayWeek D$displayDay',
+        'Found ${todaysWorkouts.length} workouts for P$displayPeriod D$displayDay',
       );
 
       if (todaysWorkouts.isNotEmpty) {
@@ -763,9 +763,9 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
           ref,
           currentTrainingCycle,
           todaysWorkouts,
-          displayWeek,
+          displayPeriod,
           displayDay,
-          currentWeek: currentWeek,
+          currentPeriod: currentPeriod,
           allWorkouts: allWorkouts,
         );
       }
@@ -775,9 +775,9 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
         context,
         ref,
         currentTrainingCycle,
-        displayWeek,
+        displayPeriod,
         displayDay,
-        currentWeek: currentWeek,
+        currentPeriod: currentPeriod,
         allWorkouts: allWorkouts,
       );
     }
@@ -796,9 +796,9 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     BuildContext context,
     WidgetRef ref,
     dynamic trainingCycle,
-    int displayWeek,
+    int displayPeriod,
     int displayDay, {
-    required int currentWeek,
+    required int currentPeriod,
     required List<Workout> allWorkouts,
   }) {
     return GestureDetector(
@@ -823,7 +823,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
               ),
               const SizedBox(height: 2),
               Text(
-                'WEEK $displayWeek DAY $displayDay',
+                'PERIOD $displayPeriod DAY $displayDay',
                 style: TextStyle(
                   color: Theme.of(context).textTheme.titleLarge?.color,
                   fontSize: 17,
@@ -835,7 +835,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
           actions: [
             IconButton(
               icon: const Icon(Icons.calendar_today),
-              onPressed: _toggleWeekSelector,
+              onPressed: _togglePeriodSelector,
             ),
             IconButton(
               icon: Icon(
@@ -872,7 +872,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 32),
                     child: Text(
-                      'No workout found for Week $displayWeek, Day $displayDay',
+                      'No workout found for Period $displayPeriod, Day $displayDay',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: Theme.of(
                           context,
@@ -884,12 +884,12 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                 ],
               ),
             ),
-            // Week selector overlay
-            if (_homeState.showWeekSelector) ...[
+            // Period selector overlay
+            if (_homeState.showPeriodSelector) ...[
               Positioned.fill(
                 child: GestureDetector(
                   onTap: () {
-                    _controller.hideWeekSelector();
+                    _controller.hidePeriodSelector();
                   },
                   behavior: HitTestBehavior.opaque,
                   child: Container(color: Colors.transparent),
@@ -901,9 +901,9 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                 right: 0,
                 child: CalendarDropdown(
                   trainingCycle: trainingCycle,
-                  currentWeek: currentWeek,
+                  currentPeriod: currentPeriod,
                   currentDay: displayDay,
-                  selectedWeek: displayWeek,
+                  selectedPeriod: displayPeriod,
                   selectedDay: displayDay,
                   allWorkouts: allWorkouts,
                   onDaySelected: _selectDay,
@@ -958,9 +958,9 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     WidgetRef ref,
     dynamic trainingCycle,
     List<Workout> workouts,
-    int displayWeek,
+    int displayPeriod,
     int displayDay, {
-    required int currentWeek,
+    required int currentPeriod,
     required List<Workout> allWorkouts,
   }) {
     // Calculate day name based on the trainingCycle start date
@@ -971,8 +971,8 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     debugPrint('=== DAY NAME CALCULATION ===');
     debugPrint('Start date: ${trainingCycle.startDate}');
     debugPrint('Start date weekday: ${trainingCycle.startDate?.weekday}');
-    debugPrint('Display week: $displayWeek, Display day: $displayDay');
-    debugPrint('Days per week: ${trainingCycle.daysPerWeek}');
+    debugPrint('Display period: $displayPeriod, Display day: $displayDay');
+    debugPrint('Days per period: ${trainingCycle.daysPerPeriod}');
     debugPrint(
       'Has custom dayName: ${workouts.isNotEmpty && workouts.first.dayName != null}',
     );
@@ -993,7 +993,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
 
       // Calculate days elapsed since start
       final daysElapsed =
-          ((displayWeek - 1) * trainingCycle.daysPerWeek) + (displayDay - 1);
+          ((displayPeriod - 1) * trainingCycle.daysPerPeriod) + (displayDay - 1);
       debugPrint('Days elapsed: $daysElapsed');
 
       // Calculate actual day of week
@@ -1045,7 +1045,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
               ),
               const SizedBox(height: 2),
               Text(
-                'WEEK $displayWeek DAY $displayDay $dayName',
+                'PERIOD $displayPeriod DAY $displayDay $dayName',
                 style: TextStyle(
                   color: Theme.of(context).textTheme.titleLarge?.color,
                   fontSize: 17,
@@ -1057,7 +1057,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
           actions: [
             IconButton(
               icon: const Icon(Icons.calendar_today),
-              onPressed: _toggleWeekSelector,
+              onPressed: _togglePeriodSelector,
             ),
             // Theme toggle
             IconButton(
@@ -1119,9 +1119,9 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                             allExercises[index - 1].muscleGroup !=
                                 exercise.muscleGroup;
 
-                        // Calculate target RIR for current week
-                        final weekRir = _calculateRIR(
-                          displayWeek,
+                        // Calculate target RIR for current period
+                        final periodRir = _calculateRIR(
+                          displayPeriod,
                           trainingCycle,
                         );
 
@@ -1131,7 +1131,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                           ),
                           exercise: exercise,
                           showMuscleGroupBadge: showMuscleGroupBadge,
-                          targetRir: weekRir,
+                          targetRir: periodRir,
                           weightUnit: ref.watch(weightUnitProvider),
                           useMetric: ref.watch(useMetricProvider),
                           onAddNote: (exerciseId) =>
@@ -1193,13 +1193,13 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                       },
                     ),
 
-              // Week selector overlay (shown on top when toggled)
-              if (_homeState.showWeekSelector) ...[
+              // Period selector overlay (shown on top when toggled)
+              if (_homeState.showPeriodSelector) ...[
                 // Barrier to dismiss on tap outside
                 Positioned.fill(
                   child: GestureDetector(
                     onTap: () {
-                      _controller.hideWeekSelector();
+                      _controller.hidePeriodSelector();
                     },
                     behavior: HitTestBehavior.opaque,
                     child: Container(color: Colors.transparent),
@@ -1212,9 +1212,9 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                   right: 0,
                   child: CalendarDropdown(
                     trainingCycle: trainingCycle,
-                    currentWeek: currentWeek,
+                    currentPeriod: currentPeriod,
                     currentDay: displayDay,
-                    selectedWeek: displayWeek,
+                    selectedPeriod: displayPeriod,
                     selectedDay: displayDay,
                     allWorkouts: allWorkouts,
                     onDaySelected: _selectDay,
@@ -1616,7 +1616,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     debugPrint('=== RELABEL DEBUG ===');
     debugPrint('Workouts passed in: ${workouts.length}');
     for (var w in workouts) {
-      debugPrint('  - Week ${w.weekNumber}, Day ${w.dayNumber}, ID: ${w.id}');
+      debugPrint('  - Period ${w.periodNumber}, Day ${w.dayNumber}, ID: ${w.id}');
     }
 
     final result = await showDialog<({String label, bool applyToAll})>(
@@ -1646,7 +1646,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
           );
           for (final w in workoutsToUpdate) {
             debugPrint(
-              '  - Updating Week ${w.weekNumber}, Day ${w.dayNumber}, ID: ${w.id}',
+              '  - Updating Period ${w.periodNumber}, Day ${w.dayNumber}, ID: ${w.id}',
             );
             final updatedWorkout = w.copyWith(dayName: result.label);
             await repository.update(updatedWorkout);
@@ -1663,20 +1663,20 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
             );
           }
         } else {
-          // Update only the current workout(s) for this specific week and day
-          // The workouts list passed in contains ALL workouts for this day across all weeks
-          // We need to filter to only the current week
-          final currentWeekNumber = workouts.first.weekNumber;
-          final currentWeekWorkouts = workouts
-              .where((w) => w.weekNumber == currentWeekNumber)
+          // Update only the current workout(s) for this specific period and day
+          // The workouts list passed in contains ALL workouts for this day across all periods
+          // We need to filter to only the current period
+          final currentPeriodNumber = workouts.first.periodNumber;
+          final currentPeriodWorkouts = workouts
+              .where((w) => w.periodNumber == currentPeriodNumber)
               .toList();
 
           debugPrint(
-            'Updating ${currentWeekWorkouts.length} workouts (current week only)',
+            'Updating ${currentPeriodWorkouts.length} workouts (current period only)',
           );
-          for (final w in currentWeekWorkouts) {
+          for (final w in currentPeriodWorkouts) {
             debugPrint(
-              '  - Updating Week ${w.weekNumber}, Day ${w.dayNumber}, ID: ${w.id}',
+              '  - Updating Period ${w.periodNumber}, Day ${w.dayNumber}, ID: ${w.id}',
             );
             final updatedWorkout = w.copyWith(dayName: result.label);
             await repository.update(updatedWorkout);
@@ -1688,15 +1688,15 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
             workoutsByTrainingCycleProvider(workout.trainingCycleId),
           );
 
-          // Show ALL workouts grouped by week
+          // Show ALL workouts grouped by period
           debugPrint('All workouts in trainingCycle after update:');
-          for (int week = 1; week <= 5; week++) {
-            final weekWorkouts = allWorkoutsAfter
-                .where((w) => w.weekNumber == week)
+          for (int period = 1; period <= 5; period++) {
+            final periodWorkouts = allWorkoutsAfter
+                .where((w) => w.periodNumber == period)
                 .toList();
-            if (weekWorkouts.isNotEmpty) {
-              debugPrint('  Week $week:');
-              for (var w in weekWorkouts) {
+            if (periodWorkouts.isNotEmpty) {
+              debugPrint('  Period $period:');
+              for (var w in periodWorkouts) {
                 debugPrint(
                   '    - Day ${w.dayNumber}, dayName: "${w.dayName}", ID: ${w.id.substring(0, 8)}...',
                 );
@@ -1765,7 +1765,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
             final updatedWorkout = workout.copyWith(dayName: null);
             await repository.update(updatedWorkout);
             debugPrint(
-              '  Cleared: Week ${workout.weekNumber}, Day ${workout.dayNumber}',
+              '  Cleared: Period ${workout.periodNumber}, Day ${workout.dayNumber}',
             );
           }
         }
@@ -1880,29 +1880,29 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
 }
 
 /// Old modal widget - kept for reference but not used
-class _WeekSelectorModal extends StatefulWidget {
+class _PeriodSelectorModal extends StatefulWidget {
   final TrainingCycle trainingCycle;
-  final int currentWeek;
+  final int currentPeriod;
   final int currentDay;
 
-  const _WeekSelectorModal({
+  const _PeriodSelectorModal({
     required this.trainingCycle,
-    required this.currentWeek,
+    required this.currentPeriod,
     required this.currentDay,
   });
 
   @override
-  State<_WeekSelectorModal> createState() => _WeekSelectorModalState();
+  State<_PeriodSelectorModal> createState() => _PeriodSelectorModalState();
 }
 
-class _WeekSelectorModalState extends State<_WeekSelectorModal> {
-  late int _selectedWeek;
+class _PeriodSelectorModalState extends State<_PeriodSelectorModal> {
+  late int _selectedPeriod;
   late int _selectedDay;
 
   @override
   void initState() {
     super.initState();
-    _selectedWeek = widget.currentWeek;
+    _selectedPeriod = widget.currentPeriod;
     _selectedDay = widget.currentDay;
   }
 
@@ -1910,7 +1910,7 @@ class _WeekSelectorModalState extends State<_WeekSelectorModal> {
   Widget build(BuildContext context) {
     final dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     final availableDays = dayNames
-        .take(widget.trainingCycle.daysPerWeek)
+        .take(widget.trainingCycle.daysPerPeriod)
         .toList();
 
     return Container(
@@ -1929,7 +1929,7 @@ class _WeekSelectorModalState extends State<_WeekSelectorModal> {
               children: [
                 const SizedBox(width: 40),
                 Text(
-                  'WEEKS',
+                  'PERIODS',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
                     fontWeight: FontWeight.w500,
@@ -1943,7 +1943,7 @@ class _WeekSelectorModalState extends State<_WeekSelectorModal> {
             ),
           ),
 
-          // Week selector buttons (+ and -)
+          // Period selector buttons (+ and -)
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: Row(
@@ -1954,10 +1954,10 @@ class _WeekSelectorModalState extends State<_WeekSelectorModal> {
                     Icons.remove,
                     color: Theme.of(context).colorScheme.onSurface,
                   ),
-                  onPressed: _selectedWeek > 1
+                  onPressed: _selectedPeriod > 1
                       ? () {
                           setState(() {
-                            _selectedWeek--;
+                            _selectedPeriod--;
                           });
                         }
                       : null,
@@ -1973,10 +1973,10 @@ class _WeekSelectorModalState extends State<_WeekSelectorModal> {
                     Icons.add,
                     color: Theme.of(context).colorScheme.onSurface,
                   ),
-                  onPressed: _selectedWeek < widget.trainingCycle.weeksTotal
+                  onPressed: _selectedPeriod < widget.trainingCycle.periodsTotal
                       ? () {
                           setState(() {
-                            _selectedWeek++;
+                            _selectedPeriod++;
                           });
                         }
                       : null,
@@ -1990,21 +1990,21 @@ class _WeekSelectorModalState extends State<_WeekSelectorModal> {
             ),
           ),
 
-          // Week grid
+          // Period grid
           Expanded(
             child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: List.generate(widget.trainingCycle.weeksTotal, (
-                  weekIndex,
+                children: List.generate(widget.trainingCycle.periodsTotal, (
+                  periodIndex,
                 ) {
-                  final weekNumber = weekIndex + 1;
-                  return _buildWeekColumn(
-                    weekNumber,
+                  final periodNumber = periodIndex + 1;
+                  return _buildPeriodColumn(
+                    periodNumber,
                     availableDays,
-                    widget.trainingCycle.deloadWeek == weekNumber,
+                    widget.trainingCycle.recoveryPeriod == periodNumber,
                   );
                 }),
               ),
@@ -2015,31 +2015,31 @@ class _WeekSelectorModalState extends State<_WeekSelectorModal> {
     );
   }
 
-  Widget _buildWeekColumn(
-    int weekNumber,
+  Widget _buildPeriodColumn(
+    int periodNumber,
     List<String> dayNames,
-    bool isDeload,
+    bool isRecovery,
   ) {
     return Container(
       margin: const EdgeInsets.only(right: 8),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Week header
+          // Period header
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(color: Colors.transparent),
             child: Column(
               children: [
                 Text(
-                  '$weekNumber',
+                  '$periodNumber',
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.onSurface,
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                if (isDeload)
+                if (isRecovery)
                   Text(
                     'DL',
                     style: TextStyle(
@@ -2049,7 +2049,7 @@ class _WeekSelectorModalState extends State<_WeekSelectorModal> {
                     ),
                   ),
                 Text(
-                  '${_calculateRIR(weekNumber)} RIR',
+                  '${_calculateRIR(periodNumber)} RIR',
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
                     fontSize: 12,
@@ -2062,18 +2062,18 @@ class _WeekSelectorModalState extends State<_WeekSelectorModal> {
           // Day buttons
           ...List.generate(dayNames.length, (dayIndex) {
             final dayNumber = dayIndex + 1;
-            final isCurrentWeek = weekNumber == widget.currentWeek;
+            final isCurrentPeriod = periodNumber == widget.currentPeriod;
             final isCurrentDay = dayNumber == widget.currentDay;
             final isSelected =
-                weekNumber == _selectedWeek && dayNumber == _selectedDay;
+                periodNumber == _selectedPeriod && dayNumber == _selectedDay;
             final isCompleted =
-                weekNumber < widget.currentWeek ||
-                (isCurrentWeek && dayNumber < widget.currentDay);
+                periodNumber < widget.currentPeriod ||
+                (isCurrentPeriod && dayNumber < widget.currentDay);
 
             return GestureDetector(
               onTap: () {
                 setState(() {
-                  _selectedWeek = weekNumber;
+                  _selectedPeriod = periodNumber;
                   _selectedDay = dayNumber;
                 });
 
@@ -2086,7 +2086,7 @@ class _WeekSelectorModalState extends State<_WeekSelectorModal> {
                 decoration: BoxDecoration(
                   color: isCompleted
                       ? context.successColor
-                      : (isCurrentWeek && isCurrentDay)
+                      : (isCurrentPeriod && isCurrentDay)
                       ? context.errorColor
                       : Theme.of(context).colorScheme.surfaceContainerHighest,
                   borderRadius: BorderRadius.circular(8),
@@ -2101,7 +2101,7 @@ class _WeekSelectorModalState extends State<_WeekSelectorModal> {
                 child: Text(
                   dayNames[dayIndex],
                   style: TextStyle(
-                    color: isCompleted || (isCurrentWeek && isCurrentDay)
+                    color: isCompleted || (isCurrentPeriod && isCurrentDay)
                         ? Colors.white
                         : Theme.of(context).colorScheme.onSurface,
                     fontSize: 14,
@@ -2114,7 +2114,7 @@ class _WeekSelectorModalState extends State<_WeekSelectorModal> {
             );
           }),
 
-          // Extra days for weeks with fewer workout days
+          // Extra days for periods with fewer workout days
           if (dayNames.length < 7)
             ...List.generate(7 - dayNames.length, (index) {
               final extraDayIndex = dayNames.length + index;
@@ -2152,26 +2152,26 @@ class _WeekSelectorModalState extends State<_WeekSelectorModal> {
     );
   }
 
-  int _calculateRIR(int weekNumber) {
-    final deloadWeek = widget.trainingCycle.deloadWeek;
+  int _calculateRIR(int periodNumber) {
+    final recoveryPeriod = widget.trainingCycle.recoveryPeriod;
 
-    // Deload week has 8 RIR
-    if (weekNumber == deloadWeek) {
+    // Recovery period has 8 RIR
+    if (periodNumber == recoveryPeriod) {
       return 8;
     }
 
-    // Calculate weeks until deload
-    final weeksUntilDeload = deloadWeek - weekNumber;
+    // Calculate periods until recovery
+    final periodsUntilRecovery = recoveryPeriod - periodNumber;
 
-    // Week before deload = 0 RIR
-    // 2 weeks before = 1 RIR
-    // 3 weeks before = 2 RIR, etc.
-    if (weeksUntilDeload == 1) {
+    // Period before recovery = 0 RIR
+    // 2 periods before = 1 RIR
+    // 3 periods before = 2 RIR, etc.
+    if (periodsUntilRecovery == 1) {
       return 0;
-    } else if (weeksUntilDeload > 1) {
-      return weeksUntilDeload - 1;
+    } else if (periodsUntilRecovery > 1) {
+      return periodsUntilRecovery - 1;
     } else {
-      // After deload week
+      // After recovery period
       return 0;
     }
   }

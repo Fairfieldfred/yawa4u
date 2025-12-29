@@ -8,7 +8,7 @@ part of 'training_cycle.dart';
 
 class TrainingCycleAdapter extends TypeAdapter<TrainingCycle> {
   @override
-  final int typeId = 4;
+  final int typeId = 104;
 
   @override
   TrainingCycle read(BinaryReader reader) {
@@ -19,9 +19,9 @@ class TrainingCycleAdapter extends TypeAdapter<TrainingCycle> {
     return TrainingCycle(
       id: fields[0] as String,
       name: fields[1] as String,
-      weeksTotal: fields[2] as int,
-      daysPerWeek: fields[3] as int,
-      deloadWeek: fields[4] as int?,
+      periodsTotal: fields[2] as int,
+      daysPerPeriod: fields[3] as int,
+      recoveryPeriod: fields[4] as int?,
       status: fields[5] as TrainingCycleStatus,
       gender: fields[6] as Gender?,
       createdDate: fields[7] as DateTime?,
@@ -43,11 +43,11 @@ class TrainingCycleAdapter extends TypeAdapter<TrainingCycle> {
       ..writeByte(1)
       ..write(obj.name)
       ..writeByte(2)
-      ..write(obj.weeksTotal)
+      ..write(obj.periodsTotal)
       ..writeByte(3)
-      ..write(obj.daysPerWeek)
+      ..write(obj.daysPerPeriod)
       ..writeByte(4)
-      ..write(obj.deloadWeek)
+      ..write(obj.recoveryPeriod)
       ..writeByte(5)
       ..write(obj.status)
       ..writeByte(6)
@@ -67,7 +67,7 @@ class TrainingCycleAdapter extends TypeAdapter<TrainingCycle> {
       ..writeByte(13)
       ..write(obj.notes)
       ..writeByte(14)
-      ..write(obj._recoveryWeekType);
+      ..write(obj._recoveryPeriodType);
   }
 
   @override

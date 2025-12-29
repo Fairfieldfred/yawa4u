@@ -144,25 +144,25 @@ class Validators {
     ]);
   }
 
-  /// Validate days per week (1-7)
-  static String? daysPerWeek(String? value) {
+  /// Validate days per period (1-14)
+  static String? daysPerPeriod(String? value) {
     return combine(value, [
-      (v) => required(v, fieldName: 'Days per week'),
-      (v) => isInteger(v, fieldName: 'Days per week'),
+      (v) => required(v, fieldName: 'Days per period'),
+      (v) => isInteger(v, fieldName: 'Days per period'),
       (v) => numberRange(
         v,
-        AppConstants.minDaysPerWeek.toDouble(),
-        AppConstants.maxDaysPerWeek.toDouble(),
-        fieldName: 'Days per week',
+        AppConstants.minDaysPerPeriod.toDouble(),
+        AppConstants.maxDaysPerPeriod.toDouble(),
+        fieldName: 'Days per period',
       ),
     ]);
   }
 
-  /// Validate deload week (1 to total weeks)
-  static String? deloadWeek(String? value, int totalWeeks) {
+  /// Validate recovery period (1 to total periods)
+  static String? recoveryPeriod(String? value, int totalPeriods) {
     return combine(value, [
-      (v) => isInteger(v, fieldName: 'Deload week'),
-      (v) => numberRange(v, 1, totalWeeks.toDouble(), fieldName: 'Deload week'),
+      (v) => isInteger(v, fieldName: 'Recovery period'),
+      (v) => numberRange(v, 1, totalPeriods.toDouble(), fieldName: 'Recovery period'),
     ]);
   }
 

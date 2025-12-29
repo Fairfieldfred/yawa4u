@@ -2,12 +2,12 @@
     "id": "upper_lower_split",
     "name": "Upper/Lower Split",
     "description": "A 4-day per week upper/lower body split. Train upper body twice and lower body twice per week for balanced development.",
-    "weeksTotal": 6,
-    "daysPerWeek": 4,
-    "deloadWeek": 7,
+    "periodsTotal": 6,
+    "daysPerPeriod": 4,
+    "recoveryPeriod": 7,
     "workouts": [
         {
-            "weekNumber": 1,
+            "periodNumber": 1,
             "dayNumber": 1,
             "dayName": "Monday - Upper",
             "exercises": [
@@ -62,7 +62,7 @@
             ]
         },
         {
-            "weekNumber": 1,
+            "periodNumber": 1,
             "dayNumber": 2,
             "dayName": "Tuesday - Lower",
             "exercises": [
@@ -109,7 +109,7 @@
             ]
         },
         {
-            "weekNumber": 1,
+            "periodNumber": 1,
             "dayNumber": 3,
             "dayName": "Thursday - Upper",
             "exercises": [
@@ -164,7 +164,7 @@
             ]
         },
         {
-            "weekNumber": 1,
+            "periodNumber": 1,
             "dayNumber": 4,
             "dayName": "Friday - Lower",
             "exercises": [

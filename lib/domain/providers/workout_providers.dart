@@ -29,9 +29,9 @@ final workoutsByTrainingCycleProvider = Provider.family<List<Workout>, String>((
     data: (list) =>
         list.where((w) => w.trainingCycleId == trainingCycleId).toList()
           ..sort((a, b) {
-            // Sort by week, then by day
-            final weekCompare = a.weekNumber.compareTo(b.weekNumber);
-            if (weekCompare != 0) return weekCompare;
+            // Sort by period, then by day
+            final periodCompare = a.periodNumber.compareTo(b.periodNumber);
+            if (periodCompare != 0) return periodCompare;
             return a.dayNumber.compareTo(b.dayNumber);
           }),
     loading: () => [],
@@ -39,14 +39,14 @@ final workoutsByTrainingCycleProvider = Provider.family<List<Workout>, String>((
   );
 });
 
-/// Provider for workouts by week
-final workoutsByWeekProvider =
-    Provider.family<List<Workout>, ({String trainingCycleId, int weekNumber})>((
+/// Provider for workouts by period
+final workoutsByPeriodProvider =
+    Provider.family<List<Workout>, ({String trainingCycleId, int periodNumber})>((
       ref,
       params,
     ) {
       final repository = ref.watch(workoutRepositoryProvider);
-      return repository.getByWeek(params.trainingCycleId, params.weekNumber);
+      return repository.getByPeriod(params.trainingCycleId, params.periodNumber);
     });
 
 /// Provider for a specific workout by ID

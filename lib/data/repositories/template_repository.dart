@@ -167,9 +167,9 @@ class TemplateRepository {
         id: newId,
         name: template.name,
         description: template.description,
-        weeksTotal: template.weeksTotal,
-        daysPerWeek: template.daysPerWeek,
-        deloadWeek: template.deloadWeek,
+        periodsTotal: template.periodsTotal,
+        daysPerPeriod: template.daysPerPeriod,
+        recoveryPeriod: template.recoveryPeriod,
         workouts: template.workouts,
       );
 
@@ -218,19 +218,19 @@ class TemplateRepository {
     String name,
     String description,
   ) {
-    // Get workouts from week 1 only (template structure)
-    final week1Workouts = trainingCycle.workouts.where(
-      (w) => w.weekNumber == 1,
+    // Get workouts from period 1 only (template structure)
+    final period1Workouts = trainingCycle.workouts.where(
+      (w) => w.periodNumber == 1,
     );
 
     debugPrint('Converting trainingCycle "${trainingCycle.name}" to template');
     debugPrint(
       'Total workouts in trainingCycle: ${trainingCycle.workouts.length}',
     );
-    debugPrint('Week 1 workouts: ${week1Workouts.length}');
+    debugPrint('Period 1 workouts: ${period1Workouts.length}');
 
     final workoutTemplates = <WorkoutTemplate>[];
-    for (final workout in week1Workouts) {
+    for (final workout in period1Workouts) {
       debugPrint(
         'Processing workout: Day ${workout.dayNumber}, ${workout.exercises.length} exercises',
       );
@@ -252,7 +252,7 @@ class TemplateRepository {
 
       workoutTemplates.add(
         WorkoutTemplate(
-          weekNumber: workout.weekNumber,
+          periodNumber: workout.periodNumber,
           dayNumber: workout.dayNumber,
           dayName: workout.dayName,
           exercises: exerciseTemplates,
@@ -264,9 +264,9 @@ class TemplateRepository {
       id: _uuid.v4(),
       name: name,
       description: description,
-      weeksTotal: trainingCycle.weeksTotal,
-      daysPerWeek: trainingCycle.daysPerWeek,
-      deloadWeek: trainingCycle.deloadWeek,
+      periodsTotal: trainingCycle.periodsTotal,
+      daysPerPeriod: trainingCycle.daysPerPeriod,
+      recoveryPeriod: trainingCycle.recoveryPeriod,
       workouts: workoutTemplates,
     );
   }
@@ -365,7 +365,7 @@ class TemplateRepository {
           Workout(
             id: workoutId,
             trainingCycleId: trainingCycleId,
-            weekNumber: workoutTemplate.weekNumber,
+            periodNumber: workoutTemplate.periodNumber,
             dayNumber: workoutTemplate.dayNumber,
             label: muscleGroup.displayName, // Use muscle group as label
             exercises: updatedExercises,
@@ -378,9 +378,9 @@ class TemplateRepository {
       id: trainingCycleId,
       name: template.name,
       startDate: now,
-      weeksTotal: template.weeksTotal,
-      daysPerWeek: template.daysPerWeek,
-      deloadWeek: template.deloadWeek,
+      periodsTotal: template.periodsTotal,
+      daysPerPeriod: template.daysPerPeriod,
+      recoveryPeriod: template.recoveryPeriod,
       workouts: workouts,
     );
   }

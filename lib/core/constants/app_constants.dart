@@ -17,8 +17,8 @@ class AppConstants {
   // TrainingCycle Constraints
   static const int minWeeks = 1;
   static const int maxWeeks = 8;
-  static const int minDaysPerWeek = 1;
-  static const int maxDaysPerWeek = 7;
+  static const int minDaysPerPeriod = 1;
+  static const int maxDaysPerPeriod = 14;
 
   // Set Type Definitions (from UI screenshots)
   static const String setTypeDialogTitle = 'Set types';

@@ -378,34 +378,34 @@ class GenderAdapter extends TypeAdapter<Gender> {
           typeId == other.typeId;
 }
 
-class RecoveryWeekTypeAdapter extends TypeAdapter<RecoveryWeekType> {
+class RecoveryPeriodTypeAdapter extends TypeAdapter<RecoveryPeriodType> {
   @override
-  final int typeId = 23;
+  final int typeId = 123;
 
   @override
-  RecoveryWeekType read(BinaryReader reader) {
+  RecoveryPeriodType read(BinaryReader reader) {
     switch (reader.readByte()) {
       case 0:
-        return RecoveryWeekType.deload;
+        return RecoveryPeriodType.deload;
       case 1:
-        return RecoveryWeekType.taper;
+        return RecoveryPeriodType.taper;
       case 2:
-        return RecoveryWeekType.recovery;
+        return RecoveryPeriodType.recovery;
       default:
-        return RecoveryWeekType.deload;
+        return RecoveryPeriodType.deload;
     }
   }
 
   @override
-  void write(BinaryWriter writer, RecoveryWeekType obj) {
+  void write(BinaryWriter writer, RecoveryPeriodType obj) {
     switch (obj) {
-      case RecoveryWeekType.deload:
+      case RecoveryPeriodType.deload:
         writer.writeByte(0);
         break;
-      case RecoveryWeekType.taper:
+      case RecoveryPeriodType.taper:
         writer.writeByte(1);
         break;
-      case RecoveryWeekType.recovery:
+      case RecoveryPeriodType.recovery:
         writer.writeByte(2);
         break;
     }
@@ -417,7 +417,7 @@ class RecoveryWeekTypeAdapter extends TypeAdapter<RecoveryWeekType> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is RecoveryWeekTypeAdapter &&
+      other is RecoveryPeriodTypeAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }

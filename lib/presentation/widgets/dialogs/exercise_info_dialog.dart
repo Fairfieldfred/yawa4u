@@ -517,12 +517,12 @@ class _ExerciseInfoDialogState extends ConsumerState<ExerciseInfoDialog> {
     TrainingCycle? trainingCycle,
   ) {
     final name = trainingCycle?.name ?? 'Unknown TrainingCycle';
-    final weeks = trainingCycle?.weeksTotal ?? 0;
+    final periods = trainingCycle?.periodsTotal ?? 0;
 
     return Padding(
       padding: const EdgeInsets.only(top: 8, bottom: 12),
       child: Text(
-        '$name - $weeks WEEKS'.toUpperCase(),
+        '$name - $periods PERIODS'.toUpperCase(),
         style: Theme.of(context).textTheme.bodySmall?.copyWith(
           color: Theme.of(
             context,
@@ -541,9 +541,9 @@ class _ExerciseInfoDialogState extends ConsumerState<ExerciseInfoDialog> {
         : 'Unknown date';
 
     final loggedSets = entry.exercise.sets.where((s) => s.isLogged).toList();
-    final isDeload =
+    final isRecovery =
         entry.trainingCycle != null &&
-        entry.workout.weekNumber == entry.trainingCycle!.deloadWeek;
+        entry.workout.periodNumber == entry.trainingCycle!.recoveryPeriod;
 
     // Build the weight × reps string with set type badges
     final weight = loggedSets.isNotEmpty && loggedSets.first.weight != null
@@ -610,10 +610,10 @@ class _ExerciseInfoDialogState extends ConsumerState<ExerciseInfoDialog> {
                     ],
                   ),
                 ),
-                if (isDeload) ...[
+                if (isRecovery) ...[
                   const SizedBox(height: 2),
                   Text(
-                    'DELOAD',
+                    'RECOVERY',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: Theme.of(
                         context,
@@ -626,7 +626,7 @@ class _ExerciseInfoDialogState extends ConsumerState<ExerciseInfoDialog> {
               ],
             ),
           ),
-          // Right side: Week/Day + Date
+          // Right side: Period/Day + Date
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
@@ -638,9 +638,9 @@ class _ExerciseInfoDialogState extends ConsumerState<ExerciseInfoDialog> {
                     ).colorScheme.onSurface.withAlpha((255 * 0.6).round()),
                   ),
                   children: [
-                    const TextSpan(text: 'WEEK '),
+                    const TextSpan(text: 'PERIOD '),
                     TextSpan(
-                      text: '${entry.workout.weekNumber}',
+                      text: '${entry.workout.periodNumber}',
                       style: const TextStyle(fontWeight: FontWeight.w600),
                     ),
                     const TextSpan(text: ' - DAY '),

@@ -413,7 +413,7 @@ class _TemplateShareScreenState extends ConsumerState<TemplateShareScreen> {
                             borderRadius: BorderRadius.circular(4),
                           ),
                           child: Text(
-                            '${template.daysPerWeek} Days/Week',
+                            '${template.daysPerPeriod} Days/Period',
                             style: const TextStyle(
                               color: Colors.blue,
                               fontSize: 12,
@@ -451,7 +451,7 @@ class _TemplateShareScreenState extends ConsumerState<TemplateShareScreen> {
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          '${template.weeksTotal} Weeks',
+                          '${template.periodsTotal} Periods',
                           style: TextStyle(
                             color: isSelected
                                 ? colorScheme.onPrimaryContainer.withValues(

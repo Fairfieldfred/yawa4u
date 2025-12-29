@@ -24,8 +24,8 @@ class TemplateExporter {
     // Sort workouts to ensure they are in order
     final sortedWorkouts = List<Workout>.from(trainingCycle.workouts)
       ..sort((a, b) {
-        final weekComp = a.weekNumber.compareTo(b.weekNumber);
-        if (weekComp != 0) return weekComp;
+        final periodComp = a.periodNumber.compareTo(b.periodNumber);
+        if (periodComp != 0) return periodComp;
         return a.dayNumber.compareTo(b.dayNumber);
       });
 
@@ -33,16 +33,16 @@ class TemplateExporter {
       id: trainingCycle.name.toLowerCase().replaceAll(' ', '_'),
       name: trainingCycle.name,
       description: 'Exported from app: ${trainingCycle.name}',
-      weeksTotal: trainingCycle.weeksTotal,
-      daysPerWeek: trainingCycle.daysPerWeek,
-      deloadWeek: trainingCycle.deloadWeek,
+      periodsTotal: trainingCycle.periodsTotal,
+      daysPerPeriod: trainingCycle.daysPerPeriod,
+      recoveryPeriod: trainingCycle.recoveryPeriod,
       workouts: sortedWorkouts.map(_convertWorkoutToTemplate).toList(),
     );
   }
 
   static WorkoutTemplate _convertWorkoutToTemplate(Workout workout) {
     return WorkoutTemplate(
-      weekNumber: workout.weekNumber,
+      periodNumber: workout.periodNumber,
       dayNumber: workout.dayNumber,
       dayName: workout.dayName,
       exercises: workout.exercises.map(_convertExerciseToTemplate).toList(),

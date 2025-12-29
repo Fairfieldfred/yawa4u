@@ -305,9 +305,9 @@ extension GenderExtension on Gender {
   }
 }
 
-/// Recovery week type for training cycles
-@HiveType(typeId: 23)
-enum RecoveryWeekType {
+/// Recovery period type for training cycles
+@HiveType(typeId: 123)
+enum RecoveryPeriodType {
   @HiveField(0)
   deload,
   @HiveField(1)
@@ -316,14 +316,14 @@ enum RecoveryWeekType {
   recovery,
 }
 
-extension RecoveryWeekTypeExtension on RecoveryWeekType {
+extension RecoveryPeriodTypeExtension on RecoveryPeriodType {
   String get displayName {
     switch (this) {
-      case RecoveryWeekType.deload:
+      case RecoveryPeriodType.deload:
         return 'Deload';
-      case RecoveryWeekType.taper:
+      case RecoveryPeriodType.taper:
         return 'Taper';
-      case RecoveryWeekType.recovery:
+      case RecoveryPeriodType.recovery:
         return 'Recovery';
     }
   }
@@ -331,22 +331,22 @@ extension RecoveryWeekTypeExtension on RecoveryWeekType {
   /// Abbreviation for calendar display
   String get abbreviation {
     switch (this) {
-      case RecoveryWeekType.deload:
+      case RecoveryPeriodType.deload:
         return 'DL';
-      case RecoveryWeekType.taper:
+      case RecoveryPeriodType.taper:
         return 'TP';
-      case RecoveryWeekType.recovery:
+      case RecoveryPeriodType.recovery:
         return 'R';
     }
   }
 
   String get description {
     switch (this) {
-      case RecoveryWeekType.deload:
+      case RecoveryPeriodType.deload:
         return 'Reduce weight while maintaining volume';
-      case RecoveryWeekType.taper:
+      case RecoveryPeriodType.taper:
         return 'Reduce volume while maintaining intensity';
-      case RecoveryWeekType.recovery:
+      case RecoveryPeriodType.recovery:
         return 'Light training to promote active recovery';
     }
   }

@@ -179,19 +179,19 @@ class _TemplatePreviewScreenState extends ConsumerState<TemplatePreviewScreen> {
         children: [
           _buildInfoItem(
             Icons.calendar_today,
-            '${widget.template.weeksTotal} Weeks',
+            '${widget.template.periodsTotal} Periods',
             'Duration',
           ),
           _buildInfoItem(
             Icons.fitness_center,
-            '${widget.template.daysPerWeek} Days',
-            'Per Week',
+            '${widget.template.daysPerPeriod} Days',
+            'Per Period',
           ),
-          if (widget.template.deloadWeek != null)
+          if (widget.template.recoveryPeriod != null)
             _buildInfoItem(
               Icons.refresh,
-              'Week ${widget.template.deloadWeek}',
-              'Deload',
+              'Period ${widget.template.recoveryPeriod}',
+              'Recovery',
             ),
         ],
       ),

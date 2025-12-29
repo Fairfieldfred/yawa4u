@@ -6,10 +6,10 @@ import 'workout.dart';
 
 part 'training_cycle.g.dart';
 
-/// Represents a trainingCycle (multi-week training program)
+/// Represents a trainingCycle (multi-period training program)
 ///
 /// Contains trainingCycle configuration, workouts, and progression tracking.
-@HiveType(typeId: 4)
+@HiveType(typeId: 104)
 class TrainingCycle {
   @HiveField(0)
   final String id;
@@ -18,13 +18,13 @@ class TrainingCycle {
   final String name;
 
   @HiveField(2)
-  final int weeksTotal;
+  final int periodsTotal;
 
   @HiveField(3)
-  final int daysPerWeek;
+  final int daysPerPeriod;
 
   @HiveField(4)
-  final int deloadWeek;
+  final int recoveryPeriod;
 
   @HiveField(5)
   final TrainingCycleStatus status;
@@ -55,19 +55,19 @@ class TrainingCycle {
   final String? notes;
 
   @HiveField(14)
-  final RecoveryWeekType? _recoveryWeekType;
+  final RecoveryPeriodType? _recoveryPeriodType;
 
-  /// Recovery week type with default fallback for existing records
-  RecoveryWeekType get recoveryWeekType =>
-      _recoveryWeekType ?? RecoveryWeekType.deload;
+  /// Recovery period type with default fallback for existing records
+  RecoveryPeriodType get recoveryPeriodType =>
+      _recoveryPeriodType ?? RecoveryPeriodType.deload;
 
   TrainingCycle({
     required this.id,
     required this.name,
-    required this.weeksTotal,
-    required this.daysPerWeek,
-    int? deloadWeek,
-    RecoveryWeekType? recoveryWeekType,
+    required this.periodsTotal,
+    required this.daysPerPeriod,
+    int? recoveryPeriod,
+    RecoveryPeriodType? recoveryPeriodType,
     this.status = TrainingCycleStatus.draft,
     this.gender,
     DateTime? createdDate,
@@ -77,19 +77,19 @@ class TrainingCycle {
     this.muscleGroupPriorities,
     this.templateName,
     this.notes,
-  }) : _recoveryWeekType = recoveryWeekType ?? RecoveryWeekType.deload,
-       deloadWeek = deloadWeek ?? weeksTotal,
+  }) : _recoveryPeriodType = recoveryPeriodType ?? RecoveryPeriodType.deload,
+       recoveryPeriod = recoveryPeriod ?? periodsTotal,
        createdDate = createdDate ?? DateTime.now(),
        workouts = workouts ?? [];
 
-  /// Calculate end date based on start date and weeks
+  /// Calculate end date based on start date and periods
   DateTime? getEndDate() {
     if (startDate == null) return null;
-    return DateHelpers.getTrainingCycleEndDate(startDate!, weeksTotal);
+    return DateHelpers.getTrainingCycleEndDate(startDate!, periodsTotal, daysPerPeriod);
   }
 
-  /// Get current week number (1-based) based on today's date
-  int? getCurrentWeek() {
+  /// Get current period number (1-based) based on today's date
+  int? getCurrentPeriod() {
     if (startDate == null) return null;
     final now = DateTime.now();
     if (now.isBefore(startDate!)) return null;
@@ -98,8 +98,8 @@ class TrainingCycle {
     if (endDate != null && now.isAfter(endDate)) return null;
 
     final daysSinceStart = now.difference(startDate!).inDays;
-    final weekNumber = (daysSinceStart / 7).floor() + 1;
-    return weekNumber.clamp(1, weeksTotal);
+    final periodNumber = (daysSinceStart / daysPerPeriod).floor() + 1;
+    return periodNumber.clamp(1, periodsTotal);
   }
 
   /// Get progress percentage (0.0 to 1.0)
@@ -160,17 +160,17 @@ class TrainingCycle {
     return copyWith(workouts: newWorkouts);
   }
 
-  /// Find a workout by week and day
-  Workout? getWorkout(int weekNumber, int dayNumber) {
+  /// Find a workout by period and day
+  Workout? getWorkout(int periodNumber, int dayNumber) {
     return workouts.cast<Workout?>().firstWhere(
-      (w) => w!.weekNumber == weekNumber && w.dayNumber == dayNumber,
+      (w) => w!.periodNumber == periodNumber && w.dayNumber == dayNumber,
       orElse: () => null,
     );
   }
 
-  /// Get all workouts for a specific week
-  List<Workout> getWorkoutsForWeek(int weekNumber) {
-    return workouts.where((w) => w.weekNumber == weekNumber).toList()
+  /// Get all workouts for a specific period
+  List<Workout> getWorkoutsForPeriod(int periodNumber) {
+    return workouts.where((w) => w.periodNumber == periodNumber).toList()
       ..sort((a, b) => a.dayNumber.compareTo(b.dayNumber));
   }
 
@@ -178,10 +178,10 @@ class TrainingCycle {
   TrainingCycle copyWith({
     String? id,
     String? name,
-    int? weeksTotal,
-    int? daysPerWeek,
-    int? deloadWeek,
-    RecoveryWeekType? recoveryWeekType,
+    int? periodsTotal,
+    int? daysPerPeriod,
+    int? recoveryPeriod,
+    RecoveryPeriodType? recoveryPeriodType,
     TrainingCycleStatus? status,
     Gender? gender,
     DateTime? createdDate,
@@ -195,10 +195,10 @@ class TrainingCycle {
     return TrainingCycle(
       id: id ?? this.id,
       name: name ?? this.name,
-      weeksTotal: weeksTotal ?? this.weeksTotal,
-      daysPerWeek: daysPerWeek ?? this.daysPerWeek,
-      deloadWeek: deloadWeek ?? this.deloadWeek,
-      recoveryWeekType: recoveryWeekType ?? this.recoveryWeekType,
+      periodsTotal: periodsTotal ?? this.periodsTotal,
+      daysPerPeriod: daysPerPeriod ?? this.daysPerPeriod,
+      recoveryPeriod: recoveryPeriod ?? this.recoveryPeriod,
+      recoveryPeriodType: recoveryPeriodType ?? this.recoveryPeriodType,
       status: status ?? this.status,
       gender: gender ?? this.gender,
       createdDate: createdDate ?? this.createdDate,
@@ -217,10 +217,10 @@ class TrainingCycle {
     return {
       'id': id,
       'name': name,
-      'weeksTotal': weeksTotal,
-      'daysPerWeek': daysPerWeek,
-      'deloadWeek': deloadWeek,
-      'recoveryWeekType': recoveryWeekType.name,
+      'periodsTotal': periodsTotal,
+      'daysPerPeriod': daysPerPeriod,
+      'recoveryPeriod': recoveryPeriod,
+      'recoveryPeriodType': recoveryPeriodType.name,
       'status': status.name,
       'gender': gender?.name,
       'createdDate': createdDate.toIso8601String(),
@@ -238,15 +238,15 @@ class TrainingCycle {
     return TrainingCycle(
       id: json['id'] as String,
       name: json['name'] as String,
-      weeksTotal: json['weeksTotal'] as int,
-      daysPerWeek: json['daysPerWeek'] as int,
-      deloadWeek: json['deloadWeek'] as int?,
-      recoveryWeekType: json['recoveryWeekType'] != null
-          ? RecoveryWeekType.values.firstWhere(
-              (e) => e.name == json['recoveryWeekType'],
-              orElse: () => RecoveryWeekType.deload,
+      periodsTotal: json['periodsTotal'] as int,
+      daysPerPeriod: json['daysPerPeriod'] as int,
+      recoveryPeriod: json['recoveryPeriod'] as int?,
+      recoveryPeriodType: json['recoveryPeriodType'] != null
+          ? RecoveryPeriodType.values.firstWhere(
+              (e) => e.name == json['recoveryPeriodType'],
+              orElse: () => RecoveryPeriodType.deload,
             )
-          : RecoveryWeekType.deload,
+          : RecoveryPeriodType.deload,
       status: TrainingCycleStatus.values.firstWhere(
         (e) => e.name == json['status'],
         orElse: () => TrainingCycleStatus.draft,
@@ -280,7 +280,7 @@ class TrainingCycle {
 
   @override
   String toString() {
-    return 'TrainingCycle(name: $name, weeks: $weeksTotal, days/week: $daysPerWeek, status: ${status.name})';
+    return 'TrainingCycle(name: $name, periods: $periodsTotal, days/period: $daysPerPeriod, status: ${status.name})';
   }
 
   @override
@@ -290,12 +290,12 @@ class TrainingCycle {
     return other is TrainingCycle &&
         other.id == id &&
         other.name == name &&
-        other.weeksTotal == weeksTotal &&
-        other.daysPerWeek == daysPerWeek;
+        other.periodsTotal == periodsTotal &&
+        other.daysPerPeriod == daysPerPeriod;
   }
 
   @override
   int get hashCode {
-    return Object.hash(id, name, weeksTotal, daysPerWeek);
+    return Object.hash(id, name, periodsTotal, daysPerPeriod);
   }
 }

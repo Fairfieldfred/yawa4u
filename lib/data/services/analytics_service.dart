@@ -36,8 +36,8 @@ class AnalyticsService {
 
   /// Track when a trainingCycle is created
   Future<void> logTrainingCycleCreated({
-    required int weeks,
-    required int daysPerWeek,
+    required int periods,
+    required int daysPerPeriod,
     required String gender,
     String? templateName,
   }) async {
@@ -45,8 +45,8 @@ class AnalyticsService {
       await _analytics.logEvent(
         name: AppConstants.eventTrainingCycleCreated,
         parameters: {
-          'weeks': weeks,
-          'days_per_week': daysPerWeek,
+          'periods': periods,
+          'days_per_period': daysPerPeriod,
           'gender': gender,
           if (templateName != null) 'template': templateName,
         },

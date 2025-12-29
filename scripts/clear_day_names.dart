@@ -28,7 +28,7 @@ Future<void> clearWorkoutDayNames() async {
       await box.put(key, updatedWorkout);
       updatedCount++;
       debugPrint(
-        'Cleared dayName from workout: Week ${workout.weekNumber}, Day ${workout.dayNumber} (was: "${workout.dayName}")',
+        'Cleared dayName from workout: Week ${workout.periodNumber}, Day ${workout.dayNumber} (was: "${workout.dayName}")',
       );
     }
   }

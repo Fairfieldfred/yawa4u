@@ -9,24 +9,24 @@ import '../../data/models/workout.dart';
 import '../../domain/providers/repository_providers.dart';
 import '../../domain/providers/workout_providers.dart';
 
-/// Dropdown for selecting week and day (appears below AppBar)
+/// Dropdown for selecting period and day (appears below AppBar)
 ///
 /// Used in both workout_screen and exercises_screen for calendar navigation.
 class CalendarDropdown extends ConsumerStatefulWidget {
   final TrainingCycle trainingCycle;
-  final int currentWeek;
+  final int currentPeriod;
   final int currentDay;
-  final int selectedWeek;
+  final int selectedPeriod;
   final int selectedDay;
   final List<Workout> allWorkouts;
-  final Function(int week, int day) onDaySelected;
+  final Function(int period, int day) onDaySelected;
 
   const CalendarDropdown({
     super.key,
     required this.trainingCycle,
-    required this.currentWeek,
+    required this.currentPeriod,
     required this.currentDay,
-    required this.selectedWeek,
+    required this.selectedPeriod,
     required this.selectedDay,
     required this.allWorkouts,
     required this.onDaySelected,
@@ -37,21 +37,21 @@ class CalendarDropdown extends ConsumerStatefulWidget {
 }
 
 class _CalendarDropdownState extends ConsumerState<CalendarDropdown> {
-  late int _selectedWeek;
+  late int _selectedPeriod;
   late int _selectedDay;
 
   @override
   void initState() {
     super.initState();
-    _selectedWeek = widget.selectedWeek;
+    _selectedPeriod = widget.selectedPeriod;
     _selectedDay = widget.selectedDay;
   }
 
-  Future<void> _addWeek() async {
-    // Add a new week before the deload week
+  Future<void> _addPeriod() async {
+    // Add a new period before the recovery period
     final trainingCycle = widget.trainingCycle;
-    final newWeekNumber = trainingCycle
-        .weeksTotal; // This will be the new week number (before deload)
+    final newPeriodNumber = trainingCycle
+        .periodsTotal; // This will be the new period number (before recovery)
 
     // Get all existing workouts
     final repository = ref.read(workoutRepositoryProvider);
@@ -59,29 +59,29 @@ class _CalendarDropdownState extends ConsumerState<CalendarDropdown> {
       workoutsByTrainingCycleProvider(trainingCycle.id),
     );
 
-    // Get the last non-deload week as a template
-    // If weeksTotal is 4 (1, 2, 3, 4=DL), we want to copy week 3.
-    // templateWeek = 4 - 1 = 3.
-    final templateWeek = trainingCycle.weeksTotal - 1;
+    // Get the last non-recovery period as a template
+    // If periodsTotal is 4 (1, 2, 3, 4=DL), we want to copy period 3.
+    // templatePeriod = 4 - 1 = 3.
+    final templatePeriod = trainingCycle.periodsTotal - 1;
 
-    // Safety check: if we only have 1 week (which is deload), we can't really copy "previous" week.
-    // But usually a trainingCycle starts with at least some weeks.
-    // If templateWeek < 1, we might need to copy the deload week but change it?
-    // Or just assume there's always at least one normal week if we are adding.
-    // If weeksTotal is 1 (just deload?), templateWeek is 0.
+    // Safety check: if we only have 1 period (which is recovery), we can't really copy "previous" period.
+    // But usually a trainingCycle starts with at least some periods.
+    // If templatePeriod < 1, we might need to copy the recovery period but change it?
+    // Or just assume there's always at least one normal period if we are adding.
+    // If periodsTotal is 1 (just recovery?), templatePeriod is 0.
 
     List<Workout> templateWorkouts = [];
-    if (templateWeek >= 1) {
+    if (templatePeriod >= 1) {
       templateWorkouts = allWorkouts
-          .where((w) => w.weekNumber == templateWeek)
+          .where((w) => w.periodNumber == templatePeriod)
           .toList();
     } else {
-      // Fallback: if we are at week 1 (deload), and we add a week, maybe copy week 1?
-      // But week 1 is deload.
-      // Let's just try to find ANY week to copy, or copy the deload week but reset RIR?
-      // For now, let's assume we copy the week before deload.
+      // Fallback: if we are at period 1 (recovery), and we add a period, maybe copy period 1?
+      // But period 1 is recovery.
+      // Let's just try to find ANY period to copy, or copy the recovery period but reset RIR?
+      // For now, let's assume we copy the period before recovery.
       templateWorkouts = allWorkouts
-          .where((w) => w.weekNumber == trainingCycle.weeksTotal)
+          .where((w) => w.periodNumber == trainingCycle.periodsTotal)
           .toList();
     }
 
@@ -89,7 +89,7 @@ class _CalendarDropdownState extends ConsumerState<CalendarDropdown> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('Cannot add week: No template workouts found'),
+            content: const Text('Cannot add period: No template workouts found'),
             backgroundColor: context.errorColor,
           ),
         );
@@ -97,30 +97,30 @@ class _CalendarDropdownState extends ConsumerState<CalendarDropdown> {
       return;
     }
 
-    // 1. Shift Deload Week: Update deload week workouts to be one week later
-    // Current deload week is at `trainingCycle.weeksTotal`. New position will be `trainingCycle.weeksTotal + 1`.
-    final deloadWorkouts = allWorkouts
-        .where((w) => w.weekNumber == trainingCycle.weeksTotal)
+    // 1. Shift Recovery Period: Update recovery period workouts to be one period later
+    // Current recovery period is at `trainingCycle.periodsTotal`. New position will be `trainingCycle.periodsTotal + 1`.
+    final recoveryWorkouts = allWorkouts
+        .where((w) => w.periodNumber == trainingCycle.periodsTotal)
         .toList();
-    for (var workout in deloadWorkouts) {
+    for (var workout in recoveryWorkouts) {
       final updatedWorkout = workout.copyWith(
-        weekNumber: trainingCycle.weeksTotal + 1,
+        periodNumber: trainingCycle.periodsTotal + 1,
       );
       await repository.update(updatedWorkout);
     }
 
-    // 2. Create New Week: Create new workouts for the new week based on template
-    // The new week will take the place of the old deload week index (which is `trainingCycle.weeksTotal` before increment).
-    // Wait, if we have weeks 1, 2, 3(DL). weeksTotal=3.
+    // 2. Create New Period: Create new workouts for the new period based on template
+    // The new period will take the place of the old recovery period index (which is `trainingCycle.periodsTotal` before increment).
+    // Wait, if we have periods 1, 2, 3(DL). periodsTotal=3.
     // We want 1, 2, 3, 4(DL).
     // Old DL was 3. New DL is 4.
-    // New week is 3.
-    // So newWeekNumber = trainingCycle.weeksTotal (which is 3). Correct.
+    // New period is 3.
+    // So newPeriodNumber = trainingCycle.periodsTotal (which is 3). Correct.
 
     for (var templateWorkout in templateWorkouts) {
       final newWorkout = templateWorkout.copyWith(
         id: const Uuid().v4(),
-        weekNumber: newWeekNumber,
+        periodNumber: newPeriodNumber,
         status: WorkoutStatus.incomplete, // Reset status
         exercises: templateWorkout.exercises
             .map(
@@ -138,7 +138,7 @@ class _CalendarDropdownState extends ConsumerState<CalendarDropdown> {
                         isLogged: false,
                         weight:
                             null, // Reset weight? Or keep previous? Usually keep previous for progressive overload reference?
-                        // User request says "add another week". Usually implies copying structure.
+                        // User request says "add another period". Usually implies copying structure.
                         // Let's keep weight empty or null to force user to enter new weights, or maybe copy?
                         // Existing logic in some apps copies previous weights.
                         // But here let's reset logged state.
@@ -161,38 +161,38 @@ class _CalendarDropdownState extends ConsumerState<CalendarDropdown> {
       await repository.create(finalWorkout);
     }
 
-    // Update trainingCycle weeks total and deload week
+    // Update trainingCycle periods total and recovery period
     final trainingCycleRepository = ref.read(trainingCycleRepositoryProvider);
     final updatedTrainingCycle = trainingCycle.copyWith(
-      weeksTotal: trainingCycle.weeksTotal + 1,
-      deloadWeek: trainingCycle.deloadWeek + 1,
+      periodsTotal: trainingCycle.periodsTotal + 1,
+      recoveryPeriod: trainingCycle.recoveryPeriod + 1,
     );
     await trainingCycleRepository.update(updatedTrainingCycle);
 
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Week $newWeekNumber added'),
+          content: Text('Period $newPeriodNumber added'),
           backgroundColor: context.successColor,
         ),
       );
     }
   }
 
-  Future<void> _removeWeek() async {
-    // Remove the last week before the deload week
+  Future<void> _removePeriod() async {
+    // Remove the last period before the recovery period
     final trainingCycle = widget.trainingCycle;
 
-    // If we have weeks 1, 2, 3, 4(DL). weeksTotal=4.
-    // We want to remove week 3.
-    // weekToRemove = 4 - 1 = 3.
-    final weekToRemove = trainingCycle.weeksTotal - 1;
+    // If we have periods 1, 2, 3, 4(DL). periodsTotal=4.
+    // We want to remove period 3.
+    // periodToRemove = 4 - 1 = 3.
+    final periodToRemove = trainingCycle.periodsTotal - 1;
 
-    if (weekToRemove < 1) {
+    if (periodToRemove < 1) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('Cannot remove: Must have at least 1 week'),
+            content: const Text('Cannot remove: Must have at least 1 period'),
             backgroundColor: context.errorColor,
           ),
         );
@@ -206,47 +206,47 @@ class _CalendarDropdownState extends ConsumerState<CalendarDropdown> {
       workoutsByTrainingCycleProvider(trainingCycle.id),
     );
 
-    // 1. Delete Week: Delete all workouts for the week to remove
+    // 1. Delete Period: Delete all workouts for the period to remove
     final workoutsToRemove = allWorkouts
-        .where((w) => w.weekNumber == weekToRemove)
+        .where((w) => w.periodNumber == periodToRemove)
         .toList();
     for (var workout in workoutsToRemove) {
       await repository.delete(workout.id);
     }
 
-    // 2. Shift Deload Week: Update deload week workouts to be one week earlier
-    // Current deload is `trainingCycle.weeksTotal`. New position is `weekToRemove` (which is weeksTotal - 1).
-    final deloadWorkouts = allWorkouts
-        .where((w) => w.weekNumber == trainingCycle.weeksTotal)
+    // 2. Shift Recovery Period: Update recovery period workouts to be one period earlier
+    // Current recovery is `trainingCycle.periodsTotal`. New position is `periodToRemove` (which is periodsTotal - 1).
+    final recoveryWorkouts = allWorkouts
+        .where((w) => w.periodNumber == trainingCycle.periodsTotal)
         .toList();
-    for (var workout in deloadWorkouts) {
-      final updatedWorkout = workout.copyWith(weekNumber: weekToRemove);
+    for (var workout in recoveryWorkouts) {
+      final updatedWorkout = workout.copyWith(periodNumber: periodToRemove);
       await repository.update(updatedWorkout);
     }
 
-    // Update trainingCycle weeks total and deload week
+    // Update trainingCycle periods total and recovery period
     final trainingCycleRepository = ref.read(trainingCycleRepositoryProvider);
     final updatedTrainingCycle = trainingCycle.copyWith(
-      weeksTotal: trainingCycle.weeksTotal - 1,
-      deloadWeek: trainingCycle.deloadWeek - 1,
+      periodsTotal: trainingCycle.periodsTotal - 1,
+      recoveryPeriod: trainingCycle.recoveryPeriod - 1,
     );
     await trainingCycleRepository.update(updatedTrainingCycle);
 
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Week $weekToRemove removed'),
+          content: Text('Period $periodToRemove removed'),
           backgroundColor: context.successColor,
         ),
       );
 
-      // If selected week was removed or is now out of bounds, go to previous week
-      if (_selectedWeek >= updatedTrainingCycle.weeksTotal) {
+      // If selected period was removed or is now out of bounds, go to previous period
+      if (_selectedPeriod >= updatedTrainingCycle.periodsTotal) {
         setState(() {
-          _selectedWeek =
-              updatedTrainingCycle.weeksTotal; // Go to new last week (deload)
+          _selectedPeriod =
+              updatedTrainingCycle.periodsTotal; // Go to new last period (recovery)
         });
-        widget.onDaySelected(_selectedWeek, _selectedDay);
+        widget.onDaySelected(_selectedPeriod, _selectedDay);
       }
     }
   }
@@ -254,21 +254,21 @@ class _CalendarDropdownState extends ConsumerState<CalendarDropdown> {
   @override
   Widget build(BuildContext context) {
     // Calculate day names based on trainingCycle start date
-    // Note: Day names are now calculated per-week inside _buildWeekColumn
+    // Note: Day names are now calculated per-period inside _buildPeriodColumn
 
     // Calculate dynamic height based on number of workout days
-    // Header height: 60, Week header: 60, Day button: 48, Day margin: 6
+    // Header height: 60, Period header: 60, Day button: 48, Day margin: 6
     // Total per day: 54 (48 + 6 margin)
     final headerHeight = 60.0;
-    final weekHeaderHeight = 60.0;
+    final periodHeaderHeight = 60.0;
     final dayButtonHeight = 48.0;
     final dayMargin = 6.0;
     final bottomPadding = 16.0;
 
     final calculatedHeight =
         headerHeight +
-        weekHeaderHeight +
-        (widget.trainingCycle.daysPerWeek * (dayButtonHeight + dayMargin)) +
+        periodHeaderHeight +
+        (widget.trainingCycle.daysPerPeriod * (dayButtonHeight + dayMargin)) +
         bottomPadding;
 
     // Get available screen height and limit the dropdown height
@@ -304,7 +304,7 @@ class _CalendarDropdownState extends ConsumerState<CalendarDropdown> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'WEEKS',
+                  'PERIODS',
                   style: TextStyle(
                     color: Theme.of(
                       context,
@@ -322,8 +322,8 @@ class _CalendarDropdownState extends ConsumerState<CalendarDropdown> {
                         color: Theme.of(context).colorScheme.onSurface,
                         size: 20,
                       ),
-                      onPressed: widget.trainingCycle.weeksTotal > 1
-                          ? () => _removeWeek()
+                      onPressed: widget.trainingCycle.periodsTotal > 1
+                          ? () => _removePeriod()
                           : null,
                       style: IconButton.styleFrom(
                         backgroundColor: Theme.of(
@@ -340,7 +340,7 @@ class _CalendarDropdownState extends ConsumerState<CalendarDropdown> {
                         color: Theme.of(context).colorScheme.onSurface,
                         size: 20,
                       ),
-                      onPressed: () => _addWeek(),
+                      onPressed: () => _addPeriod(),
                       style: IconButton.styleFrom(
                         backgroundColor: Theme.of(
                           context,
@@ -355,21 +355,21 @@ class _CalendarDropdownState extends ConsumerState<CalendarDropdown> {
             ),
           ),
 
-          // Week grid with responsive layout
+          // Period grid with responsive layout
           Expanded(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: SingleChildScrollView(
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: List.generate(widget.trainingCycle.weeksTotal, (
-                    weekIndex,
+                  children: List.generate(widget.trainingCycle.periodsTotal, (
+                    periodIndex,
                   ) {
-                    final weekNumber = weekIndex + 1;
+                    final periodNumber = periodIndex + 1;
                     return Expanded(
-                      child: _buildWeekColumn(
-                        weekNumber,
-                        widget.trainingCycle.deloadWeek == weekNumber,
+                      child: _buildPeriodColumn(
+                        periodNumber,
+                        widget.trainingCycle.recoveryPeriod == periodNumber,
                       ),
                     );
                   }),
@@ -382,27 +382,27 @@ class _CalendarDropdownState extends ConsumerState<CalendarDropdown> {
     );
   }
 
-  Widget _buildWeekColumn(int weekNumber, bool isDeload) {
-    // Calculate day names specific to THIS week
+  Widget _buildPeriodColumn(int periodNumber, bool isRecovery) {
+    // Calculate day names specific to THIS period
     final defaultDayNames = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
-    final weekDayNames = List.generate(widget.trainingCycle.daysPerWeek, (
+    final periodDayNames = List.generate(widget.trainingCycle.daysPerPeriod, (
       index,
     ) {
       final dayNumber = index + 1;
 
-      // Check if there's a custom label for this day in THIS SPECIFIC week
-      final weekDayWorkouts = widget.allWorkouts
-          .where((w) => w.dayNumber == dayNumber && w.weekNumber == weekNumber)
+      // Check if there's a custom label for this day in THIS SPECIFIC period
+      final periodDayWorkouts = widget.allWorkouts
+          .where((w) => w.dayNumber == dayNumber && w.periodNumber == periodNumber)
           .toList();
 
-      if (weekDayWorkouts.isNotEmpty) {
-        // Check if all workouts for this day in this week have the same custom dayName
-        final firstDayName = weekDayWorkouts.first.dayName;
-        final allHaveSameName = weekDayWorkouts.every(
+      if (periodDayWorkouts.isNotEmpty) {
+        // Check if all workouts for this day in this period have the same custom dayName
+        final firstDayName = periodDayWorkouts.first.dayName;
+        final allHaveSameName = periodDayWorkouts.every(
           (w) => w.dayName == firstDayName,
         );
 
-        // Use custom dayName if all workouts in this week have the same non-null custom name
+        // Use custom dayName if all workouts in this period have the same non-null custom name
         if (allHaveSameName &&
             firstDayName != null &&
             firstDayName.isNotEmpty) {
@@ -417,7 +417,7 @@ class _CalendarDropdownState extends ConsumerState<CalendarDropdown> {
 
         // Calculate which actual day this workout falls on
         final daysElapsed =
-            ((weekNumber - 1) * widget.trainingCycle.daysPerWeek) +
+            ((periodNumber - 1) * widget.trainingCycle.daysPerPeriod) +
             (dayNumber - 1);
 
         // Calculate actual day of week
@@ -436,16 +436,16 @@ class _CalendarDropdownState extends ConsumerState<CalendarDropdown> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Week header
+          // Period header
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 6),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  isDeload
-                      ? widget.trainingCycle.recoveryWeekType.abbreviation
-                      : '$weekNumber',
+                  isRecovery
+                      ? widget.trainingCycle.recoveryPeriodType.abbreviation
+                      : '$periodNumber',
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.onSurface,
                     fontSize: 18,
@@ -453,7 +453,7 @@ class _CalendarDropdownState extends ConsumerState<CalendarDropdown> {
                   ),
                 ),
                 Text(
-                  '${_calculateRIR(weekNumber)} RIR',
+                  '${_calculateRIR(periodNumber)} RIR',
                   style: TextStyle(
                     color: Theme.of(
                       context,
@@ -466,17 +466,17 @@ class _CalendarDropdownState extends ConsumerState<CalendarDropdown> {
           ),
 
           // Day buttons - limit to available workout days only
-          ...List.generate(weekDayNames.length, (dayIndex) {
+          ...List.generate(periodDayNames.length, (dayIndex) {
             final dayNumber = dayIndex + 1;
-            final isCurrentWeek = weekNumber == widget.currentWeek;
+            final isCurrentPeriod = periodNumber == widget.currentPeriod;
             final isCurrentDay = dayNumber == widget.currentDay;
             final isSelected =
-                weekNumber == _selectedWeek && dayNumber == _selectedDay;
+                periodNumber == _selectedPeriod && dayNumber == _selectedDay;
 
             // Check actual workout completion status from database
             final dayWorkouts = widget.allWorkouts
                 .where(
-                  (w) => w.weekNumber == weekNumber && w.dayNumber == dayNumber,
+                  (w) => w.periodNumber == periodNumber && w.dayNumber == dayNumber,
                 )
                 .toList();
             final isCompleted =
@@ -490,7 +490,7 @@ class _CalendarDropdownState extends ConsumerState<CalendarDropdown> {
             if (isCompleted) {
               backgroundColor = context.successColor;
               textColor = Colors.white;
-            } else if (isCurrentWeek && isCurrentDay) {
+            } else if (isCurrentPeriod && isCurrentDay) {
               backgroundColor = context.workoutCurrentColor;
               textColor = Colors.white;
             } else {
@@ -502,7 +502,7 @@ class _CalendarDropdownState extends ConsumerState<CalendarDropdown> {
 
             return GestureDetector(
               onTap: () {
-                widget.onDaySelected(weekNumber, dayNumber);
+                widget.onDaySelected(periodNumber, dayNumber);
               },
               child: Container(
                 height: 48,
@@ -516,7 +516,7 @@ class _CalendarDropdownState extends ConsumerState<CalendarDropdown> {
                 ),
                 alignment: Alignment.center,
                 child: Text(
-                  weekDayNames[dayIndex],
+                  periodDayNames[dayIndex],
                   style: TextStyle(
                     color: textColor,
                     fontSize: 13,
@@ -533,26 +533,26 @@ class _CalendarDropdownState extends ConsumerState<CalendarDropdown> {
     );
   }
 
-  int _calculateRIR(int weekNumber) {
-    final deloadWeek = widget.trainingCycle.deloadWeek;
+  int _calculateRIR(int periodNumber) {
+    final recoveryPeriod = widget.trainingCycle.recoveryPeriod;
 
-    // Deload week has 8 RIR
-    if (weekNumber == deloadWeek) {
+    // Recovery period has 8 RIR
+    if (periodNumber == recoveryPeriod) {
       return 8;
     }
 
-    // Calculate weeks until deload
-    final weeksUntilDeload = deloadWeek - weekNumber;
+    // Calculate periods until recovery
+    final periodsUntilRecovery = recoveryPeriod - periodNumber;
 
-    // Week before deload = 0 RIR
-    // 2 weeks before = 1 RIR
-    // 3 weeks before = 2 RIR, etc.
-    if (weeksUntilDeload == 1) {
+    // Period before recovery = 0 RIR
+    // 2 periods before = 1 RIR
+    // 3 periods before = 2 RIR, etc.
+    if (periodsUntilRecovery == 1) {
       return 0;
-    } else if (weeksUntilDeload > 1) {
-      return weeksUntilDeload - 1;
+    } else if (periodsUntilRecovery > 1) {
+      return periodsUntilRecovery - 1;
     } else {
-      // After deload week
+      // After recovery period
       return 0;
     }
   }

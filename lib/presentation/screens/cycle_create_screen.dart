@@ -35,10 +35,10 @@ class _TrainingCycleCreateScreenState
   final _uuid = const Uuid();
 
   // Form values
-  int _weeksTotal = 4;
-  int _daysPerWeek = 4;
-  int? _deloadWeek;
-  RecoveryWeekType _recoveryWeekType = RecoveryWeekType.deload;
+  int _periodsTotal = 4;
+  int _daysPerPeriod = 4;
+  int? _recoveryPeriod;
+  RecoveryPeriodType _recoveryPeriodType = RecoveryPeriodType.deload;
   TrainingCycleTemplate? _selectedTemplate;
   bool _hasDeload = false;
   bool _isSubmitting = false;
@@ -77,10 +77,10 @@ class _TrainingCycleCreateScreenState
       final trainingCycle = TrainingCycle(
         id: _uuid.v4(),
         name: _nameController.text.trim(),
-        weeksTotal: _weeksTotal,
-        daysPerWeek: _daysPerWeek,
-        deloadWeek: _hasDeload ? _deloadWeek : null,
-        recoveryWeekType: _recoveryWeekType,
+        periodsTotal: _periodsTotal,
+        daysPerPeriod: _daysPerPeriod,
+        recoveryPeriod: _hasDeload ? _recoveryPeriod : null,
+        recoveryPeriodType: _recoveryPeriodType,
         status: TrainingCycleStatus.draft,
         gender:
             Gender.male, // Default value - will be set from onboarding later
@@ -98,8 +98,8 @@ class _TrainingCycleCreateScreenState
 
       // Log analytics
       await analytics.logTrainingCycleCreated(
-        weeks: _weeksTotal,
-        daysPerWeek: _daysPerWeek,
+        periods: _periodsTotal,
+        daysPerPeriod: _daysPerPeriod,
         gender: 'not_specified', // Will be set from onboarding later
         templateName: _selectedTemplate?.name,
       );
@@ -140,13 +140,13 @@ class _TrainingCycleCreateScreenState
   List<Workout> _generateWorkouts() {
     final workouts = <Workout>[];
 
-    for (int week = 1; week <= _weeksTotal; week++) {
-      for (int day = 1; day <= _daysPerWeek; day++) {
+    for (int week = 1; week <= _periodsTotal; week++) {
+      for (int day = 1; day <= _daysPerPeriod; day++) {
         // Find matching template workout if template selected
         WorkoutTemplate? templateWorkout;
         if (_selectedTemplate != null) {
           templateWorkout = _selectedTemplate!.workouts
-              .where((w) => w.weekNumber == week && w.dayNumber == day)
+              .where((w) => w.periodNumber == week && w.dayNumber == day)
               .firstOrNull;
         }
 
@@ -154,7 +154,7 @@ class _TrainingCycleCreateScreenState
           Workout(
             id: _uuid.v4(),
             trainingCycleId: '', // Will be set when trainingCycle is created
-            weekNumber: week,
+            periodNumber: week,
             dayNumber: day,
             dayName: templateWorkout?.dayName,
             status: WorkoutStatus.incomplete,
@@ -270,11 +270,11 @@ class _TrainingCycleCreateScreenState
             // Days per week selector
             _buildSectionHeader('Training Frequency'),
             const SizedBox(height: 12),
-            _buildDaysPerWeekSelector(),
+            _buildDaysPerPeriodSelector(),
             const SizedBox(height: 24),
 
             // Recovery week
-            _buildSectionHeader('Recovery Week (Optional)'),
+            _buildSectionHeader('Recovery Period (Optional)'),
             const SizedBox(height: 12),
             _buildRecoverySwitch(),
             if (_hasDeload) ...[
@@ -338,7 +338,7 @@ class _TrainingCycleCreateScreenState
                   style: Theme.of(context).textTheme.bodyLarge,
                 ),
                 Text(
-                  '$_weeksTotal weeks',
+                  '$_periodsTotal weeks',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: Theme.of(context).colorScheme.primary,
@@ -348,19 +348,19 @@ class _TrainingCycleCreateScreenState
             ),
             const SizedBox(height: 12),
             Slider(
-              value: _weeksTotal.toDouble(),
+              value: _periodsTotal.toDouble(),
               min: 1,
               max: 8,
               divisions: 7,
-              label: '$_weeksTotal weeks',
+              label: '$_periodsTotal weeks',
               onChanged: (value) {
                 setState(() {
-                  _weeksTotal = value.toInt();
+                  _periodsTotal = value.toInt();
                   // Adjust deload week if needed
                   if (_hasDeload &&
-                      _deloadWeek != null &&
-                      _deloadWeek! > _weeksTotal) {
-                    _deloadWeek = _weeksTotal;
+                      _recoveryPeriod != null &&
+                      _recoveryPeriod! > _periodsTotal) {
+                    _recoveryPeriod = _periodsTotal;
                   }
                 });
               },
@@ -379,7 +379,7 @@ class _TrainingCycleCreateScreenState
     );
   }
 
-  Widget _buildDaysPerWeekSelector() {
+  Widget _buildDaysPerPeriodSelector() {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -394,7 +394,7 @@ class _TrainingCycleCreateScreenState
                   style: Theme.of(context).textTheme.bodyLarge,
                 ),
                 Text(
-                  '$_daysPerWeek days/week',
+                  '$_daysPerPeriod days/period',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: Theme.of(context).colorScheme.primary,
@@ -404,17 +404,17 @@ class _TrainingCycleCreateScreenState
             ),
             const SizedBox(height: 12),
             Slider(
-              value: _daysPerWeek.toDouble(),
+              value: _daysPerPeriod.toDouble(),
               min: 2,
               max: 7,
               divisions: 5,
-              label: '$_daysPerWeek days',
+              label: '$_daysPerPeriod days',
               onChanged: (value) {
-                setState(() => _daysPerWeek = value.toInt());
+                setState(() => _daysPerPeriod = value.toInt());
               },
             ),
             Text(
-              _getDaysPerWeekDescription(),
+              _getDaysPerPeriodDescription(),
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: Theme.of(
                   context,
@@ -427,8 +427,8 @@ class _TrainingCycleCreateScreenState
     );
   }
 
-  String _getDaysPerWeekDescription() {
-    switch (_daysPerWeek) {
+  String _getDaysPerPeriodDescription() {
+    switch (_daysPerPeriod) {
       case 2:
         return 'Minimalist full body split';
       case 3:
@@ -457,8 +457,8 @@ class _TrainingCycleCreateScreenState
         onChanged: (value) {
           setState(() {
             _hasDeload = value;
-            if (value && _deloadWeek == null) {
-              _deloadWeek = _weeksTotal;
+            if (value && _recoveryPeriod == null) {
+              _recoveryPeriod = _periodsTotal;
             }
           });
         },
@@ -475,16 +475,16 @@ class _TrainingCycleCreateScreenState
           children: [
             Text('Recovery Type', style: Theme.of(context).textTheme.bodyLarge),
             const SizedBox(height: 12),
-            RadioGroup<RecoveryWeekType>(
-              groupValue: _recoveryWeekType,
+            RadioGroup<RecoveryPeriodType>(
+              groupValue: _recoveryPeriodType,
               onChanged: (value) {
                 if (value != null) {
-                  setState(() => _recoveryWeekType = value);
+                  setState(() => _recoveryPeriodType = value);
                 }
               },
               child: Column(
-                children: RecoveryWeekType.values.map((type) {
-                  return RadioListTile<RecoveryWeekType>(
+                children: RecoveryPeriodType.values.map((type) {
+                  return RadioListTile<RecoveryPeriodType>(
                     title: Text(type.displayName),
                     subtitle: Text(
                       type.description,
@@ -517,11 +517,11 @@ class _TrainingCycleCreateScreenState
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  '${_recoveryWeekType.displayName} on Week',
+                  '${_recoveryPeriodType.displayName} on Week',
                   style: Theme.of(context).textTheme.bodyLarge,
                 ),
                 Text(
-                  'Week $_deloadWeek',
+                  'Period $_recoveryPeriod',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: Theme.of(context).colorScheme.secondary,
@@ -531,13 +531,13 @@ class _TrainingCycleCreateScreenState
             ),
             const SizedBox(height: 12),
             Slider(
-              value: _deloadWeek!.toDouble(),
+              value: _recoveryPeriod!.toDouble(),
               min: 1,
-              max: _weeksTotal.toDouble(),
-              divisions: _weeksTotal - 1,
-              label: 'Week $_deloadWeek',
+              max: _periodsTotal.toDouble(),
+              divisions: _periodsTotal - 1,
+              label: 'Period $_recoveryPeriod',
               onChanged: (value) {
-                setState(() => _deloadWeek = value.toInt());
+                setState(() => _recoveryPeriod = value.toInt());
               },
             ),
             Text(
@@ -594,11 +594,11 @@ class _TrainingCycleCreateScreenState
                         _selectedTemplate = template;
                         // Optionally update form values from template
                         if (template != null) {
-                          _weeksTotal = template.weeksTotal;
-                          _daysPerWeek = template.daysPerWeek;
-                          if (template.deloadWeek != null) {
+                          _periodsTotal = template.periodsTotal;
+                          _daysPerPeriod = template.daysPerPeriod;
+                          if (template.recoveryPeriod != null) {
                             _hasDeload = true;
-                            _deloadWeek = template.deloadWeek;
+                            _recoveryPeriod = template.recoveryPeriod;
                           }
                         }
                       });

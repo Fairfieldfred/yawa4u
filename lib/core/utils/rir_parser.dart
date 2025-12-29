@@ -172,29 +172,29 @@ class RIRParser {
   // ========== WEEK PROGRESSION ==========
 
   /// Get recommended RIR for a given week in a trainingCycle
-  /// Common progression: Week 1 (3 RIR) -> Week 4 (0 RIR)
+  /// Common progression: Period 1 (3 RIR) -> Period 4 (0 RIR)
   /// This implements a linear progression model
-  static int getRecommendedRIRForWeek(int weekNumber, int totalWeeks) {
-    // Deload week (typically last week) - higher RIR
-    if (weekNumber == totalWeeks) {
-      return 8; // Deload week - very easy
+  static int getRecommendedRIRForPeriod(int periodNumber, int totalPeriods) {
+    // Recovery period (typically last period) - higher RIR
+    if (periodNumber == totalPeriods) {
+      return 8; // Recovery period - very easy
     }
 
     // Linear progression from 3 RIR to 0 RIR
-    final nonDeloadWeeks = totalWeeks - 1;
-    if (nonDeloadWeeks <= 1) return 2; // Single week meso
+    final nonRecoveryPeriods = totalPeriods - 1;
+    if (nonRecoveryPeriods <= 1) return 2; // Single period meso
 
-    // Map week to RIR: 3 -> 2 -> 1 -> 0
-    final progressionStep = 3.0 / (nonDeloadWeeks - 1);
-    final rir = 3 - ((weekNumber - 1) * progressionStep);
+    // Map period to RIR: 3 -> 2 -> 1 -> 0
+    final progressionStep = 3.0 / (nonRecoveryPeriods - 1);
+    final rir = 3 - ((periodNumber - 1) * progressionStep);
 
     return rir.round().clamp(0, 3);
   }
 
-  /// Get RIR target as a display string for a given week
-  /// Examples: "3 RIR", "0 RIR", "8 RIR" (deload)
-  static String getRIRTargetForWeek(int weekNumber, int totalWeeks) {
-    final rir = getRecommendedRIRForWeek(weekNumber, totalWeeks);
+  /// Get RIR target as a display string for a given period
+  /// Examples: "3 RIR", "0 RIR", "8 RIR" (recovery)
+  static String getRIRTargetForPeriod(int periodNumber, int totalPeriods) {
+    final rir = getRecommendedRIRForPeriod(periodNumber, totalPeriods);
     return formatRIR(rir);
   }
 

@@ -3,18 +3,18 @@ class TrainingCycleTemplate {
   final String id;
   final String name;
   final String description;
-  final int weeksTotal;
-  final int daysPerWeek;
-  final int? deloadWeek;
+  final int periodsTotal;
+  final int daysPerPeriod;
+  final int? recoveryPeriod;
   final List<WorkoutTemplate> workouts;
 
   TrainingCycleTemplate({
     required this.id,
     required this.name,
     required this.description,
-    required this.weeksTotal,
-    required this.daysPerWeek,
-    this.deloadWeek,
+    required this.periodsTotal,
+    required this.daysPerPeriod,
+    this.recoveryPeriod,
     required this.workouts,
   });
 
@@ -23,9 +23,9 @@ class TrainingCycleTemplate {
       id: json['id'] as String,
       name: json['name'] as String,
       description: json['description'] as String,
-      weeksTotal: json['weeksTotal'] as int,
-      daysPerWeek: json['daysPerWeek'] as int,
-      deloadWeek: json['deloadWeek'] as int?,
+      periodsTotal: json['periodsTotal'] as int,
+      daysPerPeriod: json['daysPerPeriod'] as int,
+      recoveryPeriod: json['recoveryPeriod'] as int?,
       workouts: (json['workouts'] as List)
           .map((w) => WorkoutTemplate.fromJson(w as Map<String, dynamic>))
           .toList(),
@@ -37,9 +37,9 @@ class TrainingCycleTemplate {
       'id': id,
       'name': name,
       'description': description,
-      'weeksTotal': weeksTotal,
-      'daysPerWeek': daysPerWeek,
-      'deloadWeek': deloadWeek,
+      'periodsTotal': periodsTotal,
+      'daysPerPeriod': daysPerPeriod,
+      'recoveryPeriod': recoveryPeriod,
       'workouts': workouts.map((w) => w.toJson()).toList(),
     };
   }
@@ -47,13 +47,13 @@ class TrainingCycleTemplate {
 
 /// Template for a single workout within a trainingCycle
 class WorkoutTemplate {
-  final int weekNumber;
+  final int periodNumber;
   final int dayNumber;
   final String? dayName;
   final List<ExerciseTemplate> exercises;
 
   WorkoutTemplate({
-    required this.weekNumber,
+    required this.periodNumber,
     required this.dayNumber,
     this.dayName,
     required this.exercises,
@@ -61,7 +61,7 @@ class WorkoutTemplate {
 
   factory WorkoutTemplate.fromJson(Map<String, dynamic> json) {
     return WorkoutTemplate(
-      weekNumber: json['weekNumber'] as int,
+      periodNumber: json['periodNumber'] as int,
       dayNumber: json['dayNumber'] as int,
       dayName: json['dayName'] as String?,
       exercises: (json['exercises'] as List)
@@ -72,7 +72,7 @@ class WorkoutTemplate {
 
   Map<String, dynamic> toJson() {
     return {
-      'weekNumber': weekNumber,
+      'periodNumber': periodNumber,
       'dayNumber': dayNumber,
       'dayName': dayName,
       'exercises': exercises.map((e) => e.toJson()).toList(),

@@ -65,7 +65,7 @@ class DatabaseService {
     Hive.registerAdapter(GenderAdapter());
     Hive.registerAdapter(MuscleGroupAdapter());
     Hive.registerAdapter(EquipmentTypeAdapter());
-    Hive.registerAdapter(RecoveryWeekTypeAdapter());
+    Hive.registerAdapter(RecoveryPeriodTypeAdapter());
     Hive.registerAdapter(UserMeasurementAdapter());
 
     // Open boxes

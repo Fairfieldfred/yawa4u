@@ -97,7 +97,7 @@ class AppColors {
   static const Color skippedWorkout = Color(0xFF757575);
 
   /// Deload week
-  static const Color deloadWeek = warning;
+  static const Color recoveryPeriod = warning;
 
   // ========== OVERLAY COLORS ==========
 

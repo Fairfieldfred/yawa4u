@@ -12,25 +12,25 @@ import '../providers/workout_providers.dart';
 
 /// Immutable state for the workout home screen.
 class WorkoutHomeState {
-  final bool showWeekSelector;
-  final int? selectedWeek;
+  final bool showPeriodSelector;
+  final int? selectedPeriod;
   final int? selectedDay;
 
   const WorkoutHomeState({
-    this.showWeekSelector = false,
-    this.selectedWeek,
+    this.showPeriodSelector = false,
+    this.selectedPeriod,
     this.selectedDay,
   });
 
   WorkoutHomeState copyWith({
-    bool? showWeekSelector,
-    int? selectedWeek,
+    bool? showPeriodSelector,
+    int? selectedPeriod,
     int? selectedDay,
     bool clearSelection = false,
   }) {
     return WorkoutHomeState(
-      showWeekSelector: showWeekSelector ?? this.showWeekSelector,
-      selectedWeek: clearSelection ? null : (selectedWeek ?? this.selectedWeek),
+      showPeriodSelector: showPeriodSelector ?? this.showPeriodSelector,
+      selectedPeriod: clearSelection ? null : (selectedPeriod ?? this.selectedPeriod),
       selectedDay: clearSelection ? null : (selectedDay ?? this.selectedDay),
     );
   }
@@ -53,24 +53,24 @@ class WorkoutHomeController extends Notifier<WorkoutHomeState> {
   // UI State Management
   // ---------------------------------------------------------------------------
 
-  void toggleWeekSelector() {
-    state = state.copyWith(showWeekSelector: !state.showWeekSelector);
+  void togglePeriodSelector() {
+    state = state.copyWith(showPeriodSelector: !state.showPeriodSelector);
   }
 
-  void hideWeekSelector() {
-    state = state.copyWith(showWeekSelector: false);
+  void hidePeriodSelector() {
+    state = state.copyWith(showPeriodSelector: false);
   }
 
-  void selectDay(int week, int day) {
+  void selectDay(int period, int day) {
     state = state.copyWith(
-      showWeekSelector: false,
-      selectedWeek: week,
+      showPeriodSelector: false,
+      selectedPeriod: period,
       selectedDay: day,
     );
   }
 
-  void navigateToNextDay(int nextWeek, int nextDay) {
-    state = state.copyWith(selectedWeek: nextWeek, selectedDay: nextDay);
+  void navigateToNextDay(int nextPeriod, int nextDay) {
+    state = state.copyWith(selectedPeriod: nextPeriod, selectedDay: nextDay);
   }
 
   // ---------------------------------------------------------------------------
@@ -324,7 +324,7 @@ class WorkoutHomeController extends Notifier<WorkoutHomeState> {
 
   Future<void> moveExerciseDown(
     String exerciseId,
-    int displayWeek,
+    int displayPeriod,
     int displayDay,
   ) async {
     final repository = ref.read(workoutRepositoryProvider);
@@ -334,7 +334,7 @@ class WorkoutHomeController extends Notifier<WorkoutHomeState> {
     final allWorkouts = ref.read(workoutsByTrainingCycleProvider(trainingCycle.id));
 
     final todaysWorkouts = allWorkouts
-        .where((w) => w.weekNumber == displayWeek && w.dayNumber == displayDay)
+        .where((w) => w.periodNumber == displayPeriod && w.dayNumber == displayDay)
         .toList();
 
     // Collect all exercises from all workouts
@@ -471,7 +471,7 @@ class WorkoutHomeController extends Notifier<WorkoutHomeState> {
   // Workout Operations
   // ---------------------------------------------------------------------------
 
-  Future<bool> finishWorkout(List<Workout> workouts, int daysPerWeek) async {
+  Future<bool> finishWorkout(List<Workout> workouts, int daysPerPeriod) async {
     if (workouts.isEmpty) return false;
 
     final repository = ref.read(workoutRepositoryProvider);
@@ -503,14 +503,14 @@ class WorkoutHomeController extends Notifier<WorkoutHomeState> {
     // Navigate to next workout
     final firstWorkout = workouts.first;
     int nextDay = firstWorkout.dayNumber + 1;
-    int nextWeek = firstWorkout.weekNumber;
+    int nextPeriod = firstWorkout.periodNumber;
 
-    if (nextDay > daysPerWeek) {
+    if (nextDay > daysPerPeriod) {
       nextDay = 1;
-      nextWeek++;
+      nextPeriod++;
     }
 
-    navigateToNextDay(nextWeek, nextDay);
+    navigateToNextDay(nextPeriod, nextDay);
     return false;
   }
 
@@ -567,12 +567,12 @@ class WorkoutHomeController extends Notifier<WorkoutHomeState> {
         await repository.update(w.copyWith(dayName: label));
       }
     } else {
-      final currentWeekNumber = workouts.first.weekNumber;
-      final currentWeekWorkouts = workouts
-          .where((w) => w.weekNumber == currentWeekNumber)
+      final currentPeriodNumber = workouts.first.periodNumber;
+      final currentPeriodWorkouts = workouts
+          .where((w) => w.periodNumber == currentPeriodNumber)
           .toList();
 
-      for (final w in currentWeekWorkouts) {
+      for (final w in currentPeriodWorkouts) {
         await repository.update(w.copyWith(dayName: label));
       }
     }
@@ -591,7 +591,7 @@ class WorkoutHomeController extends Notifier<WorkoutHomeState> {
 
   Future<void> createWorkoutForMuscleGroup({
     required String trainingCycleId,
-    required int weekNumber,
+    required int periodNumber,
     required int dayNumber,
     required String? dayName,
     required String label,
@@ -601,7 +601,7 @@ class WorkoutHomeController extends Notifier<WorkoutHomeState> {
     final newWorkout = Workout(
       id: const Uuid().v4(),
       trainingCycleId: trainingCycleId,
-      weekNumber: weekNumber,
+      periodNumber: periodNumber,
       dayNumber: dayNumber,
       dayName: dayName,
       label: label,
@@ -631,40 +631,40 @@ class WorkoutHomeController extends Notifier<WorkoutHomeState> {
   }
 
   // ---------------------------------------------------------------------------
-  // Week Management
+  // Period Management
   // ---------------------------------------------------------------------------
 
-  Future<void> addWeek(dynamic trainingCycle) async {
+  Future<void> addPeriod(dynamic trainingCycle) async {
     final repository = ref.read(workoutRepositoryProvider);
     final allWorkouts = ref.read(workoutsByTrainingCycleProvider(trainingCycle.id));
-    final newWeekNumber = trainingCycle.weeksTotal;
+    final newPeriodNumber = trainingCycle.periodsTotal;
 
-    final templateWeek = trainingCycle.weeksTotal - 1;
+    final templatePeriod = trainingCycle.periodsTotal - 1;
 
     List<Workout> templateWorkouts = [];
-    if (templateWeek >= 1) {
+    if (templatePeriod >= 1) {
       templateWorkouts = allWorkouts
-          .where((w) => w.weekNumber == templateWeek)
+          .where((w) => w.periodNumber == templatePeriod)
           .toList();
     } else {
       templateWorkouts = allWorkouts
-          .where((w) => w.weekNumber == trainingCycle.weeksTotal)
+          .where((w) => w.periodNumber == trainingCycle.periodsTotal)
           .toList();
     }
 
     if (templateWorkouts.isEmpty) return;
 
-    // Shift deload week
-    final deloadWorkouts = allWorkouts
-        .where((w) => w.weekNumber == trainingCycle.weeksTotal)
+    // Shift recovery period
+    final recoveryWorkouts = allWorkouts
+        .where((w) => w.periodNumber == trainingCycle.periodsTotal)
         .toList();
-    for (var workout in deloadWorkouts) {
+    for (var workout in recoveryWorkouts) {
       await repository.update(
-        workout.copyWith(weekNumber: trainingCycle.weeksTotal + 1),
+        workout.copyWith(periodNumber: trainingCycle.periodsTotal + 1),
       );
     }
 
-    // Create new week workouts
+    // Create new period workouts
     for (var templateWorkout in templateWorkouts) {
       final newWorkoutId = const Uuid().v4();
       final newExercises = templateWorkout.exercises
@@ -689,7 +689,7 @@ class WorkoutHomeController extends Notifier<WorkoutHomeState> {
 
       final newWorkout = templateWorkout.copyWith(
         id: newWorkoutId,
-        weekNumber: newWeekNumber,
+        periodNumber: newPeriodNumber,
         status: WorkoutStatus.incomplete,
         exercises: newExercises,
       );
@@ -701,41 +701,41 @@ class WorkoutHomeController extends Notifier<WorkoutHomeState> {
     final trainingCycleRepository = ref.read(trainingCycleRepositoryProvider);
     await trainingCycleRepository.update(
       trainingCycle.copyWith(
-        weeksTotal: trainingCycle.weeksTotal + 1,
-        deloadWeek: trainingCycle.deloadWeek + 1,
+        periodsTotal: trainingCycle.periodsTotal + 1,
+        recoveryPeriod: trainingCycle.recoveryPeriod + 1,
       ),
     );
   }
 
-  Future<void> removeWeek(dynamic trainingCycle) async {
+  Future<void> removePeriod(dynamic trainingCycle) async {
     final repository = ref.read(workoutRepositoryProvider);
     final allWorkouts = ref.read(workoutsByTrainingCycleProvider(trainingCycle.id));
-    final weekToRemove = trainingCycle.weeksTotal - 1;
+    final periodToRemove = trainingCycle.periodsTotal - 1;
 
-    if (weekToRemove < 1) return;
+    if (periodToRemove < 1) return;
 
-    // Delete week
+    // Delete period
     final workoutsToRemove = allWorkouts
-        .where((w) => w.weekNumber == weekToRemove)
+        .where((w) => w.periodNumber == periodToRemove)
         .toList();
     for (var workout in workoutsToRemove) {
       await repository.delete(workout.id);
     }
 
-    // Shift deload week
-    final deloadWorkouts = allWorkouts
-        .where((w) => w.weekNumber == trainingCycle.weeksTotal)
+    // Shift recovery period
+    final recoveryWorkouts = allWorkouts
+        .where((w) => w.periodNumber == trainingCycle.periodsTotal)
         .toList();
-    for (var workout in deloadWorkouts) {
-      await repository.update(workout.copyWith(weekNumber: weekToRemove));
+    for (var workout in recoveryWorkouts) {
+      await repository.update(workout.copyWith(periodNumber: periodToRemove));
     }
 
     // Update trainingCycle
     final trainingCycleRepository = ref.read(trainingCycleRepositoryProvider);
     await trainingCycleRepository.update(
       trainingCycle.copyWith(
-        weeksTotal: trainingCycle.weeksTotal - 1,
-        deloadWeek: trainingCycle.deloadWeek - 1,
+        periodsTotal: trainingCycle.periodsTotal - 1,
+        recoveryPeriod: trainingCycle.recoveryPeriod - 1,
       ),
     );
   }
@@ -755,7 +755,7 @@ final workoutHomeControllerProvider =
 (int, int)? findFirstIncompleteWorkout(List<Workout> allWorkouts) {
   final Map<String, List<Workout>> workoutsByDay = {};
   for (var workout in allWorkouts) {
-    final key = '${workout.weekNumber}-${workout.dayNumber}';
+    final key = '${workout.periodNumber}-${workout.dayNumber}';
     workoutsByDay.putIfAbsent(key, () => []).add(workout);
   }
 
@@ -797,18 +797,18 @@ bool isWorkoutComplete(Workout workout) {
   return true;
 }
 
-/// Calculate target RIR for a given week based on trainingCycle deload schedule.
-int calculateRIR(int weekNumber, int deloadWeek) {
-  if (weekNumber == deloadWeek) {
+/// Calculate target RIR for a given period based on trainingCycle recovery schedule.
+int calculateRIR(int periodNumber, int recoveryPeriod) {
+  if (periodNumber == recoveryPeriod) {
     return 8;
   }
 
-  final weeksUntilDeload = deloadWeek - weekNumber;
+  final periodsUntilRecovery = recoveryPeriod - periodNumber;
 
-  if (weeksUntilDeload == 1) {
+  if (periodsUntilRecovery == 1) {
     return 0;
-  } else if (weeksUntilDeload > 1) {
-    return weeksUntilDeload - 1;
+  } else if (periodsUntilRecovery > 1) {
+    return periodsUntilRecovery - 1;
   } else {
     return 0;
   }
@@ -834,8 +834,8 @@ String? getSetTypeBadge(SetType setType) {
 String calculateDayName({
   required List<Workout> workouts,
   required DateTime? startDate,
-  required int daysPerWeek,
-  required int displayWeek,
+  required int daysPerPeriod,
+  required int displayPeriod,
   required int displayDay,
 }) {
   const defaultDayNames = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
@@ -846,7 +846,7 @@ String calculateDayName({
 
   if (startDate != null) {
     final startDayOfWeek = startDate.weekday % 7;
-    final daysElapsed = ((displayWeek - 1) * daysPerWeek) + (displayDay - 1);
+    final daysElapsed = ((displayPeriod - 1) * daysPerPeriod) + (displayDay - 1);
     final actualDayOfWeek = (startDayOfWeek + daysElapsed) % 7;
     return defaultDayNames[actualDayOfWeek];
   }

@@ -2,12 +2,12 @@
     "id": "5_day_full_body",
     "name": "5 Day Full Body",
     "description": "Exported from app: 5 Day Full Body",
-    "weeksTotal": 5,
-    "daysPerWeek": 5,
-    "deloadWeek": 5,
+    "periodsTotal": 5,
+    "daysPerPeriod": 5,
+    "recoveryPeriod": 5,
     "workouts": [
         {
-            "weekNumber": 1,
+            "periodNumber": 1,
             "dayNumber": 1,
             "dayName": null,
             "exercises": [
@@ -22,7 +22,7 @@
             ]
         },
         {
-            "weekNumber": 1,
+            "periodNumber": 1,
             "dayNumber": 1,
             "dayName": null,
             "exercises": [
@@ -53,19 +53,19 @@
             ]
         },
         {
-            "weekNumber": 1,
+            "periodNumber": 1,
             "dayNumber": 1,
             "dayName": null,
             "exercises": []
         },
         {
-            "weekNumber": 1,
+            "periodNumber": 1,
             "dayNumber": 1,
             "dayName": null,
             "exercises": []
         },
         {
-            "weekNumber": 1,
+            "periodNumber": 1,
             "dayNumber": 1,
             "dayName": null,
             "exercises": [
@@ -80,7 +80,7 @@
             ]
         },
         {
-            "weekNumber": 1,
+            "periodNumber": 1,
             "dayNumber": 1,
             "dayName": null,
             "exercises": [
@@ -95,7 +95,7 @@
             ]
         },
         {
-            "weekNumber": 1,
+            "periodNumber": 1,
             "dayNumber": 2,
             "dayName": null,
             "exercises": [
@@ -110,7 +110,7 @@
             ]
         },
         {
-            "weekNumber": 1,
+            "periodNumber": 1,
             "dayNumber": 2,
             "dayName": null,
             "exercises": [
@@ -125,7 +125,7 @@
             ]
         },
         {
-            "weekNumber": 1,
+            "periodNumber": 1,
             "dayNumber": 2,
             "dayName": null,
             "exercises": [
@@ -140,7 +140,7 @@
             ]
         },
         {
-            "weekNumber": 1,
+            "periodNumber": 1,
             "dayNumber": 2,
             "dayName": null,
             "exercises": [
@@ -155,7 +155,7 @@
             ]
         },
         {
-            "weekNumber": 1,
+            "periodNumber": 1,
             "dayNumber": 2,
             "dayName": null,
             "exercises": [
@@ -170,7 +170,7 @@
             ]
         },
         {
-            "weekNumber": 1,
+            "periodNumber": 1,
             "dayNumber": 3,
             "dayName": null,
             "exercises": [
@@ -193,7 +193,7 @@
             ]
         },
         {
-            "weekNumber": 1,
+            "periodNumber": 1,
             "dayNumber": 3,
             "dayName": null,
             "exercises": [
@@ -208,7 +208,7 @@
             ]
         },
         {
-            "weekNumber": 1,
+            "periodNumber": 1,
             "dayNumber": 3,
             "dayName": null,
             "exercises": [
@@ -231,7 +231,7 @@
             ]
         },
         {
-            "weekNumber": 1,
+            "periodNumber": 1,
             "dayNumber": 3,
             "dayName": null,
             "exercises": [
@@ -246,7 +246,7 @@
             ]
         },
         {
-            "weekNumber": 1,
+            "periodNumber": 1,
             "dayNumber": 4,
             "dayName": null,
             "exercises": [
@@ -269,7 +269,7 @@
             ]
         },
         {
-            "weekNumber": 1,
+            "periodNumber": 1,
             "dayNumber": 4,
             "dayName": null,
             "exercises": [
@@ -292,7 +292,7 @@
             ]
         },
         {
-            "weekNumber": 1,
+            "periodNumber": 1,
             "dayNumber": 4,
             "dayName": null,
             "exercises": [
@@ -307,7 +307,7 @@
             ]
         },
         {
-            "weekNumber": 1,
+            "periodNumber": 1,
             "dayNumber": 5,
             "dayName": null,
             "exercises": [
@@ -330,7 +330,7 @@
             ]
         },
         {
-            "weekNumber": 1,
+            "periodNumber": 1,
             "dayNumber": 5,
             "dayName": null,
             "exercises": [
@@ -345,7 +345,7 @@
             ]
         },
         {
-            "weekNumber": 1,
+            "periodNumber": 1,
             "dayNumber": 5,
             "dayName": null,
             "exercises": [
@@ -360,7 +360,7 @@
             ]
         },
         {
-            "weekNumber": 1,
+            "periodNumber": 1,
             "dayNumber": 5,
             "dayName": null,
             "exercises": [
@@ -383,7 +383,7 @@
             ]
         },
         {
-            "weekNumber": 2,
+            "periodNumber": 2,
             "dayNumber": 1,
             "dayName": null,
             "exercises": [
@@ -414,13 +414,13 @@
             ]
         },
         {
-            "weekNumber": 2,
+            "periodNumber": 2,
             "dayNumber": 1,
             "dayName": null,
             "exercises": []
         },
         {
-            "weekNumber": 2,
+            "periodNumber": 2,
             "dayNumber": 1,
             "dayName": null,
             "exercises": [
@@ -435,7 +435,7 @@
             ]
         },
         {
-            "weekNumber": 2,
+            "periodNumber": 2,
             "dayNumber": 1,
             "dayName": null,
             "exercises": [
@@ -450,7 +450,7 @@
             ]
         },
         {
-            "weekNumber": 2,
+            "periodNumber": 2,
             "dayNumber": 1,
             "dayName": null,
             "exercises": [
@@ -465,13 +465,13 @@
             ]
         },
         {
-            "weekNumber": 2,
+            "periodNumber": 2,
             "dayNumber": 1,
             "dayName": null,
             "exercises": []
         },
         {
-            "weekNumber": 2,
+            "periodNumber": 2,
             "dayNumber": 2,
             "dayName": null,
             "exercises": [
@@ -486,7 +486,7 @@
             ]
         },
         {
-            "weekNumber": 2,
+            "periodNumber": 2,
             "dayNumber": 2,
             "dayName": null,
             "exercises": [
@@ -501,7 +501,7 @@
             ]
         },
         {
-            "weekNumber": 2,
+            "periodNumber": 2,
             "dayNumber": 2,
             "dayName": null,
             "exercises": [
@@ -516,7 +516,7 @@
             ]
         },
         {
-            "weekNumber": 2,
+            "periodNumber": 2,
             "dayNumber": 2,
             "dayName": null,
             "exercises": [
@@ -531,7 +531,7 @@
             ]
         },
         {
-            "weekNumber": 2,
+            "periodNumber": 2,
             "dayNumber": 2,
             "dayName": null,
             "exercises": [
@@ -546,7 +546,7 @@
             ]
         },
         {
-            "weekNumber": 2,
+            "periodNumber": 2,
             "dayNumber": 3,
             "dayName": null,
             "exercises": [
@@ -569,7 +569,7 @@
             ]
         },
         {
-            "weekNumber": 2,
+            "periodNumber": 2,
             "dayNumber": 3,
             "dayName": null,
             "exercises": [
@@ -584,7 +584,7 @@
             ]
         },
         {
-            "weekNumber": 2,
+            "periodNumber": 2,
             "dayNumber": 3,
             "dayName": null,
             "exercises": [
@@ -599,7 +599,7 @@
             ]
         },
         {
-            "weekNumber": 2,
+            "periodNumber": 2,
             "dayNumber": 3,
             "dayName": null,
             "exercises": [
@@ -622,7 +622,7 @@
             ]
         },
         {
-            "weekNumber": 2,
+            "periodNumber": 2,
             "dayNumber": 4,
             "dayName": null,
             "exercises": [
@@ -645,7 +645,7 @@
             ]
         },
         {
-            "weekNumber": 2,
+            "periodNumber": 2,
             "dayNumber": 4,
             "dayName": null,
             "exercises": [
@@ -668,7 +668,7 @@
             ]
         },
         {
-            "weekNumber": 2,
+            "periodNumber": 2,
             "dayNumber": 4,
             "dayName": null,
             "exercises": [
@@ -683,7 +683,7 @@
             ]
         },
         {
-            "weekNumber": 2,
+            "periodNumber": 2,
             "dayNumber": 5,
             "dayName": null,
             "exercises": [
@@ -698,7 +698,7 @@
             ]
         },
         {
-            "weekNumber": 2,
+            "periodNumber": 2,
             "dayNumber": 5,
             "dayName": null,
             "exercises": [
@@ -713,7 +713,7 @@
             ]
         },
         {
-            "weekNumber": 2,
+            "periodNumber": 2,
             "dayNumber": 5,
             "dayName": null,
             "exercises": [
@@ -736,7 +736,7 @@
             ]
         },
         {
-            "weekNumber": 2,
+            "periodNumber": 2,
             "dayNumber": 5,
             "dayName": null,
             "exercises": [
@@ -759,7 +759,7 @@
             ]
         },
         {
-            "weekNumber": 3,
+            "periodNumber": 3,
             "dayNumber": 1,
             "dayName": null,
             "exercises": [
@@ -774,13 +774,13 @@
             ]
         },
         {
-            "weekNumber": 3,
+            "periodNumber": 3,
             "dayNumber": 1,
             "dayName": null,
             "exercises": []
         },
         {
-            "weekNumber": 3,
+            "periodNumber": 3,
             "dayNumber": 1,
             "dayName": null,
             "exercises": [
@@ -811,7 +811,7 @@
             ]
         },
         {
-            "weekNumber": 3,
+            "periodNumber": 3,
             "dayNumber": 1,
             "dayName": null,
             "exercises": [
@@ -826,13 +826,13 @@
             ]
         },
         {
-            "weekNumber": 3,
+            "periodNumber": 3,
             "dayNumber": 1,
             "dayName": null,
             "exercises": []
         },
         {
-            "weekNumber": 3,
+            "periodNumber": 3,
             "dayNumber": 1,
             "dayName": null,
             "exercises": [
@@ -847,7 +847,7 @@
             ]
         },
         {
-            "weekNumber": 3,
+            "periodNumber": 3,
             "dayNumber": 2,
             "dayName": null,
             "exercises": [
@@ -862,7 +862,7 @@
             ]
         },
         {
-            "weekNumber": 3,
+            "periodNumber": 3,
             "dayNumber": 2,
             "dayName": null,
             "exercises": [
@@ -877,7 +877,7 @@
             ]
         },
         {
-            "weekNumber": 3,
+            "periodNumber": 3,
             "dayNumber": 2,
             "dayName": null,
             "exercises": [
@@ -892,7 +892,7 @@
             ]
         },
         {
-            "weekNumber": 3,
+            "periodNumber": 3,
             "dayNumber": 2,
             "dayName": null,
             "exercises": [
@@ -907,7 +907,7 @@
             ]
         },
         {
-            "weekNumber": 3,
+            "periodNumber": 3,
             "dayNumber": 2,
             "dayName": null,
             "exercises": [
@@ -922,7 +922,7 @@
             ]
         },
         {
-            "weekNumber": 3,
+            "periodNumber": 3,
             "dayNumber": 3,
             "dayName": null,
             "exercises": [
@@ -945,7 +945,7 @@
             ]
         },
         {
-            "weekNumber": 3,
+            "periodNumber": 3,
             "dayNumber": 3,
             "dayName": null,
             "exercises": [
@@ -960,7 +960,7 @@
             ]
         },
         {
-            "weekNumber": 3,
+            "periodNumber": 3,
             "dayNumber": 3,
             "dayName": null,
             "exercises": [
@@ -975,7 +975,7 @@
             ]
         },
         {
-            "weekNumber": 3,
+            "periodNumber": 3,
             "dayNumber": 3,
             "dayName": null,
             "exercises": [
@@ -998,7 +998,7 @@
             ]
         },
         {
-            "weekNumber": 3,
+            "periodNumber": 3,
             "dayNumber": 4,
             "dayName": null,
             "exercises": [
@@ -1013,7 +1013,7 @@
             ]
         },
         {
-            "weekNumber": 3,
+            "periodNumber": 3,
             "dayNumber": 4,
             "dayName": null,
             "exercises": [
@@ -1036,7 +1036,7 @@
             ]
         },
         {
-            "weekNumber": 3,
+            "periodNumber": 3,
             "dayNumber": 4,
             "dayName": null,
             "exercises": [
@@ -1059,7 +1059,7 @@
             ]
         },
         {
-            "weekNumber": 3,
+            "periodNumber": 3,
             "dayNumber": 5,
             "dayName": null,
             "exercises": [
@@ -1082,7 +1082,7 @@
             ]
         },
         {
-            "weekNumber": 3,
+            "periodNumber": 3,
             "dayNumber": 5,
             "dayName": null,
             "exercises": [
@@ -1105,7 +1105,7 @@
             ]
         },
         {
-            "weekNumber": 3,
+            "periodNumber": 3,
             "dayNumber": 5,
             "dayName": null,
             "exercises": [
@@ -1120,7 +1120,7 @@
             ]
         },
         {
-            "weekNumber": 3,
+            "periodNumber": 3,
             "dayNumber": 5,
             "dayName": null,
             "exercises": [
@@ -1135,7 +1135,7 @@
             ]
         },
         {
-            "weekNumber": 4,
+            "periodNumber": 4,
             "dayNumber": 1,
             "dayName": null,
             "exercises": [
@@ -1150,13 +1150,13 @@
             ]
         },
         {
-            "weekNumber": 4,
+            "periodNumber": 4,
             "dayNumber": 1,
             "dayName": null,
             "exercises": []
         },
         {
-            "weekNumber": 4,
+            "periodNumber": 4,
             "dayNumber": 1,
             "dayName": null,
             "exercises": [
@@ -1171,7 +1171,7 @@
             ]
         },
         {
-            "weekNumber": 4,
+            "periodNumber": 4,
             "dayNumber": 1,
             "dayName": null,
             "exercises": [
@@ -1202,13 +1202,13 @@
             ]
         },
         {
-            "weekNumber": 4,
+            "periodNumber": 4,
             "dayNumber": 1,
             "dayName": null,
             "exercises": []
         },
         {
-            "weekNumber": 4,
+            "periodNumber": 4,
             "dayNumber": 1,
             "dayName": null,
             "exercises": [
@@ -1223,7 +1223,7 @@
             ]
         },
         {
-            "weekNumber": 4,
+            "periodNumber": 4,
             "dayNumber": 2,
             "dayName": null,
             "exercises": [
@@ -1238,7 +1238,7 @@
             ]
         },
         {
-            "weekNumber": 4,
+            "periodNumber": 4,
             "dayNumber": 2,
             "dayName": null,
             "exercises": [
@@ -1253,7 +1253,7 @@
             ]
         },
         {
-            "weekNumber": 4,
+            "periodNumber": 4,
             "dayNumber": 2,
             "dayName": null,
             "exercises": [
@@ -1268,7 +1268,7 @@
             ]
         },
         {
-            "weekNumber": 4,
+            "periodNumber": 4,
             "dayNumber": 2,
             "dayName": null,
             "exercises": [
@@ -1283,7 +1283,7 @@
             ]
         },
         {
-            "weekNumber": 4,
+            "periodNumber": 4,
             "dayNumber": 2,
             "dayName": null,
             "exercises": [
@@ -1298,7 +1298,7 @@
             ]
         },
         {
-            "weekNumber": 4,
+            "periodNumber": 4,
             "dayNumber": 3,
             "dayName": null,
             "exercises": [
@@ -1321,7 +1321,7 @@
             ]
         },
         {
-            "weekNumber": 4,
+            "periodNumber": 4,
             "dayNumber": 3,
             "dayName": null,
             "exercises": [
@@ -1336,7 +1336,7 @@
             ]
         },
         {
-            "weekNumber": 4,
+            "periodNumber": 4,
             "dayNumber": 3,
             "dayName": null,
             "exercises": [
@@ -1359,7 +1359,7 @@
             ]
         },
         {
-            "weekNumber": 4,
+            "periodNumber": 4,
             "dayNumber": 3,
             "dayName": null,
             "exercises": [
@@ -1374,7 +1374,7 @@
             ]
         },
         {
-            "weekNumber": 4,
+            "periodNumber": 4,
             "dayNumber": 4,
             "dayName": null,
             "exercises": [
@@ -1397,7 +1397,7 @@
             ]
         },
         {
-            "weekNumber": 4,
+            "periodNumber": 4,
             "dayNumber": 4,
             "dayName": null,
             "exercises": [
@@ -1420,7 +1420,7 @@
             ]
         },
         {
-            "weekNumber": 4,
+            "periodNumber": 4,
             "dayNumber": 4,
             "dayName": null,
             "exercises": [
@@ -1435,7 +1435,7 @@
             ]
         },
         {
-            "weekNumber": 4,
+            "periodNumber": 4,
             "dayNumber": 5,
             "dayName": null,
             "exercises": [
@@ -1450,7 +1450,7 @@
             ]
         },
         {
-            "weekNumber": 4,
+            "periodNumber": 4,
             "dayNumber": 5,
             "dayName": null,
             "exercises": [
@@ -1473,7 +1473,7 @@
             ]
         },
         {
-            "weekNumber": 4,
+            "periodNumber": 4,
             "dayNumber": 5,
             "dayName": null,
             "exercises": [
@@ -1496,7 +1496,7 @@
             ]
         },
         {
-            "weekNumber": 4,
+            "periodNumber": 4,
             "dayNumber": 5,
             "dayName": null,
             "exercises": [
@@ -1511,7 +1511,7 @@
             ]
         },
         {
-            "weekNumber": 5,
+            "periodNumber": 5,
             "dayNumber": 1,
             "dayName": null,
             "exercises": [
@@ -1526,7 +1526,7 @@
             ]
         },
         {
-            "weekNumber": 5,
+            "periodNumber": 5,
             "dayNumber": 1,
             "dayName": null,
             "exercises": [
@@ -1557,7 +1557,7 @@
             ]
         },
         {
-            "weekNumber": 5,
+            "periodNumber": 5,
             "dayNumber": 1,
             "dayName": null,
             "exercises": [
@@ -1572,19 +1572,19 @@
             ]
         },
         {
-            "weekNumber": 5,
+            "periodNumber": 5,
             "dayNumber": 1,
             "dayName": null,
             "exercises": []
         },
         {
-            "weekNumber": 5,
+            "periodNumber": 5,
             "dayNumber": 1,
             "dayName": null,
             "exercises": []
         },
         {
-            "weekNumber": 5,
+            "periodNumber": 5,
             "dayNumber": 1,
             "dayName": null,
             "exercises": [
@@ -1599,7 +1599,7 @@
             ]
         },
         {
-            "weekNumber": 5,
+            "periodNumber": 5,
             "dayNumber": 2,
             "dayName": null,
             "exercises": [
@@ -1614,7 +1614,7 @@
             ]
         },
         {
-            "weekNumber": 5,
+            "periodNumber": 5,
             "dayNumber": 2,
             "dayName": null,
             "exercises": [
@@ -1629,7 +1629,7 @@
             ]
         },
         {
-            "weekNumber": 5,
+            "periodNumber": 5,
             "dayNumber": 2,
             "dayName": null,
             "exercises": [
@@ -1644,7 +1644,7 @@
             ]
         },
         {
-            "weekNumber": 5,
+            "periodNumber": 5,
             "dayNumber": 2,
             "dayName": null,
             "exercises": [
@@ -1659,7 +1659,7 @@
             ]
         },
         {
-            "weekNumber": 5,
+            "periodNumber": 5,
             "dayNumber": 2,
             "dayName": null,
             "exercises": [
@@ -1674,7 +1674,7 @@
             ]
         },
         {
-            "weekNumber": 5,
+            "periodNumber": 5,
             "dayNumber": 3,
             "dayName": null,
             "exercises": [
@@ -1689,7 +1689,7 @@
             ]
         },
         {
-            "weekNumber": 5,
+            "periodNumber": 5,
             "dayNumber": 3,
             "dayName": null,
             "exercises": [
@@ -1712,7 +1712,7 @@
             ]
         },
         {
-            "weekNumber": 5,
+            "periodNumber": 5,
             "dayNumber": 3,
             "dayName": null,
             "exercises": [
@@ -1735,7 +1735,7 @@
             ]
         },
         {
-            "weekNumber": 5,
+            "periodNumber": 5,
             "dayNumber": 3,
             "dayName": null,
             "exercises": [
@@ -1750,7 +1750,7 @@
             ]
         },
         {
-            "weekNumber": 5,
+            "periodNumber": 5,
             "dayNumber": 4,
             "dayName": null,
             "exercises": [
@@ -1765,7 +1765,7 @@
             ]
         },
         {
-            "weekNumber": 5,
+            "periodNumber": 5,
             "dayNumber": 4,
             "dayName": null,
             "exercises": [
@@ -1788,7 +1788,7 @@
             ]
         },
         {
-            "weekNumber": 5,
+            "periodNumber": 5,
             "dayNumber": 4,
             "dayName": null,
             "exercises": [
@@ -1811,7 +1811,7 @@
             ]
         },
         {
-            "weekNumber": 5,
+            "periodNumber": 5,
             "dayNumber": 5,
             "dayName": null,
             "exercises": [
@@ -1834,7 +1834,7 @@
             ]
         },
         {
-            "weekNumber": 5,
+            "periodNumber": 5,
             "dayNumber": 5,
             "dayName": null,
             "exercises": [
@@ -1849,7 +1849,7 @@
             ]
         },
         {
-            "weekNumber": 5,
+            "periodNumber": 5,
             "dayNumber": 5,
             "dayName": null,
             "exercises": [
@@ -1872,7 +1872,7 @@
             ]
         },
         {
-            "weekNumber": 5,
+            "periodNumber": 5,
             "dayNumber": 5,
             "dayName": null,
             "exercises": [

@@ -16,11 +16,11 @@ void main() {
           id: 'test_template',
           name: 'Test Template',
           description: 'Test Description',
-          daysPerWeek: 4,
-          weeksTotal: 6,
+          daysPerPeriod: 4,
+          periodsTotal: 6,
           workouts: [
             WorkoutTemplate(
-              weekNumber: 1,
+              periodNumber: 1,
               dayNumber: 1,
               exercises: [
                 ExerciseTemplate(

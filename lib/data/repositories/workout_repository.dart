@@ -28,9 +28,9 @@ class WorkoutRepository {
         .where((w) => w.trainingCycleId == trainingCycleId)
         .toList()
       ..sort((a, b) {
-        // Sort by week, then by day
-        final weekCompare = a.weekNumber.compareTo(b.weekNumber);
-        if (weekCompare != 0) return weekCompare;
+        // Sort by period, then by day
+        final periodCompare = a.periodNumber.compareTo(b.periodNumber);
+        if (periodCompare != 0) return periodCompare;
         return a.dayNumber.compareTo(b.dayNumber);
       });
   }
@@ -55,29 +55,29 @@ class WorkoutRepository {
     return getByStatus(WorkoutStatus.skipped);
   }
 
-  /// Get workouts for a specific week in a trainingCycle
-  List<Workout> getByWeek(String trainingCycleId, int weekNumber) {
+  /// Get workouts for a specific period in a trainingCycle
+  List<Workout> getByPeriod(String trainingCycleId, int periodNumber) {
     return _box.values
         .where(
           (w) =>
               w.trainingCycleId == trainingCycleId &&
-              w.weekNumber == weekNumber,
+              w.periodNumber == periodNumber,
         )
         .toList()
       ..sort((a, b) => a.dayNumber.compareTo(b.dayNumber));
   }
 
-  /// Get a specific workout by trainingCycle, week, and day
-  Workout? getByWeekAndDay(
+  /// Get a specific workout by trainingCycle, period, and day
+  Workout? getByPeriodAndDay(
     String trainingCycleId,
-    int weekNumber,
+    int periodNumber,
     int dayNumber,
   ) {
     try {
       return _box.values.firstWhere(
         (w) =>
             w.trainingCycleId == trainingCycleId &&
-            w.weekNumber == weekNumber &&
+            w.periodNumber == periodNumber &&
             w.dayNumber == dayNumber,
       );
     } catch (e) {
