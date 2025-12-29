@@ -1,3 +1,5 @@
+import 'dart:ui' show lerpDouble;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -37,6 +39,7 @@ class SkinBuilder {
           warning: skin.colors.warningColor,
           info: skin.colors.infoColor,
           backgrounds: skin.backgrounds,
+          inputBorderRadius: skin.components.inputBorderRadius,
         ),
       ],
 
@@ -362,6 +365,7 @@ class SkinExtension extends ThemeExtension<SkinExtension> {
   final Color warning;
   final Color info;
   final SkinBackgrounds? backgrounds;
+  final double inputBorderRadius;
 
   const SkinExtension({
     required this.workoutCurrent,
@@ -372,6 +376,7 @@ class SkinExtension extends ThemeExtension<SkinExtension> {
     required this.warning,
     required this.info,
     this.backgrounds,
+    this.inputBorderRadius = 8,
   });
 
   @override
@@ -384,6 +389,7 @@ class SkinExtension extends ThemeExtension<SkinExtension> {
     Color? warning,
     Color? info,
     SkinBackgrounds? backgrounds,
+    double? inputBorderRadius,
   }) {
     return SkinExtension(
       workoutCurrent: workoutCurrent ?? this.workoutCurrent,
@@ -394,6 +400,7 @@ class SkinExtension extends ThemeExtension<SkinExtension> {
       warning: warning ?? this.warning,
       info: info ?? this.info,
       backgrounds: backgrounds ?? this.backgrounds,
+      inputBorderRadius: inputBorderRadius ?? this.inputBorderRadius,
     );
   }
 
@@ -416,6 +423,10 @@ class SkinExtension extends ThemeExtension<SkinExtension> {
       info: Color.lerp(info, other.info, t)!,
       // Backgrounds don't lerp, just take the target
       backgrounds: t < 0.5 ? backgrounds : other.backgrounds,
+      // Lerp the border radius
+      inputBorderRadius:
+          lerpDouble(inputBorderRadius, other.inputBorderRadius, t) ??
+              inputBorderRadius,
     );
   }
 }

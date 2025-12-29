@@ -62,4 +62,7 @@ extension SkinContext on BuildContext {
 
   /// Check if the current skin has any background images configured.
   bool get hasBackgrounds => backgrounds != null;
+
+  /// Get input field border radius from skin, with fallback to 8.
+  double get inputBorderRadius => skinColors?.inputBorderRadius ?? 8;
 }
