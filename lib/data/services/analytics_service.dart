@@ -11,7 +11,7 @@ class AnalyticsService {
   final FirebaseAnalytics _analytics;
 
   AnalyticsService({FirebaseAnalytics? analytics})
-      : _analytics = analytics ?? FirebaseAnalytics.instance;
+    : _analytics = analytics ?? FirebaseAnalytics.instance;
 
   /// Get the FirebaseAnalytics instance for direct access if needed
   FirebaseAnalytics get instance => _analytics;
@@ -59,16 +59,13 @@ class AnalyticsService {
 
   /// Track when a trainingCycle is started
   Future<void> logTrainingCycleStarted({
-    required int weeks,
-    required int daysPerWeek,
+    required int periods,
+    required int daysPerPeriod,
   }) async {
     try {
       await _analytics.logEvent(
         name: AppConstants.eventTrainingCycleStarted,
-        parameters: {
-          'weeks': weeks,
-          'days_per_week': daysPerWeek,
-        },
+        parameters: {'periods': periods, 'days_per_period': daysPerPeriod},
       );
     } catch (e, stackTrace) {
       Sentry.captureException(e, stackTrace: stackTrace);
@@ -77,7 +74,7 @@ class AnalyticsService {
 
   /// Track when a trainingCycle is completed
   Future<void> logTrainingCycleCompleted({
-    required int weeks,
+    required int periods,
     required int workoutsCompleted,
     required int totalWorkouts,
   }) async {
@@ -85,11 +82,11 @@ class AnalyticsService {
       await _analytics.logEvent(
         name: AppConstants.eventTrainingCycleCompleted,
         parameters: {
-          'weeks': weeks,
+          'periods': periods,
           'workouts_completed': workoutsCompleted,
           'total_workouts': totalWorkouts,
-          'completion_rate':
-              (workoutsCompleted / totalWorkouts * 100).toStringAsFixed(1),
+          'completion_rate': (workoutsCompleted / totalWorkouts * 100)
+              .toStringAsFixed(1),
         },
       );
     } catch (e, stackTrace) {
@@ -99,16 +96,13 @@ class AnalyticsService {
 
   /// Track when a trainingCycle is deleted
   Future<void> logTrainingCycleDeleted({
-    required int weeks,
+    required int periods,
     required String status,
   }) async {
     try {
       await _analytics.logEvent(
         name: AppConstants.eventTrainingCycleDeleted,
-        parameters: {
-          'weeks': weeks,
-          'status': status,
-        },
+        parameters: {'periods': periods, 'status': status},
       );
     } catch (e, stackTrace) {
       Sentry.captureException(e, stackTrace: stackTrace);
@@ -121,7 +115,7 @@ class AnalyticsService {
 
   /// Track when a workout is completed
   Future<void> logWorkoutCompleted({
-    required int weekNumber,
+    required int periodNumber,
     required int dayNumber,
     required int exerciseCount,
     bool hadMyorepSets = false,
@@ -130,7 +124,7 @@ class AnalyticsService {
       await _analytics.logEvent(
         name: AppConstants.eventWorkoutCompleted,
         parameters: {
-          'week_number': weekNumber,
+          'period_number': periodNumber,
           'day_number': dayNumber,
           'exercise_count': exerciseCount,
           'had_myorep_sets': hadMyorepSets,
@@ -143,16 +137,13 @@ class AnalyticsService {
 
   /// Track when a workout is skipped
   Future<void> logWorkoutSkipped({
-    required int weekNumber,
+    required int periodNumber,
     required int dayNumber,
   }) async {
     try {
       await _analytics.logEvent(
         name: AppConstants.eventWorkoutSkipped,
-        parameters: {
-          'week_number': weekNumber,
-          'day_number': dayNumber,
-        },
+        parameters: {'period_number': periodNumber, 'day_number': dayNumber},
       );
     } catch (e, stackTrace) {
       Sentry.captureException(e, stackTrace: stackTrace);
@@ -166,16 +157,16 @@ class AnalyticsService {
   /// Track when a template is used
   Future<void> logTemplateUsed({
     required String templateName,
-    required int weeks,
-    required int daysPerWeek,
+    required int periods,
+    required int daysPerPeriod,
   }) async {
     try {
       await _analytics.logEvent(
         name: AppConstants.eventTemplateUsed,
         parameters: {
           'template_name': templateName,
-          'weeks': weeks,
-          'days_per_week': daysPerWeek,
+          'periods': periods,
+          'days_per_period': daysPerPeriod,
         },
       );
     } catch (e, stackTrace) {
@@ -188,15 +179,11 @@ class AnalyticsService {
   // =============================================================================
 
   /// Track when feedback is logged (joint pain, pump, workload, soreness)
-  Future<void> logFeedbackUsed({
-    required String feedbackType,
-  }) async {
+  Future<void> logFeedbackUsed({required String feedbackType}) async {
     try {
       await _analytics.logEvent(
         name: AppConstants.eventFeedbackLogged,
-        parameters: {
-          'feedback_type': feedbackType,
-        },
+        parameters: {'feedback_type': feedbackType},
       );
     } catch (e, stackTrace) {
       Sentry.captureException(e, stackTrace: stackTrace);
@@ -204,15 +191,11 @@ class AnalyticsService {
   }
 
   /// Track when a Myorep set is used
-  Future<void> logMyorepSetUsed({
-    required String setType,
-  }) async {
+  Future<void> logMyorepSetUsed({required String setType}) async {
     try {
       await _analytics.logEvent(
         name: AppConstants.eventMyorepSetUsed,
-        parameters: {
-          'set_type': setType,
-        },
+        parameters: {'set_type': setType},
       );
     } catch (e, stackTrace) {
       Sentry.captureException(e, stackTrace: stackTrace);
@@ -227,10 +210,7 @@ class AnalyticsService {
     try {
       await _analytics.logEvent(
         name: AppConstants.eventFilterUsed,
-        parameters: {
-          'filter_type': filterType,
-          'filter_value': filterValue,
-        },
+        parameters: {'filter_type': filterType, 'filter_value': filterValue},
       );
     } catch (e, stackTrace) {
       Sentry.captureException(e, stackTrace: stackTrace);
@@ -286,9 +266,7 @@ class AnalyticsService {
   /// Track when data is shared
   Future<void> logDataShared() async {
     try {
-      await _analytics.logEvent(
-        name: AppConstants.eventDataShared,
-      );
+      await _analytics.logEvent(name: AppConstants.eventDataShared);
     } catch (e, stackTrace) {
       Sentry.captureException(e, stackTrace: stackTrace);
     }
@@ -312,10 +290,7 @@ class AnalyticsService {
         );
       }
       if (themeMode != null) {
-        await _analytics.setUserProperty(
-          name: 'theme_mode',
-          value: themeMode,
-        );
+        await _analytics.setUserProperty(name: 'theme_mode', value: themeMode);
       }
     } catch (e, stackTrace) {
       Sentry.captureException(e, stackTrace: stackTrace);
