@@ -51,12 +51,144 @@ class ExercisesHomeScreen extends ConsumerStatefulWidget {
 class _ExercisesHomeScreenState extends ConsumerState<ExercisesHomeScreen> {
   int? _selectedPeriod;
   int? _selectedDay;
+  bool _showPeriodSelector = false;
+
+  void _togglePeriodSelector() {
+    setState(() {
+      _showPeriodSelector = !_showPeriodSelector;
+    });
+  }
 
   void _onDaySelected(int period, int day) {
     setState(() {
       _selectedPeriod = period;
       _selectedDay = day;
     });
+  }
+
+  /// Add exercise to a day that has no workouts yet
+  void _addExerciseForDay(
+    String trainingCycleId,
+    int periodNumber,
+    int dayNumber,
+  ) {
+    showAddExerciseDialog(
+      context: context,
+      ref: ref,
+      workouts: [], // No existing workouts
+      trainingCycleId: trainingCycleId,
+      periodNumber: periodNumber,
+      dayNumber: dayNumber,
+    );
+  }
+
+  /// Show menu for training cycle operations (used on empty state)
+  void _showCycleMenu(BuildContext context, TrainingCycle trainingCycle) {
+    final RenderBox button = context.findRenderObject() as RenderBox;
+    final RenderBox overlay =
+        Navigator.of(context).overlay!.context.findRenderObject() as RenderBox;
+    final Offset buttonPosition = button.localToGlobal(
+      Offset.zero,
+      ancestor: overlay,
+    );
+    final RelativeRect position = RelativeRect.fromRect(
+      Rect.fromPoints(
+        buttonPosition + const Offset(-180, 40),
+        buttonPosition + const Offset(-180, 40) + const Offset(250, 0),
+      ),
+      Offset.zero & overlay.size,
+    );
+
+    final cycleTerm = ref.read(trainingCycleTermProvider);
+
+    showMenu(
+      context: context,
+      position: position,
+      color: Theme.of(context).cardTheme.color,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      items: <PopupMenuEntry<void>>[
+        // TRAINING CYCLE Section
+        PopupMenuItem<void>(
+          enabled: false,
+          height: 32,
+          child: Text(
+            cycleTerm.toUpperCase(),
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.primary,
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0.5,
+            ),
+          ),
+        ),
+        PopupMenuItem<void>(
+          height: 48,
+          onTap: () => _writeCycleNote(trainingCycle),
+          child: Row(
+            children: [
+              Icon(
+                Icons.edit_note,
+                size: 20,
+                color: Theme.of(context).iconTheme.color,
+              ),
+              const SizedBox(width: 12),
+              Text('Note', style: Theme.of(context).textTheme.bodyMedium),
+            ],
+          ),
+        ),
+        PopupMenuItem<void>(
+          height: 48,
+          onTap: () => _showCycleSummary(trainingCycle),
+          child: Row(
+            children: [
+              Icon(
+                Icons.summarize_outlined,
+                size: 20,
+                color: Theme.of(context).iconTheme.color,
+              ),
+              const SizedBox(width: 12),
+              Text('Summary', style: Theme.of(context).textTheme.bodyMedium),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _showCycleSummary(TrainingCycle trainingCycle) {
+    showDialog(
+      context: context,
+      builder: (context) => CycleSummaryDialog(trainingCycle: trainingCycle),
+    );
+  }
+
+  Future<void> _writeCycleNote(TrainingCycle trainingCycle) async {
+    final cycleTerm = ref.read(trainingCycleTermProvider);
+    final currentNote = trainingCycle.notes;
+
+    final newNote = await showDialog<String>(
+      context: context,
+      builder: (context) => NoteDialog(
+        noteType: NoteType.trainingCycle,
+        initialNote: currentNote,
+        customTitle: '$cycleTerm Note',
+        customHint: 'Enter note for this $cycleTerm...',
+      ),
+    );
+
+    if (newNote != null && newNote != currentNote && mounted) {
+      try {
+        final repository = ref.read(trainingCycleRepositoryProvider);
+        final updatedCycle = trainingCycle.copyWith(notes: newNote);
+        await repository.update(updatedCycle);
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Failed to save note: $e')));
+        }
+      }
+    }
   }
 
   @override
@@ -142,8 +274,143 @@ class _ExercisesHomeScreenState extends ConsumerState<ExercisesHomeScreen> {
     // Check if selected day has workouts
     if (!workoutsByDay.containsKey(displayKey)) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Exercises')),
-        body: const Center(child: Text('No workouts for selected day')),
+        appBar: AppBar(
+          elevation: 0,
+          automaticallyImplyLeading: false,
+          leading: const AppIconWidget(),
+          leadingWidth: kToolbarHeight + 12,
+          title: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                currentTrainingCycle.name.toUpperCase(),
+                style: TextStyle(
+                  color: Theme.of(context).textTheme.bodySmall?.color,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                  letterSpacing: 0.5,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                'PERIOD $displayPeriod DAY $displayDay',
+                style: TextStyle(
+                  color: Theme.of(context).textTheme.titleLarge?.color,
+                  fontSize: 17,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.calendar_today),
+              onPressed: _togglePeriodSelector,
+              tooltip: 'Select day',
+            ),
+            // Theme toggle
+            IconButton(
+              icon: Icon(
+                ref.watch(isDarkModeProvider)
+                    ? Icons.light_mode
+                    : Icons.dark_mode,
+              ),
+              onPressed: () {
+                ref.read(themeModeProvider.notifier).toggleTheme();
+              },
+              tooltip: 'Toggle theme',
+            ),
+            Builder(
+              builder: (context) => IconButton(
+                icon: const Icon(Icons.more_vert),
+                onPressed: () => _showCycleMenu(context, currentTrainingCycle),
+              ),
+            ),
+          ],
+        ),
+        body: ScreenBackground.exercises(
+          child: Stack(
+            children: [
+              Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.fitness_center,
+                      size: 80,
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.primary.withValues(alpha: 0.5),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'No exercises scheduled',
+                      style: Theme.of(context).textTheme.headlineSmall,
+                    ),
+                    const SizedBox(height: 8),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 32),
+                      child: Text(
+                        'Add exercises for Period $displayPeriod, Day $displayDay',
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withValues(alpha: 0.7),
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    FilledButton.icon(
+                      onPressed: () => _addExerciseForDay(
+                        currentTrainingCycle.id,
+                        displayPeriod,
+                        displayDay,
+                      ),
+                      icon: const Icon(Icons.add),
+                      label: const Text('Add Exercise'),
+                    ),
+                  ],
+                ),
+              ),
+              // Period selector overlay
+              if (_showPeriodSelector) ...[
+                // Barrier to dismiss on tap outside
+                Positioned.fill(
+                  child: GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _showPeriodSelector = false;
+                      });
+                    },
+                    behavior: HitTestBehavior.opaque,
+                    child: Container(color: Colors.transparent),
+                  ),
+                ),
+                // The dropdown itself
+                Positioned(
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  child: CalendarDropdown(
+                    trainingCycle: currentTrainingCycle,
+                    currentPeriod: currentPeriod,
+                    currentDay: currentDay,
+                    selectedPeriod: displayPeriod,
+                    selectedDay: displayDay,
+                    allWorkouts: allWorkouts,
+                    onDaySelected: (period, day) {
+                      setState(() {
+                        _showPeriodSelector = false;
+                      });
+                      _onDaySelected(period, day);
+                    },
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
       );
     }
 
@@ -380,213 +647,274 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
           ],
         ),
         body: ScreenBackground.exercises(
-          child: Stack(
-            children: [
-              Column(
-                children: [
-                  // Progress Indicator
-                  LinearProgressIndicator(
-                    value: (_allExercises.isEmpty)
-                        ? 0
-                        : (_currentPage + 1) / _allExercises.length,
-                    backgroundColor: Theme.of(context).dividerColor,
-                  ),
+          child: _allExercises.isEmpty
+              ? _buildEmptyExercisesState(context, widget.workouts)
+              : Stack(
+                  children: [
+                    Column(
+                      children: [
+                        // Progress Indicator
+                        LinearProgressIndicator(
+                          value: (_currentPage + 1) / _allExercises.length,
+                          backgroundColor: Theme.of(context).dividerColor,
+                        ),
 
-                  Expanded(
-                    child: PageView.builder(
-                      controller: _pageController,
-                      itemCount: _allExercises.length,
-                      onPageChanged: (index) {
-                        setState(() {
-                          _currentPage = index;
-                        });
-                      },
-                      itemBuilder: (context, index) {
-                        final source = _exerciseSources[index]!;
-                        final exercise = _allExercises[index];
-                        // Always show muscle group badge on exercises screen
-                        const showMuscleGroupBadge = true;
+                        Expanded(
+                          child: PageView.builder(
+                            controller: _pageController,
+                            itemCount: _allExercises.length,
+                            onPageChanged: (index) {
+                              setState(() {
+                                _currentPage = index;
+                              });
+                            },
+                            itemBuilder: (context, index) {
+                              final source = _exerciseSources[index]!;
+                              final exercise = _allExercises[index];
+                              // Always show muscle group badge on exercises screen
+                              const showMuscleGroupBadge = true;
 
-                        return GestureDetector(
-                          onTap: () => FocusScope.of(context).unfocus(),
-                          child: SingleChildScrollView(
-                            padding: EdgeInsets.only(
-                              top: 24,
-                              bottom: allExercisesCompleted
-                                  ? 100
-                                  : 24, // Extra padding for button
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                ExerciseCardWidget(
-                                  key: ValueKey(
-                                    '${exercise.id}_${exercise.sets.length}_${exercise.sets.map((s) => s.id).join(",")}_${ref.watch(useMetricProvider)}',
+                              return GestureDetector(
+                                onTap: () => FocusScope.of(context).unfocus(),
+                                child: SingleChildScrollView(
+                                  padding: EdgeInsets.only(
+                                    top: 24,
+                                    bottom: allExercisesCompleted
+                                        ? 100
+                                        : 24, // Extra padding for button
                                   ),
-                                  exercise: exercise,
-                                  showMuscleGroupBadge: showMuscleGroupBadge,
-                                  targetRir: _calculateRIR(
-                                    source.workout.periodNumber,
-                                  ),
-                                  weightUnit: ref.watch(weightUnitProvider),
-                                  useMetric: ref.watch(useMetricProvider),
-                                  onAddNote: (exerciseId) =>
-                                      _addNote(source.workout.id, exerciseId),
-                                  showMoveDown:
-                                      false, // Single exercise view, no reordering needed
-                                  onReplace: (exerciseId) => _replaceExercise(
-                                    source.workout.id,
-                                    exerciseId,
-                                  ),
-                                  onJointPain: (exerciseId) => _logJointPain(
-                                    source.workout.id,
-                                    exerciseId,
-                                  ),
-                                  onAddSet: (exerciseId) => _addSetToExercise(
-                                    source.workout.id,
-                                    exerciseId,
-                                  ),
-                                  onSkipSets: (exerciseId) => _skipExerciseSets(
-                                    source.workout.id,
-                                    exerciseId,
-                                  ),
-                                  onDelete: (exerciseId) => _deleteExercise(
-                                    source.workout.id,
-                                    exerciseId,
-                                  ),
-                                  onAddSetBelow: (setIndex) => _addSetBelow(
-                                    source.workout.id,
-                                    exercise.id,
-                                    setIndex,
-                                  ),
-                                  onToggleSetSkip: (setIndex) => _toggleSetSkip(
-                                    source.workout.id,
-                                    exercise.id,
-                                    setIndex,
-                                  ),
-                                  onDeleteSet: (setIndex) => _deleteSet(
-                                    source.workout.id,
-                                    exercise.id,
-                                    setIndex,
-                                  ),
-                                  onUpdateSetType: (setIndex, setType) =>
-                                      _updateSetType(
-                                        source.workout.id,
-                                        exercise.id,
-                                        setIndex,
-                                        setType,
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      ExerciseCardWidget(
+                                        key: ValueKey(
+                                          '${exercise.id}_${exercise.sets.length}_${exercise.sets.map((s) => s.id).join(",")}_${ref.watch(useMetricProvider)}',
+                                        ),
+                                        exercise: exercise,
+                                        showMuscleGroupBadge:
+                                            showMuscleGroupBadge,
+                                        targetRir: _calculateRIR(
+                                          source.workout.periodNumber,
+                                        ),
+                                        weightUnit: ref.watch(
+                                          weightUnitProvider,
+                                        ),
+                                        useMetric: ref.watch(useMetricProvider),
+                                        onAddNote: (exerciseId) => _addNote(
+                                          source.workout.id,
+                                          exerciseId,
+                                        ),
+                                        showMoveDown:
+                                            false, // Single exercise view, no reordering needed
+                                        onReplace: (exerciseId) =>
+                                            _replaceExercise(
+                                              source.workout.id,
+                                              exerciseId,
+                                            ),
+                                        onJointPain: (exerciseId) =>
+                                            _logJointPain(
+                                              source.workout.id,
+                                              exerciseId,
+                                            ),
+                                        onAddSet: (exerciseId) =>
+                                            _addSetToExercise(
+                                              source.workout.id,
+                                              exerciseId,
+                                            ),
+                                        onSkipSets: (exerciseId) =>
+                                            _skipExerciseSets(
+                                              source.workout.id,
+                                              exerciseId,
+                                            ),
+                                        onDelete: (exerciseId) =>
+                                            _deleteExercise(
+                                              source.workout.id,
+                                              exerciseId,
+                                            ),
+                                        onAddSetBelow: (setIndex) =>
+                                            _addSetBelow(
+                                              source.workout.id,
+                                              exercise.id,
+                                              setIndex,
+                                            ),
+                                        onToggleSetSkip: (setIndex) =>
+                                            _toggleSetSkip(
+                                              source.workout.id,
+                                              exercise.id,
+                                              setIndex,
+                                            ),
+                                        onDeleteSet: (setIndex) => _deleteSet(
+                                          source.workout.id,
+                                          exercise.id,
+                                          setIndex,
+                                        ),
+                                        onUpdateSetType: (setIndex, setType) =>
+                                            _updateSetType(
+                                              source.workout.id,
+                                              exercise.id,
+                                              setIndex,
+                                              setType,
+                                            ),
+                                        onUpdateSetWeight: (setIndex, value) =>
+                                            _updateSetWeight(
+                                              source.workout.id,
+                                              exercise.id,
+                                              setIndex,
+                                              value,
+                                            ),
+                                        onUpdateSetReps: (setIndex, value) =>
+                                            _updateSetReps(
+                                              source.workout.id,
+                                              exercise.id,
+                                              setIndex,
+                                              value,
+                                            ),
+                                        onToggleSetLog: (setIndex) =>
+                                            _toggleSetLog(
+                                              source.workout.id,
+                                              exercise.id,
+                                              setIndex,
+                                            ),
                                       ),
-                                  onUpdateSetWeight: (setIndex, value) =>
-                                      _updateSetWeight(
-                                        source.workout.id,
-                                        exercise.id,
-                                        setIndex,
-                                        value,
-                                      ),
-                                  onUpdateSetReps: (setIndex, value) =>
-                                      _updateSetReps(
-                                        source.workout.id,
-                                        exercise.id,
-                                        setIndex,
-                                        value,
-                                      ),
-                                  onToggleSetLog: (setIndex) => _toggleSetLog(
-                                    source.workout.id,
-                                    exercise.id,
-                                    setIndex,
+                                      // Exercise History Section
+                                      if (ref.watch(
+                                        showExerciseHistoryProvider,
+                                      ))
+                                        _buildExerciseHistory(
+                                          context,
+                                          exercise,
+                                        ),
+                                    ],
                                   ),
                                 ),
-                                // Exercise History Section
-                                if (ref.watch(showExerciseHistoryProvider))
-                                  _buildExerciseHistory(context, exercise),
-                              ],
+                              );
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    // Finish Workout Button (appears when all exercises are complete)
+                    if (allExercisesCompleted)
+                      Positioned(
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        child: Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).scaffoldBackgroundColor,
+                            border: Border(
+                              top: BorderSide(
+                                color: Theme.of(context).dividerColor,
+                              ),
                             ),
                           ),
-                        );
-                      },
-                    ),
-                  ),
-                ],
-              ),
-
-              // Finish Workout Button (appears when all exercises are complete)
-              if (allExercisesCompleted)
-                Positioned(
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                  child: Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).scaffoldBackgroundColor,
-                      border: Border(
-                        top: BorderSide(color: Theme.of(context).dividerColor),
-                      ),
-                    ),
-                    child: SafeArea(
-                      top: false,
-                      child: ElevatedButton(
-                        onPressed: () => _finishWorkout(),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: context.successColor,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          elevation: 0,
-                        ),
-                        child: const Text(
-                          'FINISH WORKOUT',
-                          style: TextStyle(
-                            fontSize: 17,
-                            fontWeight: FontWeight.w600,
-                            letterSpacing: 0.5,
+                          child: SafeArea(
+                            top: false,
+                            child: ElevatedButton(
+                              onPressed: () => _finishWorkout(),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: context.successColor,
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 16,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                elevation: 0,
+                              ),
+                              child: const Text(
+                                'FINISH WORKOUT',
+                                style: TextStyle(
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.w600,
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  ),
-                ),
 
-              // Period selector overlay (shown on top when toggled)
-              if (_showPeriodSelector) ...[
-                // Barrier to dismiss on tap outside
-                Positioned.fill(
-                  child: GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        _showPeriodSelector = false;
-                      });
-                    },
-                    behavior: HitTestBehavior.opaque,
-                    child: Container(color: Colors.transparent),
-                  ),
+                    // Period selector overlay (shown on top when toggled)
+                    if (_showPeriodSelector) ...[
+                      // Barrier to dismiss on tap outside
+                      Positioned.fill(
+                        child: GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              _showPeriodSelector = false;
+                            });
+                          },
+                          behavior: HitTestBehavior.opaque,
+                          child: Container(color: Colors.transparent),
+                        ),
+                      ),
+                      // The dropdown itself
+                      Positioned(
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        child: CalendarDropdown(
+                          trainingCycle: widget.trainingCycle,
+                          currentPeriod: widget.currentPeriod,
+                          currentDay: widget.currentDay,
+                          selectedPeriod: widget.selectedPeriod,
+                          selectedDay: widget.selectedDay,
+                          allWorkouts: widget.allWorkouts,
+                          onDaySelected: (period, day) {
+                            setState(() {
+                              _showPeriodSelector = false;
+                            });
+                            widget.onDaySelected(period, day);
+                          },
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
-                // The dropdown itself
-                Positioned(
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  child: CalendarDropdown(
-                    trainingCycle: widget.trainingCycle,
-                    currentPeriod: widget.currentPeriod,
-                    currentDay: widget.currentDay,
-                    selectedPeriod: widget.selectedPeriod,
-                    selectedDay: widget.selectedDay,
-                    allWorkouts: widget.allWorkouts,
-                    onDaySelected: (period, day) {
-                      setState(() {
-                        _showPeriodSelector = false;
-                      });
-                      widget.onDaySelected(period, day);
-                    },
-                  ),
-                ),
-              ],
-            ],
-          ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildEmptyExercisesState(
+    BuildContext context,
+    List<Workout> workouts,
+  ) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.fitness_center,
+            size: 80,
+            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.5),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'No exercises scheduled',
+            style: Theme.of(context).textTheme.headlineSmall,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Add exercises for this day',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.7),
+            ),
+          ),
+          const SizedBox(height: 24),
+          FilledButton.icon(
+            onPressed: () => _addExerciseToWorkout(workouts),
+            icon: const Icon(Icons.add),
+            label: const Text('Add Exercise'),
+          ),
+        ],
       ),
     );
   }

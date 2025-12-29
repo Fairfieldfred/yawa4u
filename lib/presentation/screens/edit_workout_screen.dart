@@ -140,13 +140,18 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
                 ),
               ],
             ),
-            floatingActionButton: FloatingActionButton.extended(
-              onPressed: () =>
-                  _showMuscleGroupSelector(context, trainingCycle, controller),
-              backgroundColor: Theme.of(context).colorScheme.primary,
-              label: const Text('Add Exercise'),
-              icon: const Icon(Icons.add),
-            ),
+            floatingActionButton: dayWorkouts.isEmpty
+                ? null
+                : FloatingActionButton.extended(
+                    onPressed: () => _showMuscleGroupSelector(
+                      context,
+                      trainingCycle,
+                      controller,
+                    ),
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    label: const Text('Add Exercise'),
+                    icon: const Icon(Icons.add),
+                  ),
             floatingActionButtonLocation:
                 FloatingActionButtonLocation.centerFloat,
           ),
@@ -1546,10 +1551,13 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
             color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.5),
           ),
           const SizedBox(height: 16),
-          Text('No Workouts', style: Theme.of(context).textTheme.headlineSmall),
+          Text(
+            'No exercises scheduled',
+            style: Theme.of(context).textTheme.headlineSmall,
+          ),
           const SizedBox(height: 8),
           Text(
-            'This trainingCycle has no workouts yet',
+            'Add exercises for this day',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               color: Theme.of(
                 context,
@@ -1562,7 +1570,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
               onPressed: () =>
                   _showMuscleGroupSelector(context, trainingCycle, controller),
               icon: const Icon(Icons.add),
-              label: const Text('Add First Workout'),
+              label: const Text('Add Exercise'),
             ),
           ],
         ],

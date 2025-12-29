@@ -857,67 +857,79 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
             ),
           ],
         ),
-        body: Stack(
-          children: [
-            Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.event_busy,
-                    size: 80,
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.primary.withValues(alpha: 0.5),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'No Workout Scheduled',
-                    style: Theme.of(context).textTheme.headlineSmall,
-                  ),
-                  const SizedBox(height: 8),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 32),
-                    child: Text(
-                      'No workout found for Period $displayPeriod, Day $displayDay',
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.onSurface.withValues(alpha: 0.7),
-                      ),
-                      textAlign: TextAlign.center,
+        body: ScreenBackground.workout(
+          child: Stack(
+            children: [
+              Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.event_busy,
+                      size: 80,
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.primary.withValues(alpha: 0.5),
                     ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'No Exercises Scheduled',
+                      style: Theme.of(context).textTheme.headlineSmall,
+                    ),
+                    const SizedBox(height: 8),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 32),
+                      child: Text(
+                        'No exercises found for Period $displayPeriod, Day $displayDay',
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withValues(alpha: 0.7),
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    FilledButton.icon(
+                      onPressed: () => _addExerciseForDay(
+                        trainingCycle.id,
+                        displayPeriod,
+                        displayDay,
+                      ),
+                      icon: const Icon(Icons.add),
+                      label: const Text('Add Exercise'),
+                    ),
+                  ],
+                ),
+              ),
+              // Period selector overlay
+              if (_homeState.showPeriodSelector) ...[
+                Positioned.fill(
+                  child: GestureDetector(
+                    onTap: () {
+                      _controller.hidePeriodSelector();
+                    },
+                    behavior: HitTestBehavior.opaque,
+                    child: Container(color: Colors.transparent),
                   ),
-                ],
-              ),
-            ),
-            // Period selector overlay
-            if (_homeState.showPeriodSelector) ...[
-              Positioned.fill(
-                child: GestureDetector(
-                  onTap: () {
-                    _controller.hidePeriodSelector();
-                  },
-                  behavior: HitTestBehavior.opaque,
-                  child: Container(color: Colors.transparent),
                 ),
-              ),
-              Positioned(
-                top: 0,
-                left: 0,
-                right: 0,
-                child: CalendarDropdown(
-                  trainingCycle: trainingCycle,
-                  currentPeriod: currentPeriod,
-                  currentDay: displayDay,
-                  selectedPeriod: displayPeriod,
-                  selectedDay: displayDay,
-                  allWorkouts: allWorkouts,
-                  onDaySelected: _selectDay,
+                Positioned(
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  child: CalendarDropdown(
+                    trainingCycle: trainingCycle,
+                    currentPeriod: currentPeriod,
+                    currentDay: displayDay,
+                    selectedPeriod: displayPeriod,
+                    selectedDay: displayDay,
+                    allWorkouts: allWorkouts,
+                    onDaySelected: _selectDay,
+                  ),
                 ),
-              ),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );
@@ -1808,6 +1820,22 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
       context: context,
       ref: ref,
       workouts: workouts,
+    );
+  }
+
+  /// Add exercise to a day that has no workouts yet
+  void _addExerciseForDay(
+    String trainingCycleId,
+    int periodNumber,
+    int dayNumber,
+  ) {
+    showAddExerciseDialog(
+      context: context,
+      ref: ref,
+      workouts: [], // No existing workouts
+      trainingCycleId: trainingCycleId,
+      periodNumber: periodNumber,
+      dayNumber: dayNumber,
     );
   }
 
