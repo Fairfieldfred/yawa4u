@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../core/constants/app_constants.dart';
 import '../../core/constants/enums.dart';
 import '../../core/constants/equipment_types.dart';
 import '../../core/constants/muscle_groups.dart';
@@ -140,13 +141,13 @@ class _TrainingCycleCreateScreenState
   List<Workout> _generateWorkouts() {
     final workouts = <Workout>[];
 
-    for (int week = 1; week <= _periodsTotal; week++) {
+    for (int period = 1; period <= _periodsTotal; period++) {
       for (int day = 1; day <= _daysPerPeriod; day++) {
         // Find matching template workout if template selected
         WorkoutTemplate? templateWorkout;
         if (_selectedTemplate != null) {
           templateWorkout = _selectedTemplate!.workouts
-              .where((w) => w.periodNumber == week && w.dayNumber == day)
+              .where((w) => w.periodNumber == period && w.dayNumber == day)
               .firstOrNull;
         }
 
@@ -154,7 +155,7 @@ class _TrainingCycleCreateScreenState
           Workout(
             id: _uuid.v4(),
             trainingCycleId: '', // Will be set when trainingCycle is created
-            periodNumber: week,
+            periodNumber: period,
             dayNumber: day,
             dayName: templateWorkout?.dayName,
             status: WorkoutStatus.incomplete,
@@ -230,7 +231,7 @@ class _TrainingCycleCreateScreenState
             ),
             const SizedBox(height: 8),
             Text(
-              'A $cycleTerm is a multi-week training program with progressive overload, often followed by a recovery week to allow your body to rest and adapt.',
+              'A $cycleTerm is a multi-period training program with progressive overload, often followed by a recovery period to allow your body to rest and adapt.',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: Theme.of(
                   context,
@@ -261,19 +262,19 @@ class _TrainingCycleCreateScreenState
             ),
             const SizedBox(height: 24),
 
-            // Weeks selector
+            // Periods selector
             _buildSectionHeader('Duration'),
             const SizedBox(height: 12),
-            _buildWeeksSelector(),
+            _buildPeriodsSelector(),
             const SizedBox(height: 24),
 
-            // Days per week selector
+            // Days per period selector
             _buildSectionHeader('Training Frequency'),
             const SizedBox(height: 12),
             _buildDaysPerPeriodSelector(),
             const SizedBox(height: 24),
 
-            // Recovery week
+            // Recovery period
             _buildSectionHeader('Recovery Period (Optional)'),
             const SizedBox(height: 12),
             _buildRecoverySwitch(),
@@ -281,7 +282,7 @@ class _TrainingCycleCreateScreenState
               const SizedBox(height: 12),
               _buildRecoveryTypeSelector(),
               const SizedBox(height: 12),
-              _buildRecoveryWeekSelector(),
+              _buildRecoveryPeriodSelector(),
             ],
             const SizedBox(height: 24),
 
@@ -323,7 +324,7 @@ class _TrainingCycleCreateScreenState
     );
   }
 
-  Widget _buildWeeksSelector() {
+  Widget _buildPeriodsSelector() {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -334,11 +335,11 @@ class _TrainingCycleCreateScreenState
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Total Weeks',
+                  'Total Periods',
                   style: Theme.of(context).textTheme.bodyLarge,
                 ),
                 Text(
-                  '$_periodsTotal weeks',
+                  '$_periodsTotal periods',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: Theme.of(context).colorScheme.primary,
@@ -352,11 +353,11 @@ class _TrainingCycleCreateScreenState
               min: 1,
               max: 8,
               divisions: 7,
-              label: '$_periodsTotal weeks',
+              label: '$_periodsTotal periods',
               onChanged: (value) {
                 setState(() {
                   _periodsTotal = value.toInt();
-                  // Adjust deload week if needed
+                  // Adjust recovery period if needed
                   if (_hasDeload &&
                       _recoveryPeriod != null &&
                       _recoveryPeriod! > _periodsTotal) {
@@ -366,7 +367,7 @@ class _TrainingCycleCreateScreenState
               },
             ),
             Text(
-              'Recommended: 4-6 weeks for hypertrophy',
+              'Recommended: 4-6 periods for hypertrophy',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: Theme.of(
                   context,
@@ -406,8 +407,8 @@ class _TrainingCycleCreateScreenState
             Slider(
               value: _daysPerPeriod.toDouble(),
               min: 2,
-              max: 7,
-              divisions: 5,
+              max: AppConstants.maxDaysPerPeriod.toDouble(),
+              divisions: AppConstants.maxDaysPerPeriod - 2,
               label: '$_daysPerPeriod days',
               onChanged: (value) {
                 setState(() => _daysPerPeriod = value.toInt());
@@ -438,20 +439,34 @@ class _TrainingCycleCreateScreenState
       case 5:
         return 'Push/Pull/Legs/Upper/Lower split';
       case 6:
-        return 'Push/Pull/Legs twice per week';
+        return 'Push/Pull/Legs twice per period';
       case 7:
-        return 'Daily training (advanced)';
+        return 'Daily training (7-day cycle)';
+      case 8:
+        return '8-day training cycle with rest day';
+      case 9:
+        return '9-day training cycle (e.g., 3-on/1-off)';
+      case 10:
+        return '10-day training cycle';
+      case 11:
+        return '11-day training cycle';
+      case 12:
+        return '12-day training cycle';
+      case 13:
+        return '13-day training cycle';
+      case 14:
+        return '14-day (bi-weekly) training cycle';
       default:
-        return '';
+        return '$_daysPerPeriod-day training cycle';
     }
   }
 
   Widget _buildRecoverySwitch() {
     return Card(
       child: SwitchListTile(
-        title: const Text('Include Recovery Week'),
+        title: const Text('Include Recovery Period'),
         subtitle: const Text(
-          'A lighter week to aid recovery and prevent overtraining',
+          'A lighter period to aid recovery and prevent overtraining',
         ),
         value: _hasDeload,
         onChanged: (value) {
@@ -506,7 +521,7 @@ class _TrainingCycleCreateScreenState
     );
   }
 
-  Widget _buildRecoveryWeekSelector() {
+  Widget _buildRecoveryPeriodSelector() {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -517,7 +532,7 @@ class _TrainingCycleCreateScreenState
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  '${_recoveryPeriodType.displayName} on Week',
+                  '${_recoveryPeriodType.displayName} on Period',
                   style: Theme.of(context).textTheme.bodyLarge,
                 ),
                 Text(
@@ -541,7 +556,7 @@ class _TrainingCycleCreateScreenState
               },
             ),
             Text(
-              'Most people schedule this on the last week',
+              'Most people schedule this on the last period',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: Theme.of(
                   context,

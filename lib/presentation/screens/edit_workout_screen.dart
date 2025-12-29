@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../core/constants/app_constants.dart';
 import '../../core/constants/enums.dart';
 import '../../core/constants/equipment_types.dart';
 import '../../core/theme/skins/skins.dart';
@@ -56,7 +57,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
           workoutsByTrainingCycleProvider(widget.trainingCycleId),
         );
 
-        // Get workouts for the selected week and day
+        // Get workouts for the selected period and day
         final dayWorkouts = workouts
             .where(
               (w) =>
@@ -125,8 +126,8 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
             ),
             body: Column(
               children: [
-                // Week selector
-                _buildWeekSelector(trainingCycle, controller),
+                // Period selector
+                _buildPeriodSelector(trainingCycle, controller),
 
                 // Day selector
                 _buildDaySelector(trainingCycle, workouts, controller),
@@ -158,14 +159,14 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
     );
   }
 
-  Widget _buildWeekSelector(
+  Widget _buildPeriodSelector(
     TrainingCycle trainingCycle,
     EditWorkoutController controller,
   ) {
     final allWorkouts = ref.watch(
       workoutsByTrainingCycleProvider(widget.trainingCycleId),
     );
-    final week1HasWorkouts = allWorkouts.any((w) => w.periodNumber == 1);
+    final period1HasWorkouts = allWorkouts.any((w) => w.periodNumber == 1);
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -180,28 +181,28 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
       child: Row(
         children: [
           Text(
-            'Week',
+            'Period',
             style: Theme.of(
               context,
             ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(width: 4),
-          // Remove week button
+          // Remove period button
           IconButton(
             icon: const Icon(Icons.remove_circle_outline, size: 20),
             onPressed: trainingCycle.periodsTotal > 2
-                ? () => _showRemoveWeekDialog(trainingCycle, controller)
+                ? () => _showRemovePeriodDialog(trainingCycle, controller)
                 : null,
-            tooltip: 'Remove Week',
+            tooltip: 'Remove Period',
             visualDensity: VisualDensity.compact,
             padding: EdgeInsets.zero,
             constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
           ),
-          // Add week button
+          // Add period button
           IconButton(
             icon: const Icon(Icons.add_circle_outline, size: 20),
             onPressed: () => _addPeriod(trainingCycle, controller),
-            tooltip: 'Add Week',
+            tooltip: 'Add Period',
             visualDensity: VisualDensity.compact,
             padding: EdgeInsets.zero,
             constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
@@ -262,8 +263,8 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
               ),
             ),
           ),
-          // Mirror week 1 button (only show when not on week 1 and week 1 has workouts)
-          if (_selectedPeriod > 1 && week1HasWorkouts)
+          // Mirror period 1 button (only show when not on period 1 and period 1 has workouts)
+          if (_selectedPeriod > 1 && period1HasWorkouts)
             IconButton(
               icon: const Icon(Icons.content_copy, size: 20),
               onPressed: () =>
@@ -299,7 +300,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error adding week: $e'),
+            content: Text('Error adding period: $e'),
             backgroundColor: context.errorColor,
           ),
         );
@@ -307,7 +308,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
     }
   }
 
-  Future<void> _showRemoveWeekDialog(
+  Future<void> _showRemovePeriodDialog(
     TrainingCycle trainingCycle,
     EditWorkoutController controller,
   ) async {
@@ -316,11 +317,11 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
     final result = await showDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Remove Week'),
+        title: const Text('Remove Period'),
         content: Text(
-          'Which week would you like to remove?\n\n'
+          'Which period would you like to remove?\n\n'
           '• Period $lastNonRecoveryPeriod (last training period)\n'
-          '• Deload week',
+          '• Recovery period',
         ),
         actions: [
           TextButton(
@@ -432,7 +433,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Recovery week changed to ${result.displayName}'),
+              content: Text('Recovery period changed to ${result.displayName}'),
               backgroundColor: context.successColor,
             ),
           );
@@ -488,7 +489,8 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
           // Add day button
           IconButton(
             icon: const Icon(Icons.add_circle_outline, size: 20),
-            onPressed: trainingCycle.daysPerPeriod < 7
+            onPressed:
+                trainingCycle.daysPerPeriod < AppConstants.maxDaysPerPeriod
                 ? () => _addDay(trainingCycle, controller)
                 : null,
             tooltip: 'Add Day',
@@ -588,7 +590,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
           title: const Text('Remove Day'),
           content: Text(
             'Day $dayToRemove has exercises assigned. '
-            'Removing it will delete all exercises on this day across all weeks.\n\n'
+            'Removing it will delete all exercises on this day across all periods.\n\n'
             'Are you sure you want to remove Day $dayToRemove?',
           ),
           actions: [

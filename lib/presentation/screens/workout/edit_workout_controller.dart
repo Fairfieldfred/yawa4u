@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../../core/constants/app_constants.dart';
 import '../../../core/constants/enums.dart';
 import '../../../core/constants/muscle_groups.dart';
 import '../../../data/models/exercise_set.dart';
@@ -389,8 +390,10 @@ class EditWorkoutController {
 
   /// Add a day to the trainingCycle
   Future<void> addDay(TrainingCycle trainingCycle) async {
-    if (trainingCycle.daysPerPeriod >= 7) {
-      throw Exception('Cannot have more than 7 days per period');
+    if (trainingCycle.daysPerPeriod >= AppConstants.maxDaysPerPeriod) {
+      throw Exception(
+        'Cannot have more than ${AppConstants.maxDaysPerPeriod} days per period',
+      );
     }
 
     final trainingCycleRepo = ref.read(trainingCycleRepositoryProvider);

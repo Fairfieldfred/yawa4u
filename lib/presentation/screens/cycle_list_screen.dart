@@ -76,74 +76,74 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
 
             // Separate trainingCycles by status
             final draftTrainingCycles = trainingCycles
-              .where((m) => m.status == TrainingCycleStatus.draft)
-              .toList();
-          final currentTrainingCycles = trainingCycles
-              .where((m) => m.status == TrainingCycleStatus.current)
-              .toList();
-          final completedTrainingCycles = trainingCycles
-              .where((m) => m.status == TrainingCycleStatus.completed)
-              .toList();
+                .where((m) => m.status == TrainingCycleStatus.draft)
+                .toList();
+            final currentTrainingCycles = trainingCycles
+                .where((m) => m.status == TrainingCycleStatus.current)
+                .toList();
+            final completedTrainingCycles = trainingCycles
+                .where((m) => m.status == TrainingCycleStatus.completed)
+                .toList();
 
-          return ListView(
-            padding: const EdgeInsets.only(top: 20),
-            children: [
-              // Draft TrainingCycles Section
-              if (draftTrainingCycles.isNotEmpty) ...[
-                _buildSectionHeader(context, 'Draft $cycleTerm'),
-                const SizedBox(height: 12),
-                ...draftTrainingCycles.map(
-                  (trainingCycle) => _buildTrainingCycleCard(
-                    context,
-                    trainingCycle,
-                    isDraft: true,
+            return ListView(
+              padding: const EdgeInsets.only(top: 20),
+              children: [
+                // Draft TrainingCycles Section
+                if (draftTrainingCycles.isNotEmpty) ...[
+                  _buildSectionHeader(context, 'Draft $cycleTerm'),
+                  const SizedBox(height: 12),
+                  ...draftTrainingCycles.map(
+                    (trainingCycle) => _buildTrainingCycleCard(
+                      context,
+                      trainingCycle,
+                      isDraft: true,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 24),
-              ],
+                  const SizedBox(height: 24),
+                ],
 
-              // Current TrainingCycle Section
-              if (currentTrainingCycles.isNotEmpty) ...[
-                _buildSectionHeader(context, 'Current $cycleTerm'),
-                const SizedBox(height: 12),
-                ...currentTrainingCycles.map(
-                  (trainingCycle) => _buildTrainingCycleCard(
-                    context,
-                    trainingCycle,
-                    isCurrent: true,
+                // Current TrainingCycle Section
+                if (currentTrainingCycles.isNotEmpty) ...[
+                  _buildSectionHeader(context, 'Current $cycleTerm'),
+                  const SizedBox(height: 12),
+                  ...currentTrainingCycles.map(
+                    (trainingCycle) => _buildTrainingCycleCard(
+                      context,
+                      trainingCycle,
+                      isCurrent: true,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 20),
-              ],
+                  const SizedBox(height: 20),
+                ],
 
-              // Completed TrainingCycles Section
-              if (completedTrainingCycles.isNotEmpty) ...[
-                _buildSectionHeader(
-                  context,
-                  completedTrainingCycles.length == 1
-                      ? 'Completed $cycleTerm'
-                      : 'Completed $cycleTermPlural',
-                ),
-                const SizedBox(height: 12),
-                ...completedTrainingCycles.map(
-                  (trainingCycle) =>
-                      _buildTrainingCycleCard(context, trainingCycle),
-                ),
+                // Completed TrainingCycles Section
+                if (completedTrainingCycles.isNotEmpty) ...[
+                  _buildSectionHeader(
+                    context,
+                    completedTrainingCycles.length == 1
+                        ? 'Completed $cycleTerm'
+                        : 'Completed $cycleTermPlural',
+                  ),
+                  const SizedBox(height: 12),
+                  ...completedTrainingCycles.map(
+                    (trainingCycle) =>
+                        _buildTrainingCycleCard(context, trainingCycle),
+                  ),
+                ],
               ],
-            ],
-          );
-        },
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stack) => Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.error_outline, size: 64, color: context.errorColor),
-              const SizedBox(height: 16),
-              Text('Error loading trainingCycles: $error'),
-            ],
+            );
+          },
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (error, stack) => Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.error_outline, size: 64, color: context.errorColor),
+                const SizedBox(height: 16),
+                Text('Error loading trainingCycles: $error'),
+              ],
+            ),
           ),
-        ),
         ),
       ),
     );
@@ -163,31 +163,33 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
     );
   }
 
-  /// Check if ALL days in ALL weeks have at least one exercise
+  /// Check if ALL days in ALL periods have at least one exercise
   bool _hasExercisesForAllDays(TrainingCycle trainingCycle) {
     final workouts = ref.read(
       workoutsByTrainingCycleProvider(trainingCycle.id),
     );
 
-    // Check EVERY week in the trainingCycle
-    for (int week = 1; week <= trainingCycle.periodsTotal; week++) {
-      final weekWorkouts = workouts.where((w) => w.periodNumber == week).toList();
+    // Check EVERY period in the trainingCycle
+    for (int period = 1; period <= trainingCycle.periodsTotal; period++) {
+      final periodWorkouts = workouts
+          .where((w) => w.periodNumber == period)
+          .toList();
 
-      // Check EVERY day in this week
+      // Check EVERY day in this period
       for (int day = 1; day <= trainingCycle.daysPerPeriod; day++) {
-        // Find workouts for this specific day in this specific week
-        final dayWorkouts = weekWorkouts.where((w) => w.dayNumber == day);
+        // Find workouts for this specific day in this specific period
+        final dayWorkouts = periodWorkouts.where((w) => w.dayNumber == day);
 
         // Check if at least one workout has exercises
         final hasExercises = dayWorkouts.any((w) => w.exercises.isNotEmpty);
 
         if (!hasExercises) {
-          return false; // This day in this week has no exercises
+          return false; // This day in this period has no exercises
         }
       }
     }
 
-    return true; // ALL days in ALL weeks have at least one exercise
+    return true; // ALL days in ALL periods have at least one exercise
   }
 
   Widget _buildTrainingCycleCard(
@@ -415,7 +417,7 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
                   ),
                   const SizedBox(width: 4),
                   Text(
-                    '${trainingCycle.periodsTotal} weeks',
+                    '${trainingCycle.periodsTotal} periods',
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: Theme.of(
                         context,
@@ -432,7 +434,7 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
                   ),
                   const SizedBox(width: 4),
                   Text(
-                    '${trainingCycle.daysPerPeriod} days/week',
+                    '${trainingCycle.daysPerPeriod} days/period',
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: Theme.of(
                         context,
