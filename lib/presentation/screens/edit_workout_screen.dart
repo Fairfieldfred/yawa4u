@@ -1267,7 +1267,9 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
                                   color: Theme.of(
                                     context,
                                   ).inputDecorationTheme.fillColor,
-                                  borderRadius: BorderRadius.circular(context.inputBorderRadius),
+                                  borderRadius: BorderRadius.circular(
+                                    context.inputBorderRadius,
+                                  ),
                                   border: Border.all(
                                     color: Theme.of(context).dividerColor,
                                   ),
@@ -1290,23 +1292,35 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
                                       border: InputBorder.none,
                                       enabledBorder: InputBorder.none,
                                       focusedBorder: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(context.inputBorderRadius),
+                                        borderRadius: BorderRadius.circular(
+                                          context.inputBorderRadius,
+                                        ),
                                         borderSide: BorderSide(
-                                          color: Theme.of(context).colorScheme.primary,
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.primary,
                                           width: 2,
                                         ),
                                       ),
                                       errorBorder: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(context.inputBorderRadius),
+                                        borderRadius: BorderRadius.circular(
+                                          context.inputBorderRadius,
+                                        ),
                                         borderSide: BorderSide(
-                                          color: Theme.of(context).colorScheme.error,
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.error,
                                           width: 1,
                                         ),
                                       ),
                                       focusedErrorBorder: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(context.inputBorderRadius),
+                                        borderRadius: BorderRadius.circular(
+                                          context.inputBorderRadius,
+                                        ),
                                         borderSide: BorderSide(
-                                          color: Theme.of(context).colorScheme.error,
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.error,
                                           width: 2,
                                         ),
                                       ),

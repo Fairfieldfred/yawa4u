@@ -426,7 +426,7 @@ class SkinExtension extends ThemeExtension<SkinExtension> {
       // Lerp the border radius
       inputBorderRadius:
           lerpDouble(inputBorderRadius, other.inputBorderRadius, t) ??
-              inputBorderRadius,
+          inputBorderRadius,
     );
   }
 }
