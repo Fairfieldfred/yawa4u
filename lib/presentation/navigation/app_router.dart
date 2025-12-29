@@ -141,7 +141,14 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/template-share',
         name: 'template-share',
-        builder: (context, state) => const TemplateShareScreen(),
+        builder: (context, state) {
+          final templateId = state.uri.queryParameters['templateId'];
+          final autoStart = state.uri.queryParameters['autoStart'] == 'true';
+          return TemplateShareScreen(
+            preSelectedTemplateId: templateId,
+            autoStart: autoStart,
+          );
+        },
       ),
 
       // Skin/Theme selection screen

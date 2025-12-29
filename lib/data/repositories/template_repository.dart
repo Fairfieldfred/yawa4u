@@ -183,7 +183,8 @@ class TemplateRepository {
   }
 
   /// Save a trainingCycle as a template
-  Future<void> saveAsTemplate(
+  /// Returns the ID of the saved template
+  Future<String> saveAsTemplate(
     TrainingCycle trainingCycle,
     String name,
     String description,
@@ -210,6 +211,8 @@ class TemplateRepository {
     await box.put(template.id, jsonString);
     debugPrint('Template saved with ID: ${template.id}');
     debugPrint('Box now contains ${box.length} templates');
+
+    return template.id;
   }
 
   /// Convert a TrainingCycle to a TrainingCycleTemplate

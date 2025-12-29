@@ -367,6 +367,27 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
                               ],
                             ),
                           ),
+                          PopupMenuItem(
+                            value: 'share',
+                            enabled: canSaveAsTemplate,
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.qr_code,
+                                  color: canSaveAsTemplate ? null : Colors.grey,
+                                ),
+                                const SizedBox(width: 12),
+                                Text(
+                                  'Share (Host QR Code)',
+                                  style: TextStyle(
+                                    color: canSaveAsTemplate
+                                        ? null
+                                        : Colors.grey,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                           // Export option (Debug mode only)
                           if (kDebugMode)
                             const PopupMenuItem(
@@ -538,6 +559,9 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
         break;
       case 'template':
         await _saveAsTemplate(trainingCycle);
+        break;
+      case 'share':
+        await _shareTrainingCycle(trainingCycle);
         break;
       case 'export':
         await _exportTemplate(trainingCycle);
@@ -918,6 +942,51 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
             ),
           );
         }
+      }
+    }
+  }
+
+  /// Share training cycle via QR code - saves as template and directly shows QR code
+  Future<void> _shareTrainingCycle(TrainingCycle trainingCycle) async {
+    try {
+      // Show loading indicator
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Preparing to share...'),
+            duration: Duration(seconds: 1),
+          ),
+        );
+      }
+
+      // Load the full trainingCycle with workouts
+      final workouts = ref.read(
+        workoutsByTrainingCycleProvider(trainingCycle.id),
+      );
+      final fullTrainingCycle = trainingCycle.copyWith(workouts: workouts);
+
+      final repository = ref.read(templateRepositoryProvider);
+      final templateId = await repository.saveAsTemplate(
+        fullTrainingCycle,
+        trainingCycle.name, // Use training cycle name directly
+        'Shared from ${trainingCycle.name}',
+      );
+
+      // Refresh templates provider
+      ref.invalidate(availableTemplatesProvider);
+
+      if (mounted) {
+        // Navigate to template share screen with auto-start enabled
+        context.push('/template-share?templateId=$templateId&autoStart=true');
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error preparing template for sharing: $e'),
+            backgroundColor: context.errorColor,
+          ),
+        );
       }
     }
   }

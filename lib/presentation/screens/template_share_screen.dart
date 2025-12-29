@@ -11,7 +11,17 @@ import '../../domain/providers/template_share_providers.dart';
 
 /// Screen for sharing templates via WiFi with QR code
 class TemplateShareScreen extends ConsumerStatefulWidget {
-  const TemplateShareScreen({super.key});
+  /// Optional template ID to pre-select when opening the screen
+  final String? preSelectedTemplateId;
+
+  /// Whether to automatically start the server when the screen opens
+  final bool autoStart;
+
+  const TemplateShareScreen({
+    super.key,
+    this.preSelectedTemplateId,
+    this.autoStart = false,
+  });
 
   @override
   ConsumerState<TemplateShareScreen> createState() =>
@@ -20,7 +30,9 @@ class TemplateShareScreen extends ConsumerStatefulWidget {
 
 class _TemplateShareScreenState extends ConsumerState<TemplateShareScreen> {
   // Track selected templates
-  final Set<String> _selectedTemplateIds = {};
+  late Set<String> _selectedTemplateIds;
+  bool _initialized = false;
+  bool _autoStartTriggered = false;
 
   bool _isServerRunning = false;
   String? _connectionInfo;
@@ -36,8 +48,35 @@ class _TemplateShareScreenState extends ConsumerState<TemplateShareScreen> {
   @override
   void initState() {
     super.initState();
+    // Initialize selected template IDs
+    _selectedTemplateIds = {};
     // Store the share service reference early so we can use it in dispose
     _shareService = ref.read(templateShareServiceProvider);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Pre-select template if provided (only once)
+    if (!_initialized && widget.preSelectedTemplateId != null) {
+      _selectedTemplateIds.add(widget.preSelectedTemplateId!);
+      _initialized = true;
+    }
+  }
+
+  /// Auto-start the server with pre-selected templates
+  Future<void> _autoStartServerIfReady(
+    List<TrainingCycleTemplate> templates,
+  ) async {
+    if (_autoStartTriggered || !widget.autoStart) return;
+
+    final selectedTemplates = templates
+        .where((t) => _selectedTemplateIds.contains(t.id))
+        .toList();
+    if (selectedTemplates.isNotEmpty) {
+      _autoStartTriggered = true;
+      _startServer(selectedTemplates);
+    }
   }
 
   @override
@@ -165,7 +204,15 @@ class _TemplateShareScreenState extends ConsumerState<TemplateShareScreen> {
           : _isServerRunning
           ? _buildServerView()
           : templatesAsync.when(
-              data: (templates) => _buildSelectionView(templates),
+              data: (templates) {
+                // Auto-start server if requested and not yet triggered
+                if (widget.autoStart && !_autoStartTriggered && _initialized) {
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    _autoStartServerIfReady(templates);
+                  });
+                }
+                return _buildSelectionView(templates);
+              },
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (error, stack) => Center(
                 child: Text(
