@@ -6,8 +6,8 @@ import '../../data/models/exercise.dart';
 import '../../data/models/exercise_set.dart';
 import '../../data/models/training_cycle.dart';
 import '../../data/models/workout.dart';
-import '../providers/training_cycle_providers.dart';
 import '../providers/repository_providers.dart';
+import '../providers/training_cycle_providers.dart';
 import '../providers/workout_providers.dart';
 
 /// Immutable state for the workout home screen.
@@ -30,7 +30,9 @@ class WorkoutHomeState {
   }) {
     return WorkoutHomeState(
       showPeriodSelector: showPeriodSelector ?? this.showPeriodSelector,
-      selectedPeriod: clearSelection ? null : (selectedPeriod ?? this.selectedPeriod),
+      selectedPeriod: clearSelection
+          ? null
+          : (selectedPeriod ?? this.selectedPeriod),
       selectedDay: clearSelection ? null : (selectedDay ?? this.selectedDay),
     );
   }
@@ -331,10 +333,14 @@ class WorkoutHomeController extends Notifier<WorkoutHomeState> {
     final trainingCycle = ref.read(currentTrainingCycleProvider);
     if (trainingCycle == null) return;
 
-    final allWorkouts = ref.read(workoutsByTrainingCycleProvider(trainingCycle.id));
+    final allWorkouts = ref.read(
+      workoutsByTrainingCycleProvider(trainingCycle.id),
+    );
 
     final todaysWorkouts = allWorkouts
-        .where((w) => w.periodNumber == displayPeriod && w.dayNumber == displayDay)
+        .where(
+          (w) => w.periodNumber == displayPeriod && w.dayNumber == displayDay,
+        )
         .toList();
 
     // Collect all exercises from all workouts
@@ -580,7 +586,9 @@ class WorkoutHomeController extends Notifier<WorkoutHomeState> {
 
   Future<void> clearAllDayNames(String trainingCycleId) async {
     final repository = ref.read(workoutRepositoryProvider);
-    final allWorkouts = ref.read(workoutsByTrainingCycleProvider(trainingCycleId));
+    final allWorkouts = ref.read(
+      workoutsByTrainingCycleProvider(trainingCycleId),
+    );
 
     for (final workout in allWorkouts) {
       if (workout.dayName != null) {
@@ -615,7 +623,10 @@ class WorkoutHomeController extends Notifier<WorkoutHomeState> {
   // TrainingCycle Operations
   // ---------------------------------------------------------------------------
 
-  Future<void> renameTrainingCycle(TrainingCycle trainingCycle, String newName) async {
+  Future<void> renameTrainingCycle(
+    TrainingCycle trainingCycle,
+    String newName,
+  ) async {
     final repository = ref.read(trainingCycleRepositoryProvider);
     final updatedTrainingCycle = trainingCycle.copyWith(name: newName);
     await repository.update(updatedTrainingCycle);
@@ -636,7 +647,9 @@ class WorkoutHomeController extends Notifier<WorkoutHomeState> {
 
   Future<void> addPeriod(dynamic trainingCycle) async {
     final repository = ref.read(workoutRepositoryProvider);
-    final allWorkouts = ref.read(workoutsByTrainingCycleProvider(trainingCycle.id));
+    final allWorkouts = ref.read(
+      workoutsByTrainingCycleProvider(trainingCycle.id),
+    );
     final newPeriodNumber = trainingCycle.periodsTotal;
 
     final templatePeriod = trainingCycle.periodsTotal - 1;
@@ -709,7 +722,9 @@ class WorkoutHomeController extends Notifier<WorkoutHomeState> {
 
   Future<void> removePeriod(dynamic trainingCycle) async {
     final repository = ref.read(workoutRepositoryProvider);
-    final allWorkouts = ref.read(workoutsByTrainingCycleProvider(trainingCycle.id));
+    final allWorkouts = ref.read(
+      workoutsByTrainingCycleProvider(trainingCycle.id),
+    );
     final periodToRemove = trainingCycle.periodsTotal - 1;
 
     if (periodToRemove < 1) return;
@@ -846,7 +861,8 @@ String calculateDayName({
 
   if (startDate != null) {
     final startDayOfWeek = startDate.weekday % 7;
-    final daysElapsed = ((displayPeriod - 1) * daysPerPeriod) + (displayDay - 1);
+    final daysElapsed =
+        ((displayPeriod - 1) * daysPerPeriod) + (displayDay - 1);
     final actualDayOfWeek = (startDayOfWeek + daysElapsed) % 7;
     return defaultDayNames[actualDayOfWeek];
   }

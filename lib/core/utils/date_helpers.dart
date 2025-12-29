@@ -148,8 +148,16 @@ class DateHelpers {
 
   /// Calculate the end date of a trainingCycle given start date and duration
   /// Duration is in periods, each period has daysPerPeriod days
-  static DateTime getTrainingCycleEndDate(DateTime startDate, int periods, int daysPerPeriod) {
-    return addPeriods(startDate, periods, daysPerPeriod).subtract(const Duration(days: 1));
+  static DateTime getTrainingCycleEndDate(
+    DateTime startDate,
+    int periods,
+    int daysPerPeriod,
+  ) {
+    return addPeriods(
+      startDate,
+      periods,
+      daysPerPeriod,
+    ).subtract(const Duration(days: 1));
   }
 
   /// Get the date for a specific period and day in a trainingCycle
@@ -168,7 +176,11 @@ class DateHelpers {
 
   /// Get the current period number in a trainingCycle (1-based)
   /// Returns null if date is before trainingCycle start
-  static int? getCurrentPeriod(DateTime trainingCycleStart, DateTime date, int daysPerPeriod) {
+  static int? getCurrentPeriod(
+    DateTime trainingCycleStart,
+    DateTime date,
+    int daysPerPeriod,
+  ) {
     if (date.isBefore(trainingCycleStart)) return null;
     final days = daysBetween(trainingCycleStart, date);
     return (days ~/ daysPerPeriod) + 1;

@@ -332,12 +332,18 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
           final daysSinceStart = DateTime.now()
               .difference(trainingCycle.startDate!)
               .inDays;
-          final daysSincePeriodStart = daysSinceStart % trainingCycle.daysPerPeriod;
-          return (daysSincePeriodStart + 1).clamp(1, trainingCycle.daysPerPeriod);
+          final daysSincePeriodStart =
+              daysSinceStart % trainingCycle.daysPerPeriod;
+          return (daysSincePeriodStart + 1).clamp(
+            1,
+            trainingCycle.daysPerPeriod,
+          );
         })();
 
     final todaysWorkouts = allWorkouts
-        .where((w) => w.periodNumber == displayPeriod && w.dayNumber == displayDay)
+        .where(
+          (w) => w.periodNumber == displayPeriod && w.dayNumber == displayDay,
+        )
         .toList();
 
     // Collect all exercises from all workouts
@@ -728,7 +734,8 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
             final daysSinceStart = DateTime.now()
                 .difference(currentTrainingCycle.startDate!)
                 .inDays;
-            final daysSincePeriodStart = daysSinceStart % currentTrainingCycle.daysPerPeriod;
+            final daysSincePeriodStart =
+                daysSinceStart % currentTrainingCycle.daysPerPeriod;
             return (daysSincePeriodStart + 1).clamp(
               1,
               currentTrainingCycle.daysPerPeriod,
@@ -993,7 +1000,8 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
 
       // Calculate days elapsed since start
       final daysElapsed =
-          ((displayPeriod - 1) * trainingCycle.daysPerPeriod) + (displayDay - 1);
+          ((displayPeriod - 1) * trainingCycle.daysPerPeriod) +
+          (displayDay - 1);
       debugPrint('Days elapsed: $daysElapsed');
 
       // Calculate actual day of week
@@ -1616,7 +1624,9 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     debugPrint('=== RELABEL DEBUG ===');
     debugPrint('Workouts passed in: ${workouts.length}');
     for (var w in workouts) {
-      debugPrint('  - Period ${w.periodNumber}, Day ${w.dayNumber}, ID: ${w.id}');
+      debugPrint(
+        '  - Period ${w.periodNumber}, Day ${w.dayNumber}, ID: ${w.id}',
+      );
     }
 
     final result = await showDialog<({String label, bool applyToAll})>(

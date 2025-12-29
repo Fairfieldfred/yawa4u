@@ -162,7 +162,12 @@ class Validators {
   static String? recoveryPeriod(String? value, int totalPeriods) {
     return combine(value, [
       (v) => isInteger(v, fieldName: 'Recovery period'),
-      (v) => numberRange(v, 1, totalPeriods.toDouble(), fieldName: 'Recovery period'),
+      (v) => numberRange(
+        v,
+        1,
+        totalPeriods.toDouble(),
+        fieldName: 'Recovery period',
+      ),
     ]);
   }
 

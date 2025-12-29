@@ -25,10 +25,14 @@ class WorkoutListController {
     int selectedPeriod,
   ) async {
     final repository = ref.read(workoutRepositoryProvider);
-    final allWorkouts = ref.read(workoutsByTrainingCycleProvider(trainingCycleId));
+    final allWorkouts = ref.read(
+      workoutsByTrainingCycleProvider(trainingCycleId),
+    );
 
     // Get all Period 1 workouts
-    final period1Workouts = allWorkouts.where((w) => w.periodNumber == 1).toList();
+    final period1Workouts = allWorkouts
+        .where((w) => w.periodNumber == 1)
+        .toList();
 
     if (period1Workouts.isEmpty) {
       throw Exception('No workouts found in Period 1');

@@ -1,5 +1,6 @@
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+
 import '../../core/constants/app_constants.dart';
 
 /// Analytics service wrapper for Firebase Analytics

@@ -89,7 +89,9 @@ class _CalendarDropdownState extends ConsumerState<CalendarDropdown> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('Cannot add period: No template workouts found'),
+            content: const Text(
+              'Cannot add period: No template workouts found',
+            ),
             backgroundColor: context.errorColor,
           ),
         );
@@ -243,8 +245,8 @@ class _CalendarDropdownState extends ConsumerState<CalendarDropdown> {
       // If selected period was removed or is now out of bounds, go to previous period
       if (_selectedPeriod >= updatedTrainingCycle.periodsTotal) {
         setState(() {
-          _selectedPeriod =
-              updatedTrainingCycle.periodsTotal; // Go to new last period (recovery)
+          _selectedPeriod = updatedTrainingCycle
+              .periodsTotal; // Go to new last period (recovery)
         });
         widget.onDaySelected(_selectedPeriod, _selectedDay);
       }
@@ -392,7 +394,9 @@ class _CalendarDropdownState extends ConsumerState<CalendarDropdown> {
 
       // Check if there's a custom label for this day in THIS SPECIFIC period
       final periodDayWorkouts = widget.allWorkouts
-          .where((w) => w.dayNumber == dayNumber && w.periodNumber == periodNumber)
+          .where(
+            (w) => w.dayNumber == dayNumber && w.periodNumber == periodNumber,
+          )
           .toList();
 
       if (periodDayWorkouts.isNotEmpty) {
@@ -476,7 +480,9 @@ class _CalendarDropdownState extends ConsumerState<CalendarDropdown> {
             // Check actual workout completion status from database
             final dayWorkouts = widget.allWorkouts
                 .where(
-                  (w) => w.periodNumber == periodNumber && w.dayNumber == dayNumber,
+                  (w) =>
+                      w.periodNumber == periodNumber &&
+                      w.dayNumber == dayNumber,
                 )
                 .toList();
             final isCompleted =

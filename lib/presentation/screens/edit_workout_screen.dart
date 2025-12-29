@@ -214,7 +214,8 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
                 children: List.generate(trainingCycle.periodsTotal, (index) {
                   final periodNumber = index + 1;
                   final isSelected = periodNumber == _selectedPeriod;
-                  final isRecoveryPeriod = periodNumber == trainingCycle.recoveryPeriod;
+                  final isRecoveryPeriod =
+                      periodNumber == trainingCycle.recoveryPeriod;
 
                   final chip = ChoiceChip(
                     label: Text(
@@ -342,7 +343,10 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
     if (result != null && mounted) {
       try {
         final removeRecovery = result == 'deload';
-        await controller.removePeriod(trainingCycle, removeRecovery: removeRecovery);
+        await controller.removePeriod(
+          trainingCycle,
+          removeRecovery: removeRecovery,
+        );
 
         // Adjust selected period if it no longer exists
         if (_selectedPeriod > trainingCycle.periodsTotal - 1) {
@@ -420,7 +424,9 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
       ),
     );
 
-    if (result != null && result != trainingCycle.recoveryPeriodType && mounted) {
+    if (result != null &&
+        result != trainingCycle.recoveryPeriodType &&
+        mounted) {
       try {
         await controller.updateRecoveryPeriodType(trainingCycle, result);
         if (mounted) {

@@ -30,7 +30,9 @@ class EditWorkoutController {
     );
 
     // Get all Period 1 workouts
-    final period1Workouts = allWorkouts.where((w) => w.periodNumber == 1).toList();
+    final period1Workouts = allWorkouts
+        .where((w) => w.periodNumber == 1)
+        .toList();
 
     if (period1Workouts.isEmpty) {
       throw Exception('No workouts found in Period 1');
@@ -284,7 +286,8 @@ class EditWorkoutController {
 
     final newPeriodsTotal = trainingCycle.periodsTotal + 1;
     final oldRecoveryPeriod = trainingCycle.recoveryPeriod;
-    final newRecoveryPeriod = newPeriodsTotal; // Recovery is always the last period
+    final newRecoveryPeriod =
+        newPeriodsTotal; // Recovery is always the last period
 
     // First, update all workouts that are in the recovery period to be in the new recovery period
     final recoveryWorkouts = allWorkouts

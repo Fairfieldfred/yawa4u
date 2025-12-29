@@ -1,6 +1,7 @@
 import 'package:hive/hive.dart';
-import '../models/training_cycle.dart';
+
 import '../../core/constants/enums.dart';
+import '../models/training_cycle.dart';
 
 /// Repository for TrainingCycle CRUD operations
 class TrainingCycleRepository {
@@ -24,7 +25,9 @@ class TrainingCycleRepository {
   /// Get current (active) trainingCycle
   TrainingCycle? getCurrent() {
     try {
-      return _box.values.firstWhere((m) => m.status == TrainingCycleStatus.current);
+      return _box.values.firstWhere(
+        (m) => m.status == TrainingCycleStatus.current,
+      );
     } catch (e) {
       return null;
     }
@@ -143,9 +146,7 @@ class TrainingCycleRepository {
 
   /// Get trainingCycles by template name
   List<TrainingCycle> getByTemplate(String templateName) {
-    return _box.values
-        .where((m) => m.templateName == templateName)
-        .toList();
+    return _box.values.where((m) => m.templateName == templateName).toList();
   }
 
   /// Get statistics

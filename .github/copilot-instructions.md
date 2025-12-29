@@ -74,6 +74,7 @@ The database stores **multiple `Workout` objects per training day** (one per mus
 ## ⚠️ Important: Periods vs Weeks
 
 The app uses **"periods"** instead of weeks to support flexible training schedules (8, 9, 10+ day cycles with rest days). Key terminology:
+
 - `periodsTotal` - Total number of periods in a cycle
 - `daysPerPeriod` - Days in each period (uniform across the cycle)
 - `periodNumber` - Which period a workout belongs to (1-indexed)

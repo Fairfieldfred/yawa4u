@@ -41,12 +41,15 @@ final workoutsByTrainingCycleProvider = Provider.family<List<Workout>, String>((
 
 /// Provider for workouts by period
 final workoutsByPeriodProvider =
-    Provider.family<List<Workout>, ({String trainingCycleId, int periodNumber})>((
-      ref,
-      params,
-    ) {
+    Provider.family<
+      List<Workout>,
+      ({String trainingCycleId, int periodNumber})
+    >((ref, params) {
       final repository = ref.watch(workoutRepositoryProvider);
-      return repository.getByPeriod(params.trainingCycleId, params.periodNumber);
+      return repository.getByPeriod(
+        params.trainingCycleId,
+        params.periodNumber,
+      );
     });
 
 /// Provider for a specific workout by ID

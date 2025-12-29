@@ -1,4 +1,5 @@
 import 'package:hive/hive.dart';
+
 import '../../core/constants/enums.dart';
 import 'exercise.dart';
 
@@ -66,8 +67,7 @@ class Workout {
   int get totalExercises => exercises.length;
 
   /// Get number of completed exercises
-  int get completedExercises =>
-      exercises.where((e) => e.isCompleted).length;
+  int get completedExercises => exercises.where((e) => e.isCompleted).length;
 
   /// Get completion percentage (0.0 to 1.0)
   double get completionPercentage {
@@ -89,9 +89,7 @@ class Workout {
 
   /// Add an exercise to the workout
   Workout addExercise(Exercise exercise) {
-    return copyWith(
-      exercises: [...exercises, exercise],
-    );
+    return copyWith(exercises: [...exercises, exercise]);
   }
 
   /// Remove an exercise by index
@@ -134,17 +132,12 @@ class Workout {
 
   /// Mark workout as skipped
   Workout skip() {
-    return copyWith(
-      status: WorkoutStatus.skipped,
-    );
+    return copyWith(status: WorkoutStatus.skipped);
   }
 
   /// Reset workout to incomplete
   Workout reset() {
-    return copyWith(
-      status: WorkoutStatus.incomplete,
-      completedDate: null,
-    );
+    return copyWith(status: WorkoutStatus.incomplete, completedDate: null);
   }
 
   /// Create a copy with updated fields
@@ -212,7 +205,8 @@ class Workout {
       completedDate: json['completedDate'] != null
           ? DateTime.parse(json['completedDate'] as String)
           : null,
-      exercises: (json['exercises'] as List?)
+      exercises:
+          (json['exercises'] as List?)
               ?.map((e) => Exercise.fromJson(e as Map<String, dynamic>))
               .toList() ??
           [],
@@ -238,11 +232,6 @@ class Workout {
 
   @override
   int get hashCode {
-    return Object.hash(
-      id,
-      trainingCycleId,
-      periodNumber,
-      dayNumber,
-    );
+    return Object.hash(id, trainingCycleId, periodNumber, dayNumber);
   }
 }

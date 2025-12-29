@@ -85,7 +85,11 @@ class TrainingCycle {
   /// Calculate end date based on start date and periods
   DateTime? getEndDate() {
     if (startDate == null) return null;
-    return DateHelpers.getTrainingCycleEndDate(startDate!, periodsTotal, daysPerPeriod);
+    return DateHelpers.getTrainingCycleEndDate(
+      startDate!,
+      periodsTotal,
+      daysPerPeriod,
+    );
   }
 
   /// Get current period number (1-based) based on today's date

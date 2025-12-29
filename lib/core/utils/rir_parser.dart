@@ -230,14 +230,20 @@ class RIRParser {
     }
 
     // Check for number followed by RIR
-    final match = RegExp(r'(\d+)\s*RIR', caseSensitive: false).firstMatch(trimmed);
+    final match = RegExp(
+      r'(\d+)\s*RIR',
+      caseSensitive: false,
+    ).firstMatch(trimmed);
     if (match != null) {
       final rir = int.tryParse(match.group(1)!);
       return rir != null ? formatRIR(rir) : trimmed;
     }
 
     // Check for "R" followed by number (shorthand)
-    final rMatch = RegExp(r'R\s*(\d+)', caseSensitive: false).firstMatch(trimmed);
+    final rMatch = RegExp(
+      r'R\s*(\d+)',
+      caseSensitive: false,
+    ).firstMatch(trimmed);
     if (rMatch != null) {
       final rir = int.tryParse(rMatch.group(1)!);
       return rir != null ? formatRIR(rir) : trimmed;
