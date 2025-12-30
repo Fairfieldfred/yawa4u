@@ -12,6 +12,7 @@ import '../../data/models/exercise_set.dart';
 import '../../data/models/training_cycle.dart';
 import '../../data/models/workout.dart';
 import '../../domain/providers/onboarding_providers.dart';
+import '../../domain/providers/repository_providers.dart';
 import '../../domain/providers/theme_provider.dart';
 import '../../domain/providers/training_cycle_providers.dart';
 import '../../domain/providers/workout_providers.dart';
@@ -75,6 +76,48 @@ class _CompletedCycleWorkoutScreenState
     }
   }
 
+  /// Find the most recent pinned note for exercises with the same name
+  String? _findPinnedNoteForExercise(dynamic exercise) {
+    if (exercise is! Exercise) return null;
+
+    // First check if current exercise has a pinned note
+    if (exercise.isNotePinned &&
+        exercise.notes != null &&
+        exercise.notes!.isNotEmpty) {
+      return exercise.notes;
+    }
+
+    // Look for pinned notes from other exercises with the same name
+    final workoutRepo = ref.read(workoutRepositoryProvider);
+    final allWorkouts = workoutRepo.getAll();
+
+    // Find all exercises with the same name that have pinned notes
+    final pinnedExercises = <Exercise>[];
+    for (final workout in allWorkouts) {
+      for (final ex in workout.exercises) {
+        if (ex.name.toLowerCase() == exercise.name.toLowerCase() &&
+            ex.id != exercise.id &&
+            ex.isNotePinned &&
+            ex.notes != null &&
+            ex.notes!.isNotEmpty) {
+          pinnedExercises.add(ex);
+        }
+      }
+    }
+
+    if (pinnedExercises.isEmpty) return null;
+
+    // Return the most recent pinned note (by lastPerformed date, or just the first one)
+    pinnedExercises.sort((a, b) {
+      if (a.lastPerformed == null && b.lastPerformed == null) return 0;
+      if (a.lastPerformed == null) return 1;
+      if (b.lastPerformed == null) return -1;
+      return b.lastPerformed!.compareTo(a.lastPerformed!);
+    });
+
+    return pinnedExercises.first.notes;
+  }
+
   @override
   Widget build(BuildContext context) {
     final trainingCyclesAsync = ref.watch(trainingCyclesProvider);
@@ -110,7 +153,8 @@ class _CompletedCycleWorkoutScreenState
 
         final todaysWorkouts = allWorkouts
             .where(
-              (w) => w.periodNumber == displayPeriod && w.dayNumber == displayDay,
+              (w) =>
+                  w.periodNumber == displayPeriod && w.dayNumber == displayDay,
             )
             .toList();
 
@@ -174,7 +218,8 @@ class _CompletedCycleWorkoutScreenState
     } else if (trainingCycle.startDate != null) {
       final startDayOfWeek = trainingCycle.startDate!.weekday % 7;
       final daysElapsed =
-          ((displayPeriod - 1) * trainingCycle.daysPerPeriod) + (displayDay - 1);
+          ((displayPeriod - 1) * trainingCycle.daysPerPeriod) +
+          (displayDay - 1);
       final actualDayOfWeek = (startDayOfWeek + daysElapsed) % 7;
       dayName = defaultDayNames[actualDayOfWeek];
     } else {
@@ -306,7 +351,10 @@ class _CompletedCycleWorkoutScreenState
                           allExercises[index - 1].muscleGroup !=
                               exercise.muscleGroup;
 
-                      final weekRir = _calculateRIR(displayPeriod, trainingCycle);
+                      final weekRir = _calculateRIR(
+                        displayPeriod,
+                        trainingCycle,
+                      );
 
                       return _buildExerciseCard(
                         context,
@@ -353,6 +401,7 @@ class _CompletedCycleWorkoutScreenState
   }) {
     final muscleGroup = exercise.muscleGroup as MuscleGroup;
     final equipmentType = exercise.equipmentType as EquipmentType?;
+    final pinnedNote = _findPinnedNoteForExercise(exercise);
 
     return Stack(
       clipBehavior: Clip.none,
@@ -679,15 +728,20 @@ class _CompletedCycleWorkoutScreenState
                 }),
 
                 // Pinned note display (read-only, at bottom of card)
-                if (exercise is Exercise && exercise.isNotePinned && exercise.notes != null && exercise.notes!.isNotEmpty)
+                // Shows pinned notes from any exercise with the same name
+                if (pinnedNote != null)
                   Container(
                     margin: const EdgeInsets.only(top: 8),
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.primaryContainer.withAlpha(51),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.primaryContainer.withAlpha(51),
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(
-                        color: Theme.of(context).colorScheme.primary.withAlpha(77),
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.primary.withAlpha(77),
                         width: 1,
                       ),
                     ),
@@ -702,11 +756,14 @@ class _CompletedCycleWorkoutScreenState
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
-                            exercise.notes!,
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: Theme.of(context).colorScheme.onSurface,
-                              fontStyle: FontStyle.italic,
-                            ),
+                            pinnedNote,
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurface,
+                                  fontStyle: FontStyle.italic,
+                                ),
                           ),
                         ),
                       ],
@@ -879,7 +936,9 @@ class _ReadOnlyCalendarDropdownState extends State<_ReadOnlyCalendarDropdown> {
       final dayNumber = index + 1;
 
       final weekDayWorkouts = widget.allWorkouts
-          .where((w) => w.dayNumber == dayNumber && w.periodNumber == periodNumber)
+          .where(
+            (w) => w.dayNumber == dayNumber && w.periodNumber == periodNumber,
+          )
           .toList();
 
       if (weekDayWorkouts.isNotEmpty) {
@@ -949,7 +1008,9 @@ class _ReadOnlyCalendarDropdownState extends State<_ReadOnlyCalendarDropdown> {
             // All days are completed in a completed trainingCycle
             final dayWorkouts = widget.allWorkouts
                 .where(
-                  (w) => w.periodNumber == periodNumber && w.dayNumber == dayNumber,
+                  (w) =>
+                      w.periodNumber == periodNumber &&
+                      w.dayNumber == dayNumber,
                 )
                 .toList();
             final isCompleted =

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/constants/enums.dart';
 import '../../core/constants/equipment_types.dart';
@@ -6,12 +7,13 @@ import '../../core/theme/skins/skins.dart';
 import '../../core/utils/weight_conversion.dart';
 import '../../data/models/exercise.dart';
 import '../../data/models/exercise_set.dart';
+import '../../domain/providers/repository_providers.dart';
 import 'dialogs/exercise_info_dialog.dart';
 import 'muscle_group_badge.dart';
 
 /// Shared widget for displaying an exercise card with sets.
 /// Used in both workout_screen and exercises_screen.
-class ExerciseCardWidget extends StatelessWidget {
+class ExerciseCardWidget extends ConsumerWidget {
   final Exercise exercise;
   final bool showMuscleGroupBadge;
   final int? targetRir;
@@ -57,10 +59,51 @@ class ExerciseCardWidget extends StatelessWidget {
     required this.onToggleSetLog,
   });
 
+  /// Find the most recent pinned note for exercises with the same name
+  String? _findPinnedNoteForExercise(WidgetRef ref) {
+    // First check if current exercise has a pinned note
+    if (exercise.isNotePinned &&
+        exercise.notes != null &&
+        exercise.notes!.isNotEmpty) {
+      return exercise.notes;
+    }
+
+    // Look for pinned notes from other exercises with the same name
+    final workoutRepo = ref.read(workoutRepositoryProvider);
+    final allWorkouts = workoutRepo.getAll();
+
+    // Find all exercises with the same name that have pinned notes
+    final pinnedExercises = <Exercise>[];
+    for (final workout in allWorkouts) {
+      for (final ex in workout.exercises) {
+        if (ex.name.toLowerCase() == exercise.name.toLowerCase() &&
+            ex.id != exercise.id &&
+            ex.isNotePinned &&
+            ex.notes != null &&
+            ex.notes!.isNotEmpty) {
+          pinnedExercises.add(ex);
+        }
+      }
+    }
+
+    if (pinnedExercises.isEmpty) return null;
+
+    // Return the most recent pinned note (by lastPerformed date, or just the first one)
+    pinnedExercises.sort((a, b) {
+      if (a.lastPerformed == null && b.lastPerformed == null) return 0;
+      if (a.lastPerformed == null) return 1;
+      if (b.lastPerformed == null) return -1;
+      return b.lastPerformed!.compareTo(a.lastPerformed!);
+    });
+
+    return pinnedExercises.first.notes;
+  }
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final muscleGroup = exercise.muscleGroup;
     final equipmentType = exercise.equipmentType;
+    final pinnedNote = _findPinnedNoteForExercise(ref);
 
     return Stack(
       clipBehavior: Clip.none,
@@ -218,10 +261,8 @@ class ExerciseCardWidget extends StatelessWidget {
                 }),
 
                 // Pinned note display (at bottom of card)
-                if (exercise.isNotePinned &&
-                    exercise.notes != null &&
-                    exercise.notes!.isNotEmpty)
-                  _buildPinnedNote(context),
+                // Shows pinned notes from any exercise with the same name
+                if (pinnedNote != null) _buildPinnedNote(context, pinnedNote),
               ],
             ),
           ),
@@ -234,7 +275,7 @@ class ExerciseCardWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildPinnedNote(BuildContext context) {
+  Widget _buildPinnedNote(BuildContext context, String noteText) {
     return InkWell(
       onTap: () => onAddNote(exercise.id),
       borderRadius: BorderRadius.circular(8),
@@ -260,7 +301,7 @@ class ExerciseCardWidget extends StatelessWidget {
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                exercise.notes!,
+                noteText,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: Theme.of(context).colorScheme.onSurface,
                   fontStyle: FontStyle.italic,
