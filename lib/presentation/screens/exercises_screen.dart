@@ -1813,24 +1813,39 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
         entry.trainingCycle != null &&
         entry.workout.periodNumber == entry.trainingCycle!.recoveryPeriod;
 
-    // Build the weight × reps string with set type badges
-    final weight = loggedSets.isNotEmpty && loggedSets.first.weight != null
-        ? loggedSets.first.weight!
-        : null;
-    final weightStr = weight != null
-        ? weight.toStringAsFixed(weight % 1 == 0 ? 0 : 1)
-        : 'BW';
+    // Group sets by weight and build weight × reps string
+    // This properly handles sets with different weights (e.g., "1 lbs x 1, 10 lbs x 1")
+    final weightGroups = <double?, List<ExerciseSet>>{};
+    for (final set in loggedSets) {
+      weightGroups.putIfAbsent(set.weight, () => []).add(set);
+    }
 
-    // Collect reps with their badges
-    final repsWithBadges = loggedSets.map((set) {
-      final badge = set.setType.badge;
-      if (badge != null) {
-        return '${set.reps} $badge';
-      }
-      return set.reps;
-    }).toList();
+    // Build formatted string for each weight group
+    final List<_WeightRepsGroup> groups = [];
+    for (final weightEntry in weightGroups.entries) {
+      final weight = weightEntry.key;
+      final sets = weightEntry.value;
 
-    final repsStr = repsWithBadges.join(',  ');
+      final weightStr = weight != null
+          ? weight.toStringAsFixed(weight % 1 == 0 ? 0 : 1)
+          : 'BW';
+
+      // Collect reps with their badges for this weight group
+      final repsWithBadges = sets.map((set) {
+        final badge = set.setType.badge;
+        if (badge != null) {
+          return '${set.reps} $badge';
+        }
+        return set.reps;
+      }).toList();
+
+      groups.add(
+        _WeightRepsGroup(
+          weightStr: weightStr,
+          repsStr: repsWithBadges.join(', '),
+        ),
+      );
+    }
 
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 4),
@@ -1856,26 +1871,7 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
                     style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                       fontWeight: FontWeight.w600,
                     ),
-                    children: [
-                      TextSpan(
-                        text: weightStr,
-                        style: const TextStyle(fontSize: 18),
-                      ),
-                      TextSpan(
-                        text: ' lbs',
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w400,
-                          color: Theme.of(context).colorScheme.onSurface
-                              .withAlpha((255 * 0.7).round()),
-                        ),
-                      ),
-                      const TextSpan(text: '  x  '),
-                      TextSpan(
-                        text: repsStr,
-                        style: const TextStyle(fontSize: 18),
-                      ),
-                    ],
+                    children: _buildWeightRepsSpans(context, groups),
                   ),
                 ),
                 if (isRecovery) ...[
@@ -1934,6 +1930,45 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
       ),
     );
   }
+
+  /// Build TextSpan children for weight × reps display, properly grouping by weight
+  List<InlineSpan> _buildWeightRepsSpans(
+    BuildContext context,
+    List<_WeightRepsGroup> groups,
+  ) {
+    final List<InlineSpan> spans = [];
+
+    for (var i = 0; i < groups.length; i++) {
+      final group = groups[i];
+
+      // Add separator between groups
+      if (i > 0) {
+        spans.add(const TextSpan(text: ',  '));
+      }
+
+      spans.add(
+        TextSpan(text: group.weightStr, style: const TextStyle(fontSize: 18)),
+      );
+      spans.add(
+        TextSpan(
+          text: ' lbs',
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w400,
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurface.withAlpha((255 * 0.7).round()),
+          ),
+        ),
+      );
+      spans.add(const TextSpan(text: '  x  '));
+      spans.add(
+        TextSpan(text: group.repsStr, style: const TextStyle(fontSize: 18)),
+      );
+    }
+
+    return spans;
+  }
 }
 
 /// Helper class to track which workout an exercise belongs to
@@ -1942,4 +1977,12 @@ class _ExerciseSource {
   final int exerciseIndex; // Index within that workout's exercises list
 
   _ExerciseSource({required this.workout, required this.exerciseIndex});
+}
+
+/// Helper class for grouping weight and reps in history display
+class _WeightRepsGroup {
+  final String weightStr;
+  final String repsStr;
+
+  _WeightRepsGroup({required this.weightStr, required this.repsStr});
 }
