@@ -433,6 +433,7 @@ class _CompletedCycleWorkoutScreenState
                     ),
                   ],
                 ),
+
                 const SizedBox(height: 16),
 
                 // Column headers
@@ -676,6 +677,41 @@ class _CompletedCycleWorkoutScreenState
                     ),
                   );
                 }),
+
+                // Pinned note display (read-only, at bottom of card)
+                if (exercise is Exercise && exercise.isNotePinned && exercise.notes != null && exercise.notes!.isNotEmpty)
+                  Container(
+                    margin: const EdgeInsets.only(top: 8),
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primaryContainer.withAlpha(51),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: Theme.of(context).colorScheme.primary.withAlpha(77),
+                        width: 1,
+                      ),
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(
+                          Icons.push_pin,
+                          size: 16,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            exercise.notes!,
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: Theme.of(context).colorScheme.onSurface,
+                              fontStyle: FontStyle.italic,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
               ],
             ),
           ),

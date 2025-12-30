@@ -144,6 +144,7 @@ class ExerciseCardWidget extends StatelessWidget {
                     _buildExerciseOverflowMenu(context),
                   ],
                 ),
+
                 const SizedBox(height: 8),
 
                 // Column headers
@@ -215,6 +216,12 @@ class ExerciseCardWidget extends StatelessWidget {
                   final set = exercise.sets[index];
                   return _buildSetRow(context, set, index);
                 }),
+
+                // Pinned note display (at bottom of card)
+                if (exercise.isNotePinned &&
+                    exercise.notes != null &&
+                    exercise.notes!.isNotEmpty)
+                  _buildPinnedNote(context),
               ],
             ),
           ),
@@ -224,6 +231,50 @@ class ExerciseCardWidget extends StatelessWidget {
         if (showMuscleGroupBadge)
           MuscleGroupBadge.compact(muscleGroup: muscleGroup),
       ],
+    );
+  }
+
+  Widget _buildPinnedNote(BuildContext context) {
+    return InkWell(
+      onTap: () => onAddNote(exercise.id),
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        margin: const EdgeInsets.only(top: 8),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.primaryContainer.withAlpha(51),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: Theme.of(context).colorScheme.primary.withAlpha(77),
+            width: 1,
+          ),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(
+              Icons.push_pin,
+              size: 16,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                exercise.notes!,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurface,
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
+            ),
+            Icon(
+              Icons.edit,
+              size: 14,
+              color: Theme.of(context).colorScheme.primary.withAlpha(153),
+            ),
+          ],
+        ),
+      ),
     );
   }
 

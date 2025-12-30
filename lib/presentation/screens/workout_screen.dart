@@ -281,15 +281,19 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
 
     final exercise = workout.exercises.firstWhere((e) => e.id == exerciseId);
 
-    final result = await showDialog<String>(
+    final result = await showDialog<ExerciseNoteResult>(
       context: context,
-      builder: (context) =>
-          NoteDialog(initialNote: exercise.notes, noteType: NoteType.exercise),
+      builder: (context) => NoteDialog(
+        initialNote: exercise.notes,
+        noteType: NoteType.exercise,
+        initialPinned: exercise.isNotePinned,
+      ),
     );
 
     if (result != null) {
       final updatedExercise = exercise.copyWith(
-        notes: result.isEmpty ? null : result,
+        notes: result.note.isEmpty ? null : result.note,
+        isNotePinned: result.isPinned,
       );
       final updatedExercises = workout.exercises
           .map((e) => e.id == exerciseId ? updatedExercise : e)

@@ -1712,18 +1712,22 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
 
     final currentNote = exercise.notes;
 
-    final newNote = await showDialog<String>(
+    final result = await showDialog<ExerciseNoteResult>(
       context: context,
       barrierDismissible: false,
-      builder: (context) =>
-          NoteDialog(initialNote: currentNote, noteType: NoteType.exercise),
+      builder: (context) => NoteDialog(
+        initialNote: currentNote,
+        noteType: NoteType.exercise,
+        initialPinned: exercise.isNotePinned,
+      ),
     );
 
-    if (newNote != null && mounted) {
+    if (result != null && mounted) {
       try {
         final repository = ref.read(workoutRepositoryProvider);
         final updatedExercise = exercise.copyWith(
-          notes: newNote.isEmpty ? null : newNote,
+          notes: result.note.isEmpty ? null : result.note,
+          isNotePinned: result.isPinned,
         );
         final updatedExercises = workout.exercises
             .map((e) => e.id == exercise.id ? updatedExercise : e)

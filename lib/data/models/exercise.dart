@@ -51,6 +51,9 @@ class Exercise {
   @HiveField(11)
   final String? videoUrl;
 
+  @HiveField(12)
+  final bool isNotePinned;
+
   Exercise({
     required this.id,
     required this.workoutId,
@@ -64,6 +67,7 @@ class Exercise {
     this.feedback,
     this.lastPerformed,
     this.videoUrl,
+    this.isNotePinned = false,
   }) : sets = sets ?? [];
 
   /// Get total number of sets
@@ -137,6 +141,7 @@ class Exercise {
     ExerciseFeedback? feedback,
     DateTime? lastPerformed,
     String? videoUrl,
+    bool? isNotePinned,
   }) {
     return Exercise(
       id: id ?? this.id,
@@ -151,6 +156,7 @@ class Exercise {
       feedback: feedback ?? this.feedback,
       lastPerformed: lastPerformed ?? this.lastPerformed,
       videoUrl: videoUrl ?? this.videoUrl,
+      isNotePinned: isNotePinned ?? this.isNotePinned,
     );
   }
 

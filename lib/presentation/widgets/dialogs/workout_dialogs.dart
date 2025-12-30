@@ -3,13 +3,23 @@ import 'package:flutter/material.dart';
 /// Type of note being edited - determines dialog title and hint text
 enum NoteType { trainingCycle, workout, exercise }
 
+/// Result from NoteDialog for exercise notes (includes pin status)
+class ExerciseNoteResult {
+  final String note;
+  final bool isPinned;
+
+  ExerciseNoteResult({required this.note, required this.isPinned});
+}
+
 /// A reusable dialog for adding/editing notes.
 /// Can be used for Training Cycle, Workout, or Exercise notes.
+/// For exercise notes, returns ExerciseNoteResult; for others, returns String.
 class NoteDialog extends StatefulWidget {
   final String? initialNote;
   final NoteType noteType;
   final String? customTitle;
   final String? customHint;
+  final bool initialPinned;
 
   const NoteDialog({
     super.key,
@@ -17,6 +27,7 @@ class NoteDialog extends StatefulWidget {
     required this.noteType,
     this.customTitle,
     this.customHint,
+    this.initialPinned = false,
   });
 
   @override
@@ -49,11 +60,13 @@ class NoteDialog extends StatefulWidget {
 
 class _NoteDialogState extends State<NoteDialog> {
   late final TextEditingController _noteController;
+  late bool _isPinned;
 
   @override
   void initState() {
     super.initState();
     _noteController = TextEditingController(text: widget.initialNote);
+    _isPinned = widget.initialPinned;
   }
 
   @override
@@ -67,6 +80,8 @@ class _NoteDialogState extends State<NoteDialog> {
 
   String get _hint =>
       widget.customHint ?? NoteDialog.getHintForType(widget.noteType);
+
+  bool get _isExerciseNote => widget.noteType == NoteType.exercise;
 
   @override
   Widget build(BuildContext context) {
@@ -85,8 +100,53 @@ class _NoteDialogState extends State<NoteDialog> {
             _buildHeader(context),
             const SizedBox(height: 24),
             _buildNoteField(context),
+            if (_isExerciseNote) ...[
+              const SizedBox(height: 16),
+              _buildPinCheckbox(context),
+            ],
             const SizedBox(height: 24),
             _buildActions(context),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPinCheckbox(BuildContext context) {
+    return InkWell(
+      onTap: () => setState(() => _isPinned = !_isPinned),
+      borderRadius: BorderRadius.circular(8),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4),
+        child: Row(
+          children: [
+            SizedBox(
+              width: 24,
+              height: 24,
+              child: Checkbox(
+                value: _isPinned,
+                onChanged: (value) =>
+                    setState(() => _isPinned = value ?? false),
+                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Icon(
+              Icons.push_pin_outlined,
+              size: 18,
+              color: _isPinned
+                  ? Theme.of(context).colorScheme.primary
+                  : Theme.of(context).colorScheme.onSurface.withAlpha(153),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              'Pin to Exercise',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: _isPinned
+                    ? Theme.of(context).colorScheme.primary
+                    : Theme.of(context).colorScheme.onSurface,
+              ),
+            ),
           ],
         ),
       ),
@@ -151,7 +211,16 @@ class _NoteDialogState extends State<NoteDialog> {
         Expanded(
           child: FilledButton(
             onPressed: () {
-              Navigator.of(context).pop(_noteController.text.trim());
+              final noteText = _noteController.text.trim();
+              if (_isExerciseNote) {
+                // Return ExerciseNoteResult for exercise notes
+                Navigator.of(
+                  context,
+                ).pop(ExerciseNoteResult(note: noteText, isPinned: _isPinned));
+              } else {
+                // Return just the string for other note types
+                Navigator.of(context).pop(noteText);
+              }
             },
             style: FilledButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: 16),

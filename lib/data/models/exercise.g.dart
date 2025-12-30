@@ -29,13 +29,14 @@ class ExerciseAdapter extends TypeAdapter<Exercise> {
       feedback: fields[9] as ExerciseFeedback?,
       lastPerformed: fields[10] as DateTime?,
       videoUrl: fields[11] as String?,
+      isNotePinned: fields[12] as bool,
     );
   }
 
   @override
   void write(BinaryWriter writer, Exercise obj) {
     writer
-      ..writeByte(12)
+      ..writeByte(13)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -59,7 +60,9 @@ class ExerciseAdapter extends TypeAdapter<Exercise> {
       ..writeByte(10)
       ..write(obj.lastPerformed)
       ..writeByte(11)
-      ..write(obj.videoUrl);
+      ..write(obj.videoUrl)
+      ..writeByte(12)
+      ..write(obj.isNotePinned);
   }
 
   @override
@@ -96,6 +99,7 @@ Exercise _$ExerciseFromJson(Map<String, dynamic> json) => Exercise(
           ? null
           : DateTime.parse(json['lastPerformed'] as String),
       videoUrl: json['videoUrl'] as String?,
+      isNotePinned: json['isNotePinned'] as bool? ?? false,
     );
 
 Map<String, dynamic> _$ExerciseToJson(Exercise instance) => <String, dynamic>{
@@ -111,6 +115,7 @@ Map<String, dynamic> _$ExerciseToJson(Exercise instance) => <String, dynamic>{
       'feedback': instance.feedback?.toJson(),
       'lastPerformed': instance.lastPerformed?.toIso8601String(),
       'videoUrl': instance.videoUrl,
+      'isNotePinned': instance.isNotePinned,
     };
 
 const _$MuscleGroupEnumMap = {
