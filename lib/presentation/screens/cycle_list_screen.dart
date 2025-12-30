@@ -204,6 +204,10 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
     // Determine if this is a completed trainingCycle (for read-only navigation)
     final isCompleted = trainingCycle.status == TrainingCycleStatus.completed;
 
+    // Check if restart is available (no current training cycle)
+    final hasCurrentCycle = ref.watch(currentTrainingCycleProvider) != null;
+    final canRestart = isCompleted && !hasCurrentCycle;
+
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       child: InkWell(
@@ -346,6 +350,27 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
                               ],
                             ),
                           ),
+                          // Restart option for completed cycles only
+                          if (isCompleted)
+                            PopupMenuItem(
+                              value: 'restart',
+                              enabled: canRestart,
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.replay,
+                                    color: canRestart ? null : Colors.grey,
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Text(
+                                    'Restart ${ref.watch(trainingCycleTermProvider)}',
+                                    style: TextStyle(
+                                      color: canRestart ? null : Colors.grey,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                           PopupMenuItem(
                             value: 'template',
                             enabled: canSaveAsTemplate,
@@ -556,6 +581,9 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
           builder: (context) =>
               CycleSummaryDialog(trainingCycle: trainingCycle),
         );
+        break;
+      case 'restart':
+        await _restartTrainingCycle(trainingCycle);
         break;
       case 'template':
         await _saveAsTemplate(trainingCycle);
@@ -892,6 +920,138 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error copying $cycleTerm: $e'),
+            backgroundColor: context.errorColor,
+          ),
+        );
+      }
+    }
+  }
+
+  /// Restart a completed training cycle - copies it and sets as current
+  Future<void> _restartTrainingCycle(TrainingCycle trainingCycle) async {
+    final cycleTerm = ref.read(trainingCycleTermProvider);
+
+    // Confirm restart
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Restart $cycleTerm'),
+        content: Text(
+          'Restart "${trainingCycle.name}"? This will create a copy and set it as your current $cycleTerm.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Restart'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true || !mounted) return;
+
+    const uuid = Uuid();
+
+    try {
+      // Get all workouts for this training cycle directly from repository
+      // to avoid empty list from async provider loading state
+      final workoutRepository = ref.read(workoutRepositoryProvider);
+      final workouts = workoutRepository
+          .getAll()
+          .where((w) => w.trainingCycleId == trainingCycle.id)
+          .toList();
+
+      debugPrint('Restarting cycle: ${trainingCycle.name}');
+      debugPrint('Found ${workouts.length} workouts to copy');
+      for (final w in workouts) {
+        debugPrint(
+          '  - Period ${w.periodNumber} Day ${w.dayNumber}: ${w.exercises.length} exercises',
+        );
+      }
+
+      // Generate new ID for the copied training cycle
+      final newTrainingCycleId = uuid.v4();
+
+      // Create copied workouts with new IDs and reset status
+      final copiedWorkouts = workouts.map((workout) {
+        final newWorkoutId = uuid.v4();
+
+        // Copy exercises with new IDs and reset logged sets
+        final copiedExercises = workout.exercises.map((exercise) {
+          final newExerciseId = uuid.v4();
+
+          // Copy sets with new IDs and reset logged data
+          final copiedSets = exercise.sets.map((set) {
+            return set.copyWith(
+              id: uuid.v4(),
+              isLogged: false,
+              weight: null,
+              reps: '',
+            );
+          }).toList();
+
+          return exercise.copyWith(
+            id: newExerciseId,
+            workoutId: newWorkoutId,
+            sets: copiedSets,
+            notes: null,
+            feedback: null,
+            lastPerformed: null,
+          );
+        }).toList();
+
+        return workout.copyWith(
+          id: newWorkoutId,
+          trainingCycleId: newTrainingCycleId,
+          status: WorkoutStatus.incomplete,
+          completedDate: null,
+          exercises: copiedExercises,
+          notes: null,
+        );
+      }).toList();
+
+      // Create the restarted training cycle - set as CURRENT directly
+      final restartedTrainingCycle = trainingCycle.copyWith(
+        id: newTrainingCycleId,
+        name: trainingCycle.name, // Keep same name
+        status: TrainingCycleStatus.current, // Set as current
+        createdDate: DateTime.now(),
+        startDate: DateTime.now(), // Start now
+        endDate: null,
+        workouts: copiedWorkouts,
+        notes: null,
+      );
+
+      // Save the new training cycle
+      final trainingCycleRepository = ref.read(trainingCycleRepositoryProvider);
+      await trainingCycleRepository.create(restartedTrainingCycle);
+
+      // Save all workouts (reuse workoutRepository from above)
+      for (final workout in copiedWorkouts) {
+        await workoutRepository.create(workout);
+      }
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('$cycleTerm restarted!'),
+            backgroundColor: context.successColor,
+          ),
+        );
+
+        // Navigate to workout tab
+        ref.read(homeTabIndexProvider.notifier).setTab(HomeTab.workout);
+        context.go('/');
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error restarting $cycleTerm: $e'),
             backgroundColor: context.errorColor,
           ),
         );
