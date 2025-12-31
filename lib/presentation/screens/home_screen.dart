@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../domain/providers/navigation_providers.dart';
 import '../../domain/providers/onboarding_providers.dart';
+import 'calendar_screen.dart';
 import 'cycle_list_screen.dart';
 import 'exercises_screen.dart';
 import 'more_screen.dart';
@@ -21,6 +22,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     WorkoutHomeScreen(),
     CycleListScreen(),
     ExercisesHomeScreen(),
+    CalendarScreen(),
     MoreScreen(),
   ];
 
@@ -55,6 +57,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           const BottomNavigationBarItem(
             icon: Icon(Icons.fitness_center),
             label: 'Exercises',
+          ),
+          const BottomNavigationBarItem(
+            icon: Icon(Icons.calendar_month),
+            label: 'Calendar',
           ),
           const BottomNavigationBarItem(
             icon: Icon(Icons.more_horiz),

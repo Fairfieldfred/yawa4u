@@ -5,7 +5,8 @@ class HomeTab {
   static const int workout = 0;
   static const int trainingCycles = 1;
   static const int exercises = 2;
-  static const int more = 3;
+  static const int calendar = 3;
+  static const int more = 4;
 }
 
 /// Notifier for managing the selected tab index in the HomeScreen
