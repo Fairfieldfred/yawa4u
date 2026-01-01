@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -80,16 +82,7 @@ class ScreenBackground extends ConsumerWidget {
       fit: StackFit.expand,
       children: [
         // Background image
-        Positioned.fill(
-          child: Image.asset(
-            backgroundPath,
-            fit: BoxFit.cover,
-            errorBuilder: (context, error, stackTrace) {
-              // Fallback to solid color if image fails to load
-              return const SizedBox.shrink();
-            },
-          ),
-        ),
+        Positioned.fill(child: _buildBackgroundImage(backgroundPath)),
 
         // Overlay for readability
         Positioned.fill(
@@ -122,6 +115,30 @@ class ScreenBackground extends ConsumerWidget {
         return backgrounds.more ?? backgrounds.defaultBackground;
       case ScreenType.other:
         return backgrounds.defaultBackground;
+    }
+  }
+
+  /// Builds the appropriate image widget based on the path.
+  /// File paths (starting with /) use FileImage, otherwise uses asset.
+  Widget _buildBackgroundImage(String path) {
+    if (path.startsWith('/')) {
+      // Custom theme with file path
+      return Image.file(
+        File(path),
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) {
+          return const SizedBox.shrink();
+        },
+      );
+    } else {
+      // Built-in theme with asset path
+      return Image.asset(
+        path,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) {
+          return const SizedBox.shrink();
+        },
+      );
     }
   }
 }

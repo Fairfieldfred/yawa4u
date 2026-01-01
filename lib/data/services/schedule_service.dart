@@ -96,6 +96,64 @@ class ScheduleService {
     return snapshot;
   }
 
+  /// Insert a rest day before the specified period/day, shifting that day
+  /// and all subsequent workouts forward by one day.
+  /// Returns a snapshot for undo.
+  Future<ScheduleSnapshot> insertDayBefore({
+    required String cycleId,
+    required int fromPeriod,
+    required int fromDay,
+  }) async {
+    final cycle = _cycleRepository.getById(cycleId);
+    if (cycle == null) {
+      throw Exception('Training cycle not found');
+    }
+
+    final workouts = _workoutRepository.getByTrainingCycleId(cycleId);
+
+    // Create snapshot for undo
+    final snapshot = ScheduleSnapshot(
+      cycleStartDate: cycle.startDate,
+      workoutSnapshots: workouts
+          .map((w) => WorkoutSnapshot.fromWorkout(w))
+          .toList(),
+      description: 'Inserted day before P${fromPeriod}D$fromDay',
+    );
+
+    // Convert period/day to absolute day number for comparison
+    int toAbsoluteDay(int period, int day) =>
+        (period - 1) * cycle.daysPerPeriod + day;
+
+    final fromAbsoluteDay = toAbsoluteDay(fromPeriod, fromDay);
+
+    // Find all workouts on or after the specified day and shift them forward
+    final workoutsToShift = workouts.where((w) {
+      final workoutAbsoluteDay = toAbsoluteDay(w.periodNumber, w.dayNumber);
+      return workoutAbsoluteDay >= fromAbsoluteDay;
+    }).toList();
+
+    // Shift each workout forward by one day
+    for (final workout in workoutsToShift) {
+      final currentAbsolute = toAbsoluteDay(
+        workout.periodNumber,
+        workout.dayNumber,
+      );
+      final newAbsolute = currentAbsolute + 1;
+
+      // Convert back to period/day
+      final newPeriod = ((newAbsolute - 1) ~/ cycle.daysPerPeriod) + 1;
+      final newDay = ((newAbsolute - 1) % cycle.daysPerPeriod) + 1;
+
+      final updatedWorkout = workout.copyWith(
+        periodNumber: newPeriod,
+        dayNumber: newDay,
+      );
+      await _workoutRepository.update(updatedWorkout);
+    }
+
+    return snapshot;
+  }
+
   /// Move a workout to a target date using the specified mode.
   /// Returns a snapshot for undo.
   Future<ScheduleSnapshot> moveWorkout({

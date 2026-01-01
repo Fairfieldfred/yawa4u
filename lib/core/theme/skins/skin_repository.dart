@@ -175,6 +175,40 @@ class SkinRepository {
     return json.encode(skin.toJson());
   }
 
+  /// Export a skin with images as a shareable package.
+  /// Returns JSON string that can be saved as .yawa-theme file.
+  Future<String> exportSkinWithImages(
+    SkinModel skin,
+    Map<String, String> imagesBase64,
+  ) async {
+    final skinJson = skin.toJson();
+    skinJson['imagesBase64'] = imagesBase64;
+    skinJson['exportVersion'] = 1;
+    skinJson['exportedAt'] = DateTime.now().toIso8601String();
+    return json.encode(skinJson);
+  }
+
+  /// Import a skin from a .yawa-theme file content.
+  /// Returns the parsed SkinModel and images map.
+  Future<({SkinModel skin, Map<String, String> imagesBase64})> parseThemeFile(
+    String jsonString,
+  ) async {
+    final data = json.decode(jsonString) as Map<String, dynamic>;
+
+    // Extract and remove images before parsing skin
+    final imagesBase64 =
+        data.remove('imagesBase64') as Map<String, dynamic>? ?? {};
+    data.remove('exportVersion');
+    data.remove('exportedAt');
+
+    final skin = SkinModel.fromJson(data);
+
+    return (
+      skin: skin,
+      imagesBase64: imagesBase64.map((k, v) => MapEntry(k, v as String)),
+    );
+  }
+
   /// Create a new custom skin based on an existing skin
   SkinModel duplicateSkin(SkinModel source, String newName) {
     return source.copyWith(

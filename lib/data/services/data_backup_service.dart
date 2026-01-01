@@ -1,32 +1,60 @@
 import 'dart:convert';
 
+import '../../core/theme/skins/skin_model.dart';
+import '../../core/theme/skins/skin_repository.dart';
 import '../models/custom_exercise_definition.dart';
 import '../models/exercise.dart';
 import '../models/training_cycle.dart';
 import '../models/workout.dart';
 import 'database_service.dart';
+import 'theme_image_service.dart';
 
 /// Service for exporting and importing app data
 class DataBackupService {
   final DatabaseService _databaseService;
+  final SkinRepository _skinRepository;
+  final ThemeImageService _themeImageService;
 
-  DataBackupService(this._databaseService);
+  DataBackupService(
+    this._databaseService, {
+    SkinRepository? skinRepository,
+    ThemeImageService? themeImageService,
+  }) : _skinRepository = skinRepository ?? SkinRepository(),
+       _themeImageService = themeImageService ?? ThemeImageService();
 
   /// Export all data to a JSON string
-  Future<String> exportToJson() async {
+  Future<String> exportToJson({bool includeThemes = true}) async {
     final trainingCycles = _databaseService.trainingCyclesBox.values.toList();
     final workouts = _databaseService.workoutsBox.values.toList();
     final exercises = _databaseService.exercisesBox.values.toList();
     final customExercises = _databaseService.customExercisesBox.values.toList();
 
-    final data = {
-      'version': 2,
+    final data = <String, dynamic>{
+      'version': 3, // Bumped version for theme support
       'exportedAt': DateTime.now().toIso8601String(),
       'trainingCycles': trainingCycles.map((m) => m.toJson()).toList(),
       'workouts': workouts.map((w) => w.toJson()).toList(),
       'exercises': exercises.map((e) => e.toJson()).toList(),
       'customExercises': customExercises.map((e) => e.toJson()).toList(),
     };
+
+    // Include custom themes with Base64-encoded images
+    if (includeThemes) {
+      final customSkins = _skinRepository.getCustomSkins();
+      final skinsWithImages = <Map<String, dynamic>>[];
+
+      for (final skin in customSkins) {
+        final skinJson = skin.toJson();
+        // Export images as Base64
+        final imagesBase64 = await _themeImageService.exportThemeImagesAsBase64(
+          skin.id,
+        );
+        skinJson['imagesBase64'] = imagesBase64;
+        skinsWithImages.add(skinJson);
+      }
+
+      data['customThemes'] = skinsWithImages;
+    }
 
     return jsonEncode(data);
   }
@@ -36,13 +64,14 @@ class DataBackupService {
   Future<ImportResult> importFromJson(
     String jsonString, {
     bool replace = false,
+    bool importThemes = true,
   }) async {
     try {
       final data = jsonDecode(jsonString) as Map<String, dynamic>;
 
       // Validate version
       final version = data['version'] as int?;
-      if (version == null || version > 2) {
+      if (version == null || version > 3) {
         return ImportResult(
           success: false,
           error: 'Unsupported backup version',
@@ -86,7 +115,10 @@ class DataBackupService {
             _databaseService.trainingCyclesBox.containsKey(trainingCycle.id)) {
           continue; // Skip if already exists and not replacing
         }
-        await _databaseService.trainingCyclesBox.put(trainingCycle.id, trainingCycle);
+        await _databaseService.trainingCyclesBox.put(
+          trainingCycle.id,
+          trainingCycle,
+        );
         trainingCyclesImported++;
       }
 
@@ -127,12 +159,68 @@ class DataBackupService {
         customExercisesImported++;
       }
 
+      // Import custom themes
+      int customThemesImported = 0;
+      if (importThemes) {
+        final customThemesJson = data['customThemes'] as List<dynamic>? ?? [];
+        for (final themeData in customThemesJson) {
+          try {
+            final skinJson = Map<String, dynamic>.from(
+              themeData as Map<String, dynamic>,
+            );
+            final imagesBase64 =
+                skinJson.remove('imagesBase64') as Map<String, dynamic>? ?? {};
+
+            // Parse the skin model
+            final skin = SkinModel.fromJson(skinJson);
+
+            // Check if theme already exists
+            final existingCustomSkins = _skinRepository.getCustomSkins();
+            final exists = existingCustomSkins.any((s) => s.id == skin.id);
+
+            if (!replace && exists) {
+              continue;
+            }
+
+            // Import images first
+            await _themeImageService.importThemeImagesFromBase64(
+              themeId: skin.id,
+              base64Map: imagesBase64.map((k, v) => MapEntry(k, v as String)),
+            );
+
+            // Get the actual paths for the imported images
+            final importedPaths = await _themeImageService
+                .getAllThemeImagePaths(skin.id);
+
+            // Update skin with new image paths
+            final updatedSkin = skin.copyWith(
+              backgrounds: SkinBackgrounds(
+                workout: importedPaths['workout'],
+                cycles: importedPaths['cycles'],
+                exercises: importedPaths['exercises'],
+                more: importedPaths['more'],
+                defaultBackground: importedPaths['default'],
+                appIcon: importedPaths['app_icon'],
+              ),
+            );
+
+            // Save the skin
+            await _skinRepository.saveCustomSkin(updatedSkin);
+            customThemesImported++;
+          } catch (e) {
+            // Log but continue with other themes
+            continue;
+          }
+        }
+      }
+
       return ImportResult(
         success: true,
         trainingCyclesImported: trainingCyclesImported,
         workoutsImported: workoutsImported,
         exercisesImported: exercisesImported,
         customExercisesImported: customExercisesImported,
+        customThemesImported: customThemesImported,
       );
     } catch (e) {
       return ImportResult(success: false, error: 'Failed to parse backup: $e');
@@ -158,6 +246,7 @@ class ImportResult {
   final int workoutsImported;
   final int exercisesImported;
   final int customExercisesImported;
+  final int customThemesImported;
 
   ImportResult({
     required this.success,
@@ -166,13 +255,15 @@ class ImportResult {
     this.workoutsImported = 0,
     this.exercisesImported = 0,
     this.customExercisesImported = 0,
+    this.customThemesImported = 0,
   });
 
   int get totalImported =>
       trainingCyclesImported +
       workoutsImported +
       exercisesImported +
-      customExercisesImported;
+      customExercisesImported +
+      customThemesImported;
 }
 
 /// Statistics about current data

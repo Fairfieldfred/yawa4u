@@ -47,13 +47,21 @@ class SkinBuilder {
       colorScheme: ColorScheme(
         brightness: brightness,
         primary: skin.colors.primaryColor,
-        onPrimary: isDark ? Colors.white : Colors.white,
-        primaryContainer: skin.colors.primaryDarkColor,
-        onPrimaryContainer: Colors.white,
+        onPrimary: Colors.white,
+        primaryContainer: isDark
+            ? skin.colors.primaryColor.withValues(alpha: 0.3)
+            : skin.colors.primaryLightColor.withValues(alpha: 0.4),
+        onPrimaryContainer: isDark
+            ? Colors.white
+            : skin.colors.primaryDarkColor,
         secondary: skin.colors.secondaryColor,
         onSecondary: Colors.white,
-        secondaryContainer: skin.colors.secondaryColor.withValues(alpha: 0.2),
-        onSecondaryContainer: skin.colors.secondaryColor,
+        secondaryContainer: isDark
+            ? skin.colors.secondaryColor.withValues(alpha: 0.3)
+            : skin.colors.secondaryColor.withValues(alpha: 0.25),
+        onSecondaryContainer: isDark
+            ? Colors.white
+            : skin.colors.secondaryColor,
         surface: modeColors.cardBackgroundColor,
         onSurface: modeColors.textPrimaryColor,
         surfaceContainerHighest: modeColors.inputBackgroundColor,

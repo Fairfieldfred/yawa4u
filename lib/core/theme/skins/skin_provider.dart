@@ -160,3 +160,9 @@ final darkThemeProvider = Provider<ThemeData>((ref) {
 final availableSkinsProvider = Provider<List<SkinModel>>((ref) {
   return ref.watch(skinProvider).availableSkins;
 });
+
+/// Provider for direct access to the SkinRepository
+/// Used for export/import operations that don't need state management
+final skinRepositoryProvider = Provider<SkinRepository>((ref) {
+  return SkinRepository();
+});

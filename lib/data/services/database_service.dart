@@ -68,20 +68,64 @@ class DatabaseService {
     Hive.registerAdapter(RecoveryPeriodTypeAdapter());
     Hive.registerAdapter(UserMeasurementAdapter());
 
-    // Open boxes
-    _trainingCyclesBox = await Hive.openBox<TrainingCycle>(
-      trainingCyclesBoxName,
-    );
-    _workoutsBox = await Hive.openBox<Workout>(workoutsBoxName);
-    _exercisesBox = await Hive.openBox<Exercise>(exercisesBoxName);
-    _customExercisesBox = await Hive.openBox<CustomExerciseDefinition>(
-      customExercisesBoxName,
-    );
-    _userMeasurementsBox = await Hive.openBox<UserMeasurement>(
-      userMeasurementsBoxName,
-    );
+    // Open boxes with error handling for corrupted data
+    try {
+      _trainingCyclesBox = await Hive.openBox<TrainingCycle>(
+        trainingCyclesBoxName,
+      );
+      _workoutsBox = await Hive.openBox<Workout>(workoutsBoxName);
+      _exercisesBox = await Hive.openBox<Exercise>(exercisesBoxName);
+      _customExercisesBox = await Hive.openBox<CustomExerciseDefinition>(
+        customExercisesBoxName,
+      );
+      _userMeasurementsBox = await Hive.openBox<UserMeasurement>(
+        userMeasurementsBoxName,
+      );
+    } on HiveError catch (e) {
+      // If we get a typeId error, the data is corrupted - delete and recreate
+      if (e.message.contains('unknown typeId')) {
+        await _clearCorruptedData();
+        // Retry opening boxes
+        _trainingCyclesBox = await Hive.openBox<TrainingCycle>(
+          trainingCyclesBoxName,
+        );
+        _workoutsBox = await Hive.openBox<Workout>(workoutsBoxName);
+        _exercisesBox = await Hive.openBox<Exercise>(exercisesBoxName);
+        _customExercisesBox = await Hive.openBox<CustomExerciseDefinition>(
+          customExercisesBoxName,
+        );
+        _userMeasurementsBox = await Hive.openBox<UserMeasurement>(
+          userMeasurementsBoxName,
+        );
+      } else {
+        rethrow;
+      }
+    }
 
     _initialized = true;
+  }
+
+  /// Clear corrupted Hive data
+  Future<void> _clearCorruptedData() async {
+    final appDir = await getApplicationDocumentsDirectory();
+    final hiveDir = appDir;
+
+    // Delete all Hive box files
+    final boxNames = [
+      trainingCyclesBoxName,
+      workoutsBoxName,
+      exercisesBoxName,
+      customExercisesBoxName,
+      userMeasurementsBoxName,
+    ];
+
+    for (final boxName in boxNames) {
+      try {
+        await Hive.deleteBoxFromDisk(boxName);
+      } catch (_) {
+        // Ignore errors during cleanup
+      }
+    }
   }
 
   /// Get trainingCycles box

@@ -154,6 +154,7 @@ SkinBackgrounds _$SkinBackgroundsFromJson(Map<String, dynamic> json) =>
       exercises: json['exercises'] as String?,
       more: json['more'] as String?,
       defaultBackground: json['defaultBackground'] as String?,
+      appIcon: json['appIcon'] as String?,
       lightOverlayOpacity:
           (json['lightOverlayOpacity'] as num?)?.toDouble() ?? 0.7,
       darkOverlayOpacity:
@@ -167,6 +168,7 @@ Map<String, dynamic> _$SkinBackgroundsToJson(SkinBackgrounds instance) =>
       'exercises': instance.exercises,
       'more': instance.more,
       'defaultBackground': instance.defaultBackground,
+      'appIcon': instance.appIcon,
       'lightOverlayOpacity': instance.lightOverlayOpacity,
       'darkOverlayOpacity': instance.darkOverlayOpacity,
     };

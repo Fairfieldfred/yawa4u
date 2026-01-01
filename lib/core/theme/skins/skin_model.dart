@@ -252,8 +252,11 @@ class SkinBackgrounds {
   /// Background image for the More screen.
   final String? more;
 
-  /// Default background for all other/sub screens.
+  /// Default background for all other/sub screens (including Calendar).
   final String? defaultBackground;
+
+  /// App icon/accent image for AppBar or branding.
+  final String? appIcon;
 
   /// Overlay opacity for light mode (0.0 to 1.0).
   /// Higher values = more overlay = better text readability.
@@ -268,6 +271,7 @@ class SkinBackgrounds {
     this.exercises,
     this.more,
     this.defaultBackground,
+    this.appIcon,
     this.lightOverlayOpacity = 0.7,
     this.darkOverlayOpacity = 0.75,
   });

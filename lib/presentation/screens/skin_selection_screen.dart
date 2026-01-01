@@ -1,7 +1,14 @@
+import 'dart:io';
+
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../../core/theme/skins/skins.dart';
+import '../../data/services/theme_image_service.dart';
 
 /// Screen for selecting and previewing app skins/themes.
 class SkinSelectionScreen extends ConsumerWidget {
@@ -14,7 +21,17 @@ class SkinSelectionScreen extends ConsumerWidget {
     final skins = skinState.availableSkins;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Appearance'), centerTitle: true),
+      appBar: AppBar(
+        title: const Text('Appearance'),
+        centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.file_download),
+            tooltip: 'Import Theme',
+            onPressed: () => _importTheme(context, ref),
+          ),
+        ],
+      ),
       body: skinState.isLoading
           ? const Center(child: CircularProgressIndicator())
           : ListView(
@@ -24,14 +41,29 @@ class SkinSelectionScreen extends ConsumerWidget {
                 _CurrentSkinCard(skin: skinState.activeSkin),
                 const SizedBox(height: 24),
 
-                // Section header
+                // Section header with Create button
                 Padding(
                   padding: const EdgeInsets.only(left: 4, bottom: 12),
-                  child: Text(
-                    'Choose a Theme',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Choose a Theme',
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.bold),
+                      ),
+                      FilledButton.icon(
+                        onPressed: () => context.push('/theme-editor'),
+                        icon: const Icon(Icons.add, size: 20),
+                        label: const Text('Create'),
+                        style: FilledButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 8,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
 
@@ -62,6 +94,88 @@ class SkinSelectionScreen extends ConsumerWidget {
               ],
             ),
     );
+  }
+
+  Future<void> _importTheme(BuildContext context, WidgetRef ref) async {
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.any,
+        allowMultiple: false,
+      );
+
+      if (result == null || result.files.isEmpty) return;
+
+      final file = result.files.first;
+      if (file.path == null) return;
+
+      // Check file extension
+      if (!file.path!.endsWith('.yawa-theme')) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Please select a .yawa-theme file')),
+          );
+        }
+        return;
+      }
+
+      // Show loading indicator
+      if (context.mounted) {
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) =>
+              const Center(child: CircularProgressIndicator()),
+        );
+      }
+
+      // Read and parse the file
+      final fileContent = await File(file.path!).readAsString();
+      final skinRepository = ref.read(skinRepositoryProvider);
+      final themeImageService = ref.read(themeImageServiceProvider);
+
+      final parsed = await skinRepository.parseThemeFile(fileContent);
+
+      // Import images
+      await themeImageService.importThemeImagesFromBase64(
+        themeId: parsed.skin.id,
+        base64Map: parsed.imagesBase64,
+      );
+
+      // Get the actual image paths
+      final imagePaths = await themeImageService.getAllThemeImagePaths(
+        parsed.skin.id,
+      );
+
+      // Update skin with image paths
+      final updatedSkin = parsed.skin.copyWith(
+        backgrounds: SkinBackgrounds(
+          workout: imagePaths['workout'],
+          cycles: imagePaths['cycles'],
+          exercises: imagePaths['exercises'],
+          more: imagePaths['more'],
+          defaultBackground: imagePaths['default'],
+          appIcon: imagePaths['app_icon'],
+        ),
+      );
+
+      // Save the skin
+      await ref.read(skinProvider.notifier).saveCustomSkin(updatedSkin);
+
+      // Close loading dialog and show success
+      if (context.mounted) {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Theme "${updatedSkin.name}" imported!')),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        Navigator.pop(context); // Close loading dialog if open
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error importing theme: $e')));
+      }
+    }
   }
 }
 
@@ -133,7 +247,7 @@ class _CurrentSkinCard extends StatelessWidget {
 }
 
 /// Card for a single skin option.
-class _SkinCard extends StatelessWidget {
+class _SkinCard extends ConsumerWidget {
   final SkinModel skin;
   final bool isSelected;
   final VoidCallback onTap;
@@ -145,12 +259,16 @@ class _SkinCard extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final primaryColor = skin.colors.primaryColor;
+    final isCustomSkin = !skin.isBuiltIn;
 
     return GestureDetector(
       onTap: onTap,
+      onLongPress: isCustomSkin
+          ? () => _showCustomSkinOptions(context, ref)
+          : null,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         decoration: BoxDecoration(
@@ -235,6 +353,15 @@ class _SkinCard extends StatelessWidget {
                         color: Colors.white,
                         size: 16,
                       ),
+                    )
+                  else if (isCustomSkin)
+                    GestureDetector(
+                      onTap: () => context.push('/theme-editor/${skin.id}'),
+                      child: Icon(
+                        Icons.edit,
+                        color: theme.colorScheme.onSurfaceVariant,
+                        size: 20,
+                      ),
                     ),
                 ],
               ),
@@ -243,6 +370,124 @@ class _SkinCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  void _showCustomSkinOptions(BuildContext context, WidgetRef ref) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.edit),
+              title: const Text('Edit Theme'),
+              onTap: () {
+                Navigator.pop(context);
+                context.push('/theme-editor/${skin.id}');
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.share),
+              title: const Text('Share Theme'),
+              onTap: () async {
+                Navigator.pop(context);
+                await _shareTheme(context, ref);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.delete_outline, color: Colors.red),
+              title: const Text(
+                'Delete Theme',
+                style: TextStyle(color: Colors.red),
+              ),
+              onTap: () async {
+                Navigator.pop(context);
+                final confirm = await showDialog<bool>(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: const Text('Delete Theme?'),
+                    content: Text(
+                      'Are you sure you want to delete "${skin.name}"?',
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context, false),
+                        child: const Text('Cancel'),
+                      ),
+                      TextButton(
+                        onPressed: () => Navigator.pop(context, true),
+                        style: TextButton.styleFrom(
+                          foregroundColor: Colors.red,
+                        ),
+                        child: const Text('Delete'),
+                      ),
+                    ],
+                  ),
+                );
+                if (confirm == true) {
+                  await ref
+                      .read(skinProvider.notifier)
+                      .deleteCustomSkin(skin.id);
+                }
+              },
+            ),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _shareTheme(BuildContext context, WidgetRef ref) async {
+    try {
+      // Show loading indicator
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const Center(child: CircularProgressIndicator()),
+      );
+
+      final skinRepository = ref.read(skinRepositoryProvider);
+      final themeImageService = ref.read(themeImageServiceProvider);
+
+      // Export images as Base64
+      final imagesBase64 = await themeImageService.exportThemeImagesAsBase64(
+        skin.id,
+      );
+
+      // Create the theme package
+      final themeJson = await skinRepository.exportSkinWithImages(
+        skin,
+        imagesBase64,
+      );
+
+      // Write to a temporary file
+      final tempDir = await getTemporaryDirectory();
+      final fileName =
+          '${skin.name.replaceAll(RegExp(r'[^\w\s-]'), '').replaceAll(' ', '_')}.yawa-theme';
+      final file = File('${tempDir.path}/$fileName');
+      await file.writeAsString(themeJson);
+
+      // Close loading dialog
+      if (context.mounted) Navigator.pop(context);
+
+      // Share the file
+      await SharePlus.instance.share(
+        ShareParams(
+          files: [XFile(file.path)],
+          subject: 'YAWA Theme: ${skin.name}',
+          text: 'Check out my custom YAWA workout theme: ${skin.name}',
+        ),
+      );
+    } catch (e) {
+      if (context.mounted) {
+        Navigator.pop(context); // Close loading dialog
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error sharing theme: $e')));
+      }
+    }
   }
 }
 

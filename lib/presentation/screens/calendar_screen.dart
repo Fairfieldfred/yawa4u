@@ -4,14 +4,14 @@ import 'package:table_calendar/table_calendar.dart';
 
 import '../../core/theme/skins/skins.dart';
 import '../../core/utils/date_helpers.dart';
-import '../../data/services/schedule_service.dart';
 import '../../domain/controllers/workout_home_controller.dart';
 import '../../domain/providers/calendar_providers.dart';
 import '../../domain/providers/navigation_providers.dart';
+import '../../domain/providers/theme_provider.dart';
 import '../../domain/providers/training_cycle_providers.dart';
 import '../../domain/providers/workout_providers.dart';
+import '../widgets/calendar/calendar_edit_sheet.dart';
 import '../widgets/calendar/calendar_legend_dialog.dart';
-import '../widgets/calendar/workout_move_sheet.dart';
 import '../widgets/screen_background.dart';
 
 /// Calendar screen showing workouts in a monthly calendar view
@@ -45,23 +45,23 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
           backgroundColor: Colors.transparent,
           title: const Text('Calendar'),
           actions: [
-            // Shift backward button
-            IconButton(
-              icon: const Icon(Icons.keyboard_arrow_left),
-              tooltip: 'Shift cycle back 1 day',
-              onPressed: () => _shiftCycle(-1),
-            ),
-            // Shift forward button
-            IconButton(
-              icon: const Icon(Icons.keyboard_arrow_right),
-              tooltip: 'Shift cycle forward 1 day',
-              onPressed: () => _shiftCycle(1),
-            ),
             // Today button
             IconButton(
               icon: const Icon(Icons.today),
               tooltip: 'Go to today',
               onPressed: _goToToday,
+            ),
+            // Theme toggle
+            IconButton(
+              icon: Icon(
+                ref.watch(isDarkModeProvider)
+                    ? Icons.light_mode
+                    : Icons.dark_mode,
+              ),
+              tooltip: 'Toggle theme',
+              onPressed: () {
+                ref.read(themeModeProvider.notifier).toggleTheme();
+              },
             ),
             // Legend info button
             IconButton(
@@ -83,11 +83,29 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
       workoutsByTrainingCycleProvider(trainingCycle.id),
     );
 
-    final calendarData = buildCalendarData(
-      cycle: trainingCycle,
-      allWorkouts: allWorkouts,
-      month: _focusedDay,
-    );
+    // Build calendar data for current month and adjacent months
+    // to handle overflow days shown in calendar view
+    final currentMonth = DateTime(_focusedDay.year, _focusedDay.month, 1);
+    final prevMonth = DateTime(_focusedDay.year, _focusedDay.month - 1, 1);
+    final nextMonth = DateTime(_focusedDay.year, _focusedDay.month + 1, 1);
+
+    final calendarData = [
+      ...buildCalendarData(
+        cycle: trainingCycle,
+        allWorkouts: allWorkouts,
+        month: prevMonth,
+      ),
+      ...buildCalendarData(
+        cycle: trainingCycle,
+        allWorkouts: allWorkouts,
+        month: currentMonth,
+      ),
+      ...buildCalendarData(
+        cycle: trainingCycle,
+        allWorkouts: allWorkouts,
+        month: nextMonth,
+      ),
+    ];
 
     // Build lookup map for quick access
     final dataMap = <DateTime, CalendarDayData>{};
@@ -155,6 +173,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
       firstDay: DateTime(2020),
       lastDay: DateTime(2030),
       focusedDay: _focusedDay,
+      rowHeight: 70,
       selectedDayPredicate: (day) {
         return _selectedDay != null &&
             DateHelpers.isSameDay(day, _selectedDay!);
@@ -174,7 +193,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
       onDayLongPressed: (selectedDay, focusedDay) {
         final dayData = dataMap[DateHelpers.stripTime(selectedDay)];
         if (dayData?.hasWorkout ?? false) {
-          _showMoveSheet(context, trainingCycle, dayData!);
+          _showEditSheet(context, dayData!);
         }
       },
       onPageChanged: (focusedDay) {
@@ -184,6 +203,8 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
       },
       calendarStyle: CalendarStyle(
         outsideDaysVisible: true,
+        cellMargin: const EdgeInsets.all(1),
+        cellPadding: EdgeInsets.zero,
         outsideTextStyle: TextStyle(
           color: Theme.of(context).colorScheme.onSurface.withAlpha(51),
         ),
@@ -317,88 +338,104 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     // Border for today/selected
     BoxBorder? border;
     if (isSelected) {
-      border = Border.all(color: context.warningColor, width: 2);
+      border = Border.all(color: context.warningColor, width: 3);
     } else if (isToday) {
-      border = Border.all(color: context.workoutCurrentColor, width: 2);
+      border = Border.all(color: context.workoutCurrentColor, width: 3);
     }
 
-    return Container(
-      margin: const EdgeInsets.all(2),
-      decoration: BoxDecoration(
-        color: backgroundColor,
-        borderRadius: BorderRadius.circular(8),
-        border: border,
-      ),
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // Day number
-              Text(
-                '${day.day}',
-                style: TextStyle(
-                  color: textColor,
-                  fontSize: 14,
-                  fontWeight: (isToday || isSelected)
-                      ? FontWeight.bold
-                      : FontWeight.normal,
-                ),
-              ),
-              // Period/Day indicator
-              if (dayData?.hasWorkout ?? false)
-                Text(
-                  'P${dayData!.periodNumber}D${dayData.dayNumber}',
-                  style: TextStyle(
-                    color: textColor.withAlpha(200),
-                    fontSize: 8,
-                    fontWeight: FontWeight.w500,
+    return SizedBox.expand(
+      child: Container(
+        margin: const EdgeInsets.all(1),
+        decoration: BoxDecoration(
+          color: backgroundColor,
+          borderRadius: BorderRadius.circular(6),
+          border: border,
+        ),
+        child: Column(
+          children: [
+            // Top section: Day number and period/day
+            Expanded(
+              flex: 3,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    '${day.day}',
+                    style: TextStyle(
+                      color: textColor,
+                      fontSize: 16,
+                      fontWeight: (isToday || isSelected)
+                          ? FontWeight.bold
+                          : FontWeight.normal,
+                    ),
                   ),
-                ),
-            ],
-          ),
-          // Muscle group dots at bottom
-          if (dayData?.hasWorkout ?? false)
-            Positioned(
-              bottom: 2,
-              child: _buildMuscleGroupDots(context, dayData!.muscleGroups),
+                  if (dayData?.hasWorkout ?? false)
+                    Text(
+                      'P${dayData!.periodNumber}D${dayData.dayNumber}',
+                      style: TextStyle(
+                        color: textColor.withAlpha(200),
+                        fontSize: 9,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                ],
+              ),
             ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildOutsideDayCell(BuildContext context, DateTime day) {
-    return Container(
-      margin: const EdgeInsets.all(2),
-      alignment: Alignment.center,
-      child: Text(
-        '${day.day}',
-        style: TextStyle(
-          color: Theme.of(context).colorScheme.onSurface.withAlpha(51),
-          fontSize: 14,
+            // Bottom section: Muscle group color bars
+            if (dayData?.hasWorkout ?? false)
+              Padding(
+                padding: const EdgeInsets.only(left: 4, right: 4, bottom: 4),
+                child: _buildMuscleGroupBars(context, dayData!.muscleGroupSets),
+              ),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildMuscleGroupDots(BuildContext context, Set<String> muscleGroups) {
-    if (muscleGroups.isEmpty) return const SizedBox.shrink();
+  Widget _buildOutsideDayCell(BuildContext context, DateTime day) {
+    return SizedBox.expand(
+      child: Container(
+        margin: const EdgeInsets.all(1),
+        alignment: Alignment.center,
+        child: Text(
+          '${day.day}',
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onSurface.withAlpha(51),
+            fontSize: 16,
+          ),
+        ),
+      ),
+    );
+  }
 
-    // Limit to 4 dots
-    final groups = muscleGroups.take(4).toList();
+  Widget _buildMuscleGroupBars(
+    BuildContext context,
+    Map<String, int> muscleGroupSets,
+  ) {
+    if (muscleGroupSets.isEmpty) return const SizedBox.shrink();
+
+    // Take up to 4 muscle groups, sorted by set count descending
+    final sortedEntries = muscleGroupSets.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+    final groups = sortedEntries.take(4).toList();
+
+    // Calculate total sets for proportional widths
+    final totalSets = groups.fold<int>(0, (sum, e) => sum + e.value);
 
     return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: groups.map((group) {
-        return Container(
-          width: 4,
-          height: 4,
-          margin: const EdgeInsets.symmetric(horizontal: 1),
-          decoration: BoxDecoration(
-            color: _getMuscleGroupColor(context, group),
-            shape: BoxShape.circle,
+      children: groups.map((entry) {
+        // Use flex based on set count for proportional width
+        final flex = ((entry.value / totalSets) * 100).round().clamp(1, 100);
+        return Expanded(
+          flex: flex,
+          child: Container(
+            height: 12,
+            margin: const EdgeInsets.symmetric(horizontal: 1),
+            decoration: BoxDecoration(
+              color: _getMuscleGroupColor(context, entry.key),
+              borderRadius: BorderRadius.circular(4),
+            ),
           ),
         );
       }).toList(),
@@ -441,14 +478,20 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                DateHelpers.fullDate.format(_selectedDay!),
-                style: Theme.of(
-                  context,
-                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+              Expanded(
+                child: Text(
+                  DateHelpers.fullDate.format(_selectedDay!),
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
               if (dayData?.hasWorkout ?? false)
-                _buildStatusBadge(context, dayData!),
+                Padding(
+                  padding: const EdgeInsets.only(left: 8),
+                  child: _buildStatusBadge(context, dayData!),
+                ),
             ],
           ),
           const SizedBox(height: 8),
@@ -532,10 +575,9 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
           children: [
             Expanded(
               child: OutlinedButton.icon(
-                onPressed: () =>
-                    _showMoveSheet(context, trainingCycle, dayData),
-                icon: const Icon(Icons.open_with, size: 18),
-                label: const Text('Move'),
+                onPressed: () => _showEditSheet(context, dayData),
+                icon: const Icon(Icons.edit, size: 18),
+                label: const Text('Edit'),
               ),
             ),
             const SizedBox(width: 12),
@@ -562,84 +604,47 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     });
   }
 
-  Future<void> _shiftCycle(int days) async {
+  Future<void> _insertDayBefore(int period, int day) async {
     final cycle = ref.read(currentTrainingCycleProvider);
     if (cycle == null) return;
 
     try {
       final service = ref.read(scheduleServiceProvider);
-      final snapshot = await service.shiftTrainingCycleStart(cycle.id, days);
-
-      // Store snapshot for undo
-      ref.read(calendarUndoProvider.notifier).setSnapshot(cycle.id, snapshot);
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to shift cycle: $e'),
-            backgroundColor: context.errorColor,
-          ),
-        );
-      }
-    }
-  }
-
-  void _showMoveSheet(
-    BuildContext context,
-    dynamic trainingCycle,
-    CalendarDayData dayData,
-  ) {
-    WorkoutMoveSheet.show(
-      context,
-      sourcePeriod: dayData.periodNumber!,
-      sourceDay: dayData.dayNumber!,
-      cycleStartDate: trainingCycle.startDate,
-      daysPerPeriod: trainingCycle.daysPerPeriod,
-      periodsTotal: trainingCycle.periodsTotal,
-      onMove: (targetPeriod, targetDay, mode) async {
-        await _moveWorkout(
-          trainingCycle.id,
-          dayData.periodNumber!,
-          dayData.dayNumber!,
-          targetPeriod,
-          targetDay,
-          mode,
-        );
-      },
-    );
-  }
-
-  Future<void> _moveWorkout(
-    String cycleId,
-    int sourcePeriod,
-    int sourceDay,
-    int targetPeriod,
-    int targetDay,
-    MoveMode mode,
-  ) async {
-    try {
-      final service = ref.read(scheduleServiceProvider);
-      final snapshot = await service.moveWorkout(
-        cycleId: cycleId,
-        sourcePeriod: sourcePeriod,
-        sourceDay: sourceDay,
-        targetPeriod: targetPeriod,
-        targetDay: targetDay,
-        mode: mode,
+      final snapshot = await service.insertDayBefore(
+        cycleId: cycle.id,
+        fromPeriod: period,
+        fromDay: day,
       );
 
       // Store snapshot for undo
-      ref.read(calendarUndoProvider.notifier).setSnapshot(cycleId, snapshot);
+      ref.read(calendarUndoProvider.notifier).setSnapshot(cycle.id, snapshot);
+
+      // Invalidate provider to force refresh from repository
+      ref.invalidate(trainingCyclesProvider);
+
+      // Force UI rebuild
+      if (mounted) {
+        setState(() {});
+      }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to move workout: $e'),
+            content: Text('Failed to insert day: $e'),
             backgroundColor: context.errorColor,
           ),
         );
       }
     }
+  }
+
+  void _showEditSheet(BuildContext context, CalendarDayData dayData) {
+    CalendarEditSheet.show(
+      context,
+      selectedPeriod: dayData.periodNumber!,
+      selectedDay: dayData.dayNumber!,
+      onInsertDayBefore: (period, day) => _insertDayBefore(period, day),
+    );
   }
 
   void _navigateToWorkout(CalendarDayData dayData) {

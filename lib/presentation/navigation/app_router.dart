@@ -18,6 +18,7 @@ import '../screens/settings_screen.dart';
 import '../screens/skin_selection_screen.dart';
 import '../screens/sync_screen.dart';
 import '../screens/template_share_screen.dart';
+import '../screens/theme_editor_screen.dart';
 
 /// Navigation routes
 class AppRoutes {
@@ -156,6 +157,23 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/skins',
         name: 'skins',
         builder: (context, state) => const SkinSelectionScreen(),
+      ),
+
+      // Theme editor screen (create new)
+      GoRoute(
+        path: '/theme-editor',
+        name: 'theme-editor',
+        builder: (context, state) => const ThemeEditorScreen(),
+      ),
+
+      // Theme editor screen (edit existing)
+      GoRoute(
+        path: '/theme-editor/:skinId',
+        name: 'theme-editor-edit',
+        builder: (context, state) {
+          final skinId = state.pathParameters['skinId']!;
+          return ThemeEditorScreen(skinId: skinId);
+        },
       ),
 
       // Settings screen
