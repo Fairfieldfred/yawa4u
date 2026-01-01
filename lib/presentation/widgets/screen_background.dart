@@ -80,7 +80,25 @@ class ScreenBackground extends ConsumerWidget {
         ? (skin.backgrounds?.darkOverlayOpacity ?? 0.75)
         : (skin.backgrounds?.lightOverlayOpacity ?? 0.7);
 
-    // Use FutureBuilder to resolve the path (handles both relative and absolute)
+    // Check if this is an asset path (built-in themes)
+    if (backgroundPath.startsWith('assets/')) {
+      return Stack(
+        fit: StackFit.expand,
+        children: [
+          Positioned.fill(child: _buildBackgroundImage(backgroundPath)),
+          Positioned.fill(
+            child: Container(
+              color: (isDark ? Colors.black : Colors.white).withValues(
+                alpha: overlayOpacity,
+              ),
+            ),
+          ),
+          child,
+        ],
+      );
+    }
+
+    // For custom themes, use FutureBuilder to resolve the path
     return FutureBuilder<String?>(
       future: imageService.resolveImagePath(backgroundPath),
       builder: (context, snapshot) {

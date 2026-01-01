@@ -39,6 +39,25 @@ class AppIconWidget extends ConsumerWidget {
 
     // If the active skin has a custom app icon, use it
     if (customAppIcon != null && customAppIcon.isNotEmpty) {
+      // Check if this is an asset path (built-in themes)
+      if (customAppIcon.startsWith('assets/')) {
+        return Padding(
+          padding: const EdgeInsets.only(left: 12, right: 8),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: Image.asset(
+              customAppIcon,
+              width: iconSize,
+              height: iconSize,
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) =>
+                  _buildDefaultIcon(context, ref, iconSize),
+            ),
+          ),
+        );
+      }
+
+      // For custom themes, resolve the file path
       return Padding(
         padding: const EdgeInsets.only(left: 12, right: 8),
         child: ClipRRect(
