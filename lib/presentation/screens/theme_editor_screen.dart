@@ -89,19 +89,30 @@ class _ThemeEditorScreenState extends ConsumerState<ThemeEditorScreen> {
       _primaryColor = skin.colors.primaryColor;
       _secondaryColor = skin.colors.secondaryColor;
 
-      // Load existing image paths
+      // Resolve paths from the saved skin model (handles both relative and legacy absolute)
       final imageService = ref.read(themeImageServiceProvider);
-      final imagePaths = await imageService.getAllThemeImagePaths(_themeId);
+      final backgrounds = skin.backgrounds;
+      if (backgrounds != null) {
+        // Resolve all paths to absolute paths for display
+        _workoutImagePath = await imageService.resolveImagePath(
+          backgrounds.workout,
+        );
+        _cyclesImagePath = await imageService.resolveImagePath(
+          backgrounds.cycles,
+        );
+        _exercisesImagePath = await imageService.resolveImagePath(
+          backgrounds.exercises,
+        );
+        _moreImagePath = await imageService.resolveImagePath(backgrounds.more);
+        _defaultImagePath = await imageService.resolveImagePath(
+          backgrounds.defaultBackground,
+        );
+        _appIconImagePath = await imageService.resolveImagePath(
+          backgrounds.appIcon,
+        );
+      }
 
-      setState(() {
-        _workoutImagePath = imagePaths['workout'];
-        _cyclesImagePath = imagePaths['cycles'];
-        _exercisesImagePath = imagePaths['exercises'];
-        _moreImagePath = imagePaths['more'];
-        _defaultImagePath = imagePaths['default'];
-        _appIconImagePath = imagePaths['app_icon'];
-        _isLoading = false;
-      });
+      setState(() => _isLoading = false);
     } catch (e) {
       setState(() => _isLoading = false);
       if (mounted) {
@@ -256,6 +267,15 @@ class _ThemeEditorScreenState extends ConsumerState<ThemeEditorScreen> {
       // Build the skin model
       final skin = _buildSkinModel();
 
+      // Debug: Print the backgrounds being saved
+      debugPrint('[ThemeEditor] Saving theme with backgrounds:');
+      debugPrint('  workout: ${skin.backgrounds?.workout}');
+      debugPrint('  cycles: ${skin.backgrounds?.cycles}');
+      debugPrint('  exercises: ${skin.backgrounds?.exercises}');
+      debugPrint('  more: ${skin.backgrounds?.more}');
+      debugPrint('  default: ${skin.backgrounds?.defaultBackground}');
+      debugPrint('  appIcon: ${skin.backgrounds?.appIcon}');
+
       // Save to repository
       await ref.read(skinProvider.notifier).saveCustomSkin(skin);
 
@@ -285,6 +305,9 @@ class _ThemeEditorScreenState extends ConsumerState<ThemeEditorScreen> {
   SkinModel _buildSkinModel() {
     // Start with original or default values
     final base = _originalSkin;
+
+    // Get image service for path conversion
+    final imageService = ref.read(themeImageServiceProvider);
 
     return SkinModel(
       id: _themeId,
@@ -352,12 +375,12 @@ class _ThemeEditorScreenState extends ConsumerState<ThemeEditorScreen> {
             buttonElevation: 2,
           ),
       backgrounds: SkinBackgrounds(
-        workout: _workoutImagePath,
-        cycles: _cyclesImagePath,
-        exercises: _exercisesImagePath,
-        more: _moreImagePath,
-        defaultBackground: _defaultImagePath,
-        appIcon: _appIconImagePath,
+        workout: imageService.toRelativePath(_workoutImagePath),
+        cycles: imageService.toRelativePath(_cyclesImagePath),
+        exercises: imageService.toRelativePath(_exercisesImagePath),
+        more: imageService.toRelativePath(_moreImagePath),
+        defaultBackground: imageService.toRelativePath(_defaultImagePath),
+        appIcon: imageService.toRelativePath(_appIconImagePath),
       ),
     );
   }

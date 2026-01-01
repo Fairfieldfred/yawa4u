@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/theme/skins/skin_model.dart';
 import '../../core/theme/skins/skin_provider.dart';
+import '../../data/services/theme_image_service.dart';
 import '../../domain/providers/theme_provider.dart';
 
 /// Screen identifiers for background selection.
@@ -64,8 +65,9 @@ class ScreenBackground extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final skin = ref.watch(activeSkinProvider);
     final isDark = ref.watch(isDarkModeProvider);
+    final imageService = ref.watch(themeImageServiceProvider);
 
-    // Get the appropriate background image path
+    // Get the appropriate background image path (may be relative or absolute)
     final backgroundPath = backgroundOverride ?? _getBackgroundPath(skin);
 
     // If no background image, just return the child
@@ -78,24 +80,37 @@ class ScreenBackground extends ConsumerWidget {
         ? (skin.backgrounds?.darkOverlayOpacity ?? 0.75)
         : (skin.backgrounds?.lightOverlayOpacity ?? 0.7);
 
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        // Background image
-        Positioned.fill(child: _buildBackgroundImage(backgroundPath)),
+    // Use FutureBuilder to resolve the path (handles both relative and absolute)
+    return FutureBuilder<String?>(
+      future: imageService.resolveImagePath(backgroundPath),
+      builder: (context, snapshot) {
+        final resolvedPath = snapshot.data;
 
-        // Overlay for readability
-        Positioned.fill(
-          child: Container(
-            color: (isDark ? Colors.black : Colors.white).withValues(
-              alpha: overlayOpacity,
+        // If path is not yet resolved or doesn't exist, just show child
+        if (resolvedPath == null) {
+          return child;
+        }
+
+        return Stack(
+          fit: StackFit.expand,
+          children: [
+            // Background image
+            Positioned.fill(child: _buildBackgroundImage(resolvedPath)),
+
+            // Overlay for readability
+            Positioned.fill(
+              child: Container(
+                color: (isDark ? Colors.black : Colors.white).withValues(
+                  alpha: overlayOpacity,
+                ),
+              ),
             ),
-          ),
-        ),
 
-        // Content
-        child,
-      ],
+            // Content
+            child,
+          ],
+        );
+      },
     );
   }
 

@@ -103,7 +103,8 @@ class ThemeImageService {
   }
 
   /// Save an image to the theme's directory.
-  /// Returns the saved file path, or null if saving fails.
+  /// Returns the ABSOLUTE file path for immediate use in the UI.
+  /// When persisting to database, use [toRelativePath] to convert for storage.
   Future<String?> saveThemeImage({
     required String themeId,
     required String
@@ -119,11 +120,64 @@ class ThemeImageService {
       final targetFile = File(path.join(themeDir.path, fileName));
 
       await targetFile.writeAsBytes(compressedBytes);
+
+      // Return absolute path for immediate UI use
       return targetFile.path;
     } catch (e) {
       debugPrint('Error saving theme image: $e');
       return null;
     }
+  }
+
+  /// Convert an absolute path to a relative path for storage.
+  /// This ensures paths survive iOS container ID changes.
+  String? toRelativePath(String? absolutePath) {
+    if (absolutePath == null || absolutePath.isEmpty) return null;
+
+    // Already relative
+    if (!absolutePath.startsWith('/')) return absolutePath;
+
+    // Extract relative path from absolute
+    final themesIndex = absolutePath.indexOf('/themes/');
+    if (themesIndex != -1) {
+      return absolutePath.substring(themesIndex + 1); // Remove leading '/'
+    }
+
+    // Can't convert, return as-is
+    return absolutePath;
+  }
+
+  /// Convert a relative path to an absolute path.
+  /// Handles both relative paths (themes/...) and legacy absolute paths.
+  Future<String?> resolveImagePath(String? relativePath) async {
+    if (relativePath == null || relativePath.isEmpty) return null;
+
+    // If it's already an absolute path (legacy), check if file exists
+    if (relativePath.startsWith('/')) {
+      final file = File(relativePath);
+      if (await file.exists()) {
+        return relativePath;
+      }
+      // Try to extract relative path from legacy absolute path
+      final themesIndex = relativePath.indexOf('/themes/');
+      if (themesIndex != -1) {
+        relativePath = relativePath.substring(
+          themesIndex + 1,
+        ); // Remove leading '/'
+      } else {
+        return null; // Can't recover
+      }
+    }
+
+    // Build absolute path from relative
+    final appDir = await getApplicationDocumentsDirectory();
+    final absolutePath = path.join(appDir.path, relativePath);
+    final file = File(absolutePath);
+
+    if (await file.exists()) {
+      return absolutePath;
+    }
+    return null;
   }
 
   /// Delete all images for a theme.

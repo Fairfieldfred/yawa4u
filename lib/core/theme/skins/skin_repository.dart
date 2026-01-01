@@ -91,9 +91,19 @@ class SkinRepository {
 
     try {
       final List<dynamic> jsonList = json.decode(jsonString);
-      return jsonList
+      final skins = jsonList
           .map((j) => SkinModel.fromJson(j as Map<String, dynamic>))
           .toList();
+
+      // Debug: Log loaded custom skins and their backgrounds
+      for (final skin in skins) {
+        debugPrint(
+          '[SkinRepository] Loaded custom skin: ${skin.name} (${skin.id})',
+        );
+        debugPrint('  backgrounds: ${skin.backgrounds?.toJson()}');
+      }
+
+      return skins;
     } on FormatException catch (e) {
       debugPrint('[SkinRepository] Error parsing custom skins: $e');
       return [];
@@ -221,6 +231,8 @@ class SkinRepository {
   Future<void> _saveCustomSkins(List<SkinModel> skins) async {
     final jsonList = skins.map((s) => s.toJson()).toList();
     final jsonString = json.encode(jsonList);
+    debugPrint('[SkinRepository] Saving ${skins.length} custom skins');
+    debugPrint('[SkinRepository] JSON being saved: $jsonString');
     await _box.put(_customSkinsKey, jsonString);
   }
 
