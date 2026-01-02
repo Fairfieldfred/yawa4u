@@ -2,106 +2,92 @@
 
 ## Project Overview
 
-Flutter workout tracking app (iOS, Android, Web, macOS, Windows, Linux) using **Riverpod 3.0** for state management and **Hive** for local-first persistence. The app tracks TrainingCycles → Workouts → Exercises → Sets.
+Flutter workout tracking app (iOS, Android, Web, macOS, Windows, Linux) using **Riverpod 3.0** for state management and **Hive** for local-first persistence. Tracks: TrainingCycle → Period → Workout → Exercise → ExerciseSet.
 
-## Architecture (Clean Architecture)
+## Architecture
 
 ```
 lib/
-├── core/          # Shared utilities, constants, theme system
-├── data/          # Models, repositories, services (Hive persistence)
-├── domain/        # Providers (Riverpod), controllers (business logic)
-├── presentation/  # Screens, widgets, navigation (go_router)
+├── core/          # Utilities, constants, theme system (enums.dart for all Hive-persisted enums)
+├── data/          # Models (*.g.dart generated), repositories, services
+├── domain/        # Providers (Riverpod), controllers (WorkoutHomeController)
+├── presentation/  # Screens, widgets, go_router navigation
 ```
 
-### Key Data Flow
+## ⚠️ Critical Domain Concepts
 
-- **Providers** in `domain/providers/` expose repositories and computed state
-- **Repositories** in `data/repositories/` wrap Hive boxes with typed CRUD operations
-- **Controllers** in `domain/controllers/` handle complex UI state (see `WorkoutHomeController`)
+### Workout vs Training Day
+
+The database stores **multiple `Workout` objects per training day** (one per muscle group). All workouts for the same day share `periodNumber` and `dayNumber`, differentiated by `label`. Aggregate all `Workout` objects when displaying a day's workout to users.
+
+### Periods vs Weeks
+
+Uses "periods" (not weeks) for flexible schedules (8, 9, 10+ day cycles):
+
+- `periodsTotal` / `daysPerPeriod` - Cycle structure (uniform)
+- `periodNumber` / `dayNumber` - Workout positioning (1-indexed)
+- `recoveryPeriod` + `RecoveryPeriodType` - Optional deload/rest period
+
+### Data Snapshot Warning
+
+`TrainingCycle.workouts` is a **snapshot at creation**—always use `workoutsByTrainingCycleProvider(cycleId)` for current workout state.
+
+## State Management
+
+### Provider Pattern (domain/providers/)
+
+```dart
+// Reactive Hive watching via StreamProvider
+final trainingCyclesProvider = StreamProvider<List<TrainingCycle>>((ref) async* {
+  final repository = ref.watch(trainingCycleRepositoryProvider);
+  yield repository.getAllSorted();
+  await for (final _ in repository.box.watch()) { yield repository.getAllSorted(); }
+});
+
+// Parameterized access via Provider.family
+final trainingCycleProvider = Provider.family<TrainingCycle?, String>((ref, id) => ...);
+```
+
+### Controller Pattern (domain/controllers/)
+
+Complex screens use `Notifier<State>` with immutable state classes:
+
+```dart
+class WorkoutHomeController extends Notifier<WorkoutHomeState> {
+  // Access repos via ref.read(workoutRepositoryProvider)
+}
+```
 
 ## Code Generation
 
-Models with `part '*.g.dart'` require build_runner. After modifying these files, run:
+Files with `part '*.g.dart'` require regeneration after changes:
 
 ```bash
 dart run build_runner build --delete-conflicting-outputs
 ```
 
-Files needing generation: `data/models/*.dart`, `core/constants/enums.dart`, `core/theme/skins/skin_model.dart`
-
-## State Management Patterns
-
-### Riverpod Providers (domain/providers/)
-
-- Use `StreamProvider` for reactive Hive box watching (see `trainingCyclesProvider`)
-- Use `Provider.family` for parameterized access (e.g., `trainingCycleProvider` by ID)
-- Repositories accessed via `ref.watch(trainingCycleRepositoryProvider)`
-
-### Controller Pattern
-
-Complex screen logic uses `Notifier<State>` pattern:
-
-```dart
-class WorkoutHomeController extends Notifier<WorkoutHomeState> {
-  // Business logic methods access repositories via ref.read()
-}
-```
+Affected: `data/models/*.dart`, `core/constants/enums.dart`, `core/theme/skins/skin_model.dart`
 
 ## Skin/Theme System
 
-The app has a dynamic theming system in `core/theme/skins/`:
+Located in `core/theme/skins/`:
 
-- `SkinModel` - JSON-serializable theme configuration
-- `SkinBuilder.buildTheme()` - Converts skin to `ThemeData`
-- `SkinRepository` - Persists active skin selection
-- Built-in skins in `skins/built_in_skins/` follow the pattern in `default_skin.dart`
-
-Access theme extensions: `Theme.of(context).extension<SkinExtension>()`
-
-## Domain Concepts
-
-- **TrainingCycle**: Multi-period program (draft → current → completed)
-- **Period**: A flexible-length training block (not fixed to 7 days). Each cycle defines `daysPerPeriod` uniformly.
-- **Workout**: Represents exercises for ONE muscle group within a training day (see critical note below)
-- **Exercise**: Has sets, feedback, muscle group, equipment type
-- **Templates**: JSON files in `assets/templates/` define program structures
-
-## ⚠️ Critical: Workout vs Training Day
-
-The database stores **multiple `Workout` objects per training day** (one per muscle group). All workouts for the same day share `periodNumber` and `dayNumber`, differentiated by `label`. When displaying a "day's workout" to users, aggregate all `Workout` objects for that day.
-
-## ⚠️ Important: Periods vs Weeks
-
-The app uses **"periods"** instead of weeks to support flexible training schedules (8, 9, 10+ day cycles with rest days). Key terminology:
-
-- `periodsTotal` - Total number of periods in a cycle
-- `daysPerPeriod` - Days in each period (uniform across the cycle)
-- `periodNumber` - Which period a workout belongs to (1-indexed)
-- `recoveryPeriod` - Optional lighter period (replaces "deload week")
-- `RecoveryPeriodType` - Type of recovery: deload, activeRecovery, or rest
-
-## WiFi Sync Feature
-
-Local device-to-device sync via `WifiSyncService` in `data/services/wifi_sync_service.dart`:
-
-- Uses `shelf` HTTP server + QR codes (`qr_flutter`, `mobile_scanner`)
-- One device hosts server, other scans QR to connect
-- Transfers full backup via `DataBackupService`
-- Provider: `wifiSyncServiceProvider` in `domain/providers/sync_providers.dart`
+- `SkinModel` - JSON-serializable config (`@JsonSerializable`)
+- `SkinBuilder.buildTheme()` - Converts to `ThemeData`
+- Built-in skins in `built_in_skins/` (e.g., `default_skin.dart`)
+- Access: `Theme.of(context).extension<SkinExtension>()`
+- Colors stored as hex strings, parsed via `SkinColors.parseHex()`
 
 ## Template Authoring
 
-Templates in `assets/templates/*.json` define workout programs. Structure:
+Templates in `assets/templates/*.json` auto-discovered via AssetManifest:
 
 ```json
 {
   "id": "unique_id",
   "name": "Template Name",
-  "description": "...",
   "periodsTotal": 5,
   "daysPerPeriod": 8,
-  "recoveryPeriod": 5,
   "workouts": [
     {
       "periodNumber": 1,
@@ -109,9 +95,9 @@ Templates in `assets/templates/*.json` define workout programs. Structure:
       "dayName": "Day 1",
       "exercises": [
         {
-          "name": "Exercise Name",
-          "muscleGroup": "quads", // matches MuscleGroup enum
-          "equipmentType": "barbell", // matches EquipmentType enum
+          "name": "Bench Press",
+          "muscleGroup": "chest",
+          "equipmentType": "barbell",
           "sets": 3,
           "reps": "8-12",
           "setType": "regular"
@@ -122,40 +108,25 @@ Templates in `assets/templates/*.json` define workout programs. Structure:
 }
 ```
 
-After adding templates, they're auto-discovered via `AssetManifest`.
+Enum values (`muscleGroup`, `equipmentType`, `setType`) must match `core/constants/enums.dart`.
 
 ## Navigation
 
-Uses `go_router` configured in `presentation/navigation/app_router.dart`. Routes defined in `AppRoutes` class. Onboarding redirect handled in router's `redirect` callback.
+`go_router` in `presentation/navigation/app_router.dart`. Routes in `AppRoutes` class. Onboarding redirect handled in router's `redirect` callback.
 
-## Testing
+## Common Commands
 
-```bash
-flutter test                    # Run all tests
-flutter test test/widget_test.dart  # Specific test
-```
-
-Tests wrap widgets in `ProviderScope` for Riverpod support.
-
-## Firebase & Sentry
-
-- Firebase Analytics tracks anonymous events (no PII)
-- Sentry captures crashes; DSN configured in `core/config/`
-- Disable Sentry: `flutter run --dart-define=SENTRY_ENABLED=false`
-
-## Common Tasks
-
-| Task            | Command                                                                   |
-| --------------- | ------------------------------------------------------------------------- |
-| Run app         | `flutter run`                                                             |
-| Regenerate code | `dart run build_runner build --delete-conflicting-outputs`                |
-| Add package     | `flutter pub add <package>`                                               |
-| Platform builds | `flutter build apk --release` / `flutter build ipa` / `flutter build web` |
+| Task           | Command                                                                   |
+| -------------- | ------------------------------------------------------------------------- |
+| Run            | `flutter run`                                                             |
+| Regenerate     | `dart run build_runner build --delete-conflicting-outputs`                |
+| Test           | `flutter test`                                                            |
+| Build          | `flutter build apk --release` / `flutter build ipa` / `flutter build web` |
+| Disable Sentry | `flutter run --dart-define=SENTRY_ENABLED=false`                          |
 
 ## Conventions
 
-- Enums use Hive `@HiveType` with `@HiveField` annotations (see `core/constants/enums.dart`)
-- Models have `copyWith()` methods for immutable updates
-- Color values in skins stored as hex strings, parsed via `SkinColors.parseHex()`
-- Repositories expose underlying `box` for stream-based watching
-- The `workouts` list inside `TrainingCycle` is a snapshot at creation—use `workoutsByTrainingCycleProvider` for current state
+- Enums: `@HiveType` + `@HiveField` annotations in `core/constants/enums.dart`
+- Models: Immutable with `copyWith()` methods
+- Repositories: Expose `box` property for stream-based watching
+- Tests: Wrap widgets in `ProviderScope`

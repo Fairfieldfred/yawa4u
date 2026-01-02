@@ -986,8 +986,9 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
         'Shared from ${trainingCycle.name}',
       );
 
-      // Refresh templates provider
-      ref.invalidate(availableTemplatesProvider);
+      // Refresh templates provider and wait for it to complete
+      // This ensures the new template is available when the share screen opens
+      await ref.refresh(availableTemplatesProvider.future);
 
       if (mounted) {
         // Navigate to template share screen with auto-start enabled
