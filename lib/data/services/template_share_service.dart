@@ -71,38 +71,84 @@ class TemplateShareService {
     return 'Unknown Device';
   }
 
+  /// Check if an IP address is a valid local network address for WiFi sharing
+  bool _isValidLocalNetworkIp(String ip) {
+    // Only accept RFC 1918 private network ranges used in home/office networks:
+    // - 192.168.0.0 - 192.168.255.255 (most common for home routers)
+    // - 10.0.0.0 - 10.255.255.255
+    // - 172.16.0.0 - 172.31.255.255
+    if (ip.startsWith('192.168.')) {
+      return true;
+    }
+    if (ip.startsWith('10.')) {
+      return true;
+    }
+    if (_isIn172PrivateRange(ip)) {
+      return true;
+    }
+    // Reject everything else including:
+    // - 169.254.x.x (link-local/APIPA)
+    // - 100.64-127.x.x (CGNAT, often Tailscale/carrier)
+    // - 127.x.x.x (loopback)
+    // - Public IPs
+    debugPrint('Rejecting non-private IP: $ip');
+    return false;
+  }
+
+  /// Check if IP is in 172.16.0.0 - 172.31.255.255 private range
+  bool _isIn172PrivateRange(String ip) {
+    if (!ip.startsWith('172.')) return false;
+    final parts = ip.split('.');
+    if (parts.length != 4) return false;
+    final secondOctet = int.tryParse(parts[1]);
+    return secondOctet != null && secondOctet >= 16 && secondOctet <= 31;
+  }
+
   /// Get local IP address with fallback for desktop platforms
   Future<String?> _getLocalIpAddress() async {
+    String? fallbackIp;
+
     // First try network_info_plus (works best on mobile)
     try {
       final networkInfo = NetworkInfo();
       final wifiIp = await networkInfo.getWifiIP();
+      debugPrint('network_info_plus returned: $wifiIp');
       if (wifiIp != null && wifiIp.isNotEmpty) {
-        return wifiIp;
+        if (_isValidLocalNetworkIp(wifiIp)) {
+          return wifiIp;
+        } else {
+          // Store as fallback, but try to find better address
+          fallbackIp = wifiIp;
+        }
       }
     } catch (e) {
       debugPrint('network_info_plus failed: $e');
     }
 
-    // Fallback: Get IP from network interfaces (works on desktop)
+    // Fallback: Get IP from network interfaces (works on desktop and as backup)
     try {
       final interfaces = await NetworkInterface.list(
         type: InternetAddressType.IPv4,
-        includeLinkLocal: false,
+        includeLinkLocal: true, // Include them so we can filter properly
       );
 
+      // Look for valid local network addresses (192.168.x.x, 10.x.x.x, 172.16-31.x.x)
       for (final interface in interfaces) {
         // Skip loopback and virtual interfaces
         if (interface.name.toLowerCase().contains('lo') ||
             interface.name.toLowerCase().contains('vmnet') ||
-            interface.name.toLowerCase().contains('vbox')) {
+            interface.name.toLowerCase().contains('vbox') ||
+            interface.name.toLowerCase().contains('utun') ||  // macOS VPN tunnels
+            interface.name.toLowerCase().contains('tun') ||   // Linux VPN tunnels
+            interface.name.toLowerCase().contains('tailscale')) {
+          debugPrint('Skipping virtual interface: ${interface.name}');
           continue;
         }
 
         for (final addr in interface.addresses) {
-          // Skip loopback addresses
-          if (!addr.address.startsWith('127.')) {
-            debugPrint('Found IP: ${addr.address} on ${interface.name}');
+          debugPrint('Found IP: ${addr.address} on ${interface.name}');
+          if (_isValidLocalNetworkIp(addr.address)) {
+            debugPrint('Using valid local network IP: ${addr.address}');
             return addr.address;
           }
         }
@@ -111,6 +157,15 @@ class TemplateShareService {
       debugPrint('NetworkInterface.list failed: $e');
     }
 
+    // Last resort: return whatever we found (with warning)
+    if (fallbackIp != null) {
+      debugPrint(
+        'Warning: No valid local network IP found, using fallback: $fallbackIp',
+      );
+      return fallbackIp;
+    }
+
+    debugPrint('ERROR: Could not find any IP address for WiFi sharing');
     return null;
   }
 
