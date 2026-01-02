@@ -138,8 +138,10 @@ class TemplateShareService {
         if (interface.name.toLowerCase().contains('lo') ||
             interface.name.toLowerCase().contains('vmnet') ||
             interface.name.toLowerCase().contains('vbox') ||
-            interface.name.toLowerCase().contains('utun') ||  // macOS VPN tunnels
-            interface.name.toLowerCase().contains('tun') ||   // Linux VPN tunnels
+            interface.name.toLowerCase().contains(
+              'utun',
+            ) || // macOS VPN tunnels
+            interface.name.toLowerCase().contains('tun') || // Linux VPN tunnels
             interface.name.toLowerCase().contains('tailscale')) {
           debugPrint('Skipping virtual interface: ${interface.name}');
           continue;
