@@ -1,0 +1,190 @@
+{
+    "id": "short",
+    "name": "Short",
+    "description": "Exported from app: Short",
+    "periodsTotal": 3,
+    "daysPerPeriod": 4,
+    "recoveryPeriod": 3,
+    "workouts": [
+        {
+            "periodNumber": 1,
+            "dayNumber": 1,
+            "dayName": "Mon",
+            "exercises": [
+                {
+                    "name": "Bench Press",
+                    "muscleGroup": "chest",
+                    "equipmentType": "barbell",
+                    "sets": 3,
+                    "reps": "2",
+                    "setType": "regular"
+                }
+            ]
+        },
+        {
+            "periodNumber": 1,
+            "dayNumber": 2,
+            "dayName": "Tue",
+            "exercises": [
+                {
+                    "name": "Barbell Curl",
+                    "muscleGroup": "biceps",
+                    "equipmentType": "barbell",
+                    "sets": 2,
+                    "reps": "2",
+                    "setType": "regular"
+                }
+            ]
+        },
+        {
+            "periodNumber": 1,
+            "dayNumber": 3,
+            "dayName": "Wed",
+            "exercises": [
+                {
+                    "name": "Cable Triceps Pushdown (Bar)",
+                    "muscleGroup": "triceps",
+                    "equipmentType": "cable",
+                    "sets": 2,
+                    "reps": "3",
+                    "setType": "regular"
+                }
+            ]
+        },
+        {
+            "periodNumber": 1,
+            "dayNumber": 4,
+            "dayName": "Thu",
+            "exercises": [
+                {
+                    "name": "Bench Press",
+                    "muscleGroup": "chest",
+                    "equipmentType": "barbell",
+                    "sets": 2,
+                    "reps": "2",
+                    "setType": "regular"
+                }
+            ]
+        },
+        {
+            "periodNumber": 2,
+            "dayNumber": 1,
+            "dayName": "Mon",
+            "exercises": [
+                {
+                    "name": "Bench Press",
+                    "muscleGroup": "chest",
+                    "equipmentType": "barbell",
+                    "sets": 3,
+                    "reps": "2",
+                    "setType": "regular"
+                }
+            ]
+        },
+        {
+            "periodNumber": 2,
+            "dayNumber": 2,
+            "dayName": "Tue",
+            "exercises": [
+                {
+                    "name": "Barbell Curl",
+                    "muscleGroup": "biceps",
+                    "equipmentType": "barbell",
+                    "sets": 2,
+                    "reps": "3",
+                    "setType": "regular"
+                }
+            ]
+        },
+        {
+            "periodNumber": 2,
+            "dayNumber": 3,
+            "dayName": "Wed",
+            "exercises": [
+                {
+                    "name": "Cable Triceps Pushdown (Bar)",
+                    "muscleGroup": "triceps",
+                    "equipmentType": "cable",
+                    "sets": 2,
+                    "reps": "8-12",
+                    "setType": "regular"
+                }
+            ]
+        },
+        {
+            "periodNumber": 2,
+            "dayNumber": 4,
+            "dayName": "Thu",
+            "exercises": [
+                {
+                    "name": "Bench Press",
+                    "muscleGroup": "chest",
+                    "equipmentType": "barbell",
+                    "sets": 2,
+                    "reps": "8-12",
+                    "setType": "regular"
+                }
+            ]
+        },
+        {
+            "periodNumber": 3,
+            "dayNumber": 1,
+            "dayName": "Mon",
+            "exercises": [
+                {
+                    "name": "Bench Press",
+                    "muscleGroup": "chest",
+                    "equipmentType": "barbell",
+                    "sets": 3,
+                    "reps": "8-12",
+                    "setType": "regular"
+                }
+            ]
+        },
+        {
+            "periodNumber": 3,
+            "dayNumber": 2,
+            "dayName": "Tue",
+            "exercises": [
+                {
+                    "name": "Barbell Curl",
+                    "muscleGroup": "biceps",
+                    "equipmentType": "barbell",
+                    "sets": 2,
+                    "reps": "8-12",
+                    "setType": "regular"
+                }
+            ]
+        },
+        {
+            "periodNumber": 3,
+            "dayNumber": 3,
+            "dayName": "Wed",
+            "exercises": [
+                {
+                    "name": "Cable Triceps Pushdown (Bar)",
+                    "muscleGroup": "triceps",
+                    "equipmentType": "cable",
+                    "sets": 2,
+                    "reps": "8-12",
+                    "setType": "regular"
+                }
+            ]
+        },
+        {
+            "periodNumber": 3,
+            "dayNumber": 4,
+            "dayName": "Thu",
+            "exercises": [
+                {
+                    "name": "Bench Press",
+                    "muscleGroup": "chest",
+                    "equipmentType": "barbell",
+                    "sets": 2,
+                    "reps": "8-12",
+                    "setType": "regular"
+                }
+            ]
+        }
+    ]
+}

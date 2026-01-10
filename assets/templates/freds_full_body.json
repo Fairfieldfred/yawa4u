@@ -1,0 +1,310 @@
+{
+    "id": "freds_full_body",
+    "name": "Fred's Full Body",
+    "description": "Exported from app: New Mesocycle",
+    "periodsTotal": 4,
+    "daysPerPeriod": 4,
+    "recoveryPeriod": 4,
+    "workouts": [
+        {
+            "periodNumber": 1,
+            "dayNumber": 1,
+            "dayName": "Mon",
+            "exercises": [
+                {
+                    "name": "Bench Press (Incline)",
+                    "muscleGroup": "chest",
+                    "equipmentType": "barbell",
+                    "sets": 2,
+                    "reps": "8-12",
+                    "setType": "regular"
+                }
+            ]
+        },
+        {
+            "periodNumber": 1,
+            "dayNumber": 2,
+            "dayName": "Tue",
+            "exercises": [
+                {
+                    "name": "Barbell Overhead Triceps Extension",
+                    "muscleGroup": "triceps",
+                    "equipmentType": "barbell",
+                    "sets": 2,
+                    "reps": "8-12",
+                    "setType": "regular"
+                }
+            ]
+        },
+        {
+            "periodNumber": 1,
+            "dayNumber": 3,
+            "dayName": "Wed",
+            "exercises": [
+                {
+                    "name": "Belt Squat Calves",
+                    "muscleGroup": "calves",
+                    "equipmentType": "cable",
+                    "sets": 2,
+                    "reps": "8-12",
+                    "setType": "regular"
+                }
+            ]
+        },
+        {
+            "periodNumber": 1,
+            "dayNumber": 4,
+            "dayName": "Thu",
+            "exercises": [
+                {
+                    "name": "Assisted Dip",
+                    "muscleGroup": "triceps",
+                    "equipmentType": "machineAssistance",
+                    "sets": 2,
+                    "reps": "8-12",
+                    "setType": "regular"
+                }
+            ]
+        },
+        {
+            "periodNumber": 1,
+            "dayNumber": 4,
+            "dayName": "Thu",
+            "exercises": [
+                {
+                    "name": "Belt Squat",
+                    "muscleGroup": "quads",
+                    "equipmentType": "cable",
+                    "sets": 2,
+                    "reps": "8-12",
+                    "setType": "regular"
+                }
+            ]
+        },
+        {
+            "periodNumber": 2,
+            "dayNumber": 1,
+            "dayName": "Mon",
+            "exercises": [
+                {
+                    "name": "Bench Press (Incline)",
+                    "muscleGroup": "chest",
+                    "equipmentType": "barbell",
+                    "sets": 2,
+                    "reps": "8-12",
+                    "setType": "regular"
+                }
+            ]
+        },
+        {
+            "periodNumber": 2,
+            "dayNumber": 2,
+            "dayName": "Tue",
+            "exercises": [
+                {
+                    "name": "Barbell Overhead Triceps Extension",
+                    "muscleGroup": "triceps",
+                    "equipmentType": "barbell",
+                    "sets": 2,
+                    "reps": "8-12",
+                    "setType": "regular"
+                }
+            ]
+        },
+        {
+            "periodNumber": 2,
+            "dayNumber": 3,
+            "dayName": "Wed",
+            "exercises": [
+                {
+                    "name": "Belt Squat Calves",
+                    "muscleGroup": "calves",
+                    "equipmentType": "cable",
+                    "sets": 2,
+                    "reps": "8-12",
+                    "setType": "regular"
+                }
+            ]
+        },
+        {
+            "periodNumber": 2,
+            "dayNumber": 4,
+            "dayName": "Thu",
+            "exercises": [
+                {
+                    "name": "Belt Squat",
+                    "muscleGroup": "quads",
+                    "equipmentType": "cable",
+                    "sets": 2,
+                    "reps": "8-12",
+                    "setType": "regular"
+                }
+            ]
+        },
+        {
+            "periodNumber": 2,
+            "dayNumber": 4,
+            "dayName": "Thu",
+            "exercises": [
+                {
+                    "name": "Assisted Dip",
+                    "muscleGroup": "triceps",
+                    "equipmentType": "machineAssistance",
+                    "sets": 2,
+                    "reps": "8-12",
+                    "setType": "regular"
+                }
+            ]
+        },
+        {
+            "periodNumber": 3,
+            "dayNumber": 1,
+            "dayName": "Mon",
+            "exercises": [
+                {
+                    "name": "Bench Press (Incline)",
+                    "muscleGroup": "chest",
+                    "equipmentType": "barbell",
+                    "sets": 2,
+                    "reps": "8-12",
+                    "setType": "regular"
+                }
+            ]
+        },
+        {
+            "periodNumber": 3,
+            "dayNumber": 2,
+            "dayName": "Tue",
+            "exercises": [
+                {
+                    "name": "Barbell Overhead Triceps Extension",
+                    "muscleGroup": "triceps",
+                    "equipmentType": "barbell",
+                    "sets": 2,
+                    "reps": "8-12",
+                    "setType": "regular"
+                }
+            ]
+        },
+        {
+            "periodNumber": 3,
+            "dayNumber": 3,
+            "dayName": "Wed",
+            "exercises": [
+                {
+                    "name": "Belt Squat Calves",
+                    "muscleGroup": "calves",
+                    "equipmentType": "cable",
+                    "sets": 2,
+                    "reps": "8-12",
+                    "setType": "regular"
+                }
+            ]
+        },
+        {
+            "periodNumber": 3,
+            "dayNumber": 4,
+            "dayName": "Thu",
+            "exercises": [
+                {
+                    "name": "Assisted Dip",
+                    "muscleGroup": "triceps",
+                    "equipmentType": "machineAssistance",
+                    "sets": 2,
+                    "reps": "8-12",
+                    "setType": "regular"
+                }
+            ]
+        },
+        {
+            "periodNumber": 3,
+            "dayNumber": 4,
+            "dayName": "Thu",
+            "exercises": [
+                {
+                    "name": "Belt Squat",
+                    "muscleGroup": "quads",
+                    "equipmentType": "cable",
+                    "sets": 2,
+                    "reps": "8-12",
+                    "setType": "regular"
+                }
+            ]
+        },
+        {
+            "periodNumber": 4,
+            "dayNumber": 1,
+            "dayName": "Mon",
+            "exercises": [
+                {
+                    "name": "Bench Press (Incline)",
+                    "muscleGroup": "chest",
+                    "equipmentType": "barbell",
+                    "sets": 2,
+                    "reps": "8-12",
+                    "setType": "regular"
+                }
+            ]
+        },
+        {
+            "periodNumber": 4,
+            "dayNumber": 2,
+            "dayName": "Tue",
+            "exercises": [
+                {
+                    "name": "Barbell Overhead Triceps Extension",
+                    "muscleGroup": "triceps",
+                    "equipmentType": "barbell",
+                    "sets": 2,
+                    "reps": "8-12",
+                    "setType": "regular"
+                }
+            ]
+        },
+        {
+            "periodNumber": 4,
+            "dayNumber": 3,
+            "dayName": "Wed",
+            "exercises": [
+                {
+                    "name": "Belt Squat Calves",
+                    "muscleGroup": "calves",
+                    "equipmentType": "cable",
+                    "sets": 2,
+                    "reps": "8-12",
+                    "setType": "regular"
+                }
+            ]
+        },
+        {
+            "periodNumber": 4,
+            "dayNumber": 4,
+            "dayName": "Thu",
+            "exercises": [
+                {
+                    "name": "Belt Squat",
+                    "muscleGroup": "quads",
+                    "equipmentType": "cable",
+                    "sets": 2,
+                    "reps": "8-12",
+                    "setType": "regular"
+                }
+            ]
+        },
+        {
+            "periodNumber": 4,
+            "dayNumber": 4,
+            "dayName": "Thu",
+            "exercises": [
+                {
+                    "name": "Assisted Dip",
+                    "muscleGroup": "triceps",
+                    "equipmentType": "machineAssistance",
+                    "sets": 2,
+                    "reps": "8-12",
+                    "setType": "regular"
+                }
+            ]
+        }
+    ]
+}

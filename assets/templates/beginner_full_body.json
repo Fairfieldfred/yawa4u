@@ -1,0 +1,135 @@
+{
+    "id": "beginner_full_body",
+    "name": "Beginner Full Body",
+    "description": "A 3-day per week full body program perfect for beginners. Focuses on compound movements to build strength and muscle.",
+    "periodsTotal": 5,
+    "daysPerPeriod": 3,
+    "recoveryPeriod": 5,
+    "workouts": [
+        {
+            "periodNumber": 1,
+            "dayNumber": 1,
+            "dayName": "Monday",
+            "exercises": [
+                {
+                    "name": "Barbell Squat",
+                    "muscleGroup": "quads",
+                    "equipmentType": "barbell",
+                    "sets": 3,
+                    "reps": "8-12",
+                    "setType": "regular"
+                },
+                {
+                    "name": "Bench Press",
+                    "muscleGroup": "chest",
+                    "equipmentType": "barbell",
+                    "sets": 3,
+                    "reps": "8-12",
+                    "setType": "regular"
+                },
+                {
+                    "name": "Barbell Row",
+                    "muscleGroup": "back",
+                    "equipmentType": "barbell",
+                    "sets": 3,
+                    "reps": "8-12",
+                    "setType": "regular"
+                },
+                {
+                    "name": "Overhead Press",
+                    "muscleGroup": "shoulders",
+                    "equipmentType": "barbell",
+                    "sets": 3,
+                    "reps": "8-12",
+                    "setType": "regular"
+                }
+            ]
+        },
+        {
+            "periodNumber": 1,
+            "dayNumber": 2,
+            "dayName": "Wednesday",
+            "exercises": [
+                {
+                    "name": "Romanian Deadlift",
+                    "muscleGroup": "hamstrings",
+                    "equipmentType": "barbell",
+                    "sets": 3,
+                    "reps": "8-12",
+                    "setType": "regular"
+                },
+                {
+                    "name": "Incline Dumbbell Press",
+                    "muscleGroup": "chest",
+                    "equipmentType": "dumbbell",
+                    "sets": 3,
+                    "reps": "8-12",
+                    "setType": "regular"
+                },
+                {
+                    "name": "Lat Pulldown",
+                    "muscleGroup": "back",
+                    "equipmentType": "machine",
+                    "sets": 3,
+                    "reps": "8-12",
+                    "setType": "regular"
+                },
+                {
+                    "name": "Dumbbell Lateral Raise",
+                    "muscleGroup": "shoulders",
+                    "equipmentType": "dumbbell",
+                    "sets": 3,
+                    "reps": "12-15",
+                    "setType": "regular"
+                }
+            ]
+        },
+        {
+            "periodNumber": 1,
+            "dayNumber": 3,
+            "dayName": "Friday",
+            "exercises": [
+                {
+                    "name": "Leg Press",
+                    "muscleGroup": "quads",
+                    "equipmentType": "machine",
+                    "sets": 3,
+                    "reps": "10-15",
+                    "setType": "regular"
+                },
+                {
+                    "name": "Dumbbell Bench Press",
+                    "muscleGroup": "chest",
+                    "equipmentType": "dumbbell",
+                    "sets": 3,
+                    "reps": "8-12",
+                    "setType": "regular"
+                },
+                {
+                    "name": "Cable Row",
+                    "muscleGroup": "back",
+                    "equipmentType": "cable",
+                    "sets": 3,
+                    "reps": "10-12",
+                    "setType": "regular"
+                },
+                {
+                    "name": "Barbell Curl",
+                    "muscleGroup": "biceps",
+                    "equipmentType": "barbell",
+                    "sets": 2,
+                    "reps": "10-12",
+                    "setType": "regular"
+                },
+                {
+                    "name": "Tricep Pushdown",
+                    "muscleGroup": "triceps",
+                    "equipmentType": "cable",
+                    "sets": 2,
+                    "reps": "10-12",
+                    "setType": "regular"
+                }
+            ]
+        }
+    ]
+}

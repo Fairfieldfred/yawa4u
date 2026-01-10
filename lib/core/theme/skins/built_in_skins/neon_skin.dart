@@ -1,0 +1,59 @@
+import '../skin_model.dart';
+
+/// Neon Purple skin - bold and modern.
+const SkinModel neonSkinDefinition = SkinModel(
+  id: 'neon_purple',
+  name: 'Neon Purple',
+  description: 'A bold, neon-inspired theme for night owls',
+  author: 'YAWA4U',
+  version: '1.0.0',
+  isPremium: false,
+  isBuiltIn: true,
+  colors: SkinColors(
+    primary: '#7C4DFF',
+    primaryDark: '#651FFF',
+    primaryLight: '#B388FF',
+    secondary: '#00E5FF',
+    success: '#69F0AE',
+    warning: '#FFD740',
+    error: '#FF5252',
+    info: '#40C4FF',
+  ),
+  lightMode: SkinModeColors(
+    scaffoldBackground: '#EDE7F6',
+    cardBackground: '#FFFFFF',
+    inputBackground: '#F3E5F5',
+    divider: '#D1C4E9',
+    textPrimary: '#4527A0',
+    textSecondary: '#7C4DFF',
+    textDisabled: '#B39DDB',
+  ),
+  darkMode: SkinModeColors(
+    scaffoldBackground: '#12002E',
+    cardBackground: '#1A0044',
+    inputBackground: '#150038',
+    divider: '#2A1058',
+    textPrimary: '#F3E5F5',
+    textSecondary: '#B388FF',
+    textDisabled: '#5E35B1',
+  ),
+  muscleGroups: SkinMuscleGroupColors(
+    upperPush: '#FF4081',
+    upperPull: '#00E5FF',
+    legs: '#1DE9B6',
+    coreAndAccessories: '#E040FB',
+  ),
+  workoutStatus: SkinWorkoutStatusColors(
+    current: '#7C4DFF',
+    completed: '#69F0AE',
+    skipped: '#757575',
+    deload: '#FFD740',
+  ),
+  components: SkinComponents(
+    cardBorderRadius: 20,
+    buttonBorderRadius: 16,
+    inputBorderRadius: 12,
+    cardElevation: 4,
+    buttonElevation: 3,
+  ),
+);
