@@ -147,9 +147,9 @@ class MuscleGroupStatsDialog extends ConsumerWidget {
                             final groupStats = stats[group] ?? {};
                             final avgSets = avgSetsMap[group] ?? 0;
 
-                            // Calculate opacity multiplier based on proportion to max
-                            final intensityMultiplier = maxAvgSets > 0
-                                ? avgSets / maxAvgSets
+                            // Calculate diameter proportional to sets (max = 16)
+                            final diameter = maxAvgSets > 0
+                                ? (avgSets / maxAvgSets) * 16.0
                                 : 0.0;
 
                             return Padding(
@@ -167,41 +167,18 @@ class MuscleGroupStatsDialog extends ConsumerWidget {
                                       children: [
                                         Row(
                                           children: [
-                                            Container(
-                                              width: 4,
+                                            SizedBox(
+                                              width: 16,
                                               height: 16,
-                                              decoration: BoxDecoration(
-                                                color: group.color.withValues(
-                                                  alpha: intensityMultiplier,
+                                              child: Center(
+                                                child: Container(
+                                                  width: diameter,
+                                                  height: diameter,
+                                                  decoration: BoxDecoration(
+                                                    color: group.color,
+                                                    shape: BoxShape.circle,
+                                                  ),
                                                 ),
-                                                borderRadius:
-                                                    BorderRadius.circular(2),
-                                              ),
-                                            ),
-                                            const SizedBox(width: 4),
-                                            Container(
-                                              width: 4,
-                                              height: 16,
-                                              decoration: BoxDecoration(
-                                                color: group.color.withValues(
-                                                  alpha:
-                                                      intensityMultiplier * 0.6,
-                                                ),
-                                                borderRadius:
-                                                    BorderRadius.circular(2),
-                                              ),
-                                            ),
-                                            const SizedBox(width: 4),
-                                            Container(
-                                              width: 4,
-                                              height: 16,
-                                              decoration: BoxDecoration(
-                                                color: group.color.withValues(
-                                                  alpha:
-                                                      intensityMultiplier * 0.3,
-                                                ),
-                                                borderRadius:
-                                                    BorderRadius.circular(2),
                                               ),
                                             ),
                                             const SizedBox(width: 8),
