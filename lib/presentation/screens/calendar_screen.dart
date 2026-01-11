@@ -173,11 +173,22 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     Map<DateTime, CalendarDayData> dataMap,
     Map<int, Color> periodColors,
   ) {
+    // Calculate row height based on calendar format
+    final double rowHeight;
+    switch (_calendarFormat) {
+      case CalendarFormat.week:
+        rowHeight = 280; // 4x height for week view
+      case CalendarFormat.twoWeeks:
+        rowHeight = 140; // 2x height for 2 weeks view
+      case CalendarFormat.month:
+        rowHeight = 70; // Default height for month view
+    }
+
     return TableCalendar(
       firstDay: DateTime(2020),
       lastDay: DateTime(2030),
       focusedDay: _focusedDay,
-      rowHeight: 70,
+      rowHeight: rowHeight,
       selectedDayPredicate: (day) {
         return _selectedDay != null &&
             DateHelpers.isSameDay(day, _selectedDay!);
@@ -274,6 +285,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
             periodColors,
             false,
             false,
+            _calendarFormat,
           );
         },
         todayBuilder: (context, day, focusedDay) {
@@ -284,6 +296,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
             periodColors,
             true,
             false,
+            _calendarFormat,
           );
         },
         selectedBuilder: (context, day, focusedDay) {
@@ -294,6 +307,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
             periodColors,
             false,
             true,
+            _calendarFormat,
           );
         },
         outsideBuilder: (context, day, focusedDay) {
@@ -310,6 +324,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     Map<int, Color> periodColors,
     bool isToday,
     bool isSelected,
+    CalendarFormat calendarFormat,
   ) {
     final strippedDay = DateHelpers.stripTime(day);
     final dayData = dataMap[strippedDay];
@@ -385,11 +400,27 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                 ],
               ),
             ),
-            // Bottom section: Muscle group color bars
-            if (dayData?.hasWorkout ?? false)
+            // Bottom section: Muscle group color bars (month view only)
+            if (calendarFormat == CalendarFormat.month &&
+                (dayData?.hasWorkout ?? false))
               Padding(
                 padding: const EdgeInsets.only(left: 4, right: 4, bottom: 4),
                 child: _buildMuscleGroupBars(context, dayData!.muscleGroupSets),
+              ),
+            // Expanded section: Muscle group circles (2 weeks and week view)
+            if ((calendarFormat == CalendarFormat.twoWeeks ||
+                    calendarFormat == CalendarFormat.week) &&
+                (dayData?.hasWorkout ?? false))
+              Expanded(
+                flex: calendarFormat == CalendarFormat.week ? 4 : 2,
+                child: Padding(
+                  padding: const EdgeInsets.all(4),
+                  child: _buildMuscleGroupCircles(
+                    context,
+                    dayData!.muscleGroupSets,
+                    calendarFormat,
+                  ),
+                ),
               ),
           ],
         ),
@@ -461,6 +492,51 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     } else {
       return Colors.purple;
     }
+  }
+
+  Widget _buildMuscleGroupCircles(
+    BuildContext context,
+    Map<String, int> muscleGroupSets,
+    CalendarFormat calendarFormat,
+  ) {
+    if (muscleGroupSets.isEmpty) return const SizedBox.shrink();
+
+    // Sort by set count descending
+    final sortedEntries = muscleGroupSets.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+
+    // Find max sets for scaling
+    final maxSets = sortedEntries.first.value;
+
+    // Base size depends on view - larger for week view
+    final double maxDiameter = calendarFormat == CalendarFormat.week ? 32 : 20;
+    final double minDiameter = calendarFormat == CalendarFormat.week ? 12 : 8;
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return Wrap(
+          alignment: WrapAlignment.center,
+          runAlignment: WrapAlignment.center,
+          spacing: 2,
+          runSpacing: 2,
+          children: sortedEntries.map((entry) {
+            // Scale diameter proportionally to sets (min to max range)
+            final ratio = maxSets > 0 ? entry.value / maxSets : 0.0;
+            final diameter =
+                minDiameter + (ratio * (maxDiameter - minDiameter));
+
+            return Container(
+              width: diameter,
+              height: diameter,
+              decoration: BoxDecoration(
+                color: _getMuscleGroupColor(context, entry.key),
+                shape: BoxShape.circle,
+              ),
+            );
+          }).toList(),
+        );
+      },
+    );
   }
 
   Widget _buildSelectedDayInfo(
