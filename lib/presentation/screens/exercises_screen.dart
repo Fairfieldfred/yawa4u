@@ -777,6 +777,23 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
                                               setIndex,
                                             ),
                                       ),
+                                      // Swipe indicator
+                                      if (_allExercises.length > 1)
+                                        Padding(
+                                          padding: const EdgeInsets.only(
+                                            top: 8,
+                                          ),
+                                          child: Center(
+                                            child: Icon(
+                                              Icons.swap_horiz,
+                                              size: 24,
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .onSurface
+                                                  .withValues(alpha: 0.4),
+                                            ),
+                                          ),
+                                        ),
                                       // Exercise History Section
                                       if (ref.watch(
                                         showExerciseHistoryProvider,

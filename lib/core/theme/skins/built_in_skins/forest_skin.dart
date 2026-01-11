@@ -56,4 +56,13 @@ const SkinModel forestSkinDefinition = SkinModel(
     cardElevation: 2,
     buttonElevation: 2,
   ),
+  backgrounds: SkinBackgrounds(
+    workout: 'assets/backgrounds/workout_jungle.jpg',
+    cycles: 'assets/backgrounds/cycles_jungle.jpg',
+    exercises: 'assets/backgrounds/exercises_jungle.jpg',
+    more: 'assets/backgrounds/more_jungle.jpg',
+    defaultBackground: 'assets/backgrounds/default_jungle.jpg',
+    lightOverlayOpacity: 0.7,
+    darkOverlayOpacity: 0.75,
+  ),
 );

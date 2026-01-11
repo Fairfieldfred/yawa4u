@@ -56,4 +56,13 @@ const SkinModel neonSkinDefinition = SkinModel(
     cardElevation: 4,
     buttonElevation: 3,
   ),
+  backgrounds: SkinBackgrounds(
+    workout: 'assets/backgrounds/workout_aurora.jpg',
+    cycles: 'assets/backgrounds/cycles_aurora.jpg',
+    exercises: 'assets/backgrounds/exercises_aurora.jpg',
+    more: 'assets/backgrounds/more_aurora.jpg',
+    defaultBackground: 'assets/backgrounds/default_aurora.jpg',
+    lightOverlayOpacity: 0.7,
+    darkOverlayOpacity: 0.75,
+  ),
 );
