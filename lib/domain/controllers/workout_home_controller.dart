@@ -842,6 +842,8 @@ String? getSetTypeBadge(SetType setType) {
       return 'MX';
     case SetType.endWithPartials:
       return 'EP';
+    case SetType.dropSet:
+      return 'DS';
   }
 }
 

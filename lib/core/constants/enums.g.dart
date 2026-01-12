@@ -111,6 +111,8 @@ class SetTypeAdapter extends TypeAdapter<SetType> {
         return SetType.maxReps;
       case 4:
         return SetType.endWithPartials;
+      case 5:
+        return SetType.dropSet;
       default:
         return SetType.regular;
     }
@@ -133,6 +135,9 @@ class SetTypeAdapter extends TypeAdapter<SetType> {
         break;
       case SetType.endWithPartials:
         writer.writeByte(4);
+        break;
+      case SetType.dropSet:
+        writer.writeByte(5);
         break;
     }
   }

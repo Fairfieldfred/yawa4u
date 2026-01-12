@@ -71,6 +71,8 @@ enum SetType {
   maxReps,
   @HiveField(4)
   endWithPartials,
+  @HiveField(5)
+  dropSet,
 }
 
 extension SetTypeExtension on SetType {
@@ -86,6 +88,8 @@ extension SetTypeExtension on SetType {
         return 'Max reps';
       case SetType.endWithPartials:
         return 'End with partials';
+      case SetType.dropSet:
+        return 'Drop set';
     }
   }
 
@@ -101,6 +105,8 @@ extension SetTypeExtension on SetType {
         return 'perform as many reps as possible until failure';
       case SetType.endWithPartials:
         return 'after reaching failure, continue with partial reps to further fatigue the muscle';
+      case SetType.dropSet:
+        return 'immediately reduce weight and continue reps without rest to extend the set';
     }
   }
 
@@ -117,6 +123,8 @@ extension SetTypeExtension on SetType {
         return 'MX';
       case SetType.endWithPartials:
         return 'EP';
+      case SetType.dropSet:
+        return 'DS';
     }
   }
 
@@ -125,6 +133,7 @@ extension SetTypeExtension on SetType {
   bool get isMyorepMatch => this == SetType.myorepMatch;
   bool get isMaxReps => this == SetType.maxReps;
   bool get isEndWithPartials => this == SetType.endWithPartials;
+  bool get isDropSet => this == SetType.dropSet;
 }
 
 /// Joint pain level feedback

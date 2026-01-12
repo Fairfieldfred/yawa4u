@@ -791,6 +791,8 @@ class _CompletedCycleWorkoutScreenState
         return 'MAX';
       case SetType.endWithPartials:
         return 'PAR';
+      case SetType.dropSet:
+        return 'DS';
       case SetType.regular:
         return null;
     }

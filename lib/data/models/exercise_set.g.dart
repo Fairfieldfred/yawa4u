@@ -95,4 +95,5 @@ const _$SetTypeEnumMap = {
   SetType.myorepMatch: 'myorepMatch',
   SetType.maxReps: 'maxReps',
   SetType.endWithPartials: 'endWithPartials',
+  SetType.dropSet: 'dropSet',
 };

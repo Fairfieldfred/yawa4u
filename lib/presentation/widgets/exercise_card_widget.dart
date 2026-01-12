@@ -752,6 +752,9 @@ class ExerciseCardWidget extends ConsumerWidget {
           case 'end_with_partials':
             onUpdateSetType(index, SetType.endWithPartials);
             break;
+          case 'drop_set':
+            onUpdateSetType(index, SetType.dropSet);
+            break;
         }
       },
       itemBuilder: (context) => [
@@ -891,6 +894,7 @@ class ExerciseCardWidget extends ConsumerWidget {
         // Myorep match
         PopupMenuItem<String>(
           value: 'myorep_match',
+          enabled: index > 0,
           height: 40,
           child: Row(
             children: [
@@ -898,16 +902,20 @@ class ExerciseCardWidget extends ConsumerWidget {
                 set.setType == SetType.myorepMatch
                     ? Icons.radio_button_checked
                     : Icons.radio_button_unchecked,
-                color: set.setType == SetType.myorepMatch
-                    ? context.selectedIndicatorColor
-                    : Colors.grey,
+                color: index > 0
+                    ? (set.setType == SetType.myorepMatch
+                        ? context.selectedIndicatorColor
+                        : Colors.grey)
+                    : Colors.grey.withValues(alpha: 0.4),
                 size: 20,
               ),
               const SizedBox(width: 12),
               Text(
                 'Myorep match',
                 style: TextStyle(
-                  color: Theme.of(context).colorScheme.onSurface,
+                  color: index > 0
+                      ? Theme.of(context).colorScheme.onSurface
+                      : Colors.grey.withValues(alpha: 0.4),
                 ),
               ),
             ],
@@ -963,6 +971,36 @@ class ExerciseCardWidget extends ConsumerWidget {
             ],
           ),
         ),
+        // Drop set
+        PopupMenuItem<String>(
+          value: 'drop_set',
+          enabled: index > 0,
+          height: 40,
+          child: Row(
+            children: [
+              Icon(
+                set.setType == SetType.dropSet
+                    ? Icons.radio_button_checked
+                    : Icons.radio_button_unchecked,
+                color: index > 0
+                    ? (set.setType == SetType.dropSet
+                        ? context.selectedIndicatorColor
+                        : Colors.grey)
+                    : Colors.grey.withValues(alpha: 0.4),
+                size: 20,
+              ),
+              const SizedBox(width: 12),
+              Text(
+                'Drop set',
+                style: TextStyle(
+                  color: index > 0
+                      ? Theme.of(context).colorScheme.onSurface
+                      : Colors.grey.withValues(alpha: 0.4),
+                ),
+              ),
+            ],
+          ),
+        ),
       ],
     );
   }
@@ -977,6 +1015,8 @@ class ExerciseCardWidget extends ConsumerWidget {
         return 'MAX';
       case SetType.endWithPartials:
         return 'P';
+      case SetType.dropSet:
+        return 'DS';
       default:
         return null;
     }
