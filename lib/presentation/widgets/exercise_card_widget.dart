@@ -904,8 +904,8 @@ class ExerciseCardWidget extends ConsumerWidget {
                     : Icons.radio_button_unchecked,
                 color: index > 0
                     ? (set.setType == SetType.myorepMatch
-                        ? context.selectedIndicatorColor
-                        : Colors.grey)
+                          ? context.selectedIndicatorColor
+                          : Colors.grey)
                     : Colors.grey.withValues(alpha: 0.4),
                 size: 20,
               ),
@@ -984,8 +984,8 @@ class ExerciseCardWidget extends ConsumerWidget {
                     : Icons.radio_button_unchecked,
                 color: index > 0
                     ? (set.setType == SetType.dropSet
-                        ? context.selectedIndicatorColor
-                        : Colors.grey)
+                          ? context.selectedIndicatorColor
+                          : Colors.grey)
                     : Colors.grey.withValues(alpha: 0.4),
                 size: 20,
               ),
