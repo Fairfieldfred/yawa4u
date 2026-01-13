@@ -1,6 +1,8 @@
 Name,Muscle Group,Equipment
 45 Degree Cable Rear Delt Pull,Shoulders,Cable
 Ab Wheel,Abs,Bodyweight Only
+Ab Ripper X,Abs,Bodyweight Only
+Air Squats,Quads,Bodyweight Only
 Arnold Press,Shoulders,Dumbbell
 Assisted Dip,Triceps,Band Assistance
 Assisted Pullup (Normal Grip),Back,Band Assistance
@@ -252,9 +254,11 @@ Seated Leg Curl,Hamstrings,Machine
 Single Leg Extension,Quads,Machine
 Single Leg Press,Quads,Machine
 Single Leg Romanian Deadlift,Hamstrings,Dumbbell
+Single Leg Squats,Quads,Bodyweight Only
 Single-Leg Leg Curl,Hamstrings,Machine
 Sissy Squat (Machine),Quads,Bodyweight Only
 Sissy Squat (No Machine),Quads,Bodyweight Only
+Sit-ups,Abs,Bodyweight Only
 Slant Board Sit-Up (Weighted),Abs,Bodyweight Loadable 
 Smith Machine Bench Press (Medium Grip),Chest,Smith Machine
 Smith MachineBench Press (Narrow grip),Chest,Smith Machine
