@@ -405,7 +405,11 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                 (dayData?.hasWorkout ?? false))
               Padding(
                 padding: const EdgeInsets.only(left: 4, right: 4, bottom: 4),
-                child: _buildMuscleGroupBars(context, dayData!.muscleGroupSets),
+                child: _buildMuscleGroupBars(
+                  context,
+                  dayData!.muscleGroupSets,
+                  muscleGroupExercises: dayData.muscleGroupExercises,
+                ),
               ),
             // Expanded section: Muscle group circles (2 weeks and week view)
             if ((calendarFormat == CalendarFormat.twoWeeks ||
@@ -419,6 +423,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                     context,
                     dayData!.muscleGroupSets,
                     calendarFormat,
+                    muscleGroupExercises: dayData.muscleGroupExercises,
                   ),
                 ),
               ),
@@ -446,8 +451,9 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
 
   Widget _buildMuscleGroupBars(
     BuildContext context,
-    Map<String, int> muscleGroupSets,
-  ) {
+    Map<String, int> muscleGroupSets, {
+    Map<String, List<String>>? muscleGroupExercises,
+  }) {
     if (muscleGroupSets.isEmpty) return const SizedBox.shrink();
 
     // Take up to 4 muscle groups, sorted by set count descending
@@ -462,14 +468,36 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
       children: groups.map((entry) {
         // Use flex based on set count for proportional width
         final flex = ((entry.value / totalSets) * 100).round().clamp(1, 100);
+
+        // Build tooltip message with exercise names
+        final exercises = muscleGroupExercises?[entry.key] ?? [];
+        final tooltipMessage = _buildTooltipMessage(
+          entry.key,
+          entry.value,
+          exercises,
+        );
+
         return Expanded(
           flex: flex,
-          child: Container(
-            height: 12,
-            margin: const EdgeInsets.symmetric(horizontal: 1),
+          child: Tooltip(
+            message: tooltipMessage,
+            preferBelow: false,
+            waitDuration: const Duration(milliseconds: 200),
             decoration: BoxDecoration(
-              color: _getMuscleGroupColor(context, entry.key),
-              borderRadius: BorderRadius.circular(4),
+              color: Theme.of(context).colorScheme.inverseSurface,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            textStyle: TextStyle(
+              color: Theme.of(context).colorScheme.onInverseSurface,
+              fontSize: 12,
+            ),
+            child: Container(
+              height: 12,
+              margin: const EdgeInsets.symmetric(horizontal: 1),
+              decoration: BoxDecoration(
+                color: _getMuscleGroupColor(context, entry.key),
+                borderRadius: BorderRadius.circular(4),
+              ),
             ),
           ),
         );
@@ -494,11 +522,29 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     }
   }
 
+  /// Builds a tooltip message showing muscle group, set count, and exercises
+  String _buildTooltipMessage(
+    String muscleGroup,
+    int setCount,
+    List<String> exercises,
+  ) {
+    final buffer = StringBuffer();
+    buffer.write('$muscleGroup • $setCount sets');
+    if (exercises.isNotEmpty) {
+      buffer.writeln();
+      for (final exercise in exercises) {
+        buffer.write('\n• $exercise');
+      }
+    }
+    return buffer.toString();
+  }
+
   Widget _buildMuscleGroupCircles(
     BuildContext context,
     Map<String, int> muscleGroupSets,
-    CalendarFormat calendarFormat,
-  ) {
+    CalendarFormat calendarFormat, {
+    Map<String, List<String>>? muscleGroupExercises,
+  }) {
     if (muscleGroupSets.isEmpty) return const SizedBox.shrink();
 
     // Sort by set count descending
@@ -525,12 +571,33 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
             final diameter =
                 minDiameter + (ratio * (maxDiameter - minDiameter));
 
-            return Container(
-              width: diameter,
-              height: diameter,
+            // Build tooltip message with exercise names
+            final exercises = muscleGroupExercises?[entry.key] ?? [];
+            final tooltipMessage = _buildTooltipMessage(
+              entry.key,
+              entry.value,
+              exercises,
+            );
+
+            return Tooltip(
+              message: tooltipMessage,
+              preferBelow: false,
+              waitDuration: const Duration(milliseconds: 200),
               decoration: BoxDecoration(
-                color: _getMuscleGroupColor(context, entry.key),
-                shape: BoxShape.circle,
+                color: Theme.of(context).colorScheme.inverseSurface,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              textStyle: TextStyle(
+                color: Theme.of(context).colorScheme.onInverseSurface,
+                fontSize: 12,
+              ),
+              child: Container(
+                width: diameter,
+                height: diameter,
+                decoration: BoxDecoration(
+                  color: _getMuscleGroupColor(context, entry.key),
+                  shape: BoxShape.circle,
+                ),
               ),
             );
           }).toList(),

@@ -6,10 +6,12 @@ import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
+import '../../../core/constants/enums.dart';
 import '../../../core/constants/equipment_types.dart';
 import '../../../core/constants/muscle_groups.dart';
 import '../../../core/theme/skins/skins.dart';
 import '../../../data/models/exercise.dart';
+import '../../../data/models/exercise_set.dart';
 import '../../../data/models/training_cycle.dart';
 import '../../../data/models/workout.dart';
 import '../../../domain/providers/repository_providers.dart';
@@ -546,7 +548,7 @@ class _ExerciseInfoDialogState extends ConsumerState<ExerciseInfoDialog> {
 
     // Group sets by weight and build weight × reps string
     // This properly handles sets with different weights (e.g., "1 lbs x 1, 10 lbs x 1")
-    final weightGroups = <double?, List<dynamic>>{};
+    final weightGroups = <double?, List<ExerciseSet>>{};
     for (final set in loggedSets) {
       weightGroups.putIfAbsent(set.weight, () => []).add(set);
     }

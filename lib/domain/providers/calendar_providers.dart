@@ -33,6 +33,9 @@ class CalendarDayData {
   /// Map of muscle group name to total number of sets
   final Map<String, int> muscleGroupSets;
 
+  /// Map of muscle group name to list of exercise names with set counts
+  final Map<String, List<String>> muscleGroupExercises;
+
   CalendarDayData({
     required this.date,
     this.periodNumber,
@@ -43,6 +46,7 @@ class CalendarDayData {
     this.isPartiallyCompleted = false,
     this.muscleGroups = const {},
     this.muscleGroupSets = const {},
+    this.muscleGroupExercises = const {},
   });
 
   bool get hasWorkout => workouts.isNotEmpty;
@@ -100,12 +104,17 @@ List<CalendarDayData> buildCalendarData({
     // Collect muscle groups and count sets per muscle group
     final muscleGroups = <String>{};
     final muscleGroupSets = <String, int>{};
+    final muscleGroupExercises = <String, List<String>>{};
     for (final workout in dayWorkouts) {
       for (final exercise in workout.exercises) {
         final groupName = exercise.muscleGroup.displayName;
         muscleGroups.add(groupName);
         muscleGroupSets[groupName] =
             (muscleGroupSets[groupName] ?? 0) + exercise.sets.length;
+        // Track exercise names with set counts
+        final exercises = muscleGroupExercises[groupName] ?? [];
+        exercises.add('${exercise.name} (${exercise.sets.length} sets)');
+        muscleGroupExercises[groupName] = exercises;
       }
     }
 
@@ -129,6 +138,7 @@ List<CalendarDayData> buildCalendarData({
         isPartiallyCompleted: isPartiallyCompleted,
         muscleGroups: muscleGroups,
         muscleGroupSets: muscleGroupSets,
+        muscleGroupExercises: muscleGroupExercises,
       ),
     );
   }
