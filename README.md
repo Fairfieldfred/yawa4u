@@ -265,10 +265,10 @@ lib/
 - [x] Exercise library with muscle groups
 - [x] Template system
 - [x] Export/Import functionality
-- [ ] Apple Watch companion app
+- [ ] Apple Watch companion app (In Progress)
 - [ ] Workout statistics and analytics
 - [ ] Exercise progression recommendations
-- [ ] Cloud sync (optional)
+- [ ] Cloud sync (optional), maybe not
 
 ---
 

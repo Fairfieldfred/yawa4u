@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -411,7 +413,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                   muscleGroupExercises: dayData.muscleGroupExercises,
                 ),
               ),
-            // Expanded section: Muscle group circles (2 weeks and week view)
+            // Expanded section: Muscle group display (2 weeks and week view)
             if ((calendarFormat == CalendarFormat.twoWeeks ||
                     calendarFormat == CalendarFormat.week) &&
                 (dayData?.hasWorkout ?? false))
@@ -419,12 +421,19 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                 flex: calendarFormat == CalendarFormat.week ? 4 : 2,
                 child: Padding(
                   padding: const EdgeInsets.all(4),
-                  child: _buildMuscleGroupCircles(
-                    context,
-                    dayData!.muscleGroupSets,
-                    calendarFormat,
-                    muscleGroupExercises: dayData.muscleGroupExercises,
-                  ),
+                  child: Platform.isMacOS
+                      ? _buildMuscleGroupList(
+                          context,
+                          dayData!.muscleGroupSets,
+                          calendarFormat,
+                          muscleGroupExercises: dayData.muscleGroupExercises,
+                        )
+                      : _buildMuscleGroupCircles(
+                          context,
+                          dayData!.muscleGroupSets,
+                          calendarFormat,
+                          muscleGroupExercises: dayData.muscleGroupExercises,
+                        ),
                 ),
               ),
           ],
@@ -601,6 +610,103 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
               ),
             );
           }).toList(),
+        );
+      },
+    );
+  }
+
+  /// Builds a list view of muscle groups with exercises for macOS desktop
+  Widget _buildMuscleGroupList(
+    BuildContext context,
+    Map<String, int> muscleGroupSets,
+    CalendarFormat calendarFormat, {
+    Map<String, List<String>>? muscleGroupExercises,
+  }) {
+    if (muscleGroupSets.isEmpty) return const SizedBox.shrink();
+
+    // Sort by set count descending
+    final sortedEntries = muscleGroupSets.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+
+    final isWeekView = calendarFormat == CalendarFormat.week;
+    final textStyle = Theme.of(context).textTheme;
+
+    return ListView.builder(
+      padding: EdgeInsets.zero,
+      itemCount: sortedEntries.length,
+      itemBuilder: (context, index) {
+        final entry = sortedEntries[index];
+        final muscleGroup = entry.key;
+        final setCount = entry.value;
+        final exercises = muscleGroupExercises?[muscleGroup] ?? [];
+        final color = _getMuscleGroupColor(context, muscleGroup);
+
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 2),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Color indicator
+              Container(
+                width: 4,
+                height: isWeekView ? 40 : 24,
+                margin: const EdgeInsets.only(right: 6),
+                decoration: BoxDecoration(
+                  color: color,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              // Content
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Muscle group header with set count
+                    Text(
+                      '$muscleGroup • $setCount sets',
+                      style: textStyle.labelSmall?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: color,
+                        fontSize: isWeekView ? 11 : 9,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    // Exercise names (week view shows more detail)
+                    if (exercises.isNotEmpty)
+                      ...exercises.take(isWeekView ? 4 : 2).map(
+                            (exercise) => Text(
+                              exercise,
+                              style: textStyle.labelSmall?.copyWith(
+                                fontSize: isWeekView ? 10 : 8,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onSurface
+                                    .withAlpha(180),
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                    // Show "+X more" if there are more exercises
+                    if (exercises.length > (isWeekView ? 4 : 2))
+                      Text(
+                        '+${exercises.length - (isWeekView ? 4 : 2)} more',
+                        style: textStyle.labelSmall?.copyWith(
+                          fontSize: isWeekView ? 9 : 7,
+                          fontStyle: FontStyle.italic,
+                          color: Theme.of(context)
+                              .colorScheme
+                              .onSurface
+                              .withAlpha(120),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         );
       },
     );
