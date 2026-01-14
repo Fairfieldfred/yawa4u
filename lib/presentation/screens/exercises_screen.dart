@@ -578,6 +578,12 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
               exercise.sets.every((set) => set.isLogged || set.isSkipped),
         );
 
+    // Check if workouts are already marked as finished
+    final workoutsAlreadyFinished = widget.workouts.every((w) => w.isCompleted);
+
+    // Show finish button only if all exercises done AND workout not already finished
+    final showFinishButton = allExercisesCompleted && !workoutsAlreadyFinished;
+
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
@@ -679,7 +685,7 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
                                 child: SingleChildScrollView(
                                   padding: EdgeInsets.only(
                                     top: 24,
-                                    bottom: allExercisesCompleted
+                                    bottom: showFinishButton
                                         ? 100
                                         : 24, // Extra padding for button
                                   ),
@@ -812,8 +818,8 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
                       ],
                     ),
 
-                    // Finish Workout Button (appears when all exercises are complete)
-                    if (allExercisesCompleted)
+                    // Finish Workout Button (appears when all exercises are complete but workout not yet finished)
+                    if (showFinishButton)
                       Positioned(
                         bottom: 0,
                         left: 0,

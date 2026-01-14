@@ -32,5 +32,7 @@
 		<string>MainMenu</string>
 		<key>NSPrincipalClass</key>
 		<string>NSApplication</string>
+		<key>NSCameraUsageDescription</key>
+		<string>YAWA4U needs camera access to scan QR codes for syncing data between devices.</string>
 	</dict>
 </plist>

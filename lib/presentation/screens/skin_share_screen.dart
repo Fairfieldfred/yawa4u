@@ -75,6 +75,9 @@ class _SkinShareScreenState extends ConsumerState<SkinShareScreen> {
 
   @override
   void dispose() {
+    // Stop scanner and server when leaving screen
+    // Note: We can't await in dispose, but stop() helps release resources
+    _scannerController?.stop();
     _scannerController?.dispose();
     _shareService.stopServer();
     super.dispose();
@@ -110,17 +113,41 @@ class _SkinShareScreenState extends ConsumerState<SkinShareScreen> {
     });
   }
 
-  void _startScanning() {
-    _scannerController?.dispose();
-    _scannerController = null;
+  Future<void> _startScanning() async {
+    // Stop and dispose old controller properly
+    if (_scannerController != null) {
+      await _scannerController!.stop();
+      await _scannerController!.dispose();
+      _scannerController = null;
+    }
+
+    // Create new controller with autoStart disabled
+    _scannerController = MobileScannerController(
+      detectionSpeed: DetectionSpeed.normal,
+      facing: CameraFacing.back,
+      autoStart: false,
+    );
+
     setState(() {
       _isScanning = true;
     });
+
+    // Start the scanner after setState completes
+    await Future.delayed(const Duration(milliseconds: 100));
+    try {
+      await _scannerController?.start();
+    } catch (e) {
+      debugPrint('Scanner start error: $e');
+    }
   }
 
   Future<void> _onQRCodeScanned(String code) async {
-    _scannerController?.dispose();
-    _scannerController = null;
+    // Stop and dispose scanner controller properly
+    if (_scannerController != null) {
+      await _scannerController!.stop();
+      await _scannerController!.dispose();
+      _scannerController = null;
+    }
 
     setState(() {
       _isScanning = false;
@@ -600,10 +627,10 @@ class _SkinShareScreenState extends ConsumerState<SkinShareScreen> {
   }
 
   Widget _buildScanner() {
-    _scannerController ??= MobileScannerController(
-      detectionSpeed: DetectionSpeed.normal,
-      facing: CameraFacing.back,
-    );
+    // Controller should already be created by _startScanning()
+    if (_scannerController == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
 
     return Stack(
       children: [
@@ -657,9 +684,12 @@ class _SkinShareScreenState extends ConsumerState<SkinShareScreen> {
           left: 16,
           child: IconButton(
             icon: const Icon(Icons.close, color: Colors.white),
-            onPressed: () {
-              _scannerController?.dispose();
-              _scannerController = null;
+            onPressed: () async {
+              if (_scannerController != null) {
+                await _scannerController!.stop();
+                await _scannerController!.dispose();
+                _scannerController = null;
+              }
               setState(() {
                 _isScanning = false;
               });
