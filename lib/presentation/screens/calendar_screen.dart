@@ -675,15 +675,16 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                     ),
                     // Exercise names (week view shows more detail)
                     if (exercises.isNotEmpty)
-                      ...exercises.take(isWeekView ? 4 : 2).map(
+                      ...exercises
+                          .take(isWeekView ? 4 : 2)
+                          .map(
                             (exercise) => Text(
                               exercise,
                               style: textStyle.labelSmall?.copyWith(
                                 fontSize: isWeekView ? 10 : 8,
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .onSurface
-                                    .withAlpha(180),
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurface.withAlpha(180),
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -696,10 +697,9 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                         style: textStyle.labelSmall?.copyWith(
                           fontSize: isWeekView ? 9 : 7,
                           fontStyle: FontStyle.italic,
-                          color: Theme.of(context)
-                              .colorScheme
-                              .onSurface
-                              .withAlpha(120),
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withAlpha(120),
                         ),
                       ),
                   ],
