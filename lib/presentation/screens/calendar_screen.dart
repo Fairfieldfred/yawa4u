@@ -722,7 +722,9 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest,
+        color: Theme.of(
+          context,
+        ).colorScheme.surfaceContainerHighest.withAlpha(100),
         border: Border(top: BorderSide(color: Theme.of(context).dividerColor)),
       ),
       child: Column(
