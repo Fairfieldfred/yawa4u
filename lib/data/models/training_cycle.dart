@@ -1,60 +1,27 @@
-import 'package:hive/hive.dart';
-
 import '../../core/constants/enums.dart';
 import '../../core/utils/date_helpers.dart';
 import 'workout.dart';
 
-part 'training_cycle.g.dart';
-
 /// Represents a trainingCycle (multi-period training program)
 ///
 /// Contains trainingCycle configuration, workouts, and progression tracking.
-@HiveType(typeId: 104)
 class TrainingCycle {
-  @HiveField(0)
   final String id;
-
-  @HiveField(1)
   final String name;
-
-  @HiveField(2)
   final int periodsTotal;
-
-  @HiveField(3)
   final int daysPerPeriod;
-
-  @HiveField(4)
   final int recoveryPeriod;
-
-  @HiveField(5)
   final TrainingCycleStatus status;
-
-  @HiveField(6)
   final Gender? gender;
-
-  @HiveField(7)
   final DateTime createdDate;
-
-  @HiveField(8)
   final DateTime? startDate;
-
-  @HiveField(9)
   final DateTime? endDate;
-
-  @HiveField(10)
   final List<Workout> workouts;
 
   /// Map of muscle group to priority level (used for template selection)
-  @HiveField(11)
   final Map<String, int>? muscleGroupPriorities;
-
-  @HiveField(12)
   final String? templateName;
-
-  @HiveField(13)
   final String? notes;
-
-  @HiveField(14)
   final RecoveryPeriodType? _recoveryPeriodType;
 
   /// Recovery period type with default fallback for existing records

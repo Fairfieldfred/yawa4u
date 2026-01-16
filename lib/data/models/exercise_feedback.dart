@@ -1,4 +1,3 @@
-import 'package:hive/hive.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 import '../../core/constants/enums.dart';
@@ -9,26 +8,15 @@ part 'exercise_feedback.g.dart';
 ///
 /// Includes joint pain, muscle pump, workload difficulty,
 /// and soreness ratings for each trained muscle group.
-@HiveType(typeId: 1)
 @JsonSerializable()
 class ExerciseFeedback {
-  @HiveField(0)
   final JointPain? jointPain;
-
-  @HiveField(1)
   final MusclePump? musclePump;
-
-  @HiveField(2)
   final Workload? workload;
-
-  @HiveField(3)
   final Soreness? soreness;
 
   /// Map of muscle group to soreness level (for tracking specific muscle soreness)
-  @HiveField(4)
   final Map<String, Soreness>? muscleGroupSoreness;
-
-  @HiveField(5)
   final DateTime? timestamp;
 
   ExerciseFeedback({

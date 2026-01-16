@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
-import 'package:hive/hive.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'built_in_skins/built_in_skins.dart';
 import 'skin_model.dart';
@@ -13,11 +13,10 @@ import 'skin_model.dart';
 /// - Loading/saving custom user skins
 /// - Providing access to built-in skins
 class SkinRepository {
-  static const String _boxName = 'skin_preferences';
   static const String _activeSkinKey = 'active_skin_id';
   static const String _customSkinsKey = 'custom_skins';
 
-  late final Box<String> _box;
+  SharedPreferences? _prefs;
   bool _initialized = false;
 
   /// Singleton instance
@@ -28,11 +27,11 @@ class SkinRepository {
 
   SkinRepository._internal();
 
-  /// Initialize the repository
-  Future<void> initialize() async {
+  /// Initialize the repository with SharedPreferences
+  Future<void> initialize([SharedPreferences? prefs]) async {
     if (_initialized) return;
 
-    _box = await Hive.openBox<String>(_boxName);
+    _prefs = prefs ?? await SharedPreferences.getInstance();
     _initialized = true;
     debugPrint('[SkinRepository] Initialized');
   }
@@ -40,13 +39,13 @@ class SkinRepository {
   /// Get the ID of the currently active skin
   String getActiveSkinId() {
     _checkInitialized();
-    return _box.get(_activeSkinKey, defaultValue: BuiltInSkins.defaultSkinId)!;
+    return _prefs!.getString(_activeSkinKey) ?? BuiltInSkins.defaultSkinId;
   }
 
   /// Set the active skin ID
   Future<void> setActiveSkinId(String skinId) async {
     _checkInitialized();
-    await _box.put(_activeSkinKey, skinId);
+    await _prefs!.setString(_activeSkinKey, skinId);
     debugPrint('[SkinRepository] Active skin set to: $skinId');
   }
 
@@ -84,7 +83,7 @@ class SkinRepository {
   List<SkinModel> getCustomSkins() {
     _checkInitialized();
 
-    final jsonString = _box.get(_customSkinsKey);
+    final jsonString = _prefs!.getString(_customSkinsKey);
     if (jsonString == null || jsonString.isEmpty) {
       return [];
     }
@@ -233,7 +232,7 @@ class SkinRepository {
     final jsonString = json.encode(jsonList);
     debugPrint('[SkinRepository] Saving ${skins.length} custom skins');
     debugPrint('[SkinRepository] JSON being saved: $jsonString');
-    await _box.put(_customSkinsKey, jsonString);
+    await _prefs!.setString(_customSkinsKey, jsonString);
   }
 
   void _checkInitialized() {
@@ -247,7 +246,7 @@ class SkinRepository {
   /// Clear all custom skins (for testing/reset)
   Future<void> clearCustomSkins() async {
     _checkInitialized();
-    await _box.delete(_customSkinsKey);
+    await _prefs!.remove(_customSkinsKey);
     debugPrint('[SkinRepository] Cleared all custom skins');
   }
 }

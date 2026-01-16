@@ -1,34 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:hive/hive.dart';
-
-part 'muscle_groups.g.dart';
 
 /// Muscle group categories for exercises
-@HiveType(typeId: 20)
 enum MuscleGroup {
-  @HiveField(0)
   chest,
-  @HiveField(1)
   triceps,
-  @HiveField(2)
   shoulders,
-  @HiveField(3)
   back,
-  @HiveField(4)
   biceps,
-  @HiveField(5)
   quads,
-  @HiveField(6)
   hamstrings,
-  @HiveField(7)
   glutes,
-  @HiveField(8)
   calves,
-  @HiveField(9)
   traps,
-  @HiveField(10)
   forearms,
-  @HiveField(11)
   abs,
 }
 

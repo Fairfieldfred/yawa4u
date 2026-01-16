@@ -14,7 +14,7 @@ import '../../../data/models/exercise.dart';
 import '../../../data/models/exercise_set.dart';
 import '../../../data/models/training_cycle.dart';
 import '../../../data/models/workout.dart';
-import '../../../domain/providers/repository_providers.dart';
+import '../../../domain/providers/database_providers.dart';
 
 /// Check if running on desktop platform
 bool get _isDesktop =>
@@ -404,112 +404,132 @@ class _ExerciseInfoDialogState extends ConsumerState<ExerciseInfoDialog> {
   Widget _buildHistoryTab(BuildContext context) {
     final workoutRepo = ref.read(workoutRepositoryProvider);
     final trainingCycleRepo = ref.read(trainingCycleRepositoryProvider);
-    final allWorkouts = workoutRepo.getAll();
-    final allTrainingCycles = trainingCycleRepo.getAll();
 
-    // Create a map of trainingCycleId -> trainingCycle for quick lookup
-    final trainingCycleMap = {for (var m in allTrainingCycles) m.id: m};
+    return FutureBuilder<List<dynamic>>(
+      future: Future.wait([workoutRepo.getAll(), trainingCycleRepo.getAll()]),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
 
-    // Find all exercises with the same name from all workouts (across all trainingCycles)
-    final List<_HistoryEntry> historyEntries = [];
+        if (snapshot.hasError) {
+          return Center(
+            child: Text('Error loading history: ${snapshot.error}'),
+          );
+        }
 
-    for (final workout in allWorkouts) {
-      for (final exercise in workout.exercises) {
-        if (exercise.name.toLowerCase() == widget.exercise.name.toLowerCase()) {
-          // Only include exercises with at least one logged set
-          if (exercise.sets.any((s) => s.isLogged)) {
-            final trainingCycle = trainingCycleMap[workout.trainingCycleId];
-            historyEntries.add(
-              _HistoryEntry(
-                exercise: exercise,
-                workout: workout,
-                trainingCycle: trainingCycle,
-                completedDate: workout.completedDate ?? exercise.lastPerformed,
-              ),
-            );
+        final allWorkouts = snapshot.data![0] as List<Workout>;
+        final allTrainingCycles = snapshot.data![1] as List<TrainingCycle>;
+
+        // Create a map of trainingCycleId -> trainingCycle for quick lookup
+        final trainingCycleMap = {for (var m in allTrainingCycles) m.id: m};
+
+        // Find all exercises with the same name from all workouts (across all trainingCycles)
+        final List<_HistoryEntry> historyEntries = [];
+
+        for (final workout in allWorkouts) {
+          for (final exercise in workout.exercises) {
+            if (exercise.name.toLowerCase() ==
+                widget.exercise.name.toLowerCase()) {
+              // Only include exercises with at least one logged set
+              if (exercise.sets.any((s) => s.isLogged)) {
+                final trainingCycle = trainingCycleMap[workout.trainingCycleId];
+                historyEntries.add(
+                  _HistoryEntry(
+                    exercise: exercise,
+                    workout: workout,
+                    trainingCycle: trainingCycle,
+                    completedDate:
+                        workout.completedDate ?? exercise.lastPerformed,
+                  ),
+                );
+              }
+            }
           }
         }
-      }
-    }
 
-    // Sort by date (most recent first)
-    historyEntries.sort((a, b) {
-      if (a.completedDate == null && b.completedDate == null) return 0;
-      if (a.completedDate == null) return 1;
-      if (b.completedDate == null) return -1;
-      return b.completedDate!.compareTo(a.completedDate!);
-    });
+        // Sort by date (most recent first)
+        historyEntries.sort((a, b) {
+          if (a.completedDate == null && b.completedDate == null) return 0;
+          if (a.completedDate == null) return 1;
+          if (b.completedDate == null) return -1;
+          return b.completedDate!.compareTo(a.completedDate!);
+        });
 
-    // Exclude the current exercise instance from history
-    final filteredHistory = historyEntries
-        .where((entry) => entry.exercise.id != widget.exercise.id)
-        .toList();
+        // Exclude the current exercise instance from history
+        final filteredHistory = historyEntries
+            .where((entry) => entry.exercise.id != widget.exercise.id)
+            .toList();
 
-    if (filteredHistory.isEmpty) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(32),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                Icons.history_outlined,
-                size: 48,
-                color: Theme.of(
-                  context,
-                ).colorScheme.onSurface.withAlpha((255 * 0.4).round()),
+        if (filteredHistory.isEmpty) {
+          return Center(
+            child: Padding(
+              padding: const EdgeInsets.all(32),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.history_outlined,
+                    size: 48,
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withAlpha((255 * 0.4).round()),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'No history yet',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withAlpha((255 * 0.6).round()),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Complete sets to build your exercise history.',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withAlpha((255 * 0.5).round()),
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
               ),
-              const SizedBox(height: 16),
-              Text(
-                'No history yet',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.onSurface.withAlpha((255 * 0.6).round()),
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Complete sets to build your exercise history.',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.onSurface.withAlpha((255 * 0.5).round()),
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ],
-          ),
-        ),
-      );
-    }
+            ),
+          );
+        }
 
-    // Group entries by trainingCycle
-    final Map<String, List<_HistoryEntry>> groupedByTrainingCycle = {};
-    for (final entry in filteredHistory) {
-      final trainingCycleId = entry.trainingCycle?.id ?? 'unknown';
-      groupedByTrainingCycle.putIfAbsent(trainingCycleId, () => []).add(entry);
-    }
+        // Group entries by trainingCycle
+        final Map<String, List<_HistoryEntry>> groupedByTrainingCycle = {};
+        for (final entry in filteredHistory) {
+          final trainingCycleId = entry.trainingCycle?.id ?? 'unknown';
+          groupedByTrainingCycle
+              .putIfAbsent(trainingCycleId, () => [])
+              .add(entry);
+        }
 
-    // Build list with trainingCycle headers
-    final List<Widget> children = [];
-    for (final trainingCycleId in groupedByTrainingCycle.keys) {
-      final entries = groupedByTrainingCycle[trainingCycleId]!;
-      final trainingCycle = entries.first.trainingCycle;
+        // Build list with trainingCycle headers
+        final List<Widget> children = [];
+        for (final trainingCycleId in groupedByTrainingCycle.keys) {
+          final entries = groupedByTrainingCycle[trainingCycleId]!;
+          final trainingCycle = entries.first.trainingCycle;
 
-      // Add trainingCycle header
-      children.add(_buildTrainingCycleHeader(context, trainingCycle));
+          // Add trainingCycle header
+          children.add(_buildTrainingCycleHeader(context, trainingCycle));
 
-      // Add entries for this trainingCycle
-      for (final entry in entries) {
-        children.add(_buildHistoryRow(context, entry));
-      }
-    }
+          // Add entries for this trainingCycle
+          for (final entry in entries) {
+            children.add(_buildHistoryRow(context, entry));
+          }
+        }
 
-    return ListView(
-      padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
-      shrinkWrap: true,
-      children: children,
+        return ListView(
+          padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
+          shrinkWrap: true,
+          children: children,
+        );
+      },
     );
   }
 

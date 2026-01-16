@@ -13,9 +13,9 @@ import '../../data/models/exercise.dart';
 import '../../data/models/exercise_set.dart';
 import '../../data/models/training_cycle.dart';
 import '../../data/models/workout.dart';
+import '../../domain/providers/database_providers.dart';
 import '../../domain/providers/navigation_providers.dart';
 import '../../domain/providers/onboarding_providers.dart';
-import '../../domain/providers/repository_providers.dart';
 import '../../domain/providers/training_cycle_providers.dart';
 import '../../domain/providers/workout_providers.dart';
 import '../widgets/dialogs/add_exercise_dialog.dart';
@@ -54,7 +54,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
         );
 
         final workouts = ref.watch(
-          workoutsByTrainingCycleProvider(widget.trainingCycleId),
+          workoutsByTrainingCycleListProvider(widget.trainingCycleId),
         );
 
         // Get workouts for the selected period and day
@@ -169,7 +169,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
     EditWorkoutController controller,
   ) {
     final allWorkouts = ref.watch(
-      workoutsByTrainingCycleProvider(widget.trainingCycleId),
+      workoutsByTrainingCycleListProvider(widget.trainingCycleId),
     );
     final period1HasWorkouts = allWorkouts.any((w) => w.periodNumber == 1);
 
@@ -583,7 +583,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
 
     // Check if there are any workouts on this day
     final allWorkouts = ref.read(
-      workoutsByTrainingCycleProvider(trainingCycle.id),
+      workoutsByTrainingCycleListProvider(trainingCycle.id),
     );
     final hasWorkoutsOnDay = allWorkouts.any((w) => w.dayNumber == dayToRemove);
 
@@ -1685,7 +1685,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
   ) {
     // Get workouts for the current day
     final workouts = ref.read(
-      workoutsByTrainingCycleProvider(widget.trainingCycleId),
+      workoutsByTrainingCycleListProvider(widget.trainingCycleId),
     );
     final dayWorkouts = workouts
         .where(

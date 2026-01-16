@@ -33,11 +33,11 @@ Future<void> main() async {
   // Initialize SharedPreferences
   final sharedPrefs = await SharedPreferences.getInstance();
 
-  // Initialize Hive database
+  // Initialize Drift database
   await DatabaseService().initialize();
 
-  // Initialize Skin Repository
-  await SkinRepository().initialize();
+  // Initialize Skin Repository with SharedPreferences
+  await SkinRepository().initialize(sharedPrefs);
 
   // Load exercises from CSV
   await CsvLoaderService().loadExercises();

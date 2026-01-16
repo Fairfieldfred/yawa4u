@@ -7,7 +7,7 @@ import '../../core/utils/date_helpers.dart';
 import '../../data/models/training_cycle.dart';
 import '../../data/models/workout.dart';
 import '../../data/services/schedule_service.dart';
-import 'repository_providers.dart';
+import 'database_providers.dart';
 import 'training_cycle_providers.dart';
 import 'workout_providers.dart';
 
@@ -155,7 +155,7 @@ final calendarDataProvider = Provider.family<List<CalendarDayData>, DateTime>((
 
   if (cycle == null) return [];
 
-  final workouts = ref.watch(workoutsByTrainingCycleProvider(cycle.id));
+  final workouts = ref.watch(workoutsByTrainingCycleListProvider(cycle.id));
 
   return buildCalendarData(cycle: cycle, allWorkouts: workouts, month: month);
 });

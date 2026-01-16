@@ -1,63 +1,86 @@
-import 'package:hive/hive.dart';
-
+import '../database/daos/custom_exercise_dao.dart';
+import '../database/mappers/secondary_mappers.dart';
 import '../models/custom_exercise_definition.dart';
 
-/// Repository for custom exercise definition CRUD operations
+/// Repository for custom exercise definition CRUD operations using Drift
 class CustomExerciseRepository {
-  final Box<CustomExerciseDefinition> _box;
+  final CustomExerciseDao _dao;
 
-  CustomExerciseRepository(this._box);
+  CustomExerciseRepository(this._dao);
 
-  /// Get the underlying Hive box (for watching changes)
-  Box<CustomExerciseDefinition> get box => _box;
+  /// Watch all custom exercises (for reactive UI updates)
+  Stream<List<CustomExerciseDefinition>> watchAll() {
+    return _dao.watchAllSorted().map(
+      (rows) => rows.map((row) => CustomExerciseMapper.fromRow(row)).toList()
+        ..sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase())),
+    );
+  }
 
   /// Get all custom exercises
-  List<CustomExerciseDefinition> getAll() {
-    return _box.values.toList()
-      ..sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+  Future<List<CustomExerciseDefinition>> getAll() async {
+    final rows = await _dao.getAllSorted();
+    final exercises = rows
+        .map((row) => CustomExerciseMapper.fromRow(row))
+        .toList();
+    exercises.sort(
+      (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()),
+    );
+    return exercises;
   }
 
   /// Get custom exercise by ID
-  CustomExerciseDefinition? getById(String id) {
-    return _box.get(id);
+  Future<CustomExerciseDefinition?> getById(String id) async {
+    final row = await _dao.getByUuid(id);
+    return row != null ? CustomExerciseMapper.fromRow(row) : null;
   }
 
   /// Get custom exercise by name (case-insensitive)
-  CustomExerciseDefinition? getByName(String name) {
+  Future<CustomExerciseDefinition?> getByName(String name) async {
+    final all = await getAll();
     try {
-      return _box.values.firstWhere(
-        (e) => e.name.toLowerCase() == name.toLowerCase(),
-      );
+      return all.firstWhere((e) => e.name.toLowerCase() == name.toLowerCase());
     } catch (e) {
       return null;
     }
   }
 
   /// Check if an exercise with this name exists
-  bool existsByName(String name) {
-    return getByName(name) != null;
+  Future<bool> existsByName(String name) async {
+    final exercise = await getByName(name);
+    return exercise != null;
   }
 
   /// Add a new custom exercise
   Future<void> add(CustomExerciseDefinition exercise) async {
-    await _box.put(exercise.id, exercise);
+    final companion = CustomExerciseMapper.toCompanion(exercise);
+    await _dao.insertExercise(companion);
   }
 
   /// Update an existing custom exercise
   Future<void> update(CustomExerciseDefinition exercise) async {
-    await _box.put(exercise.id, exercise);
+    final companion = CustomExerciseMapper.toCompanion(exercise);
+    final existing = await _dao.getByUuid(exercise.id);
+    if (existing != null) {
+      // Update using the existing row's id
+      await ((_dao as dynamic).update(_dao.customExerciseDefinitions)
+            ..where((c) => (c as dynamic).uuid.equals(exercise.id)))
+          .write(companion);
+    }
   }
 
   /// Delete a custom exercise by ID
   Future<void> delete(String id) async {
-    await _box.delete(id);
+    await _dao.deleteByUuid(id);
   }
 
   /// Delete all custom exercises
   Future<void> deleteAll() async {
-    await _box.clear();
+    await _dao.deleteAll();
   }
 
   /// Get count of custom exercises
-  int get count => _box.length;
+  Future<int> count() async {
+    final all = await getAll();
+    return all.length;
+  }
 }

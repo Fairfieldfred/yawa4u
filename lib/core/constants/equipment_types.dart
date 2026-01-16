@@ -1,29 +1,14 @@
-import 'package:hive/hive.dart';
-
-part 'equipment_types.g.dart';
-
 /// Equipment type categories for exercises
-@HiveType(typeId: 21)
 enum EquipmentType {
-  @HiveField(0)
   barbell,
-  @HiveField(1)
   bodyweightLoadable,
-  @HiveField(2)
   bodyweightOnly,
-  @HiveField(3)
   cable,
-  @HiveField(4)
   dumbbell,
-  @HiveField(5)
   freemotion,
-  @HiveField(6)
   machine,
-  @HiveField(7)
   machineAssistance,
-  @HiveField(8)
   smithMachine,
-  @HiveField(9)
   bandAssistance,
 }
 

@@ -1,75 +1,87 @@
-import 'package:hive/hive.dart';
-
 import '../../core/constants/enums.dart';
+import '../database/daos/training_cycle_dao.dart';
+import '../database/mappers/entity_mappers.dart';
 import '../models/training_cycle.dart';
 
-/// Repository for TrainingCycle CRUD operations
+/// Repository for TrainingCycle CRUD operations using Drift
 class TrainingCycleRepository {
-  final Box<TrainingCycle> _box;
+  final TrainingCycleDao _dao;
 
-  TrainingCycleRepository(this._box);
+  TrainingCycleRepository(this._dao);
 
-  /// Get the underlying Hive box (for watching changes)
-  Box<TrainingCycle> get box => _box;
+  /// Watch all training cycles (for reactive UI updates)
+  Stream<List<TrainingCycle>> watchAll() {
+    return _dao.watchAllSorted().map(
+      (rows) => rows.map((row) => TrainingCycleMapper.fromRow(row)).toList(),
+    );
+  }
 
   /// Get all trainingCycles
-  List<TrainingCycle> getAll() {
-    return _box.values.toList();
+  Future<List<TrainingCycle>> getAll() async {
+    final rows = await _dao.getAllSorted();
+    return rows.map((row) => TrainingCycleMapper.fromRow(row)).toList();
   }
 
   /// Get trainingCycles by status
-  List<TrainingCycle> getByStatus(TrainingCycleStatus status) {
-    return _box.values.where((m) => m.status == status).toList();
+  Future<List<TrainingCycle>> getByStatus(TrainingCycleStatus status) async {
+    final rows = await _dao.getAllSorted();
+    return rows
+        .where((row) => row.status == status.index)
+        .map((row) => TrainingCycleMapper.fromRow(row))
+        .toList();
   }
 
   /// Get current (active) trainingCycle
-  TrainingCycle? getCurrent() {
-    try {
-      return _box.values.firstWhere(
-        (m) => m.status == TrainingCycleStatus.current,
-      );
-    } catch (e) {
-      return null;
-    }
+  Future<TrainingCycle?> getCurrent() async {
+    final row = await _dao.getCurrent();
+    return row != null ? TrainingCycleMapper.fromRow(row) : null;
   }
 
   /// Get draft trainingCycles
-  List<TrainingCycle> getDrafts() {
+  Future<List<TrainingCycle>> getDrafts() async {
     return getByStatus(TrainingCycleStatus.draft);
   }
 
   /// Get completed trainingCycles
-  List<TrainingCycle> getCompleted() {
+  Future<List<TrainingCycle>> getCompleted() async {
     return getByStatus(TrainingCycleStatus.completed);
   }
 
   /// Get trainingCycle by ID
-  TrainingCycle? getById(String id) {
-    return _box.get(id);
+  Future<TrainingCycle?> getById(String id) async {
+    final row = await _dao.getByUuid(id);
+    return row != null ? TrainingCycleMapper.fromRow(row) : null;
   }
 
   /// Create a new trainingCycle
   Future<void> create(TrainingCycle trainingCycle) async {
-    await _box.put(trainingCycle.id, trainingCycle);
+    final companion = TrainingCycleMapper.toCompanion(trainingCycle);
+    await _dao.insertCycle(companion);
   }
 
   /// Update an existing trainingCycle
   Future<void> update(TrainingCycle trainingCycle) async {
-    await _box.put(trainingCycle.id, trainingCycle);
+    final companion = TrainingCycleMapper.toCompanion(trainingCycle);
+    await _dao.updateByUuid(trainingCycle.id, companion);
   }
 
   /// Delete a trainingCycle
   Future<void> delete(String id) async {
-    await _box.delete(id);
+    await _dao.deleteByUuid(id);
+  }
+
+  /// Delete all trainingCycles
+  Future<void> deleteAll() async {
+    await _dao.deleteAll();
   }
 
   /// Set a trainingCycle as current (and deactivate others)
   Future<void> setAsCurrent(String id) async {
-    final trainingCycle = getById(id);
+    final trainingCycle = await getById(id);
     if (trainingCycle == null) return;
 
     // Deactivate all other trainingCycles
-    final all = getAll();
+    final all = await getAll();
     for (final m in all) {
       if (m.id != id && m.status == TrainingCycleStatus.current) {
         await update(m.copyWith(status: TrainingCycleStatus.draft));
@@ -82,7 +94,7 @@ class TrainingCycleRepository {
 
   /// Complete a trainingCycle
   Future<void> complete(String id) async {
-    final trainingCycle = getById(id);
+    final trainingCycle = await getById(id);
     if (trainingCycle == null) return;
 
     await update(trainingCycle.complete());
@@ -90,7 +102,7 @@ class TrainingCycleRepository {
 
   /// Duplicate a trainingCycle
   Future<TrainingCycle> duplicate(String id, String newName) async {
-    final original = getById(id);
+    final original = await getById(id);
     if (original == null) {
       throw ArgumentError('TrainingCycle not found: $id');
     }
@@ -106,7 +118,6 @@ class TrainingCycleRepository {
       templateName: original.templateName,
       notes: original.notes,
       status: TrainingCycleStatus.draft,
-      // Don't copy workouts - user will need to generate new ones
     );
 
     await create(duplicated);
@@ -114,49 +125,38 @@ class TrainingCycleRepository {
   }
 
   /// Get total count
-  int get count => _box.length;
-
-  /// Check if any trainingCycle exists
-  bool get isEmpty => _box.isEmpty;
-
-  /// Check if any trainingCycles exist
-  bool get isNotEmpty => _box.isNotEmpty;
+  Future<int> count() async {
+    final all = await getAll();
+    return all.length;
+  }
 
   /// Clear all trainingCycles (use with caution!)
   Future<void> clear() async {
-    await _box.clear();
+    final all = await getAll();
+    for (final m in all) {
+      await delete(m.id);
+    }
   }
 
   /// Get trainingCycles sorted by creation date (newest first)
-  List<TrainingCycle> getAllSorted() {
-    final all = getAll();
+  Future<List<TrainingCycle>> getAllSorted() async {
+    final all = await getAll();
     all.sort((a, b) => b.createdDate.compareTo(a.createdDate));
     return all;
   }
 
   /// Search trainingCycles by name
-  List<TrainingCycle> searchByName(String query) {
+  Future<List<TrainingCycle>> searchByName(String query) async {
     if (query.isEmpty) return getAll();
 
     final lowerQuery = query.toLowerCase();
-    return _box.values
-        .where((m) => m.name.toLowerCase().contains(lowerQuery))
-        .toList();
+    final all = await getAll();
+    return all.where((m) => m.name.toLowerCase().contains(lowerQuery)).toList();
   }
 
   /// Get trainingCycles by template name
-  List<TrainingCycle> getByTemplate(String templateName) {
-    return _box.values.where((m) => m.templateName == templateName).toList();
-  }
-
-  /// Get statistics
-  Map<String, dynamic> getStats() {
-    final all = getAll();
-    return {
-      'total': all.length,
-      'draft': getDrafts().length,
-      'current': getCurrent() != null ? 1 : 0,
-      'completed': getCompleted().length,
-    };
+  Future<List<TrainingCycle>> getByTemplate(String templateName) async {
+    final all = await getAll();
+    return all.where((m) => m.templateName == templateName).toList();
   }
 }

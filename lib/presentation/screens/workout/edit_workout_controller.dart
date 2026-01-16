@@ -7,7 +7,7 @@ import '../../../core/constants/muscle_groups.dart';
 import '../../../data/models/exercise_set.dart';
 import '../../../data/models/training_cycle.dart';
 import '../../../data/models/workout.dart';
-import '../../../domain/providers/repository_providers.dart';
+import '../../../domain/providers/database_providers.dart';
 import '../../../domain/providers/workout_providers.dart';
 
 /// Controller for the EditWorkoutScreen
@@ -27,7 +27,7 @@ class EditWorkoutController {
   ) async {
     final repository = ref.read(workoutRepositoryProvider);
     final allWorkouts = ref.read(
-      workoutsByTrainingCycleProvider(trainingCycleId),
+      workoutsByTrainingCycleListProvider(trainingCycleId),
     );
 
     // Get all Period 1 workouts
@@ -122,7 +122,7 @@ class EditWorkoutController {
     ExerciseSet set,
   ) async {
     final repository = ref.read(workoutRepositoryProvider);
-    final workout = repository.getById(workoutId);
+    final workout = await repository.getById(workoutId);
     if (workout == null) return;
 
     final exerciseIndex = workout.exercises.indexWhere(
@@ -147,7 +147,7 @@ class EditWorkoutController {
     int setIndex,
   ) async {
     final repository = ref.read(workoutRepositoryProvider);
-    final workout = repository.getById(workoutId);
+    final workout = await repository.getById(workoutId);
     if (workout == null) return;
 
     final exerciseIndex = workout.exercises.indexWhere(
@@ -168,7 +168,7 @@ class EditWorkoutController {
   /// Delete an exercise from a workout
   Future<void> deleteExercise(String workoutId, String exerciseId) async {
     final repository = ref.read(workoutRepositoryProvider);
-    final workout = repository.getById(workoutId);
+    final workout = await repository.getById(workoutId);
     if (workout == null) return;
 
     final updatedExercises = workout.exercises
@@ -187,7 +187,7 @@ class EditWorkoutController {
     ExerciseSet newSet,
   ) async {
     final repository = ref.read(workoutRepositoryProvider);
-    final workout = repository.getById(workoutId);
+    final workout = await repository.getById(workoutId);
     if (workout == null) return;
 
     final exerciseIndex = workout.exercises.indexWhere(
@@ -221,7 +221,7 @@ class EditWorkoutController {
     SetType type,
   ) async {
     final repository = ref.read(workoutRepositoryProvider);
-    final workout = repository.getById(workoutId);
+    final workout = await repository.getById(workoutId);
     if (workout == null) return;
 
     final exerciseIndex = workout.exercises.indexWhere(
@@ -253,7 +253,7 @@ class EditWorkoutController {
     String reps,
   ) async {
     final repository = ref.read(workoutRepositoryProvider);
-    final workout = repository.getById(workoutId);
+    final workout = await repository.getById(workoutId);
     if (workout == null) return;
 
     final exerciseIndex = workout.exercises.indexWhere(
@@ -282,7 +282,7 @@ class EditWorkoutController {
     final trainingCycleRepo = ref.read(trainingCycleRepositoryProvider);
     final workoutRepo = ref.read(workoutRepositoryProvider);
     final allWorkouts = ref.read(
-      workoutsByTrainingCycleProvider(trainingCycleId),
+      workoutsByTrainingCycleListProvider(trainingCycleId),
     );
 
     final newPeriodsTotal = trainingCycle.periodsTotal + 1;
@@ -328,7 +328,7 @@ class EditWorkoutController {
     final trainingCycleRepo = ref.read(trainingCycleRepositoryProvider);
     final workoutRepo = ref.read(workoutRepositoryProvider);
     final allWorkouts = ref.read(
-      workoutsByTrainingCycleProvider(trainingCycleId),
+      workoutsByTrainingCycleListProvider(trainingCycleId),
     );
 
     final oldRecoveryPeriod = trainingCycle.recoveryPeriod;
@@ -414,7 +414,7 @@ class EditWorkoutController {
     final trainingCycleRepo = ref.read(trainingCycleRepositoryProvider);
     final workoutRepo = ref.read(workoutRepositoryProvider);
     final allWorkouts = ref.read(
-      workoutsByTrainingCycleProvider(trainingCycleId),
+      workoutsByTrainingCycleListProvider(trainingCycleId),
     );
 
     final dayToRemove = trainingCycle.daysPerPeriod;

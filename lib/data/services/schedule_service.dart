@@ -69,12 +69,12 @@ class ScheduleService {
     String cycleId,
     int days,
   ) async {
-    final cycle = _cycleRepository.getById(cycleId);
+    final cycle = await _cycleRepository.getById(cycleId);
     if (cycle == null) {
       throw Exception('Training cycle not found');
     }
 
-    final workouts = _workoutRepository.getByTrainingCycleId(cycleId);
+    final workouts = await _workoutRepository.getByTrainingCycleId(cycleId);
 
     // Create snapshot for undo
     final snapshot = ScheduleSnapshot(
@@ -104,12 +104,12 @@ class ScheduleService {
     required int fromPeriod,
     required int fromDay,
   }) async {
-    final cycle = _cycleRepository.getById(cycleId);
+    final cycle = await _cycleRepository.getById(cycleId);
     if (cycle == null) {
       throw Exception('Training cycle not found');
     }
 
-    final workouts = _workoutRepository.getByTrainingCycleId(cycleId);
+    final workouts = await _workoutRepository.getByTrainingCycleId(cycleId);
 
     // Create snapshot for undo
     final snapshot = ScheduleSnapshot(
@@ -164,12 +164,12 @@ class ScheduleService {
     required int targetDay,
     required MoveMode mode,
   }) async {
-    final cycle = _cycleRepository.getById(cycleId);
+    final cycle = await _cycleRepository.getById(cycleId);
     if (cycle == null) {
       throw Exception('Training cycle not found');
     }
 
-    final workouts = _workoutRepository.getByTrainingCycleId(cycleId);
+    final workouts = await _workoutRepository.getByTrainingCycleId(cycleId);
 
     // Create snapshot for undo
     final snapshot = ScheduleSnapshot(
@@ -363,7 +363,7 @@ class ScheduleService {
     String cycleId,
     ScheduleSnapshot snapshot,
   ) async {
-    final cycle = _cycleRepository.getById(cycleId);
+    final cycle = await _cycleRepository.getById(cycleId);
     if (cycle == null) {
       throw Exception('Training cycle not found');
     }
@@ -377,7 +377,7 @@ class ScheduleService {
 
     // Restore workout positions
     for (final workoutSnapshot in snapshot.workoutSnapshots) {
-      final workout = _workoutRepository.getById(workoutSnapshot.id);
+      final workout = await _workoutRepository.getById(workoutSnapshot.id);
       if (workout != null &&
           (workout.periodNumber != workoutSnapshot.periodNumber ||
               workout.dayNumber != workoutSnapshot.dayNumber)) {

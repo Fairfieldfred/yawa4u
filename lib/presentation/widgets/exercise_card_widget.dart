@@ -7,7 +7,7 @@ import '../../core/theme/skins/skins.dart';
 import '../../core/utils/weight_conversion.dart';
 import '../../data/models/exercise.dart';
 import '../../data/models/exercise_set.dart';
-import '../../domain/providers/repository_providers.dart';
+import '../../domain/providers/database_providers.dart';
 import 'dialogs/exercise_info_dialog.dart';
 import 'muscle_group_badge.dart';
 
@@ -22,6 +22,7 @@ class ExerciseCardWidget extends ConsumerWidget {
   final Function(String exerciseId) onAddNote;
   final Function(String exerciseId)? onMoveDown;
   final bool showMoveDown;
+  final bool isLastExercise;
   final Function(String exerciseId) onReplace;
   final Function(String exerciseId) onJointPain;
   final Function(String exerciseId) onAddSet;
@@ -45,6 +46,7 @@ class ExerciseCardWidget extends ConsumerWidget {
     required this.onAddNote,
     this.onMoveDown,
     this.showMoveDown = true,
+    this.isLastExercise = false,
     required this.onReplace,
     required this.onJointPain,
     required this.onAddSet,
@@ -60,7 +62,7 @@ class ExerciseCardWidget extends ConsumerWidget {
   });
 
   /// Find the most recent pinned note for exercises with the same name
-  String? _findPinnedNoteForExercise(WidgetRef ref) {
+  Future<String?> _findPinnedNoteForExercise(WidgetRef ref) async {
     // First check if current exercise has a pinned note
     if (exercise.isNotePinned &&
         exercise.notes != null &&
@@ -70,7 +72,7 @@ class ExerciseCardWidget extends ConsumerWidget {
 
     // Look for pinned notes from other exercises with the same name
     final workoutRepo = ref.read(workoutRepositoryProvider);
-    final allWorkouts = workoutRepo.getAll();
+    final allWorkouts = await workoutRepo.getAll();
 
     // Find all exercises with the same name that have pinned notes
     final pinnedExercises = <Exercise>[];
@@ -103,175 +105,191 @@ class ExerciseCardWidget extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final muscleGroup = exercise.muscleGroup;
     final equipmentType = exercise.equipmentType;
-    final pinnedNote = _findPinnedNoteForExercise(ref);
 
-    return Stack(
-      clipBehavior: Clip.none,
-      children: [
-        // Exercise card
-        Container(
-          width: double.infinity,
-          decoration: BoxDecoration(
-            color: Theme.of(context).cardTheme.color,
-            borderRadius: BorderRadius.circular(0),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
+    return FutureBuilder<String?>(
+      future: _findPinnedNoteForExercise(ref),
+      builder: (context, snapshot) {
+        final pinnedNote = snapshot.data;
+
+        return Stack(
+          clipBehavior: Clip.none,
+          children: [
+            // Exercise card
+            Container(
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: Theme.of(context).cardTheme.color,
+                borderRadius: BorderRadius.circular(0),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            exercise.name,
-                            style: Theme.of(context).textTheme.titleMedium
-                                ?.copyWith(
-                                  fontSize: 17,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            equipmentType.displayName.toUpperCase(),
-                            style: Theme.of(context).textTheme.bodySmall
-                                ?.copyWith(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w500,
-                                  letterSpacing: 0.3,
-                                ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    // Info button
-                    IconButton(
-                      icon: Container(
-                        width: 24,
-                        height: 24,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: const Color(0xFF8E8E93),
-                            width: 2,
-                          ),
-                        ),
-                        child: Center(
-                          child: Text(
-                            'i',
-                            style: TextStyle(
-                              color: Theme.of(
-                                context,
-                              ).textTheme.bodySmall?.color,
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                              fontStyle: FontStyle.italic,
-                            ),
-                          ),
-                        ),
-                      ),
-                      onPressed: () =>
-                          showExerciseInfoDialog(context, exercise),
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(
-                        minWidth: 24,
-                        minHeight: 24,
-                      ),
-                    ),
-                    const SizedBox(width: 0),
-                    // Overflow menu button
-                    _buildExerciseOverflowMenu(context),
-                  ],
-                ),
-
-                const SizedBox(height: 8),
-
-                // Column headers
-                if (exercise.sets.isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 4),
-                    child: Row(
+                    Row(
                       children: [
-                        const SizedBox(
-                          width: 24,
-                        ), // Spacer for overflow menu alignment
                         Expanded(
-                          child: Text(
-                            'WEIGHT',
-                            style: TextStyle(
-                              color:
-                                  Theme.of(context).brightness ==
-                                      Brightness.light
-                                  ? Theme.of(context).textTheme.bodySmall?.color
-                                        ?.withValues(alpha: 0.7)
-                                  : Colors.white,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                            ),
-                            textAlign: TextAlign.center,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                exercise.name,
+                                style: Theme.of(context).textTheme.titleMedium
+                                    ?.copyWith(
+                                      fontSize: 17,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                equipmentType.displayName.toUpperCase(),
+                                style: Theme.of(context).textTheme.bodySmall
+                                    ?.copyWith(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w500,
+                                      letterSpacing: 0.3,
+                                    ),
+                              ),
+                            ],
                           ),
                         ),
                         const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            'REPS',
-                            style: TextStyle(
-                              color:
-                                  Theme.of(context).brightness ==
-                                      Brightness.light
-                                  ? Theme.of(context).textTheme.bodySmall?.color
-                                        ?.withValues(alpha: 0.7)
-                                  : Colors.white,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
+                        // Info button
+                        IconButton(
+                          icon: Container(
+                            width: 24,
+                            height: 24,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: const Color(0xFF8E8E93),
+                                width: 2,
+                              ),
                             ),
-                            textAlign: TextAlign.center,
+                            child: Center(
+                              child: Text(
+                                'i',
+                                style: TextStyle(
+                                  color: Theme.of(
+                                    context,
+                                  ).textTheme.bodySmall?.color,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  fontStyle: FontStyle.italic,
+                                ),
+                              ),
+                            ),
+                          ),
+                          onPressed: () =>
+                              showExerciseInfoDialog(context, exercise),
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(
+                            minWidth: 24,
+                            minHeight: 24,
                           ),
                         ),
-                        const SizedBox(width: 32),
-                        SizedBox(
-                          width: 40,
-                          child: Text(
-                            'LOG',
-                            style: TextStyle(
-                              color:
-                                  Theme.of(context).brightness ==
-                                      Brightness.light
-                                  ? Theme.of(context).textTheme.bodySmall?.color
-                                        ?.withValues(alpha: 0.7)
-                                  : Colors.white,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
+                        const SizedBox(width: 0),
+                        // Overflow menu button
+                        _buildExerciseOverflowMenu(context),
                       ],
                     ),
-                  ),
 
-                // Sets list
-                ...List.generate(exercise.sets.length, (index) {
-                  final set = exercise.sets[index];
-                  return _buildSetRow(context, set, index);
-                }),
+                    const SizedBox(height: 8),
 
-                // Pinned note display (at bottom of card)
-                // Shows pinned notes from any exercise with the same name
-                if (pinnedNote != null) _buildPinnedNote(context, pinnedNote),
-              ],
+                    // Column headers
+                    if (exercise.sets.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 4),
+                        child: Row(
+                          children: [
+                            const SizedBox(
+                              width: 24,
+                            ), // Spacer for overflow menu alignment
+                            Expanded(
+                              child: Text(
+                                'WEIGHT',
+                                style: TextStyle(
+                                  color:
+                                      Theme.of(context).brightness ==
+                                          Brightness.light
+                                      ? Theme.of(context)
+                                            .textTheme
+                                            .bodySmall
+                                            ?.color
+                                            ?.withValues(alpha: 0.7)
+                                      : Colors.white,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                'REPS',
+                                style: TextStyle(
+                                  color:
+                                      Theme.of(context).brightness ==
+                                          Brightness.light
+                                      ? Theme.of(context)
+                                            .textTheme
+                                            .bodySmall
+                                            ?.color
+                                            ?.withValues(alpha: 0.7)
+                                      : Colors.white,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                            const SizedBox(width: 32),
+                            SizedBox(
+                              width: 40,
+                              child: Text(
+                                'LOG',
+                                style: TextStyle(
+                                  color:
+                                      Theme.of(context).brightness ==
+                                          Brightness.light
+                                      ? Theme.of(context)
+                                            .textTheme
+                                            .bodySmall
+                                            ?.color
+                                            ?.withValues(alpha: 0.7)
+                                      : Colors.white,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                    // Sets list
+                    ...List.generate(exercise.sets.length, (index) {
+                      final set = exercise.sets[index];
+                      return _buildSetRow(context, set, index);
+                    }),
+
+                    // Pinned note display (at bottom of card)
+                    // Shows pinned notes from any exercise with the same name
+                    if (pinnedNote != null)
+                      _buildPinnedNote(context, pinnedNote),
+                  ],
+                ),
+              ),
             ),
-          ),
-        ),
 
-        // Muscle group badge - overlays the card
-        if (showMuscleGroupBadge)
-          MuscleGroupBadge.compact(muscleGroup: muscleGroup),
-      ],
+            // Muscle group badge - overlays the card
+            if (showMuscleGroupBadge)
+              MuscleGroupBadge.compact(muscleGroup: muscleGroup),
+          ],
+        );
+      },
     );
   }
 
@@ -387,16 +405,26 @@ class ExerciseCardWidget extends ConsumerWidget {
             ],
           ),
         ),
-        // Move down (conditionally shown)
+        // Move down (conditionally shown, disabled if last exercise)
         if (showMoveDown)
           PopupMenuItem<String>(
             value: 'move_down',
+            enabled: !isLastExercise,
             height: 48,
             child: Row(
               children: [
-                Icon(Icons.arrow_downward, color: onSurfaceColor, size: 20),
+                Icon(
+                  Icons.arrow_downward,
+                  color: isLastExercise ? Colors.grey : onSurfaceColor,
+                  size: 20,
+                ),
                 const SizedBox(width: 12),
-                Text('Move down', style: TextStyle(color: onSurfaceColor)),
+                Text(
+                  'Move down',
+                  style: TextStyle(
+                    color: isLastExercise ? Colors.grey : onSurfaceColor,
+                  ),
+                ),
               ],
             ),
           ),

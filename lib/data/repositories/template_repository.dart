@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:hive/hive.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../core/constants/enums.dart';
@@ -17,7 +17,14 @@ import '../models/workout.dart';
 /// Repository for managing trainingCycle templates
 class TemplateRepository {
   final _uuid = const Uuid();
-  static const String _savedTemplatesBoxName = 'saved_templates';
+  static const String _savedTemplatesKey = 'saved_templates';
+
+  SharedPreferences? _prefs;
+
+  /// Initialize the repository with SharedPreferences
+  void initialize(SharedPreferences prefs) {
+    _prefs = prefs;
+  }
 
   /// Load all available templates from assets
   Future<List<TrainingCycleTemplate>> loadTemplates() async {
@@ -94,18 +101,27 @@ class TemplateRepository {
     return templates;
   }
 
-  /// Load saved (user-created) templates from Hive
+  /// Load saved (user-created) templates from SharedPreferences
   Future<List<TrainingCycleTemplate>> loadSavedTemplates() async {
     debugPrint('=== loadSavedTemplates called ===');
     try {
-      final box = await Hive.openBox<String>(_savedTemplatesBoxName);
-      debugPrint('Saved templates box opened, contains ${box.length} items');
+      final savedTemplatesJson = _prefs?.getString(_savedTemplatesKey);
+      if (savedTemplatesJson == null || savedTemplatesJson.isEmpty) {
+        debugPrint('No saved templates found');
+        return [];
+      }
+
+      final savedTemplatesMap =
+          json.decode(savedTemplatesJson) as Map<String, dynamic>;
+      debugPrint(
+        'Saved templates map contains ${savedTemplatesMap.length} items',
+      );
       final savedTemplates = <TrainingCycleTemplate>[];
 
-      for (final jsonString in box.values) {
+      for (final jsonString in savedTemplatesMap.values) {
         try {
           final template = TrainingCycleTemplate.fromJson(
-            json.decode(jsonString) as Map<String, dynamic>,
+            json.decode(jsonString as String) as Map<String, dynamic>,
           );
           debugPrint('Loaded saved template: ${template.name}');
           savedTemplates.add(template);
@@ -132,8 +148,13 @@ class TemplateRepository {
   /// Check if a template is a saved (user-created) template
   Future<bool> isSavedTemplate(String templateId) async {
     try {
-      final box = await Hive.openBox<String>(_savedTemplatesBoxName);
-      return box.containsKey(templateId);
+      final savedTemplatesJson = _prefs?.getString(_savedTemplatesKey);
+      if (savedTemplatesJson == null || savedTemplatesJson.isEmpty) {
+        return false;
+      }
+      final savedTemplatesMap =
+          json.decode(savedTemplatesJson) as Map<String, dynamic>;
+      return savedTemplatesMap.containsKey(templateId);
     } catch (e) {
       debugPrint('Error checking if template is saved: $e');
       return false;
@@ -143,8 +164,17 @@ class TemplateRepository {
   /// Delete a saved template
   Future<void> deleteTemplate(String templateId) async {
     try {
-      final box = await Hive.openBox<String>(_savedTemplatesBoxName);
-      await box.delete(templateId);
+      final savedTemplatesJson = _prefs?.getString(_savedTemplatesKey);
+      if (savedTemplatesJson == null || savedTemplatesJson.isEmpty) {
+        return;
+      }
+      final savedTemplatesMap =
+          json.decode(savedTemplatesJson) as Map<String, dynamic>;
+      savedTemplatesMap.remove(templateId);
+      await _prefs?.setString(
+        _savedTemplatesKey,
+        json.encode(savedTemplatesMap),
+      );
     } catch (e) {
       debugPrint('Error deleting template: $e');
       rethrow;
@@ -157,9 +187,12 @@ class TemplateRepository {
     debugPrint('Template name: ${template.name}');
 
     try {
-      final box = await Hive.openBox<String>(_savedTemplatesBoxName);
-      final jsonString = json.encode(template.toJson());
-      debugPrint('JSON string length: ${jsonString.length}');
+      // Get existing templates map
+      final savedTemplatesJson = _prefs?.getString(_savedTemplatesKey);
+      final savedTemplatesMap =
+          savedTemplatesJson != null && savedTemplatesJson.isNotEmpty
+          ? json.decode(savedTemplatesJson) as Map<String, dynamic>
+          : <String, dynamic>{};
 
       // Generate a new ID to avoid conflicts
       final newId = _uuid.v4();
@@ -173,9 +206,13 @@ class TemplateRepository {
         workouts: template.workouts,
       );
 
-      await box.put(newId, json.encode(templateWithNewId.toJson()));
+      savedTemplatesMap[newId] = json.encode(templateWithNewId.toJson());
+      await _prefs?.setString(
+        _savedTemplatesKey,
+        json.encode(savedTemplatesMap),
+      );
       debugPrint('Template saved with ID: $newId');
-      debugPrint('Box now contains ${box.length} templates');
+      debugPrint('Map now contains ${savedTemplatesMap.length} templates');
     } catch (e) {
       debugPrint('Error saving template directly: $e');
       rethrow;
@@ -204,13 +241,20 @@ class TemplateRepository {
       'Template created with ${template.workouts.length} workout templates',
     );
 
-    final box = await Hive.openBox<String>(_savedTemplatesBoxName);
+    // Get existing templates map
+    final savedTemplatesJson = _prefs?.getString(_savedTemplatesKey);
+    final savedTemplatesMap =
+        savedTemplatesJson != null && savedTemplatesJson.isNotEmpty
+        ? json.decode(savedTemplatesJson) as Map<String, dynamic>
+        : <String, dynamic>{};
+
     final jsonString = json.encode(template.toJson());
     debugPrint('JSON string length: ${jsonString.length}');
 
-    await box.put(template.id, jsonString);
+    savedTemplatesMap[template.id] = jsonString;
+    await _prefs?.setString(_savedTemplatesKey, json.encode(savedTemplatesMap));
     debugPrint('Template saved with ID: ${template.id}');
-    debugPrint('Box now contains ${box.length} templates');
+    debugPrint('Map now contains ${savedTemplatesMap.length} templates');
 
     return template.id;
   }

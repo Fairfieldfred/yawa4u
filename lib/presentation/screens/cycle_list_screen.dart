@@ -8,9 +8,9 @@ import '../../core/constants/enums.dart';
 import '../../core/theme/skins/skins.dart';
 import '../../core/utils/template_exporter.dart';
 import '../../data/models/training_cycle.dart';
+import '../../domain/providers/database_providers.dart';
 import '../../domain/providers/navigation_providers.dart';
 import '../../domain/providers/onboarding_providers.dart';
-import '../../domain/providers/repository_providers.dart';
 import '../../domain/providers/template_providers.dart';
 import '../../domain/providers/theme_provider.dart';
 import '../../domain/providers/training_cycle_providers.dart';
@@ -166,7 +166,7 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
   /// Check if ALL days in ALL periods have at least one exercise
   bool _hasExercisesForAllDays(TrainingCycle trainingCycle) {
     final workouts = ref.read(
-      workoutsByTrainingCycleProvider(trainingCycle.id),
+      workoutsByTrainingCycleListProvider(trainingCycle.id),
     );
 
     // Check EVERY period in the trainingCycle
@@ -695,7 +695,7 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
     try {
       // Get all workouts for this training cycle
       final workouts = ref.read(
-        workoutsByTrainingCycleProvider(trainingCycle.id),
+        workoutsByTrainingCycleListProvider(trainingCycle.id),
       );
 
       // Generate new ID for the copied training cycle
@@ -814,10 +814,7 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
       // Get all workouts for this training cycle directly from repository
       // to avoid empty list from async provider loading state
       final workoutRepository = ref.read(workoutRepositoryProvider);
-      final workouts = workoutRepository
-          .getAll()
-          .where((w) => w.trainingCycleId == trainingCycle.id)
-          .toList();
+      final workouts = await workoutRepository.getByTrainingCycleId(trainingCycle.id);
 
       debugPrint('Restarting cycle: ${trainingCycle.name}');
       debugPrint('Found ${workouts.length} workouts to copy');
@@ -925,7 +922,7 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
       try {
         // Load the full trainingCycle with workouts
         final workouts = ref.read(
-          workoutsByTrainingCycleProvider(trainingCycle.id),
+          workoutsByTrainingCycleListProvider(trainingCycle.id),
         );
         final fullTrainingCycle = trainingCycle.copyWith(workouts: workouts);
 
@@ -975,7 +972,7 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
 
       // Load the full trainingCycle with workouts
       final workouts = ref.read(
-        workoutsByTrainingCycleProvider(trainingCycle.id),
+        workoutsByTrainingCycleListProvider(trainingCycle.id),
       );
       final fullTrainingCycle = trainingCycle.copyWith(workouts: workouts);
 
@@ -988,7 +985,7 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
 
       // Refresh templates provider and wait for it to complete
       // This ensures the new template is available when the share screen opens
-      await ref.refresh(availableTemplatesProvider.future);
+      final _ = await ref.refresh(availableTemplatesProvider.future);
 
       if (mounted) {
         // Navigate to template share screen with auto-start enabled
@@ -1011,7 +1008,7 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
     try {
       // Load the full trainingCycle with workouts
       final workouts = ref.read(
-        workoutsByTrainingCycleProvider(trainingCycle.id),
+        workoutsByTrainingCycleListProvider(trainingCycle.id),
       );
       final trainingCycleToExport = trainingCycle.copyWith(workouts: workouts);
       await TemplateExporter.exportToClipboard(trainingCycleToExport);

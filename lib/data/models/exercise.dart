@@ -1,4 +1,3 @@
-import 'package:hive/hive.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 import '../../core/constants/enums.dart';
@@ -12,46 +11,20 @@ part 'exercise.g.dart';
 /// Represents an exercise within a workout
 ///
 /// Contains exercise details, sets, feedback, and tracking information.
-@HiveType(typeId: 2)
 @JsonSerializable(explicitToJson: true)
 class Exercise {
-  @HiveField(0)
   final String id;
-
-  @HiveField(1)
   final String workoutId;
-
-  @HiveField(2)
   final String name;
-
-  @HiveField(3)
   final MuscleGroup muscleGroup;
-
-  @HiveField(4)
   final EquipmentType equipmentType;
-
-  @HiveField(5)
   final List<ExerciseSet> sets;
-
-  @HiveField(6)
   final int orderIndex;
-
-  @HiveField(7)
   final double? bodyweight;
-
-  @HiveField(8)
   final String? notes;
-
-  @HiveField(9)
   final ExerciseFeedback? feedback;
-
-  @HiveField(10)
   final DateTime? lastPerformed;
-
-  @HiveField(11)
   final String? videoUrl;
-
-  @HiveField(12)
   final bool isNotePinned;
 
   Exercise({

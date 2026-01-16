@@ -5,8 +5,8 @@ import 'package:uuid/uuid.dart';
 import '../../../core/constants/equipment_types.dart';
 import '../../../core/constants/muscle_groups.dart';
 import '../../../data/models/custom_exercise_definition.dart';
+import '../../../domain/providers/database_providers.dart';
 import '../../../domain/providers/exercise_providers.dart';
-import '../../../domain/providers/repository_providers.dart';
 
 /// Dialog for creating a new custom exercise
 class CreateCustomExerciseDialog extends ConsumerStatefulWidget {
@@ -38,7 +38,12 @@ class _CreateCustomExerciseDialogState
     final name = _nameController.text.trim();
 
     // Check if exercise name already exists
-    final exists = ref.read(exerciseNameExistsProvider(name));
+    final existsAsync = ref.read(exerciseNameExistsProvider(name));
+    final exists = existsAsync.when(
+      data: (value) => value,
+      loading: () => false,
+      error: (_, __) => false,
+    );
     if (exists) {
       setState(() {
         _errorMessage = 'An exercise with this name already exists';

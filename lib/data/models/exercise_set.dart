@@ -1,4 +1,3 @@
-import 'package:hive/hive.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 import '../../core/constants/enums.dart';
@@ -9,32 +8,17 @@ part 'exercise_set.g.dart';
 ///
 /// Tracks weight, reps (supporting RIR format like "2 RIR"),
 /// set type (regular, myorep, myorep match), and logging status.
-@HiveType(typeId: 0)
 @JsonSerializable()
 class ExerciseSet {
-  @HiveField(0)
   final String id;
-
-  @HiveField(1)
   final int setNumber;
-
-  @HiveField(2)
   final double? weight;
 
   /// Reps can be a number or RIR format (e.g., "2 RIR")
-  @HiveField(3)
   final String reps;
-
-  @HiveField(4)
   final SetType setType;
-
-  @HiveField(5)
   final bool isLogged;
-
-  @HiveField(6)
   final String? notes;
-
-  @HiveField(7)
   final bool isSkipped;
 
   ExerciseSet({

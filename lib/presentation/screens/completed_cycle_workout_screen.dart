@@ -11,8 +11,8 @@ import '../../data/models/exercise.dart';
 import '../../data/models/exercise_set.dart';
 import '../../data/models/training_cycle.dart';
 import '../../data/models/workout.dart';
+import '../../domain/providers/database_providers.dart';
 import '../../domain/providers/onboarding_providers.dart';
-import '../../domain/providers/repository_providers.dart';
 import '../../domain/providers/theme_provider.dart';
 import '../../domain/providers/training_cycle_providers.dart';
 import '../../domain/providers/workout_providers.dart';
@@ -77,7 +77,7 @@ class _CompletedCycleWorkoutScreenState
   }
 
   /// Find the most recent pinned note for exercises with the same name
-  String? _findPinnedNoteForExercise(dynamic exercise) {
+  Future<String?> _findPinnedNoteForExercise(dynamic exercise) async {
     if (exercise is! Exercise) return null;
 
     // First check if current exercise has a pinned note
@@ -89,7 +89,7 @@ class _CompletedCycleWorkoutScreenState
 
     // Look for pinned notes from other exercises with the same name
     final workoutRepo = ref.read(workoutRepositoryProvider);
-    final allWorkouts = workoutRepo.getAll();
+    final allWorkouts = await workoutRepo.getAll();
 
     // Find all exercises with the same name that have pinned notes
     final pinnedExercises = <Exercise>[];
@@ -144,7 +144,7 @@ class _CompletedCycleWorkoutScreenState
         }
 
         final allWorkouts = ref.watch(
-          workoutsByTrainingCycleProvider(trainingCycle.id),
+          workoutsByTrainingCycleListProvider(trainingCycle.id),
         );
 
         // Default to week 1, day 1 if not selected
@@ -401,9 +401,13 @@ class _CompletedCycleWorkoutScreenState
   }) {
     final muscleGroup = exercise.muscleGroup as MuscleGroup;
     final equipmentType = exercise.equipmentType as EquipmentType?;
-    final pinnedNote = _findPinnedNoteForExercise(exercise);
 
-    return Stack(
+    return FutureBuilder<String?>(
+      future: _findPinnedNoteForExercise(exercise),
+      builder: (context, snapshot) {
+        final pinnedNote = snapshot.data;
+
+        return Stack(
       clipBehavior: Clip.none,
       children: [
         Container(
@@ -778,6 +782,8 @@ class _CompletedCycleWorkoutScreenState
         if (showMuscleGroupBadge)
           MuscleGroupBadge.compact(muscleGroup: muscleGroup),
       ],
+        );
+      },
     );
   }
 

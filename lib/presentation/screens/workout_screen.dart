@@ -10,8 +10,8 @@ import '../../data/models/exercise_set.dart';
 import '../../data/models/training_cycle.dart';
 import '../../data/models/workout.dart';
 import '../../domain/controllers/workout_home_controller.dart';
+import '../../domain/providers/database_providers.dart';
 import '../../domain/providers/onboarding_providers.dart';
-import '../../domain/providers/repository_providers.dart';
 import '../../domain/providers/theme_provider.dart';
 import '../../domain/providers/training_cycle_providers.dart';
 import '../../domain/providers/workout_providers.dart';
@@ -60,7 +60,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     if (weight == null && value.isNotEmpty) return;
 
     final repository = ref.read(workoutRepositoryProvider);
-    final workout = repository.getById(workoutId);
+    final workout = await repository.getById(workoutId);
     if (workout == null) return;
 
     final exerciseIndex = workout.exercises.indexWhere(
@@ -87,7 +87,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     String value,
   ) async {
     final repository = ref.read(workoutRepositoryProvider);
-    final workout = repository.getById(workoutId);
+    final workout = await repository.getById(workoutId);
     if (workout == null) return;
 
     final exerciseIndex = workout.exercises.indexWhere(
@@ -113,7 +113,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     int setIndex,
   ) async {
     final repository = ref.read(workoutRepositoryProvider);
-    final workout = repository.getById(workoutId);
+    final workout = await repository.getById(workoutId);
     if (workout == null) return;
 
     final exerciseIndex = workout.exercises.indexWhere(
@@ -141,7 +141,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     int currentSetIndex,
   ) async {
     final repository = ref.read(workoutRepositoryProvider);
-    final workout = repository.getById(workoutId);
+    final workout = await repository.getById(workoutId);
     if (workout == null) return;
 
     final exerciseIndex = workout.exercises.indexWhere(
@@ -183,7 +183,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     int setIndex,
   ) async {
     final repository = ref.read(workoutRepositoryProvider);
-    final workout = repository.getById(workoutId);
+    final workout = await repository.getById(workoutId);
     if (workout == null) return;
 
     final exerciseIndex = workout.exercises.indexWhere(
@@ -214,7 +214,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     int setIndex,
   ) async {
     final repository = ref.read(workoutRepositoryProvider);
-    final workout = repository.getById(workoutId);
+    final workout = await repository.getById(workoutId);
     if (workout == null) return;
 
     final exerciseIndex = workout.exercises.indexWhere(
@@ -250,7 +250,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     SetType type,
   ) async {
     final repository = ref.read(workoutRepositoryProvider);
-    final workout = repository.getById(workoutId);
+    final workout = await repository.getById(workoutId);
     if (workout == null) return;
 
     final exerciseIndex = workout.exercises.indexWhere(
@@ -276,7 +276,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
 
   Future<void> _addNote(String workoutId, String exerciseId) async {
     final repository = ref.read(workoutRepositoryProvider);
-    final workout = repository.getById(workoutId);
+    final workout = await repository.getById(workoutId);
     if (workout == null) return;
 
     final exercise = workout.exercises.firstWhere((e) => e.id == exerciseId);
@@ -318,7 +318,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
 
     // Get all workouts for this trainingCycle
     final allWorkouts = ref.read(
-      workoutsByTrainingCycleProvider(trainingCycle.id),
+      workoutsByTrainingCycleListProvider(trainingCycle.id),
     );
 
     // Get current period and day
@@ -329,9 +329,10 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     }
 
     // Use selected period/day if available, otherwise use current
-    final displayPeriod = _homeState.selectedPeriod ?? currentPeriod;
+    final homeState = ref.read(workoutHomeControllerProvider);
+    final displayPeriod = homeState.selectedPeriod ?? currentPeriod;
     final displayDay =
-        _homeState.selectedDay ??
+        homeState.selectedDay ??
         (() {
           final daysSinceStart = DateTime.now()
               .difference(trainingCycle.startDate!)
@@ -484,7 +485,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
 
   Future<void> _addSetToExercise(String workoutId, String exerciseId) async {
     final repository = ref.read(workoutRepositoryProvider);
-    final workout = repository.getById(workoutId);
+    final workout = await repository.getById(workoutId);
     if (workout == null) return;
 
     final exerciseIndex = workout.exercises.indexWhere(
@@ -512,7 +513,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
 
   Future<void> _skipExerciseSets(String workoutId, String exerciseId) async {
     final repository = ref.read(workoutRepositoryProvider);
-    final workout = repository.getById(workoutId);
+    final workout = await repository.getById(workoutId);
     if (workout == null) return;
 
     final exerciseIndex = workout.exercises.indexWhere(
@@ -538,7 +539,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
 
   Future<void> _deleteExercise(String workoutId, String exerciseId) async {
     final repository = ref.read(workoutRepositoryProvider);
-    final workout = repository.getById(workoutId);
+    final workout = await repository.getById(workoutId);
     if (workout == null) return;
 
     final updatedExercises = workout.exercises
@@ -607,7 +608,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
 
     // Check if ALL workouts in the trainingCycle are now completed
     // We need to verify that every period/day combination has at least one completed workout
-    final allWorkouts = repository.getByTrainingCycleId(trainingCycle.id);
+    final allWorkouts = await repository.getByTrainingCycleId(trainingCycle.id);
 
     // Build a set of completed period/day combinations
     final completedDays = <String>{};
@@ -692,7 +693,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
         currentTrainingCycle.startDate != null) {
       // Get workouts from the workout repository instead of embedded workouts
       final allWorkouts = ref.watch(
-        workoutsByTrainingCycleProvider(currentTrainingCycle.id),
+        workoutsByTrainingCycleListProvider(currentTrainingCycle.id),
       );
 
       debugPrint('Total workouts from repository: ${allWorkouts.length}');
@@ -1163,6 +1164,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                           onMoveDown: (exerciseId) =>
                               _moveExerciseDown(exercise.workoutId, exerciseId),
                           showMoveDown: true,
+                          isLastExercise: index == allExercises.length - 1,
                           onReplace: (exerciseId) =>
                               _replaceExercise(exercise.workoutId, exerciseId),
                           onJointPain: (exerciseId) =>
@@ -1661,7 +1663,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
         if (result.applyToAll) {
           // Update all workouts with the same day number in this trainingCycle
           final allWorkouts = ref.read(
-            workoutsByTrainingCycleProvider(workout.trainingCycleId),
+            workoutsByTrainingCycleListProvider(workout.trainingCycleId),
           );
           final workoutsToUpdate = allWorkouts
               .where((w) => w.dayNumber == workout.dayNumber)
@@ -1711,7 +1713,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
           // Verify the update by checking all workouts again
           debugPrint('=== VERIFICATION ===');
           final allWorkoutsAfter = ref.read(
-            workoutsByTrainingCycleProvider(workout.trainingCycleId),
+            workoutsByTrainingCycleListProvider(workout.trainingCycleId),
           );
 
           // Show ALL workouts grouped by period
@@ -1781,7 +1783,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
       try {
         final repository = ref.read(workoutRepositoryProvider);
         final allWorkouts = ref.read(
-          workoutsByTrainingCycleProvider(trainingCycle.id),
+          workoutsByTrainingCycleListProvider(trainingCycle.id),
         );
 
         debugPrint('Clearing dayName from ${allWorkouts.length} workouts');

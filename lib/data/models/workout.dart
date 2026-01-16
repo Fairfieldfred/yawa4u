@@ -1,46 +1,20 @@
-import 'package:hive/hive.dart';
-
 import '../../core/constants/enums.dart';
 import 'exercise.dart';
-
-part 'workout.g.dart';
 
 /// Represents a workout session within a trainingCycle
 ///
 /// Contains workout details, exercises, and completion status.
-@HiveType(typeId: 103)
 class Workout {
-  @HiveField(0)
   final String id;
-
-  @HiveField(1)
   final String trainingCycleId;
-
-  @HiveField(2)
   final int periodNumber;
-
-  @HiveField(3)
   final int dayNumber;
-
-  @HiveField(4)
   final String? dayName;
-
-  @HiveField(5)
   final String? label;
-
-  @HiveField(6)
   final WorkoutStatus status;
-
-  @HiveField(7)
   final DateTime? scheduledDate;
-
-  @HiveField(8)
   final DateTime? completedDate;
-
-  @HiveField(9)
   final List<Exercise> exercises;
-
-  @HiveField(10)
   final String? notes;
 
   Workout({

@@ -134,7 +134,7 @@ class WifiSyncService {
       // Get device info
       router.get('/info', (Request request) async {
         final deviceName = await getDeviceName();
-        final stats = _backupService.getStats();
+        final stats = await _backupService.getStats();
         return Response.ok(
           jsonEncode({
             'deviceName': deviceName,

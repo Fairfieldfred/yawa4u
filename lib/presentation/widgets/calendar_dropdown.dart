@@ -6,7 +6,7 @@ import '../../core/constants/enums.dart';
 import '../../core/theme/skins/skins.dart';
 import '../../data/models/training_cycle.dart';
 import '../../data/models/workout.dart';
-import '../../domain/providers/repository_providers.dart';
+import '../../domain/providers/database_providers.dart';
 import '../../domain/providers/workout_providers.dart';
 
 /// Dropdown for selecting period and day (appears below AppBar)
@@ -56,7 +56,7 @@ class _CalendarDropdownState extends ConsumerState<CalendarDropdown> {
     // Get all existing workouts
     final repository = ref.read(workoutRepositoryProvider);
     final allWorkouts = ref.read(
-      workoutsByTrainingCycleProvider(trainingCycle.id),
+      workoutsByTrainingCycleListProvider(trainingCycle.id),
     );
 
     // Get the last non-recovery period as a template
@@ -205,7 +205,7 @@ class _CalendarDropdownState extends ConsumerState<CalendarDropdown> {
     // Get all workouts
     final repository = ref.read(workoutRepositoryProvider);
     final allWorkouts = ref.read(
-      workoutsByTrainingCycleProvider(trainingCycle.id),
+      workoutsByTrainingCycleListProvider(trainingCycle.id),
     );
 
     // 1. Delete Period: Delete all workouts for the period to remove

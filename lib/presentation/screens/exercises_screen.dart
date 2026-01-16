@@ -10,8 +10,8 @@ import '../../data/models/exercise_set.dart';
 import '../../data/models/training_cycle.dart';
 import '../../data/models/workout.dart';
 import '../../data/repositories/training_cycle_repository.dart';
+import '../../domain/providers/database_providers.dart';
 import '../../domain/providers/onboarding_providers.dart';
-import '../../domain/providers/repository_providers.dart';
 import '../../domain/providers/theme_provider.dart';
 import '../../domain/providers/training_cycle_providers.dart';
 import '../../domain/providers/workout_providers.dart';
@@ -243,7 +243,7 @@ class _ExercisesHomeScreenState extends ConsumerState<ExercisesHomeScreen> {
 
     // Get workouts for the current trainingCycle
     final allWorkouts = ref.watch(
-      workoutsByTrainingCycleProvider(currentTrainingCycle.id),
+      workoutsByTrainingCycleListProvider(currentTrainingCycle.id),
     );
 
     // Find the first incomplete workout day (not just workout/muscle group)
@@ -461,20 +461,30 @@ class _WorkoutSessionView extends ConsumerStatefulWidget {
 class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
   late PageController _pageController;
   int _currentPage = 0;
-  late List<Exercise> _allExercises;
-  late Map<int, _ExerciseSource>
-  _exerciseSources; // Maps exercise index to its source workout
+  List<Exercise> _allExercises = [];
+  Map<int, _ExerciseSource> _exerciseSources = {}; // Maps exercise index to its source workout
   bool _showPeriodSelector = false;
 
   @override
   void initState() {
     super.initState();
-    _buildExerciseList();
+    _initializeExercises();
+    _pageController = PageController();
+  }
+
+  Future<void> _initializeExercises() async {
+    await _buildExerciseList();
 
     // Find first unfinished exercise set
     final initialPage = _findFirstUnfinishedExerciseIndex();
-    _currentPage = initialPage;
-    _pageController = PageController(initialPage: initialPage);
+    if (mounted) {
+      setState(() {
+        _currentPage = initialPage;
+      });
+      if (_pageController.hasClients) {
+        _pageController.jumpToPage(initialPage);
+      }
+    }
   }
 
   void _togglePeriodSelector() {
@@ -492,10 +502,17 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
     super.didUpdateWidget(oldWidget);
 
     // Rebuild exercise list when workouts change
-    _buildExerciseList();
+    _rebuildExerciseList();
   }
 
-  void _buildExerciseList() {
+  Future<void> _rebuildExerciseList() async {
+    await _buildExerciseList();
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  Future<void> _buildExerciseList() async {
     _allExercises = [];
     _exerciseSources = {};
 
@@ -505,7 +522,7 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
     // Collect all exercises from all workouts for this day
     for (var originalWorkout in widget.workouts) {
       // Get the latest version from repository
-      final workout = repository.getById(originalWorkout.id) ?? originalWorkout;
+      final workout = await repository.getById(originalWorkout.id) ?? originalWorkout;
       for (var exercise in workout.exercises) {
         final exerciseIndex = _allExercises.length;
         _exerciseSources[exerciseIndex] = _ExerciseSource(
@@ -962,7 +979,7 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
     }
 
     // Get fresh workouts directly from repository (not provider which may have stale data)
-    final allWorkouts = workoutRepo.getByTrainingCycleId(
+    final allWorkouts = await workoutRepo.getByTrainingCycleId(
       currentTrainingCycle.id,
     );
 
@@ -1295,9 +1312,10 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
         await repository.update(resetWorkout);
       }
 
-      setState(() {
-        _buildExerciseList();
-      });
+      await _buildExerciseList();
+      if (mounted) {
+        setState(() {});
+      }
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -1313,7 +1331,7 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
   // ========== Exercise Callbacks ==========
   Future<void> _addNote(String workoutId, String exerciseId) async {
     final repository = ref.read(workoutRepositoryProvider);
-    final workout = repository.getById(workoutId);
+    final workout = await repository.getById(workoutId);
     if (workout == null) return;
 
     final exercise = workout.exercises.firstWhere((e) => e.id == exerciseId);
@@ -1339,15 +1357,16 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
       await repository.update(updatedWorkout);
 
       // Rebuild exercise list to reflect the change
-      setState(() {
-        _buildExerciseList();
-      });
+      await _buildExerciseList();
+      if (mounted) {
+        setState(() {});
+      }
     }
   }
 
-  void _replaceExercise(String workoutId, String exerciseId) {
+  Future<void> _replaceExercise(String workoutId, String exerciseId) async {
     final repository = ref.read(workoutRepositoryProvider);
-    final workout = repository.getById(workoutId);
+    final workout = await repository.getById(workoutId);
     if (workout == null) return;
 
     final exercise = workout.exercises.firstWhere(
@@ -1368,12 +1387,13 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
             ),
           ),
         )
-        .then((_) {
+        .then((_) async {
           // Rebuild exercise list when returning from AddExerciseScreen
           if (mounted) {
-            setState(() {
-              _buildExerciseList();
-            });
+            await _buildExerciseList();
+            if (mounted) {
+              setState(() {});
+            }
           }
         });
   }
@@ -1385,9 +1405,9 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
     );
   }
 
-  void _addSetToExercise(String workoutId, String exerciseId) {
+  Future<void> _addSetToExercise(String workoutId, String exerciseId) async {
     final repository = ref.read(workoutRepositoryProvider);
-    final workout = repository.getById(workoutId);
+    final workout = await repository.getById(workoutId);
     if (workout == null) return;
 
     final exerciseIndex = workout.exercises.indexWhere(
@@ -1409,17 +1429,18 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
       exerciseIndex,
       updatedExercise,
     );
-    repository.update(updatedWorkout);
+    await repository.update(updatedWorkout);
 
     // Force UI update
-    setState(() {
-      _buildExerciseList();
-    });
+    await _buildExerciseList();
+    if (mounted) {
+      setState(() {});
+    }
   }
 
-  void _skipExerciseSets(String workoutId, String exerciseId) {
+  Future<void> _skipExerciseSets(String workoutId, String exerciseId) async {
     final repository = ref.read(workoutRepositoryProvider);
-    final workout = repository.getById(workoutId);
+    final workout = await repository.getById(workoutId);
     if (workout == null) return;
 
     final exerciseIndex = workout.exercises.indexWhere(
@@ -1439,17 +1460,18 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
       exerciseIndex,
       updatedExercise,
     );
-    repository.update(updatedWorkout);
+    await repository.update(updatedWorkout);
 
     // Force UI update
-    setState(() {
-      _buildExerciseList();
-    });
+    await _buildExerciseList();
+    if (mounted) {
+      setState(() {});
+    }
   }
 
-  void _deleteExercise(String workoutId, String exerciseId) {
+  Future<void> _deleteExercise(String workoutId, String exerciseId) async {
     final repository = ref.read(workoutRepositoryProvider);
-    final workout = repository.getById(workoutId);
+    final workout = await repository.getById(workoutId);
     if (workout == null) return;
 
     final exerciseIndex = workout.exercises.indexWhere(
@@ -1460,21 +1482,23 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
     final updatedExercises = List<Exercise>.from(workout.exercises);
     updatedExercises.removeAt(exerciseIndex);
     final updatedWorkout = workout.copyWith(exercises: updatedExercises);
-    repository.update(updatedWorkout);
+    await repository.update(updatedWorkout);
 
     // Rebuild exercise list
-    setState(() {
-      _buildExerciseList();
-      if (_currentPage >= _allExercises.length && _allExercises.isNotEmpty) {
-        _currentPage = _allExercises.length - 1;
-      }
-    });
+    await _buildExerciseList();
+    if (mounted) {
+      setState(() {
+        if (_currentPage >= _allExercises.length && _allExercises.isNotEmpty) {
+          _currentPage = _allExercises.length - 1;
+        }
+      });
+    }
   }
 
   // ========== Set Callbacks ==========
-  void _addSetBelow(String workoutId, String exerciseId, int currentSetIndex) {
+  Future<void> _addSetBelow(String workoutId, String exerciseId, int currentSetIndex) async {
     final repository = ref.read(workoutRepositoryProvider);
-    final workout = repository.getById(workoutId);
+    final workout = await repository.getById(workoutId);
     if (workout == null) return;
 
     final exerciseIndex = workout.exercises.indexWhere(
@@ -1503,17 +1527,18 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
       exerciseIndex,
       updatedExercise,
     );
-    repository.update(updatedWorkout);
+    await repository.update(updatedWorkout);
 
     // Force UI update
-    setState(() {
-      _buildExerciseList();
-    });
+    await _buildExerciseList();
+    if (mounted) {
+      setState(() {});
+    }
   }
 
-  void _toggleSetSkip(String workoutId, String exerciseId, int setIndex) {
+  Future<void> _toggleSetSkip(String workoutId, String exerciseId, int setIndex) async {
     final repository = ref.read(workoutRepositoryProvider);
-    final workout = repository.getById(workoutId);
+    final workout = await repository.getById(workoutId);
     if (workout == null) return;
 
     final exerciseIndex = workout.exercises.indexWhere(
@@ -1531,17 +1556,18 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
       exerciseIndex,
       updatedExercise,
     );
-    repository.update(updatedWorkout);
+    await repository.update(updatedWorkout);
 
     // Force UI update
-    setState(() {
-      _buildExerciseList();
-    });
+    await _buildExerciseList();
+    if (mounted) {
+      setState(() {});
+    }
   }
 
-  void _deleteSet(String workoutId, String exerciseId, int setIndex) {
+  Future<void> _deleteSet(String workoutId, String exerciseId, int setIndex) async {
     final repository = ref.read(workoutRepositoryProvider);
-    final workout = repository.getById(workoutId);
+    final workout = await repository.getById(workoutId);
     if (workout == null) return;
 
     final exerciseIndex = workout.exercises.indexWhere(
@@ -1565,22 +1591,23 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
       exerciseIndex,
       updatedExercise,
     );
-    repository.update(updatedWorkout);
+    await repository.update(updatedWorkout);
 
     // Force UI update
-    setState(() {
-      _buildExerciseList();
-    });
+    await _buildExerciseList();
+    if (mounted) {
+      setState(() {});
+    }
   }
 
-  void _updateSetType(
+  Future<void> _updateSetType(
     String workoutId,
     String exerciseId,
     int setIndex,
     SetType setType,
-  ) {
+  ) async {
     final repository = ref.read(workoutRepositoryProvider);
-    final workout = repository.getById(workoutId);
+    final workout = await repository.getById(workoutId);
     if (workout == null) return;
 
     final exerciseIndex = workout.exercises.indexWhere(
@@ -1598,25 +1625,26 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
       exerciseIndex,
       updatedExercise,
     );
-    repository.update(updatedWorkout);
+    await repository.update(updatedWorkout);
 
     // Force UI update
-    setState(() {
-      _buildExerciseList();
-    });
+    await _buildExerciseList();
+    if (mounted) {
+      setState(() {});
+    }
   }
 
-  void _updateSetWeight(
+  Future<void> _updateSetWeight(
     String workoutId,
     String exerciseId,
     int setIndex,
     String value,
-  ) {
+  ) async {
     final weight = double.tryParse(value);
     if (weight == null && value.isNotEmpty) return;
 
     final repository = ref.read(workoutRepositoryProvider);
-    final workout = repository.getById(workoutId);
+    final workout = await repository.getById(workoutId);
     if (workout == null) return;
 
     final exerciseIndex = workout.exercises.indexWhere(
@@ -1634,22 +1662,23 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
       exerciseIndex,
       updatedExercise,
     );
-    repository.update(updatedWorkout);
+    await repository.update(updatedWorkout);
 
     // Force UI update to reflect isLoggable state
-    setState(() {
-      _buildExerciseList();
-    });
+    await _buildExerciseList();
+    if (mounted) {
+      setState(() {});
+    }
   }
 
-  void _updateSetReps(
+  Future<void> _updateSetReps(
     String workoutId,
     String exerciseId,
     int setIndex,
     String value,
-  ) {
+  ) async {
     final repository = ref.read(workoutRepositoryProvider);
-    final workout = repository.getById(workoutId);
+    final workout = await repository.getById(workoutId);
     if (workout == null) return;
 
     final exerciseIndex = workout.exercises.indexWhere(
@@ -1667,17 +1696,18 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
       exerciseIndex,
       updatedExercise,
     );
-    repository.update(updatedWorkout);
+    await repository.update(updatedWorkout);
 
     // Force UI update to reflect isLoggable state
-    setState(() {
-      _buildExerciseList();
-    });
+    await _buildExerciseList();
+    if (mounted) {
+      setState(() {});
+    }
   }
 
-  void _toggleSetLog(String workoutId, String exerciseId, int setIndex) {
+  Future<void> _toggleSetLog(String workoutId, String exerciseId, int setIndex) async {
     final repository = ref.read(workoutRepositoryProvider);
-    final workout = repository.getById(workoutId);
+    final workout = await repository.getById(workoutId);
     if (workout == null) return;
 
     final exerciseIndex = workout.exercises.indexWhere(
@@ -1695,20 +1725,24 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
       exerciseIndex,
       updatedExercise,
     );
-    repository.update(updatedWorkout);
+    await repository.update(updatedWorkout);
 
     // Force UI update
-    setState(() {
-      _buildExerciseList();
-    });
+    await _buildExerciseList();
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   // ========== Exercise History ==========
   Widget _buildExerciseHistory(BuildContext context, Exercise exercise) {
-    final workoutRepo = ref.read(workoutRepositoryProvider);
-    final trainingCycleRepo = ref.read(trainingCycleRepositoryProvider);
-    final allWorkouts = workoutRepo.getAll();
-    final allTrainingCycles = trainingCycleRepo.getAll();
+    // Use provider data instead of sync repository calls
+    final workoutsAsync = ref.watch(workoutsProvider);
+    final trainingCyclesAsync = ref.watch(trainingCyclesProvider);
+
+    // Handle loading/error states by returning empty history
+    final allWorkouts = workoutsAsync.value ?? [];
+    final allTrainingCycles = trainingCyclesAsync.value ?? [];
 
     // Create a map of trainingCycleId -> trainingCycle for quick lookup
     final trainingCycleMap = {for (var m in allTrainingCycles) m.id: m};

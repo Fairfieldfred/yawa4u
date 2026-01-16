@@ -1,32 +1,16 @@
-import 'package:hive/hive.dart';
-
 import '../../core/constants/equipment_types.dart';
 import '../../core/constants/muscle_groups.dart';
 import 'exercise_definition.dart';
 
-part 'custom_exercise_definition.g.dart';
-
-/// A user-created custom exercise definition stored in Hive
+/// A user-created custom exercise definition
 ///
 /// This allows users to add their own exercises to the exercise library.
-@HiveType(typeId: 22)
-class CustomExerciseDefinition extends HiveObject {
-  @HiveField(0)
+class CustomExerciseDefinition {
   final String id;
-
-  @HiveField(1)
   final String name;
-
-  @HiveField(2)
   final MuscleGroup muscleGroup;
-
-  @HiveField(3)
   final EquipmentType equipmentType;
-
-  @HiveField(4)
   final String? videoUrl;
-
-  @HiveField(5)
   final DateTime createdAt;
 
   CustomExerciseDefinition({

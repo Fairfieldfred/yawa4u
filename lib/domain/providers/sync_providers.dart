@@ -1,13 +1,24 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/theme/skins/skin_repository.dart';
 import '../../data/services/data_backup_service.dart';
 import '../../data/services/wifi_sync_service.dart';
 import 'database_providers.dart';
 
+/// Provider for SkinRepository singleton (for data backup)
+final skinRepositoryForBackupProvider = Provider<SkinRepository>((ref) {
+  return SkinRepository(); // Uses singleton pattern
+});
+
 /// Provider for DataBackupService
 final dataBackupServiceProvider = Provider<DataBackupService>((ref) {
-  final dbService = ref.watch(databaseServiceProvider);
-  return DataBackupService(dbService);
+  return DataBackupService(
+    trainingCycleRepository: ref.watch(trainingCycleRepositoryProvider),
+    workoutRepository: ref.watch(workoutRepositoryProvider),
+    exerciseRepository: ref.watch(exerciseRepositoryProvider),
+    customExerciseRepository: ref.watch(customExerciseRepositoryProvider),
+    skinRepository: ref.watch(skinRepositoryForBackupProvider),
+  );
 });
 
 /// Provider for WifiSyncService

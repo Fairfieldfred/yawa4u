@@ -209,7 +209,6 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
   @override
   Widget build(BuildContext context) {
     final backupService = ref.watch(dataBackupServiceProvider);
-    final stats = backupService.getStats();
     final isDesktop =
         Platform.isMacOS || Platform.isWindows || Platform.isLinux;
 
@@ -221,7 +220,15 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
           ? _buildConnectedView()
           : _isServerRunning
           ? _buildServerView()
-          : _buildInitialView(stats, isDesktop),
+          : FutureBuilder<DataStats>(
+              future: backupService.getStats(),
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  return _buildInitialView(snapshot.data!, isDesktop);
+                }
+                return const Center(child: CircularProgressIndicator());
+              },
+            ),
     );
   }
 

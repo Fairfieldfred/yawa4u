@@ -4,8 +4,8 @@ import 'package:go_router/go_router.dart';
 
 import '../../core/constants/muscle_groups.dart';
 import '../../data/models/training_cycle_template.dart';
+import '../../domain/providers/database_providers.dart';
 import '../../domain/providers/navigation_providers.dart';
-import '../../domain/providers/repository_providers.dart';
 import '../../domain/providers/template_providers.dart';
 import '../../domain/providers/training_cycle_providers.dart';
 import '../../domain/providers/workout_providers.dart';
@@ -38,15 +38,11 @@ class _TemplatePreviewScreenState extends ConsumerState<TemplatePreviewScreen> {
       final trainingCycleRepository = ref.read(trainingCycleRepositoryProvider);
       await trainingCycleRepository.create(trainingCycle);
 
-      // Save workouts and exercises
+      // Save workouts (which includes exercises and sets)
       final workoutRepository = ref.read(workoutRepositoryProvider);
-      final exerciseRepository = ref.read(exerciseRepositoryProvider);
 
       for (final workout in trainingCycle.workouts) {
         await workoutRepository.create(workout);
-        for (final exercise in workout.exercises) {
-          await exerciseRepository.create(exercise);
-        }
       }
 
       // Invalidate providers to ensure fresh data is loaded

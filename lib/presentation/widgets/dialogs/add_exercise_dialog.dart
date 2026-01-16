@@ -4,7 +4,7 @@ import 'package:uuid/uuid.dart';
 
 import '../../../core/constants/muscle_groups.dart';
 import '../../../data/models/workout.dart';
-import '../../../domain/providers/repository_providers.dart';
+import '../../../domain/providers/database_providers.dart';
 import '../../screens/add_exercise_screen.dart';
 
 /// Shows a muscle group selector bottom sheet and navigates to AddExerciseScreen.

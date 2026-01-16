@@ -1,33 +1,17 @@
-import 'package:hive/hive.dart';
-
-part 'user_measurement.g.dart';
-
 /// Represents a user's body measurement at a point in time
 ///
 /// Used to track weight and height changes over time for BMI graphing.
-@HiveType(typeId: 24)
 class UserMeasurement {
-  @HiveField(0)
   final String id;
-
-  @HiveField(1)
   final double heightCm;
-
-  @HiveField(2)
   final double weightKg;
-
-  @HiveField(3)
   final DateTime timestamp;
-
-  @HiveField(4)
   final String? notes;
 
   /// DEXA scan body fat percentage (optional)
-  @HiveField(5)
   final double? bodyFatPercent;
 
   /// DEXA scan lean mass in kg (optional)
-  @HiveField(6)
   final double? leanMassKg;
 
   UserMeasurement({

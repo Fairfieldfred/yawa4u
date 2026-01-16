@@ -86,7 +86,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
 
   Widget _buildCalendarContent(BuildContext context, dynamic trainingCycle) {
     final allWorkouts = ref.watch(
-      workoutsByTrainingCycleProvider(trainingCycle.id),
+      workoutsByTrainingCycleListProvider(trainingCycle.id),
     );
 
     // Build calendar data for current month and adjacent months

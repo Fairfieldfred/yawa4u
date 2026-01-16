@@ -6,7 +6,7 @@ import '../../data/models/exercise.dart';
 import '../../data/models/exercise_set.dart';
 import '../../data/models/training_cycle.dart';
 import '../../data/models/workout.dart';
-import '../providers/repository_providers.dart';
+import '../providers/database_providers.dart';
 import '../providers/training_cycle_providers.dart';
 import '../providers/workout_providers.dart';
 
@@ -89,7 +89,7 @@ class WorkoutHomeController extends Notifier<WorkoutHomeState> {
     if (weight == null && value.isNotEmpty) return;
 
     final repository = ref.read(workoutRepositoryProvider);
-    final workout = repository.getById(workoutId);
+    final workout = await repository.getById(workoutId);
     if (workout == null) return;
 
     final exerciseIndex = workout.exercises.indexWhere(
@@ -116,7 +116,7 @@ class WorkoutHomeController extends Notifier<WorkoutHomeState> {
     String value,
   ) async {
     final repository = ref.read(workoutRepositoryProvider);
-    final workout = repository.getById(workoutId);
+    final workout = await repository.getById(workoutId);
     if (workout == null) return;
 
     final exerciseIndex = workout.exercises.indexWhere(
@@ -142,7 +142,7 @@ class WorkoutHomeController extends Notifier<WorkoutHomeState> {
     int setIndex,
   ) async {
     final repository = ref.read(workoutRepositoryProvider);
-    final workout = repository.getById(workoutId);
+    final workout = await repository.getById(workoutId);
     if (workout == null) return;
 
     final exerciseIndex = workout.exercises.indexWhere(
@@ -170,7 +170,7 @@ class WorkoutHomeController extends Notifier<WorkoutHomeState> {
     int currentSetIndex,
   ) async {
     final repository = ref.read(workoutRepositoryProvider);
-    final workout = repository.getById(workoutId);
+    final workout = await repository.getById(workoutId);
     if (workout == null) return;
 
     final exerciseIndex = workout.exercises.indexWhere(
@@ -210,7 +210,7 @@ class WorkoutHomeController extends Notifier<WorkoutHomeState> {
     int setIndex,
   ) async {
     final repository = ref.read(workoutRepositoryProvider);
-    final workout = repository.getById(workoutId);
+    final workout = await repository.getById(workoutId);
     if (workout == null) return;
 
     final exerciseIndex = workout.exercises.indexWhere(
@@ -241,7 +241,7 @@ class WorkoutHomeController extends Notifier<WorkoutHomeState> {
     int setIndex,
   ) async {
     final repository = ref.read(workoutRepositoryProvider);
-    final workout = repository.getById(workoutId);
+    final workout = await repository.getById(workoutId);
     if (workout == null) return;
 
     final exerciseIndex = workout.exercises.indexWhere(
@@ -276,7 +276,7 @@ class WorkoutHomeController extends Notifier<WorkoutHomeState> {
     SetType type,
   ) async {
     final repository = ref.read(workoutRepositoryProvider);
-    final workout = repository.getById(workoutId);
+    final workout = await repository.getById(workoutId);
     if (workout == null) return;
 
     final exerciseIndex = workout.exercises.indexWhere(
@@ -310,7 +310,7 @@ class WorkoutHomeController extends Notifier<WorkoutHomeState> {
     String? note,
   ) async {
     final repository = ref.read(workoutRepositoryProvider);
-    final workout = repository.getById(workoutId);
+    final workout = await repository.getById(workoutId);
     if (workout == null) return;
 
     final exercise = workout.exercises.firstWhere((e) => e.id == exerciseId);
@@ -334,7 +334,7 @@ class WorkoutHomeController extends Notifier<WorkoutHomeState> {
     if (trainingCycle == null) return;
 
     final allWorkouts = ref.read(
-      workoutsByTrainingCycleProvider(trainingCycle.id),
+      workoutsByTrainingCycleListProvider(trainingCycle.id),
     );
 
     final todaysWorkouts = allWorkouts
@@ -409,7 +409,7 @@ class WorkoutHomeController extends Notifier<WorkoutHomeState> {
 
   Future<void> deleteExercise(String workoutId, String exerciseId) async {
     final repository = ref.read(workoutRepositoryProvider);
-    final workout = repository.getById(workoutId);
+    final workout = await repository.getById(workoutId);
     if (workout == null) return;
 
     final updatedExercises = workout.exercises
@@ -422,7 +422,7 @@ class WorkoutHomeController extends Notifier<WorkoutHomeState> {
 
   Future<void> addSetToExercise(String workoutId, String exerciseId) async {
     final repository = ref.read(workoutRepositoryProvider);
-    final workout = repository.getById(workoutId);
+    final workout = await repository.getById(workoutId);
     if (workout == null) return;
 
     final exerciseIndex = workout.exercises.indexWhere(
@@ -450,7 +450,7 @@ class WorkoutHomeController extends Notifier<WorkoutHomeState> {
 
   Future<void> skipExerciseSets(String workoutId, String exerciseId) async {
     final repository = ref.read(workoutRepositoryProvider);
-    final workout = repository.getById(workoutId);
+    final workout = await repository.getById(workoutId);
     if (workout == null) return;
 
     final exerciseIndex = workout.exercises.indexWhere(
@@ -496,7 +496,7 @@ class WorkoutHomeController extends Notifier<WorkoutHomeState> {
     }
 
     // Check if ALL workouts in the trainingCycle are now completed
-    final allWorkouts = repository.getByTrainingCycleId(trainingCycle.id);
+    final allWorkouts = await repository.getByTrainingCycleId(trainingCycle.id);
     final allCompleted = allWorkouts.every(
       (w) => w.status == WorkoutStatus.completed,
     );
@@ -563,7 +563,7 @@ class WorkoutHomeController extends Notifier<WorkoutHomeState> {
 
     if (applyToAll) {
       final allWorkouts = ref.read(
-        workoutsByTrainingCycleProvider(workout.trainingCycleId),
+        workoutsByTrainingCycleListProvider(workout.trainingCycleId),
       );
       final workoutsToUpdate = allWorkouts
           .where((w) => w.dayNumber == workout.dayNumber)
@@ -587,7 +587,7 @@ class WorkoutHomeController extends Notifier<WorkoutHomeState> {
   Future<void> clearAllDayNames(String trainingCycleId) async {
     final repository = ref.read(workoutRepositoryProvider);
     final allWorkouts = ref.read(
-      workoutsByTrainingCycleProvider(trainingCycleId),
+      workoutsByTrainingCycleListProvider(trainingCycleId),
     );
 
     for (final workout in allWorkouts) {
@@ -648,7 +648,7 @@ class WorkoutHomeController extends Notifier<WorkoutHomeState> {
   Future<void> addPeriod(dynamic trainingCycle) async {
     final repository = ref.read(workoutRepositoryProvider);
     final allWorkouts = ref.read(
-      workoutsByTrainingCycleProvider(trainingCycle.id),
+      workoutsByTrainingCycleListProvider(trainingCycle.id),
     );
     final newPeriodNumber = trainingCycle.periodsTotal;
 
@@ -723,7 +723,7 @@ class WorkoutHomeController extends Notifier<WorkoutHomeState> {
   Future<void> removePeriod(dynamic trainingCycle) async {
     final repository = ref.read(workoutRepositoryProvider);
     final allWorkouts = ref.read(
-      workoutsByTrainingCycleProvider(trainingCycle.id),
+      workoutsByTrainingCycleListProvider(trainingCycle.id),
     );
     final periodToRemove = trainingCycle.periodsTotal - 1;
 

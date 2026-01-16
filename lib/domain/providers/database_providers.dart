@@ -1,73 +1,116 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hive/hive.dart';
 
-import '../../data/models/custom_exercise_definition.dart';
-import '../../data/models/exercise.dart';
-import '../../data/models/training_cycle.dart';
-import '../../data/models/user_measurement.dart';
-import '../../data/models/workout.dart';
+import '../../data/database/database.dart';
+import '../../data/repositories/custom_exercise_repository.dart';
+import '../../data/repositories/exercise_repository.dart';
+import '../../data/repositories/training_cycle_repository.dart';
 import '../../data/repositories/user_measurement_repository.dart';
-import '../../data/services/csv_loader_service.dart';
+import '../../data/repositories/workout_repository.dart';
 import '../../data/services/database_service.dart';
 
-/// Provider for DatabaseService singleton
+/// Provider for the DatabaseService singleton
 final databaseServiceProvider = Provider<DatabaseService>((ref) {
   return DatabaseService();
 });
 
-/// Provider for CsvLoaderService singleton
-final csvLoaderServiceProvider = Provider<CsvLoaderService>((ref) {
-  return CsvLoaderService();
-});
-
-/// Provider for TrainingCycle Hive box
-final trainingCyclesBoxProvider = Provider<Box<TrainingCycle>>((ref) {
+/// Provider for the AppDatabase instance
+/// This should be overridden in main.dart after initializing the database
+final appDatabaseProvider = Provider<AppDatabase>((ref) {
   final dbService = ref.watch(databaseServiceProvider);
-  return dbService.trainingCyclesBox;
+  return dbService.database;
 });
 
-/// Provider for Workout Hive box
-final workoutsBoxProvider = Provider<Box<Workout>>((ref) {
-  final dbService = ref.watch(databaseServiceProvider);
-  return dbService.workoutsBox;
+// =============================================================================
+// DAO Providers
+// =============================================================================
+
+/// Provider for TrainingCycleDao
+final trainingCycleDaoProvider = Provider<TrainingCycleDao>((ref) {
+  final db = ref.watch(appDatabaseProvider);
+  return db.trainingCycleDao;
 });
 
-/// Provider for Exercise Hive box
-final exercisesBoxProvider = Provider<Box<Exercise>>((ref) {
-  final dbService = ref.watch(databaseServiceProvider);
-  return dbService.exercisesBox;
+/// Provider for WorkoutDao
+final workoutDaoProvider = Provider<WorkoutDao>((ref) {
+  final db = ref.watch(appDatabaseProvider);
+  return db.workoutDao;
 });
 
-/// Provider for Custom Exercise Definition Hive box
-final customExercisesBoxProvider = Provider<Box<CustomExerciseDefinition>>((
+/// Provider for ExerciseDao
+final exerciseDaoProvider = Provider<ExerciseDao>((ref) {
+  final db = ref.watch(appDatabaseProvider);
+  return db.exerciseDao;
+});
+
+/// Provider for ExerciseSetDao
+final exerciseSetDaoProvider = Provider<ExerciseSetDao>((ref) {
+  final db = ref.watch(appDatabaseProvider);
+  return db.exerciseSetDao;
+});
+
+/// Provider for ExerciseFeedbackDao
+final exerciseFeedbackDaoProvider = Provider<ExerciseFeedbackDao>((ref) {
+  final db = ref.watch(appDatabaseProvider);
+  return db.exerciseFeedbackDao;
+});
+
+/// Provider for CustomExerciseDao
+final customExerciseDaoProvider = Provider<CustomExerciseDao>((ref) {
+  final db = ref.watch(appDatabaseProvider);
+  return db.customExerciseDao;
+});
+
+/// Provider for UserMeasurementDao
+final userMeasurementDaoProvider = Provider<UserMeasurementDao>((ref) {
+  final db = ref.watch(appDatabaseProvider);
+  return db.userMeasurementDao;
+});
+
+/// Provider for SkinDao
+final skinDaoProvider = Provider<SkinDao>((ref) {
+  final db = ref.watch(appDatabaseProvider);
+  return db.skinDao;
+});
+
+// =============================================================================
+// Repository Providers
+// =============================================================================
+
+/// Provider for TrainingCycleRepository
+final trainingCycleRepositoryProvider = Provider<TrainingCycleRepository>((
   ref,
 ) {
-  final dbService = ref.watch(databaseServiceProvider);
-  return dbService.customExercisesBox;
+  final dao = ref.watch(trainingCycleDaoProvider);
+  return TrainingCycleRepository(dao);
 });
 
-/// Provider for User Measurement Hive box
-final userMeasurementsBoxProvider = Provider<Box<UserMeasurement>>((ref) {
-  final dbService = ref.watch(databaseServiceProvider);
-  return dbService.userMeasurementsBox;
+/// Provider for WorkoutRepository
+final workoutRepositoryProvider = Provider<WorkoutRepository>((ref) {
+  final workoutDao = ref.watch(workoutDaoProvider);
+  final exerciseDao = ref.watch(exerciseDaoProvider);
+  final exerciseSetDao = ref.watch(exerciseSetDaoProvider);
+  return WorkoutRepository(workoutDao, exerciseDao, exerciseSetDao);
+});
+
+/// Provider for ExerciseRepository
+final exerciseRepositoryProvider = Provider<ExerciseRepository>((ref) {
+  final exerciseDao = ref.watch(exerciseDaoProvider);
+  final exerciseSetDao = ref.watch(exerciseSetDaoProvider);
+  return ExerciseRepository(exerciseDao, exerciseSetDao);
+});
+
+/// Provider for CustomExerciseRepository
+final customExerciseRepositoryProvider = Provider<CustomExerciseRepository>((
+  ref,
+) {
+  final dao = ref.watch(customExerciseDaoProvider);
+  return CustomExerciseRepository(dao);
 });
 
 /// Provider for UserMeasurementRepository
 final userMeasurementRepositoryProvider = Provider<UserMeasurementRepository>((
   ref,
 ) {
-  final box = ref.watch(userMeasurementsBoxProvider);
-  return UserMeasurementRepository(box);
-});
-
-/// Provider for database initialization status
-final databaseInitializedProvider = Provider<bool>((ref) {
-  final dbService = ref.watch(databaseServiceProvider);
-  return dbService.isInitialized;
-});
-
-/// Provider for CSV exercises loaded status
-final exercisesLoadedProvider = Provider<bool>((ref) {
-  final csvService = ref.watch(csvLoaderServiceProvider);
-  return csvService.isLoaded;
+  final dao = ref.watch(userMeasurementDaoProvider);
+  return UserMeasurementRepository(dao);
 });

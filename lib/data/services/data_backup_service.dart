@@ -6,28 +6,41 @@ import '../models/custom_exercise_definition.dart';
 import '../models/exercise.dart';
 import '../models/training_cycle.dart';
 import '../models/workout.dart';
-import 'database_service.dart';
+import '../repositories/custom_exercise_repository.dart';
+import '../repositories/exercise_repository.dart';
+import '../repositories/training_cycle_repository.dart';
+import '../repositories/workout_repository.dart';
 import 'theme_image_service.dart';
 
 /// Service for exporting and importing app data
 class DataBackupService {
-  final DatabaseService _databaseService;
+  final TrainingCycleRepository _trainingCycleRepository;
+  final WorkoutRepository _workoutRepository;
+  final ExerciseRepository _exerciseRepository;
+  final CustomExerciseRepository _customExerciseRepository;
   final SkinRepository _skinRepository;
   final ThemeImageService _themeImageService;
 
-  DataBackupService(
-    this._databaseService, {
-    SkinRepository? skinRepository,
+  DataBackupService({
+    required TrainingCycleRepository trainingCycleRepository,
+    required WorkoutRepository workoutRepository,
+    required ExerciseRepository exerciseRepository,
+    required CustomExerciseRepository customExerciseRepository,
+    required SkinRepository skinRepository,
     ThemeImageService? themeImageService,
-  }) : _skinRepository = skinRepository ?? SkinRepository(),
+  }) : _trainingCycleRepository = trainingCycleRepository,
+       _workoutRepository = workoutRepository,
+       _exerciseRepository = exerciseRepository,
+       _customExerciseRepository = customExerciseRepository,
+       _skinRepository = skinRepository,
        _themeImageService = themeImageService ?? ThemeImageService();
 
   /// Export all data to a JSON string
   Future<String> exportToJson({bool includeThemes = true}) async {
-    final trainingCycles = _databaseService.trainingCyclesBox.values.toList();
-    final workouts = _databaseService.workoutsBox.values.toList();
-    final exercises = _databaseService.exercisesBox.values.toList();
-    final customExercises = _databaseService.customExercisesBox.values.toList();
+    final trainingCycles = await _trainingCycleRepository.getAll();
+    final workouts = await _workoutRepository.getAll();
+    final exercises = await _exerciseRepository.getAll();
+    final customExercises = await _customExerciseRepository.getAll();
 
     final data = <String, dynamic>{
       'version': 3, // Bumped version for theme support
@@ -102,60 +115,62 @@ class DataBackupService {
 
       // Clear existing data if replacing
       if (replace) {
-        await _databaseService.trainingCyclesBox.clear();
-        await _databaseService.workoutsBox.clear();
-        await _databaseService.exercisesBox.clear();
-        await _databaseService.customExercisesBox.clear();
+        await _trainingCycleRepository.deleteAll();
+        await _workoutRepository.deleteAll();
+        await _exerciseRepository.deleteAll();
+        await _customExerciseRepository.deleteAll();
       }
+
+      // Get existing IDs to check for duplicates
+      final existingTrainingCycles = await _trainingCycleRepository.getAll();
+      final existingTrainingCycleIds = existingTrainingCycles.map((tc) => tc.id).toSet();
+      
+      final existingWorkouts = await _workoutRepository.getAll();
+      final existingWorkoutIds = existingWorkouts.map((w) => w.id).toSet();
+      
+      final existingExercises = await _exerciseRepository.getAll();
+      final existingExerciseIds = existingExercises.map((e) => e.id).toSet();
+      
+      final existingCustomExercises = await _customExerciseRepository.getAll();
+      final existingCustomExerciseIds = existingCustomExercises.map((ce) => ce.id).toSet();
 
       // Import trainingCycles
       int trainingCyclesImported = 0;
       for (final trainingCycle in trainingCycles) {
-        if (!replace &&
-            _databaseService.trainingCyclesBox.containsKey(trainingCycle.id)) {
+        if (!replace && existingTrainingCycleIds.contains(trainingCycle.id)) {
           continue; // Skip if already exists and not replacing
         }
-        await _databaseService.trainingCyclesBox.put(
-          trainingCycle.id,
-          trainingCycle,
-        );
+        await _trainingCycleRepository.create(trainingCycle);
         trainingCyclesImported++;
       }
 
       // Import workouts
       int workoutsImported = 0;
       for (final workout in workouts) {
-        if (!replace && _databaseService.workoutsBox.containsKey(workout.id)) {
+        if (!replace && existingWorkoutIds.contains(workout.id)) {
           continue;
         }
-        await _databaseService.workoutsBox.put(workout.id, workout);
+        await _workoutRepository.create(workout);
         workoutsImported++;
       }
 
       // Import exercises
       int exercisesImported = 0;
       for (final exercise in exercises) {
-        if (!replace &&
-            _databaseService.exercisesBox.containsKey(exercise.id)) {
+        if (!replace && existingExerciseIds.contains(exercise.id)) {
           continue;
         }
-        await _databaseService.exercisesBox.put(exercise.id, exercise);
+        await _exerciseRepository.create(exercise);
         exercisesImported++;
       }
 
       // Import custom exercises
       int customExercisesImported = 0;
       for (final customExercise in customExercises) {
-        if (!replace &&
-            _databaseService.customExercisesBox.containsKey(
-              customExercise.id,
-            )) {
+        if (!replace && existingCustomExerciseIds.contains(customExercise.id)) {
           continue;
         }
-        await _databaseService.customExercisesBox.put(
-          customExercise.id,
-          customExercise,
-        );
+        await _customExerciseRepository.add(customExercise);
         customExercisesImported++;
       }
 
@@ -228,12 +243,17 @@ class DataBackupService {
   }
 
   /// Get stats about current data
-  DataStats getStats() {
+  Future<DataStats> getStats() async {
+    final trainingCycles = await _trainingCycleRepository.getAll();
+    final workouts = await _workoutRepository.getAll();
+    final exercises = await _exerciseRepository.getAll();
+    final customExercises = await _customExerciseRepository.getAll();
+    
     return DataStats(
-      trainingCycleCount: _databaseService.trainingCyclesBox.length,
-      workoutCount: _databaseService.workoutsBox.length,
-      exerciseCount: _databaseService.exercisesBox.length,
-      customExerciseCount: _databaseService.customExercisesBox.length,
+      trainingCycleCount: trainingCycles.length,
+      workoutCount: workouts.length,
+      exerciseCount: exercises.length,
+      customExerciseCount: customExercises.length,
     );
   }
 }
