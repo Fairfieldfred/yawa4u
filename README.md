@@ -72,7 +72,7 @@ YAWA4U is a comprehensive gym workout tracking application designed to help you 
 
 ### Data Management
 
-- **Local-first storage** using Hive database
+- **Local-first storage** using Drift database
 - **Manual export/import** - Export your data as JSON
 - **Share functionality** - Share your workout data easily
 - No cloud dependency - you own your data
@@ -110,7 +110,7 @@ YAWA4U is a comprehensive gym workout tracking application designed to help you 
 | Category         | Technology         |
 | ---------------- | ------------------ |
 | Framework        | Flutter            |
-| Database         | Hive               |
+| Database         | Drift.             |
 | State Management | Riverpod           |
 | Routing          | go_router          |
 | Analytics        | Firebase Analytics |
@@ -140,7 +140,7 @@ cd yawa4u
 flutter pub get
 ```
 
-### Generate Hive Adapters
+### Generate Drift
 
 ```bash
 dart run build_runner build --delete-conflicting-outputs
@@ -243,7 +243,7 @@ lib/
 │   ├── utils/                # Helper functions
 │   └── extensions/           # Dart extensions
 ├── data/                     # Data layer
-│   ├── models/               # Hive data models
+│   ├── models/               # Drift data models
 │   ├── repositories/         # Data repositories
 │   ├── services/             # Database, export/import services
 │   └── dto/                  # Data transfer objects
