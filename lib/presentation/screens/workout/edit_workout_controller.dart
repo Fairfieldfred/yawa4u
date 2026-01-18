@@ -20,6 +20,14 @@ class EditWorkoutController {
 
   EditWorkoutController(this.ref, this.trainingCycleId);
 
+  /// Invalidate workout providers to trigger UI refresh
+  /// This is needed because Drift streams only watch their own table,
+  /// but nested data (exercises, sets) are in separate tables
+  void _invalidateWorkoutProviders() {
+    ref.invalidate(workoutsProvider);
+    ref.invalidate(workoutsByTrainingCycleProvider(trainingCycleId));
+  }
+
   /// Mirror Period 1 workouts to the selected period
   Future<void> mirrorPeriod1ToSelectedPeriod(
     TrainingCycle trainingCycle,
@@ -138,6 +146,7 @@ class EditWorkoutController {
     );
 
     await repository.update(updatedWorkout);
+    _invalidateWorkoutProviders();
   }
 
   /// Remove a set from an exercise
@@ -163,6 +172,7 @@ class EditWorkoutController {
     );
 
     await repository.update(updatedWorkout);
+    _invalidateWorkoutProviders();
   }
 
   /// Delete an exercise from a workout
@@ -177,6 +187,7 @@ class EditWorkoutController {
     final updatedWorkout = workout.copyWith(exercises: updatedExercises);
 
     await repository.update(updatedWorkout);
+    _invalidateWorkoutProviders();
   }
 
   /// Insert a set at a specific index
@@ -211,6 +222,7 @@ class EditWorkoutController {
     );
 
     await repository.update(updatedWorkout);
+    _invalidateWorkoutProviders();
   }
 
   /// Update a set's type
@@ -243,6 +255,7 @@ class EditWorkoutController {
     );
 
     await repository.update(updatedWorkout);
+    _invalidateWorkoutProviders();
   }
 
   /// Update a set's reps
@@ -275,6 +288,7 @@ class EditWorkoutController {
     );
 
     await repository.update(updatedWorkout);
+    _invalidateWorkoutProviders();
   }
 
   /// Add a period to the trainingCycle (inserted before the recovery period)

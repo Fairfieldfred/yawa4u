@@ -50,6 +50,18 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     _controller.selectDay(period, day);
   }
 
+  /// Invalidate workout providers to trigger UI refresh
+  /// This is needed because Drift streams only watch their own table,
+  /// but nested data (exercises, sets) are in separate tables
+  void _invalidateWorkoutProviders() {
+    final trainingCycle = ref.read(currentTrainingCycleProvider);
+    if (trainingCycle != null) {
+      ref.invalidate(workoutsByTrainingCycleListProvider(trainingCycle.id));
+      ref.invalidate(workoutsByTrainingCycleProvider(trainingCycle.id));
+    }
+    ref.invalidate(workoutsProvider);
+  }
+
   Future<void> _updateSetWeight(
     String workoutId,
     String exerciseId,
@@ -78,6 +90,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     );
 
     await repository.update(updatedWorkout);
+    _invalidateWorkoutProviders();
   }
 
   Future<void> _updateSetReps(
@@ -105,6 +118,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     );
 
     await repository.update(updatedWorkout);
+    _invalidateWorkoutProviders();
   }
 
   Future<void> _toggleSetLog(
@@ -133,6 +147,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     );
 
     await repository.update(updatedWorkout);
+    _invalidateWorkoutProviders();
   }
 
   Future<void> _addSetBelow(
@@ -175,6 +190,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     );
 
     await repository.update(updatedWorkout);
+    _invalidateWorkoutProviders();
   }
 
   Future<void> _toggleSetSkip(
@@ -206,6 +222,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     );
 
     await repository.update(updatedWorkout);
+    _invalidateWorkoutProviders();
   }
 
   Future<void> _deleteSet(
@@ -241,6 +258,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     );
 
     await repository.update(updatedWorkout);
+    _invalidateWorkoutProviders();
   }
 
   Future<void> _updateSetType(
@@ -272,6 +290,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     );
 
     await repository.update(updatedWorkout);
+    _invalidateWorkoutProviders();
   }
 
   Future<void> _addNote(String workoutId, String exerciseId) async {
@@ -300,6 +319,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
           .toList();
       final updatedWorkout = workout.copyWith(exercises: updatedExercises);
       await repository.update(updatedWorkout);
+      _invalidateWorkoutProviders();
     }
   }
 
@@ -309,142 +329,49 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     );
     final repository = ref.read(workoutRepositoryProvider);
 
-    // Get the current trainingCycle to find all workouts for today
-    final trainingCycle = ref.read(currentTrainingCycleProvider);
-    if (trainingCycle == null) {
-      debugPrint('No current trainingCycle');
+    // Get the workout directly by ID
+    final workout = await repository.getById(workoutId);
+    if (workout == null) {
+      debugPrint('Workout not found');
       return;
     }
 
-    // Get all workouts for this trainingCycle
-    final allWorkouts = ref.read(
-      workoutsByTrainingCycleListProvider(trainingCycle.id),
-    );
+    // Find the exercise index in this workout
+    final exercises = List<Exercise>.from(workout.exercises);
+    final currentIndex = exercises.indexWhere((e) => e.id == exerciseId);
 
-    // Get current period and day
-    final currentPeriod = trainingCycle.getCurrentPeriod();
-    if (currentPeriod == null) {
-      debugPrint('Could not determine current period');
+    if (currentIndex == -1) {
+      debugPrint('Exercise not found in workout');
       return;
     }
 
-    // Use selected period/day if available, otherwise use current
-    final homeState = ref.read(workoutHomeControllerProvider);
-    final displayPeriod = homeState.selectedPeriod ?? currentPeriod;
-    final displayDay =
-        homeState.selectedDay ??
-        (() {
-          final daysSinceStart = DateTime.now()
-              .difference(trainingCycle.startDate!)
-              .inDays;
-          final daysSincePeriodStart =
-              daysSinceStart % trainingCycle.daysPerPeriod;
-          return (daysSincePeriodStart + 1).clamp(
-            1,
-            trainingCycle.daysPerPeriod,
-          );
-        })();
-
-    final todaysWorkouts = allWorkouts
-        .where(
-          (w) => w.periodNumber == displayPeriod && w.dayNumber == displayDay,
-        )
-        .toList();
-
-    // Collect all exercises from all workouts
-    final allExercises = <Exercise>[];
-    for (var workout in todaysWorkouts) {
-      allExercises.addAll(workout.exercises);
-    }
-
-    debugPrint('Total exercises across all workouts: ${allExercises.length}');
-
-    // Find the exercise's position in the complete list
-    final globalIndex = allExercises.indexWhere((e) => e.id == exerciseId);
-    if (globalIndex == -1) {
-      debugPrint('Exercise not found in allExercises');
-      return;
-    }
-
-    if (globalIndex >= allExercises.length - 1) {
+    if (currentIndex >= exercises.length - 1) {
       debugPrint('Exercise is already at the bottom');
       return;
     }
 
-    // Get the exercise to move and the exercise to swap with
-    final exerciseToMove = allExercises[globalIndex];
-    final exerciseToSwapWith = allExercises[globalIndex + 1];
-
+    debugPrint('Moving exercise at index $currentIndex down');
     debugPrint(
-      'Moving "${exerciseToMove.name}" down, swapping with "${exerciseToSwapWith.name}"',
+      'Before: ${exercises.map((e) => "${e.name}(${e.orderIndex})").join(", ")}',
     );
 
-    // Find which workouts contain these exercises
-    Workout? workoutWithMovingExercise;
-    Workout? workoutWithSwapExercise;
+    // Swap positions in the list
+    final exercise = exercises.removeAt(currentIndex);
+    exercises.insert(currentIndex + 1, exercise);
 
-    for (var workout in todaysWorkouts) {
-      if (workout.exercises.any((e) => e.id == exerciseToMove.id)) {
-        workoutWithMovingExercise = workout;
-      }
-      if (workout.exercises.any((e) => e.id == exerciseToSwapWith.id)) {
-        workoutWithSwapExercise = workout;
-      }
+    // Renumber all exercises based on their new positions
+    for (var i = 0; i < exercises.length; i++) {
+      exercises[i] = exercises[i].copyWith(orderIndex: i);
     }
 
-    if (workoutWithMovingExercise == null || workoutWithSwapExercise == null) {
-      debugPrint('Could not find workouts containing the exercises');
-      return;
-    }
+    debugPrint(
+      'After: ${exercises.map((e) => "${e.name}(${e.orderIndex})").join(", ")}',
+    );
 
-    if (workoutWithMovingExercise.id == workoutWithSwapExercise.id) {
-      // Same workout - just swap positions
-      final workout = workoutWithMovingExercise;
-      final exercises = List<Exercise>.from(workout.exercises);
-      final idx1 = exercises.indexWhere((e) => e.id == exerciseToMove.id);
-      final idx2 = exercises.indexWhere((e) => e.id == exerciseToSwapWith.id);
-
-      final temp = exercises[idx1];
-      exercises[idx1] = exercises[idx2];
-      exercises[idx2] = temp;
-
-      final updatedWorkout = workout.copyWith(exercises: exercises);
-      await repository.update(updatedWorkout);
-      debugPrint('Swapped exercises within same workout');
-    } else {
-      // Different workouts - move exercise between workouts
-      // Remove from first workout
-      final exercises1 = workoutWithMovingExercise.exercises
-          .where((e) => e.id != exerciseToMove.id)
-          .toList();
-
-      // Add to second workout (insert at the position before the swap exercise)
-      final exercises2 = List<Exercise>.from(workoutWithSwapExercise.exercises);
-      final insertIndex = exercises2.indexWhere(
-        (e) => e.id == exerciseToSwapWith.id,
-      );
-
-      // Update the exercise's workoutId to match the new workout
-      final movedExercise = exerciseToMove.copyWith(
-        workoutId: workoutWithSwapExercise.id,
-      );
-      exercises2.insert(insertIndex, movedExercise);
-
-      final updatedWorkout1 = workoutWithMovingExercise.copyWith(
-        exercises: exercises1,
-      );
-      final updatedWorkout2 = workoutWithSwapExercise.copyWith(
-        exercises: exercises2,
-      );
-
-      await repository.update(updatedWorkout1);
-      await repository.update(updatedWorkout2);
-      debugPrint(
-        'Moved exercise from workout ${workoutWithMovingExercise.id} to ${workoutWithSwapExercise.id}',
-      );
-    }
-
-    debugPrint('Exercise moved successfully');
+    final updatedWorkout = workout.copyWith(exercises: exercises);
+    await repository.update(updatedWorkout);
+    _invalidateWorkoutProviders();
+    debugPrint('Exercise moved down successfully');
   }
 
   Future<void> _replaceExercise(String workoutId, String exerciseId) async {
@@ -463,6 +390,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
         .toList();
     final updatedWorkout = workout.copyWith(exercises: updatedExercises);
     await ref.read(workoutRepositoryProvider).update(updatedWorkout);
+    _invalidateWorkoutProviders();
 
     // Navigate to add exercise screen with the same muscle group
     if (mounted) {
@@ -509,6 +437,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     );
 
     await repository.update(updatedWorkout);
+    _invalidateWorkoutProviders();
   }
 
   Future<void> _skipExerciseSets(String workoutId, String exerciseId) async {
@@ -535,6 +464,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     );
 
     await repository.update(updatedWorkout);
+    _invalidateWorkoutProviders();
   }
 
   Future<void> _deleteExercise(String workoutId, String exerciseId) async {
@@ -548,6 +478,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
 
     final updatedWorkout = workout.copyWith(exercises: updatedExercises);
     await repository.update(updatedWorkout);
+    _invalidateWorkoutProviders();
   }
 
   bool _isWorkoutComplete(Workout workout) {
