@@ -163,14 +163,18 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
     );
   }
 
-  /// Check if ALL days in ALL periods have at least one exercise
+  /// Check if ALL days in ALL regular (non-recovery) periods have at least one exercise
   bool _hasExercisesForAllDays(TrainingCycle trainingCycle) {
     final workouts = ref.read(
       workoutsByTrainingCycleListProvider(trainingCycle.id),
     );
 
-    // Check EVERY period in the trainingCycle
+    // Check EVERY period in the trainingCycle (except recovery period)
     for (int period = 1; period <= trainingCycle.periodsTotal; period++) {
+      // Skip recovery/deload period - these don't need exercises
+      final isRecoveryPeriod = period == trainingCycle.recoveryPeriod;
+      if (isRecoveryPeriod) continue;
+
       final periodWorkouts = workouts
           .where((w) => w.periodNumber == period)
           .toList();
@@ -189,7 +193,7 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
       }
     }
 
-    return true; // ALL days in ALL periods have at least one exercise
+    return true; // ALL days in ALL regular periods have at least one exercise
   }
 
   Widget _buildTrainingCycleCard(
@@ -814,7 +818,9 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
       // Get all workouts for this training cycle directly from repository
       // to avoid empty list from async provider loading state
       final workoutRepository = ref.read(workoutRepositoryProvider);
-      final workouts = await workoutRepository.getByTrainingCycleId(trainingCycle.id);
+      final workouts = await workoutRepository.getByTrainingCycleId(
+        trainingCycle.id,
+      );
 
       debugPrint('Restarting cycle: ${trainingCycle.name}');
       debugPrint('Found ${workouts.length} workouts to copy');

@@ -433,9 +433,22 @@ class _AddExerciseScreenState extends ConsumerState<AddExerciseScreen> {
     );
   }
 
-  void _addExerciseToWorkout(ExerciseDefinition exerciseDef) {
-    final workout = ref.read(workoutProvider(widget.workoutId));
-    if (workout == null) return;
+  Future<void> _addExerciseToWorkout(ExerciseDefinition exerciseDef) async {
+    // Read workout directly from repository instead of provider (which may be stale)
+    final repository = ref.read(workoutRepositoryProvider);
+    final workout = await repository.getById(widget.workoutId);
+
+    if (workout == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Error: Workout not found'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+      return;
+    }
 
     // Check if we're replacing an existing exercise
     final isReplacing = widget.replaceExerciseId != null;
@@ -487,21 +500,28 @@ class _AddExerciseScreenState extends ConsumerState<AddExerciseScreen> {
     }
 
     final updatedWorkout = workout.copyWith(exercises: updatedExercises);
-    ref.read(workoutRepositoryProvider).update(updatedWorkout);
+    await repository.update(updatedWorkout);
+
+    // Invalidate providers to trigger refresh
+    ref.invalidate(workoutsProvider);
+    ref.invalidate(workoutsByTrainingCycleProvider(widget.trainingCycleId));
 
     // Show confirmation and go back
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          isReplacing
-              ? '${existingExercise?.name ?? "Exercise"} replaced with ${exerciseDef.name}'
-              : '${exerciseDef.name} added',
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            isReplacing
+                ? '${existingExercise?.name ?? "Exercise"} replaced with ${exerciseDef.name}'
+                : '${exerciseDef.name} added',
+          ),
+          duration: const Duration(seconds: 2),
         ),
-        duration: const Duration(seconds: 2),
-      ),
-    );
+      );
 
-    GoRouter.of(context).pop();
+      // Use Navigator.pop to work with both Navigator.push and GoRouter
+      Navigator.of(context).pop();
+    }
   }
 }
 
