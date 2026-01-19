@@ -323,6 +323,57 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     }
   }
 
+  Future<void> _moveExerciseUp(String workoutId, String exerciseId) async {
+    debugPrint(
+      'Move exercise up called: workoutId=$workoutId, exerciseId=$exerciseId',
+    );
+    final repository = ref.read(workoutRepositoryProvider);
+
+    // Get the workout directly by ID
+    final workout = await repository.getById(workoutId);
+    if (workout == null) {
+      debugPrint('Workout not found');
+      return;
+    }
+
+    // Find the exercise index in this workout
+    final exercises = List<Exercise>.from(workout.exercises);
+    final currentIndex = exercises.indexWhere((e) => e.id == exerciseId);
+
+    if (currentIndex == -1) {
+      debugPrint('Exercise not found in workout');
+      return;
+    }
+
+    if (currentIndex <= 0) {
+      debugPrint('Exercise is already at the top');
+      return;
+    }
+
+    debugPrint('Moving exercise at index $currentIndex up');
+    debugPrint(
+      'Before: ${exercises.map((e) => "${e.name}(${e.orderIndex})").join(", ")}',
+    );
+
+    // Swap positions in the list
+    final exercise = exercises.removeAt(currentIndex);
+    exercises.insert(currentIndex - 1, exercise);
+
+    // Renumber all exercises based on their new positions
+    for (var i = 0; i < exercises.length; i++) {
+      exercises[i] = exercises[i].copyWith(orderIndex: i);
+    }
+
+    debugPrint(
+      'After: ${exercises.map((e) => "${e.name}(${e.orderIndex})").join(", ")}',
+    );
+
+    final updatedWorkout = workout.copyWith(exercises: exercises);
+    await repository.update(updatedWorkout);
+    _invalidateWorkoutProviders();
+    debugPrint('Exercise moved up successfully');
+  }
+
   Future<void> _moveExerciseDown(String workoutId, String exerciseId) async {
     debugPrint(
       'Move exercise down called: workoutId=$workoutId, exerciseId=$exerciseId',
@@ -1092,9 +1143,12 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                           useMetric: ref.watch(useMetricProvider),
                           onAddNote: (exerciseId) =>
                               _addNote(exercise.workoutId, exerciseId),
+                          onMoveUp: (exerciseId) =>
+                              _moveExerciseUp(exercise.workoutId, exerciseId),
                           onMoveDown: (exerciseId) =>
                               _moveExerciseDown(exercise.workoutId, exerciseId),
                           showMoveDown: true,
+                          isFirstExercise: index == 0,
                           isLastExercise: index == allExercises.length - 1,
                           onReplace: (exerciseId) =>
                               _replaceExercise(exercise.workoutId, exerciseId),

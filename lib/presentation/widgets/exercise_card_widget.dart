@@ -20,8 +20,10 @@ class ExerciseCardWidget extends ConsumerWidget {
   final String weightUnit;
   final bool useMetric;
   final Function(String exerciseId) onAddNote;
+  final Function(String exerciseId)? onMoveUp;
   final Function(String exerciseId)? onMoveDown;
   final bool showMoveDown;
+  final bool isFirstExercise;
   final bool isLastExercise;
   final Function(String exerciseId) onReplace;
   final Function(String exerciseId) onJointPain;
@@ -44,8 +46,10 @@ class ExerciseCardWidget extends ConsumerWidget {
     this.weightUnit = 'lbs',
     this.useMetric = false,
     required this.onAddNote,
+    this.onMoveUp,
     this.onMoveDown,
     this.showMoveDown = true,
+    this.isFirstExercise = false,
     this.isLastExercise = false,
     required this.onReplace,
     required this.onJointPain,
@@ -359,6 +363,9 @@ class ExerciseCardWidget extends ConsumerWidget {
           case 'note':
             onAddNote(exercise.id);
             break;
+          case 'move_up':
+            onMoveUp?.call(exercise.id);
+            break;
           case 'move_down':
             onMoveDown?.call(exercise.id);
             break;
@@ -405,6 +412,29 @@ class ExerciseCardWidget extends ConsumerWidget {
             ],
           ),
         ),
+        // Move up (conditionally shown, disabled if first exercise)
+        if (showMoveDown)
+          PopupMenuItem<String>(
+            value: 'move_up',
+            enabled: !isFirstExercise,
+            height: 48,
+            child: Row(
+              children: [
+                Icon(
+                  Icons.arrow_upward,
+                  color: isFirstExercise ? Colors.grey : onSurfaceColor,
+                  size: 20,
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  'Move up',
+                  style: TextStyle(
+                    color: isFirstExercise ? Colors.grey : onSurfaceColor,
+                  ),
+                ),
+              ],
+            ),
+          ),
         // Move down (conditionally shown, disabled if last exercise)
         if (showMoveDown)
           PopupMenuItem<String>(

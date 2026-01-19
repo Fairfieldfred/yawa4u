@@ -190,6 +190,56 @@ class EditWorkoutController {
     _invalidateWorkoutProviders();
   }
 
+  /// Move an exercise up in the workout
+  Future<void> moveExerciseUp(String workoutId, String exerciseId) async {
+    final repository = ref.read(workoutRepositoryProvider);
+    final workout = await repository.getById(workoutId);
+    if (workout == null) return;
+
+    final exercises = List.of(workout.exercises);
+    final currentIndex = exercises.indexWhere((e) => e.id == exerciseId);
+
+    if (currentIndex <= 0) return; // Already at top or not found
+
+    // Swap positions in the list
+    final exercise = exercises.removeAt(currentIndex);
+    exercises.insert(currentIndex - 1, exercise);
+
+    // Renumber all exercises based on their new positions
+    for (var i = 0; i < exercises.length; i++) {
+      exercises[i] = exercises[i].copyWith(orderIndex: i);
+    }
+
+    final updatedWorkout = workout.copyWith(exercises: exercises);
+    await repository.update(updatedWorkout);
+    _invalidateWorkoutProviders();
+  }
+
+  /// Move an exercise down in the workout
+  Future<void> moveExerciseDown(String workoutId, String exerciseId) async {
+    final repository = ref.read(workoutRepositoryProvider);
+    final workout = await repository.getById(workoutId);
+    if (workout == null) return;
+
+    final exercises = List.of(workout.exercises);
+    final currentIndex = exercises.indexWhere((e) => e.id == exerciseId);
+
+    if (currentIndex == -1 || currentIndex >= exercises.length - 1) return; // Not found or already at bottom
+
+    // Swap positions in the list
+    final exercise = exercises.removeAt(currentIndex);
+    exercises.insert(currentIndex + 1, exercise);
+
+    // Renumber all exercises based on their new positions
+    for (var i = 0; i < exercises.length; i++) {
+      exercises[i] = exercises[i].copyWith(orderIndex: i);
+    }
+
+    final updatedWorkout = workout.copyWith(exercises: exercises);
+    await repository.update(updatedWorkout);
+    _invalidateWorkoutProviders();
+  }
+
   /// Insert a set at a specific index
   Future<void> insertSetAtIndex(
     String workoutId,

@@ -691,6 +691,8 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
           exercise,
           controller,
           showMuscleGroupBadge: showMuscleGroupBadge,
+          index: index,
+          totalExercises: allExercises.length,
         );
       },
     );
@@ -701,6 +703,8 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
     Exercise exercise,
     EditWorkoutController controller, {
     required bool showMuscleGroupBadge,
+    required int index,
+    required int totalExercises,
   }) {
     final muscleGroup = exercise.muscleGroup;
     final equipmentType = exercise.equipmentType;
@@ -805,6 +809,18 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
                           case 'note':
                             _newExerciseNote(exercise);
                             break;
+                          case 'move_up':
+                            controller.moveExerciseUp(
+                              exercise.workoutId,
+                              exercise.id,
+                            );
+                            break;
+                          case 'move_down':
+                            controller.moveExerciseDown(
+                              exercise.workoutId,
+                              exercise.id,
+                            );
+                            break;
                           case 'replace':
                             _replaceExercise(exercise);
                             break;
@@ -845,6 +861,54 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
                               Text(
                                 'New note',
                                 style: TextStyle(color: Colors.white),
+                              ),
+                            ],
+                          ),
+                        ),
+                        // Move up (disabled if first exercise)
+                        PopupMenuItem<String>(
+                          value: 'move_up',
+                          enabled: index > 0,
+                          height: 48,
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.arrow_upward,
+                                color: index > 0 ? Colors.white : Colors.grey,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 12),
+                              Text(
+                                'Move up',
+                                style: TextStyle(
+                                  color: index > 0 ? Colors.white : Colors.grey,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        // Move down (disabled if last exercise)
+                        PopupMenuItem<String>(
+                          value: 'move_down',
+                          enabled: index < totalExercises - 1,
+                          height: 48,
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.arrow_downward,
+                                color: index < totalExercises - 1
+                                    ? Colors.white
+                                    : Colors.grey,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 12),
+                              Text(
+                                'Move down',
+                                style: TextStyle(
+                                  color: index < totalExercises - 1
+                                      ? Colors.white
+                                      : Colors.grey,
+                                ),
                               ),
                             ],
                           ),
@@ -1391,6 +1455,10 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
                     ),
                   );
                 }),
+
+                // Note display (if exercise has a note)
+                if (exercise.notes != null && exercise.notes!.isNotEmpty)
+                  _buildNoteDisplay(context, exercise),
               ],
             ),
           ),
@@ -1416,6 +1484,53 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
       default:
         return null;
     }
+  }
+
+  Widget _buildNoteDisplay(BuildContext context, Exercise exercise) {
+    return InkWell(
+      onTap: () => _newExerciseNote(exercise),
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        margin: const EdgeInsets.only(top: 12),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.primaryContainer.withAlpha(51),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: Theme.of(context).colorScheme.primary.withAlpha(77),
+            width: 1,
+          ),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(
+              exercise.isNotePinned ? Icons.push_pin : Icons.note_outlined,
+              size: 16,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                exercise.notes!,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurface,
+                  height: 1.4,
+                ),
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Icon(
+              Icons.edit,
+              size: 14,
+              color: Theme.of(context).colorScheme.primary.withAlpha(150),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   // Exercise action methods
@@ -1706,8 +1821,9 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
   }
 
   Future<void> _newExerciseNote(Exercise exercise) async {
-    // Get the workout containing this exercise
-    final workout = ref.read(workoutProvider(exercise.workoutId));
+    // Get the workout containing this exercise from the repository
+    final repository = ref.read(workoutRepositoryProvider);
+    final workout = await repository.getById(exercise.workoutId);
     if (workout == null) return;
 
     final currentNote = exercise.notes;
@@ -1734,6 +1850,10 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
             .toList();
         final updatedWorkout = workout.copyWith(exercises: updatedExercises);
         await repository.update(updatedWorkout);
+
+        // Invalidate providers to refresh UI
+        ref.invalidate(workoutsProvider);
+        ref.invalidate(workoutsByTrainingCycleProvider(widget.trainingCycleId));
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
