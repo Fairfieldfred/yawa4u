@@ -2,25 +2,26 @@
 
 ## Project Overview
 
-Flutter workout tracking app (iOS, Android, Web, macOS, Windows, Linux) using **Riverpod 3.0** for state management and **Hive** for local-first persistence. Core hierarchy: TrainingCycle → Period → Workout → Exercise → ExerciseSet.
+Flutter workout tracking app (iOS, Android, Web, macOS, Windows, Linux) using **Riverpod 3.0** for state management and **Drift** (SQLite) for local-first persistence. Core hierarchy: TrainingCycle → Period → Workout → Exercise → ExerciseSet.
 
-For comprehensive data model documentation including relationships and field details, see [data_structure.md](../data_structure.md).
+For comprehensive data model documentation, see [data_structure.md](../data_structure.md).
 
 ## Architecture
 
 ```
 lib/
 ├── core/           # Utilities, constants, theme system
-│   ├── constants/  # enums.dart (ALL Hive-persisted enums), muscle_groups.dart, equipment_types.dart
-│   ├── config/     # sentry_config.dart
+│   ├── constants/  # enums.dart, muscle_groups.dart, equipment_types.dart
 │   ├── env/        # env.dart (--dart-define variables)
-│   └── services/   # SentryService
+│   ├── services/   # SentryService
+│   └── theme/      # skins/ (theme system)
 ├── data/
-│   ├── models/     # Hive models with *.g.dart generated files
-│   ├── repositories/  # CRUD operations, expose `box` for reactive watching
+│   ├── database/   # Drift: app_database.dart, tables.dart, daos/, mappers/
+│   ├── models/     # Domain models (plain Dart classes)
+│   ├── repositories/  # CRUD operations using DAOs
 │   └── services/   # DatabaseService, CsvLoaderService, WifiSyncService
 ├── domain/
-│   ├── providers/  # Riverpod providers (StreamProvider for Hive reactivity)
+│   ├── providers/  # Riverpod providers (StreamProvider for reactivity)
 │   └── controllers/# Notifier<State> for complex screen logic
 ├── presentation/
 │   ├── screens/    # Full-page views
@@ -32,13 +33,13 @@ lib/
 
 ### Workout vs Training Day
 
-The database stores **multiple `Workout` objects per training day** (one per muscle group). All workouts for the same day share `periodNumber` and `dayNumber`, differentiated by `label` (e.g., "Chest", "Back"). **Always aggregate** all `Workout` objects when displaying a day's workout to users.
+The database stores **multiple `Workout` objects per training day** (one per muscle group). All workouts for the same day share `periodNumber` and `dayNumber`, differentiated by `label` (e.g., "Chest", "Back"). **Always aggregate** by `(periodNumber, dayNumber)` when displaying a day's workout.
 
 ### Periods vs Weeks
 
 Uses "periods" (not weeks) for flexible schedules (8, 9, 10+ day cycles):
 
-- `periodsTotal` / `daysPerPeriod` - Cycle structure (uniform)
+- `periodsTotal` / `daysPerPeriod` - Cycle structure
 - `periodNumber` / `dayNumber` - Workout positioning (**1-indexed**)
 - `recoveryPeriod` + `RecoveryPeriodType` - Optional deload/rest period
 
@@ -46,70 +47,70 @@ Uses "periods" (not weeks) for flexible schedules (8, 9, 10+ day cycles):
 
 `TrainingCycle.workouts` is a **snapshot at creation**—always use `workoutsByTrainingCycleProvider(cycleId)` for current workout state.
 
+## Drift Database Architecture
+
+Database uses normalized relational schema with DAOs and mappers:
+
+```
+data/database/
+├── app_database.dart       # @DriftDatabase definition
+├── tables.dart             # Table definitions (TrainingCycles, Workouts, etc.)
+├── converters.dart         # Enum → int converters
+├── daos/                   # One DAO per table (TrainingCycleDao, WorkoutDao...)
+└── mappers/                # entity_mappers.dart - Row → Model conversion
+```
+
+**Loading hierarchy (repositories handle this automatically):**
+
+```
+TrainingCycle → Workouts → Exercises → ExerciseSets → ExerciseFeedback
+```
+
 ## State Management Patterns
 
-### Reactive Hive via StreamProvider
-
-All data providers follow this pattern in `domain/providers/`:
+### Reactive Drift via StreamProvider
 
 ```dart
-// Yield initial data, then watch for Hive box changes
-final trainingCyclesProvider = StreamProvider<List<TrainingCycle>>((ref) async* {
-  final repository = ref.watch(trainingCycleRepositoryProvider);
-  yield repository.getAllSorted();
-  await for (final _ in repository.box.watch()) { yield repository.getAllSorted(); }
+// Watch Drift streams for reactive updates
+final workoutsProvider = StreamProvider<List<Workout>>((ref) {
+  final repository = ref.watch(workoutRepositoryProvider);
+  return repository.watchAll();
+});
+
+// Parameterized access via Provider.family
+final workoutsByTrainingCycleProvider = StreamProvider.family<List<Workout>, String>((ref, cycleId) {
+  return ref.watch(workoutRepositoryProvider).watchByTrainingCycleId(cycleId);
 });
 ```
 
-**Parameterized access** via `Provider.family`:
+### Provider Dependency Chain
 
-- `trainingCycleProvider(id)` - Single training cycle by ID
-- `workoutsByTrainingCycleProvider(cycleId)` - All workouts for a cycle
+```dart
+// DAOs from database → Repositories from DAOs → Domain providers from repositories
+appDatabaseProvider → trainingCycleDaoProvider → trainingCycleRepositoryProvider → trainingCyclesProvider
+```
 
 ### Controller Pattern
 
-Complex screens use `Notifier<State>` with **immutable state classes** (see `domain/controllers/workout_home_controller.dart`):
+Complex screens use `Notifier<State>` with immutable state classes (see `domain/controllers/`):
 
 ```dart
-class WorkoutHomeState {
-  final bool showPeriodSelector;
-  final int? selectedPeriod;
-  WorkoutHomeState copyWith({...}); // Always immutable
-}
-
 class WorkoutHomeController extends Notifier<WorkoutHomeState> {
   @override WorkoutHomeState build() => const WorkoutHomeState();
   // Access repos via ref.read(workoutRepositoryProvider)
 }
 ```
 
-### Repository Pattern
-
-All repositories **must expose** `box` property for reactive watching:
-
-```dart
-class WorkoutRepository {
-  final Box<Workout> _box;
-  Box<Workout> get box => _box; // Required for StreamProvider watching
-}
-```
-
 ## Exercise Library
 
-Two sources combined into one unified library:
+1. **CSV Library** (`exercises.csv`) - ~290 built-in exercises, loaded via `CsvLoaderService`
+2. **Custom Exercises** - User-created, stored in Drift via `CustomExerciseDefinition`
 
-1. **CSV Library** (`exercises.csv`) - ~290 built-in exercises loaded at startup via `CsvLoaderService`
-   - Format: `Name,Muscle Group,Equipment` (e.g., `Barbell Curl,Biceps,Barbell`)
-   - Parsed into `ExerciseDefinition` (non-Hive, in-memory only)
-2. **Custom Exercises** - User-created, stored in Hive via `CustomExerciseDefinition`
-   - Has `@HiveType(typeId: 22)`, persists across sessions
-   - Converts to `ExerciseDefinition` via `toExerciseDefinition()`
-
-Access combined list via `exerciseRepositoryProvider`.
+Access combined list via `exerciseLibraryProvider`.
 
 ## WiFi Sync & Sharing Architecture
 
-Peer-to-peer sync/sharing between devices on same network using QR codes. All three services follow the same pattern:
+Peer-to-peer sync/sharing between devices on same network using QR codes. All services follow the same pattern:
 
 | Service          | Provider                       | Route                            |
 | ---------------- | ------------------------------ | -------------------------------- |
@@ -117,21 +118,51 @@ Peer-to-peer sync/sharing between devices on same network using QR codes. All th
 | Template Sharing | `templateShareServiceProvider` | `/template-share?templateId=xxx` |
 | Theme Sharing    | `skinShareServiceProvider`     | `/skin-share?skinId=xxx`         |
 
-**Pattern:** Host starts `shelf` HTTP server → generates QR code → Client scans via `mobile_scanner` → JSON payload with `type` field routes to handler
+**Pattern:** Host starts `shelf` HTTP server → generates QR code with `{ip, port, code}` → Client scans via `mobile_scanner` → JSON payload with `type` field routes to handler
 
-## Code Generation
+Key files:
 
-**Run after modifying any file with `part '*.g.dart'`:**
+- `data/services/wifi_sync_service.dart` - Full database sync
+- `data/services/template_share_service.dart` - Template sharing
+- `data/services/skin_share_service.dart` - Theme sharing
 
-```bash
-dart run build_runner build --delete-conflicting-outputs
+## Template Authoring
+
+Templates in `assets/templates/*.json` auto-discovered via AssetManifest:
+
+```json
+{
+  "id": "unique_id",
+  "name": "Template Name",
+  "description": "Optional description",
+  "periodsTotal": 6,
+  "daysPerPeriod": 4,
+  "recoveryPeriod": 7,
+  "workouts": [
+    {
+      "periodNumber": 1,
+      "dayNumber": 1,
+      "dayName": "Monday - Upper",
+      "exercises": [
+        {
+          "name": "Bench Press",
+          "muscleGroup": "chest",
+          "equipmentType": "barbell",
+          "sets": 4,
+          "reps": "6-10",
+          "setType": "regular"
+        }
+      ]
+    }
+  ]
+}
 ```
 
-**Affected files:**
+**Enum values (lowercase):**
 
-- `data/models/*.dart` - Hive type adapters
-- `core/constants/enums.dart` - ALL Hive-persisted enum adapters
-- `core/theme/skins/skin_model.dart` - JSON serialization
+- `muscleGroup`: chest, back, shoulders, biceps, triceps, quads, hamstrings, glutes, calves, traps, forearms, abs
+- `equipmentType`: barbell, dumbbells, cable, machine, bodyweight, smithMachine, other
+- `setType`: regular, myorep, myorepMatch, maxReps, endWithPartials, dropSet
 
 ## Skin/Theme System
 
@@ -143,59 +174,6 @@ Located in `core/theme/skins/`:
 - Access: `Theme.of(context).extension<SkinExtension>()`
 - Colors stored as hex strings, parsed via `SkinColors.parseHex()`
 
-## Template Authoring
-
-Templates in `assets/templates/*.json` auto-discovered via AssetManifest:
-
-```json
-{
-  "id": "unique_id",
-  "name": "Template Name",
-  "periodsTotal": 5,
-  "daysPerPeriod": 8,
-  "recoveryPeriod": 5,
-  "workouts": [
-    {
-      "periodNumber": 1,
-      "dayNumber": 1,
-      "dayName": "Day 1",
-      "exercises": [
-        {
-          "name": "Bench Press",
-          "muscleGroup": "chest", // Must match MuscleGroup enum (lowercase)
-          "equipmentType": "barbell", // Must match EquipmentType enum (lowercase)
-          "sets": 3,
-          "reps": "8-12",
-          "setType": "regular" // regular|myorep|myorepMatch|maxReps|endWithPartials|dropSet
-        }
-      ]
-    }
-  ]
-}
-```
-
-## Navigation
-
-`go_router` in `presentation/navigation/app_router.dart`:
-
-- Routes in `AppRoutes` class constants
-- Onboarding redirect via `redirect` callback
-- Pattern: `/trainingCycles/:trainingCycleId/workouts` for nested routes
-
-## Environment & Sentry
-
-Environment variables via `--dart-define` (see `core/env/env.dart`):
-
-```bash
-# Development (faster, no Sentry)
-flutter run
-
-# Production with Sentry
-flutter run --dart-define=SENTRY_DSN=https://xxx@sentry.io/xxx
-```
-
-Uses `feedback_sentry` package for in-app user feedback via `BetterFeedback` widget wrapper in `main.dart`.
-
 ## Firebase Analytics
 
 `AnalyticsService` (`data/services/analytics_service.dart`) wraps Firebase Analytics with privacy-first design—**never track personal data or workout performance metrics**.
@@ -205,16 +183,15 @@ Uses `feedback_sentry` package for in-app user feedback via `BetterFeedback` wid
 | Category      | Events                                                                                               |
 | ------------- | ---------------------------------------------------------------------------------------------------- |
 | TrainingCycle | `trainingCycle_created`, `trainingCycle_started`, `trainingCycle_completed`, `trainingCycle_deleted` |
-| Workout       | `workout_completed`, `workout_skipped`, `workout_reset`                                              |
-| Exercise      | `exercise_added_to_workout`, `exercise_removed_from_workout`, `exercise_replaced`                    |
-| Template      | `template_viewed`, `template_used`, `template_filter_applied`                                        |
-| Features      | `set_logged`, `myorep_set_used`, `feedback_logged`, `filter_used`                                    |
-| Data          | `data_exported`, `data_imported`, `data_shared`                                                      |
+| Workout       | `workout_completed`, `workout_skipped`                                                               |
+| Template      | `template_used`                                                                                      |
+| Features      | `feedback_logged`, `myorep_set_used`                                                                 |
+| Data          | `data_exported`, `data_imported`                                                                     |
 
 ### Usage Pattern
 
 ```dart
-final analytics = ref.read(analyticsServiceProvider);
+final analytics = AnalyticsService();
 await analytics.logWorkoutCompleted(
   periodNumber: workout.periodNumber,
   dayNumber: workout.dayNumber,
@@ -225,15 +202,32 @@ await analytics.logWorkoutCompleted(
 
 **Note:** All analytics calls wrap in try/catch and report errors to Sentry silently.
 
-## Body Measurements (UserMeasurement)
+## Sentry Error Reporting
 
-`UserMeasurement` model (`data/models/user_measurement.dart`, typeId: 24) tracks body composition over time:
+`SentryService` (`core/services/sentry_service.dart`) manages error reporting with debug support.
 
-- **Required:** `heightCm`, `weightKg`, `timestamp`
-- **Optional:** `bodyFatPercent`, `leanMassKg` (from DEXA scans), `notes`
-- **Computed:** `bmi`, `calculatedLeanMassKg`, `fatMassKg`
+### Configuration
 
-Access via `userMeasurementRepositoryProvider`. User's current height/weight also stored in `OnboardingService` for quick access.
+- DSN via `--dart-define=SENTRY_DSN=https://...`
+- Environment auto-detected: `debug`, `profile`, or `release`
+- PII disabled (`sendDefaultPii: false`)
+- Uses `feedback_sentry` for in-app user feedback via `BetterFeedback` wrapper
+
+### Usage Pattern
+
+```dart
+// Automatic error capture (most errors caught automatically)
+Sentry.captureException(error, stackTrace: stackTrace);
+
+// Manual breadcrumbs for context
+Sentry.addBreadcrumb(Breadcrumb(
+  message: 'User started workout',
+  category: 'navigation',
+));
+
+// User feedback (via BetterFeedback widget in main.dart)
+BetterFeedback.of(context).show((feedback) => ...);
+```
 
 ## Onboarding System
 
@@ -244,13 +238,19 @@ Access via `userMeasurementRepositoryProvider`. User's current height/weight als
 - `isOnboardingComplete` - Gates access to main app (checked in router redirect)
 - `isFirstTimeUser` - Whether user has created their first training cycle
 
-### User Profile Storage
+### User Profile Storage (SharedPreferences keys)
 
-Onboarding captures and persists:
-
-- Body metrics: `heightCm`, `weightKg`, `bodyFatPercent`, `leanMassKg`, `useMetric`
-- Equipment: `equipment` (list), `equipmentFilterEnabled`
-- Preferences: `trainingCycleTerm`, `appIconIndex`
+| Property           | Key                        | Type           |
+| ------------------ | -------------------------- | -------------- |
+| Height             | `user_height_cm`           | `double`       |
+| Weight             | `user_weight_kg`           | `double`       |
+| Metric/Imperial    | `user_use_metric`          | `bool`         |
+| Body Fat %         | `user_body_fat_percent`    | `double?`      |
+| Lean Mass          | `user_lean_mass_kg`        | `double?`      |
+| Equipment          | `user_equipment`           | `List<String>` |
+| Equipment Filter   | `equipment_filter_enabled` | `bool`         |
+| TrainingCycle Term | `user_training_cycle_term` | `String`       |
+| App Icon           | `user_app_icon_index`      | `int`          |
 
 ### Router Integration
 
@@ -266,17 +266,75 @@ redirect: (context, state) {
 }
 ```
 
-### Provider Override Pattern
+## Code Generation
 
-`SharedPreferences` must be initialized before `ProviderScope` in `main.dart`:
+**Run after modifying Drift tables, DAOs, or JSON-serializable classes:**
+
+```bash
+dart run build_runner build --delete-conflicting-outputs
+```
+
+**Affected files:**
+
+- `data/database/app_database.dart` → `app_database.g.dart`
+- `data/models/*.dart` with `part '*.g.dart'`
+- `core/theme/skins/skin_model.dart` - JSON serialization
+
+## Navigation
+
+`go_router` in `presentation/navigation/app_router.dart`:
+
+- Routes in `AppRoutes` class constants
+- Onboarding redirect via `redirect` callback
+- Pattern: `/trainingCycles/:trainingCycleId/workouts`
+
+## Initialization (main.dart)
 
 ```dart
-final sharedPrefs = await SharedPreferences.getInstance();
+// Critical initialization order
+await DatabaseService().initialize();      // Drift database
+await SkinRepository().initialize(prefs);  // Theme system
+await CsvLoaderService().loadExercises();  // Exercise library
+
 ProviderScope(
   overrides: [sharedPreferencesProvider.overrideWithValue(sharedPrefs)],
   child: const MyApp(),
 )
 ```
+
+## Common Commands
+
+| Task            | Command                                                    |
+| --------------- | ---------------------------------------------------------- |
+| Run             | `flutter run`                                              |
+| Regenerate code | `dart run build_runner build --delete-conflicting-outputs` |
+| Test            | `flutter test`                                             |
+| Build APK       | `flutter build apk --release`                              |
+| Build iOS       | `flutter build ipa`                                        |
+| Build Web       | `flutter build web`                                        |
+| Sentry build    | `flutter run --dart-define=SENTRY_DSN=https://...`         |
+
+## Conventions
+
+- **Enums**: All in `core/constants/enums.dart` with extension methods for `displayName`
+- **Models**: Immutable with `copyWith()`, ID via `uuid` package
+- **Providers**: DAO providers → Repository providers → Domain providers (in `domain/providers/`)
+- **Mappers**: Convert Drift rows to domain models in `data/database/mappers/`
+- **Tests**: Wrap widgets in `ProviderScope`, use `AppDatabase.forTesting()` for in-memory DB
+
+## Quick Provider Reference
+
+| To find...            | Use provider...                            |
+| --------------------- | ------------------------------------------ |
+| All training cycles   | `trainingCyclesProvider`                   |
+| Single training cycle | `trainingCycleProvider(id)`                |
+| Workouts for a cycle  | `workoutsByTrainingCycleProvider(cycleId)` |
+| Single workout        | `workoutProvider(id)`                      |
+| Exercise library      | `exerciseLibraryProvider`                  |
+| Current theme         | `skinProvider`                             |
+| WiFi Sync service     | `wifiSyncServiceProvider`                  |
+| Template sharing      | `templateShareServiceProvider`             |
+| Onboarding state      | `onboardingServiceProvider`                |
 
 ## Testing Patterns
 
@@ -290,7 +348,7 @@ testWidgets('example test', (tester) async {
     ProviderScope(
       overrides: [
         sharedPreferencesProvider.overrideWithValue(mockPrefs),
-        // Override repository providers with test data
+        appDatabaseProvider.overrideWithValue(AppDatabase.forTesting(NativeDatabase.memory())),
       ],
       child: const MaterialApp(home: MyWidget()),
     ),
@@ -298,33 +356,14 @@ testWidgets('example test', (tester) async {
 });
 ```
 
-### Repository Mocking Strategy
+### Database Testing
 
-Since repositories depend on Hive boxes, prefer:
+Use in-memory database for tests:
 
-1. Create in-memory Hive boxes for integration tests
-2. Override repository providers with mock implementations for unit tests
-3. Use `TemplateRepository` pattern (no Hive dependency) for template-related tests
+```dart
+final db = AppDatabase.forTesting(NativeDatabase.memory());
+```
 
 ### Test File Location
 
 Tests in `test/` directory. Name convention: `*_test.dart`
-
-## Common Commands
-
-| Task            | Command                                                    |
-| --------------- | ---------------------------------------------------------- |
-| Run             | `flutter run`                                              |
-| Regenerate code | `dart run build_runner build --delete-conflicting-outputs` |
-| Test            | `flutter test`                                             |
-| Build APK       | `flutter build apk --release`                              |
-| Build iOS       | `flutter build ipa`                                        |
-| Build Web       | `flutter build web`                                        |
-
-## Conventions
-
-- **Enums**: ALL Hive-persisted enums in `core/constants/enums.dart` with `@HiveType` + `@HiveField` on each value
-- **Models**: Immutable with `copyWith()`, `@HiveType(typeId: X)` annotations, ID via `uuid` package
-- **Providers**: Repository providers in `repository_providers.dart`, domain providers in separate files by feature
-- **Tests**: Wrap widgets in `ProviderScope` for Riverpod access
-- **Hive TypeIds**: Check `DatabaseService` for registered adapters before adding new models

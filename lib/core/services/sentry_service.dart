@@ -254,10 +254,13 @@ class SentryService {
     }
 
     try {
-      // Capture an event to associate the feedback with
-      final eventId = await Sentry.captureMessage(
-        'User Feedback: $feedbackText',
-        level: SentryLevel.info,
+      // Capture an event with the screenshot as an attachment
+      // This is the correct way to include screenshots with feedback
+      final eventId = await Sentry.captureEvent(
+        SentryEvent(
+          message: SentryMessage('User Feedback: $feedbackText'),
+          level: SentryLevel.info,
+        ),
         withScope: (scope) {
           scope.addAttachment(
             SentryAttachment.fromUint8List(
@@ -270,8 +273,9 @@ class SentryService {
       );
 
       _debugPrint('   Event with screenshot ID: $eventId');
+      _debugPrint('   Screenshot size: ${screenshot.length} bytes');
 
-      // Now attach the user feedback
+      // Now attach the user feedback to link the message
       final sentryFeedback = SentryFeedback(
         message: feedbackText,
         associatedEventId: eventId,

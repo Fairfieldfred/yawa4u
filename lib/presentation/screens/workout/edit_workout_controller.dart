@@ -224,8 +224,9 @@ class EditWorkoutController {
     final exercises = List.of(workout.exercises);
     final currentIndex = exercises.indexWhere((e) => e.id == exerciseId);
 
-    if (currentIndex == -1 || currentIndex >= exercises.length - 1)
+    if (currentIndex == -1 || currentIndex >= exercises.length - 1) {
       return; // Not found or already at bottom
+    }
 
     // Swap positions in the list
     final exercise = exercises.removeAt(currentIndex);
