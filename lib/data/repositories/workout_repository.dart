@@ -192,10 +192,18 @@ class WorkoutRepository {
     for (final exercise in workout.exercises) {
       final exerciseCompanion = ExerciseMapper.toCompanion(exercise);
 
+      // Check if exercise exists in this workout OR globally in database
+      // This handles exercises moved from other workouts
       if (existingExerciseIds.contains(exercise.id)) {
         await _exerciseDao.updateByUuid(exercise.id, exerciseCompanion);
       } else {
-        await _exerciseDao.insertExercise(exerciseCompanion);
+        // Check if exercise exists globally (moved from another workout)
+        final existsGlobally = await _exerciseDao.getByUuid(exercise.id);
+        if (existsGlobally != null) {
+          await _exerciseDao.updateByUuid(exercise.id, exerciseCompanion);
+        } else {
+          await _exerciseDao.insertExercise(exerciseCompanion);
+        }
       }
 
       final existingSets = await _exerciseSetDao.getByExerciseUuid(exercise.id);

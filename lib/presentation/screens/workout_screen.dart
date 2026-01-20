@@ -323,25 +323,43 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     }
   }
 
+  /// Get all exercises for the current day across all workouts (muscle groups)
+  List<Exercise> _getAllExercisesForCurrentDay() {
+    final trainingCycle = ref.read(currentTrainingCycleProvider);
+    if (trainingCycle == null) return [];
+
+    final allWorkouts = ref.read(
+      workoutsByTrainingCycleListProvider(trainingCycle.id),
+    );
+
+    final displayPeriod = _homeState.selectedPeriod ?? 1;
+    final displayDay = _homeState.selectedDay ?? 1;
+
+    // Get workouts for current day
+    final dayWorkouts = allWorkouts
+        .where((w) => w.periodNumber == displayPeriod && w.dayNumber == displayDay)
+        .toList();
+
+    // Collect all exercises from all workouts for today
+    final allExercises = <Exercise>[];
+    for (var workout in dayWorkouts) {
+      allExercises.addAll(workout.exercises);
+    }
+    return allExercises;
+  }
+
   Future<void> _moveExerciseUp(String workoutId, String exerciseId) async {
     debugPrint(
       'Move exercise up called: workoutId=$workoutId, exerciseId=$exerciseId',
     );
     final repository = ref.read(workoutRepositoryProvider);
 
-    // Get the workout directly by ID
-    final workout = await repository.getById(workoutId);
-    if (workout == null) {
-      debugPrint('Workout not found');
-      return;
-    }
-
-    // Find the exercise index in this workout
-    final exercises = List<Exercise>.from(workout.exercises);
-    final currentIndex = exercises.indexWhere((e) => e.id == exerciseId);
+    // Get all exercises for the current day across all muscle groups
+    final allExercises = _getAllExercisesForCurrentDay();
+    final currentIndex = allExercises.indexWhere((e) => e.id == exerciseId);
 
     if (currentIndex == -1) {
-      debugPrint('Exercise not found in workout');
+      debugPrint('Exercise not found in day exercises');
       return;
     }
 
@@ -350,26 +368,67 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
       return;
     }
 
-    debugPrint('Moving exercise at index $currentIndex up');
-    debugPrint(
-      'Before: ${exercises.map((e) => "${e.name}(${e.orderIndex})").join(", ")}',
-    );
+    final currentExercise = allExercises[currentIndex];
+    final aboveExercise = allExercises[currentIndex - 1];
 
-    // Swap positions in the list
-    final exercise = exercises.removeAt(currentIndex);
-    exercises.insert(currentIndex - 1, exercise);
+    debugPrint('Moving exercise "${currentExercise.name}" up');
+    debugPrint('Swapping with "${aboveExercise.name}"');
 
-    // Renumber all exercises based on their new positions
-    for (var i = 0; i < exercises.length; i++) {
-      exercises[i] = exercises[i].copyWith(orderIndex: i);
+    // If both exercises are in the same workout, just swap within that workout
+    if (currentExercise.workoutId == aboveExercise.workoutId) {
+      final workout = await repository.getById(currentExercise.workoutId);
+      if (workout == null) return;
+
+      final exercises = List<Exercise>.from(workout.exercises);
+      final idx = exercises.indexWhere((e) => e.id == exerciseId);
+      if (idx <= 0) return;
+
+      final exercise = exercises.removeAt(idx);
+      exercises.insert(idx - 1, exercise);
+
+      for (var i = 0; i < exercises.length; i++) {
+        exercises[i] = exercises[i].copyWith(orderIndex: i);
+      }
+
+      await repository.update(workout.copyWith(exercises: exercises));
+    } else {
+      // Exercises are in different workouts - need to swap between workouts
+      final currentWorkout = await repository.getById(currentExercise.workoutId);
+      final aboveWorkout = await repository.getById(aboveExercise.workoutId);
+      if (currentWorkout == null || aboveWorkout == null) return;
+
+      // Remove current exercise from its workout
+      var currentExercises = List<Exercise>.from(currentWorkout.exercises);
+      currentExercises.removeWhere((e) => e.id == currentExercise.id);
+
+      // Remove above exercise from its workout
+      var aboveExercises = List<Exercise>.from(aboveWorkout.exercises);
+      aboveExercises.removeWhere((e) => e.id == aboveExercise.id);
+
+      // Add current exercise to above workout (with updated workoutId)
+      final movedCurrentExercise = currentExercise.copyWith(
+        workoutId: aboveWorkout.id,
+      );
+      aboveExercises.add(movedCurrentExercise);
+
+      // Add above exercise to current workout (with updated workoutId)
+      final movedAboveExercise = aboveExercise.copyWith(
+        workoutId: currentWorkout.id,
+      );
+      currentExercises.add(movedAboveExercise);
+
+      // Renumber exercises in both workouts
+      for (var i = 0; i < currentExercises.length; i++) {
+        currentExercises[i] = currentExercises[i].copyWith(orderIndex: i);
+      }
+      for (var i = 0; i < aboveExercises.length; i++) {
+        aboveExercises[i] = aboveExercises[i].copyWith(orderIndex: i);
+      }
+
+      await repository.update(currentWorkout.copyWith(exercises: currentExercises));
+      await repository.update(aboveWorkout.copyWith(exercises: aboveExercises));
     }
 
-    debugPrint(
-      'After: ${exercises.map((e) => "${e.name}(${e.orderIndex})").join(", ")}',
-    );
-
-    final updatedWorkout = workout.copyWith(exercises: exercises);
-    await repository.update(updatedWorkout);
     _invalidateWorkoutProviders();
     debugPrint('Exercise moved up successfully');
   }
@@ -380,47 +439,81 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     );
     final repository = ref.read(workoutRepositoryProvider);
 
-    // Get the workout directly by ID
-    final workout = await repository.getById(workoutId);
-    if (workout == null) {
-      debugPrint('Workout not found');
-      return;
-    }
-
-    // Find the exercise index in this workout
-    final exercises = List<Exercise>.from(workout.exercises);
-    final currentIndex = exercises.indexWhere((e) => e.id == exerciseId);
+    // Get all exercises for the current day across all muscle groups
+    final allExercises = _getAllExercisesForCurrentDay();
+    final currentIndex = allExercises.indexWhere((e) => e.id == exerciseId);
 
     if (currentIndex == -1) {
-      debugPrint('Exercise not found in workout');
+      debugPrint('Exercise not found in day exercises');
       return;
     }
 
-    if (currentIndex >= exercises.length - 1) {
+    if (currentIndex >= allExercises.length - 1) {
       debugPrint('Exercise is already at the bottom');
       return;
     }
 
-    debugPrint('Moving exercise at index $currentIndex down');
-    debugPrint(
-      'Before: ${exercises.map((e) => "${e.name}(${e.orderIndex})").join(", ")}',
-    );
+    final currentExercise = allExercises[currentIndex];
+    final belowExercise = allExercises[currentIndex + 1];
 
-    // Swap positions in the list
-    final exercise = exercises.removeAt(currentIndex);
-    exercises.insert(currentIndex + 1, exercise);
+    debugPrint('Moving exercise "${currentExercise.name}" down');
+    debugPrint('Swapping with "${belowExercise.name}"');
 
-    // Renumber all exercises based on their new positions
-    for (var i = 0; i < exercises.length; i++) {
-      exercises[i] = exercises[i].copyWith(orderIndex: i);
+    // If both exercises are in the same workout, just swap within that workout
+    if (currentExercise.workoutId == belowExercise.workoutId) {
+      final workout = await repository.getById(currentExercise.workoutId);
+      if (workout == null) return;
+
+      final exercises = List<Exercise>.from(workout.exercises);
+      final idx = exercises.indexWhere((e) => e.id == exerciseId);
+      if (idx == -1 || idx >= exercises.length - 1) return;
+
+      final exercise = exercises.removeAt(idx);
+      exercises.insert(idx + 1, exercise);
+
+      for (var i = 0; i < exercises.length; i++) {
+        exercises[i] = exercises[i].copyWith(orderIndex: i);
+      }
+
+      await repository.update(workout.copyWith(exercises: exercises));
+    } else {
+      // Exercises are in different workouts - need to swap between workouts
+      final currentWorkout = await repository.getById(currentExercise.workoutId);
+      final belowWorkout = await repository.getById(belowExercise.workoutId);
+      if (currentWorkout == null || belowWorkout == null) return;
+
+      // Remove current exercise from its workout
+      var currentExercises = List<Exercise>.from(currentWorkout.exercises);
+      currentExercises.removeWhere((e) => e.id == currentExercise.id);
+
+      // Remove below exercise from its workout
+      var belowExercises = List<Exercise>.from(belowWorkout.exercises);
+      belowExercises.removeWhere((e) => e.id == belowExercise.id);
+
+      // Add current exercise to below workout (with updated workoutId)
+      final movedCurrentExercise = currentExercise.copyWith(
+        workoutId: belowWorkout.id,
+      );
+      belowExercises.insert(0, movedCurrentExercise);
+
+      // Add below exercise to current workout (with updated workoutId)
+      final movedBelowExercise = belowExercise.copyWith(
+        workoutId: currentWorkout.id,
+      );
+      currentExercises.add(movedBelowExercise);
+
+      // Renumber exercises in both workouts
+      for (var i = 0; i < currentExercises.length; i++) {
+        currentExercises[i] = currentExercises[i].copyWith(orderIndex: i);
+      }
+      for (var i = 0; i < belowExercises.length; i++) {
+        belowExercises[i] = belowExercises[i].copyWith(orderIndex: i);
+      }
+
+      await repository.update(currentWorkout.copyWith(exercises: currentExercises));
+      await repository.update(belowWorkout.copyWith(exercises: belowExercises));
     }
 
-    debugPrint(
-      'After: ${exercises.map((e) => "${e.name}(${e.orderIndex})").join(", ")}',
-    );
-
-    final updatedWorkout = workout.copyWith(exercises: exercises);
-    await repository.update(updatedWorkout);
     _invalidateWorkoutProviders();
     debugPrint('Exercise moved down successfully');
   }

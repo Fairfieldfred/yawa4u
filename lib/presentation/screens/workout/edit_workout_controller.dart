@@ -4,6 +4,7 @@ import 'package:uuid/uuid.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/constants/enums.dart';
 import '../../../core/constants/muscle_groups.dart';
+import '../../../data/models/exercise.dart';
 import '../../../data/models/exercise_set.dart';
 import '../../../data/models/training_cycle.dart';
 import '../../../data/models/workout.dart';
@@ -190,55 +191,184 @@ class EditWorkoutController {
     _invalidateWorkoutProviders();
   }
 
-  /// Move an exercise up in the workout
-  Future<void> moveExerciseUp(String workoutId, String exerciseId) async {
+  /// Get all exercises for a specific day across all workouts (muscle groups)
+  List<Exercise> _getAllExercisesForDay(int periodNumber, int dayNumber) {
+    final allWorkouts = ref.read(
+      workoutsByTrainingCycleListProvider(trainingCycleId),
+    );
+
+    // Get workouts for the specified day
+    final dayWorkouts = allWorkouts
+        .where((w) => w.periodNumber == periodNumber && w.dayNumber == dayNumber)
+        .toList();
+
+    // Collect all exercises from all workouts for that day
+    final allExercises = <Exercise>[];
+    for (var workout in dayWorkouts) {
+      allExercises.addAll(workout.exercises);
+    }
+    return allExercises;
+  }
+
+  /// Move an exercise up in the day's workout (across all muscle groups)
+  Future<void> moveExerciseUp(
+    String workoutId,
+    String exerciseId, {
+    int? periodNumber,
+    int? dayNumber,
+  }) async {
     final repository = ref.read(workoutRepositoryProvider);
+
+    // Get the workout to find period/day if not provided
     final workout = await repository.getById(workoutId);
     if (workout == null) return;
 
-    final exercises = List.of(workout.exercises);
-    final currentIndex = exercises.indexWhere((e) => e.id == exerciseId);
+    final period = periodNumber ?? workout.periodNumber;
+    final day = dayNumber ?? workout.dayNumber;
+
+    // Get all exercises for the current day across all muscle groups
+    final allExercises = _getAllExercisesForDay(period, day);
+    final currentIndex = allExercises.indexWhere((e) => e.id == exerciseId);
 
     if (currentIndex <= 0) return; // Already at top or not found
 
-    // Swap positions in the list
-    final exercise = exercises.removeAt(currentIndex);
-    exercises.insert(currentIndex - 1, exercise);
+    final currentExercise = allExercises[currentIndex];
+    final aboveExercise = allExercises[currentIndex - 1];
 
-    // Renumber all exercises based on their new positions
-    for (var i = 0; i < exercises.length; i++) {
-      exercises[i] = exercises[i].copyWith(orderIndex: i);
+    // If both exercises are in the same workout, just swap within that workout
+    if (currentExercise.workoutId == aboveExercise.workoutId) {
+      final exercises = List<Exercise>.from(workout.exercises);
+      final idx = exercises.indexWhere((e) => e.id == exerciseId);
+      if (idx <= 0) return;
+
+      final exercise = exercises.removeAt(idx);
+      exercises.insert(idx - 1, exercise);
+
+      for (var i = 0; i < exercises.length; i++) {
+        exercises[i] = exercises[i].copyWith(orderIndex: i);
+      }
+
+      await repository.update(workout.copyWith(exercises: exercises));
+    } else {
+      // Exercises are in different workouts - need to swap between workouts
+      final currentWorkout = await repository.getById(currentExercise.workoutId);
+      final aboveWorkout = await repository.getById(aboveExercise.workoutId);
+      if (currentWorkout == null || aboveWorkout == null) return;
+
+      // Remove current exercise from its workout
+      var currentExercises = List<Exercise>.from(currentWorkout.exercises);
+      currentExercises.removeWhere((e) => e.id == currentExercise.id);
+
+      // Remove above exercise from its workout
+      var aboveExercises = List<Exercise>.from(aboveWorkout.exercises);
+      aboveExercises.removeWhere((e) => e.id == aboveExercise.id);
+
+      // Add current exercise to above workout (with updated workoutId)
+      final movedCurrentExercise = currentExercise.copyWith(
+        workoutId: aboveWorkout.id,
+      );
+      aboveExercises.add(movedCurrentExercise);
+
+      // Add above exercise to current workout (with updated workoutId)
+      final movedAboveExercise = aboveExercise.copyWith(
+        workoutId: currentWorkout.id,
+      );
+      currentExercises.add(movedAboveExercise);
+
+      // Renumber exercises in both workouts
+      for (var i = 0; i < currentExercises.length; i++) {
+        currentExercises[i] = currentExercises[i].copyWith(orderIndex: i);
+      }
+      for (var i = 0; i < aboveExercises.length; i++) {
+        aboveExercises[i] = aboveExercises[i].copyWith(orderIndex: i);
+      }
+
+      await repository.update(currentWorkout.copyWith(exercises: currentExercises));
+      await repository.update(aboveWorkout.copyWith(exercises: aboveExercises));
     }
 
-    final updatedWorkout = workout.copyWith(exercises: exercises);
-    await repository.update(updatedWorkout);
     _invalidateWorkoutProviders();
   }
 
-  /// Move an exercise down in the workout
-  Future<void> moveExerciseDown(String workoutId, String exerciseId) async {
+  /// Move an exercise down in the day's workout (across all muscle groups)
+  Future<void> moveExerciseDown(
+    String workoutId,
+    String exerciseId, {
+    int? periodNumber,
+    int? dayNumber,
+  }) async {
     final repository = ref.read(workoutRepositoryProvider);
+
+    // Get the workout to find period/day if not provided
     final workout = await repository.getById(workoutId);
     if (workout == null) return;
 
-    final exercises = List.of(workout.exercises);
-    final currentIndex = exercises.indexWhere((e) => e.id == exerciseId);
+    final period = periodNumber ?? workout.periodNumber;
+    final day = dayNumber ?? workout.dayNumber;
 
-    if (currentIndex == -1 || currentIndex >= exercises.length - 1) {
+    // Get all exercises for the current day across all muscle groups
+    final allExercises = _getAllExercisesForDay(period, day);
+    final currentIndex = allExercises.indexWhere((e) => e.id == exerciseId);
+
+    if (currentIndex == -1 || currentIndex >= allExercises.length - 1) {
       return; // Not found or already at bottom
     }
 
-    // Swap positions in the list
-    final exercise = exercises.removeAt(currentIndex);
-    exercises.insert(currentIndex + 1, exercise);
+    final currentExercise = allExercises[currentIndex];
+    final belowExercise = allExercises[currentIndex + 1];
 
-    // Renumber all exercises based on their new positions
-    for (var i = 0; i < exercises.length; i++) {
-      exercises[i] = exercises[i].copyWith(orderIndex: i);
+    // If both exercises are in the same workout, just swap within that workout
+    if (currentExercise.workoutId == belowExercise.workoutId) {
+      final exercises = List<Exercise>.from(workout.exercises);
+      final idx = exercises.indexWhere((e) => e.id == exerciseId);
+      if (idx == -1 || idx >= exercises.length - 1) return;
+
+      final exercise = exercises.removeAt(idx);
+      exercises.insert(idx + 1, exercise);
+
+      for (var i = 0; i < exercises.length; i++) {
+        exercises[i] = exercises[i].copyWith(orderIndex: i);
+      }
+
+      await repository.update(workout.copyWith(exercises: exercises));
+    } else {
+      // Exercises are in different workouts - need to swap between workouts
+      final currentWorkout = await repository.getById(currentExercise.workoutId);
+      final belowWorkout = await repository.getById(belowExercise.workoutId);
+      if (currentWorkout == null || belowWorkout == null) return;
+
+      // Remove current exercise from its workout
+      var currentExercises = List<Exercise>.from(currentWorkout.exercises);
+      currentExercises.removeWhere((e) => e.id == currentExercise.id);
+
+      // Remove below exercise from its workout
+      var belowExercises = List<Exercise>.from(belowWorkout.exercises);
+      belowExercises.removeWhere((e) => e.id == belowExercise.id);
+
+      // Add current exercise to below workout (with updated workoutId)
+      final movedCurrentExercise = currentExercise.copyWith(
+        workoutId: belowWorkout.id,
+      );
+      belowExercises.insert(0, movedCurrentExercise);
+
+      // Add below exercise to current workout (with updated workoutId)
+      final movedBelowExercise = belowExercise.copyWith(
+        workoutId: currentWorkout.id,
+      );
+      currentExercises.add(movedBelowExercise);
+
+      // Renumber exercises in both workouts
+      for (var i = 0; i < currentExercises.length; i++) {
+        currentExercises[i] = currentExercises[i].copyWith(orderIndex: i);
+      }
+      for (var i = 0; i < belowExercises.length; i++) {
+        belowExercises[i] = belowExercises[i].copyWith(orderIndex: i);
+      }
+
+      await repository.update(currentWorkout.copyWith(exercises: currentExercises));
+      await repository.update(belowWorkout.copyWith(exercises: belowExercises));
     }
 
-    final updatedWorkout = workout.copyWith(exercises: exercises);
-    await repository.update(updatedWorkout);
     _invalidateWorkoutProviders();
   }
 
