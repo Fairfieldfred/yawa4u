@@ -199,7 +199,9 @@ class EditWorkoutController {
 
     // Get workouts for the specified day
     final dayWorkouts = allWorkouts
-        .where((w) => w.periodNumber == periodNumber && w.dayNumber == dayNumber)
+        .where(
+          (w) => w.periodNumber == periodNumber && w.dayNumber == dayNumber,
+        )
         .toList();
 
     // Collect all exercises from all workouts for that day
@@ -251,7 +253,9 @@ class EditWorkoutController {
       await repository.update(workout.copyWith(exercises: exercises));
     } else {
       // Exercises are in different workouts - need to swap between workouts
-      final currentWorkout = await repository.getById(currentExercise.workoutId);
+      final currentWorkout = await repository.getById(
+        currentExercise.workoutId,
+      );
       final aboveWorkout = await repository.getById(aboveExercise.workoutId);
       if (currentWorkout == null || aboveWorkout == null) return;
 
@@ -283,7 +287,9 @@ class EditWorkoutController {
         aboveExercises[i] = aboveExercises[i].copyWith(orderIndex: i);
       }
 
-      await repository.update(currentWorkout.copyWith(exercises: currentExercises));
+      await repository.update(
+        currentWorkout.copyWith(exercises: currentExercises),
+      );
       await repository.update(aboveWorkout.copyWith(exercises: aboveExercises));
     }
 
@@ -333,7 +339,9 @@ class EditWorkoutController {
       await repository.update(workout.copyWith(exercises: exercises));
     } else {
       // Exercises are in different workouts - need to swap between workouts
-      final currentWorkout = await repository.getById(currentExercise.workoutId);
+      final currentWorkout = await repository.getById(
+        currentExercise.workoutId,
+      );
       final belowWorkout = await repository.getById(belowExercise.workoutId);
       if (currentWorkout == null || belowWorkout == null) return;
 
@@ -365,7 +373,9 @@ class EditWorkoutController {
         belowExercises[i] = belowExercises[i].copyWith(orderIndex: i);
       }
 
-      await repository.update(currentWorkout.copyWith(exercises: currentExercises));
+      await repository.update(
+        currentWorkout.copyWith(exercises: currentExercises),
+      );
       await repository.update(belowWorkout.copyWith(exercises: belowExercises));
     }
 
