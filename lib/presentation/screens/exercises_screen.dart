@@ -461,30 +461,13 @@ class _WorkoutSessionView extends ConsumerStatefulWidget {
 class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
   late PageController _pageController;
   int _currentPage = 0;
-  List<Exercise> _allExercises = [];
-  Map<int, _ExerciseSource> _exerciseSources = {}; // Maps exercise index to its source workout
   bool _showPeriodSelector = false;
+  bool _initialPageSet = false;
 
   @override
   void initState() {
     super.initState();
-    _initializeExercises();
     _pageController = PageController();
-  }
-
-  Future<void> _initializeExercises() async {
-    await _buildExerciseList();
-
-    // Find first unfinished exercise set
-    final initialPage = _findFirstUnfinishedExerciseIndex();
-    if (mounted) {
-      setState(() {
-        _currentPage = initialPage;
-      });
-      if (_pageController.hasClients) {
-        _pageController.jumpToPage(initialPage);
-      }
-    }
   }
 
   void _togglePeriodSelector() {
@@ -497,46 +480,37 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
     ref.read(showExerciseHistoryProvider.notifier).toggle();
   }
 
-  @override
-  void didUpdateWidget(_WorkoutSessionView oldWidget) {
-    super.didUpdateWidget(oldWidget);
-
-    // Rebuild exercise list when workouts change
-    _rebuildExerciseList();
+  /// Invalidate workout providers to trigger UI refresh
+  /// This matches the pattern used in workout_screen
+  void _invalidateWorkoutProviders() {
+    ref.invalidate(workoutsByTrainingCycleListProvider(widget.trainingCycle.id));
+    ref.invalidate(workoutsByTrainingCycleProvider(widget.trainingCycle.id));
+    ref.invalidate(workoutsProvider);
   }
 
-  Future<void> _rebuildExerciseList() async {
-    await _buildExerciseList();
-    if (mounted) {
-      setState(() {});
-    }
-  }
+  /// Build exercise list and source mapping from workouts
+  /// Called in build() to get fresh data each time
+  (List<Exercise>, Map<int, _ExerciseSource>) _buildExerciseData() {
+    final allExercises = <Exercise>[];
+    final exerciseSources = <int, _ExerciseSource>{};
 
-  Future<void> _buildExerciseList() async {
-    _allExercises = [];
-    _exerciseSources = {};
-
-    // Fetch fresh workout data from repository
-    final repository = ref.read(workoutRepositoryProvider);
-
-    // Collect all exercises from all workouts for this day
-    for (var originalWorkout in widget.workouts) {
-      // Get the latest version from repository
-      final workout = await repository.getById(originalWorkout.id) ?? originalWorkout;
+    for (var workout in widget.workouts) {
       for (var exercise in workout.exercises) {
-        final exerciseIndex = _allExercises.length;
-        _exerciseSources[exerciseIndex] = _ExerciseSource(
+        final exerciseIndex = allExercises.length;
+        exerciseSources[exerciseIndex] = _ExerciseSource(
           workout: workout,
           exerciseIndex: workout.exercises.indexOf(exercise),
         );
-        _allExercises.add(exercise);
+        allExercises.add(exercise);
       }
     }
+
+    return (allExercises, exerciseSources);
   }
 
-  int _findFirstUnfinishedExerciseIndex() {
-    for (int i = 0; i < _allExercises.length; i++) {
-      final exercise = _allExercises[i];
+  int _findFirstUnfinishedExerciseIndex(List<Exercise> exercises) {
+    for (int i = 0; i < exercises.length; i++) {
+      final exercise = exercises[i];
       // Check if any set is not logged
       if (exercise.sets.any((set) => !set.isLogged)) {
         return i;
@@ -579,6 +553,23 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
 
   @override
   Widget build(BuildContext context) {
+    // Build exercise list directly from widget.workouts (fresh from provider)
+    final (allExercises, exerciseSources) = _buildExerciseData();
+
+    // Set initial page to first unfinished exercise (only once)
+    if (!_initialPageSet && allExercises.isNotEmpty) {
+      _initialPageSet = true;
+      final initialPage = _findFirstUnfinishedExerciseIndex(allExercises);
+      if (initialPage != _currentPage) {
+        _currentPage = initialPage;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (_pageController.hasClients) {
+            _pageController.jumpToPage(initialPage);
+          }
+        });
+      }
+    }
+
     // Use the first workout's display info for the appBar
     final firstWorkout = widget.workouts.first;
     final trainingCycle = widget.trainingCycle;
@@ -589,8 +580,8 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
 
     // Check if all exercises are completed
     final allExercisesCompleted =
-        _allExercises.isNotEmpty &&
-        _allExercises.every(
+        allExercises.isNotEmpty &&
+        allExercises.every(
           (exercise) =>
               exercise.sets.every((set) => set.isLogged || set.isSkipped),
         );
@@ -670,7 +661,7 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
           ],
         ),
         body: ScreenBackground.exercises(
-          child: _allExercises.isEmpty
+          child: allExercises.isEmpty
               ? _buildEmptyExercisesState(context, widget.workouts)
               : Stack(
                   children: [
@@ -678,22 +669,22 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
                       children: [
                         // Progress Indicator
                         LinearProgressIndicator(
-                          value: (_currentPage + 1) / _allExercises.length,
+                          value: (_currentPage + 1) / allExercises.length,
                           backgroundColor: Theme.of(context).dividerColor,
                         ),
 
                         Expanded(
                           child: PageView.builder(
                             controller: _pageController,
-                            itemCount: _allExercises.length,
+                            itemCount: allExercises.length,
                             onPageChanged: (index) {
                               setState(() {
                                 _currentPage = index;
                               });
                             },
                             itemBuilder: (context, index) {
-                              final source = _exerciseSources[index]!;
-                              final exercise = _allExercises[index];
+                              final source = exerciseSources[index]!;
+                              final exercise = allExercises[index];
                               // Always show muscle group badge on exercises screen
                               const showMuscleGroupBadge = true;
 
@@ -801,7 +792,7 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
                                             ),
                                       ),
                                       // Swipe indicator
-                                      if (_allExercises.length > 1)
+                                      if (allExercises.length > 1)
                                         Padding(
                                           padding: const EdgeInsets.only(
                                             top: 8,
@@ -1312,7 +1303,7 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
         await repository.update(resetWorkout);
       }
 
-      await _buildExerciseList();
+      _invalidateWorkoutProviders();
       if (mounted) {
         setState(() {});
       }
@@ -1357,7 +1348,7 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
       await repository.update(updatedWorkout);
 
       // Rebuild exercise list to reflect the change
-      await _buildExerciseList();
+      _invalidateWorkoutProviders();
       if (mounted) {
         setState(() {});
       }
@@ -1390,7 +1381,7 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
         .then((_) async {
           // Rebuild exercise list when returning from AddExerciseScreen
           if (mounted) {
-            await _buildExerciseList();
+            _invalidateWorkoutProviders();
             if (mounted) {
               setState(() {});
             }
@@ -1432,7 +1423,7 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
     await repository.update(updatedWorkout);
 
     // Force UI update
-    await _buildExerciseList();
+    _invalidateWorkoutProviders();
     if (mounted) {
       setState(() {});
     }
@@ -1463,7 +1454,7 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
     await repository.update(updatedWorkout);
 
     // Force UI update
-    await _buildExerciseList();
+    _invalidateWorkoutProviders();
     if (mounted) {
       setState(() {});
     }
@@ -1485,14 +1476,8 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
     await repository.update(updatedWorkout);
 
     // Rebuild exercise list
-    await _buildExerciseList();
-    if (mounted) {
-      setState(() {
-        if (_currentPage >= _allExercises.length && _allExercises.isNotEmpty) {
-          _currentPage = _allExercises.length - 1;
-        }
-      });
-    }
+    _invalidateWorkoutProviders();
+    // Note: _currentPage will be adjusted on next build if needed
   }
 
   // ========== Set Callbacks ==========
@@ -1530,7 +1515,7 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
     await repository.update(updatedWorkout);
 
     // Force UI update
-    await _buildExerciseList();
+    _invalidateWorkoutProviders();
     if (mounted) {
       setState(() {});
     }
@@ -1559,7 +1544,7 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
     await repository.update(updatedWorkout);
 
     // Force UI update
-    await _buildExerciseList();
+    _invalidateWorkoutProviders();
     if (mounted) {
       setState(() {});
     }
@@ -1594,7 +1579,7 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
     await repository.update(updatedWorkout);
 
     // Force UI update
-    await _buildExerciseList();
+    _invalidateWorkoutProviders();
     if (mounted) {
       setState(() {});
     }
@@ -1628,7 +1613,7 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
     await repository.update(updatedWorkout);
 
     // Force UI update
-    await _buildExerciseList();
+    _invalidateWorkoutProviders();
     if (mounted) {
       setState(() {});
     }
@@ -1663,12 +1648,8 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
       updatedExercise,
     );
     await repository.update(updatedWorkout);
-
-    // Force UI update to reflect isLoggable state
-    await _buildExerciseList();
-    if (mounted) {
-      setState(() {});
-    }
+    // Don't invalidate providers here - it causes parent to rebuild and lose focus
+    // Data is saved to database; UI will refresh on navigation or explicit refresh
   }
 
   Future<void> _updateSetReps(
@@ -1697,12 +1678,8 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
       updatedExercise,
     );
     await repository.update(updatedWorkout);
-
-    // Force UI update to reflect isLoggable state
-    await _buildExerciseList();
-    if (mounted) {
-      setState(() {});
-    }
+    // Don't invalidate providers here - it causes parent to rebuild and lose focus
+    // Data is saved to database; UI will refresh on navigation or explicit refresh
   }
 
   Future<void> _toggleSetLog(String workoutId, String exerciseId, int setIndex) async {
@@ -1728,7 +1705,7 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
     await repository.update(updatedWorkout);
 
     // Force UI update
-    await _buildExerciseList();
+    _invalidateWorkoutProviders();
     if (mounted) {
       setState(() {});
     }
