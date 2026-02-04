@@ -483,7 +483,9 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
   /// Invalidate workout providers to trigger UI refresh
   /// This matches the pattern used in workout_screen
   void _invalidateWorkoutProviders() {
-    ref.invalidate(workoutsByTrainingCycleListProvider(widget.trainingCycle.id));
+    ref.invalidate(
+      workoutsByTrainingCycleListProvider(widget.trainingCycle.id),
+    );
     ref.invalidate(workoutsByTrainingCycleProvider(widget.trainingCycle.id));
     ref.invalidate(workoutsProvider);
   }
@@ -1481,7 +1483,11 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
   }
 
   // ========== Set Callbacks ==========
-  Future<void> _addSetBelow(String workoutId, String exerciseId, int currentSetIndex) async {
+  Future<void> _addSetBelow(
+    String workoutId,
+    String exerciseId,
+    int currentSetIndex,
+  ) async {
     final repository = ref.read(workoutRepositoryProvider);
     final workout = await repository.getById(workoutId);
     if (workout == null) return;
@@ -1521,7 +1527,11 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
     }
   }
 
-  Future<void> _toggleSetSkip(String workoutId, String exerciseId, int setIndex) async {
+  Future<void> _toggleSetSkip(
+    String workoutId,
+    String exerciseId,
+    int setIndex,
+  ) async {
     final repository = ref.read(workoutRepositoryProvider);
     final workout = await repository.getById(workoutId);
     if (workout == null) return;
@@ -1550,7 +1560,11 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
     }
   }
 
-  Future<void> _deleteSet(String workoutId, String exerciseId, int setIndex) async {
+  Future<void> _deleteSet(
+    String workoutId,
+    String exerciseId,
+    int setIndex,
+  ) async {
     final repository = ref.read(workoutRepositoryProvider);
     final workout = await repository.getById(workoutId);
     if (workout == null) return;
@@ -1682,7 +1696,11 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
     // Data is saved to database; UI will refresh on navigation or explicit refresh
   }
 
-  Future<void> _toggleSetLog(String workoutId, String exerciseId, int setIndex) async {
+  Future<void> _toggleSetLog(
+    String workoutId,
+    String exerciseId,
+    int setIndex,
+  ) async {
     final repository = ref.read(workoutRepositoryProvider);
     final workout = await repository.getById(workoutId);
     if (workout == null) return;

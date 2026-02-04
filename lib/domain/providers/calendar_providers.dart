@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/constants/enums.dart';
 import '../../core/constants/muscle_groups.dart';
 import '../../core/utils/date_helpers.dart';
+import '../../data/models/exercise.dart';
 import '../../data/models/training_cycle.dart';
 import '../../data/models/workout.dart';
 import '../../data/services/schedule_service.dart';
@@ -18,6 +19,26 @@ final scheduleServiceProvider = Provider<ScheduleService>((ref) {
     workoutRepository: ref.watch(workoutRepositoryProvider),
   );
 });
+
+/// Represents an exercise with its parent workout context
+class CalendarExerciseItem {
+  final Exercise exercise;
+  final String workoutId;
+  final int periodNumber;
+  final int dayNumber;
+
+  const CalendarExerciseItem({
+    required this.exercise,
+    required this.workoutId,
+    required this.periodNumber,
+    required this.dayNumber,
+  });
+
+  String get id => exercise.id;
+  String get name => exercise.name;
+  int get setCount => exercise.sets.length;
+  int get loggedSetCount => exercise.sets.where((s) => s.isLogged).length;
+}
 
 /// Data for a single calendar day
 class CalendarDayData {
@@ -36,6 +57,9 @@ class CalendarDayData {
   /// Map of muscle group name to list of exercise names with set counts
   final Map<String, List<String>> muscleGroupExercises;
 
+  /// List of all exercises for this day with workout context (for drag-drop)
+  final List<CalendarExerciseItem> exercises;
+
   CalendarDayData({
     required this.date,
     this.periodNumber,
@@ -47,6 +71,7 @@ class CalendarDayData {
     this.muscleGroups = const {},
     this.muscleGroupSets = const {},
     this.muscleGroupExercises = const {},
+    this.exercises = const [],
   });
 
   bool get hasWorkout => workouts.isNotEmpty;
@@ -105,6 +130,8 @@ List<CalendarDayData> buildCalendarData({
     final muscleGroups = <String>{};
     final muscleGroupSets = <String, int>{};
     final muscleGroupExercises = <String, List<String>>{};
+    final allDayExercises = <CalendarExerciseItem>[];
+
     for (final workout in dayWorkouts) {
       for (final exercise in workout.exercises) {
         final groupName = exercise.muscleGroup.displayName;
@@ -115,8 +142,23 @@ List<CalendarDayData> buildCalendarData({
         final exercises = muscleGroupExercises[groupName] ?? [];
         exercises.add('${exercise.name} (${exercise.sets.length} sets)');
         muscleGroupExercises[groupName] = exercises;
+
+        // Add to flat exercise list for drag-drop
+        allDayExercises.add(
+          CalendarExerciseItem(
+            exercise: exercise,
+            workoutId: workout.id,
+            periodNumber: periodNumber,
+            dayNumber: dayNumber,
+          ),
+        );
       }
     }
+
+    // Sort exercises by order index
+    allDayExercises.sort(
+      (a, b) => a.exercise.orderIndex.compareTo(b.exercise.orderIndex),
+    );
 
     // Determine completion status
     final isCompleted =
@@ -139,6 +181,7 @@ List<CalendarDayData> buildCalendarData({
         muscleGroups: muscleGroups,
         muscleGroupSets: muscleGroupSets,
         muscleGroupExercises: muscleGroupExercises,
+        exercises: allDayExercises,
       ),
     );
   }

@@ -15,7 +15,9 @@ import '../../domain/providers/workout_providers.dart';
 import '../widgets/app_icon_widget.dart';
 import '../widgets/calendar/calendar_edit_sheet.dart';
 import '../widgets/calendar/calendar_legend_dialog.dart';
+import '../widgets/calendar/desktop_calendar_day_cell.dart';
 import '../widgets/screen_background.dart';
+import 'add_exercise_screen.dart';
 
 /// Calendar screen showing workouts in a monthly calendar view
 class CalendarScreen extends ConsumerStatefulWidget {
@@ -29,6 +31,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
   late DateTime _focusedDay;
   DateTime? _selectedDay;
   CalendarFormat _calendarFormat = CalendarFormat.month;
+  String? _selectedExerciseId;
 
   @override
   void initState() {
@@ -179,9 +182,9 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     final double rowHeight;
     switch (_calendarFormat) {
       case CalendarFormat.week:
-        rowHeight = 280; // 4x height for week view
+        rowHeight = 450; // Much taller for week view to show all exercises
       case CalendarFormat.twoWeeks:
-        rowHeight = 140; // 2x height for 2 weeks view
+        rowHeight = 180; // Taller for 2 weeks view
       case CalendarFormat.month:
         rowHeight = 70; // Default height for month view
     }
@@ -331,6 +334,23 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     final strippedDay = DateHelpers.stripTime(day);
     final dayData = dataMap[strippedDay];
 
+    // Use desktop drag-drop cell on macOS for expanded views
+    final useDesktopCell =
+        Platform.isMacOS &&
+        (calendarFormat == CalendarFormat.week ||
+            calendarFormat == CalendarFormat.twoWeeks);
+
+    if (useDesktopCell) {
+      return _buildDesktopDayCell(
+        context,
+        day,
+        dayData,
+        periodColors,
+        isToday,
+        isSelected,
+      );
+    }
+
     // Determine background color based on workout state
     Color backgroundColor;
     Color textColor;
@@ -452,6 +472,148 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
           style: TextStyle(
             color: Theme.of(context).colorScheme.onSurface.withAlpha(51),
             fontSize: 16,
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Builds a desktop-optimized day cell with drag-and-drop support
+  Widget _buildDesktopDayCell(
+    BuildContext context,
+    DateTime day,
+    CalendarDayData? dayData,
+    Map<int, Color> periodColors,
+    bool isToday,
+    bool isSelected,
+  ) {
+    final currentCycle = ref.watch(currentTrainingCycleProvider);
+
+    return DesktopCalendarDayCell(
+      date: day,
+      dayData: dayData,
+      periodColors: periodColors,
+      isToday: isToday,
+      isSelected: isSelected,
+      selectedExerciseId: _selectedExerciseId,
+      onTap: (selectedDay) {
+        setState(() {
+          _selectedDay = selectedDay;
+        });
+      },
+      onExerciseSelected: (exerciseId) {
+        setState(() {
+          _selectedExerciseId = exerciseId;
+        });
+      },
+      onExerciseDropped: (dragData, targetPeriod, targetDay) async {
+        if (currentCycle == null) return;
+
+        try {
+          final scheduleService = ref.read(scheduleServiceProvider);
+          await scheduleService.moveExercise(
+            cycleId: currentCycle.id,
+            sourceWorkoutId: dragData.sourceWorkoutId,
+            exerciseId: dragData.exercise.id,
+            targetPeriod: targetPeriod,
+            targetDay: targetDay,
+          );
+
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  'Moved ${dragData.exercise.name} to P${targetPeriod}D$targetDay',
+                ),
+                duration: const Duration(seconds: 2),
+              ),
+            );
+          }
+        } catch (e) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Failed to move exercise: $e'),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+        }
+      },
+      onExerciseReordered: (oldIndex, newIndex, period, day) async {
+        if (currentCycle == null) return;
+
+        try {
+          final scheduleService = ref.read(scheduleServiceProvider);
+          await scheduleService.reorderExerciseWithinDay(
+            cycleId: currentCycle.id,
+            periodNumber: period,
+            dayNumber: day,
+            oldIndex: oldIndex,
+            newIndex: newIndex,
+          );
+        } catch (e) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Failed to reorder exercise: $e'),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+        }
+      },
+      onAddExercise: (periodNumber, dayNumber) {
+        _showAddExerciseModal(context, currentCycle, periodNumber, dayNumber);
+      },
+    );
+  }
+
+  /// Shows a modal dialog to add an exercise to a specific day
+  void _showAddExerciseModal(
+    BuildContext context,
+    dynamic trainingCycle,
+    int periodNumber,
+    int dayNumber,
+  ) {
+    if (trainingCycle == null) return;
+
+    // Find a workout for this day to get the workoutId
+    final workoutsAsync = ref.read(
+      workoutsByTrainingCycleListProvider(trainingCycle.id),
+    );
+    final dayWorkouts = workoutsAsync
+        .where(
+          (w) => w.periodNumber == periodNumber && w.dayNumber == dayNumber,
+        )
+        .toList();
+
+    if (dayWorkouts.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('No workout found for this day'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
+    // Use the first workout's ID (exercises will be added to appropriate muscle group workout)
+    final workoutId = dayWorkouts.first.id;
+
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        insetPadding: const EdgeInsets.all(24),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(16),
+          child: SizedBox(
+            width: 500,
+            height: MediaQuery.of(context).size.height * 0.8,
+            child: AddExerciseScreen(
+              trainingCycleId: trainingCycle.id,
+              workoutId: workoutId,
+            ),
           ),
         ),
       ),
