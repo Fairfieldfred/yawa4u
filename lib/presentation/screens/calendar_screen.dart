@@ -212,8 +212,11 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
       },
       onDayLongPressed: (selectedDay, focusedDay) {
         final dayData = dataMap[DateHelpers.stripTime(selectedDay)];
-        if (dayData?.hasWorkout ?? false) {
-          _showEditSheet(context, dayData!);
+        // Show edit sheet for workout days OR rest days within cycle date range
+        if (dayData != null) {
+          // For workout days, show all options
+          // For rest days (no workout but within cycle dates), show remove option
+          _showEditSheet(context, dayData);
         }
       },
       onPageChanged: (focusedDay) {
@@ -916,6 +919,35 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
             Expanded(
               child: _buildWorkoutSummary(context, dayData!, trainingCycle),
             )
+          else if (dayData != null)
+            // Rest day - show message and edit button
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Rest Day',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withAlpha(128),
+                    ),
+                  ),
+                  const Spacer(),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: () => _showEditSheet(context, dayData),
+                          icon: const Icon(Icons.edit, size: 18),
+                          label: const Text('Edit'),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            )
           else
             Text(
               'No workout scheduled',
@@ -1055,12 +1087,53 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     }
   }
 
+  Future<void> _removeRestDay(DateTime restDayDate) async {
+    final cycle = ref.read(currentTrainingCycleProvider);
+    if (cycle == null) return;
+
+    try {
+      final service = ref.read(scheduleServiceProvider);
+      final snapshot = await service.removeRestDay(
+        cycleId: cycle.id,
+        restDayDate: restDayDate,
+      );
+
+      // Store snapshot for undo
+      ref.read(calendarUndoProvider.notifier).setSnapshot(cycle.id, snapshot);
+
+      // Invalidate provider to force refresh from repository
+      ref.invalidate(trainingCyclesProvider);
+
+      // Force UI rebuild
+      if (mounted) {
+        setState(() {});
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to remove rest day: $e'),
+            backgroundColor: context.errorColor,
+          ),
+        );
+      }
+    }
+  }
+
   void _showEditSheet(BuildContext context, CalendarDayData dayData) {
+    // Determine if this is a rest day (no workouts scheduled)
+    final isRestDay = !dayData.hasWorkout;
+
     CalendarEditSheet.show(
       context,
-      selectedPeriod: dayData.periodNumber!,
-      selectedDay: dayData.dayNumber!,
-      onInsertDayBefore: (period, day) => _insertDayBefore(period, day),
+      selectedPeriod: dayData.periodNumber, // Can be null for rest days
+      selectedDay: dayData.dayNumber, // Can be null for rest days
+      isRestDay: isRestDay,
+      selectedDate: dayData.date,
+      onInsertDayBefore: dayData.hasWorkout
+          ? (period, day) => _insertDayBefore(period, day)
+          : null,
+      onRemoveRestDay: isRestDay ? (date) => _removeRestDay(date) : null,
     );
   }
 

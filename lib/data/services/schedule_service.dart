@@ -182,6 +182,72 @@ class ScheduleService {
     return snapshot;
   }
 
+  /// Remove a rest day at the specified calendar date, shifting all workouts
+  /// scheduled after that date backward by one day.
+  ///
+  /// This is the opposite of insertDayBefore - it removes a gap in the calendar
+  /// while preserving workout periodNumber/dayNumber designations.
+  ///
+  /// [restDayDate] is the calendar date of the rest day to remove.
+  /// All workouts scheduled AFTER this date will shift back by one day.
+  ///
+  /// Returns a snapshot for undo.
+  Future<ScheduleSnapshot> removeRestDay({
+    required String cycleId,
+    required DateTime restDayDate,
+  }) async {
+    final cycle = await _cycleRepository.getById(cycleId);
+    if (cycle == null) {
+      throw Exception('Training cycle not found');
+    }
+
+    if (cycle.startDate == null) {
+      throw Exception('Training cycle has no start date');
+    }
+
+    final cycleStart = DateHelpers.stripTime(cycle.startDate!);
+    final strippedRestDay = DateHelpers.stripTime(restDayDate);
+    final workouts = await _workoutRepository.getByTrainingCycleId(cycleId);
+
+    // Create snapshot for undo
+    final snapshot = ScheduleSnapshot(
+      cycleStartDate: cycle.startDate,
+      workoutSnapshots: workouts
+          .map((w) => WorkoutSnapshot.fromWorkout(w))
+          .toList(),
+      description: 'Removed rest day',
+    );
+
+    // Helper to get the effective scheduled date for a workout
+    DateTime getWorkoutDate(Workout w) {
+      if (w.scheduledDate != null) {
+        return DateHelpers.stripTime(w.scheduledDate!);
+      }
+      // Calculate default date from period/day
+      final absoluteDayIndex =
+          (w.periodNumber - 1) * cycle.daysPerPeriod + (w.dayNumber - 1);
+      return DateHelpers.addDays(cycleStart, absoluteDayIndex);
+    }
+
+    // Find all workouts scheduled AFTER the rest day and shift them backward
+    final workoutsToShift = workouts.where((w) {
+      final workoutDate = getWorkoutDate(w);
+      return workoutDate.isAfter(strippedRestDay);
+    }).toList();
+
+    // Shift each workout's scheduledDate backward by one day
+    for (final workout in workoutsToShift) {
+      final currentDate = getWorkoutDate(workout);
+      final newScheduledDate = DateHelpers.addDays(currentDate, -1);
+
+      // Update ONLY the scheduledDate, NOT the periodNumber/dayNumber
+      final updatedWorkout = workout.copyWith(scheduledDate: newScheduledDate);
+      await _workoutRepository.update(updatedWorkout);
+    }
+
+    return snapshot;
+  }
+
   /// Move a workout to a target date using the specified mode.
   /// Returns a snapshot for undo.
   Future<ScheduleSnapshot> moveWorkout({

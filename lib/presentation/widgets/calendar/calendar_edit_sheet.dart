@@ -3,25 +3,34 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../domain/providers/calendar_providers.dart';
 
-/// Bottom sheet for editing calendar (insert day, undo)
+/// Bottom sheet for editing calendar (insert day, remove rest day, undo)
 class CalendarEditSheet extends ConsumerWidget {
-  final int selectedPeriod;
-  final int selectedDay;
-  final Future<void> Function(int period, int day) onInsertDayBefore;
+  final int? selectedPeriod;
+  final int? selectedDay;
+  final bool isRestDay;
+  final DateTime? selectedDate;
+  final Future<void> Function(int period, int day)? onInsertDayBefore;
+  final Future<void> Function(DateTime date)? onRemoveRestDay;
 
   const CalendarEditSheet({
     super.key,
-    required this.selectedPeriod,
-    required this.selectedDay,
-    required this.onInsertDayBefore,
+    this.selectedPeriod,
+    this.selectedDay,
+    required this.isRestDay,
+    this.selectedDate,
+    this.onInsertDayBefore,
+    this.onRemoveRestDay,
   });
 
   /// Show the calendar edit sheet
   static void show(
     BuildContext context, {
-    required int selectedPeriod,
-    required int selectedDay,
-    required Future<void> Function(int period, int day) onInsertDayBefore,
+    int? selectedPeriod,
+    int? selectedDay,
+    required bool isRestDay,
+    DateTime? selectedDate,
+    Future<void> Function(int period, int day)? onInsertDayBefore,
+    Future<void> Function(DateTime date)? onRemoveRestDay,
   }) {
     showModalBottomSheet(
       context: context,
@@ -33,7 +42,10 @@ class CalendarEditSheet extends ConsumerWidget {
       builder: (context) => CalendarEditSheet(
         selectedPeriod: selectedPeriod,
         selectedDay: selectedDay,
+        isRestDay: isRestDay,
+        selectedDate: selectedDate,
         onInsertDayBefore: onInsertDayBefore,
+        onRemoveRestDay: onRemoveRestDay,
       ),
     );
   }
@@ -76,26 +88,47 @@ class CalendarEditSheet extends ConsumerWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'Period $selectedPeriod, Day $selectedDay',
+            isRestDay ? 'Rest Day' : 'Period $selectedPeriod, Day $selectedDay',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               color: Theme.of(context).colorScheme.onSurface.withAlpha(179),
             ),
           ),
           const SizedBox(height: 24),
 
-          // Insert day option
-          _buildActionButton(
-            context,
-            icon: Icons.add_circle_outline,
-            label: 'Insert Day Before',
-            description:
-                'Add a rest day here, shifting this and all future workouts forward',
-            onPressed: () {
-              Navigator.of(context).pop();
-              onInsertDayBefore(selectedPeriod, selectedDay);
-            },
-          ),
-          const SizedBox(height: 24),
+          // Show different options based on whether this is a rest day
+          if (isRestDay && selectedDate != null && onRemoveRestDay != null) ...[
+            // Remove rest day option (only for rest days)
+            _buildActionButton(
+              context,
+              icon: Icons.remove_circle_outline,
+              label: 'Remove Rest Day',
+              description:
+                  'Remove this rest day and shift all future workouts backward',
+              onPressed: () {
+                Navigator.of(context).pop();
+                onRemoveRestDay!(selectedDate!);
+              },
+            ),
+            const SizedBox(height: 16),
+          ],
+
+          // Insert day option (only available when we have period/day info)
+          if (selectedPeriod != null &&
+              selectedDay != null &&
+              onInsertDayBefore != null) ...[
+            _buildActionButton(
+              context,
+              icon: Icons.add_circle_outline,
+              label: 'Insert Day Before',
+              description:
+                  'Add a rest day here, shifting this and all future workouts forward',
+              onPressed: () {
+                Navigator.of(context).pop();
+                onInsertDayBefore!(selectedPeriod!, selectedDay!);
+              },
+            ),
+            const SizedBox(height: 16),
+          ],
 
           // Undo button
           _buildUndoButton(context, ref, undoState, canUndo),
