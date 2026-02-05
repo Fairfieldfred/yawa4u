@@ -77,7 +77,28 @@ class CalendarDayData {
   bool get hasWorkout => workouts.isNotEmpty;
 }
 
+/// Get the effective scheduled date for a workout
+/// Uses scheduledDate if set, otherwise calculates from period/day
+DateTime _getWorkoutScheduledDate(
+  Workout workout,
+  DateTime cycleStart,
+  int daysPerPeriod,
+) {
+  if (workout.scheduledDate != null) {
+    return DateHelpers.stripTime(workout.scheduledDate!);
+  }
+  // Calculate default date from period/day
+  final absoluteDayIndex =
+      (workout.periodNumber - 1) * daysPerPeriod + (workout.dayNumber - 1);
+  return DateHelpers.addDays(cycleStart, absoluteDayIndex);
+}
+
 /// Build calendar data for a month given a training cycle
+///
+/// This function maps workouts to calendar dates using scheduledDate when
+/// available, falling back to calculating the date from period/day.
+/// This allows workouts to be shifted to different dates while preserving
+/// their original period/day designations.
 List<CalendarDayData> buildCalendarData({
   required TrainingCycle cycle,
   required List<Workout> allWorkouts,
@@ -90,11 +111,37 @@ List<CalendarDayData> buildCalendarData({
   }
 
   final cycleStart = DateHelpers.stripTime(cycle.startDate!);
-  final cycleEnd = DateHelpers.getTrainingCycleEndDate(
+
+  // Calculate cycle end date, accounting for any inserted rest days
+  // Find the latest scheduled date among all workouts
+  DateTime cycleEnd = DateHelpers.getTrainingCycleEndDate(
     cycleStart,
     cycle.periodsTotal,
     cycle.daysPerPeriod,
   );
+
+  // Extend cycleEnd if any workout is scheduled beyond it
+  for (final workout in allWorkouts) {
+    final workoutDate = _getWorkoutScheduledDate(
+      workout,
+      cycleStart,
+      cycle.daysPerPeriod,
+    );
+    if (workoutDate.isAfter(cycleEnd)) {
+      cycleEnd = workoutDate;
+    }
+  }
+
+  // Build a map of calendar date -> list of workouts for that date
+  final workoutsByDate = <DateTime, List<Workout>>{};
+  for (final workout in allWorkouts) {
+    final date = _getWorkoutScheduledDate(
+      workout,
+      cycleStart,
+      cycle.daysPerPeriod,
+    );
+    workoutsByDate.putIfAbsent(date, () => []).add(workout);
+  }
 
   // Get first and last day of the month
   final firstOfMonth = DateTime(month.year, month.month, 1);
@@ -108,23 +155,30 @@ List<CalendarDayData> buildCalendarData({
   ) {
     final strippedDay = DateHelpers.stripTime(day);
 
-    // Check if this day is within the training cycle
+    // Check if this day is within the training cycle range
     if (strippedDay.isBefore(cycleStart) || strippedDay.isAfter(cycleEnd)) {
       result.add(CalendarDayData(date: strippedDay));
       continue;
     }
 
-    // Calculate period and day number
-    final daysFromStart = DateHelpers.daysBetween(cycleStart, strippedDay);
-    final periodNumber = (daysFromStart ~/ cycle.daysPerPeriod) + 1;
-    final dayNumber = (daysFromStart % cycle.daysPerPeriod) + 1;
+    // Find workouts scheduled for this calendar date
+    final dayWorkouts = workoutsByDate[strippedDay] ?? [];
 
-    // Find workouts for this day
-    final dayWorkouts = allWorkouts
-        .where(
-          (w) => w.periodNumber == periodNumber && w.dayNumber == dayNumber,
-        )
-        .toList();
+    // Get period/day from workouts if available, otherwise calculate default
+    int? displayPeriod;
+    int? displayDay;
+
+    if (dayWorkouts.isNotEmpty) {
+      // Use the period/day from the first workout (all workouts on same day should share period/day)
+      displayPeriod = dayWorkouts.first.periodNumber;
+      displayDay = dayWorkouts.first.dayNumber;
+    } else {
+      // No workouts on this day - it could be a rest day or inserted blank day
+      // Calculate what the default period/day would be for UI display purposes
+      final daysFromStart = DateHelpers.daysBetween(cycleStart, strippedDay);
+      displayPeriod = (daysFromStart ~/ cycle.daysPerPeriod) + 1;
+      displayDay = (daysFromStart % cycle.daysPerPeriod) + 1;
+    }
 
     // Collect muscle groups and count sets per muscle group
     final muscleGroups = <String>{};
@@ -144,12 +198,13 @@ List<CalendarDayData> buildCalendarData({
         muscleGroupExercises[groupName] = exercises;
 
         // Add to flat exercise list for drag-drop
+        // Use the workout's actual period/day, not calculated
         allDayExercises.add(
           CalendarExerciseItem(
             exercise: exercise,
             workoutId: workout.id,
-            periodNumber: periodNumber,
-            dayNumber: dayNumber,
+            periodNumber: workout.periodNumber,
+            dayNumber: workout.dayNumber,
           ),
         );
       }
@@ -172,10 +227,10 @@ List<CalendarDayData> buildCalendarData({
     result.add(
       CalendarDayData(
         date: strippedDay,
-        periodNumber: periodNumber,
-        dayNumber: dayNumber,
+        periodNumber: displayPeriod,
+        dayNumber: displayDay,
         workouts: dayWorkouts,
-        isRecoveryPeriod: periodNumber == cycle.recoveryPeriod,
+        isRecoveryPeriod: displayPeriod == cycle.recoveryPeriod,
         isCompleted: isCompleted,
         isPartiallyCompleted: isPartiallyCompleted,
         muscleGroups: muscleGroups,

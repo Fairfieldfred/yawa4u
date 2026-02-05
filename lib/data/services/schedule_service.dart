@@ -42,11 +42,13 @@ class WorkoutSnapshot {
   final String id;
   final int periodNumber;
   final int dayNumber;
+  final DateTime? scheduledDate;
 
   WorkoutSnapshot({
     required this.id,
     required this.periodNumber,
     required this.dayNumber,
+    this.scheduledDate,
   });
 
   factory WorkoutSnapshot.fromWorkout(Workout workout) {
@@ -54,6 +56,7 @@ class WorkoutSnapshot {
       id: workout.id,
       periodNumber: workout.periodNumber,
       dayNumber: workout.dayNumber,
+      scheduledDate: workout.scheduledDate,
     );
   }
 }
@@ -104,7 +107,12 @@ class ScheduleService {
   }
 
   /// Insert a rest day before the specified period/day, shifting that day
-  /// and all subsequent workouts forward by one day.
+  /// and all subsequent workouts forward by one calendar day.
+  ///
+  /// IMPORTANT: This preserves the workout's original periodNumber/dayNumber
+  /// designations (e.g., P2D2 stays P2D2). Only the scheduledDate is shifted
+  /// to move workouts to a later calendar date.
+  ///
   /// Returns a snapshot for undo.
   Future<ScheduleSnapshot> insertDayBefore({
     required String cycleId,
@@ -116,9 +124,14 @@ class ScheduleService {
       throw Exception('Training cycle not found');
     }
 
+    if (cycle.startDate == null) {
+      throw Exception('Training cycle has no start date');
+    }
+
+    final cycleStart = DateHelpers.stripTime(cycle.startDate!);
     final workouts = await _workoutRepository.getByTrainingCycleId(cycleId);
 
-    // Create snapshot for undo
+    // Create snapshot for undo (including scheduledDates)
     final snapshot = ScheduleSnapshot(
       cycleStartDate: cycle.startDate,
       workoutSnapshots: workouts
@@ -127,34 +140,42 @@ class ScheduleService {
       description: 'Inserted day before P${fromPeriod}D$fromDay',
     );
 
-    // Convert period/day to absolute day number for comparison
-    int toAbsoluteDay(int period, int day) =>
-        (period - 1) * cycle.daysPerPeriod + day;
+    // Convert period/day to absolute day number (0-indexed from cycle start)
+    int toAbsoluteDayIndex(int period, int day) =>
+        (period - 1) * cycle.daysPerPeriod + (day - 1);
 
-    final fromAbsoluteDay = toAbsoluteDay(fromPeriod, fromDay);
+    final fromAbsoluteDayIndex = toAbsoluteDayIndex(fromPeriod, fromDay);
 
-    // Find all workouts on or after the specified day and shift them forward
+    // Find all workouts on or after the specified day and shift their scheduledDate forward
     final workoutsToShift = workouts.where((w) {
-      final workoutAbsoluteDay = toAbsoluteDay(w.periodNumber, w.dayNumber);
-      return workoutAbsoluteDay >= fromAbsoluteDay;
+      final workoutAbsoluteDayIndex = toAbsoluteDayIndex(
+        w.periodNumber,
+        w.dayNumber,
+      );
+      return workoutAbsoluteDayIndex >= fromAbsoluteDayIndex;
     }).toList();
 
-    // Shift each workout forward by one day
+    // Shift each workout's scheduledDate forward by one day
+    // If scheduledDate is null, calculate it from the default position first
     for (final workout in workoutsToShift) {
-      final currentAbsolute = toAbsoluteDay(
-        workout.periodNumber,
-        workout.dayNumber,
-      );
-      final newAbsolute = currentAbsolute + 1;
+      // Calculate the current date for this workout
+      DateTime currentDate;
+      if (workout.scheduledDate != null) {
+        currentDate = DateHelpers.stripTime(workout.scheduledDate!);
+      } else {
+        // Calculate default date from period/day
+        final absoluteDayIndex = toAbsoluteDayIndex(
+          workout.periodNumber,
+          workout.dayNumber,
+        );
+        currentDate = DateHelpers.addDays(cycleStart, absoluteDayIndex);
+      }
 
-      // Convert back to period/day
-      final newPeriod = ((newAbsolute - 1) ~/ cycle.daysPerPeriod) + 1;
-      final newDay = ((newAbsolute - 1) % cycle.daysPerPeriod) + 1;
+      // Shift forward by one day
+      final newScheduledDate = DateHelpers.addDays(currentDate, 1);
 
-      final updatedWorkout = workout.copyWith(
-        periodNumber: newPeriod,
-        dayNumber: newDay,
-      );
+      // Update ONLY the scheduledDate, NOT the periodNumber/dayNumber
+      final updatedWorkout = workout.copyWith(scheduledDate: newScheduledDate);
       await _workoutRepository.update(updatedWorkout);
     }
 
@@ -570,17 +591,24 @@ class ScheduleService {
       await _cycleRepository.update(updatedCycle);
     }
 
-    // Restore workout positions
+    // Restore workout positions and scheduled dates
     for (final workoutSnapshot in snapshot.workoutSnapshots) {
       final workout = await _workoutRepository.getById(workoutSnapshot.id);
-      if (workout != null &&
-          (workout.periodNumber != workoutSnapshot.periodNumber ||
-              workout.dayNumber != workoutSnapshot.dayNumber)) {
-        final updated = workout.copyWith(
-          periodNumber: workoutSnapshot.periodNumber,
-          dayNumber: workoutSnapshot.dayNumber,
-        );
-        await _workoutRepository.update(updated);
+      if (workout != null) {
+        // Check if anything needs to be restored
+        final needsUpdate =
+            workout.periodNumber != workoutSnapshot.periodNumber ||
+            workout.dayNumber != workoutSnapshot.dayNumber ||
+            workout.scheduledDate != workoutSnapshot.scheduledDate;
+
+        if (needsUpdate) {
+          final updated = workout.copyWith(
+            periodNumber: workoutSnapshot.periodNumber,
+            dayNumber: workoutSnapshot.dayNumber,
+            scheduledDate: workoutSnapshot.scheduledDate,
+          );
+          await _workoutRepository.update(updated);
+        }
       }
     }
   }
