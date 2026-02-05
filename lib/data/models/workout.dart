@@ -115,6 +115,9 @@ class Workout {
   }
 
   /// Create a copy with updated fields
+  ///
+  /// Use [clearScheduledDate] to explicitly set scheduledDate to null
+  /// (since passing null for scheduledDate will keep the current value)
   Workout copyWith({
     String? id,
     String? trainingCycleId,
@@ -124,6 +127,7 @@ class Workout {
     String? label,
     WorkoutStatus? status,
     DateTime? scheduledDate,
+    bool clearScheduledDate = false,
     DateTime? completedDate,
     List<Exercise>? exercises,
     String? notes,
@@ -136,7 +140,9 @@ class Workout {
       dayName: dayName ?? this.dayName,
       label: label ?? this.label,
       status: status ?? this.status,
-      scheduledDate: scheduledDate ?? this.scheduledDate,
+      scheduledDate: clearScheduledDate
+          ? null
+          : (scheduledDate ?? this.scheduledDate),
       completedDate: completedDate ?? this.completedDate,
       exercises: exercises ?? this.exercises,
       notes: notes ?? this.notes,

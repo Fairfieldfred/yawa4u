@@ -602,10 +602,16 @@ class ScheduleService {
             workout.scheduledDate != workoutSnapshot.scheduledDate;
 
         if (needsUpdate) {
+          // Use clearScheduledDate when restoring to null
+          final shouldClearScheduledDate =
+              workoutSnapshot.scheduledDate == null &&
+              workout.scheduledDate != null;
+
           final updated = workout.copyWith(
             periodNumber: workoutSnapshot.periodNumber,
             dayNumber: workoutSnapshot.dayNumber,
             scheduledDate: workoutSnapshot.scheduledDate,
+            clearScheduledDate: shouldClearScheduledDate,
           );
           await _workoutRepository.update(updated);
         }
