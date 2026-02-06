@@ -609,7 +609,8 @@ class ScheduleService {
       workoutSnapshots: workouts
           .map((w) => WorkoutSnapshot.fromWorkout(w))
           .toList(),
-      description: 'Move exercise to ${DateHelpers.shortDate.format(targetDate)}',
+      description:
+          'Move exercise to ${DateHelpers.shortDate.format(targetDate)}',
     );
 
     // Find source workout

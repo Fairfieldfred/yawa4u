@@ -13,11 +13,7 @@ class DesktopCalendarDayCell extends StatefulWidget {
   final ValueChanged<DateTime>? onTap;
   final void Function(ExerciseDragData data, DateTime targetDate)?
   onExerciseDropped;
-  final void Function(
-    int oldIndex,
-    int newIndex,
-    DateTime targetDate,
-  )?
+  final void Function(int oldIndex, int newIndex, DateTime targetDate)?
   onExerciseReordered;
   final String? selectedExerciseId;
   final ValueChanged<String?>? onExerciseSelected;
@@ -95,10 +91,7 @@ class _DesktopCalendarDayCellState extends State<DesktopCalendarDayCell> {
         });
 
         if (widget.onExerciseDropped != null) {
-          widget.onExerciseDropped!(
-            details.data,
-            widget.date,
-          );
+          widget.onExerciseDropped!(details.data, widget.date);
         }
       },
       onMove: (details) {
@@ -225,11 +218,7 @@ class _DesktopCalendarDayCellState extends State<DesktopCalendarDayCell> {
         if (widget.onExerciseReordered != null) {
           // Adjust for removal
           if (newIndex > oldIndex) newIndex--;
-          widget.onExerciseReordered!(
-            oldIndex,
-            newIndex,
-            widget.date,
-          );
+          widget.onExerciseReordered!(oldIndex, newIndex, widget.date);
         }
       },
       itemBuilder: (context, index) {
