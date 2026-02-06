@@ -11,13 +11,12 @@ class DesktopCalendarDayCell extends StatefulWidget {
   final bool isToday;
   final bool isSelected;
   final ValueChanged<DateTime>? onTap;
-  final void Function(ExerciseDragData data, int targetPeriod, int targetDay)?
+  final void Function(ExerciseDragData data, DateTime targetDate)?
   onExerciseDropped;
   final void Function(
     int oldIndex,
     int newIndex,
-    int targetPeriod,
-    int targetDay,
+    DateTime targetDate,
   )?
   onExerciseReordered;
   final String? selectedExerciseId;
@@ -95,11 +94,10 @@ class _DesktopCalendarDayCellState extends State<DesktopCalendarDayCell> {
           _isDragOver = false;
         });
 
-        if (dayData != null && widget.onExerciseDropped != null) {
+        if (widget.onExerciseDropped != null) {
           widget.onExerciseDropped!(
             details.data,
-            dayData.periodNumber!,
-            dayData.dayNumber!,
+            widget.date,
           );
         }
       },
@@ -230,8 +228,7 @@ class _DesktopCalendarDayCellState extends State<DesktopCalendarDayCell> {
           widget.onExerciseReordered!(
             oldIndex,
             newIndex,
-            dayData.periodNumber!,
-            dayData.dayNumber!,
+            widget.date,
           );
         }
       },

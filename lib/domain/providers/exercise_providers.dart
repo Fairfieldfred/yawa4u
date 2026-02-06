@@ -46,7 +46,7 @@ final exerciseProvider = Provider.family<Exercise?, String>((ref, id) {
       }
     },
     loading: () => null,
-    error: (_, __) => null,
+    error: (_, _) => null,
   );
 });
 

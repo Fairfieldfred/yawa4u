@@ -509,24 +509,31 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
           _selectedExerciseId = exerciseId;
         });
       },
-      onExerciseDropped: (dragData, targetPeriod, targetDay) async {
+      onExerciseDropped: (dragData, targetDate) async {
         if (currentCycle == null) return;
 
         try {
           final scheduleService = ref.read(scheduleServiceProvider);
-          await scheduleService.moveExercise(
+          await scheduleService.moveExerciseToDate(
             cycleId: currentCycle.id,
             sourceWorkoutId: dragData.sourceWorkoutId,
             exerciseId: dragData.exercise.id,
-            targetPeriod: targetPeriod,
-            targetDay: targetDay,
+            targetDate: targetDate,
           );
+
+          // Invalidate providers to refresh calendar data
+          ref.invalidate(trainingCyclesProvider);
+
+          // Force UI rebuild
+          if (mounted) {
+            setState(() {});
+          }
 
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(
-                  'Moved ${dragData.exercise.name} to P${targetPeriod}D$targetDay',
+                  'Moved ${dragData.exercise.name} to ${DateHelpers.shortDate.format(targetDate)}',
                 ),
                 duration: const Duration(seconds: 2),
               ),
@@ -543,18 +550,25 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
           }
         }
       },
-      onExerciseReordered: (oldIndex, newIndex, period, day) async {
+      onExerciseReordered: (oldIndex, newIndex, targetDate) async {
         if (currentCycle == null) return;
 
         try {
           final scheduleService = ref.read(scheduleServiceProvider);
-          await scheduleService.reorderExerciseWithinDay(
+          await scheduleService.reorderExerciseWithinDayByDate(
             cycleId: currentCycle.id,
-            periodNumber: period,
-            dayNumber: day,
+            targetDate: targetDate,
             oldIndex: oldIndex,
             newIndex: newIndex,
           );
+
+          // Invalidate providers to refresh calendar data
+          ref.invalidate(trainingCyclesProvider);
+
+          // Force UI rebuild
+          if (mounted) {
+            setState(() {});
+          }
         } catch (e) {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(

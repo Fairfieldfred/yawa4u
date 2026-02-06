@@ -578,6 +578,164 @@ class ScheduleService {
     return snapshot;
   }
 
+  /// Move an individual exercise from one workout/day to another by target date.
+  /// This method finds workouts by their scheduled date (accounting for shifts)
+  /// rather than by period/day numbers.
+  /// Creates a new workout on the target day if needed.
+  /// Returns a snapshot for undo.
+  Future<ScheduleSnapshot> moveExerciseToDate({
+    required String cycleId,
+    required String sourceWorkoutId,
+    required String exerciseId,
+    required DateTime targetDate,
+    int? targetIndex,
+  }) async {
+    final cycle = await _cycleRepository.getById(cycleId);
+    if (cycle == null) {
+      throw Exception('Training cycle not found');
+    }
+
+    if (cycle.startDate == null) {
+      throw Exception('Training cycle has no start date');
+    }
+
+    final workouts = await _workoutRepository.getByTrainingCycleId(cycleId);
+    final cycleStart = DateHelpers.stripTime(cycle.startDate!);
+    final strippedTargetDate = DateHelpers.stripTime(targetDate);
+
+    // Create snapshot for undo
+    final snapshot = ScheduleSnapshot(
+      cycleStartDate: cycle.startDate,
+      workoutSnapshots: workouts
+          .map((w) => WorkoutSnapshot.fromWorkout(w))
+          .toList(),
+      description: 'Move exercise to ${DateHelpers.shortDate.format(targetDate)}',
+    );
+
+    // Find source workout
+    final sourceWorkout = workouts.firstWhere(
+      (w) => w.id == sourceWorkoutId,
+      orElse: () => throw Exception('Source workout not found'),
+    );
+
+    // Find exercise in source workout
+    final exerciseIndex = sourceWorkout.exercises.indexWhere(
+      (e) => e.id == exerciseId,
+    );
+    if (exerciseIndex == -1) {
+      throw Exception('Exercise not found in source workout');
+    }
+
+    final exercise = sourceWorkout.exercises[exerciseIndex];
+
+    // Remove exercise from source workout
+    final updatedSourceExercises = List<Exercise>.from(sourceWorkout.exercises);
+    updatedSourceExercises.removeAt(exerciseIndex);
+
+    // Update order indices for remaining exercises
+    for (var i = 0; i < updatedSourceExercises.length; i++) {
+      updatedSourceExercises[i] = updatedSourceExercises[i].copyWith(
+        orderIndex: i,
+      );
+    }
+
+    final updatedSourceWorkout = sourceWorkout.copyWith(
+      exercises: updatedSourceExercises,
+    );
+    await _workoutRepository.update(updatedSourceWorkout);
+
+    // Helper to get a workout's effective scheduled date
+    DateTime getWorkoutDate(Workout w) {
+      if (w.scheduledDate != null) {
+        return DateHelpers.stripTime(w.scheduledDate!);
+      }
+      final absoluteDayIndex =
+          (w.periodNumber - 1) * cycle.daysPerPeriod + (w.dayNumber - 1);
+      return DateHelpers.addDays(cycleStart, absoluteDayIndex);
+    }
+
+    // Find workouts on the target date
+    final workoutsOnTargetDate = workouts.where((w) {
+      return getWorkoutDate(w) == strippedTargetDate;
+    }).toList();
+
+    // Find or create target workout for this muscle group on the target date
+    var targetWorkout = workoutsOnTargetDate.cast<Workout?>().firstWhere(
+      (w) => w!.label == exercise.muscleGroup.displayName,
+      orElse: () => null,
+    );
+
+    if (targetWorkout == null) {
+      // Get period/day from existing workouts on target date, or calculate
+      int targetPeriod;
+      int targetDay;
+      String? dayName;
+
+      if (workoutsOnTargetDate.isNotEmpty) {
+        // Use period/day from existing workouts on that date
+        targetPeriod = workoutsOnTargetDate.first.periodNumber;
+        targetDay = workoutsOnTargetDate.first.dayNumber;
+        dayName = workoutsOnTargetDate.first.dayName;
+      } else {
+        // Calculate default period/day for this date
+        final daysFromStart = DateHelpers.daysBetween(
+          cycleStart,
+          strippedTargetDate,
+        );
+        targetPeriod = (daysFromStart ~/ cycle.daysPerPeriod) + 1;
+        targetDay = (daysFromStart % cycle.daysPerPeriod) + 1;
+      }
+
+      // Generate ID upfront since create() returns void
+      final newWorkoutId = _uuid.v4();
+
+      // Create a new workout for this muscle group on the target date
+      final newWorkout = Workout(
+        id: newWorkoutId,
+        trainingCycleId: cycleId,
+        periodNumber: targetPeriod,
+        dayNumber: targetDay,
+        dayName: dayName,
+        label: exercise.muscleGroup.displayName,
+        status: WorkoutStatus.incomplete,
+        scheduledDate: strippedTargetDate, // Set the scheduled date!
+        exercises: [],
+      );
+
+      await _workoutRepository.create(newWorkout);
+      targetWorkout = newWorkout;
+    }
+
+    // At this point targetWorkout is guaranteed non-null
+    final theTargetWorkout = targetWorkout;
+    final targetExercises = List<Exercise>.from(theTargetWorkout.exercises);
+    final insertIndex = targetIndex ?? targetExercises.length;
+
+    // Update exercise with new workout ID and order index
+    final movedExercise = exercise.copyWith(
+      workoutId: theTargetWorkout.id,
+      orderIndex: insertIndex,
+    );
+
+    // Insert at the specified index
+    targetExercises.insert(
+      insertIndex.clamp(0, targetExercises.length),
+      movedExercise,
+    );
+
+    // Update order indices for all exercises
+    for (var i = 0; i < targetExercises.length; i++) {
+      targetExercises[i] = targetExercises[i].copyWith(orderIndex: i);
+    }
+
+    final updatedTargetWorkout = theTargetWorkout.copyWith(
+      exercises: targetExercises,
+    );
+    await _workoutRepository.update(updatedTargetWorkout);
+
+    return snapshot;
+  }
+
   /// Reorder an exercise within the same day
   Future<void> reorderExerciseWithinDay({
     required String cycleId,
@@ -594,6 +752,82 @@ class ScheduleService {
           (w) => w.periodNumber == periodNumber && w.dayNumber == dayNumber,
         )
         .toList();
+
+    // Build flat list of exercises with their parent workouts
+    final allExercises = <_ExerciseWithWorkout>[];
+    for (final workout in dayWorkouts) {
+      for (final exercise in workout.exercises) {
+        allExercises.add(_ExerciseWithWorkout(exercise, workout));
+      }
+    }
+
+    if (oldIndex < 0 ||
+        oldIndex >= allExercises.length ||
+        newIndex < 0 ||
+        newIndex >= allExercises.length) {
+      return;
+    }
+
+    // Get the exercise being moved
+    final movingItem = allExercises[oldIndex];
+
+    // Perform the reorder in our flat list
+    allExercises.removeAt(oldIndex);
+    allExercises.insert(newIndex, movingItem);
+
+    // Rebuild workouts with reordered exercises
+    final workoutExercisesMap = <String, List<Exercise>>{};
+    for (final workout in dayWorkouts) {
+      workoutExercisesMap[workout.id] = [];
+    }
+
+    var orderIndex = 0;
+    for (final item in allExercises) {
+      // Keep exercise in its original workout
+      final updatedExercise = item.exercise.copyWith(orderIndex: orderIndex);
+      workoutExercisesMap[item.workout.id]!.add(updatedExercise);
+      orderIndex++;
+    }
+
+    // Update each workout
+    for (final workout in dayWorkouts) {
+      final updatedWorkout = workout.copyWith(
+        exercises: workoutExercisesMap[workout.id],
+      );
+      await _workoutRepository.update(updatedWorkout);
+    }
+  }
+
+  /// Reorder an exercise within the same day, finding workouts by date
+  Future<void> reorderExerciseWithinDayByDate({
+    required String cycleId,
+    required DateTime targetDate,
+    required int oldIndex,
+    required int newIndex,
+  }) async {
+    final cycle = await _cycleRepository.getById(cycleId);
+    if (cycle == null || cycle.startDate == null) {
+      return;
+    }
+
+    final workouts = await _workoutRepository.getByTrainingCycleId(cycleId);
+    final cycleStart = DateHelpers.stripTime(cycle.startDate!);
+    final strippedTargetDate = DateHelpers.stripTime(targetDate);
+
+    // Helper to get a workout's effective scheduled date
+    DateTime getWorkoutDate(Workout w) {
+      if (w.scheduledDate != null) {
+        return DateHelpers.stripTime(w.scheduledDate!);
+      }
+      final absoluteDayIndex =
+          (w.periodNumber - 1) * cycle.daysPerPeriod + (w.dayNumber - 1);
+      return DateHelpers.addDays(cycleStart, absoluteDayIndex);
+    }
+
+    // Find workouts on the target date
+    final dayWorkouts = workouts.where((w) {
+      return getWorkoutDate(w) == strippedTargetDate;
+    }).toList();
 
     // Build flat list of exercises with their parent workouts
     final allExercises = <_ExerciseWithWorkout>[];
