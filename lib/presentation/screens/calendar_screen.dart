@@ -124,18 +124,19 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
 
     final periodColors = ref.watch(periodColorsProvider);
 
-    return Column(
-      children: [
-        _buildCalendar(context, trainingCycle, dataMap, periodColors),
-        if (_selectedDay != null)
-          Expanded(
-            child: _buildSelectedDayInfo(
+    return SingleChildScrollView(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _buildCalendar(context, trainingCycle, dataMap, periodColors),
+          if (_selectedDay != null)
+            _buildSelectedDayInfo(
               context,
               trainingCycle,
               dataMap[DateHelpers.stripTime(_selectedDay!)],
             ),
-          ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -178,13 +179,15 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     Map<DateTime, CalendarDayData> dataMap,
     Map<int, Color> periodColors,
   ) {
-    // Calculate row height based on calendar format
+    // Calculate row height based on calendar format and screen size
+    final screenHeight = MediaQuery.of(context).size.height;
     final double rowHeight;
     switch (_calendarFormat) {
       case CalendarFormat.week:
-        rowHeight = 450; // Much taller for week view to show all exercises
+        // Use less height on smaller screens to prevent overflow
+        rowHeight = screenHeight < 700 ? 300 : 450;
       case CalendarFormat.twoWeeks:
-        rowHeight = 180; // Taller for 2 weeks view
+        rowHeight = screenHeight < 700 ? 140 : 180;
       case CalendarFormat.month:
         rowHeight = 70; // Default height for month view
     }
@@ -337,11 +340,11 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     final strippedDay = DateHelpers.stripTime(day);
     final dayData = dataMap[strippedDay];
 
-    // Use desktop drag-drop cell on macOS for expanded views
+    // Use desktop drag-drop cell for expanded views on all platforms
+    // This provides a consistent experience with exercise list and drag-drop
     final useDesktopCell =
-        Platform.isMacOS &&
         (calendarFormat == CalendarFormat.week ||
-            calendarFormat == CalendarFormat.twoWeeks);
+        calendarFormat == CalendarFormat.twoWeeks);
 
     if (useDesktopCell) {
       return _buildDesktopDayCell(
@@ -930,37 +933,34 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
           ),
           const SizedBox(height: 8),
           if (dayData?.hasWorkout ?? false)
-            Expanded(
-              child: _buildWorkoutSummary(context, dayData!, trainingCycle),
-            )
+            _buildWorkoutSummary(context, dayData!, trainingCycle)
           else if (dayData != null)
             // Rest day - show message and edit button
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Rest Day',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.onSurface.withAlpha(128),
-                    ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Rest Day',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withAlpha(128),
                   ),
-                  const Spacer(),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: OutlinedButton.icon(
-                          onPressed: () => _showEditSheet(context, dayData),
-                          icon: const Icon(Icons.edit, size: 18),
-                          label: const Text('Edit'),
-                        ),
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: () => _showEditSheet(context, dayData),
+                        icon: const Icon(Icons.edit, size: 18),
+                        label: const Text('Edit'),
                       ),
-                    ],
-                  ),
-                ],
-              ),
+                    ),
+                  ],
+                ),
+              ],
             )
           else
             Text(
@@ -1019,6 +1019,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
       children: [
         Text(
           'Period ${dayData.periodNumber}, Day ${dayData.dayNumber}${dayData.isRecoveryPeriod ? ' (Recovery)' : ''}',
@@ -1033,7 +1034,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
             color: Theme.of(context).colorScheme.onSurface.withAlpha(179),
           ),
         ),
-        const Spacer(),
+        const SizedBox(height: 8),
         Row(
           children: [
             Expanded(

@@ -72,13 +72,14 @@ class DraggableExerciseCard extends StatelessWidget {
     final isComplete = completedSets == totalSets && totalSets > 0;
 
     return Container(
-      width: compact ? 180 : 220,
-      padding: EdgeInsets.all(compact ? 6 : 8),
+      // Only use fixed width when dragging as feedback, otherwise fill parent
+      width: isDragging ? (compact ? 120 : 180) : null,
+      padding: EdgeInsets.all(compact ? 3 : 8),
       decoration: BoxDecoration(
         color: isSelected
             ? Theme.of(context).colorScheme.primaryContainer
             : Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(6),
         border: Border.all(
           color: isSelected
               ? Theme.of(context).colorScheme.primary
@@ -103,14 +104,14 @@ class DraggableExerciseCard extends StatelessWidget {
           Row(
             children: [
               Container(
-                width: 4,
-                height: compact ? 28 : 36,
+                width: 3,
+                height: compact ? 20 : 36,
                 decoration: BoxDecoration(
                   color: muscleGroupColor,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: 4),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -136,7 +137,7 @@ class DraggableExerciseCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 4),
+          SizedBox(height: compact ? 2 : 4),
           // Sets progress bar
           Row(
             children: [
@@ -151,16 +152,16 @@ class DraggableExerciseCard extends StatelessWidget {
                     valueColor: AlwaysStoppedAnimation<Color>(
                       isComplete ? Colors.green : muscleGroupColor,
                     ),
-                    minHeight: compact ? 3 : 4,
+                    minHeight: compact ? 2 : 4,
                   ),
                 ),
               ),
-              const SizedBox(width: 6),
+              const SizedBox(width: 4),
               Text(
                 '$completedSets/$totalSets',
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
                   color: Theme.of(context).colorScheme.onSurface.withAlpha(180),
-                  fontSize: compact ? 9 : 10,
+                  fontSize: compact ? 8 : 10,
                 ),
               ),
             ],

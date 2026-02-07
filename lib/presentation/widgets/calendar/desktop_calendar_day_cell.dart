@@ -141,7 +141,7 @@ class _DesktopCalendarDayCellState extends State<DesktopCalendarDayCell> {
     final hasWorkout = dayData?.hasWorkout ?? false;
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surfaceContainerHighest.withAlpha(
           widget.isToday || widget.isSelected ? 150 : 80,
@@ -152,12 +152,11 @@ class _DesktopCalendarDayCellState extends State<DesktopCalendarDayCell> {
         ),
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
             '${widget.date.day}',
             style: TextStyle(
-              fontSize: 14,
+              fontSize: 12,
               fontWeight: (widget.isToday || widget.isSelected)
                   ? FontWeight.bold
                   : FontWeight.w500,
@@ -167,15 +166,20 @@ class _DesktopCalendarDayCellState extends State<DesktopCalendarDayCell> {
             ),
           ),
           if (hasWorkout) ...[
-            Text(
-              'P${dayData!.periodNumber}D${dayData.dayNumber}',
-              style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                fontSize: 10,
-                color: Theme.of(context).colorScheme.onSurface.withAlpha(150),
+            Expanded(
+              child: Text(
+                'P${dayData!.periodNumber}D${dayData.dayNumber}',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  fontSize: 8,
+                  color: Theme.of(context).colorScheme.onSurface.withAlpha(150),
+                ),
+                overflow: TextOverflow.ellipsis,
               ),
             ),
             _buildStatusIndicator(context, dayData),
-          ],
+          ] else
+            const Spacer(),
         ],
       ),
     );
@@ -211,7 +215,7 @@ class _DesktopCalendarDayCellState extends State<DesktopCalendarDayCell> {
     }
 
     return ReorderableListView.builder(
-      padding: const EdgeInsets.all(4),
+      padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 1),
       buildDefaultDragHandles: false,
       itemCount: allExercises.length,
       onReorder: (oldIndex, newIndex) {
@@ -230,7 +234,7 @@ class _DesktopCalendarDayCellState extends State<DesktopCalendarDayCell> {
           key: ValueKey(exerciseItem.exercise.id),
           index: index,
           child: Padding(
-            padding: const EdgeInsets.only(bottom: 4),
+            padding: const EdgeInsets.only(bottom: 2),
             child: DraggableExerciseCard(
               exercise: exerciseItem.exercise,
               workoutId: exerciseItem.workoutId,
@@ -268,47 +272,21 @@ class _DesktopCalendarDayCellState extends State<DesktopCalendarDayCell> {
     BuildContext context,
     CalendarDayData dayData,
   ) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: () {
-            if (widget.onAddExercise != null &&
-                dayData.periodNumber != null &&
-                dayData.dayNumber != null) {
-              widget.onAddExercise!(dayData.periodNumber!, dayData.dayNumber!);
-            }
-          },
-          borderRadius: BorderRadius.circular(6),
-          child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 4),
-            decoration: BoxDecoration(
-              border: Border.all(
-                color: Theme.of(context).colorScheme.outline.withAlpha(100),
-                style: BorderStyle.solid,
-              ),
-              borderRadius: BorderRadius.circular(6),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.add,
-                  size: 16,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-                const SizedBox(width: 4),
-                Text(
-                  'Add',
-                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: Theme.of(context).colorScheme.primary,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
-          ),
+    return GestureDetector(
+      onTap: () {
+        if (widget.onAddExercise != null &&
+            dayData.periodNumber != null &&
+            dayData.dayNumber != null) {
+          widget.onAddExercise!(dayData.periodNumber!, dayData.dayNumber!);
+        }
+      },
+      child: Container(
+        height: 16,
+        alignment: Alignment.center,
+        child: Icon(
+          Icons.add_circle_outline,
+          size: 14,
+          color: Theme.of(context).colorScheme.primary.withAlpha(180),
         ),
       ),
     );
