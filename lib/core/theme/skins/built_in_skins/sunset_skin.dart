@@ -56,4 +56,11 @@ const SkinModel sunsetSkinDefinition = SkinModel(
     cardElevation: 3,
     buttonElevation: 2,
   ),
+  backgrounds: SkinBackgrounds(
+    workout: 'assets/backgrounds/workout_desert.png',
+    cycles: 'assets/backgrounds/cycles_desert.png',
+    exercises: 'assets/backgrounds/exercises_desert.png',
+    more: 'assets/backgrounds/more_desert.png',
+    defaultBackground: 'assets/backgrounds/default_desert.png',
+  ),
 );
