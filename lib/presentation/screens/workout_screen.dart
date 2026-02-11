@@ -529,8 +529,9 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
   }
 
   Future<void> _replaceExercise(String workoutId, String exerciseId) async {
-    // Get the workout and exercise
-    final workout = ref.read(workoutProvider(workoutId));
+    // Get the workout and exercise from repository (not provider which may be stale)
+    final repository = ref.read(workoutRepositoryProvider);
+    final workout = await repository.getById(workoutId);
     if (workout == null) return;
 
     final exercise = workout.exercises.firstWhere(
@@ -538,15 +539,8 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
       orElse: () => throw Exception('Exercise not found'),
     );
 
-    // First delete the current exercise
-    final updatedExercises = workout.exercises
-        .where((e) => e.id != exerciseId)
-        .toList();
-    final updatedWorkout = workout.copyWith(exercises: updatedExercises);
-    await ref.read(workoutRepositoryProvider).update(updatedWorkout);
-    _invalidateWorkoutProviders();
-
-    // Navigate to add exercise screen with the same muscle group
+    // Navigate to add exercise screen with replace mode
+    // The AddExerciseScreen will handle the replacement when a new exercise is selected
     if (mounted) {
       Navigator.of(context).push(
         MaterialPageRoute(
@@ -554,6 +548,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
             trainingCycleId: workout.trainingCycleId,
             workoutId: workout.id,
             initialMuscleGroup: exercise.muscleGroup,
+            replaceExerciseId: exerciseId,
           ),
         ),
       );
