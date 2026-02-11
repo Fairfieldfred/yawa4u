@@ -8,12 +8,14 @@ import '../../core/constants/equipment_types.dart';
 class ExerciseDefinition {
   final String name;
   final MuscleGroup muscleGroup;
+  final MuscleGroup? secondaryMuscleGroup;
   final EquipmentType equipmentType;
   final String? videoUrl;
 
   const ExerciseDefinition({
     required this.name,
     required this.muscleGroup,
+    this.secondaryMuscleGroup,
     required this.equipmentType,
     this.videoUrl,
   });
@@ -21,6 +23,7 @@ class ExerciseDefinition {
   /// Create from CSV row
   ///
   /// Expected format: name,muscleGroup,equipmentType
+  /// Muscle group can be compound: "Primary/Secondary" (e.g., "Glutes/Hamstrings")
   factory ExerciseDefinition.fromCsv(List<String> row) {
     if (row.length < 3) {
       throw ArgumentError('CSV row must have at least 3 columns: $row');
@@ -30,9 +33,23 @@ class ExerciseDefinition {
     final muscleGroupStr = row[1].trim();
     final equipmentTypeStr = row[2].trim();
 
-    // Parse muscle group
-    final muscleGroup = MuscleGroups.parse(muscleGroupStr);
-    if (muscleGroup == null) {
+    // Parse muscle group(s) - handle "Primary/Secondary" format
+    MuscleGroup? primaryMuscleGroup;
+    MuscleGroup? secondaryMuscleGroup;
+
+    if (muscleGroupStr.contains('/')) {
+      final parts = muscleGroupStr.split('/');
+      primaryMuscleGroup = MuscleGroups.parse(parts[0].trim());
+      if (parts.length > 1 && parts[1].trim().isNotEmpty) {
+        secondaryMuscleGroup = MuscleGroups.parse(parts[1].trim());
+        // Log warning if secondary is invalid but don't fail
+        // Invalid secondary will just be null
+      }
+    } else {
+      primaryMuscleGroup = MuscleGroups.parse(muscleGroupStr);
+    }
+
+    if (primaryMuscleGroup == null) {
       throw ArgumentError(
         'Invalid muscle group: $muscleGroupStr for exercise: $name',
       );
@@ -48,16 +65,20 @@ class ExerciseDefinition {
 
     return ExerciseDefinition(
       name: name,
-      muscleGroup: muscleGroup,
+      muscleGroup: primaryMuscleGroup,
+      secondaryMuscleGroup: secondaryMuscleGroup,
       equipmentType: equipmentType,
     );
   }
 
   /// Convert to CSV row
   List<String> toCsv() {
+    final muscleGroupDisplay = secondaryMuscleGroup != null
+        ? '${muscleGroup.displayName}/${secondaryMuscleGroup!.displayName}'
+        : muscleGroup.displayName;
     return [
       name,
-      muscleGroup.displayName,
+      muscleGroupDisplay,
       equipmentType.displayName,
     ];
   }
@@ -67,6 +88,7 @@ class ExerciseDefinition {
     return {
       'name': name,
       'muscleGroup': muscleGroup.name,
+      'secondaryMuscleGroup': secondaryMuscleGroup?.name,
       'equipmentType': equipmentType.name,
       'videoUrl': videoUrl,
     };
@@ -80,6 +102,12 @@ class ExerciseDefinition {
         (e) => e.name == json['muscleGroup'],
         orElse: () => MuscleGroup.chest,
       ),
+      secondaryMuscleGroup: json['secondaryMuscleGroup'] != null
+          ? MuscleGroup.values.firstWhere(
+              (e) => e.name == json['secondaryMuscleGroup'],
+              orElse: () => MuscleGroup.chest,
+            )
+          : null,
       equipmentType: EquipmentType.values.firstWhere(
         (e) => e.name == json['equipmentType'],
         orElse: () => EquipmentType.barbell,
@@ -88,9 +116,29 @@ class ExerciseDefinition {
     );
   }
 
+  /// Create a copy with modified fields
+  ExerciseDefinition copyWith({
+    String? name,
+    MuscleGroup? muscleGroup,
+    MuscleGroup? secondaryMuscleGroup,
+    EquipmentType? equipmentType,
+    String? videoUrl,
+  }) {
+    return ExerciseDefinition(
+      name: name ?? this.name,
+      muscleGroup: muscleGroup ?? this.muscleGroup,
+      secondaryMuscleGroup: secondaryMuscleGroup ?? this.secondaryMuscleGroup,
+      equipmentType: equipmentType ?? this.equipmentType,
+      videoUrl: videoUrl ?? this.videoUrl,
+    );
+  }
+
   @override
   String toString() {
-    return 'ExerciseDefinition(name: $name, muscleGroup: ${muscleGroup.name}, equipment: ${equipmentType.name})';
+    final secondary = secondaryMuscleGroup != null
+        ? ', secondary: ${secondaryMuscleGroup!.name}'
+        : '';
+    return 'ExerciseDefinition(name: $name, muscleGroup: ${muscleGroup.name}$secondary, equipment: ${equipmentType.name})';
   }
 
   @override
@@ -100,6 +148,7 @@ class ExerciseDefinition {
     return other is ExerciseDefinition &&
         other.name == name &&
         other.muscleGroup == muscleGroup &&
+        other.secondaryMuscleGroup == secondaryMuscleGroup &&
         other.equipmentType == equipmentType;
   }
 
@@ -108,6 +157,7 @@ class ExerciseDefinition {
     return Object.hash(
       name,
       muscleGroup,
+      secondaryMuscleGroup,
       equipmentType,
     );
   }

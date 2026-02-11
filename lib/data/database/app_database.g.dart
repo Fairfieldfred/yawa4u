@@ -1622,6 +1622,16 @@ class $ExercisesTable extends Exercises
     type: DriftSqlType.int,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _secondaryMuscleGroupMeta =
+      const VerificationMeta('secondaryMuscleGroup');
+  @override
+  late final GeneratedColumn<int> secondaryMuscleGroup = GeneratedColumn<int>(
+    'secondary_muscle_group',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _equipmentTypeMeta = const VerificationMeta(
     'equipmentType',
   );
@@ -1709,6 +1719,7 @@ class $ExercisesTable extends Exercises
     workoutUuid,
     name,
     muscleGroup,
+    secondaryMuscleGroup,
     equipmentType,
     orderIndex,
     bodyweight,
@@ -1769,6 +1780,15 @@ class $ExercisesTable extends Exercises
       );
     } else if (isInserting) {
       context.missing(_muscleGroupMeta);
+    }
+    if (data.containsKey('secondary_muscle_group')) {
+      context.handle(
+        _secondaryMuscleGroupMeta,
+        secondaryMuscleGroup.isAcceptableOrUnknown(
+          data['secondary_muscle_group']!,
+          _secondaryMuscleGroupMeta,
+        ),
+      );
     }
     if (data.containsKey('equipment_type')) {
       context.handle(
@@ -1854,6 +1874,10 @@ class $ExercisesTable extends Exercises
         DriftSqlType.int,
         data['${effectivePrefix}muscle_group'],
       )!,
+      secondaryMuscleGroup: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}secondary_muscle_group'],
+      ),
       equipmentType: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}equipment_type'],
@@ -1897,6 +1921,7 @@ class Exercise extends DataClass implements Insertable<Exercise> {
   final String workoutUuid;
   final String name;
   final int muscleGroup;
+  final int? secondaryMuscleGroup;
   final int equipmentType;
   final int orderIndex;
   final double? bodyweight;
@@ -1910,6 +1935,7 @@ class Exercise extends DataClass implements Insertable<Exercise> {
     required this.workoutUuid,
     required this.name,
     required this.muscleGroup,
+    this.secondaryMuscleGroup,
     required this.equipmentType,
     required this.orderIndex,
     this.bodyweight,
@@ -1926,6 +1952,9 @@ class Exercise extends DataClass implements Insertable<Exercise> {
     map['workout_uuid'] = Variable<String>(workoutUuid);
     map['name'] = Variable<String>(name);
     map['muscle_group'] = Variable<int>(muscleGroup);
+    if (!nullToAbsent || secondaryMuscleGroup != null) {
+      map['secondary_muscle_group'] = Variable<int>(secondaryMuscleGroup);
+    }
     map['equipment_type'] = Variable<int>(equipmentType);
     map['order_index'] = Variable<int>(orderIndex);
     if (!nullToAbsent || bodyweight != null) {
@@ -1951,6 +1980,9 @@ class Exercise extends DataClass implements Insertable<Exercise> {
       workoutUuid: Value(workoutUuid),
       name: Value(name),
       muscleGroup: Value(muscleGroup),
+      secondaryMuscleGroup: secondaryMuscleGroup == null && nullToAbsent
+          ? const Value.absent()
+          : Value(secondaryMuscleGroup),
       equipmentType: Value(equipmentType),
       orderIndex: Value(orderIndex),
       bodyweight: bodyweight == null && nullToAbsent
@@ -1980,6 +2012,9 @@ class Exercise extends DataClass implements Insertable<Exercise> {
       workoutUuid: serializer.fromJson<String>(json['workoutUuid']),
       name: serializer.fromJson<String>(json['name']),
       muscleGroup: serializer.fromJson<int>(json['muscleGroup']),
+      secondaryMuscleGroup: serializer.fromJson<int?>(
+        json['secondaryMuscleGroup'],
+      ),
       equipmentType: serializer.fromJson<int>(json['equipmentType']),
       orderIndex: serializer.fromJson<int>(json['orderIndex']),
       bodyweight: serializer.fromJson<double?>(json['bodyweight']),
@@ -1998,6 +2033,7 @@ class Exercise extends DataClass implements Insertable<Exercise> {
       'workoutUuid': serializer.toJson<String>(workoutUuid),
       'name': serializer.toJson<String>(name),
       'muscleGroup': serializer.toJson<int>(muscleGroup),
+      'secondaryMuscleGroup': serializer.toJson<int?>(secondaryMuscleGroup),
       'equipmentType': serializer.toJson<int>(equipmentType),
       'orderIndex': serializer.toJson<int>(orderIndex),
       'bodyweight': serializer.toJson<double?>(bodyweight),
@@ -2014,6 +2050,7 @@ class Exercise extends DataClass implements Insertable<Exercise> {
     String? workoutUuid,
     String? name,
     int? muscleGroup,
+    Value<int?> secondaryMuscleGroup = const Value.absent(),
     int? equipmentType,
     int? orderIndex,
     Value<double?> bodyweight = const Value.absent(),
@@ -2027,6 +2064,9 @@ class Exercise extends DataClass implements Insertable<Exercise> {
     workoutUuid: workoutUuid ?? this.workoutUuid,
     name: name ?? this.name,
     muscleGroup: muscleGroup ?? this.muscleGroup,
+    secondaryMuscleGroup: secondaryMuscleGroup.present
+        ? secondaryMuscleGroup.value
+        : this.secondaryMuscleGroup,
     equipmentType: equipmentType ?? this.equipmentType,
     orderIndex: orderIndex ?? this.orderIndex,
     bodyweight: bodyweight.present ? bodyweight.value : this.bodyweight,
@@ -2048,6 +2088,9 @@ class Exercise extends DataClass implements Insertable<Exercise> {
       muscleGroup: data.muscleGroup.present
           ? data.muscleGroup.value
           : this.muscleGroup,
+      secondaryMuscleGroup: data.secondaryMuscleGroup.present
+          ? data.secondaryMuscleGroup.value
+          : this.secondaryMuscleGroup,
       equipmentType: data.equipmentType.present
           ? data.equipmentType.value
           : this.equipmentType,
@@ -2076,6 +2119,7 @@ class Exercise extends DataClass implements Insertable<Exercise> {
           ..write('workoutUuid: $workoutUuid, ')
           ..write('name: $name, ')
           ..write('muscleGroup: $muscleGroup, ')
+          ..write('secondaryMuscleGroup: $secondaryMuscleGroup, ')
           ..write('equipmentType: $equipmentType, ')
           ..write('orderIndex: $orderIndex, ')
           ..write('bodyweight: $bodyweight, ')
@@ -2094,6 +2138,7 @@ class Exercise extends DataClass implements Insertable<Exercise> {
     workoutUuid,
     name,
     muscleGroup,
+    secondaryMuscleGroup,
     equipmentType,
     orderIndex,
     bodyweight,
@@ -2111,6 +2156,7 @@ class Exercise extends DataClass implements Insertable<Exercise> {
           other.workoutUuid == this.workoutUuid &&
           other.name == this.name &&
           other.muscleGroup == this.muscleGroup &&
+          other.secondaryMuscleGroup == this.secondaryMuscleGroup &&
           other.equipmentType == this.equipmentType &&
           other.orderIndex == this.orderIndex &&
           other.bodyweight == this.bodyweight &&
@@ -2126,6 +2172,7 @@ class ExercisesCompanion extends UpdateCompanion<Exercise> {
   final Value<String> workoutUuid;
   final Value<String> name;
   final Value<int> muscleGroup;
+  final Value<int?> secondaryMuscleGroup;
   final Value<int> equipmentType;
   final Value<int> orderIndex;
   final Value<double?> bodyweight;
@@ -2139,6 +2186,7 @@ class ExercisesCompanion extends UpdateCompanion<Exercise> {
     this.workoutUuid = const Value.absent(),
     this.name = const Value.absent(),
     this.muscleGroup = const Value.absent(),
+    this.secondaryMuscleGroup = const Value.absent(),
     this.equipmentType = const Value.absent(),
     this.orderIndex = const Value.absent(),
     this.bodyweight = const Value.absent(),
@@ -2153,6 +2201,7 @@ class ExercisesCompanion extends UpdateCompanion<Exercise> {
     required String workoutUuid,
     required String name,
     required int muscleGroup,
+    this.secondaryMuscleGroup = const Value.absent(),
     required int equipmentType,
     required int orderIndex,
     this.bodyweight = const Value.absent(),
@@ -2172,6 +2221,7 @@ class ExercisesCompanion extends UpdateCompanion<Exercise> {
     Expression<String>? workoutUuid,
     Expression<String>? name,
     Expression<int>? muscleGroup,
+    Expression<int>? secondaryMuscleGroup,
     Expression<int>? equipmentType,
     Expression<int>? orderIndex,
     Expression<double>? bodyweight,
@@ -2186,6 +2236,8 @@ class ExercisesCompanion extends UpdateCompanion<Exercise> {
       if (workoutUuid != null) 'workout_uuid': workoutUuid,
       if (name != null) 'name': name,
       if (muscleGroup != null) 'muscle_group': muscleGroup,
+      if (secondaryMuscleGroup != null)
+        'secondary_muscle_group': secondaryMuscleGroup,
       if (equipmentType != null) 'equipment_type': equipmentType,
       if (orderIndex != null) 'order_index': orderIndex,
       if (bodyweight != null) 'bodyweight': bodyweight,
@@ -2202,6 +2254,7 @@ class ExercisesCompanion extends UpdateCompanion<Exercise> {
     Value<String>? workoutUuid,
     Value<String>? name,
     Value<int>? muscleGroup,
+    Value<int?>? secondaryMuscleGroup,
     Value<int>? equipmentType,
     Value<int>? orderIndex,
     Value<double?>? bodyweight,
@@ -2216,6 +2269,7 @@ class ExercisesCompanion extends UpdateCompanion<Exercise> {
       workoutUuid: workoutUuid ?? this.workoutUuid,
       name: name ?? this.name,
       muscleGroup: muscleGroup ?? this.muscleGroup,
+      secondaryMuscleGroup: secondaryMuscleGroup ?? this.secondaryMuscleGroup,
       equipmentType: equipmentType ?? this.equipmentType,
       orderIndex: orderIndex ?? this.orderIndex,
       bodyweight: bodyweight ?? this.bodyweight,
@@ -2243,6 +2297,9 @@ class ExercisesCompanion extends UpdateCompanion<Exercise> {
     }
     if (muscleGroup.present) {
       map['muscle_group'] = Variable<int>(muscleGroup.value);
+    }
+    if (secondaryMuscleGroup.present) {
+      map['secondary_muscle_group'] = Variable<int>(secondaryMuscleGroup.value);
     }
     if (equipmentType.present) {
       map['equipment_type'] = Variable<int>(equipmentType.value);
@@ -2276,6 +2333,7 @@ class ExercisesCompanion extends UpdateCompanion<Exercise> {
           ..write('workoutUuid: $workoutUuid, ')
           ..write('name: $name, ')
           ..write('muscleGroup: $muscleGroup, ')
+          ..write('secondaryMuscleGroup: $secondaryMuscleGroup, ')
           ..write('equipmentType: $equipmentType, ')
           ..write('orderIndex: $orderIndex, ')
           ..write('bodyweight: $bodyweight, ')
@@ -3471,6 +3529,16 @@ class $CustomExerciseDefinitionsTable extends CustomExerciseDefinitions
     type: DriftSqlType.int,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _secondaryMuscleGroupMeta =
+      const VerificationMeta('secondaryMuscleGroup');
+  @override
+  late final GeneratedColumn<int> secondaryMuscleGroup = GeneratedColumn<int>(
+    'secondary_muscle_group',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _equipmentTypeMeta = const VerificationMeta(
     'equipmentType',
   );
@@ -3510,6 +3578,7 @@ class $CustomExerciseDefinitionsTable extends CustomExerciseDefinitions
     uuid,
     name,
     muscleGroup,
+    secondaryMuscleGroup,
     equipmentType,
     videoUrl,
     createdAt,
@@ -3555,6 +3624,15 @@ class $CustomExerciseDefinitionsTable extends CustomExerciseDefinitions
       );
     } else if (isInserting) {
       context.missing(_muscleGroupMeta);
+    }
+    if (data.containsKey('secondary_muscle_group')) {
+      context.handle(
+        _secondaryMuscleGroupMeta,
+        secondaryMuscleGroup.isAcceptableOrUnknown(
+          data['secondary_muscle_group']!,
+          _secondaryMuscleGroupMeta,
+        ),
+      );
     }
     if (data.containsKey('equipment_type')) {
       context.handle(
@@ -3609,6 +3687,10 @@ class $CustomExerciseDefinitionsTable extends CustomExerciseDefinitions
         DriftSqlType.int,
         data['${effectivePrefix}muscle_group'],
       )!,
+      secondaryMuscleGroup: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}secondary_muscle_group'],
+      ),
       equipmentType: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}equipment_type'],
@@ -3636,6 +3718,7 @@ class CustomExerciseDefinition extends DataClass
   final String uuid;
   final String name;
   final int muscleGroup;
+  final int? secondaryMuscleGroup;
   final int equipmentType;
   final String? videoUrl;
   final DateTime createdAt;
@@ -3644,6 +3727,7 @@ class CustomExerciseDefinition extends DataClass
     required this.uuid,
     required this.name,
     required this.muscleGroup,
+    this.secondaryMuscleGroup,
     required this.equipmentType,
     this.videoUrl,
     required this.createdAt,
@@ -3655,6 +3739,9 @@ class CustomExerciseDefinition extends DataClass
     map['uuid'] = Variable<String>(uuid);
     map['name'] = Variable<String>(name);
     map['muscle_group'] = Variable<int>(muscleGroup);
+    if (!nullToAbsent || secondaryMuscleGroup != null) {
+      map['secondary_muscle_group'] = Variable<int>(secondaryMuscleGroup);
+    }
     map['equipment_type'] = Variable<int>(equipmentType);
     if (!nullToAbsent || videoUrl != null) {
       map['video_url'] = Variable<String>(videoUrl);
@@ -3669,6 +3756,9 @@ class CustomExerciseDefinition extends DataClass
       uuid: Value(uuid),
       name: Value(name),
       muscleGroup: Value(muscleGroup),
+      secondaryMuscleGroup: secondaryMuscleGroup == null && nullToAbsent
+          ? const Value.absent()
+          : Value(secondaryMuscleGroup),
       equipmentType: Value(equipmentType),
       videoUrl: videoUrl == null && nullToAbsent
           ? const Value.absent()
@@ -3687,6 +3777,9 @@ class CustomExerciseDefinition extends DataClass
       uuid: serializer.fromJson<String>(json['uuid']),
       name: serializer.fromJson<String>(json['name']),
       muscleGroup: serializer.fromJson<int>(json['muscleGroup']),
+      secondaryMuscleGroup: serializer.fromJson<int?>(
+        json['secondaryMuscleGroup'],
+      ),
       equipmentType: serializer.fromJson<int>(json['equipmentType']),
       videoUrl: serializer.fromJson<String?>(json['videoUrl']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
@@ -3700,6 +3793,7 @@ class CustomExerciseDefinition extends DataClass
       'uuid': serializer.toJson<String>(uuid),
       'name': serializer.toJson<String>(name),
       'muscleGroup': serializer.toJson<int>(muscleGroup),
+      'secondaryMuscleGroup': serializer.toJson<int?>(secondaryMuscleGroup),
       'equipmentType': serializer.toJson<int>(equipmentType),
       'videoUrl': serializer.toJson<String?>(videoUrl),
       'createdAt': serializer.toJson<DateTime>(createdAt),
@@ -3711,6 +3805,7 @@ class CustomExerciseDefinition extends DataClass
     String? uuid,
     String? name,
     int? muscleGroup,
+    Value<int?> secondaryMuscleGroup = const Value.absent(),
     int? equipmentType,
     Value<String?> videoUrl = const Value.absent(),
     DateTime? createdAt,
@@ -3719,6 +3814,9 @@ class CustomExerciseDefinition extends DataClass
     uuid: uuid ?? this.uuid,
     name: name ?? this.name,
     muscleGroup: muscleGroup ?? this.muscleGroup,
+    secondaryMuscleGroup: secondaryMuscleGroup.present
+        ? secondaryMuscleGroup.value
+        : this.secondaryMuscleGroup,
     equipmentType: equipmentType ?? this.equipmentType,
     videoUrl: videoUrl.present ? videoUrl.value : this.videoUrl,
     createdAt: createdAt ?? this.createdAt,
@@ -3733,6 +3831,9 @@ class CustomExerciseDefinition extends DataClass
       muscleGroup: data.muscleGroup.present
           ? data.muscleGroup.value
           : this.muscleGroup,
+      secondaryMuscleGroup: data.secondaryMuscleGroup.present
+          ? data.secondaryMuscleGroup.value
+          : this.secondaryMuscleGroup,
       equipmentType: data.equipmentType.present
           ? data.equipmentType.value
           : this.equipmentType,
@@ -3748,6 +3849,7 @@ class CustomExerciseDefinition extends DataClass
           ..write('uuid: $uuid, ')
           ..write('name: $name, ')
           ..write('muscleGroup: $muscleGroup, ')
+          ..write('secondaryMuscleGroup: $secondaryMuscleGroup, ')
           ..write('equipmentType: $equipmentType, ')
           ..write('videoUrl: $videoUrl, ')
           ..write('createdAt: $createdAt')
@@ -3761,6 +3863,7 @@ class CustomExerciseDefinition extends DataClass
     uuid,
     name,
     muscleGroup,
+    secondaryMuscleGroup,
     equipmentType,
     videoUrl,
     createdAt,
@@ -3773,6 +3876,7 @@ class CustomExerciseDefinition extends DataClass
           other.uuid == this.uuid &&
           other.name == this.name &&
           other.muscleGroup == this.muscleGroup &&
+          other.secondaryMuscleGroup == this.secondaryMuscleGroup &&
           other.equipmentType == this.equipmentType &&
           other.videoUrl == this.videoUrl &&
           other.createdAt == this.createdAt);
@@ -3784,6 +3888,7 @@ class CustomExerciseDefinitionsCompanion
   final Value<String> uuid;
   final Value<String> name;
   final Value<int> muscleGroup;
+  final Value<int?> secondaryMuscleGroup;
   final Value<int> equipmentType;
   final Value<String?> videoUrl;
   final Value<DateTime> createdAt;
@@ -3792,6 +3897,7 @@ class CustomExerciseDefinitionsCompanion
     this.uuid = const Value.absent(),
     this.name = const Value.absent(),
     this.muscleGroup = const Value.absent(),
+    this.secondaryMuscleGroup = const Value.absent(),
     this.equipmentType = const Value.absent(),
     this.videoUrl = const Value.absent(),
     this.createdAt = const Value.absent(),
@@ -3801,6 +3907,7 @@ class CustomExerciseDefinitionsCompanion
     required String uuid,
     required String name,
     required int muscleGroup,
+    this.secondaryMuscleGroup = const Value.absent(),
     required int equipmentType,
     this.videoUrl = const Value.absent(),
     required DateTime createdAt,
@@ -3814,6 +3921,7 @@ class CustomExerciseDefinitionsCompanion
     Expression<String>? uuid,
     Expression<String>? name,
     Expression<int>? muscleGroup,
+    Expression<int>? secondaryMuscleGroup,
     Expression<int>? equipmentType,
     Expression<String>? videoUrl,
     Expression<DateTime>? createdAt,
@@ -3823,6 +3931,8 @@ class CustomExerciseDefinitionsCompanion
       if (uuid != null) 'uuid': uuid,
       if (name != null) 'name': name,
       if (muscleGroup != null) 'muscle_group': muscleGroup,
+      if (secondaryMuscleGroup != null)
+        'secondary_muscle_group': secondaryMuscleGroup,
       if (equipmentType != null) 'equipment_type': equipmentType,
       if (videoUrl != null) 'video_url': videoUrl,
       if (createdAt != null) 'created_at': createdAt,
@@ -3834,6 +3944,7 @@ class CustomExerciseDefinitionsCompanion
     Value<String>? uuid,
     Value<String>? name,
     Value<int>? muscleGroup,
+    Value<int?>? secondaryMuscleGroup,
     Value<int>? equipmentType,
     Value<String?>? videoUrl,
     Value<DateTime>? createdAt,
@@ -3843,6 +3954,7 @@ class CustomExerciseDefinitionsCompanion
       uuid: uuid ?? this.uuid,
       name: name ?? this.name,
       muscleGroup: muscleGroup ?? this.muscleGroup,
+      secondaryMuscleGroup: secondaryMuscleGroup ?? this.secondaryMuscleGroup,
       equipmentType: equipmentType ?? this.equipmentType,
       videoUrl: videoUrl ?? this.videoUrl,
       createdAt: createdAt ?? this.createdAt,
@@ -3864,6 +3976,9 @@ class CustomExerciseDefinitionsCompanion
     if (muscleGroup.present) {
       map['muscle_group'] = Variable<int>(muscleGroup.value);
     }
+    if (secondaryMuscleGroup.present) {
+      map['secondary_muscle_group'] = Variable<int>(secondaryMuscleGroup.value);
+    }
     if (equipmentType.present) {
       map['equipment_type'] = Variable<int>(equipmentType.value);
     }
@@ -3883,6 +3998,7 @@ class CustomExerciseDefinitionsCompanion
           ..write('uuid: $uuid, ')
           ..write('name: $name, ')
           ..write('muscleGroup: $muscleGroup, ')
+          ..write('secondaryMuscleGroup: $secondaryMuscleGroup, ')
           ..write('equipmentType: $equipmentType, ')
           ..write('videoUrl: $videoUrl, ')
           ..write('createdAt: $createdAt')
@@ -5894,6 +6010,7 @@ typedef $$ExercisesTableCreateCompanionBuilder =
       required String workoutUuid,
       required String name,
       required int muscleGroup,
+      Value<int?> secondaryMuscleGroup,
       required int equipmentType,
       required int orderIndex,
       Value<double?> bodyweight,
@@ -5909,6 +6026,7 @@ typedef $$ExercisesTableUpdateCompanionBuilder =
       Value<String> workoutUuid,
       Value<String> name,
       Value<int> muscleGroup,
+      Value<int?> secondaryMuscleGroup,
       Value<int> equipmentType,
       Value<int> orderIndex,
       Value<double?> bodyweight,
@@ -6016,6 +6134,11 @@ class $$ExercisesTableFilterComposer
 
   ColumnFilters<int> get muscleGroup => $composableBuilder(
     column: $table.muscleGroup,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get secondaryMuscleGroup => $composableBuilder(
+    column: $table.secondaryMuscleGroup,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -6157,6 +6280,11 @@ class $$ExercisesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get secondaryMuscleGroup => $composableBuilder(
+    column: $table.secondaryMuscleGroup,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<int> get equipmentType => $composableBuilder(
     column: $table.equipmentType,
     builder: (column) => ColumnOrderings(column),
@@ -6236,6 +6364,11 @@ class $$ExercisesTableAnnotationComposer
 
   GeneratedColumn<int> get muscleGroup => $composableBuilder(
     column: $table.muscleGroup,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get secondaryMuscleGroup => $composableBuilder(
+    column: $table.secondaryMuscleGroup,
     builder: (column) => column,
   );
 
@@ -6382,6 +6515,7 @@ class $$ExercisesTableTableManager
                 Value<String> workoutUuid = const Value.absent(),
                 Value<String> name = const Value.absent(),
                 Value<int> muscleGroup = const Value.absent(),
+                Value<int?> secondaryMuscleGroup = const Value.absent(),
                 Value<int> equipmentType = const Value.absent(),
                 Value<int> orderIndex = const Value.absent(),
                 Value<double?> bodyweight = const Value.absent(),
@@ -6395,6 +6529,7 @@ class $$ExercisesTableTableManager
                 workoutUuid: workoutUuid,
                 name: name,
                 muscleGroup: muscleGroup,
+                secondaryMuscleGroup: secondaryMuscleGroup,
                 equipmentType: equipmentType,
                 orderIndex: orderIndex,
                 bodyweight: bodyweight,
@@ -6410,6 +6545,7 @@ class $$ExercisesTableTableManager
                 required String workoutUuid,
                 required String name,
                 required int muscleGroup,
+                Value<int?> secondaryMuscleGroup = const Value.absent(),
                 required int equipmentType,
                 required int orderIndex,
                 Value<double?> bodyweight = const Value.absent(),
@@ -6423,6 +6559,7 @@ class $$ExercisesTableTableManager
                 workoutUuid: workoutUuid,
                 name: name,
                 muscleGroup: muscleGroup,
+                secondaryMuscleGroup: secondaryMuscleGroup,
                 equipmentType: equipmentType,
                 orderIndex: orderIndex,
                 bodyweight: bodyweight,
@@ -7360,6 +7497,7 @@ typedef $$CustomExerciseDefinitionsTableCreateCompanionBuilder =
       required String uuid,
       required String name,
       required int muscleGroup,
+      Value<int?> secondaryMuscleGroup,
       required int equipmentType,
       Value<String?> videoUrl,
       required DateTime createdAt,
@@ -7370,6 +7508,7 @@ typedef $$CustomExerciseDefinitionsTableUpdateCompanionBuilder =
       Value<String> uuid,
       Value<String> name,
       Value<int> muscleGroup,
+      Value<int?> secondaryMuscleGroup,
       Value<int> equipmentType,
       Value<String?> videoUrl,
       Value<DateTime> createdAt,
@@ -7401,6 +7540,11 @@ class $$CustomExerciseDefinitionsTableFilterComposer
 
   ColumnFilters<int> get muscleGroup => $composableBuilder(
     column: $table.muscleGroup,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get secondaryMuscleGroup => $composableBuilder(
+    column: $table.secondaryMuscleGroup,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -7449,6 +7593,11 @@ class $$CustomExerciseDefinitionsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get secondaryMuscleGroup => $composableBuilder(
+    column: $table.secondaryMuscleGroup,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<int> get equipmentType => $composableBuilder(
     column: $table.equipmentType,
     builder: (column) => ColumnOrderings(column),
@@ -7485,6 +7634,11 @@ class $$CustomExerciseDefinitionsTableAnnotationComposer
 
   GeneratedColumn<int> get muscleGroup => $composableBuilder(
     column: $table.muscleGroup,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get secondaryMuscleGroup => $composableBuilder(
+    column: $table.secondaryMuscleGroup,
     builder: (column) => column,
   );
 
@@ -7550,6 +7704,7 @@ class $$CustomExerciseDefinitionsTableTableManager
                 Value<String> uuid = const Value.absent(),
                 Value<String> name = const Value.absent(),
                 Value<int> muscleGroup = const Value.absent(),
+                Value<int?> secondaryMuscleGroup = const Value.absent(),
                 Value<int> equipmentType = const Value.absent(),
                 Value<String?> videoUrl = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
@@ -7558,6 +7713,7 @@ class $$CustomExerciseDefinitionsTableTableManager
                 uuid: uuid,
                 name: name,
                 muscleGroup: muscleGroup,
+                secondaryMuscleGroup: secondaryMuscleGroup,
                 equipmentType: equipmentType,
                 videoUrl: videoUrl,
                 createdAt: createdAt,
@@ -7568,6 +7724,7 @@ class $$CustomExerciseDefinitionsTableTableManager
                 required String uuid,
                 required String name,
                 required int muscleGroup,
+                Value<int?> secondaryMuscleGroup = const Value.absent(),
                 required int equipmentType,
                 Value<String?> videoUrl = const Value.absent(),
                 required DateTime createdAt,
@@ -7576,6 +7733,7 @@ class $$CustomExerciseDefinitionsTableTableManager
                 uuid: uuid,
                 name: name,
                 muscleGroup: muscleGroup,
+                secondaryMuscleGroup: secondaryMuscleGroup,
                 equipmentType: equipmentType,
                 videoUrl: videoUrl,
                 createdAt: createdAt,

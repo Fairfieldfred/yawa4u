@@ -290,7 +290,10 @@ class ExerciseCardWidget extends ConsumerWidget {
 
             // Muscle group badge - overlays the card
             if (showMuscleGroupBadge)
-              MuscleGroupBadge.compact(muscleGroup: muscleGroup),
+              MuscleGroupBadge.compact(
+                muscleGroup: muscleGroup,
+                secondaryMuscleGroup: exercise.secondaryMuscleGroup,
+              ),
           ],
         );
       },

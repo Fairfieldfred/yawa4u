@@ -11,6 +11,10 @@ Exercise _$ExerciseFromJson(Map<String, dynamic> json) => Exercise(
   workoutId: json['workoutId'] as String,
   name: json['name'] as String,
   muscleGroup: $enumDecode(_$MuscleGroupEnumMap, json['muscleGroup']),
+  secondaryMuscleGroup: $enumDecodeNullable(
+    _$MuscleGroupEnumMap,
+    json['secondaryMuscleGroup'],
+  ),
   equipmentType: $enumDecode(_$EquipmentTypeEnumMap, json['equipmentType']),
   sets: (json['sets'] as List<dynamic>?)
       ?.map((e) => ExerciseSet.fromJson(e as Map<String, dynamic>))
@@ -33,6 +37,7 @@ Map<String, dynamic> _$ExerciseToJson(Exercise instance) => <String, dynamic>{
   'workoutId': instance.workoutId,
   'name': instance.name,
   'muscleGroup': _$MuscleGroupEnumMap[instance.muscleGroup]!,
+  'secondaryMuscleGroup': _$MuscleGroupEnumMap[instance.secondaryMuscleGroup],
   'equipmentType': _$EquipmentTypeEnumMap[instance.equipmentType]!,
   'sets': instance.sets.map((e) => e.toJson()).toList(),
   'orderIndex': instance.orderIndex,
@@ -57,6 +62,13 @@ const _$MuscleGroupEnumMap = {
   MuscleGroup.traps: 'traps',
   MuscleGroup.forearms: 'forearms',
   MuscleGroup.abs: 'abs',
+  MuscleGroup.fullBody: 'fullBody',
+  MuscleGroup.adductors: 'adductors',
+  MuscleGroup.core: 'core',
+  MuscleGroup.grip: 'grip',
+  MuscleGroup.obliques: 'obliques',
+  MuscleGroup.legs: 'legs',
+  MuscleGroup.hips: 'hips',
 };
 
 const _$EquipmentTypeEnumMap = {
@@ -66,6 +78,7 @@ const _$EquipmentTypeEnumMap = {
   EquipmentType.cable: 'cable',
   EquipmentType.dumbbell: 'dumbbell',
   EquipmentType.freemotion: 'freemotion',
+  EquipmentType.kettlebell: 'kettlebell',
   EquipmentType.machine: 'machine',
   EquipmentType.machineAssistance: 'machineAssistance',
   EquipmentType.smithMachine: 'smithMachine',

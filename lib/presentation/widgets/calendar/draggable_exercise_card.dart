@@ -219,23 +219,7 @@ class DraggableExerciseCard extends StatelessWidget {
   }
 
   Color _getMuscleGroupColor(MuscleGroup muscleGroup) {
-    switch (muscleGroup) {
-      case MuscleGroup.chest:
-      case MuscleGroup.triceps:
-      case MuscleGroup.shoulders:
-        return Colors.pink;
-      case MuscleGroup.back:
-      case MuscleGroup.biceps:
-        return Colors.cyan;
-      case MuscleGroup.quads:
-      case MuscleGroup.hamstrings:
-      case MuscleGroup.glutes:
-      case MuscleGroup.calves:
-        return Colors.teal;
-      case MuscleGroup.traps:
-      case MuscleGroup.forearms:
-      case MuscleGroup.abs:
-        return Colors.purple;
-    }
+    // Use the color defined in the MuscleGroup extension
+    return muscleGroup.color;
   }
 }

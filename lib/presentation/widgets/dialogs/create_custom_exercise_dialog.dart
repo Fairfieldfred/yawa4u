@@ -22,6 +22,7 @@ class _CreateCustomExerciseDialogState
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   MuscleGroup _selectedMuscleGroup = MuscleGroup.chest;
+  MuscleGroup? _selectedSecondaryMuscleGroup;
   EquipmentType _selectedEquipmentType = EquipmentType.barbell;
   bool _isSubmitting = false;
   String? _errorMessage;
@@ -61,6 +62,7 @@ class _CreateCustomExerciseDialogState
         id: const Uuid().v4(),
         name: name,
         muscleGroup: _selectedMuscleGroup,
+        secondaryMuscleGroup: _selectedSecondaryMuscleGroup,
         equipmentType: _selectedEquipmentType,
       );
 
@@ -160,6 +162,36 @@ class _CreateCustomExerciseDialogState
                   if (value != null) {
                     setState(() => _selectedMuscleGroup = value);
                   }
+                },
+              ),
+              const SizedBox(height: 16),
+
+              // Secondary muscle group dropdown (optional)
+              DropdownButtonFormField<MuscleGroup?>(
+                initialValue: _selectedSecondaryMuscleGroup,
+                decoration: InputDecoration(
+                  labelText: 'Secondary Muscle Group (Optional)',
+                  prefixIcon: const Icon(Icons.accessibility_new_outlined),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                items: [
+                  const DropdownMenuItem<MuscleGroup?>(
+                    value: null,
+                    child: Text('None'),
+                  ),
+                  ...MuscleGroup.values
+                      .where((group) => group != _selectedMuscleGroup)
+                      .map((group) {
+                    return DropdownMenuItem<MuscleGroup?>(
+                      value: group,
+                      child: Text(group.displayName),
+                    );
+                  }),
+                ],
+                onChanged: (value) {
+                  setState(() => _selectedSecondaryMuscleGroup = value);
                 },
               ),
               const SizedBox(height: 16),

@@ -17,6 +17,9 @@ class CustomExerciseMapper {
       id: row.uuid,
       name: row.name,
       muscleGroup: MuscleGroup.values[row.muscleGroup],
+      secondaryMuscleGroup: row.secondaryMuscleGroup != null
+          ? MuscleGroup.values[row.secondaryMuscleGroup!]
+          : null,
       equipmentType: EquipmentType.values[row.equipmentType],
       videoUrl: row.videoUrl,
       createdAt: row.createdAt,
@@ -31,6 +34,7 @@ class CustomExerciseMapper {
       uuid: Value(exercise.id),
       name: Value(exercise.name),
       muscleGroup: Value(exercise.muscleGroup.index),
+      secondaryMuscleGroup: Value(exercise.secondaryMuscleGroup?.index),
       equipmentType: Value(exercise.equipmentType.index),
       videoUrl: Value(exercise.videoUrl),
       createdAt: Value(exercise.createdAt),

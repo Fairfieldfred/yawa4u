@@ -128,6 +128,9 @@ class ExerciseMapper {
       workoutId: row.workoutUuid,
       name: row.name,
       muscleGroup: MuscleGroup.values[row.muscleGroup],
+      secondaryMuscleGroup: row.secondaryMuscleGroup != null
+          ? MuscleGroup.values[row.secondaryMuscleGroup!]
+          : null,
       equipmentType: EquipmentType.values[row.equipmentType],
       sets: sets,
       orderIndex: row.orderIndex,
@@ -147,6 +150,7 @@ class ExerciseMapper {
       workoutUuid: Value(exercise.workoutId),
       name: Value(exercise.name),
       muscleGroup: Value(exercise.muscleGroup.index),
+      secondaryMuscleGroup: Value(exercise.secondaryMuscleGroup?.index),
       equipmentType: Value(exercise.equipmentType.index),
       orderIndex: Value(exercise.orderIndex),
       bodyweight: Value(exercise.bodyweight),

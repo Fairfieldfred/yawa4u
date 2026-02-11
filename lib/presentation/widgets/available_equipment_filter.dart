@@ -51,9 +51,11 @@ enum EquipmentOption {
           EquipmentType.bodyweightLoadable,
         };
       case EquipmentOption.kettlebells:
+        return {EquipmentType.kettlebell};
       case EquipmentOption.resistanceBands:
+        return {EquipmentType.bandAssistance};
       case EquipmentOption.suspensionTrainer:
-        // These don't have direct mappings in EquipmentType yet
+        // No direct mapping in EquipmentType yet
         return {};
       case EquipmentOption.treadmill:
       case EquipmentOption.exerciseBike:

@@ -6,6 +6,7 @@ enum EquipmentType {
   cable,
   dumbbell,
   freemotion,
+  kettlebell,
   machine,
   machineAssistance,
   smithMachine,
@@ -28,6 +29,8 @@ extension EquipmentTypeExtension on EquipmentType {
         return 'Dumbbell';
       case EquipmentType.freemotion:
         return 'Freemotion';
+      case EquipmentType.kettlebell:
+        return 'Kettlebell';
       case EquipmentType.machine:
         return 'Machine';
       case EquipmentType.machineAssistance:

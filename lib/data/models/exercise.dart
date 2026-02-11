@@ -17,6 +17,7 @@ class Exercise {
   final String workoutId;
   final String name;
   final MuscleGroup muscleGroup;
+  final MuscleGroup? secondaryMuscleGroup;
   final EquipmentType equipmentType;
   final List<ExerciseSet> sets;
   final int orderIndex;
@@ -32,6 +33,7 @@ class Exercise {
     required this.workoutId,
     required this.name,
     required this.muscleGroup,
+    this.secondaryMuscleGroup,
     required this.equipmentType,
     List<ExerciseSet>? sets,
     this.orderIndex = 0,
@@ -106,6 +108,7 @@ class Exercise {
     String? workoutId,
     String? name,
     MuscleGroup? muscleGroup,
+    MuscleGroup? secondaryMuscleGroup,
     EquipmentType? equipmentType,
     List<ExerciseSet>? sets,
     int? orderIndex,
@@ -121,6 +124,7 @@ class Exercise {
       workoutId: workoutId ?? this.workoutId,
       name: name ?? this.name,
       muscleGroup: muscleGroup ?? this.muscleGroup,
+      secondaryMuscleGroup: secondaryMuscleGroup ?? this.secondaryMuscleGroup,
       equipmentType: equipmentType ?? this.equipmentType,
       sets: sets ?? this.sets,
       orderIndex: orderIndex ?? this.orderIndex,
@@ -142,7 +146,10 @@ class Exercise {
 
   @override
   String toString() {
-    return 'Exercise(name: $name, muscleGroup: ${muscleGroup.name}, sets: ${sets.length})';
+    final secondary = secondaryMuscleGroup != null
+        ? '/${secondaryMuscleGroup!.name}'
+        : '';
+    return 'Exercise(name: $name, muscleGroup: ${muscleGroup.name}$secondary, sets: ${sets.length})';
   }
 
   @override
@@ -154,11 +161,19 @@ class Exercise {
         other.workoutId == workoutId &&
         other.name == name &&
         other.muscleGroup == muscleGroup &&
+        other.secondaryMuscleGroup == secondaryMuscleGroup &&
         other.equipmentType == equipmentType;
   }
 
   @override
   int get hashCode {
-    return Object.hash(id, workoutId, name, muscleGroup, equipmentType);
+    return Object.hash(
+      id,
+      workoutId,
+      name,
+      muscleGroup,
+      secondaryMuscleGroup,
+      equipmentType,
+    );
   }
 }

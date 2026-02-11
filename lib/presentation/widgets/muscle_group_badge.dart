@@ -19,8 +19,11 @@ import '../../core/constants/muscle_groups.dart';
 /// )
 /// ```
 class MuscleGroupBadge extends StatelessWidget {
-  /// The muscle group to display.
+  /// The primary muscle group to display.
   final MuscleGroup muscleGroup;
+
+  /// The optional secondary muscle group to display.
+  final MuscleGroup? secondaryMuscleGroup;
 
   /// Top position offset. Defaults to -20.
   final double top;
@@ -47,6 +50,7 @@ class MuscleGroupBadge extends StatelessWidget {
   const MuscleGroupBadge({
     super.key,
     required this.muscleGroup,
+    this.secondaryMuscleGroup,
     this.top = -20,
     this.left = 16,
     this.horizontalPadding = 16,
@@ -60,6 +64,7 @@ class MuscleGroupBadge extends StatelessWidget {
   const MuscleGroupBadge.compact({
     super.key,
     required this.muscleGroup,
+    this.secondaryMuscleGroup,
     this.top = -20,
     this.left = 16,
     this.horizontalPadding = 10,
@@ -72,6 +77,12 @@ class MuscleGroupBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isLightMode = Theme.of(context).brightness == Brightness.light;
+
+    // Build display text with optional secondary muscle group
+    final displayText = secondaryMuscleGroup != null
+        ? '${muscleGroup.displayName} / ${secondaryMuscleGroup!.displayName}'
+            .toUpperCase()
+        : muscleGroup.displayName.toUpperCase();
 
     return Positioned(
       top: top,
@@ -98,7 +109,7 @@ class MuscleGroupBadge extends StatelessWidget {
             ),
             const SizedBox(width: 8),
             Text(
-              muscleGroup.displayName.toUpperCase(),
+              displayText,
               style: TextStyle(
                 color: isLightMode ? Colors.grey.shade700 : Colors.white,
                 fontSize: fontSize,

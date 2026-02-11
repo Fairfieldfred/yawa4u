@@ -43,7 +43,9 @@ class Exercises extends Table {
   TextColumn get uuid => text().unique()();
   TextColumn get workoutUuid => text().references(Workouts, #uuid)();
   TextColumn get name => text()();
-  IntColumn get muscleGroup => integer()(); // MuscleGroup enum
+  IntColumn get muscleGroup => integer()(); // MuscleGroup enum (primary)
+  IntColumn get secondaryMuscleGroup =>
+      integer().nullable()(); // MuscleGroup enum (optional)
   IntColumn get equipmentType => integer()(); // EquipmentType enum
   IntColumn get orderIndex => integer()();
   RealColumn get bodyweight => real().nullable()();
@@ -86,7 +88,9 @@ class CustomExerciseDefinitions extends Table {
   IntColumn get id => integer().autoIncrement()();
   TextColumn get uuid => text().unique()();
   TextColumn get name => text()();
-  IntColumn get muscleGroup => integer()(); // MuscleGroup enum
+  IntColumn get muscleGroup => integer()(); // MuscleGroup enum (primary)
+  IntColumn get secondaryMuscleGroup =>
+      integer().nullable()(); // MuscleGroup enum (optional)
   IntColumn get equipmentType => integer()(); // EquipmentType enum
   TextColumn get videoUrl => text().nullable()();
   DateTimeColumn get createdAt => dateTime()();

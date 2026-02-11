@@ -9,6 +9,7 @@ class CustomExerciseDefinition {
   final String id;
   final String name;
   final MuscleGroup muscleGroup;
+  final MuscleGroup? secondaryMuscleGroup;
   final EquipmentType equipmentType;
   final String? videoUrl;
   final DateTime createdAt;
@@ -17,6 +18,7 @@ class CustomExerciseDefinition {
     required this.id,
     required this.name,
     required this.muscleGroup,
+    this.secondaryMuscleGroup,
     required this.equipmentType,
     this.videoUrl,
     DateTime? createdAt,
@@ -27,6 +29,7 @@ class CustomExerciseDefinition {
     return ExerciseDefinition(
       name: name,
       muscleGroup: muscleGroup,
+      secondaryMuscleGroup: secondaryMuscleGroup,
       equipmentType: equipmentType,
       videoUrl: videoUrl,
     );
@@ -37,6 +40,7 @@ class CustomExerciseDefinition {
     String? id,
     String? name,
     MuscleGroup? muscleGroup,
+    MuscleGroup? secondaryMuscleGroup,
     EquipmentType? equipmentType,
     String? videoUrl,
     DateTime? createdAt,
@@ -45,6 +49,7 @@ class CustomExerciseDefinition {
       id: id ?? this.id,
       name: name ?? this.name,
       muscleGroup: muscleGroup ?? this.muscleGroup,
+      secondaryMuscleGroup: secondaryMuscleGroup ?? this.secondaryMuscleGroup,
       equipmentType: equipmentType ?? this.equipmentType,
       videoUrl: videoUrl ?? this.videoUrl,
       createdAt: createdAt ?? this.createdAt,
@@ -57,6 +62,7 @@ class CustomExerciseDefinition {
       'id': id,
       'name': name,
       'muscleGroup': muscleGroup.name,
+      'secondaryMuscleGroup': secondaryMuscleGroup?.name,
       'equipmentType': equipmentType.name,
       'videoUrl': videoUrl,
       'createdAt': createdAt.toIso8601String(),
@@ -72,6 +78,12 @@ class CustomExerciseDefinition {
         (e) => e.name == json['muscleGroup'],
         orElse: () => MuscleGroup.chest,
       ),
+      secondaryMuscleGroup: json['secondaryMuscleGroup'] != null
+          ? MuscleGroup.values.firstWhere(
+              (e) => e.name == json['secondaryMuscleGroup'],
+              orElse: () => MuscleGroup.chest,
+            )
+          : null,
       equipmentType: EquipmentType.values.firstWhere(
         (e) => e.name == json['equipmentType'],
         orElse: () => EquipmentType.barbell,
@@ -85,6 +97,9 @@ class CustomExerciseDefinition {
 
   @override
   String toString() {
-    return 'CustomExerciseDefinition(id: $id, name: $name, muscleGroup: ${muscleGroup.name}, equipment: ${equipmentType.name})';
+    final secondary = secondaryMuscleGroup != null
+        ? '/${secondaryMuscleGroup!.name}'
+        : '';
+    return 'CustomExerciseDefinition(id: $id, name: $name, muscleGroup: ${muscleGroup.name}$secondary, equipment: ${equipmentType.name})';
   }
 }
