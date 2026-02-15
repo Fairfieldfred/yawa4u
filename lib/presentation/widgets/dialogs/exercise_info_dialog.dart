@@ -27,7 +27,7 @@ const Map<String, String> _exerciseVideos = {
   'Bench Press':
       'https://www.youtube.com/watch?v=fGm-ef-4PVk', // TODO: Add YouTube URL
   'Bench Press (Incline)': 'https://www.youtube.com/watch?v=fGm-ef-4PVk',
-  'Incline Dumbbell Press': '',
+  'Incline Dumbbell Press': 'https://www.youtube.com/watch?v=p2t9daxLpB8',
   'Dumbbell Bench Press': '',
 
   // Back
@@ -38,11 +38,11 @@ const Map<String, String> _exerciseVideos = {
 
   // Shoulders
   'Overhead Press': '',
-  'Dumbbell Lateral Raise': '',
+  'Dumbbell Lateral Raise': 'https://youtu.be/v_ZkxWzYnMc?t=215',
 
   // Arms
-  'Barbell Curl': '',
-  'Hammer Curl': '',
+  'Barbell Curl': 'https://youtu.be/i1YgFZB6alI?t=139',
+  'Hammer Curl': 'https://youtu.be/Kd3tbUnbueU',
   'Cable Triceps Pushdown (Bar)': '',
   'Tricep Pushdown': '',
   'Barbell Overhead Triceps Extension': '',
