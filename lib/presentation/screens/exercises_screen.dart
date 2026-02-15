@@ -10,6 +10,7 @@ import '../../data/models/exercise_set.dart';
 import '../../data/models/training_cycle.dart';
 import '../../data/models/workout.dart';
 import '../../data/repositories/training_cycle_repository.dart';
+import '../../domain/controllers/workout_home_controller.dart';
 import '../../domain/providers/database_providers.dart';
 import '../../domain/providers/onboarding_providers.dart';
 import '../../domain/providers/theme_provider.dart';
@@ -522,31 +523,6 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
     return 0;
   }
 
-  /// Calculate target RIR for a given period based on trainingCycle recovery schedule
-  int _calculateRIR(int periodNumber) {
-    final recoveryPeriod = widget.trainingCycle.recoveryPeriod;
-
-    // Recovery period has 8 RIR
-    if (periodNumber == recoveryPeriod) {
-      return 8;
-    }
-
-    // Calculate periods until recovery
-    final periodsUntilRecovery = recoveryPeriod - periodNumber;
-
-    // Period before recovery = 0 RIR
-    // 2 periods before = 1 RIR
-    // 3 periods before = 2 RIR, etc.
-    if (periodsUntilRecovery == 1) {
-      return 0;
-    } else if (periodsUntilRecovery > 1) {
-      return periodsUntilRecovery - 1;
-    } else {
-      // After recovery period
-      return 0;
-    }
-  }
-
   @override
   void dispose() {
     _pageController.dispose();
@@ -710,88 +686,72 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
                                         exercise: exercise,
                                         showMuscleGroupBadge:
                                             showMuscleGroupBadge,
-                                        targetRir: _calculateRIR(
+                                        targetRir: calculateRIR(
                                           source.workout.periodNumber,
+                                          widget.trainingCycle.recoveryPeriod,
                                         ),
                                         weightUnit: ref.watch(
                                           weightUnitProvider,
                                         ),
                                         useMetric: ref.watch(useMetricProvider),
-                                        onAddNote: (exerciseId) => _addNote(
-                                          source.workout.id,
-                                          exerciseId,
+                                        showMoveDown: false,
+                                        callbacks: ExerciseCardCallbacks(
+                                          onAddNote: (id) => _addNote(
+                                            source.workout.id, id,
+                                          ),
+                                          onReplace: (id) => _replaceExercise(
+                                            source.workout.id, id,
+                                          ),
+                                          onJointPain: (id) => _logJointPain(
+                                            source.workout.id, id,
+                                          ),
+                                          onAddSet: (id) => _addSetToExercise(
+                                            source.workout.id, id,
+                                          ),
+                                          onSkipSets: (id) =>
+                                              _skipExerciseSets(
+                                                source.workout.id, id,
+                                              ),
+                                          onDelete: (id) => _deleteExercise(
+                                            source.workout.id, id,
+                                          ),
+                                          onAddSetBelow: (i) => _addSetBelow(
+                                            source.workout.id, exercise.id, i,
+                                          ),
+                                          onToggleSetSkip: (i) =>
+                                              _toggleSetSkip(
+                                                source.workout.id,
+                                                exercise.id,
+                                                i,
+                                              ),
+                                          onDeleteSet: (i) => _deleteSet(
+                                            source.workout.id, exercise.id, i,
+                                          ),
+                                          onUpdateSetType: (i, type) =>
+                                              _updateSetType(
+                                                source.workout.id,
+                                                exercise.id,
+                                                i,
+                                                type,
+                                              ),
+                                          onUpdateSetWeight: (i, v) =>
+                                              _updateSetWeight(
+                                                source.workout.id,
+                                                exercise.id,
+                                                i,
+                                                v,
+                                              ),
+                                          onUpdateSetReps: (i, v) =>
+                                              _updateSetReps(
+                                                source.workout.id,
+                                                exercise.id,
+                                                i,
+                                                v,
+                                              ),
+                                          onToggleSetLog: (i) => _toggleSetLog(
+                                            source.workout.id, exercise.id, i,
+                                          ),
                                         ),
-                                        showMoveDown:
-                                            false, // Single exercise view, no reordering needed
-                                        onReplace: (exerciseId) =>
-                                            _replaceExercise(
-                                              source.workout.id,
-                                              exerciseId,
-                                            ),
-                                        onJointPain: (exerciseId) =>
-                                            _logJointPain(
-                                              source.workout.id,
-                                              exerciseId,
-                                            ),
-                                        onAddSet: (exerciseId) =>
-                                            _addSetToExercise(
-                                              source.workout.id,
-                                              exerciseId,
-                                            ),
-                                        onSkipSets: (exerciseId) =>
-                                            _skipExerciseSets(
-                                              source.workout.id,
-                                              exerciseId,
-                                            ),
-                                        onDelete: (exerciseId) =>
-                                            _deleteExercise(
-                                              source.workout.id,
-                                              exerciseId,
-                                            ),
-                                        onAddSetBelow: (setIndex) =>
-                                            _addSetBelow(
-                                              source.workout.id,
-                                              exercise.id,
-                                              setIndex,
-                                            ),
-                                        onToggleSetSkip: (setIndex) =>
-                                            _toggleSetSkip(
-                                              source.workout.id,
-                                              exercise.id,
-                                              setIndex,
-                                            ),
-                                        onDeleteSet: (setIndex) => _deleteSet(
-                                          source.workout.id,
-                                          exercise.id,
-                                          setIndex,
-                                        ),
-                                        onUpdateSetType: (setIndex, setType) =>
-                                            _updateSetType(
-                                              source.workout.id,
-                                              exercise.id,
-                                              setIndex,
-                                              setType,
-                                            ),
-                                        onUpdateSetWeight: (setIndex, value) =>
-                                            _updateSetWeight(
-                                              source.workout.id,
-                                              exercise.id,
-                                              setIndex,
-                                              value,
-                                            ),
-                                        onUpdateSetReps: (setIndex, value) =>
-                                            _updateSetReps(
-                                              source.workout.id,
-                                              exercise.id,
-                                              setIndex,
-                                              value,
-                                            ),
-                                        onToggleSetLog: (setIndex) =>
-                                            _toggleSetLog(
-                                              source.workout.id,
-                                              exercise.id,
-                                              setIndex,
-                                            ),
                                       ),
                                       // Swipe indicator
                                       if (allExercises.length > 1)

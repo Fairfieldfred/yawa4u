@@ -7,7 +7,6 @@ import '../../core/constants/enums.dart';
 import '../../core/theme/skins/skins.dart';
 import '../../data/models/exercise.dart';
 import '../../data/models/exercise_set.dart';
-import '../../data/models/training_cycle.dart';
 import '../../data/models/workout.dart';
 import '../../domain/controllers/workout_home_controller.dart';
 import '../../domain/providers/database_providers.dart';
@@ -643,31 +642,6 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     return true;
   }
 
-  /// Calculate target RIR for a given period based on trainingCycle recovery schedule
-  int _calculateRIR(int periodNumber, dynamic trainingCycle) {
-    final recoveryPeriod = trainingCycle.recoveryPeriod;
-
-    // Recovery period has 8 RIR
-    if (periodNumber == recoveryPeriod) {
-      return 8;
-    }
-
-    // Calculate periods until recovery
-    final periodsUntilRecovery = recoveryPeriod - periodNumber;
-
-    // Period before recovery = 0 RIR
-    // 2 periods before = 1 RIR
-    // 3 periods before = 2 RIR, etc.
-    if (periodsUntilRecovery == 1) {
-      return 0;
-    } else if (periodsUntilRecovery > 1) {
-      return periodsUntilRecovery - 1;
-    } else {
-      // After recovery period
-      return 0;
-    }
-  }
-
   Future<void> _finishWorkout(List<Workout> workouts) async {
     if (workouts.isEmpty) return;
 
@@ -1190,10 +1164,15 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
             children: [
               // Exercise list
               allExercises.isEmpty
-                  ? const Center(
+                  ? Center(
                       child: Text(
                         'No exercises',
-                        style: TextStyle(color: Colors.white54),
+                        style: TextStyle(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .onSurface
+                              .withValues(alpha: 0.5),
+                        ),
                       ),
                     )
                   : ListView.separated(
@@ -1213,7 +1192,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                         return isSameMuscleGroup
                             ? Container(
                                 height: 1,
-                                color: const Color(0xFF3A3A3C),
+                                color: Theme.of(context).dividerColor,
                               )
                             : const SizedBox(height: 32);
                       },
@@ -1225,9 +1204,9 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                                 exercise.muscleGroup;
 
                         // Calculate target RIR for current period
-                        final periodRir = _calculateRIR(
+                        final periodRir = calculateRIR(
                           displayPeriod,
-                          trainingCycle,
+                          trainingCycle.recoveryPeriod,
                         );
 
                         return ExerciseCardWidget(
@@ -1239,64 +1218,47 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                           targetRir: periodRir,
                           weightUnit: ref.watch(weightUnitProvider),
                           useMetric: ref.watch(useMetricProvider),
-                          onAddNote: (exerciseId) =>
-                              _addNote(exercise.workoutId, exerciseId),
-                          onMoveUp: (exerciseId) =>
-                              _moveExerciseUp(exercise.workoutId, exerciseId),
-                          onMoveDown: (exerciseId) =>
-                              _moveExerciseDown(exercise.workoutId, exerciseId),
                           showMoveDown: true,
                           isFirstExercise: index == 0,
                           isLastExercise: index == allExercises.length - 1,
-                          onReplace: (exerciseId) =>
-                              _replaceExercise(exercise.workoutId, exerciseId),
-                          onJointPain: (exerciseId) =>
-                              _logJointPain(exercise.workoutId, exerciseId),
-                          onAddSet: (exerciseId) =>
-                              _addSetToExercise(exercise.workoutId, exerciseId),
-                          onSkipSets: (exerciseId) =>
-                              _skipExerciseSets(exercise.workoutId, exerciseId),
-                          onDelete: (exerciseId) =>
-                              _deleteExercise(exercise.workoutId, exerciseId),
-                          onAddSetBelow: (setIndex) => _addSetBelow(
-                            exercise.workoutId,
-                            exercise.id,
-                            setIndex,
-                          ),
-                          onToggleSetSkip: (setIndex) => _toggleSetSkip(
-                            exercise.workoutId,
-                            exercise.id,
-                            setIndex,
-                          ),
-                          onDeleteSet: (setIndex) => _deleteSet(
-                            exercise.workoutId,
-                            exercise.id,
-                            setIndex,
-                          ),
-                          onUpdateSetType: (setIndex, setType) =>
-                              _updateSetType(
-                                exercise.workoutId,
-                                exercise.id,
-                                setIndex,
-                                setType,
-                              ),
-                          onUpdateSetWeight: (setIndex, value) =>
-                              _updateSetWeight(
-                                exercise.workoutId,
-                                exercise.id,
-                                setIndex,
-                                value,
-                              ),
-                          onUpdateSetReps: (setIndex, value) => _updateSetReps(
-                            exercise.workoutId,
-                            exercise.id,
-                            setIndex,
-                            value,
-                          ),
-                          onToggleSetLog: (setIndex) => _toggleSetLog(
-                            exercise.workoutId,
-                            exercise.id,
-                            setIndex,
+                          callbacks: ExerciseCardCallbacks(
+                            onAddNote: (id) =>
+                                _addNote(exercise.workoutId, id),
+                            onMoveUp: (id) =>
+                                _moveExerciseUp(exercise.workoutId, id),
+                            onMoveDown: (id) =>
+                                _moveExerciseDown(exercise.workoutId, id),
+                            onReplace: (id) =>
+                                _replaceExercise(exercise.workoutId, id),
+                            onJointPain: (id) =>
+                                _logJointPain(exercise.workoutId, id),
+                            onAddSet: (id) =>
+                                _addSetToExercise(exercise.workoutId, id),
+                            onSkipSets: (id) =>
+                                _skipExerciseSets(exercise.workoutId, id),
+                            onDelete: (id) =>
+                                _deleteExercise(exercise.workoutId, id),
+                            onAddSetBelow: (i) => _addSetBelow(
+                              exercise.workoutId, exercise.id, i,
+                            ),
+                            onToggleSetSkip: (i) => _toggleSetSkip(
+                              exercise.workoutId, exercise.id, i,
+                            ),
+                            onDeleteSet: (i) => _deleteSet(
+                              exercise.workoutId, exercise.id, i,
+                            ),
+                            onUpdateSetType: (i, type) => _updateSetType(
+                              exercise.workoutId, exercise.id, i, type,
+                            ),
+                            onUpdateSetWeight: (i, v) => _updateSetWeight(
+                              exercise.workoutId, exercise.id, i, v,
+                            ),
+                            onUpdateSetReps: (i, v) => _updateSetReps(
+                              exercise.workoutId, exercise.id, i, v,
+                            ),
+                            onToggleSetLog: (i) => _toggleSetLog(
+                              exercise.workoutId, exercise.id, i,
+                            ),
                           ),
                         );
                       },
@@ -1342,20 +1304,26 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                   child: Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF1C1C1E),
+                      color: Theme.of(context).colorScheme.surface,
                       border: Border(
                         top: BorderSide(
-                          color: Colors.white.withValues(alpha: 0.1),
+                          color: Theme.of(context)
+                              .colorScheme
+                              .onSurface
+                              .withValues(alpha: 0.1),
                         ),
                       ),
                     ),
                     child: SafeArea(
                       top: false,
-                      child: ElevatedButton(
+                      child: Semantics(
+                        label: 'Finish workout',
+                        button: true,
+                        child: ElevatedButton(
                         onPressed: () => _finishWorkout(workouts),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: context.successColor,
-                          foregroundColor: Colors.white,
+                          foregroundColor: Theme.of(context).colorScheme.onPrimary,
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
@@ -1370,6 +1338,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                             letterSpacing: 0.5,
                           ),
                         ),
+                      ),
                       ),
                     ),
                   ),
@@ -2003,303 +1972,5 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
 
   void _skipWorkout(List<Workout> workouts) {
     debugPrint('Skip workout');
-  }
-}
-
-/// Old modal widget - kept for reference but not used
-class _PeriodSelectorModal extends StatefulWidget {
-  final TrainingCycle trainingCycle;
-  final int currentPeriod;
-  final int currentDay;
-
-  const _PeriodSelectorModal({
-    required this.trainingCycle,
-    required this.currentPeriod,
-    required this.currentDay,
-  });
-
-  @override
-  State<_PeriodSelectorModal> createState() => _PeriodSelectorModalState();
-}
-
-class _PeriodSelectorModalState extends State<_PeriodSelectorModal> {
-  late int _selectedPeriod;
-  late int _selectedDay;
-
-  @override
-  void initState() {
-    super.initState();
-    _selectedPeriod = widget.currentPeriod;
-    _selectedDay = widget.currentDay;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    final availableDays = dayNames
-        .take(widget.trainingCycle.daysPerPeriod)
-        .toList();
-
-    return Container(
-      height: MediaQuery.of(context).size.height * 0.6,
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      child: Column(
-        children: [
-          // Header
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const SizedBox(width: 40),
-                Text(
-                  'PERIODS',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.close),
-                  onPressed: () => Navigator.pop(context),
-                ),
-              ],
-            ),
-          ),
-
-          // Period selector buttons (+ and -)
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                IconButton(
-                  icon: Icon(
-                    Icons.remove,
-                    color: Theme.of(context).colorScheme.onSurface,
-                  ),
-                  onPressed: _selectedPeriod > 1
-                      ? () {
-                          setState(() {
-                            _selectedPeriod--;
-                          });
-                        }
-                      : null,
-                  style: IconButton.styleFrom(
-                    backgroundColor: Theme.of(
-                      context,
-                    ).colorScheme.surfaceContainerHighest,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                IconButton(
-                  icon: Icon(
-                    Icons.add,
-                    color: Theme.of(context).colorScheme.onSurface,
-                  ),
-                  onPressed: _selectedPeriod < widget.trainingCycle.periodsTotal
-                      ? () {
-                          setState(() {
-                            _selectedPeriod++;
-                          });
-                        }
-                      : null,
-                  style: IconButton.styleFrom(
-                    backgroundColor: Theme.of(
-                      context,
-                    ).colorScheme.surfaceContainerHighest,
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          // Period grid
-          Expanded(
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: List.generate(widget.trainingCycle.periodsTotal, (
-                  periodIndex,
-                ) {
-                  final periodNumber = periodIndex + 1;
-                  return _buildPeriodColumn(
-                    periodNumber,
-                    availableDays,
-                    widget.trainingCycle.recoveryPeriod == periodNumber,
-                  );
-                }),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPeriodColumn(
-    int periodNumber,
-    List<String> dayNames,
-    bool isRecovery,
-  ) {
-    return Container(
-      margin: const EdgeInsets.only(right: 8),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Period header
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            decoration: BoxDecoration(color: Colors.transparent),
-            child: Column(
-              children: [
-                Text(
-                  '$periodNumber',
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurface,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                if (isRecovery)
-                  Text(
-                    'DL',
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.primary,
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                Text(
-                  '${_calculateRIR(periodNumber)} RIR',
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    fontSize: 12,
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          // Day buttons
-          ...List.generate(dayNames.length, (dayIndex) {
-            final dayNumber = dayIndex + 1;
-            final isCurrentPeriod = periodNumber == widget.currentPeriod;
-            final isCurrentDay = dayNumber == widget.currentDay;
-            final isSelected =
-                periodNumber == _selectedPeriod && dayNumber == _selectedDay;
-            final isCompleted =
-                periodNumber < widget.currentPeriod ||
-                (isCurrentPeriod && dayNumber < widget.currentDay);
-
-            return GestureDetector(
-              onTap: () {
-                setState(() {
-                  _selectedPeriod = periodNumber;
-                  _selectedDay = dayNumber;
-                });
-
-                Navigator.pop(context);
-              },
-              child: Container(
-                width: 80,
-                height: 56,
-                margin: const EdgeInsets.only(bottom: 8),
-                decoration: BoxDecoration(
-                  color: isCompleted
-                      ? context.successColor
-                      : (isCurrentPeriod && isCurrentDay)
-                      ? context.errorColor
-                      : Theme.of(context).colorScheme.surfaceContainerHighest,
-                  borderRadius: BorderRadius.circular(8),
-                  border: isSelected
-                      ? Border.all(
-                          color: Theme.of(context).colorScheme.primary,
-                          width: 2,
-                        )
-                      : null,
-                ),
-                alignment: Alignment.center,
-                child: Text(
-                  dayNames[dayIndex],
-                  style: TextStyle(
-                    color: isCompleted || (isCurrentPeriod && isCurrentDay)
-                        ? Colors.white
-                        : Theme.of(context).colorScheme.onSurface,
-                    fontSize: 14,
-                    fontWeight: isSelected
-                        ? FontWeight.bold
-                        : FontWeight.normal,
-                  ),
-                ),
-              ),
-            );
-          }),
-
-          // Extra days for periods with fewer workout days
-          if (dayNames.length < 7)
-            ...List.generate(7 - dayNames.length, (index) {
-              final extraDayIndex = dayNames.length + index;
-              final extraDayNames = [
-                'Sun',
-                'Mon',
-                'Tue',
-                'Wed',
-                'Thu',
-                'Fri',
-                'Sat',
-              ];
-              return Container(
-                width: 80,
-                height: 56,
-                margin: const EdgeInsets.only(bottom: 8),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surfaceContainer,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                alignment: Alignment.center,
-                child: Text(
-                  extraDayNames[extraDayIndex],
-                  style: TextStyle(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.3),
-                    fontSize: 14,
-                  ),
-                ),
-              );
-            }),
-        ],
-      ),
-    );
-  }
-
-  int _calculateRIR(int periodNumber) {
-    final recoveryPeriod = widget.trainingCycle.recoveryPeriod;
-
-    // Recovery period has 8 RIR
-    if (periodNumber == recoveryPeriod) {
-      return 8;
-    }
-
-    // Calculate periods until recovery
-    final periodsUntilRecovery = recoveryPeriod - periodNumber;
-
-    // Period before recovery = 0 RIR
-    // 2 periods before = 1 RIR
-    // 3 periods before = 2 RIR, etc.
-    if (periodsUntilRecovery == 1) {
-      return 0;
-    } else if (periodsUntilRecovery > 1) {
-      return periodsUntilRecovery - 1;
-    } else {
-      // After recovery period
-      return 0;
-    }
   }
 }

@@ -6,6 +6,7 @@ import '../../core/constants/enums.dart';
 import '../../core/theme/skins/skins.dart';
 import '../../data/models/training_cycle.dart';
 import '../../data/models/workout.dart';
+import '../../domain/controllers/workout_home_controller.dart';
 import '../../domain/providers/database_providers.dart';
 import '../../domain/providers/workout_providers.dart';
 
@@ -457,7 +458,7 @@ class _CalendarDropdownState extends ConsumerState<CalendarDropdown> {
                   ),
                 ),
                 Text(
-                  '${_calculateRIR(periodNumber)} RIR',
+                  '${calculateRIR(periodNumber, widget.trainingCycle.recoveryPeriod)} RIR',
                   style: TextStyle(
                     color: Theme.of(
                       context,
@@ -506,7 +507,11 @@ class _CalendarDropdownState extends ConsumerState<CalendarDropdown> {
               textColor = Theme.of(context).colorScheme.onSurface;
             }
 
-            return GestureDetector(
+            return Semantics(
+              label: 'Period $periodNumber '
+                  'Day $dayNumber',
+              selected: isSelected,
+              child: GestureDetector(
               onTap: () {
                 widget.onDaySelected(periodNumber, dayNumber);
               },
@@ -532,6 +537,7 @@ class _CalendarDropdownState extends ConsumerState<CalendarDropdown> {
                   ),
                 ),
               ),
+            ),
             );
           }),
         ],
@@ -539,27 +545,4 @@ class _CalendarDropdownState extends ConsumerState<CalendarDropdown> {
     );
   }
 
-  int _calculateRIR(int periodNumber) {
-    final recoveryPeriod = widget.trainingCycle.recoveryPeriod;
-
-    // Recovery period has 8 RIR
-    if (periodNumber == recoveryPeriod) {
-      return 8;
-    }
-
-    // Calculate periods until recovery
-    final periodsUntilRecovery = recoveryPeriod - periodNumber;
-
-    // Period before recovery = 0 RIR
-    // 2 periods before = 1 RIR
-    // 3 periods before = 2 RIR, etc.
-    if (periodsUntilRecovery == 1) {
-      return 0;
-    } else if (periodsUntilRecovery > 1) {
-      return periodsUntilRecovery - 1;
-    } else {
-      // After recovery period
-      return 0;
-    }
-  }
 }

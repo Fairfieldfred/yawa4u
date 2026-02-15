@@ -11,6 +11,7 @@ import '../../data/models/exercise.dart';
 import '../../data/models/exercise_set.dart';
 import '../../data/models/training_cycle.dart';
 import '../../data/models/workout.dart';
+import '../../domain/controllers/workout_home_controller.dart';
 import '../../domain/providers/database_providers.dart';
 import '../../domain/providers/onboarding_providers.dart';
 import '../../domain/providers/theme_provider.dart';
@@ -55,25 +56,6 @@ class _CompletedCycleWorkoutScreenState
       _selectedDay = day;
       _showWeekSelector = false;
     });
-  }
-
-  /// Calculate target RIR for a given week based on trainingCycle deload schedule
-  int _calculateRIR(int periodNumber, TrainingCycle trainingCycle) {
-    final recoveryPeriod = trainingCycle.recoveryPeriod;
-
-    if (periodNumber == recoveryPeriod) {
-      return 8;
-    }
-
-    final weeksUntilDeload = recoveryPeriod - periodNumber;
-
-    if (weeksUntilDeload == 1) {
-      return 0;
-    } else if (weeksUntilDeload > 1) {
-      return weeksUntilDeload - 1;
-    } else {
-      return 0;
-    }
   }
 
   /// Find the most recent pinned note for exercises with the same name
@@ -351,9 +333,9 @@ class _CompletedCycleWorkoutScreenState
                           allExercises[index - 1].muscleGroup !=
                               exercise.muscleGroup;
 
-                      final weekRir = _calculateRIR(
+                      final weekRir = calculateRIR(
                         displayPeriod,
-                        trainingCycle,
+                        trainingCycle.recoveryPeriod,
                       );
 
                       return _buildExerciseCard(
@@ -995,7 +977,7 @@ class _ReadOnlyCalendarDropdownState extends State<_ReadOnlyCalendarDropdown> {
                   ),
                 ),
                 Text(
-                  '${_calculateRIR(periodNumber)} RIR',
+                  '${calculateRIR(periodNumber, widget.trainingCycle.recoveryPeriod)} RIR',
                   style: TextStyle(
                     color: Theme.of(
                       context,
@@ -1075,21 +1057,4 @@ class _ReadOnlyCalendarDropdownState extends State<_ReadOnlyCalendarDropdown> {
     );
   }
 
-  int _calculateRIR(int periodNumber) {
-    final recoveryPeriod = widget.trainingCycle.recoveryPeriod;
-
-    if (periodNumber == recoveryPeriod) {
-      return 8;
-    }
-
-    final weeksUntilDeload = recoveryPeriod - periodNumber;
-
-    if (weeksUntilDeload == 1) {
-      return 0;
-    } else if (weeksUntilDeload > 1) {
-      return weeksUntilDeload - 1;
-    } else {
-      return 0;
-    }
-  }
 }

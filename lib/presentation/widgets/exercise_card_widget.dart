@@ -11,46 +11,35 @@ import '../../domain/providers/database_providers.dart';
 import 'dialogs/exercise_info_dialog.dart';
 import 'muscle_group_badge.dart';
 
-/// Shared widget for displaying an exercise card with sets.
-/// Used in both workout_screen and exercises_screen.
-class ExerciseCardWidget extends ConsumerWidget {
-  final Exercise exercise;
-  final bool showMuscleGroupBadge;
-  final int? targetRir;
-  final String weightUnit;
-  final bool useMetric;
-  final Function(String exerciseId) onAddNote;
-  final Function(String exerciseId)? onMoveUp;
-  final Function(String exerciseId)? onMoveDown;
-  final bool showMoveDown;
-  final bool isFirstExercise;
-  final bool isLastExercise;
-  final Function(String exerciseId) onReplace;
-  final Function(String exerciseId) onJointPain;
-  final Function(String exerciseId) onAddSet;
-  final Function(String exerciseId) onSkipSets;
-  final Function(String exerciseId) onDelete;
-  final Function(int setIndex) onAddSetBelow;
-  final Function(int setIndex) onToggleSetSkip;
-  final Function(int setIndex) onDeleteSet;
-  final Function(int setIndex, SetType setType) onUpdateSetType;
-  final Function(int setIndex, String value) onUpdateSetWeight;
-  final Function(int setIndex, String value) onUpdateSetReps;
-  final Function(int setIndex) onToggleSetLog;
+/// Bundles all callbacks for [ExerciseCardWidget] into a single object.
+///
+/// Reduces the number of constructor parameters from 15 individual callbacks
+/// to one, making call sites cleaner and easier to maintain.
+@immutable
+class ExerciseCardCallbacks {
+  // Exercise-level callbacks
+  final void Function(String exerciseId) onAddNote;
+  final void Function(String exerciseId)? onMoveUp;
+  final void Function(String exerciseId)? onMoveDown;
+  final void Function(String exerciseId) onReplace;
+  final void Function(String exerciseId) onJointPain;
+  final void Function(String exerciseId) onAddSet;
+  final void Function(String exerciseId) onSkipSets;
+  final void Function(String exerciseId) onDelete;
 
-  const ExerciseCardWidget({
-    super.key,
-    required this.exercise,
-    required this.showMuscleGroupBadge,
-    this.targetRir,
-    this.weightUnit = 'lbs',
-    this.useMetric = false,
+  // Set-level callbacks
+  final void Function(int setIndex) onAddSetBelow;
+  final void Function(int setIndex) onToggleSetSkip;
+  final void Function(int setIndex) onDeleteSet;
+  final void Function(int setIndex, SetType setType) onUpdateSetType;
+  final void Function(int setIndex, String value) onUpdateSetWeight;
+  final void Function(int setIndex, String value) onUpdateSetReps;
+  final void Function(int setIndex) onToggleSetLog;
+
+  const ExerciseCardCallbacks({
     required this.onAddNote,
     this.onMoveUp,
     this.onMoveDown,
-    this.showMoveDown = true,
-    this.isFirstExercise = false,
-    this.isLastExercise = false,
     required this.onReplace,
     required this.onJointPain,
     required this.onAddSet,
@@ -63,6 +52,33 @@ class ExerciseCardWidget extends ConsumerWidget {
     required this.onUpdateSetWeight,
     required this.onUpdateSetReps,
     required this.onToggleSetLog,
+  });
+}
+
+/// Shared widget for displaying an exercise card with sets.
+/// Used in both workout_screen and exercises_screen.
+class ExerciseCardWidget extends ConsumerWidget {
+  final Exercise exercise;
+  final bool showMuscleGroupBadge;
+  final int? targetRir;
+  final String weightUnit;
+  final bool useMetric;
+  final ExerciseCardCallbacks callbacks;
+  final bool showMoveDown;
+  final bool isFirstExercise;
+  final bool isLastExercise;
+
+  const ExerciseCardWidget({
+    super.key,
+    required this.exercise,
+    required this.showMuscleGroupBadge,
+    this.targetRir,
+    this.weightUnit = 'lbs',
+    this.useMetric = false,
+    required this.callbacks,
+    this.showMoveDown = true,
+    this.isFirstExercise = false,
+    this.isLastExercise = false,
   });
 
   /// Find the most recent pinned note for exercises with the same name
@@ -166,7 +182,7 @@ class ExerciseCardWidget extends ConsumerWidget {
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               border: Border.all(
-                                color: const Color(0xFF8E8E93),
+                                color: Theme.of(context).colorScheme.outline,
                                 width: 2,
                               ),
                             ),
@@ -194,7 +210,12 @@ class ExerciseCardWidget extends ConsumerWidget {
                         ),
                         const SizedBox(width: 0),
                         // Overflow menu button
-                        _buildExerciseOverflowMenu(context),
+                        Semantics(
+                          label: 'Exercise options for '
+                              '${exercise.name}',
+                          child:
+                              _buildExerciseOverflowMenu(context),
+                        ),
                       ],
                     ),
 
@@ -302,7 +323,7 @@ class ExerciseCardWidget extends ConsumerWidget {
 
   Widget _buildPinnedNote(BuildContext context, String noteText) {
     return InkWell(
-      onTap: () => onAddNote(exercise.id),
+      onTap: () => callbacks.onAddNote(exercise.id),
       borderRadius: BorderRadius.circular(8),
       child: Container(
         margin: const EdgeInsets.only(top: 8),
@@ -364,28 +385,28 @@ class ExerciseCardWidget extends ConsumerWidget {
       onSelected: (value) {
         switch (value) {
           case 'note':
-            onAddNote(exercise.id);
+            callbacks.onAddNote(exercise.id);
             break;
           case 'move_up':
-            onMoveUp?.call(exercise.id);
+            callbacks.onMoveUp?.call(exercise.id);
             break;
           case 'move_down':
-            onMoveDown?.call(exercise.id);
+            callbacks.onMoveDown?.call(exercise.id);
             break;
           case 'replace':
-            onReplace(exercise.id);
+            callbacks.onReplace(exercise.id);
             break;
           case 'joint_pain':
-            onJointPain(exercise.id);
+            callbacks.onJointPain(exercise.id);
             break;
           case 'add_set':
-            onAddSet(exercise.id);
+            callbacks.onAddSet(exercise.id);
             break;
           case 'skip_sets':
-            onSkipSets(exercise.id);
+            callbacks.onSkipSets(exercise.id);
             break;
           case 'delete':
-            onDelete(exercise.id);
+            callbacks.onDelete(exercise.id);
             break;
         }
       },
@@ -570,67 +591,83 @@ class ExerciseCardWidget extends ConsumerWidget {
           const SizedBox(width: 24),
           // Weight Input
           Expanded(
-            child: Container(
-              height: 30,
-              decoration: BoxDecoration(
-                color: Theme.of(context).inputDecorationTheme.fillColor,
-                borderRadius: BorderRadius.circular(context.inputBorderRadius),
-                border: Border.all(color: Theme.of(context).dividerColor),
-              ),
-              child: Center(
-                child: TextFormField(
-                  key: ValueKey('weight_${set.id}_$useMetric'),
-                  initialValue: formatWeightForDisplay(set.weight, useMetric),
-                  style: Theme.of(context).textTheme.bodyMedium,
-                  textAlign: TextAlign.center,
-                  decoration: InputDecoration(
-                    filled: false,
-                    hintText: weightUnit,
-                    hintStyle: Theme.of(context).inputDecorationTheme.hintStyle,
-                    border: InputBorder.none,
-                    enabledBorder: InputBorder.none,
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(
-                        context.inputBorderRadius,
-                      ),
-                      borderSide: BorderSide(
-                        color: Theme.of(context).colorScheme.primary,
-                        width: 2,
-                      ),
-                    ),
-                    errorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(
-                        context.inputBorderRadius,
-                      ),
-                      borderSide: BorderSide(
-                        color: Theme.of(context).colorScheme.error,
-                        width: 1,
-                      ),
-                    ),
-                    focusedErrorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(
-                        context.inputBorderRadius,
-                      ),
-                      borderSide: BorderSide(
-                        color: Theme.of(context).colorScheme.error,
-                        width: 2,
-                      ),
-                    ),
-                    contentPadding: const EdgeInsets.only(bottom: 12),
+            child: Semantics(
+              label: 'Weight for set ${index + 1}',
+              textField: true,
+              child: Container(
+                height: 30,
+                decoration: BoxDecoration(
+                  color: Theme.of(context).inputDecorationTheme.fillColor,
+                  borderRadius: BorderRadius.circular(
+                    context.inputBorderRadius,
                   ),
-                  keyboardType: const TextInputType.numberWithOptions(
-                    decimal: true,
+                  border: Border.all(
+                    color: Theme.of(context).dividerColor,
                   ),
-                  onChanged: (value) {
-                    // Convert user input back to storage unit (lbs)
-                    final displayWeight = double.tryParse(value);
-                    if (displayWeight == null && value.isNotEmpty) return;
-                    final storageWeight = convertWeightForStorage(
-                      displayWeight,
+                ),
+                child: Center(
+                  child: TextFormField(
+                    key: ValueKey('weight_${set.id}_$useMetric'),
+                    initialValue: formatWeightForDisplay(
+                      set.weight,
                       useMetric,
-                    );
-                    onUpdateSetWeight(index, storageWeight?.toString() ?? '');
-                  },
+                    ),
+                    style: Theme.of(context).textTheme.bodyMedium,
+                    textAlign: TextAlign.center,
+                    decoration: InputDecoration(
+                      filled: false,
+                      hintText: weightUnit,
+                      hintStyle: Theme.of(context)
+                          .inputDecorationTheme
+                          .hintStyle,
+                      border: InputBorder.none,
+                      enabledBorder: InputBorder.none,
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(
+                          context.inputBorderRadius,
+                        ),
+                        borderSide: BorderSide(
+                          color: Theme.of(context).colorScheme.primary,
+                          width: 2,
+                        ),
+                      ),
+                      errorBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(
+                          context.inputBorderRadius,
+                        ),
+                        borderSide: BorderSide(
+                          color: Theme.of(context).colorScheme.error,
+                          width: 1,
+                        ),
+                      ),
+                      focusedErrorBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(
+                          context.inputBorderRadius,
+                        ),
+                        borderSide: BorderSide(
+                          color: Theme.of(context).colorScheme.error,
+                          width: 2,
+                        ),
+                      ),
+                      contentPadding: const EdgeInsets.only(bottom: 12),
+                    ),
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
+                    onChanged: (value) {
+                      // Convert user input back to storage unit (lbs)
+                      final displayWeight = double.tryParse(value);
+                      if (displayWeight == null && value.isNotEmpty) return;
+                      final storageWeight = convertWeightForStorage(
+                        displayWeight,
+                        useMetric,
+                      );
+                      callbacks.onUpdateSetWeight(
+                        index,
+                        storageWeight?.toString() ?? '',
+                      );
+                    },
+                  ),
                 ),
               ),
             ),
@@ -639,7 +676,10 @@ class ExerciseCardWidget extends ConsumerWidget {
 
           // Reps Input
           Expanded(
-            child: Stack(
+            child: Semantics(
+              label: 'Reps for set ${index + 1}',
+              textField: true,
+              child: Stack(
               children: [
                 Container(
                   height: 30,
@@ -695,7 +735,7 @@ class ExerciseCardWidget extends ConsumerWidget {
                         contentPadding: const EdgeInsets.only(bottom: 12),
                       ),
                       onChanged: (value) {
-                        onUpdateSetReps(index, value);
+                        callbacks.onUpdateSetReps(index, value);
                       },
                     ),
                   ),
@@ -729,37 +769,45 @@ class ExerciseCardWidget extends ConsumerWidget {
                   ),
               ],
             ),
+            ),
           ),
           const SizedBox(width: 48),
 
           // Log Checkbox
-          SizedBox(
-            width: 30,
-            height: 30,
-            child: Container(
-              decoration: BoxDecoration(
-                color: set.isLogged
-                    ? context.successColor.withValues(alpha: 0.2)
-                    : (isLoggable
-                          ? Theme.of(context).inputDecorationTheme.fillColor
-                          : Colors.grey.withValues(alpha: 0.1)),
-                borderRadius: BorderRadius.circular(4),
-                border: Border.all(
+          Semantics(
+            label: 'Log set ${index + 1}',
+            checked: set.isLogged,
+            enabled: isLoggable,
+            child: SizedBox(
+              width: 30,
+              height: 30,
+              child: Container(
+                decoration: BoxDecoration(
                   color: set.isLogged
-                      ? context.successColor
+                      ? context.successColor.withValues(alpha: 0.2)
                       : (isLoggable
-                            ? context.successColor
-                            : Theme.of(
-                                context,
-                              ).dividerColor.withValues(alpha: 0.3)),
-                  width: set.isLogged || isLoggable ? 2 : 1,
+                            ? Theme.of(context).inputDecorationTheme.fillColor
+                            : Colors.grey.withValues(alpha: 0.1)),
+                  borderRadius: BorderRadius.circular(4),
+                  border: Border.all(
+                    color: set.isLogged
+                        ? context.successColor
+                        : (isLoggable
+                              ? context.successColor
+                              : Theme.of(
+                                  context,
+                                ).dividerColor.withValues(alpha: 0.3)),
+                    width: set.isLogged || isLoggable ? 2 : 1,
+                  ),
                 ),
-              ),
-              child: InkWell(
-                onTap: isLoggable ? () => onToggleSetLog(index) : null,
-                child: set.isLogged
-                    ? Icon(Icons.check, color: context.successColor)
-                    : null,
+                child: InkWell(
+                  onTap: isLoggable
+                      ? () => callbacks.onToggleSetLog(index)
+                      : null,
+                  child: set.isLogged
+                      ? Icon(Icons.check, color: context.successColor)
+                      : null,
+                ),
               ),
             ),
           ),
@@ -790,31 +838,31 @@ class ExerciseCardWidget extends ConsumerWidget {
       onSelected: (value) {
         switch (value) {
           case 'add_below':
-            onAddSetBelow(index);
+            callbacks.onAddSetBelow(index);
             break;
           case 'skip':
-            onToggleSetSkip(index);
+            callbacks.onToggleSetSkip(index);
             break;
           case 'delete':
-            onDeleteSet(index);
+            callbacks.onDeleteSet(index);
             break;
           case 'regular':
-            onUpdateSetType(index, SetType.regular);
+            callbacks.onUpdateSetType(index, SetType.regular);
             break;
           case 'myorep':
-            onUpdateSetType(index, SetType.myorep);
+            callbacks.onUpdateSetType(index, SetType.myorep);
             break;
           case 'myorep_match':
-            onUpdateSetType(index, SetType.myorepMatch);
+            callbacks.onUpdateSetType(index, SetType.myorepMatch);
             break;
           case 'max_reps':
-            onUpdateSetType(index, SetType.maxReps);
+            callbacks.onUpdateSetType(index, SetType.maxReps);
             break;
           case 'end_with_partials':
-            onUpdateSetType(index, SetType.endWithPartials);
+            callbacks.onUpdateSetType(index, SetType.endWithPartials);
             break;
           case 'drop_set':
-            onUpdateSetType(index, SetType.dropSet);
+            callbacks.onUpdateSetType(index, SetType.dropSet);
             break;
         }
       },
