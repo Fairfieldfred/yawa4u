@@ -85,7 +85,9 @@ class _AddExerciseScreenState extends ConsumerState<AddExerciseScreen> {
           // Search bar
           Padding(
             padding: const EdgeInsets.all(16),
-            child: TextField(
+            child: Semantics(
+              label: 'Search exercises',
+              child: TextField(
               controller: _searchController,
               decoration: InputDecoration(
                 hintText: 'Search',
@@ -93,6 +95,7 @@ class _AddExerciseScreenState extends ConsumerState<AddExerciseScreen> {
                 suffixIcon: _searchQuery.isNotEmpty
                     ? IconButton(
                         icon: const Icon(Icons.clear),
+                        tooltip: 'Clear search',
                         onPressed: () {
                           setState(() {
                             _searchController.clear();
@@ -112,6 +115,7 @@ class _AddExerciseScreenState extends ConsumerState<AddExerciseScreen> {
               onChanged: (value) {
                 setState(() => _searchQuery = value);
               },
+            ),
             ),
           ),
 

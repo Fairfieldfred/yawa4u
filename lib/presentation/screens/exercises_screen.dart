@@ -57,6 +57,7 @@ class _ExercisesHomeScreenState extends ConsumerState<ExercisesHomeScreen> {
   bool _showPeriodSelector = false;
   PageController? _dayPageController;
   bool _isDaySwiping = false;
+  int? _lastSyncedDayPageIndex;
 
   @override
   void dispose() {
@@ -292,19 +293,20 @@ class _ExercisesHomeScreenState extends ConsumerState<ExercisesHomeScreen> {
     // Initialize or sync day PageController
     if (_dayPageController == null) {
       _dayPageController = PageController(initialPage: currentPageIndex);
-    } else if (!_isDaySwiping && _dayPageController!.hasClients) {
-      final currentPage = _dayPageController!.page?.round() ?? 0;
-      if (currentPage != currentPageIndex) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (_dayPageController?.hasClients == true) {
-            _dayPageController!.animateToPage(
-              currentPageIndex,
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.easeInOut,
-            );
-          }
-        });
-      }
+      _lastSyncedDayPageIndex = currentPageIndex;
+    } else if (!_isDaySwiping &&
+        _dayPageController!.hasClients &&
+        _lastSyncedDayPageIndex != currentPageIndex) {
+      _lastSyncedDayPageIndex = currentPageIndex;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (_dayPageController?.hasClients == true) {
+          _dayPageController!.animateToPage(
+            currentPageIndex,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+          );
+        }
+      });
     }
     _isDaySwiping = false;
 
@@ -747,7 +749,8 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      ExerciseCardWidget(
+                                      RepaintBoundary(
+                                        child: ExerciseCardWidget(
                                         key: ValueKey(
                                           '${exercise.id}_${exercise.sets.length}_${exercise.sets.map((s) => s.id).join(",")}_${ref.watch(useMetricProvider)}',
                                         ),
@@ -820,6 +823,7 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
                                             source.workout.id, exercise.id, i,
                                           ),
                                         ),
+                                      ),
                                       ),
                                       // Swipe indicator
                                       if (allExercises.length > 1)

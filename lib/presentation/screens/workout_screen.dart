@@ -40,6 +40,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
 
   PageController? _pageController;
   bool _isSwiping = false;
+  int? _lastSyncedPageIndex;
 
   @override
   void dispose() {
@@ -885,19 +886,20 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
       // Initialize or sync PageController
       if (_pageController == null) {
         _pageController = PageController(initialPage: currentPageIndex);
-      } else if (!_isSwiping && _pageController!.hasClients) {
-        final currentPage = _pageController!.page?.round() ?? 0;
-        if (currentPage != currentPageIndex) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (_pageController?.hasClients == true) {
-              _pageController!.animateToPage(
-                currentPageIndex,
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.easeInOut,
-              );
-            }
-          });
-        }
+        _lastSyncedPageIndex = currentPageIndex;
+      } else if (!_isSwiping &&
+          _pageController!.hasClients &&
+          _lastSyncedPageIndex != currentPageIndex) {
+        _lastSyncedPageIndex = currentPageIndex;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (_pageController?.hasClients == true) {
+            _pageController!.animateToPage(
+              currentPageIndex,
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+            );
+          }
+        });
       }
       _isSwiping = false;
 
@@ -925,16 +927,17 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
           appBar: AppBar(
             elevation: 0,
             automaticallyImplyLeading: false,
-            leading: const AppIconWidget(),
+            leading: Semantics(
+              label: 'App logo',
+              child: const AppIconWidget(),
+            ),
             leadingWidth: kToolbarHeight + 12,
             title: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   currentTrainingCycle.name.toUpperCase(),
-                  style: TextStyle(
-                    color: Theme.of(context).textTheme.bodySmall?.color,
-                    fontSize: 12,
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
                     fontWeight: FontWeight.w500,
                     letterSpacing: 0.5,
                   ),
@@ -942,9 +945,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                 const SizedBox(height: 2),
                 Text(
                   'PERIOD $displayPeriod DAY $displayDay $dayName',
-                  style: TextStyle(
-                    color: Theme.of(context).textTheme.titleLarge?.color,
-                    fontSize: 17,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -954,6 +955,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
               IconButton(
                 icon: const Icon(Icons.calendar_today),
                 onPressed: _togglePeriodSelector,
+                tooltip: 'Select day',
               ),
               IconButton(
                 icon: Icon(
@@ -970,6 +972,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                 Builder(
                   builder: (context) => IconButton(
                     icon: const Icon(Icons.more_vert),
+                    tooltip: 'Workout options',
                     onPressed: () => _showWorkoutMenu(
                       context,
                       currentTrainingCycle,
@@ -1068,12 +1071,15 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                               ),
                               elevation: 0,
                             ),
-                            child: const Text(
+                            child: Text(
                               'FINISH WORKOUT',
-                              style: TextStyle(
-                                fontSize: 17,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleMedium
+                                  ?.copyWith(
                                 fontWeight: FontWeight.w600,
                                 letterSpacing: 0.5,
+                                color: Colors.white,
                               ),
                             ),
                           ),
@@ -1205,7 +1211,8 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
           trainingCycle.recoveryPeriod,
         );
 
-        return ExerciseCardWidget(
+        return RepaintBoundary(
+          child: ExerciseCardWidget(
           key: ValueKey(
             '${exercise.id}_${exercise.sets.length}_${exercise.sets.map((s) => s.id).join(",")}_${ref.watch(useMetricProvider)}',
           ),
@@ -1251,6 +1258,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
               exercise.workoutId, exercise.id, i,
             ),
           ),
+        ),
         );
       },
     );

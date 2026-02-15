@@ -208,7 +208,9 @@ class ExerciseCardWidget extends ConsumerWidget {
       builder: (context, snapshot) {
         final pinnedNote = snapshot.data;
 
-        return Stack(
+        return MouseRegion(
+          cursor: SystemMouseCursors.basic,
+          child: Stack(
           clipBehavior: Clip.none,
           children: [
             // Exercise card
@@ -278,6 +280,7 @@ class ExerciseCardWidget extends ConsumerWidget {
                               ),
                             ),
                           ),
+                          tooltip: 'Exercise info',
                           onPressed: () =>
                               showExerciseInfoDialog(context, exercise),
                           padding: EdgeInsets.zero,
@@ -394,6 +397,7 @@ class ExerciseCardWidget extends ConsumerWidget {
                 secondaryMuscleGroup: exercise.secondaryMuscleGroup,
               ),
           ],
+        ),
         );
       },
     );
@@ -823,7 +827,9 @@ class ExerciseCardWidget extends ConsumerWidget {
                   Positioned(
                     top: 2,
                     right: 4,
-                    child: Container(
+                    child: Semantics(
+                      label: '${set.setType.displayName} set',
+                      child: Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 4,
                         vertical: 2,
@@ -843,6 +849,7 @@ class ExerciseCardWidget extends ConsumerWidget {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
+                    ),
                     ),
                   ),
               ],

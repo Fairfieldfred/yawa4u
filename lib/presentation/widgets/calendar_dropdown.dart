@@ -325,6 +325,7 @@ class _CalendarDropdownState extends ConsumerState<CalendarDropdown> {
                         color: Theme.of(context).colorScheme.onSurface,
                         size: 20,
                       ),
+                      tooltip: 'Remove period',
                       onPressed: widget.trainingCycle.periodsTotal > 1
                           ? () => _removePeriod()
                           : null,
@@ -343,6 +344,7 @@ class _CalendarDropdownState extends ConsumerState<CalendarDropdown> {
                         color: Theme.of(context).colorScheme.onSurface,
                         size: 20,
                       ),
+                      tooltip: 'Add period',
                       onPressed: () => _addPeriod(),
                       style: IconButton.styleFrom(
                         backgroundColor: Theme.of(
@@ -507,9 +509,15 @@ class _CalendarDropdownState extends ConsumerState<CalendarDropdown> {
               textColor = Theme.of(context).colorScheme.onSurface;
             }
 
+            final statusText = isCompleted
+                ? ', completed'
+                : (isCurrentPeriod && isCurrentDay)
+                    ? ', current'
+                    : '';
+
             return Semantics(
               label: 'Period $periodNumber '
-                  'Day $dayNumber',
+                  'Day $dayNumber$statusText',
               selected: isSelected,
               child: GestureDetector(
               onTap: () {

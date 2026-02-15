@@ -6,6 +6,7 @@ import '../../data/models/stats_data.dart';
 import '../../data/models/training_cycle.dart';
 import '../../domain/providers/stats_providers.dart';
 import '../../domain/providers/training_cycle_providers.dart';
+import '../widgets/responsive_content.dart';
 import '../widgets/screen_background.dart';
 import '../widgets/stats/cycle_comparison_view.dart';
 import '../widgets/stats/volume_bar_chart.dart';
@@ -150,7 +151,8 @@ class _StatsScreenState extends ConsumerState<StatsScreen>
   }
 
   Widget _buildStatsContent(BuildContext context, WorkoutStats stats) {
-    return ListView(
+    return ResponsiveContent(
+      child: ListView(
       padding: const EdgeInsets.all(16),
       children: [
         // Summary cards
@@ -191,6 +193,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen>
           const SizedBox(height: 24),
         ],
       ],
+    ),
     );
   }
 
@@ -233,37 +236,39 @@ class _StatsScreenState extends ConsumerState<StatsScreen>
     String value,
     IconData icon,
   ) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardTheme.color,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Column(
-        children: [
-          Icon(
-            icon,
-            size: 20,
-            color: Theme.of(context).colorScheme.primary,
-          ),
-          const SizedBox(height: 4),
-          Text(
-            value,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.bold,
+    return Semantics(
+      label: '$title: $value',
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardTheme.color,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Column(
+          children: [
+            Icon(
+              icon,
+              size: 20,
+              color: Theme.of(context).colorScheme.primary,
             ),
-          ),
-          Text(
-            title,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: Theme.of(context)
-                  .colorScheme
-                  .onSurface
-                  .withAlpha((255 * 0.6).round()),
-              fontSize: 11,
+            const SizedBox(height: 4),
+            Text(
+              value,
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
             ),
-          ),
-        ],
+            Text(
+              title,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Theme.of(context)
+                    .colorScheme
+                    .onSurface
+                    .withAlpha((255 * 0.6).round()),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

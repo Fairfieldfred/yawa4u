@@ -12,6 +12,7 @@ import '../../core/theme/skins/skin_provider.dart';
 import '../../domain/providers/onboarding_providers.dart';
 import '../../domain/providers/theme_provider.dart';
 import '../widgets/app_icon_widget.dart';
+import '../widgets/responsive_content.dart';
 import '../widgets/screen_background.dart';
 
 /// More/Settings screen
@@ -152,6 +153,7 @@ class _MoreScreenState extends ConsumerState<MoreScreen>
     return Scaffold(
       appBar: AppBar(title: const Text('YAWA4U'), centerTitle: true),
       body: ScreenBackground.more(
+        child: ResponsiveContent(
         child: ListView(
           children: [
             const SizedBox(height: 32),
@@ -374,6 +376,7 @@ class _MoreScreenState extends ConsumerState<MoreScreen>
             const Divider(height: 1),
             const SizedBox(height: 32),
           ],
+        ),
         ),
       ),
     );

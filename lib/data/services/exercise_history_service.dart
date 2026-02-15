@@ -11,7 +11,22 @@ import '../repositories/workout_repository.dart';
 class ExerciseHistoryService {
   final WorkoutRepository _workoutRepository;
 
+  /// Cached workouts to avoid repeated full-table scans.
+  /// Multiple exercise cards call [getPreviousPerformance] in the same
+  /// frame — caching avoids loading all workouts N times.
+  List<Workout>? _cachedWorkouts;
+
   ExerciseHistoryService(this._workoutRepository);
+
+  /// Invalidate the cached workouts so the next lookup refreshes.
+  void clearCache() {
+    _cachedWorkouts = null;
+  }
+
+  /// Load all workouts, reusing the cache within the same lifecycle.
+  Future<List<Workout>> _getAllCached() async {
+    return _cachedWorkouts ??= await _workoutRepository.getAll();
+  }
 
   /// Get the most recent logged performance of an exercise by name,
   /// excluding the exercise with [currentExerciseId].
@@ -21,7 +36,7 @@ class ExerciseHistoryService {
     String exerciseName,
     String currentExerciseId,
   ) async {
-    final allWorkouts = await _workoutRepository.getAll();
+    final allWorkouts = await _getAllCached();
     final lowerName = exerciseName.toLowerCase();
 
     Exercise? mostRecent;
@@ -134,7 +149,7 @@ class ExerciseHistoryService {
     String exerciseName,
     String currentExerciseId,
   ) async {
-    final allWorkouts = await _workoutRepository.getAll();
+    final allWorkouts = await _getAllCached();
     final lowerName = exerciseName.toLowerCase();
     DateTime? latest;
 
@@ -157,7 +172,7 @@ class ExerciseHistoryService {
   /// Get the date of the most recent performance for an exercise name
   /// across all workouts (no exclusion). Used for Add Exercise screen.
   Future<DateTime?> getLastPerformedDateForName(String exerciseName) async {
-    final allWorkouts = await _workoutRepository.getAll();
+    final allWorkouts = await _getAllCached();
     final lowerName = exerciseName.toLowerCase();
     DateTime? latest;
 
@@ -183,7 +198,7 @@ class ExerciseHistoryService {
   Future<List<ExerciseHistoryEntry>> getFullHistory(
     String exerciseName,
   ) async {
-    final allWorkouts = await _workoutRepository.getAll();
+    final allWorkouts = await _getAllCached();
     final lowerName = exerciseName.toLowerCase();
     final entries = <ExerciseHistoryEntry>[];
 

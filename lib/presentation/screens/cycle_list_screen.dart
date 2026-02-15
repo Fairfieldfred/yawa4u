@@ -18,6 +18,7 @@ import '../../domain/providers/workout_providers.dart';
 import '../widgets/app_icon_widget.dart';
 import '../widgets/cycle_summary_dialog.dart';
 import '../widgets/dialogs/workout_dialogs.dart';
+import '../widgets/responsive_content.dart';
 import '../widgets/screen_background.dart';
 import 'template_selection_screen.dart';
 
@@ -85,7 +86,8 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
                 .where((m) => m.status == TrainingCycleStatus.completed)
                 .toList();
 
-            return ListView(
+            return ResponsiveContent(
+              child: ListView(
               padding: const EdgeInsets.only(top: 20),
               children: [
                 // Draft TrainingCycles Section
@@ -131,6 +133,7 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
                   ),
                 ],
               ],
+            ),
             );
           },
           loading: () => const Center(child: CircularProgressIndicator()),
