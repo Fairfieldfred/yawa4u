@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -511,6 +512,14 @@ class _ExerciseInfoDialogState extends ConsumerState<ExerciseInfoDialog> {
 
         // Build list with trainingCycle headers
         final List<Widget> children = [];
+
+        // Add weight progression mini-chart if enough data
+        if (filteredHistory.length >= 2) {
+          children.add(
+            _buildWeightProgressionChart(context, filteredHistory),
+          );
+        }
+
         for (final trainingCycleId in groupedByTrainingCycle.keys) {
           final entries = groupedByTrainingCycle[trainingCycleId]!;
           final trainingCycle = entries.first.trainingCycle;
@@ -530,6 +539,114 @@ class _ExerciseInfoDialogState extends ConsumerState<ExerciseInfoDialog> {
           children: children,
         );
       },
+    );
+  }
+
+  Widget _buildWeightProgressionChart(
+    BuildContext context,
+    List<_HistoryEntry> history,
+  ) {
+    // Reverse so oldest is first (left to right)
+    final chronological = history.reversed.toList();
+
+    // Extract max weight per entry
+    final spots = <FlSpot>[];
+    for (var i = 0; i < chronological.length; i++) {
+      final loggedSets =
+          chronological[i].exercise.sets.where((s) => s.isLogged);
+      if (loggedSets.isEmpty) continue;
+      final maxWeight = loggedSets.fold<double>(
+        0,
+        (max, s) => (s.weight ?? 0) > max ? (s.weight ?? 0) : max,
+      );
+      spots.add(FlSpot(i.toDouble(), maxWeight));
+    }
+
+    if (spots.length < 2) return const SizedBox.shrink();
+
+    final minY = spots.map((s) => s.y).reduce(
+      (a, b) => a < b ? a : b,
+    );
+    final maxY = spots.map((s) => s.y).reduce(
+      (a, b) => a > b ? a : b,
+    );
+    // Add padding so line doesn't touch edges
+    final yPadding = maxY == minY ? 10.0 : (maxY - minY) * 0.15;
+
+    final primaryColor = Theme.of(context).colorScheme.primary;
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'WEIGHT PROGRESSION',
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: Theme.of(context)
+                  .colorScheme
+                  .onSurface
+                  .withAlpha((255 * 0.6).round()),
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0.5,
+            ),
+          ),
+          const SizedBox(height: 8),
+          SizedBox(
+            height: 100,
+            child: LineChart(
+              LineChartData(
+                gridData: const FlGridData(show: false),
+                titlesData: const FlTitlesData(show: false),
+                borderData: FlBorderData(show: false),
+                minY: minY - yPadding,
+                maxY: maxY + yPadding,
+                lineTouchData: LineTouchData(
+                  touchTooltipData: LineTouchTooltipData(
+                    getTooltipItems: (spots) => spots.map((spot) {
+                      final weight = spot.y;
+                      final formatted = weight == weight.roundToDouble()
+                          ? weight.toInt().toString()
+                          : weight.toString();
+                      return LineTooltipItem(
+                        '$formatted lbs',
+                        TextStyle(
+                          color: primaryColor,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 12,
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ),
+                lineBarsData: [
+                  LineChartBarData(
+                    spots: spots,
+                    isCurved: true,
+                    preventCurveOverShooting: true,
+                    color: primaryColor,
+                    barWidth: 2.5,
+                    dotData: FlDotData(
+                      show: spots.length <= 15,
+                      getDotPainter: (spot, _, __, ___) =>
+                          FlDotCirclePainter(
+                        radius: 3,
+                        color: primaryColor,
+                        strokeWidth: 0,
+                      ),
+                    ),
+                    belowBarData: BarAreaData(
+                      show: true,
+                      color: primaryColor.withAlpha((255 * 0.1).round()),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const Divider(height: 16),
+        ],
+      ),
     );
   }
 

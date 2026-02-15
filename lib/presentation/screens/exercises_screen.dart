@@ -12,6 +12,7 @@ import '../../data/models/workout.dart';
 import '../../data/repositories/training_cycle_repository.dart';
 import '../../domain/controllers/workout_home_controller.dart';
 import '../../domain/providers/database_providers.dart';
+import '../../domain/providers/exercise_providers.dart';
 import '../../domain/providers/onboarding_providers.dart';
 import '../../domain/providers/theme_provider.dart';
 import '../../domain/providers/training_cycle_providers.dart';
@@ -923,12 +924,30 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
     if (currentTrainingCycle == null) return;
 
     // Mark all workouts for this day as completed (await each update)
+    final now = DateTime.now();
+    final exerciseRepo = ref.read(exerciseRepositoryProvider);
     for (var workout in widget.workouts) {
+      // Update lastPerformed on exercises that have logged sets
+      final updatedExercises = workout.exercises.map((exercise) {
+        if (exercise.sets.any((s) => s.isLogged)) {
+          return exercise.copyWith(lastPerformed: now);
+        }
+        return exercise;
+      }).toList();
+
       final updatedWorkout = workout.copyWith(
         status: WorkoutStatus.completed,
-        completedDate: DateTime.now(),
+        completedDate: now,
+        exercises: updatedExercises,
       );
       await workoutRepo.update(updatedWorkout);
+
+      // Also update individual exercise records in the database
+      for (final exercise in updatedExercises) {
+        if (exercise.sets.any((s) => s.isLogged)) {
+          await exerciseRepo.update(exercise);
+        }
+      }
     }
 
     // Get fresh workouts directly from repository (not provider which may have stale data)
@@ -1369,9 +1388,19 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
     if (exerciseIndex == -1) return;
 
     final exercise = workout.exercises[exerciseIndex];
+
+    // Auto-populate weight from previous performance
+    final historyService = ref.read(exerciseHistoryServiceProvider);
+    final prevWeight = await historyService.getAutoPopulateWeight(
+      exercise.name,
+      exercise.id,
+      exercise.sets.length,
+    );
+
     final newSet = ExerciseSet(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       setNumber: exercise.sets.length + 1,
+      weight: prevWeight,
       reps: '',
       setType: SetType.regular,
     );
@@ -1458,15 +1487,26 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
     if (exerciseIndex == -1) return;
 
     final exercise = workout.exercises[exerciseIndex];
+
+    // Auto-populate weight from previous performance
+    final historyService = ref.read(exerciseHistoryServiceProvider);
+    final insertIndex = currentSetIndex + 1;
+    final prevWeight = await historyService.getAutoPopulateWeight(
+      exercise.name,
+      exercise.id,
+      insertIndex,
+    );
+
     final newSet = ExerciseSet(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       setNumber: exercise.sets.length + 1,
+      weight: prevWeight,
       reps: '',
       setType: SetType.regular,
     );
 
     final updatedSets = List<ExerciseSet>.from(exercise.sets);
-    updatedSets.insert(currentSetIndex + 1, newSet);
+    updatedSets.insert(insertIndex, newSet);
 
     // Renumber sets
     for (var i = 0; i < updatedSets.length; i++) {

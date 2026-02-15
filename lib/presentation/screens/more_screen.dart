@@ -252,6 +252,16 @@ class _MoreScreenState extends ConsumerState<MoreScreen>
             ),
             const Divider(height: 1),
 
+            // Statistics
+            ListTile(
+              leading: const Icon(Icons.bar_chart_outlined),
+              title: const Text('Statistics'),
+              subtitle: const Text('Volume, records, and progress'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => context.push('/stats'),
+            ),
+            const Divider(height: 1),
+
             // Sync Data
             ListTile(
               leading: const Icon(Icons.sync),

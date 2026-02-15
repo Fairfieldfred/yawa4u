@@ -10,6 +10,7 @@ import '../../data/models/exercise_set.dart';
 import '../../data/models/workout.dart';
 import '../../domain/controllers/workout_home_controller.dart';
 import '../../domain/providers/database_providers.dart';
+import '../../domain/providers/exercise_providers.dart';
 import '../../domain/providers/onboarding_providers.dart';
 import '../../domain/providers/theme_provider.dart';
 import '../../domain/providers/training_cycle_providers.dart';
@@ -165,17 +166,27 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
 
     final exercise = workout.exercises[exerciseIndex];
 
+    // Auto-populate weight from previous performance
+    final historyService = ref.read(exerciseHistoryServiceProvider);
+    final insertIndex = currentSetIndex + 1;
+    final prevWeight = await historyService.getAutoPopulateWeight(
+      exercise.name,
+      exercise.id,
+      insertIndex,
+    );
+
     // Create new set
     final newSet = ExerciseSet(
       id: const Uuid().v4(),
       setNumber: exercise.sets.length + 1,
+      weight: prevWeight,
       reps: '',
       setType: SetType.regular,
     );
 
     // Insert set after current index
     final updatedSets = List<ExerciseSet>.from(exercise.sets);
-    updatedSets.insert(currentSetIndex + 1, newSet);
+    updatedSets.insert(insertIndex, newSet);
 
     // Re-number sets
     for (var i = 0; i < updatedSets.length; i++) {
@@ -570,9 +581,19 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     if (exerciseIndex == -1) return;
 
     final exercise = workout.exercises[exerciseIndex];
+
+    // Auto-populate weight from previous performance
+    final historyService = ref.read(exerciseHistoryServiceProvider);
+    final prevWeight = await historyService.getAutoPopulateWeight(
+      exercise.name,
+      exercise.id,
+      exercise.sets.length,
+    );
+
     final newSet = ExerciseSet(
       id: const Uuid().v4(),
       setNumber: exercise.sets.length + 1,
+      weight: prevWeight,
       reps: '',
       setType: SetType.regular,
     );
@@ -652,12 +673,30 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     if (trainingCycle == null) return;
 
     // Mark ALL workouts for this day as completed
+    final now = DateTime.now();
+    final exerciseRepository = ref.read(exerciseRepositoryProvider);
     for (final workout in workouts) {
+      // Update lastPerformed on exercises that have logged sets
+      final updatedExercises = workout.exercises.map((exercise) {
+        if (exercise.sets.any((s) => s.isLogged)) {
+          return exercise.copyWith(lastPerformed: now);
+        }
+        return exercise;
+      }).toList();
+
       final updatedWorkout = workout.copyWith(
         status: WorkoutStatus.completed,
-        completedDate: DateTime.now(),
+        completedDate: now,
+        exercises: updatedExercises,
       );
       await repository.update(updatedWorkout);
+
+      // Also update individual exercise records in the database
+      for (final exercise in updatedExercises) {
+        if (exercise.sets.any((s) => s.isLogged)) {
+          await exerciseRepository.update(exercise);
+        }
+      }
     }
 
     // Check if ALL workouts in the trainingCycle are now completed

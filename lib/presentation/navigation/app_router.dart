@@ -16,6 +16,7 @@ import '../screens/plan_a_cycle_screen.dart';
 import '../screens/sentry_debug_screen.dart';
 import '../screens/settings_screen.dart';
 import '../screens/skin_selection_screen.dart';
+import '../screens/stats_screen.dart';
 import '../screens/skin_share_screen.dart';
 import '../screens/sync_screen.dart';
 import '../screens/template_share_screen.dart';
@@ -31,6 +32,7 @@ class AppRoutes {
   static const String workoutList = '/trainingCycles/:trainingCycleId/workouts';
   static const String completedTrainingCycleView =
       '/trainingCycles/:trainingCycleId/view';
+  static const String stats = '/stats';
 }
 
 /// Provider for GoRouter instance
@@ -189,6 +191,13 @@ final routerProvider = Provider<GoRouter>((ref) {
           final skinId = state.pathParameters['skinId']!;
           return ThemeEditorScreen(skinId: skinId);
         },
+      ),
+
+      // Statistics screen
+      GoRoute(
+        path: AppRoutes.stats,
+        name: 'stats',
+        builder: (context, state) => const StatsScreen(),
       ),
 
       // Settings screen

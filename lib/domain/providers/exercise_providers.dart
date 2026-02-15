@@ -6,6 +6,7 @@ import '../../data/models/custom_exercise_definition.dart';
 import '../../data/models/exercise.dart';
 import '../../data/models/exercise_definition.dart';
 import '../../data/services/csv_loader_service.dart';
+import '../../data/services/exercise_history_service.dart';
 import 'database_providers.dart';
 
 // =============================================================================
@@ -210,4 +211,24 @@ final exerciseNameExistsProvider = FutureProvider.family<bool, String>((
 
   final customRepo = ref.watch(customExerciseRepositoryProvider);
   return customRepo.existsByName(name);
+});
+
+// =============================================================================
+// Exercise History Providers
+// =============================================================================
+
+/// Provider for the ExerciseHistoryService
+final exerciseHistoryServiceProvider = Provider<ExerciseHistoryService>((ref) {
+  final workoutRepo = ref.watch(workoutRepositoryProvider);
+  return ExerciseHistoryService(workoutRepo);
+});
+
+/// Provider for the previous performance of an exercise.
+///
+/// Looks up the most recent logged performance by exercise name,
+/// excluding the current exercise instance.
+final previousPerformanceProvider = FutureProvider.family<Exercise?,
+    ({String name, String currentId})>((ref, params) async {
+  final service = ref.watch(exerciseHistoryServiceProvider);
+  return service.getPreviousPerformance(params.name, params.currentId);
 });

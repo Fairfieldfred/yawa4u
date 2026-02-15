@@ -60,6 +60,7 @@ dependencies:
   image_picker: ^1.1.2
   flutter_image_compress: ^2.3.0
   palette_generator: ^0.3.3+4
+  fl_chart: ^1.1.1
 
 dev_dependencies:
   sentry_dart_plugin: ^3.2.0

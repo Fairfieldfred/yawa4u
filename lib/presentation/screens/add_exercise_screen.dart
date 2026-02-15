@@ -317,59 +317,79 @@ class _AddExerciseScreenState extends ConsumerState<AddExerciseScreen> {
         ),
         subtitle: Padding(
           padding: const EdgeInsets.only(top: 8),
-          child: Row(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Muscle group badge
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.primaryContainer.withValues(alpha: 0.5),
-                  borderRadius: BorderRadius.circular(4),
-                  border: Border.all(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.primary.withValues(alpha: 0.5),
-                    width: 1,
+              Row(
+                children: [
+                  // Muscle group badge
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context)
+                          .colorScheme
+                          .primaryContainer
+                          .withValues(alpha: 0.5),
+                      borderRadius: BorderRadius.circular(4),
+                      border: Border.all(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .primary
+                            .withValues(alpha: 0.5),
+                        width: 1,
+                      ),
+                    ),
+                    child: Text(
+                      exercise.muscleGroup.displayName,
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color: Theme.of(context).brightness == Brightness.light
+                            ? Colors.black.withValues(alpha: 0.85)
+                            : Theme.of(context)
+                                  .colorScheme
+                                  .onPrimaryContainer
+                                  .withValues(alpha: 0.85),
+                      ),
+                    ),
                   ),
-                ),
-                child: Text(
-                  exercise.muscleGroup.displayName,
-                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: Theme.of(context).brightness == Brightness.light
-                        ? Colors.black.withValues(alpha: 0.85)
-                        : Theme.of(context).colorScheme.onPrimaryContainer
-                              .withValues(alpha: 0.85),
+                  const SizedBox(width: 8),
+                  // Equipment badge
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context)
+                          .colorScheme
+                          .secondaryContainer
+                          .withValues(alpha: 0.5),
+                      borderRadius: BorderRadius.circular(4),
+                      border: Border.all(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .secondary
+                            .withValues(alpha: 0.5),
+                        width: 1,
+                      ),
+                    ),
+                    child: Text(
+                      exercise.equipmentType.displayName,
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color: Theme.of(context).brightness == Brightness.light
+                            ? Colors.black.withValues(alpha: 0.85)
+                            : Theme.of(context)
+                                  .colorScheme
+                                  .onSecondaryContainer
+                                  .withValues(alpha: 0.85),
+                      ),
+                    ),
                   ),
-                ),
+                ],
               ),
-              const SizedBox(width: 8),
-              // Equipment badge
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.secondaryContainer.withValues(alpha: 0.5),
-                  borderRadius: BorderRadius.circular(4),
-                  border: Border.all(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.secondary.withValues(alpha: 0.5),
-                    width: 1,
-                  ),
-                ),
-                child: Text(
-                  exercise.equipmentType.displayName,
-                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: Theme.of(context).brightness == Brightness.light
-                        ? Colors.black.withValues(alpha: 0.85)
-                        : Theme.of(context).colorScheme.onSecondaryContainer
-                              .withValues(alpha: 0.85),
-                  ),
-                ),
-              ),
+              _buildLastPerformed(exercise.name),
             ],
           ),
         ),
@@ -379,6 +399,32 @@ class _AddExerciseScreenState extends ConsumerState<AddExerciseScreen> {
         ),
         onTap: () => _addExerciseToWorkout(exercise),
       ),
+    );
+  }
+
+  Widget _buildLastPerformed(String exerciseName) {
+    final historyService = ref.read(exerciseHistoryServiceProvider);
+    return FutureBuilder<DateTime?>(
+      future: historyService.getLastPerformedDateForName(exerciseName),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData || snapshot.data == null) {
+          return const SizedBox.shrink();
+        }
+        final dateStr = historyService.formatRelativeDate(snapshot.data!);
+        return Padding(
+          padding: const EdgeInsets.only(top: 4),
+          child: Text(
+            'Last performed $dateStr',
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              fontSize: 11,
+              color: Theme.of(context)
+                  .colorScheme
+                  .onSurface
+                  .withAlpha((255 * 0.5).round()),
+            ),
+          ),
+        );
+      },
     );
   }
 

@@ -8,6 +8,7 @@ import '../../core/utils/weight_conversion.dart';
 import '../../data/models/exercise.dart';
 import '../../data/models/exercise_set.dart';
 import '../../domain/providers/database_providers.dart';
+import '../../domain/providers/exercise_providers.dart';
 import 'dialogs/exercise_info_dialog.dart';
 import 'muscle_group_badge.dart';
 
@@ -80,6 +81,48 @@ class ExerciseCardWidget extends ConsumerWidget {
     this.isFirstExercise = false,
     this.isLastExercise = false,
   });
+
+  /// Shows the previous performance summary below the equipment type.
+  Widget _buildPreviousPerformance(BuildContext context, WidgetRef ref) {
+    final asyncPrev = ref.watch(
+      previousPerformanceProvider(
+        (name: exercise.name, currentId: exercise.id),
+      ),
+    );
+
+    return asyncPrev.when(
+      data: (prevExercise) {
+        if (prevExercise == null) return const SizedBox.shrink();
+
+        final service = ref.read(exerciseHistoryServiceProvider);
+        final summary = service.formatPerformanceSummary(prevExercise);
+        if (summary.isEmpty) return const SizedBox.shrink();
+
+        // Find the date from the workout, fall back to lastPerformed
+        final date = prevExercise.lastPerformed;
+        final dateStr =
+            date != null ? ' - ${service.formatRelativeDate(date)}' : '';
+
+        return Padding(
+          padding: const EdgeInsets.only(top: 2),
+          child: Text(
+            'Last: $summary$dateStr',
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              fontSize: 11,
+              color: Theme.of(context)
+                  .colorScheme
+                  .onSurface
+                  .withAlpha((255 * 0.5).round()),
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        );
+      },
+      loading: () => const SizedBox.shrink(),
+      error: (_, __) => const SizedBox.shrink(),
+    );
+  }
 
   /// Find the most recent pinned note for exercises with the same name
   Future<String?> _findPinnedNoteForExercise(WidgetRef ref) async {
@@ -170,6 +213,7 @@ class ExerciseCardWidget extends ConsumerWidget {
                                       letterSpacing: 0.3,
                                     ),
                               ),
+                              _buildPreviousPerformance(context, ref),
                             ],
                           ),
                         ),
