@@ -5,6 +5,7 @@ import 'package:uuid/uuid.dart';
 
 import '../../core/constants/enums.dart';
 import '../../core/theme/skins/skins.dart';
+import '../../core/utils/day_sequence.dart';
 import '../../data/models/exercise.dart';
 import '../../data/models/exercise_set.dart';
 import '../../data/models/workout.dart';
@@ -33,6 +34,19 @@ class WorkoutHomeScreen extends ConsumerStatefulWidget {
 }
 
 class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
+  // ---------------------------------------------------------------------------
+  // PageView State for Swipe Navigation
+  // ---------------------------------------------------------------------------
+
+  PageController? _pageController;
+  bool _isSwiping = false;
+
+  @override
+  void dispose() {
+    _pageController?.dispose();
+    super.dispose();
+  }
+
   // ---------------------------------------------------------------------------
   // Controller Access
   // ---------------------------------------------------------------------------
@@ -166,14 +180,16 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
 
     final exercise = workout.exercises[exerciseIndex];
 
-    // Auto-populate weight from previous performance
+    // Auto-populate weight from previous performance (with suggestion)
     final historyService = ref.read(exerciseHistoryServiceProvider);
     final insertIndex = currentSetIndex + 1;
-    final prevWeight = await historyService.getAutoPopulateWeight(
+    final result = await historyService.getAutoPopulateWeightWithSuggestion(
       exercise.name,
       exercise.id,
       insertIndex,
+      exercise.equipmentType,
     );
+    final prevWeight = result.weight;
 
     // Create new set
     final newSet = ExerciseSet(
@@ -582,13 +598,15 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
 
     final exercise = workout.exercises[exerciseIndex];
 
-    // Auto-populate weight from previous performance
+    // Auto-populate weight from previous performance (with suggestion)
     final historyService = ref.read(exerciseHistoryServiceProvider);
-    final prevWeight = await historyService.getAutoPopulateWeight(
+    final result = await historyService.getAutoPopulateWeightWithSuggestion(
       exercise.name,
       exercise.id,
       exercise.sets.length,
+      exercise.equipmentType,
     );
+    final prevWeight = result.weight;
 
     final newSet = ExerciseSet(
       id: const Uuid().v4(),
@@ -784,10 +802,16 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     // If there's a current trainingCycle, show today's workout
     if (currentTrainingCycle != null &&
         currentTrainingCycle.startDate != null) {
-      // Get workouts from the workout repository instead of embedded workouts
-      final allWorkouts = ref.watch(
-        workoutsByTrainingCycleListProvider(currentTrainingCycle.id),
+      // Get workouts from the workout repository — wait for loading to finish
+      // before building the PageView to avoid initializing at page 0 then
+      // animating to the correct page when data arrives.
+      final cycleWorkoutsAsync = ref.watch(
+        workoutsByTrainingCycleProvider(currentTrainingCycle.id),
       );
+      if (cycleWorkoutsAsync.isLoading) {
+        return _buildEmptyState(context, currentTrainingCycle.name, '');
+      }
+      final allWorkouts = cycleWorkoutsAsync.asData?.value ?? [];
 
       debugPrint('Total workouts from repository: ${allWorkouts.length}');
       for (var workout in allWorkouts.take(5)) {
@@ -850,40 +874,217 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
 
       debugPrint('Display period: $displayPeriod, Display day: $displayDay');
 
-      // Get all workouts for the display period and day
+      // Build day sequence for swipe navigation
+      final daySequence = buildDaySequence(
+        currentTrainingCycle.periodsTotal,
+        currentTrainingCycle.daysPerPeriod,
+      );
+      final currentPageIndex =
+          findDayIndex(daySequence, displayPeriod, displayDay) ?? 0;
+
+      // Initialize or sync PageController
+      if (_pageController == null) {
+        _pageController = PageController(initialPage: currentPageIndex);
+      } else if (!_isSwiping && _pageController!.hasClients) {
+        final currentPage = _pageController!.page?.round() ?? 0;
+        if (currentPage != currentPageIndex) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (_pageController?.hasClients == true) {
+              _pageController!.animateToPage(
+                currentPageIndex,
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeInOut,
+              );
+            }
+          });
+        }
+      }
+      _isSwiping = false;
+
+      // Get workouts for the currently displayed day (for AppBar/FINISH)
       final todaysWorkouts = allWorkouts
           .where(
-            (w) => w.periodNumber == displayPeriod && w.dayNumber == displayDay,
+            (w) =>
+                w.periodNumber == displayPeriod &&
+                w.dayNumber == displayDay,
           )
           .toList();
 
-      debugPrint(
-        'Found ${todaysWorkouts.length} workouts for P$displayPeriod D$displayDay',
+      // Compute day name for AppBar
+      final dayName = calculateDayName(
+        workouts: todaysWorkouts,
+        startDate: currentTrainingCycle.startDate,
+        daysPerPeriod: currentTrainingCycle.daysPerPeriod,
+        displayPeriod: displayPeriod,
+        displayDay: displayDay,
       );
 
-      if (todaysWorkouts.isNotEmpty) {
-        // Show selected day's workouts
-        return _buildTodaysWorkoutView(
-          context,
-          ref,
-          currentTrainingCycle,
-          todaysWorkouts,
-          displayPeriod,
-          displayDay,
-          currentPeriod: currentPeriod,
-          allWorkouts: allWorkouts,
-        );
-      }
+      return GestureDetector(
+        onTap: () => FocusScope.of(context).unfocus(),
+        child: Scaffold(
+          appBar: AppBar(
+            elevation: 0,
+            automaticallyImplyLeading: false,
+            leading: const AppIconWidget(),
+            leadingWidth: kToolbarHeight + 12,
+            title: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  currentTrainingCycle.name.toUpperCase(),
+                  style: TextStyle(
+                    color: Theme.of(context).textTheme.bodySmall?.color,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  'PERIOD $displayPeriod DAY $displayDay $dayName',
+                  style: TextStyle(
+                    color: Theme.of(context).textTheme.titleLarge?.color,
+                    fontSize: 17,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.calendar_today),
+                onPressed: _togglePeriodSelector,
+              ),
+              IconButton(
+                icon: Icon(
+                  ref.watch(isDarkModeProvider)
+                      ? Icons.light_mode
+                      : Icons.dark_mode,
+                ),
+                onPressed: () {
+                  ref.read(themeModeProvider.notifier).toggleTheme();
+                },
+                tooltip: 'Toggle theme',
+              ),
+              if (todaysWorkouts.isNotEmpty)
+                Builder(
+                  builder: (context) => IconButton(
+                    icon: const Icon(Icons.more_vert),
+                    onPressed: () => _showWorkoutMenu(
+                      context,
+                      currentTrainingCycle,
+                      todaysWorkouts,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+          body: ScreenBackground.workout(
+            child: Stack(
+              children: [
+                // Swipeable day content
+                PageView.builder(
+                  controller: _pageController,
+                  itemCount: daySequence.length,
+                  onPageChanged: (index) {
+                    _isSwiping = true;
+                    FocusScope.of(context).unfocus();
+                    final pos = daySequence[index];
+                    _selectDay(pos.period, pos.day);
+                  },
+                  itemBuilder: (context, index) {
+                    final pos = daySequence[index];
+                    return _buildDayPageContent(
+                      context,
+                      currentTrainingCycle,
+                      allWorkouts,
+                      pos.period,
+                      pos.day,
+                    );
+                  },
+                ),
 
-      // No workout found for selected day
-      return _buildNoWorkoutForDay(
-        context,
-        ref,
-        currentTrainingCycle,
-        displayPeriod,
-        displayDay,
-        currentPeriod: currentPeriod,
-        allWorkouts: allWorkouts,
+                // Calendar dropdown overlay
+                if (_homeState.showPeriodSelector) ...[
+                  Positioned.fill(
+                    child: GestureDetector(
+                      onTap: () => _controller.hidePeriodSelector(),
+                      behavior: HitTestBehavior.opaque,
+                      child: Container(color: Colors.transparent),
+                    ),
+                  ),
+                  Positioned(
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    child: CalendarDropdown(
+                      trainingCycle: currentTrainingCycle,
+                      currentPeriod: currentPeriod,
+                      currentDay: displayDay,
+                      selectedPeriod: displayPeriod,
+                      selectedDay: displayDay,
+                      allWorkouts: allWorkouts,
+                      onDaySelected: _selectDay,
+                    ),
+                  ),
+                ],
+
+                // FINISH WORKOUT button
+                if (todaysWorkouts.isNotEmpty &&
+                    !todaysWorkouts.every((w) => w.isCompleted) &&
+                    todaysWorkouts.every((w) => _isWorkoutComplete(w)))
+                  Positioned(
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.surface,
+                        border: Border(
+                          top: BorderSide(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onSurface
+                                .withValues(alpha: 0.1),
+                          ),
+                        ),
+                      ),
+                      child: SafeArea(
+                        top: false,
+                        child: Semantics(
+                          label: 'Finish workout',
+                          button: true,
+                          child: ElevatedButton(
+                            onPressed: () => _finishWorkout(todaysWorkouts),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: context.successColor,
+                              foregroundColor:
+                                  Theme.of(context).colorScheme.onPrimary,
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 16),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              elevation: 0,
+                            ),
+                            child: const Text(
+                              'FINISH WORKOUT',
+                              style: TextStyle(
+                                fontSize: 17,
+                                fontWeight: FontWeight.w600,
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ),
       );
     }
 
@@ -895,141 +1096,163 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     );
   }
 
-  /// Build empty state for a selected day that has no workout scheduled
-  /// This includes the full AppBar with calendar navigation
-  Widget _buildNoWorkoutForDay(
+  /// Build the content for a single day page in the PageView.
+  ///
+  /// Returns the exercise list if workouts exist for this day,
+  /// or an empty state with an "Add Exercise" button.
+  Widget _buildDayPageContent(
     BuildContext context,
-    WidgetRef ref,
     dynamic trainingCycle,
-    int displayPeriod,
-    int displayDay, {
-    required int currentPeriod,
-    required List<Workout> allWorkouts,
-  }) {
-    return GestureDetector(
-      onTap: () => FocusScope.of(context).unfocus(),
-      child: Scaffold(
-        appBar: AppBar(
-          elevation: 0,
-          automaticallyImplyLeading: false,
-          leading: const AppIconWidget(),
-          leadingWidth: kToolbarHeight + 12,
-          title: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                trainingCycle.name.toUpperCase(),
-                style: TextStyle(
-                  color: Theme.of(context).textTheme.bodySmall?.color,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                  letterSpacing: 0.5,
-                ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                'PERIOD $displayPeriod DAY $displayDay',
-                style: TextStyle(
-                  color: Theme.of(context).textTheme.titleLarge?.color,
-                  fontSize: 17,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-          ),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.calendar_today),
-              onPressed: _togglePeriodSelector,
+    List<Workout> allWorkouts,
+    int period,
+    int day,
+  ) {
+    final dayWorkouts = allWorkouts
+        .where((w) => w.periodNumber == period && w.dayNumber == day)
+        .toList();
+
+    if (dayWorkouts.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.event_busy,
+              size: 80,
+              color: Theme.of(context)
+                  .colorScheme
+                  .primary
+                  .withValues(alpha: 0.5),
             ),
-            IconButton(
-              icon: Icon(
-                ref.watch(isDarkModeProvider)
-                    ? Icons.light_mode
-                    : Icons.dark_mode,
+            const SizedBox(height: 16),
+            Text(
+              'No Exercises Scheduled',
+              style: Theme.of(context).textTheme.headlineSmall,
+            ),
+            const SizedBox(height: 8),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 32),
+              child: Text(
+                'No exercises found for Period $period, Day $day',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(context)
+                      .colorScheme
+                      .onSurface
+                      .withValues(alpha: 0.7),
+                ),
+                textAlign: TextAlign.center,
               ),
-              onPressed: () {
-                ref.read(themeModeProvider.notifier).toggleTheme();
-              },
-              tooltip: 'Toggle theme',
+            ),
+            const SizedBox(height: 24),
+            FilledButton.icon(
+              onPressed: () => _addExerciseForDay(
+                trainingCycle.id,
+                period,
+                day,
+              ),
+              icon: const Icon(Icons.add),
+              label: const Text('Add Exercise'),
             ),
           ],
         ),
-        body: ScreenBackground.workout(
-          child: Stack(
-            children: [
-              Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.event_busy,
-                      size: 80,
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.primary.withValues(alpha: 0.5),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'No Exercises Scheduled',
-                      style: Theme.of(context).textTheme.headlineSmall,
-                    ),
-                    const SizedBox(height: 8),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 32),
-                      child: Text(
-                        'No exercises found for Period $displayPeriod, Day $displayDay',
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.onSurface.withValues(alpha: 0.7),
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                    FilledButton.icon(
-                      onPressed: () => _addExerciseForDay(
-                        trainingCycle.id,
-                        displayPeriod,
-                        displayDay,
-                      ),
-                      icon: const Icon(Icons.add),
-                      label: const Text('Add Exercise'),
-                    ),
-                  ],
-                ),
-              ),
-              // Period selector overlay
-              if (_homeState.showPeriodSelector) ...[
-                Positioned.fill(
-                  child: GestureDetector(
-                    onTap: () {
-                      _controller.hidePeriodSelector();
-                    },
-                    behavior: HitTestBehavior.opaque,
-                    child: Container(color: Colors.transparent),
-                  ),
-                ),
-                Positioned(
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  child: CalendarDropdown(
-                    trainingCycle: trainingCycle,
-                    currentPeriod: currentPeriod,
-                    currentDay: displayDay,
-                    selectedPeriod: displayPeriod,
-                    selectedDay: displayDay,
-                    allWorkouts: allWorkouts,
-                    onDaySelected: _selectDay,
-                  ),
-                ),
-              ],
-            ],
+      );
+    }
+
+    // Collect all exercises from all workouts for this day
+    final allExercises = <dynamic>[];
+    for (var workout in dayWorkouts) {
+      allExercises.addAll(workout.exercises);
+    }
+
+    if (allExercises.isEmpty) {
+      return Center(
+        child: Text(
+          'No exercises',
+          style: TextStyle(
+            color: Theme.of(context)
+                .colorScheme
+                .onSurface
+                .withValues(alpha: 0.5),
           ),
         ),
-      ),
+      );
+    }
+
+    return ListView.separated(
+      padding: const EdgeInsets.only(bottom: 80, top: 24),
+      itemCount: allExercises.length,
+      separatorBuilder: (context, index) {
+        final currentMuscleGroup = allExercises[index].muscleGroup;
+        final nextMuscleGroup = index + 1 < allExercises.length
+            ? allExercises[index + 1].muscleGroup
+            : null;
+        final isSameMuscleGroup = currentMuscleGroup == nextMuscleGroup;
+
+        return isSameMuscleGroup
+            ? Container(
+                height: 1,
+                color: Theme.of(context).dividerColor,
+              )
+            : const SizedBox(height: 32);
+      },
+      itemBuilder: (context, index) {
+        final exercise = allExercises[index];
+        final showMuscleGroupBadge = index == 0 ||
+            allExercises[index - 1].muscleGroup != exercise.muscleGroup;
+
+        final periodRir = calculateRIR(
+          period,
+          trainingCycle.recoveryPeriod,
+        );
+
+        return ExerciseCardWidget(
+          key: ValueKey(
+            '${exercise.id}_${exercise.sets.length}_${exercise.sets.map((s) => s.id).join(",")}_${ref.watch(useMetricProvider)}',
+          ),
+          exercise: exercise,
+          showMuscleGroupBadge: showMuscleGroupBadge,
+          targetRir: periodRir,
+          weightUnit: ref.watch(weightUnitProvider),
+          useMetric: ref.watch(useMetricProvider),
+          showMoveDown: true,
+          isFirstExercise: index == 0,
+          isLastExercise: index == allExercises.length - 1,
+          callbacks: ExerciseCardCallbacks(
+            onAddNote: (id) => _addNote(exercise.workoutId, id),
+            onMoveUp: (id) => _moveExerciseUp(exercise.workoutId, id),
+            onMoveDown: (id) => _moveExerciseDown(exercise.workoutId, id),
+            onReplace: (id) => _replaceExercise(exercise.workoutId, id),
+            onJointPain: (id) => _logJointPain(exercise.workoutId, id),
+            onAddSet: (id) =>
+                _addSetToExercise(exercise.workoutId, id),
+            onSkipSets: (id) =>
+                _skipExerciseSets(exercise.workoutId, id),
+            onDelete: (id) =>
+                _deleteExercise(exercise.workoutId, id),
+            onAddSetBelow: (i) => _addSetBelow(
+              exercise.workoutId, exercise.id, i,
+            ),
+            onToggleSetSkip: (i) => _toggleSetSkip(
+              exercise.workoutId, exercise.id, i,
+            ),
+            onDeleteSet: (i) => _deleteSet(
+              exercise.workoutId, exercise.id, i,
+            ),
+            onUpdateSetType: (i, type) => _updateSetType(
+              exercise.workoutId, exercise.id, i, type,
+            ),
+            onUpdateSetWeight: (i, v) => _updateSetWeight(
+              exercise.workoutId, exercise.id, i, v,
+            ),
+            onUpdateSetReps: (i, v) => _updateSetReps(
+              exercise.workoutId, exercise.id, i, v,
+            ),
+            onToggleSetLog: (i) => _toggleSetLog(
+              exercise.workoutId, exercise.id, i,
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -1063,325 +1286,6 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                   textAlign: TextAlign.center,
                 ),
               ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTodaysWorkoutView(
-    BuildContext context,
-    WidgetRef ref,
-    dynamic trainingCycle,
-    List<Workout> workouts,
-    int displayPeriod,
-    int displayDay, {
-    required int currentPeriod,
-    required List<Workout> allWorkouts,
-  }) {
-    // Calculate day name based on the trainingCycle start date
-    final defaultDayNames = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
-    String dayName;
-
-    // Debug logging
-    debugPrint('=== DAY NAME CALCULATION ===');
-    debugPrint('Start date: ${trainingCycle.startDate}');
-    debugPrint('Start date weekday: ${trainingCycle.startDate?.weekday}');
-    debugPrint('Display period: $displayPeriod, Display day: $displayDay');
-    debugPrint('Days per period: ${trainingCycle.daysPerPeriod}');
-    debugPrint(
-      'Has custom dayName: ${workouts.isNotEmpty && workouts.first.dayName != null}',
-    );
-    if (workouts.isNotEmpty && workouts.first.dayName != null) {
-      debugPrint('Custom dayName: ${workouts.first.dayName}');
-    }
-
-    if (workouts.isNotEmpty && workouts.first.dayName != null) {
-      // Use custom day name from workout if available
-      dayName = workouts.first.dayName!.substring(0, 3).toUpperCase();
-      debugPrint('Using custom dayName: $dayName');
-    } else if (trainingCycle.startDate != null) {
-      // Calculate based on start date
-      // Get the day of week when trainingCycle started (0 = Sunday, 6 = Saturday)
-      final startDayOfWeek =
-          trainingCycle.startDate!.weekday % 7; // Convert Monday=1 to Sunday=0
-      debugPrint('Start day of week (after conversion): $startDayOfWeek');
-
-      // Calculate days elapsed since start
-      final daysElapsed =
-          ((displayPeriod - 1) * trainingCycle.daysPerPeriod) +
-          (displayDay - 1);
-      debugPrint('Days elapsed: $daysElapsed');
-
-      // Calculate actual day of week
-      final actualDayOfWeek = (startDayOfWeek + daysElapsed) % 7;
-      debugPrint('Actual day of week: $actualDayOfWeek');
-
-      dayName = defaultDayNames[actualDayOfWeek];
-      debugPrint('Calculated dayName: $dayName');
-    } else {
-      // Fallback to default if no start date
-      dayName = displayDay >= 1 && displayDay <= defaultDayNames.length
-          ? defaultDayNames[displayDay - 1]
-          : 'DAY $displayDay';
-      debugPrint('Using fallback dayName: $dayName');
-    }
-
-    // Collect all exercises from all workouts for today
-    final allExercises = <dynamic>[];
-    for (var workout in workouts) {
-      allExercises.addAll(workout.exercises);
-    }
-
-    debugPrint(
-      'Building workout view with ${allExercises.length} total exercises from ${workouts.length} workouts',
-    );
-    for (var i = 0; i < allExercises.length; i++) {
-      debugPrint('  Exercise $i: ${allExercises[i].name}');
-    }
-
-    return GestureDetector(
-      onTap: () => FocusScope.of(context).unfocus(),
-      child: Scaffold(
-        appBar: AppBar(
-          elevation: 0,
-          automaticallyImplyLeading: false,
-          leading: const AppIconWidget(),
-          leadingWidth: kToolbarHeight + 12,
-          title: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                trainingCycle.name.toUpperCase(),
-                style: TextStyle(
-                  color: Theme.of(context).textTheme.bodySmall?.color,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                  letterSpacing: 0.5,
-                ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                'PERIOD $displayPeriod DAY $displayDay $dayName',
-                style: TextStyle(
-                  color: Theme.of(context).textTheme.titleLarge?.color,
-                  fontSize: 17,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-          ),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.calendar_today),
-              onPressed: _togglePeriodSelector,
-            ),
-            // Theme toggle
-            IconButton(
-              icon: Icon(
-                ref.watch(isDarkModeProvider)
-                    ? Icons.light_mode
-                    : Icons.dark_mode,
-              ),
-              onPressed: () {
-                ref.read(themeModeProvider.notifier).toggleTheme();
-              },
-              tooltip: 'Toggle theme',
-            ),
-            Builder(
-              builder: (context) => IconButton(
-                icon: const Icon(Icons.more_vert),
-                onPressed: () =>
-                    _showWorkoutMenu(context, trainingCycle, workouts),
-              ),
-            ),
-          ],
-        ),
-        body: ScreenBackground.workout(
-          child: Stack(
-            children: [
-              // Exercise list
-              allExercises.isEmpty
-                  ? Center(
-                      child: Text(
-                        'No exercises',
-                        style: TextStyle(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .onSurface
-                              .withValues(alpha: 0.5),
-                        ),
-                      ),
-                    )
-                  : ListView.separated(
-                      padding: const EdgeInsets.only(bottom: 80, top: 24),
-                      itemCount: allExercises.length,
-                      separatorBuilder: (context, index) {
-                        // Check if next exercise is same muscle group
-                        final currentMuscleGroup =
-                            allExercises[index].muscleGroup;
-                        final nextMuscleGroup = index + 1 < allExercises.length
-                            ? allExercises[index + 1].muscleGroup
-                            : null;
-                        final isSameMuscleGroup =
-                            currentMuscleGroup == nextMuscleGroup;
-
-                        // Thin grey divider for same muscle group, black spacer for different
-                        return isSameMuscleGroup
-                            ? Container(
-                                height: 1,
-                                color: Theme.of(context).dividerColor,
-                              )
-                            : const SizedBox(height: 32);
-                      },
-                      itemBuilder: (context, index) {
-                        final exercise = allExercises[index];
-                        final showMuscleGroupBadge =
-                            index == 0 ||
-                            allExercises[index - 1].muscleGroup !=
-                                exercise.muscleGroup;
-
-                        // Calculate target RIR for current period
-                        final periodRir = calculateRIR(
-                          displayPeriod,
-                          trainingCycle.recoveryPeriod,
-                        );
-
-                        return ExerciseCardWidget(
-                          key: ValueKey(
-                            '${exercise.id}_${exercise.sets.length}_${exercise.sets.map((s) => s.id).join(",")}_${ref.watch(useMetricProvider)}',
-                          ),
-                          exercise: exercise,
-                          showMuscleGroupBadge: showMuscleGroupBadge,
-                          targetRir: periodRir,
-                          weightUnit: ref.watch(weightUnitProvider),
-                          useMetric: ref.watch(useMetricProvider),
-                          showMoveDown: true,
-                          isFirstExercise: index == 0,
-                          isLastExercise: index == allExercises.length - 1,
-                          callbacks: ExerciseCardCallbacks(
-                            onAddNote: (id) =>
-                                _addNote(exercise.workoutId, id),
-                            onMoveUp: (id) =>
-                                _moveExerciseUp(exercise.workoutId, id),
-                            onMoveDown: (id) =>
-                                _moveExerciseDown(exercise.workoutId, id),
-                            onReplace: (id) =>
-                                _replaceExercise(exercise.workoutId, id),
-                            onJointPain: (id) =>
-                                _logJointPain(exercise.workoutId, id),
-                            onAddSet: (id) =>
-                                _addSetToExercise(exercise.workoutId, id),
-                            onSkipSets: (id) =>
-                                _skipExerciseSets(exercise.workoutId, id),
-                            onDelete: (id) =>
-                                _deleteExercise(exercise.workoutId, id),
-                            onAddSetBelow: (i) => _addSetBelow(
-                              exercise.workoutId, exercise.id, i,
-                            ),
-                            onToggleSetSkip: (i) => _toggleSetSkip(
-                              exercise.workoutId, exercise.id, i,
-                            ),
-                            onDeleteSet: (i) => _deleteSet(
-                              exercise.workoutId, exercise.id, i,
-                            ),
-                            onUpdateSetType: (i, type) => _updateSetType(
-                              exercise.workoutId, exercise.id, i, type,
-                            ),
-                            onUpdateSetWeight: (i, v) => _updateSetWeight(
-                              exercise.workoutId, exercise.id, i, v,
-                            ),
-                            onUpdateSetReps: (i, v) => _updateSetReps(
-                              exercise.workoutId, exercise.id, i, v,
-                            ),
-                            onToggleSetLog: (i) => _toggleSetLog(
-                              exercise.workoutId, exercise.id, i,
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-
-              // Period selector overlay (shown on top when toggled)
-              if (_homeState.showPeriodSelector) ...[
-                // Barrier to dismiss on tap outside
-                Positioned.fill(
-                  child: GestureDetector(
-                    onTap: () {
-                      _controller.hidePeriodSelector();
-                    },
-                    behavior: HitTestBehavior.opaque,
-                    child: Container(color: Colors.transparent),
-                  ),
-                ),
-                // The dropdown itself
-                Positioned(
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  child: CalendarDropdown(
-                    trainingCycle: trainingCycle,
-                    currentPeriod: currentPeriod,
-                    currentDay: displayDay,
-                    selectedPeriod: displayPeriod,
-                    selectedDay: displayDay,
-                    allWorkouts: allWorkouts,
-                    onDaySelected: _selectDay,
-                  ),
-                ),
-              ],
-
-              // FINISH WORKOUT button (appears when all sets are logged or skipped)
-              if (workouts.isNotEmpty &&
-                  !workouts.every((w) => w.isCompleted) &&
-                  workouts.every((w) => _isWorkoutComplete(w)))
-                Positioned(
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                  child: Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surface,
-                      border: Border(
-                        top: BorderSide(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .onSurface
-                              .withValues(alpha: 0.1),
-                        ),
-                      ),
-                    ),
-                    child: SafeArea(
-                      top: false,
-                      child: Semantics(
-                        label: 'Finish workout',
-                        button: true,
-                        child: ElevatedButton(
-                        onPressed: () => _finishWorkout(workouts),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: context.successColor,
-                          foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          elevation: 0,
-                        ),
-                        child: const Text(
-                          'FINISH WORKOUT',
-                          style: TextStyle(
-                            fontSize: 17,
-                            fontWeight: FontWeight.w600,
-                            letterSpacing: 0.5,
-                          ),
-                        ),
-                      ),
-                      ),
-                    ),
-                  ),
-                ),
             ],
           ),
         ),

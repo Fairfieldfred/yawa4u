@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 
 import '../../core/constants/enums.dart';
 import '../../core/theme/skins/skins.dart';
+import '../../core/utils/day_sequence.dart';
 import '../../data/models/exercise.dart';
 import '../../data/models/exercise_set.dart';
 import '../../data/models/training_cycle.dart';
@@ -54,6 +55,14 @@ class _ExercisesHomeScreenState extends ConsumerState<ExercisesHomeScreen> {
   int? _selectedPeriod;
   int? _selectedDay;
   bool _showPeriodSelector = false;
+  PageController? _dayPageController;
+  bool _isDaySwiping = false;
+
+  @override
+  void dispose() {
+    _dayPageController?.dispose();
+    super.dispose();
+  }
 
   void _togglePeriodSelector() {
     setState(() {
@@ -237,16 +246,16 @@ class _ExercisesHomeScreenState extends ConsumerState<ExercisesHomeScreen> {
       );
     }
 
-    // Check loading state of the base provider
-    final workoutsState = ref.watch(workoutsProvider);
-    if (workoutsState.isLoading) {
+    // Wait for cycle-specific workouts to load before building PageView
+    final cycleWorkoutsAsync = ref.watch(
+      workoutsByTrainingCycleProvider(currentTrainingCycle.id),
+    );
+    if (cycleWorkoutsAsync.isLoading) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     // Get workouts for the current trainingCycle
-    final allWorkouts = ref.watch(
-      workoutsByTrainingCycleListProvider(currentTrainingCycle.id),
-    );
+    final allWorkouts = cycleWorkoutsAsync.asData?.value ?? [];
 
     // Find the first incomplete workout day (not just workout/muscle group)
     // Group by (periodNumber, dayNumber) to find unique days
@@ -271,164 +280,222 @@ class _ExercisesHomeScreenState extends ConsumerState<ExercisesHomeScreen> {
     // Use selected period/day if set, otherwise use current (first incomplete)
     final displayPeriod = _selectedPeriod ?? currentPeriod;
     final displayDay = _selectedDay ?? currentDay;
-    final displayKey = '$displayPeriod-$displayDay';
 
-    // Check if selected day has workouts
-    if (!workoutsByDay.containsKey(displayKey)) {
-      return Scaffold(
-        appBar: AppBar(
-          elevation: 0,
-          automaticallyImplyLeading: false,
-          leading: const AppIconWidget(),
-          leadingWidth: kToolbarHeight + 12,
-          title: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                currentTrainingCycle.name.toUpperCase(),
-                style: TextStyle(
-                  color: Theme.of(context).textTheme.bodySmall?.color,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                  letterSpacing: 0.5,
-                ),
+    // Build day sequence for swipe navigation
+    final daySequence = buildDaySequence(
+      currentTrainingCycle.periodsTotal,
+      currentTrainingCycle.daysPerPeriod,
+    );
+    final currentPageIndex =
+        findDayIndex(daySequence, displayPeriod, displayDay) ?? 0;
+
+    // Initialize or sync day PageController
+    if (_dayPageController == null) {
+      _dayPageController = PageController(initialPage: currentPageIndex);
+    } else if (!_isDaySwiping && _dayPageController!.hasClients) {
+      final currentPage = _dayPageController!.page?.round() ?? 0;
+      if (currentPage != currentPageIndex) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (_dayPageController?.hasClients == true) {
+            _dayPageController!.animateToPage(
+              currentPageIndex,
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+            );
+          }
+        });
+      }
+    }
+    _isDaySwiping = false;
+
+    return PageView.builder(
+      controller: _dayPageController,
+      itemCount: daySequence.length,
+      onPageChanged: (index) {
+        _isDaySwiping = true;
+        FocusScope.of(context).unfocus();
+        final pos = daySequence[index];
+        _onDaySelected(pos.period, pos.day);
+      },
+      itemBuilder: (context, index) {
+        final pos = daySequence[index];
+        final key = '${pos.period}-${pos.day}';
+
+        if (!workoutsByDay.containsKey(key)) {
+          return _buildEmptyDayPage(
+            context,
+            currentTrainingCycle,
+            pos.period,
+            pos.day,
+            currentPeriod: currentPeriod,
+            currentDay: currentDay,
+            allWorkouts: allWorkouts,
+          );
+        }
+
+        return _WorkoutSessionView(
+          key: ValueKey(key),
+          workouts: workoutsByDay[key]!,
+          trainingCycle: currentTrainingCycle,
+          allWorkouts: allWorkouts,
+          currentPeriod: currentPeriod,
+          currentDay: currentDay,
+          selectedPeriod: pos.period,
+          selectedDay: pos.day,
+          onDaySelected: _onDaySelected,
+        );
+      },
+    );
+  }
+
+  /// Build empty state page for a day with no scheduled exercises.
+  Widget _buildEmptyDayPage(
+    BuildContext context,
+    TrainingCycle trainingCycle,
+    int period,
+    int day, {
+    required int currentPeriod,
+    required int currentDay,
+    required List<Workout> allWorkouts,
+  }) {
+    return Scaffold(
+      appBar: AppBar(
+        elevation: 0,
+        automaticallyImplyLeading: false,
+        leading: const AppIconWidget(),
+        leadingWidth: kToolbarHeight + 12,
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              trainingCycle.name.toUpperCase(),
+              style: TextStyle(
+                color: Theme.of(context).textTheme.bodySmall?.color,
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                letterSpacing: 0.5,
               ),
-              const SizedBox(height: 2),
-              Text(
-                'PERIOD $displayPeriod DAY $displayDay',
-                style: TextStyle(
-                  color: Theme.of(context).textTheme.titleLarge?.color,
-                  fontSize: 17,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-          ),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.calendar_today),
-              onPressed: _togglePeriodSelector,
-              tooltip: 'Select day',
             ),
-            // Theme toggle
-            IconButton(
-              icon: Icon(
-                ref.watch(isDarkModeProvider)
-                    ? Icons.light_mode
-                    : Icons.dark_mode,
-              ),
-              onPressed: () {
-                ref.read(themeModeProvider.notifier).toggleTheme();
-              },
-              tooltip: 'Toggle theme',
-            ),
-            Builder(
-              builder: (context) => IconButton(
-                icon: const Icon(Icons.more_vert),
-                onPressed: () => _showCycleMenu(context, currentTrainingCycle),
+            const SizedBox(height: 2),
+            Text(
+              'PERIOD $period DAY $day',
+              style: TextStyle(
+                color: Theme.of(context).textTheme.titleLarge?.color,
+                fontSize: 17,
+                fontWeight: FontWeight.w600,
               ),
             ),
           ],
         ),
-        body: ScreenBackground.exercises(
-          child: Stack(
-            children: [
-              Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.fitness_center,
-                      size: 80,
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.primary.withValues(alpha: 0.5),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'No exercises scheduled',
-                      style: Theme.of(context).textTheme.headlineSmall,
-                    ),
-                    const SizedBox(height: 8),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 32),
-                      child: Text(
-                        'Add exercises for Period $displayPeriod, Day $displayDay',
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.onSurface.withValues(alpha: 0.7),
-                        ),
-                        textAlign: TextAlign.center,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.calendar_today),
+            onPressed: _togglePeriodSelector,
+            tooltip: 'Select day',
+          ),
+          IconButton(
+            icon: Icon(
+              ref.watch(isDarkModeProvider)
+                  ? Icons.light_mode
+                  : Icons.dark_mode,
+            ),
+            onPressed: () {
+              ref.read(themeModeProvider.notifier).toggleTheme();
+            },
+            tooltip: 'Toggle theme',
+          ),
+          Builder(
+            builder: (context) => IconButton(
+              icon: const Icon(Icons.more_vert),
+              onPressed: () => _showCycleMenu(context, trainingCycle),
+            ),
+          ),
+        ],
+      ),
+      body: ScreenBackground.exercises(
+        child: Stack(
+          children: [
+            Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.fitness_center,
+                    size: 80,
+                    color: Theme.of(context)
+                        .colorScheme
+                        .primary
+                        .withValues(alpha: 0.5),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'No exercises scheduled',
+                    style: Theme.of(context).textTheme.headlineSmall,
+                  ),
+                  const SizedBox(height: 8),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 32),
+                    child: Text(
+                      'Add exercises for Period $period, Day $day',
+                      style:
+                          Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .onSurface
+                            .withValues(alpha: 0.7),
                       ),
+                      textAlign: TextAlign.center,
                     ),
-                    const SizedBox(height: 24),
-                    FilledButton.icon(
-                      onPressed: () => _addExerciseForDay(
-                        currentTrainingCycle.id,
-                        displayPeriod,
-                        displayDay,
-                      ),
-                      icon: const Icon(Icons.add),
-                      label: const Text('Add Exercise'),
+                  ),
+                  const SizedBox(height: 24),
+                  FilledButton.icon(
+                    onPressed: () => _addExerciseForDay(
+                      trainingCycle.id,
+                      period,
+                      day,
                     ),
-                  ],
+                    icon: const Icon(Icons.add),
+                    label: const Text('Add Exercise'),
+                  ),
+                ],
+              ),
+            ),
+            // Period selector overlay
+            if (_showPeriodSelector) ...[
+              Positioned.fill(
+                child: GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      _showPeriodSelector = false;
+                    });
+                  },
+                  behavior: HitTestBehavior.opaque,
+                  child: Container(color: Colors.transparent),
                 ),
               ),
-              // Period selector overlay
-              if (_showPeriodSelector) ...[
-                // Barrier to dismiss on tap outside
-                Positioned.fill(
-                  child: GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        _showPeriodSelector = false;
-                      });
-                    },
-                    behavior: HitTestBehavior.opaque,
-                    child: Container(color: Colors.transparent),
-                  ),
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                child: CalendarDropdown(
+                  trainingCycle: trainingCycle,
+                  currentPeriod: currentPeriod,
+                  currentDay: currentDay,
+                  selectedPeriod: period,
+                  selectedDay: day,
+                  allWorkouts: allWorkouts,
+                  onDaySelected: (p, d) {
+                    setState(() {
+                      _showPeriodSelector = false;
+                    });
+                    _onDaySelected(p, d);
+                  },
                 ),
-                // The dropdown itself
-                Positioned(
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  child: CalendarDropdown(
-                    trainingCycle: currentTrainingCycle,
-                    currentPeriod: currentPeriod,
-                    currentDay: currentDay,
-                    selectedPeriod: displayPeriod,
-                    selectedDay: displayDay,
-                    allWorkouts: allWorkouts,
-                    onDaySelected: (period, day) {
-                      setState(() {
-                        _showPeriodSelector = false;
-                      });
-                      _onDaySelected(period, day);
-                    },
-                  ),
-                ),
-              ],
+              ),
             ],
-          ),
+          ],
         ),
-      );
-    }
-
-    // Get workouts for the display day
-    final dayWorkouts = workoutsByDay[displayKey]!;
-
-    return _WorkoutSessionView(
-      key: ValueKey(displayKey), // Rebuild if day changes
-      workouts: dayWorkouts,
-      trainingCycle: currentTrainingCycle,
-      allWorkouts: allWorkouts,
-      currentPeriod: currentPeriod,
-      currentDay: currentDay,
-      selectedPeriod: displayPeriod,
-      selectedDay: displayDay,
-      onDaySelected: _onDaySelected,
+      ),
     );
   }
 }
@@ -1389,13 +1456,15 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
 
     final exercise = workout.exercises[exerciseIndex];
 
-    // Auto-populate weight from previous performance
+    // Auto-populate weight from previous performance (with suggestion)
     final historyService = ref.read(exerciseHistoryServiceProvider);
-    final prevWeight = await historyService.getAutoPopulateWeight(
+    final result = await historyService.getAutoPopulateWeightWithSuggestion(
       exercise.name,
       exercise.id,
       exercise.sets.length,
+      exercise.equipmentType,
     );
+    final prevWeight = result.weight;
 
     final newSet = ExerciseSet(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
@@ -1488,14 +1557,16 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
 
     final exercise = workout.exercises[exerciseIndex];
 
-    // Auto-populate weight from previous performance
+    // Auto-populate weight from previous performance (with suggestion)
     final historyService = ref.read(exerciseHistoryServiceProvider);
     final insertIndex = currentSetIndex + 1;
-    final prevWeight = await historyService.getAutoPopulateWeight(
+    final result = await historyService.getAutoPopulateWeightWithSuggestion(
       exercise.name,
       exercise.id,
       insertIndex,
+      exercise.equipmentType,
     );
+    final prevWeight = result.weight;
 
     final newSet = ExerciseSet(
       id: DateTime.now().millisecondsSinceEpoch.toString(),

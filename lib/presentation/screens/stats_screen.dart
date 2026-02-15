@@ -7,6 +7,7 @@ import '../../data/models/training_cycle.dart';
 import '../../domain/providers/stats_providers.dart';
 import '../../domain/providers/training_cycle_providers.dart';
 import '../widgets/screen_background.dart';
+import '../widgets/stats/cycle_comparison_view.dart';
 import '../widgets/stats/volume_bar_chart.dart';
 import '../widgets/stats/volume_line_chart.dart';
 
@@ -19,8 +20,22 @@ class StatsScreen extends ConsumerStatefulWidget {
   ConsumerState<StatsScreen> createState() => _StatsScreenState();
 }
 
-class _StatsScreenState extends ConsumerState<StatsScreen> {
+class _StatsScreenState extends ConsumerState<StatsScreen>
+    with SingleTickerProviderStateMixin {
   String? _selectedCycleId;
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -56,28 +71,42 @@ class _StatsScreenState extends ConsumerState<StatsScreen> {
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           title: const Text('Statistics'),
+          bottom: TabBar(
+            controller: _tabController,
+            tabs: const [
+              Tab(text: 'Overview'),
+              Tab(text: 'Compare'),
+            ],
+          ),
         ),
-        body: Column(
+        body: TabBarView(
+          controller: _tabController,
           children: [
-            // Cycle selector
-            if (cycleList.isNotEmpty)
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                child: _buildCycleSelector(cycleList, effectiveCycleId),
-              ),
-
-            // Stats content
-            Expanded(
-              child: statsAsync.when(
-                data: (stats) => _buildStatsContent(context, stats),
-                loading: () =>
-                    const Center(child: CircularProgressIndicator()),
-                error: (error, _) => Center(
-                  child: Text('Error loading stats: $error'),
+            // Tab 1: Overview (existing content)
+            Column(
+              children: [
+                if (cycleList.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
+                    child: _buildCycleSelector(cycleList, effectiveCycleId),
+                  ),
+                Expanded(
+                  child: statsAsync.when(
+                    data: (stats) => _buildStatsContent(context, stats),
+                    loading: () =>
+                        const Center(child: CircularProgressIndicator()),
+                    error: (error, _) => Center(
+                      child: Text('Error loading stats: $error'),
+                    ),
+                  ),
                 ),
-              ),
+              ],
             ),
+            // Tab 2: Compare
+            CycleComparisonView(availableCycles: cycleList),
           ],
         ),
       ),

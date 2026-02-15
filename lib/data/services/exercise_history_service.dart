@@ -1,5 +1,6 @@
 import 'package:intl/intl.dart';
 
+import '../../core/constants/equipment_types.dart';
 import '../models/exercise.dart';
 import '../models/exercise_set.dart';
 import '../models/workout.dart';
@@ -207,6 +208,89 @@ class ExerciseHistoryService {
     });
 
     return entries;
+  }
+
+  /// Whether the user hit all reps in the previous performance.
+  ///
+  /// Returns true if every logged set has a pure integer reps value
+  /// (not a range like "8-12", not RIR like "2 RIR", not empty).
+  bool didHitAllReps(Exercise previousExercise) {
+    final loggedSets =
+        previousExercise.sets.where((s) => s.isLogged).toList();
+    if (loggedSets.isEmpty) return false;
+
+    for (final set in loggedSets) {
+      final reps = set.reps.trim();
+      if (reps.isEmpty) return false;
+      if (int.tryParse(reps) == null) return false;
+    }
+    return true;
+  }
+
+  /// Weight increment in lbs based on equipment type.
+  ///
+  /// Returns null for bodyweight exercises where weight isn't
+  /// the primary progression variable.
+  double? getWeightIncrement(EquipmentType equipmentType) {
+    switch (equipmentType) {
+      case EquipmentType.barbell:
+      case EquipmentType.smithMachine:
+        return 5.0;
+      case EquipmentType.dumbbell:
+      case EquipmentType.cable:
+      case EquipmentType.machine:
+      case EquipmentType.kettlebell:
+      case EquipmentType.freemotion:
+      case EquipmentType.machineAssistance:
+        return 2.5;
+      case EquipmentType.bodyweightOnly:
+      case EquipmentType.bodyweightLoadable:
+      case EquipmentType.bandAssistance:
+        return null;
+    }
+  }
+
+  /// Get auto-populate weight with optional increase suggestion.
+  ///
+  /// If the user hit all reps last time and the equipment supports
+  /// weight progression, returns the increased weight.
+  Future<({double? weight, bool hasSuggestion})>
+      getAutoPopulateWeightWithSuggestion(
+    String exerciseName,
+    String currentExerciseId,
+    int setIndex,
+    EquipmentType equipmentType,
+  ) async {
+    final previous = await getPreviousPerformance(
+      exerciseName,
+      currentExerciseId,
+    );
+    if (previous == null) {
+      return (weight: null, hasSuggestion: false);
+    }
+
+    final previousSets =
+        previous.sets.where((s) => s.isLogged).toList();
+    if (previousSets.isEmpty) {
+      return (weight: null, hasSuggestion: false);
+    }
+
+    final baseWeight = setIndex < previousSets.length
+        ? previousSets[setIndex].weight
+        : previousSets.last.weight;
+
+    if (baseWeight == null) {
+      return (weight: null, hasSuggestion: false);
+    }
+
+    if (didHitAllReps(previous)) {
+      final increment = getWeightIncrement(equipmentType);
+      if (increment != null) {
+        return (weight: baseWeight + increment, hasSuggestion: true);
+      }
+    }
+
+    return (weight: baseWeight, hasSuggestion: false);
   }
 
   String _formatWeight(double weight) {

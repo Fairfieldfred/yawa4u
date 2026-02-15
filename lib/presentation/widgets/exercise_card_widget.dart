@@ -10,6 +10,7 @@ import '../../data/models/exercise_set.dart';
 import '../../domain/providers/database_providers.dart';
 import '../../domain/providers/exercise_providers.dart';
 import 'dialogs/exercise_info_dialog.dart';
+import 'dialogs/set_type_info_dialog.dart';
 import 'muscle_group_badge.dart';
 
 /// Bundles all callbacks for [ExerciseCardWidget] into a single object.
@@ -103,19 +104,52 @@ class ExerciseCardWidget extends ConsumerWidget {
         final dateStr =
             date != null ? ' - ${service.formatRelativeDate(date)}' : '';
 
+        // Check for weight increase suggestion
+        final hitAllReps = service.didHitAllReps(prevExercise);
+        final increment = service.getWeightIncrement(
+          exercise.equipmentType,
+        );
+        String? suggestionText;
+        if (hitAllReps && increment != null) {
+          final loggedSets =
+              prevExercise.sets.where((s) => s.isLogged).toList();
+          if (loggedSets.isNotEmpty && loggedSets.first.weight != null) {
+            final suggested = loggedSets.first.weight! + increment;
+            final display = formatWeightForDisplay(
+              suggested,
+              useMetric,
+            );
+            suggestionText = '\u2191 Try $display $weightUnit';
+          }
+        }
+
         return Padding(
           padding: const EdgeInsets.only(top: 2),
-          child: Text(
-            'Last: $summary$dateStr',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              fontSize: 11,
-              color: Theme.of(context)
-                  .colorScheme
-                  .onSurface
-                  .withAlpha((255 * 0.5).round()),
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Last: $summary$dateStr',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  fontSize: 11,
+                  color: Theme.of(context)
+                      .colorScheme
+                      .onSurface
+                      .withAlpha((255 * 0.5).round()),
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              if (suggestionText != null)
+                Text(
+                  suggestionText,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                ),
+            ],
           ),
         );
       },
@@ -981,17 +1015,33 @@ class ExerciseCardWidget extends ConsumerWidget {
           ),
         ),
         const PopupMenuDivider(),
-        // SET TYPE Header
-        const PopupMenuItem<String>(
+        // SET TYPE Header with info icon
+        PopupMenuItem<String>(
           enabled: false,
           height: 32,
-          child: Text(
-            'SET TYPE',
-            style: TextStyle(
-              color: Colors.grey,
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-            ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'SET TYPE',
+                style: TextStyle(
+                  color: Colors.grey,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              GestureDetector(
+                onTap: () {
+                  Navigator.pop(context);
+                  showSetTypeInfoDialog(context);
+                },
+                child: const Icon(
+                  Icons.help_outline,
+                  size: 16,
+                  color: Colors.grey,
+                ),
+              ),
+            ],
           ),
         ),
         // Regular
