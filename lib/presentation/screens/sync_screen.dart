@@ -223,6 +223,35 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
           : FutureBuilder<DataStats>(
               future: backupService.getStats(),
               builder: (context, snapshot) {
+                if (snapshot.hasError) {
+                  return Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.error_outline,
+                            size: 48,
+                            color: context.errorColor,
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'Failed to load data',
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            '${snapshot.error}',
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(color: Colors.grey),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }
                 if (snapshot.hasData) {
                   return _buildInitialView(snapshot.data!, isDesktop);
                 }

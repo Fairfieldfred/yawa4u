@@ -141,9 +141,9 @@ flutter_launcher_icons:
 # Flutter Native Splash configuration
 flutter_native_splash:
   # color: "#ffffff"
-  background_image: assets/images/rhino_rack.png
+  background_image: assets/images/rhino_rack.jpg
   image: "assets/android/app-icon-foreground.png"
   android_12:
     color: "#ffffff"
     icon_background_color: "#FFFFFF"
-    image: "assets/images/yawa4u-icon-mask.png"
+    image: "assets/common/yawa4u-icon-mask.png"

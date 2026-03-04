@@ -1,0 +1,2078 @@
+{
+  "id": "6_day_home_gym_full_body",
+  "name": "6 Day Home Gym Full Body",
+  "description": "Exported from app: 6 Day Home Gym Full Body",
+  "periodsTotal": 4,
+  "daysPerPeriod": 6,
+  "recoveryPeriod": 4,
+  "workouts": [
+    {
+      "periodNumber": 1,
+      "dayNumber": 1,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Seated Cable Row",
+          "muscleGroup": "back",
+          "equipmentType": "cable",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 1,
+      "dayNumber": 1,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Assisted Pullup (Normal Grip)",
+          "muscleGroup": "back",
+          "equipmentType": "machineAssistance",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 1,
+      "dayNumber": 1,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "EZ Bar Row (Underhand)",
+          "muscleGroup": "back",
+          "equipmentType": "barbell",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 1,
+      "dayNumber": 1,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Ab Ripper X",
+          "muscleGroup": "abs",
+          "equipmentType": "bodyweightOnly",
+          "sets": 1,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 1,
+      "dayNumber": 1,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Dumbbell Front Raise",
+          "muscleGroup": "shoulders",
+          "equipmentType": "dumbbell",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 1,
+      "dayNumber": 1,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Cable Curl",
+          "muscleGroup": "biceps",
+          "equipmentType": "cable",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 1,
+      "dayNumber": 1,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Dumbbell Bench Wrist Curl",
+          "muscleGroup": "forearms",
+          "equipmentType": "dumbbell",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 1,
+      "dayNumber": 2,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Deadlift",
+          "muscleGroup": "back",
+          "equipmentType": "barbell",
+          "sets": 1,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Belt Squat",
+          "muscleGroup": "quads",
+          "equipmentType": "cable",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "maxReps"
+        }
+      ]
+    },
+    {
+      "periodNumber": 1,
+      "dayNumber": 2,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Dumbbell Curl (Alternating)",
+          "muscleGroup": "biceps",
+          "equipmentType": "dumbbell",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Deadlift (Deficit)",
+          "muscleGroup": "glutes",
+          "equipmentType": "barbell",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 1,
+      "dayNumber": 2,
+      "dayName": null,
+      "exercises": []
+    },
+    {
+      "periodNumber": 1,
+      "dayNumber": 3,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Dumbbell Press (High Incline)",
+          "muscleGroup": "shoulders",
+          "equipmentType": "dumbbell",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Cable Triceps Pushdown (Bar)",
+          "muscleGroup": "triceps",
+          "equipmentType": "cable",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Dumbbell Curl (2-Arm)",
+          "muscleGroup": "biceps",
+          "equipmentType": "dumbbell",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 1,
+      "dayNumber": 3,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Bench Press (Incline)",
+          "muscleGroup": "chest",
+          "equipmentType": "barbell",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 1,
+      "dayNumber": 3,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Bench Press",
+          "muscleGroup": "chest",
+          "equipmentType": "barbell",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 1,
+      "dayNumber": 3,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Belt Squat Calves",
+          "muscleGroup": "calves",
+          "equipmentType": "cable",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 1,
+      "dayNumber": 3,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Cable Cross Body Bent Lateral Raise",
+          "muscleGroup": "shoulders",
+          "equipmentType": "cable",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 1,
+      "dayNumber": 3,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Ab Ripper X",
+          "muscleGroup": "abs",
+          "equipmentType": "bodyweightOnly",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Ab Ripper X",
+          "muscleGroup": "abs",
+          "equipmentType": "bodyweightOnly",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 1,
+      "dayNumber": 4,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Pulldown (Normal Grip)",
+          "muscleGroup": "back",
+          "equipmentType": "cable",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Barbell Bent Over Row",
+          "muscleGroup": "back",
+          "equipmentType": "barbell",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 1,
+      "dayNumber": 4,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Assisted Pullup (Underhand Grip)",
+          "muscleGroup": "back",
+          "equipmentType": "machineAssistance",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 1,
+      "dayNumber": 4,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Barbell Front Raise",
+          "muscleGroup": "shoulders",
+          "equipmentType": "barbell",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 1,
+      "dayNumber": 4,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Lat Pulldown",
+          "muscleGroup": "back",
+          "equipmentType": "cable",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Barbell Curl",
+          "muscleGroup": "biceps",
+          "equipmentType": "barbell",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 1,
+      "dayNumber": 4,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Cable Wrist Curl",
+          "muscleGroup": "forearms",
+          "equipmentType": "cable",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 1,
+      "dayNumber": 4,
+      "dayName": null,
+      "exercises": []
+    },
+    {
+      "periodNumber": 1,
+      "dayNumber": 5,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Cable Rope Crunch",
+          "muscleGroup": "abs",
+          "equipmentType": "cable",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Lying Leg Curl",
+          "muscleGroup": "hamstrings",
+          "equipmentType": "machine",
+          "sets": 1,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Ab Ripper X",
+          "muscleGroup": "abs",
+          "equipmentType": "bodyweightOnly",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 1,
+      "dayNumber": 5,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Leg Press",
+          "muscleGroup": "quads",
+          "equipmentType": "machine",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Barbell Split Squat",
+          "muscleGroup": "quads",
+          "equipmentType": "barbell",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 1,
+      "dayNumber": 5,
+      "dayName": null,
+      "exercises": []
+    },
+    {
+      "periodNumber": 1,
+      "dayNumber": 5,
+      "dayName": null,
+      "exercises": []
+    },
+    {
+      "periodNumber": 1,
+      "dayNumber": 5,
+      "dayName": null,
+      "exercises": []
+    },
+    {
+      "periodNumber": 1,
+      "dayNumber": 6,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Dumbbell Curl (2-Arm)",
+          "muscleGroup": "biceps",
+          "equipmentType": "dumbbell",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 1,
+      "dayNumber": 6,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Bench Press (Incline)",
+          "muscleGroup": "chest",
+          "equipmentType": "barbell",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Bench Press",
+          "muscleGroup": "chest",
+          "equipmentType": "barbell",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 1,
+      "dayNumber": 6,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Barbell Overhead Triceps Extension",
+          "muscleGroup": "triceps",
+          "equipmentType": "barbell",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 1,
+      "dayNumber": 6,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Barbell Shoulder Press",
+          "muscleGroup": "shoulders",
+          "equipmentType": "barbell",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 1,
+      "dayNumber": 6,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Belt Squat Calves",
+          "muscleGroup": "calves",
+          "equipmentType": "cable",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 2,
+      "dayNumber": 1,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Seated Cable Row",
+          "muscleGroup": "back",
+          "equipmentType": "cable",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 2,
+      "dayNumber": 1,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Assisted Pullup (Normal Grip)",
+          "muscleGroup": "back",
+          "equipmentType": "machineAssistance",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 2,
+      "dayNumber": 1,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "EZ Bar Row (Underhand)",
+          "muscleGroup": "back",
+          "equipmentType": "barbell",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 2,
+      "dayNumber": 1,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Ab Ripper X",
+          "muscleGroup": "abs",
+          "equipmentType": "bodyweightOnly",
+          "sets": 1,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 2,
+      "dayNumber": 1,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Dumbbell Front Raise",
+          "muscleGroup": "shoulders",
+          "equipmentType": "dumbbell",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 2,
+      "dayNumber": 1,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Cable Curl",
+          "muscleGroup": "biceps",
+          "equipmentType": "cable",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 2,
+      "dayNumber": 1,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Dumbbell Bench Wrist Curl",
+          "muscleGroup": "forearms",
+          "equipmentType": "dumbbell",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 2,
+      "dayNumber": 2,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Deadlift",
+          "muscleGroup": "back",
+          "equipmentType": "barbell",
+          "sets": 1,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Belt Squat",
+          "muscleGroup": "quads",
+          "equipmentType": "cable",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "maxReps"
+        }
+      ]
+    },
+    {
+      "periodNumber": 2,
+      "dayNumber": 2,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Dumbbell Curl (Alternating)",
+          "muscleGroup": "biceps",
+          "equipmentType": "dumbbell",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Deadlift (Deficit)",
+          "muscleGroup": "glutes",
+          "equipmentType": "barbell",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 2,
+      "dayNumber": 2,
+      "dayName": null,
+      "exercises": []
+    },
+    {
+      "periodNumber": 2,
+      "dayNumber": 3,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Belt Squat Calves",
+          "muscleGroup": "calves",
+          "equipmentType": "cable",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 2,
+      "dayNumber": 3,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Bench Press (Incline)",
+          "muscleGroup": "chest",
+          "equipmentType": "barbell",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 2,
+      "dayNumber": 3,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Bench Press",
+          "muscleGroup": "chest",
+          "equipmentType": "barbell",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 2,
+      "dayNumber": 3,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Dumbbell Press (High Incline)",
+          "muscleGroup": "shoulders",
+          "equipmentType": "dumbbell",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Cable Triceps Pushdown (Bar)",
+          "muscleGroup": "triceps",
+          "equipmentType": "cable",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Dumbbell Curl (2-Arm)",
+          "muscleGroup": "biceps",
+          "equipmentType": "dumbbell",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 2,
+      "dayNumber": 3,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Cable Cross Body Bent Lateral Raise",
+          "muscleGroup": "shoulders",
+          "equipmentType": "cable",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 2,
+      "dayNumber": 3,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Ab Ripper X",
+          "muscleGroup": "abs",
+          "equipmentType": "bodyweightOnly",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 2,
+      "dayNumber": 4,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Pulldown (Normal Grip)",
+          "muscleGroup": "back",
+          "equipmentType": "cable",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Barbell Bent Over Row",
+          "muscleGroup": "back",
+          "equipmentType": "barbell",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 2,
+      "dayNumber": 4,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Assisted Pullup (Underhand Grip)",
+          "muscleGroup": "back",
+          "equipmentType": "machineAssistance",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 2,
+      "dayNumber": 4,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Barbell Front Raise",
+          "muscleGroup": "shoulders",
+          "equipmentType": "barbell",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 2,
+      "dayNumber": 4,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Lat Pulldown",
+          "muscleGroup": "back",
+          "equipmentType": "cable",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Barbell Curl",
+          "muscleGroup": "biceps",
+          "equipmentType": "barbell",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 2,
+      "dayNumber": 4,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Cable Wrist Curl",
+          "muscleGroup": "forearms",
+          "equipmentType": "cable",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 2,
+      "dayNumber": 4,
+      "dayName": null,
+      "exercises": []
+    },
+    {
+      "periodNumber": 2,
+      "dayNumber": 5,
+      "dayName": null,
+      "exercises": []
+    },
+    {
+      "periodNumber": 2,
+      "dayNumber": 5,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Leg Press",
+          "muscleGroup": "quads",
+          "equipmentType": "machine",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Barbell Split Squat",
+          "muscleGroup": "quads",
+          "equipmentType": "barbell",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 2,
+      "dayNumber": 5,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Cable Rope Crunch",
+          "muscleGroup": "abs",
+          "equipmentType": "cable",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Lying Leg Curl",
+          "muscleGroup": "hamstrings",
+          "equipmentType": "machine",
+          "sets": 1,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Ab Ripper X",
+          "muscleGroup": "abs",
+          "equipmentType": "bodyweightOnly",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 2,
+      "dayNumber": 5,
+      "dayName": null,
+      "exercises": []
+    },
+    {
+      "periodNumber": 2,
+      "dayNumber": 5,
+      "dayName": null,
+      "exercises": []
+    },
+    {
+      "periodNumber": 2,
+      "dayNumber": 6,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Belt Squat Calves",
+          "muscleGroup": "calves",
+          "equipmentType": "cable",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 2,
+      "dayNumber": 6,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Bench Press (Incline)",
+          "muscleGroup": "chest",
+          "equipmentType": "barbell",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Bench Press",
+          "muscleGroup": "chest",
+          "equipmentType": "barbell",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 2,
+      "dayNumber": 6,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Barbell Overhead Triceps Extension",
+          "muscleGroup": "triceps",
+          "equipmentType": "barbell",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 2,
+      "dayNumber": 6,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Barbell Shoulder Press",
+          "muscleGroup": "shoulders",
+          "equipmentType": "barbell",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 2,
+      "dayNumber": 6,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Dumbbell Curl (2-Arm)",
+          "muscleGroup": "biceps",
+          "equipmentType": "dumbbell",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 3,
+      "dayNumber": 1,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Seated Cable Row",
+          "muscleGroup": "back",
+          "equipmentType": "cable",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 3,
+      "dayNumber": 1,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Assisted Pullup (Normal Grip)",
+          "muscleGroup": "back",
+          "equipmentType": "machineAssistance",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 3,
+      "dayNumber": 1,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "EZ Bar Row (Underhand)",
+          "muscleGroup": "back",
+          "equipmentType": "barbell",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 3,
+      "dayNumber": 1,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Ab Ripper X",
+          "muscleGroup": "abs",
+          "equipmentType": "bodyweightOnly",
+          "sets": 1,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 3,
+      "dayNumber": 1,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Dumbbell Front Raise",
+          "muscleGroup": "shoulders",
+          "equipmentType": "dumbbell",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 3,
+      "dayNumber": 1,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Cable Curl",
+          "muscleGroup": "biceps",
+          "equipmentType": "cable",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 3,
+      "dayNumber": 1,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Dumbbell Bench Wrist Curl",
+          "muscleGroup": "forearms",
+          "equipmentType": "dumbbell",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 3,
+      "dayNumber": 2,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Deadlift",
+          "muscleGroup": "back",
+          "equipmentType": "barbell",
+          "sets": 1,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Belt Squat",
+          "muscleGroup": "quads",
+          "equipmentType": "cable",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "maxReps"
+        }
+      ]
+    },
+    {
+      "periodNumber": 3,
+      "dayNumber": 2,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Dumbbell Curl (Alternating)",
+          "muscleGroup": "biceps",
+          "equipmentType": "dumbbell",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Deadlift (Deficit)",
+          "muscleGroup": "glutes",
+          "equipmentType": "barbell",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 3,
+      "dayNumber": 2,
+      "dayName": null,
+      "exercises": []
+    },
+    {
+      "periodNumber": 3,
+      "dayNumber": 3,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Belt Squat Calves",
+          "muscleGroup": "calves",
+          "equipmentType": "cable",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 3,
+      "dayNumber": 3,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Bench Press (Incline)",
+          "muscleGroup": "chest",
+          "equipmentType": "barbell",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 3,
+      "dayNumber": 3,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Bench Press",
+          "muscleGroup": "chest",
+          "equipmentType": "barbell",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 3,
+      "dayNumber": 3,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Dumbbell Press (High Incline)",
+          "muscleGroup": "shoulders",
+          "equipmentType": "dumbbell",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Cable Triceps Pushdown (Bar)",
+          "muscleGroup": "triceps",
+          "equipmentType": "cable",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Dumbbell Curl (2-Arm)",
+          "muscleGroup": "biceps",
+          "equipmentType": "dumbbell",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 3,
+      "dayNumber": 3,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Cable Cross Body Bent Lateral Raise",
+          "muscleGroup": "shoulders",
+          "equipmentType": "cable",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 3,
+      "dayNumber": 3,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Ab Ripper X",
+          "muscleGroup": "abs",
+          "equipmentType": "bodyweightOnly",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 3,
+      "dayNumber": 4,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Pulldown (Normal Grip)",
+          "muscleGroup": "back",
+          "equipmentType": "cable",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Barbell Bent Over Row",
+          "muscleGroup": "back",
+          "equipmentType": "barbell",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 3,
+      "dayNumber": 4,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Assisted Pullup (Underhand Grip)",
+          "muscleGroup": "back",
+          "equipmentType": "machineAssistance",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 3,
+      "dayNumber": 4,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Barbell Front Raise",
+          "muscleGroup": "shoulders",
+          "equipmentType": "barbell",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 3,
+      "dayNumber": 4,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Lat Pulldown",
+          "muscleGroup": "back",
+          "equipmentType": "cable",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Barbell Curl",
+          "muscleGroup": "biceps",
+          "equipmentType": "barbell",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 3,
+      "dayNumber": 4,
+      "dayName": null,
+      "exercises": []
+    },
+    {
+      "periodNumber": 3,
+      "dayNumber": 4,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Cable Wrist Curl",
+          "muscleGroup": "forearms",
+          "equipmentType": "cable",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 3,
+      "dayNumber": 5,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Cable Rope Crunch",
+          "muscleGroup": "abs",
+          "equipmentType": "cable",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Lying Leg Curl",
+          "muscleGroup": "hamstrings",
+          "equipmentType": "machine",
+          "sets": 1,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Ab Ripper X",
+          "muscleGroup": "abs",
+          "equipmentType": "bodyweightOnly",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 3,
+      "dayNumber": 5,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Leg Press",
+          "muscleGroup": "quads",
+          "equipmentType": "machine",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Barbell Split Squat",
+          "muscleGroup": "quads",
+          "equipmentType": "barbell",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 3,
+      "dayNumber": 5,
+      "dayName": null,
+      "exercises": []
+    },
+    {
+      "periodNumber": 3,
+      "dayNumber": 5,
+      "dayName": null,
+      "exercises": []
+    },
+    {
+      "periodNumber": 3,
+      "dayNumber": 5,
+      "dayName": null,
+      "exercises": []
+    },
+    {
+      "periodNumber": 3,
+      "dayNumber": 6,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Belt Squat Calves",
+          "muscleGroup": "calves",
+          "equipmentType": "cable",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 3,
+      "dayNumber": 6,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Bench Press (Incline)",
+          "muscleGroup": "chest",
+          "equipmentType": "barbell",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Bench Press",
+          "muscleGroup": "chest",
+          "equipmentType": "barbell",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 3,
+      "dayNumber": 6,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Barbell Overhead Triceps Extension",
+          "muscleGroup": "triceps",
+          "equipmentType": "barbell",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 3,
+      "dayNumber": 6,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Barbell Shoulder Press",
+          "muscleGroup": "shoulders",
+          "equipmentType": "barbell",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 3,
+      "dayNumber": 6,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Dumbbell Curl (2-Arm)",
+          "muscleGroup": "biceps",
+          "equipmentType": "dumbbell",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 4,
+      "dayNumber": 1,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Ab Ripper X",
+          "muscleGroup": "abs",
+          "equipmentType": "bodyweightOnly",
+          "sets": 1,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 4,
+      "dayNumber": 1,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Assisted Pullup (Normal Grip)",
+          "muscleGroup": "back",
+          "equipmentType": "machineAssistance",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 4,
+      "dayNumber": 1,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "EZ Bar Row (Underhand)",
+          "muscleGroup": "back",
+          "equipmentType": "barbell",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 4,
+      "dayNumber": 1,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Seated Cable Row",
+          "muscleGroup": "back",
+          "equipmentType": "cable",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 4,
+      "dayNumber": 1,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Dumbbell Front Raise",
+          "muscleGroup": "shoulders",
+          "equipmentType": "dumbbell",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 4,
+      "dayNumber": 1,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Cable Curl",
+          "muscleGroup": "biceps",
+          "equipmentType": "cable",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 4,
+      "dayNumber": 1,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Dumbbell Bench Wrist Curl",
+          "muscleGroup": "forearms",
+          "equipmentType": "dumbbell",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 4,
+      "dayNumber": 2,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Deadlift",
+          "muscleGroup": "back",
+          "equipmentType": "barbell",
+          "sets": 1,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Belt Squat",
+          "muscleGroup": "quads",
+          "equipmentType": "cable",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "maxReps"
+        }
+      ]
+    },
+    {
+      "periodNumber": 4,
+      "dayNumber": 2,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Dumbbell Curl (Alternating)",
+          "muscleGroup": "biceps",
+          "equipmentType": "dumbbell",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Deadlift (Deficit)",
+          "muscleGroup": "glutes",
+          "equipmentType": "barbell",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 4,
+      "dayNumber": 2,
+      "dayName": null,
+      "exercises": []
+    },
+    {
+      "periodNumber": 4,
+      "dayNumber": 3,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Belt Squat Calves",
+          "muscleGroup": "calves",
+          "equipmentType": "cable",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 4,
+      "dayNumber": 3,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Bench Press (Incline)",
+          "muscleGroup": "chest",
+          "equipmentType": "barbell",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 4,
+      "dayNumber": 3,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Bench Press",
+          "muscleGroup": "chest",
+          "equipmentType": "barbell",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 4,
+      "dayNumber": 3,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Dumbbell Press (High Incline)",
+          "muscleGroup": "shoulders",
+          "equipmentType": "dumbbell",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Cable Triceps Pushdown (Bar)",
+          "muscleGroup": "triceps",
+          "equipmentType": "cable",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Dumbbell Curl (2-Arm)",
+          "muscleGroup": "biceps",
+          "equipmentType": "dumbbell",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 4,
+      "dayNumber": 3,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Cable Cross Body Bent Lateral Raise",
+          "muscleGroup": "shoulders",
+          "equipmentType": "cable",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 4,
+      "dayNumber": 3,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Ab Ripper X",
+          "muscleGroup": "abs",
+          "equipmentType": "bodyweightOnly",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 4,
+      "dayNumber": 4,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Pulldown (Normal Grip)",
+          "muscleGroup": "back",
+          "equipmentType": "cable",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Barbell Bent Over Row",
+          "muscleGroup": "back",
+          "equipmentType": "barbell",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 4,
+      "dayNumber": 4,
+      "dayName": null,
+      "exercises": []
+    },
+    {
+      "periodNumber": 4,
+      "dayNumber": 4,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Barbell Front Raise",
+          "muscleGroup": "shoulders",
+          "equipmentType": "barbell",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 4,
+      "dayNumber": 4,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Lat Pulldown",
+          "muscleGroup": "back",
+          "equipmentType": "cable",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Barbell Curl",
+          "muscleGroup": "biceps",
+          "equipmentType": "barbell",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 4,
+      "dayNumber": 4,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Cable Wrist Curl",
+          "muscleGroup": "forearms",
+          "equipmentType": "cable",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 4,
+      "dayNumber": 4,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Assisted Pullup (Underhand Grip)",
+          "muscleGroup": "back",
+          "equipmentType": "machineAssistance",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 4,
+      "dayNumber": 5,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Cable Rope Crunch",
+          "muscleGroup": "abs",
+          "equipmentType": "cable",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Lying Leg Curl",
+          "muscleGroup": "hamstrings",
+          "equipmentType": "machine",
+          "sets": 1,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Ab Ripper X",
+          "muscleGroup": "abs",
+          "equipmentType": "bodyweightOnly",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 4,
+      "dayNumber": 5,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Leg Press",
+          "muscleGroup": "quads",
+          "equipmentType": "machine",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Barbell Split Squat",
+          "muscleGroup": "quads",
+          "equipmentType": "barbell",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 4,
+      "dayNumber": 5,
+      "dayName": null,
+      "exercises": []
+    },
+    {
+      "periodNumber": 4,
+      "dayNumber": 5,
+      "dayName": null,
+      "exercises": []
+    },
+    {
+      "periodNumber": 4,
+      "dayNumber": 5,
+      "dayName": null,
+      "exercises": []
+    },
+    {
+      "periodNumber": 4,
+      "dayNumber": 6,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Belt Squat Calves",
+          "muscleGroup": "calves",
+          "equipmentType": "cable",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 4,
+      "dayNumber": 6,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Bench Press (Incline)",
+          "muscleGroup": "chest",
+          "equipmentType": "barbell",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Bench Press",
+          "muscleGroup": "chest",
+          "equipmentType": "barbell",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 4,
+      "dayNumber": 6,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Barbell Overhead Triceps Extension",
+          "muscleGroup": "triceps",
+          "equipmentType": "barbell",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 4,
+      "dayNumber": 6,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Barbell Shoulder Press",
+          "muscleGroup": "shoulders",
+          "equipmentType": "barbell",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 4,
+      "dayNumber": 6,
+      "dayName": null,
+      "exercises": [
+        {
+          "name": "Dumbbell Curl (2-Arm)",
+          "muscleGroup": "biceps",
+          "equipmentType": "dumbbell",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    }
+  ]
+}
