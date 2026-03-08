@@ -1,9 +1,13 @@
+import 'dart:async';
+
+import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../core/constants/enums.dart';
+import '../../data/database/app_database.dart' show ExerciseSetsCompanion;
 import '../../core/theme/skins/skins.dart';
 import '../../core/utils/day_sequence.dart';
 import '../../data/models/exercise.dart';
@@ -42,8 +46,19 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
   bool _isSwiping = false;
   int? _lastSyncedPageIndex;
 
+  /// Per-field debounce timers for weight/reps saves.
+  final Map<String, Timer> _debounceTimers = {};
+
+  /// Cached workouts to keep UI stable during provider refresh.
+  /// Prevents _buildEmptyState from destroying text fields on invalidation.
+  String? _cachedCycleId;
+  List<Workout>? _cachedWorkouts;
+
   @override
   void dispose() {
+    for (final timer in _debounceTimers.values) {
+      timer.cancel();
+    }
     _pageController?.dispose();
     super.dispose();
   }
@@ -65,75 +80,48 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     _controller.selectDay(period, day);
   }
 
-  /// Invalidate workout providers to trigger UI refresh
-  /// This is needed because Drift streams only watch their own table,
-  /// but nested data (exercises, sets) are in separate tables
+  /// Invalidate workout providers to trigger UI refresh.
+  /// Only invalidates cycle-specific providers — the global
+  /// workoutsProvider is left alone to avoid re-fetching every workout.
   void _invalidateWorkoutProviders() {
     final trainingCycle = ref.read(currentTrainingCycleProvider);
     if (trainingCycle != null) {
       ref.invalidate(workoutsByTrainingCycleListProvider(trainingCycle.id));
       ref.invalidate(workoutsByTrainingCycleProvider(trainingCycle.id));
     }
-    ref.invalidate(workoutsProvider);
   }
 
-  Future<void> _updateSetWeight(
-    String workoutId,
-    String exerciseId,
-    int setIndex,
-    String value,
-  ) async {
+  /// Direct single-row update for set weight — avoids full workout
+  /// tree reconstruction (O(1) instead of O(1+N+M) queries).
+  /// Debounced to coalesce rapid keystrokes into a single DB write.
+  /// After the write, invalidates providers so the Log button updates.
+  void _updateSetWeight(String setId, String value) {
     final weight = double.tryParse(value);
     if (weight == null && value.isNotEmpty) return;
-
-    final repository = ref.read(workoutRepositoryProvider);
-    final workout = await repository.getById(workoutId);
-    if (workout == null) return;
-
-    final exerciseIndex = workout.exercises.indexWhere(
-      (e) => e.id == exerciseId,
-    );
-    if (exerciseIndex == -1) return;
-
-    final exercise = workout.exercises[exerciseIndex];
-    final set = exercise.sets[setIndex];
-    final updatedSet = set.copyWith(weight: weight);
-    final updatedExercise = exercise.updateSet(setIndex, updatedSet);
-    final updatedWorkout = workout.updateExercise(
-      exerciseIndex,
-      updatedExercise,
-    );
-
-    await repository.update(updatedWorkout);
-    _invalidateWorkoutProviders();
+    final key = 'weight_$setId';
+    _debounceTimers[key]?.cancel();
+    _debounceTimers[key] = Timer(const Duration(milliseconds: 300), () async {
+      if (!mounted) return;
+      await ref.read(exerciseSetDaoProvider).updateByUuid(
+        setId,
+        ExerciseSetsCompanion(weight: Value(weight)),
+      );
+      if (mounted) _invalidateWorkoutProviders();
+    });
   }
 
-  Future<void> _updateSetReps(
-    String workoutId,
-    String exerciseId,
-    int setIndex,
-    String value,
-  ) async {
-    final repository = ref.read(workoutRepositoryProvider);
-    final workout = await repository.getById(workoutId);
-    if (workout == null) return;
-
-    final exerciseIndex = workout.exercises.indexWhere(
-      (e) => e.id == exerciseId,
-    );
-    if (exerciseIndex == -1) return;
-
-    final exercise = workout.exercises[exerciseIndex];
-    final set = exercise.sets[setIndex];
-    final updatedSet = set.copyWith(reps: value);
-    final updatedExercise = exercise.updateSet(setIndex, updatedSet);
-    final updatedWorkout = workout.updateExercise(
-      exerciseIndex,
-      updatedExercise,
-    );
-
-    await repository.update(updatedWorkout);
-    _invalidateWorkoutProviders();
+  /// Direct single-row update for set reps (debounced).
+  void _updateSetReps(String setId, String value) {
+    final key = 'reps_$setId';
+    _debounceTimers[key]?.cancel();
+    _debounceTimers[key] = Timer(const Duration(milliseconds: 300), () async {
+      if (!mounted) return;
+      await ref.read(exerciseSetDaoProvider).updateByUuid(
+        setId,
+        ExerciseSetsCompanion(reps: Value(value)),
+      );
+      if (mounted) _invalidateWorkoutProviders();
+    });
   }
 
   Future<void> _toggleSetLog(
@@ -794,38 +782,31 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
   Widget build(BuildContext context) {
     final currentTrainingCycle = ref.watch(currentTrainingCycleProvider);
 
-    // Debug logging
-    debugPrint('=== WorkoutHomeScreen Debug ===');
-    debugPrint('Current trainingCycle: ${currentTrainingCycle?.name}');
-    debugPrint('Start date: ${currentTrainingCycle?.startDate}');
-    debugPrint('Status: ${currentTrainingCycle?.status}');
-
     // If there's a current trainingCycle, show today's workout
     if (currentTrainingCycle != null &&
         currentTrainingCycle.startDate != null) {
-      // Get workouts from the workout repository — wait for loading to finish
-      // before building the PageView to avoid initializing at page 0 then
-      // animating to the correct page when data arrives.
+      // Clear cache when switching cycles
+      if (currentTrainingCycle.id != _cachedCycleId) {
+        _cachedCycleId = currentTrainingCycle.id;
+        _cachedWorkouts = null;
+      }
+
+      // Get workouts from the workout repository. Use cached data during
+      // provider refresh to keep the UI stable (prevents text field focus
+      // loss when providers are invalidated after debounced saves).
       final cycleWorkoutsAsync = ref.watch(
         workoutsByTrainingCycleProvider(currentTrainingCycle.id),
       );
-      if (cycleWorkoutsAsync.isLoading) {
+      if (cycleWorkoutsAsync.hasValue) {
+        _cachedWorkouts = cycleWorkoutsAsync.value;
+      }
+      if (_cachedWorkouts == null) {
+        // First load — no cached data yet
         return _buildEmptyState(context, currentTrainingCycle.name, '');
       }
-      final allWorkouts = cycleWorkoutsAsync.asData?.value ?? [];
-
-      debugPrint('Total workouts from repository: ${allWorkouts.length}');
-      for (var workout in allWorkouts.take(5)) {
-        debugPrint(
-          '  Period ${workout.periodNumber} Day ${workout.dayNumber}: ${workout.exercises.length} exercises (ID: ${workout.id})',
-        );
-        for (var ex in workout.exercises) {
-          debugPrint('    - ${ex.name}');
-        }
-      }
+      final allWorkouts = _cachedWorkouts!;
 
       final currentPeriod = currentTrainingCycle.getCurrentPeriod();
-      debugPrint('Current period: $currentPeriod');
 
       if (currentPeriod == null) {
         // TrainingCycle hasn't started yet or has ended
@@ -1211,16 +1192,18 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
           trainingCycle.recoveryPeriod,
         );
 
+        final useMetric = ref.watch(useMetricProvider);
+
         return RepaintBoundary(
           child: ExerciseCardWidget(
           key: ValueKey(
-            '${exercise.id}_${exercise.sets.length}_${exercise.sets.map((s) => s.id).join(",")}_${ref.watch(useMetricProvider)}',
+            '${exercise.id}_${exercise.sets.length}_${exercise.sets.map((s) => s.id).join(",")}',
           ),
           exercise: exercise,
           showMuscleGroupBadge: showMuscleGroupBadge,
           targetRir: periodRir,
           weightUnit: ref.watch(weightUnitProvider),
-          useMetric: ref.watch(useMetricProvider),
+          useMetric: useMetric,
           showMoveDown: true,
           isFirstExercise: index == 0,
           isLastExercise: index == allExercises.length - 1,
@@ -1248,12 +1231,10 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
             onUpdateSetType: (i, type) => _updateSetType(
               exercise.workoutId, exercise.id, i, type,
             ),
-            onUpdateSetWeight: (i, v) => _updateSetWeight(
-              exercise.workoutId, exercise.id, i, v,
-            ),
-            onUpdateSetReps: (i, v) => _updateSetReps(
-              exercise.workoutId, exercise.id, i, v,
-            ),
+            onUpdateSetWeight: (i, setId, v) =>
+                _updateSetWeight(setId, v),
+            onUpdateSetReps: (i, setId, v) =>
+                _updateSetReps(setId, v),
             onToggleSetLog: (i) => _toggleSetLog(
               exercise.workoutId, exercise.id, i,
             ),

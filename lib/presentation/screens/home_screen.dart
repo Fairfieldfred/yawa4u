@@ -25,6 +25,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   /// Tracks which tabs have been visited so we can lazily build them.
   final Set<int> _visitedTabs = {0}; // Workout tab starts visited
 
+  /// Cached screen instances — created once per tab, reused on rebuilds.
+  final Map<int, Widget> _builtScreens = {};
+
   static const _screenBuilders = [
     WorkoutHomeScreen.new,
     CycleListScreen.new,
@@ -43,7 +46,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       index: selectedIndex,
       children: List.generate(_screenBuilders.length, (i) {
         if (_visitedTabs.contains(i)) {
-          return _screenBuilders[i]();
+          return _builtScreens[i] ??= _screenBuilders[i]();
         }
         return const SizedBox.shrink();
       }),

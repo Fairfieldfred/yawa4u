@@ -1,9 +1,13 @@
+import 'dart:async';
+
+import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../core/constants/enums.dart';
+import '../../data/database/app_database.dart' show ExerciseSetsCompanion;
 import '../../core/theme/skins/skins.dart';
 import '../../core/utils/day_sequence.dart';
 import '../../data/models/exercise.dart';
@@ -58,6 +62,10 @@ class _ExercisesHomeScreenState extends ConsumerState<ExercisesHomeScreen> {
   PageController? _dayPageController;
   bool _isDaySwiping = false;
   int? _lastSyncedDayPageIndex;
+
+  /// Cached workouts to keep UI stable during provider refresh.
+  String? _cachedCycleId;
+  List<Workout>? _cachedWorkouts;
 
   @override
   void dispose() {
@@ -247,16 +255,27 @@ class _ExercisesHomeScreenState extends ConsumerState<ExercisesHomeScreen> {
       );
     }
 
-    // Wait for cycle-specific workouts to load before building PageView
+    // Clear cache when switching cycles
+    if (currentTrainingCycle.id != _cachedCycleId) {
+      _cachedCycleId = currentTrainingCycle.id;
+      _cachedWorkouts = null;
+    }
+
+    // Use cached data during provider refresh to keep the UI stable
+    // (prevents text field focus loss when providers are invalidated).
     final cycleWorkoutsAsync = ref.watch(
       workoutsByTrainingCycleProvider(currentTrainingCycle.id),
     );
-    if (cycleWorkoutsAsync.isLoading) {
+    if (cycleWorkoutsAsync.hasValue) {
+      _cachedWorkouts = cycleWorkoutsAsync.value;
+    }
+    if (_cachedWorkouts == null) {
+      // First load — no cached data yet
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     // Get workouts for the current trainingCycle
-    final allWorkouts = cycleWorkoutsAsync.asData?.value ?? [];
+    final allWorkouts = _cachedWorkouts!;
 
     // Find the first incomplete workout day (not just workout/muscle group)
     // Group by (periodNumber, dayNumber) to find unique days
@@ -535,6 +554,9 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
   bool _showPeriodSelector = false;
   bool _initialPageSet = false;
 
+  /// Per-field debounce timers for weight/reps saves.
+  final Map<String, Timer> _debounceTimers = {};
+
   @override
   void initState() {
     super.initState();
@@ -551,14 +573,14 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
     ref.read(showExerciseHistoryProvider.notifier).toggle();
   }
 
-  /// Invalidate workout providers to trigger UI refresh
-  /// This matches the pattern used in workout_screen
+  /// Invalidate workout providers to trigger UI refresh.
+  /// Only invalidates cycle-specific providers — the global
+  /// workoutsProvider is left alone to avoid re-fetching every workout.
   void _invalidateWorkoutProviders() {
     ref.invalidate(
       workoutsByTrainingCycleListProvider(widget.trainingCycle.id),
     );
     ref.invalidate(workoutsByTrainingCycleProvider(widget.trainingCycle.id));
-    ref.invalidate(workoutsProvider);
   }
 
   /// Build exercise list and source mapping from workouts
@@ -595,6 +617,9 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
 
   @override
   void dispose() {
+    for (final timer in _debounceTimers.values) {
+      timer.cancel();
+    }
     _pageController.dispose();
     super.dispose();
   }
@@ -735,6 +760,7 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
                               final exercise = allExercises[index];
                               // Always show muscle group badge on exercises screen
                               const showMuscleGroupBadge = true;
+                              final useMetric = ref.watch(useMetricProvider);
 
                               return GestureDetector(
                                 onTap: () => FocusScope.of(context).unfocus(),
@@ -752,7 +778,7 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
                                       RepaintBoundary(
                                         child: ExerciseCardWidget(
                                         key: ValueKey(
-                                          '${exercise.id}_${exercise.sets.length}_${exercise.sets.map((s) => s.id).join(",")}_${ref.watch(useMetricProvider)}',
+                                          '${exercise.id}_${exercise.sets.length}_${exercise.sets.map((s) => s.id).join(",")}',
                                         ),
                                         exercise: exercise,
                                         showMuscleGroupBadge:
@@ -764,7 +790,7 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
                                         weightUnit: ref.watch(
                                           weightUnitProvider,
                                         ),
-                                        useMetric: ref.watch(useMetricProvider),
+                                        useMetric: useMetric,
                                         showMoveDown: false,
                                         callbacks: ExerciseCardCallbacks(
                                           onAddNote: (id) => _addNote(
@@ -805,20 +831,12 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
                                                 i,
                                                 type,
                                               ),
-                                          onUpdateSetWeight: (i, v) =>
-                                              _updateSetWeight(
-                                                source.workout.id,
-                                                exercise.id,
-                                                i,
-                                                v,
-                                              ),
-                                          onUpdateSetReps: (i, v) =>
-                                              _updateSetReps(
-                                                source.workout.id,
-                                                exercise.id,
-                                                i,
-                                                v,
-                                              ),
+                                          onUpdateSetWeight:
+                                              (i, setId, v) =>
+                                                  _updateSetWeight(setId, v),
+                                          onUpdateSetReps:
+                                              (i, setId, v) =>
+                                                  _updateSetReps(setId, v),
                                           onToggleSetLog: (i) => _toggleSetLog(
                                             source.workout.id, exercise.id, i,
                                           ),
@@ -1708,67 +1726,37 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
     }
   }
 
-  Future<void> _updateSetWeight(
-    String workoutId,
-    String exerciseId,
-    int setIndex,
-    String value,
-  ) async {
+  /// Direct single-row update for set weight — avoids full workout
+  /// tree reconstruction (O(1) instead of O(1+N+M) queries).
+  /// Debounced to coalesce rapid keystrokes into a single DB write.
+  /// After the write, invalidates providers so the Log button updates.
+  void _updateSetWeight(String setId, String value) {
     final weight = double.tryParse(value);
     if (weight == null && value.isNotEmpty) return;
-
-    final repository = ref.read(workoutRepositoryProvider);
-    final workout = await repository.getById(workoutId);
-    if (workout == null) return;
-
-    final exerciseIndex = workout.exercises.indexWhere(
-      (e) => e.id == exerciseId,
-    );
-    if (exerciseIndex == -1) return;
-
-    final exercise = workout.exercises[exerciseIndex];
-    if (setIndex >= exercise.sets.length) return;
-
-    final set = exercise.sets[setIndex];
-    final updatedSet = set.copyWith(weight: weight);
-    final updatedExercise = exercise.updateSet(setIndex, updatedSet);
-    final updatedWorkout = workout.updateExercise(
-      exerciseIndex,
-      updatedExercise,
-    );
-    await repository.update(updatedWorkout);
-    // Don't invalidate providers here - it causes parent to rebuild and lose focus
-    // Data is saved to database; UI will refresh on navigation or explicit refresh
+    final key = 'weight_$setId';
+    _debounceTimers[key]?.cancel();
+    _debounceTimers[key] = Timer(const Duration(milliseconds: 300), () async {
+      if (!mounted) return;
+      await ref.read(exerciseSetDaoProvider).updateByUuid(
+        setId,
+        ExerciseSetsCompanion(weight: Value(weight)),
+      );
+      if (mounted) _invalidateWorkoutProviders();
+    });
   }
 
-  Future<void> _updateSetReps(
-    String workoutId,
-    String exerciseId,
-    int setIndex,
-    String value,
-  ) async {
-    final repository = ref.read(workoutRepositoryProvider);
-    final workout = await repository.getById(workoutId);
-    if (workout == null) return;
-
-    final exerciseIndex = workout.exercises.indexWhere(
-      (e) => e.id == exerciseId,
-    );
-    if (exerciseIndex == -1) return;
-
-    final exercise = workout.exercises[exerciseIndex];
-    if (setIndex >= exercise.sets.length) return;
-
-    final set = exercise.sets[setIndex];
-    final updatedSet = set.copyWith(reps: value);
-    final updatedExercise = exercise.updateSet(setIndex, updatedSet);
-    final updatedWorkout = workout.updateExercise(
-      exerciseIndex,
-      updatedExercise,
-    );
-    await repository.update(updatedWorkout);
-    // Don't invalidate providers here - it causes parent to rebuild and lose focus
-    // Data is saved to database; UI will refresh on navigation or explicit refresh
+  /// Direct single-row update for set reps (debounced).
+  void _updateSetReps(String setId, String value) {
+    final key = 'reps_$setId';
+    _debounceTimers[key]?.cancel();
+    _debounceTimers[key] = Timer(const Duration(milliseconds: 300), () async {
+      if (!mounted) return;
+      await ref.read(exerciseSetDaoProvider).updateByUuid(
+        setId,
+        ExerciseSetsCompanion(reps: Value(value)),
+      );
+      if (mounted) _invalidateWorkoutProviders();
+    });
   }
 
   Future<void> _toggleSetLog(

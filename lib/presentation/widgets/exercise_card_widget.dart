@@ -34,8 +34,10 @@ class ExerciseCardCallbacks {
   final void Function(int setIndex) onToggleSetSkip;
   final void Function(int setIndex) onDeleteSet;
   final void Function(int setIndex, SetType setType) onUpdateSetType;
-  final void Function(int setIndex, String value) onUpdateSetWeight;
-  final void Function(int setIndex, String value) onUpdateSetReps;
+  final void Function(int setIndex, String setId, String value)
+      onUpdateSetWeight;
+  final void Function(int setIndex, String setId, String value)
+      onUpdateSetReps;
   final void Function(int setIndex) onToggleSetLog;
 
   const ExerciseCardCallbacks({
@@ -746,6 +748,7 @@ class ExerciseCardWidget extends ConsumerWidget {
                       );
                       callbacks.onUpdateSetWeight(
                         index,
+                        set.id,
                         storageWeight?.toString() ?? '',
                       );
                     },
@@ -817,7 +820,7 @@ class ExerciseCardWidget extends ConsumerWidget {
                         contentPadding: const EdgeInsets.only(bottom: 12),
                       ),
                       onChanged: (value) {
-                        callbacks.onUpdateSetReps(index, value);
+                        callbacks.onUpdateSetReps(index, set.id, value);
                       },
                     ),
                   ),
