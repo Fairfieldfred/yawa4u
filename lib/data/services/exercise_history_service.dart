@@ -61,6 +61,43 @@ class ExerciseHistoryService {
     return mostRecent;
   }
 
+  /// Get previous performance for multiple exercises in a single pass.
+  ///
+  /// Returns a map of exerciseId → previous Exercise for each input.
+  /// Much more efficient than calling [getPreviousPerformance] per card.
+  Future<Map<String, Exercise?>> getPreviousPerformanceBatch(
+    List<Exercise> exercises,
+  ) async {
+    final allWorkouts = await _getAllCached();
+    final result = <String, Exercise?>{};
+
+    for (final current in exercises) {
+      final lowerName = current.name.toLowerCase();
+      Exercise? mostRecent;
+      DateTime? mostRecentDate;
+
+      for (final workout in allWorkouts) {
+        for (final exercise in workout.exercises) {
+          if (exercise.id == current.id) continue;
+          if (exercise.name.toLowerCase() != lowerName) continue;
+          if (!exercise.sets.any((s) => s.isLogged)) continue;
+
+          final date = workout.completedDate ?? exercise.lastPerformed;
+          if (date == null) continue;
+
+          if (mostRecentDate == null || date.isAfter(mostRecentDate)) {
+            mostRecent = exercise;
+            mostRecentDate = date;
+          }
+        }
+      }
+
+      result[current.id] = mostRecent;
+    }
+
+    return result;
+  }
+
   /// Get previous set data (weight + reps) for auto-populating new sets.
   ///
   /// Returns logged sets from the most recent previous performance,

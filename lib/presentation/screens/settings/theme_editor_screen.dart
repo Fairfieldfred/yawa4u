@@ -5,9 +5,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uuid/uuid.dart';
 
-import '../../core/theme/skins/skin_model.dart';
-import '../../core/theme/skins/skin_provider.dart';
-import '../../data/services/theme_image_service.dart';
+import '../../../core/theme/skins/skin_model.dart';
+import '../../../core/theme/skins/skin_provider.dart';
+import '../../../data/services/theme_image_service.dart';
 
 /// Screen for creating or editing a custom theme.
 ///

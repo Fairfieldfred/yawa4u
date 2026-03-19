@@ -4,22 +4,22 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uuid/uuid.dart';
 
-import '../../core/constants/enums.dart';
-import '../../core/theme/skins/skins.dart';
-import '../../core/utils/template_exporter.dart';
-import '../../data/models/training_cycle.dart';
-import '../../domain/providers/database_providers.dart';
-import '../../domain/providers/navigation_providers.dart';
-import '../../domain/providers/onboarding_providers.dart';
-import '../../domain/providers/template_providers.dart';
-import '../../domain/providers/theme_provider.dart';
-import '../../domain/providers/training_cycle_providers.dart';
-import '../../domain/providers/workout_providers.dart';
-import '../widgets/app_icon_widget.dart';
-import '../widgets/cycle_summary_dialog.dart';
-import '../widgets/dialogs/workout_dialogs.dart';
-import '../widgets/responsive_content.dart';
-import '../widgets/screen_background.dart';
+import '../../../core/constants/enums.dart';
+import '../../../core/theme/skins/skins.dart';
+import '../../../core/utils/template_exporter.dart';
+import '../../../data/models/training_cycle.dart';
+import '../../../domain/providers/database_providers.dart';
+import '../../../domain/providers/navigation_providers.dart';
+import '../../../domain/providers/onboarding_providers.dart';
+import '../../../domain/providers/template_providers.dart';
+import '../../../domain/providers/theme_provider.dart';
+import '../../../domain/providers/training_cycle_providers.dart';
+import '../../../domain/providers/workout_providers.dart';
+import '../../widgets/app_icon_widget.dart';
+import '../../widgets/cycle_summary_dialog.dart';
+import '../../widgets/dialogs/workout_dialogs.dart';
+import '../../widgets/responsive_content.dart';
+import '../../widgets/screen_background.dart';
 import 'template_selection_screen.dart';
 
 /// TrainingCycle list screen - organized by Draft/Current/Completed

@@ -22,7 +22,7 @@ final currentTrainingCycleProvider = Provider<TrainingCycle?>((ref) {
       }
     },
     loading: () => null,
-    error: (_, __) => null,
+    error: (_, _) => null,
   );
 });
 
@@ -33,7 +33,7 @@ final draftTrainingCyclesProvider = Provider<List<TrainingCycle>>((ref) {
     data: (list) =>
         list.where((m) => m.status == TrainingCycleStatus.draft).toList(),
     loading: () => [],
-    error: (_, __) => [],
+    error: (_, _) => [],
   );
 });
 
@@ -44,12 +44,12 @@ final completedTrainingCyclesProvider = Provider<List<TrainingCycle>>((ref) {
     data: (list) =>
         list.where((m) => m.status == TrainingCycleStatus.completed).toList(),
     loading: () => [],
-    error: (_, __) => [],
+    error: (_, _) => [],
   );
 });
 
 /// Provider for a specific trainingCycle by ID
-final trainingCycleProvider = Provider.family<TrainingCycle?, String>((
+final trainingCycleProvider = Provider.autoDispose.family<TrainingCycle?, String>((
   ref,
   id,
 ) {
@@ -63,7 +63,7 @@ final trainingCycleProvider = Provider.family<TrainingCycle?, String>((
       }
     },
     loading: () => null,
-    error: (_, __) => null,
+    error: (_, _) => null,
   );
 });
 
@@ -73,7 +73,7 @@ final trainingCycleStatsProvider = Provider<Map<String, dynamic>>((ref) {
   final cycles = cyclesAsync.when(
     data: (list) => list,
     loading: () => <TrainingCycle>[],
-    error: (_, __) => <TrainingCycle>[],
+    error: (_, _) => <TrainingCycle>[],
   );
   return {
     'total': cycles.length,

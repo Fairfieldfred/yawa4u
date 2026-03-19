@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../core/constants/enums.dart';
-import '../../data/models/stats_data.dart';
-import '../../data/models/training_cycle.dart';
-import '../../domain/providers/stats_providers.dart';
-import '../../domain/providers/training_cycle_providers.dart';
-import '../widgets/responsive_content.dart';
-import '../widgets/screen_background.dart';
-import '../widgets/stats/cycle_comparison_view.dart';
-import '../widgets/stats/volume_bar_chart.dart';
-import '../widgets/stats/volume_line_chart.dart';
+import '../../../core/constants/enums.dart';
+import '../../../data/models/stats_data.dart';
+import '../../../data/models/training_cycle.dart';
+import '../../../domain/providers/stats_providers.dart';
+import '../../../domain/providers/training_cycle_providers.dart';
+import '../../widgets/responsive_content.dart';
+import '../../widgets/screen_background.dart';
+import '../../widgets/stats/cycle_comparison_view.dart';
+import '../../widgets/stats/volume_bar_chart.dart';
+import '../../widgets/stats/volume_line_chart.dart';
 
 /// Statistics & Analytics screen showing workout volume,
 /// muscle group distribution, exercise frequency, and personal records.
@@ -53,7 +53,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen>
           )
           .toList(),
       loading: () => <TrainingCycle>[],
-      error: (_, __) => <TrainingCycle>[],
+      error: (_, _) => <TrainingCycle>[],
     );
 
     // Default to active cycle

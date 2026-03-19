@@ -245,7 +245,7 @@ List<CalendarDayData> buildCalendarData({
 }
 
 /// Provider for calendar data for a specific month
-final calendarDataProvider = Provider.family<List<CalendarDayData>, DateTime>((
+final calendarDataProvider = Provider.autoDispose.family<List<CalendarDayData>, DateTime>((
   ref,
   month,
 ) {

@@ -4,9 +4,9 @@ import 'package:go_router/go_router.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
-import '../../core/theme/skins/skins.dart';
-import '../../data/services/skin_share_service.dart';
-import '../../domain/providers/skin_share_providers.dart';
+import '../../../core/theme/skins/skins.dart';
+import '../../../data/services/skin_share_service.dart';
+import '../../../domain/providers/skin_share_providers.dart';
 
 /// Screen for sharing themes/skins via WiFi with QR code
 class SkinShareScreen extends ConsumerStatefulWidget {

@@ -12,7 +12,7 @@ final workoutsProvider = StreamProvider<List<Workout>>((ref) {
 
 /// Provider for workouts by trainingCycle ID (reactive via Stream)
 final workoutsByTrainingCycleProvider =
-    StreamProvider.family<List<Workout>, String>((ref, trainingCycleId) {
+    StreamProvider.autoDispose.family<List<Workout>, String>((ref, trainingCycleId) {
       final repository = ref.watch(workoutRepositoryProvider);
       return repository.watchByTrainingCycleId(trainingCycleId);
     });
@@ -20,20 +20,20 @@ final workoutsByTrainingCycleProvider =
 /// Provider for workouts by trainingCycle ID (synchronous accessor for convenience)
 /// Returns empty list while loading or on error
 final workoutsByTrainingCycleListProvider =
-    Provider.family<List<Workout>, String>((ref, trainingCycleId) {
+    Provider.autoDispose.family<List<Workout>, String>((ref, trainingCycleId) {
       final workoutsAsync = ref.watch(
         workoutsByTrainingCycleProvider(trainingCycleId),
       );
       return workoutsAsync.when(
         data: (list) => list,
         loading: () => [],
-        error: (_, __) => [],
+        error: (_, _) => [],
       );
     });
 
 /// Provider for workouts by period (async)
 final workoutsByPeriodProvider =
-    FutureProvider.family<
+    FutureProvider.autoDispose.family<
       List<Workout>,
       ({String trainingCycleId, int periodNumber})
     >((ref, params) async {
@@ -45,7 +45,7 @@ final workoutsByPeriodProvider =
     });
 
 /// Provider for a specific workout by ID
-final workoutProvider = Provider.family<Workout?, String>((ref, id) {
+final workoutProvider = Provider.autoDispose.family<Workout?, String>((ref, id) {
   final workouts = ref.watch(workoutsProvider);
   return workouts.when(
     data: (list) {
@@ -56,7 +56,7 @@ final workoutProvider = Provider.family<Workout?, String>((ref, id) {
       }
     },
     loading: () => null,
-    error: (_, __) => null,
+    error: (_, _) => null,
   );
 });
 
@@ -67,7 +67,7 @@ final completedWorkoutsProvider = Provider<List<Workout>>((ref) {
     data: (list) =>
         list.where((w) => w.status == WorkoutStatus.completed).toList(),
     loading: () => [],
-    error: (_, __) => [],
+    error: (_, _) => [],
   );
 });
 
@@ -91,7 +91,7 @@ final workoutStatsProvider = FutureProvider<Map<String, dynamic>>((ref) async {
 
 /// Provider for workout statistics by trainingCycle (async)
 final workoutStatsForTrainingCycleProvider =
-    FutureProvider.family<Map<String, dynamic>, String>((
+    FutureProvider.autoDispose.family<Map<String, dynamic>, String>((
       ref,
       trainingCycleId,
     ) async {

@@ -2,10 +2,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
-import '../../core/config/sentry_config.dart';
-import '../../core/env/env.dart';
-import '../../core/services/sentry_service.dart';
-import '../../core/theme/skins/skins.dart';
+import '../../../core/config/sentry_config.dart';
+import '../../../core/env/env.dart';
+import '../../../core/services/sentry_service.dart';
+import '../../../core/theme/skins/skins.dart';
 
 /// Debug screen for testing and troubleshooting Sentry integration.
 ///

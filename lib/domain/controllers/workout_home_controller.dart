@@ -8,6 +8,7 @@ import '../../data/models/training_cycle.dart';
 import '../../data/models/workout.dart';
 import '../providers/database_providers.dart';
 import '../providers/training_cycle_providers.dart';
+import '../providers/use_case_providers.dart';
 import '../providers/workout_providers.dart';
 
 /// Immutable state for the workout home screen.
@@ -421,31 +422,8 @@ class WorkoutHomeController extends Notifier<WorkoutHomeState> {
   }
 
   Future<void> addSetToExercise(String workoutId, String exerciseId) async {
-    final repository = ref.read(workoutRepositoryProvider);
-    final workout = await repository.getById(workoutId);
-    if (workout == null) return;
-
-    final exerciseIndex = workout.exercises.indexWhere(
-      (e) => e.id == exerciseId,
-    );
-    if (exerciseIndex == -1) return;
-
-    final exercise = workout.exercises[exerciseIndex];
-    final newSet = ExerciseSet(
-      id: const Uuid().v4(),
-      setNumber: exercise.sets.length + 1,
-      reps: '',
-      setType: SetType.regular,
-    );
-
-    final updatedSets = List<ExerciseSet>.from(exercise.sets)..add(newSet);
-    final updatedExercise = exercise.copyWith(sets: updatedSets);
-    final updatedWorkout = workout.updateExercise(
-      exerciseIndex,
-      updatedExercise,
-    );
-
-    await repository.update(updatedWorkout);
+    final useCase = ref.read(addExerciseSetUseCaseProvider);
+    await useCase.execute(exerciseId, workoutId);
   }
 
   Future<void> skipExerciseSets(String workoutId, String exerciseId) async {
@@ -480,66 +458,27 @@ class WorkoutHomeController extends Notifier<WorkoutHomeState> {
   Future<bool> finishWorkout(List<Workout> workouts, int daysPerPeriod) async {
     if (workouts.isEmpty) return false;
 
-    final repository = ref.read(workoutRepositoryProvider);
-    final trainingCycleRepository = ref.read(trainingCycleRepositoryProvider);
     final trainingCycle = ref.read(currentTrainingCycleProvider);
-
     if (trainingCycle == null) return false;
 
-    // Mark ALL workouts for this day as completed
-    for (final workout in workouts) {
-      final updatedWorkout = workout.copyWith(
-        status: WorkoutStatus.completed,
-        completedDate: DateTime.now(),
-      );
-      await repository.update(updatedWorkout);
-    }
-
-    // Check if ALL workouts in the trainingCycle are now completed
-    final allWorkouts = await repository.getByTrainingCycleId(trainingCycle.id);
-    final allCompleted = allWorkouts.every(
-      (w) => w.status == WorkoutStatus.completed,
+    final useCase = ref.read(finishWorkoutUseCaseProvider);
+    final result = await useCase.execute(
+      workouts: workouts,
+      daysPerPeriod: daysPerPeriod,
+      trainingCycleId: trainingCycle.id,
     );
 
-    if (allCompleted) {
-      await trainingCycleRepository.update(trainingCycle.complete());
-      return true; // Indicates trainingCycle completed
-    }
+    if (result == null) return false;
 
-    // Navigate to next workout
-    final firstWorkout = workouts.first;
-    int nextDay = firstWorkout.dayNumber + 1;
-    int nextPeriod = firstWorkout.periodNumber;
+    if (result.cycleCompleted) return true;
 
-    if (nextDay > daysPerPeriod) {
-      nextDay = 1;
-      nextPeriod++;
-    }
-
-    navigateToNextDay(nextPeriod, nextDay);
+    navigateToNextDay(result.nextPeriod!, result.nextDay!);
     return false;
   }
 
   Future<void> resetWorkout(List<Workout> workouts) async {
-    final repository = ref.read(workoutRepositoryProvider);
-
-    for (final workout in workouts) {
-      final updatedExercises = workout.exercises.map((exercise) {
-        final updatedSets = exercise.sets.map((set) {
-          return set.copyWith(isLogged: false, weight: null, reps: '');
-        }).toList();
-
-        return exercise.copyWith(sets: updatedSets);
-      }).toList();
-
-      final updatedWorkout = workout.copyWith(
-        exercises: updatedExercises,
-        status: WorkoutStatus.incomplete,
-        completedDate: null,
-      );
-
-      await repository.update(updatedWorkout);
-    }
+    final useCase = ref.read(resetWorkoutUseCaseProvider);
+    await useCase.execute(workouts);
   }
 
   Future<void> updateWorkoutNote(List<Workout> workouts, String? note) async {
@@ -633,12 +572,8 @@ class WorkoutHomeController extends Notifier<WorkoutHomeState> {
   }
 
   Future<void> endTrainingCycle(TrainingCycle trainingCycle) async {
-    final repository = ref.read(trainingCycleRepositoryProvider);
-    final updatedTrainingCycle = trainingCycle.copyWith(
-      status: TrainingCycleStatus.completed,
-      endDate: DateTime.now(),
-    );
-    await repository.update(updatedTrainingCycle);
+    final useCase = ref.read(endTrainingCycleUseCaseProvider);
+    await useCase.execute(trainingCycle);
   }
 
   // ---------------------------------------------------------------------------

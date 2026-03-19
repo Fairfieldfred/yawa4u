@@ -4,20 +4,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:table_calendar/table_calendar.dart';
 
-import '../../core/theme/skins/skins.dart';
-import '../../core/utils/date_helpers.dart';
-import '../../domain/controllers/workout_home_controller.dart';
-import '../../domain/providers/calendar_providers.dart';
-import '../../domain/providers/navigation_providers.dart';
-import '../../domain/providers/theme_provider.dart';
-import '../../domain/providers/training_cycle_providers.dart';
-import '../../domain/providers/workout_providers.dart';
-import '../widgets/app_icon_widget.dart';
-import '../widgets/calendar/calendar_edit_sheet.dart';
-import '../widgets/calendar/calendar_legend_dialog.dart';
-import '../widgets/calendar/desktop_calendar_day_cell.dart';
-import '../widgets/screen_background.dart';
-import 'add_exercise_screen.dart';
+import '../../../core/theme/skins/skins.dart';
+import '../../../core/utils/date_helpers.dart';
+import '../../../domain/controllers/workout_home_controller.dart';
+import '../../../domain/providers/calendar_providers.dart';
+import '../../../domain/providers/navigation_providers.dart';
+import '../../../domain/providers/theme_provider.dart';
+import '../../../domain/providers/training_cycle_providers.dart';
+import '../../../domain/providers/workout_providers.dart';
+import '../../widgets/app_icon_widget.dart';
+import '../../widgets/calendar/calendar_edit_sheet.dart';
+import '../../widgets/calendar/calendar_legend_dialog.dart';
+import '../../widgets/calendar/desktop_calendar_day_cell.dart';
+import '../../widgets/screen_background.dart';
+import '../workout/add_exercise_screen.dart';
 
 /// Calendar screen showing workouts in a monthly calendar view
 class CalendarScreen extends ConsumerStatefulWidget {

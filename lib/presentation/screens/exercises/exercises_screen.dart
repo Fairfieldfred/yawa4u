@@ -6,30 +6,30 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
-import '../../core/constants/enums.dart';
-import '../../data/database/app_database.dart' show ExerciseSetsCompanion;
-import '../../core/theme/skins/skins.dart';
-import '../../core/utils/day_sequence.dart';
-import '../../data/models/exercise.dart';
-import '../../data/models/exercise_set.dart';
-import '../../data/models/training_cycle.dart';
-import '../../data/models/workout.dart';
-import '../../data/repositories/training_cycle_repository.dart';
-import '../../domain/controllers/workout_home_controller.dart';
-import '../../domain/providers/database_providers.dart';
-import '../../domain/providers/exercise_providers.dart';
-import '../../domain/providers/onboarding_providers.dart';
-import '../../domain/providers/theme_provider.dart';
-import '../../domain/providers/training_cycle_providers.dart';
-import '../../domain/providers/workout_providers.dart';
-import '../widgets/app_icon_widget.dart';
-import '../widgets/calendar_dropdown.dart';
-import '../widgets/cycle_summary_dialog.dart';
-import '../widgets/dialogs/add_exercise_dialog.dart';
-import '../widgets/dialogs/workout_dialogs.dart';
-import '../widgets/exercise_card_widget.dart';
-import '../widgets/screen_background.dart';
-import 'add_exercise_screen.dart';
+import '../../../core/constants/enums.dart';
+import '../../../data/database/app_database.dart' show ExerciseSetsCompanion;
+import '../../../core/theme/skins/skins.dart';
+import '../../../core/utils/day_sequence.dart';
+import '../../../data/models/exercise.dart';
+import '../../../data/models/exercise_set.dart';
+import '../../../data/models/training_cycle.dart';
+import '../../../data/models/workout.dart';
+import '../../../data/repositories/training_cycle_repository.dart';
+import '../../../domain/controllers/workout_home_controller.dart';
+import '../../../domain/providers/database_providers.dart';
+import '../../../domain/providers/exercise_providers.dart';
+import '../../../domain/providers/onboarding_providers.dart';
+import '../../../domain/providers/theme_provider.dart';
+import '../../../domain/providers/training_cycle_providers.dart';
+import '../../../domain/providers/workout_providers.dart';
+import '../../widgets/app_icon_widget.dart';
+import '../../widgets/calendar_dropdown.dart';
+import '../../widgets/cycle_summary_dialog.dart';
+import '../../widgets/dialogs/add_exercise_dialog.dart';
+import '../../widgets/dialogs/workout_dialogs.dart';
+import '../../widgets/exercise_card_widget.dart';
+import '../../widgets/screen_background.dart';
+import '../workout/add_exercise_screen.dart';
 
 /// Helper class to hold history entry data
 class _HistoryEntry {
@@ -643,6 +643,12 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
       }
     }
 
+    // Batch-fetch previous performance for all exercises at once
+    final batchAsync = ref.watch(
+      previousPerformanceBatchProvider(allExercises),
+    );
+    final batchMap = batchAsync.value ?? <String, Exercise?>{};
+
     // Use the first workout's display info for the appBar
     final firstWorkout = widget.workouts.first;
     final trainingCycle = widget.trainingCycle;
@@ -792,6 +798,7 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
                                         ),
                                         useMetric: useMetric,
                                         showMoveDown: false,
+                                        previousPerformance: batchMap[exercise.id],
                                         callbacks: ExerciseCardCallbacks(
                                           onAddNote: (id) => _addNote(
                                             source.workout.id, id,

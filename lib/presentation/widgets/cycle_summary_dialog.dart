@@ -15,7 +15,9 @@ class CycleSummaryDialog extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final workoutsAsync = ref.watch(workoutsProvider);
+    final workoutsAsync = ref.watch(
+      workoutsByTrainingCycleProvider(trainingCycle.id),
+    );
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final backgroundColor = isDark ? const Color(0xFF2C2C2E) : Colors.white;
     final textColor = isDark ? Colors.white : Colors.black87;
@@ -26,18 +28,14 @@ class CycleSummaryDialog extends ConsumerWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       backgroundColor: backgroundColor,
       child: workoutsAsync.when(
-        data: (allWorkouts) {
-          final workouts =
-              allWorkouts
-                  .where((w) => w.trainingCycleId == trainingCycle.id)
-                  .toList()
-                ..sort((a, b) {
-                  final periodCompare = a.periodNumber.compareTo(
-                    b.periodNumber,
-                  );
-                  if (periodCompare != 0) return periodCompare;
-                  return a.dayNumber.compareTo(b.dayNumber);
-                });
+        data: (workouts) {
+          workouts.sort((a, b) {
+            final periodCompare = a.periodNumber.compareTo(
+              b.periodNumber,
+            );
+            if (periodCompare != 0) return periodCompare;
+            return a.dayNumber.compareTo(b.dayNumber);
+          });
 
           final completedCount = workouts
               .where((w) => w.status == WorkoutStatus.completed)

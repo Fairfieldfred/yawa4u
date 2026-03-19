@@ -4,26 +4,26 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uuid/uuid.dart';
 
-import '../../core/constants/app_constants.dart';
-import '../../core/constants/enums.dart';
-import '../../core/constants/equipment_types.dart';
-import '../../core/theme/skins/skins.dart';
-import '../../core/utils/template_exporter.dart';
-import '../../data/models/exercise.dart';
-import '../../data/models/exercise_set.dart';
-import '../../data/models/training_cycle.dart';
-import '../../data/models/workout.dart';
-import '../../domain/providers/database_providers.dart';
-import '../../domain/providers/navigation_providers.dart';
-import '../../domain/providers/onboarding_providers.dart';
-import '../../domain/providers/training_cycle_providers.dart';
-import '../../domain/providers/workout_providers.dart';
-import '../widgets/dialogs/add_exercise_dialog.dart';
-import '../widgets/dialogs/exercise_info_dialog.dart';
-import '../widgets/dialogs/workout_dialogs.dart';
-import '../widgets/muscle_group_badge.dart';
+import '../../../core/constants/app_constants.dart';
+import '../../../core/constants/enums.dart';
+import '../../../core/constants/equipment_types.dart';
+import '../../../core/theme/skins/skins.dart';
+import '../../../core/utils/template_exporter.dart';
+import '../../../data/models/exercise.dart';
+import '../../../data/models/exercise_set.dart';
+import '../../../data/models/training_cycle.dart';
+import '../../../data/models/workout.dart';
+import '../../../domain/providers/database_providers.dart';
+import '../../../domain/providers/navigation_providers.dart';
+import '../../../domain/providers/onboarding_providers.dart';
+import '../../../domain/providers/training_cycle_providers.dart';
+import '../../../domain/providers/workout_providers.dart';
+import '../../widgets/dialogs/add_exercise_dialog.dart';
+import '../../widgets/dialogs/exercise_info_dialog.dart';
+import '../../widgets/dialogs/workout_dialogs.dart';
+import '../../widgets/muscle_group_badge.dart';
 import 'add_exercise_screen.dart';
-import 'workout/edit_workout_controller.dart';
+import 'edit_workout_controller.dart';
 
 /// Edit workout screen - Edit draft trainingCycle design
 class EditWorkoutScreen extends ConsumerStatefulWidget {

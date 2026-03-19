@@ -6,14 +6,14 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../../core/constants/app_constants.dart';
-import '../../core/services/sentry_service.dart';
-import '../../core/theme/skins/skin_provider.dart';
-import '../../domain/providers/onboarding_providers.dart';
-import '../../domain/providers/theme_provider.dart';
-import '../widgets/app_icon_widget.dart';
-import '../widgets/responsive_content.dart';
-import '../widgets/screen_background.dart';
+import '../../../core/constants/app_constants.dart';
+import '../../../core/services/sentry_service.dart';
+import '../../../core/theme/skins/skin_provider.dart';
+import '../../../domain/providers/onboarding_providers.dart';
+import '../../../domain/providers/theme_provider.dart';
+import '../../widgets/app_icon_widget.dart';
+import '../../widgets/responsive_content.dart';
+import '../../widgets/screen_background.dart';
 
 /// More/Settings screen
 class MoreScreen extends ConsumerStatefulWidget {

@@ -95,6 +95,28 @@ class ExerciseDao extends DatabaseAccessor<AppDatabase>
     )..where((e) => e.workoutUuid.equals(workoutUuid))).go();
   }
 
+  /// Find the most recent pinned note for an exercise name, excluding a
+  /// specific exercise UUID. Returns only the note text.
+  Future<String?> findPinnedNoteByName(
+    String name,
+    String excludeUuid,
+  ) async {
+    final query = select(exercises)
+      ..where(
+        (e) =>
+            e.name.collate(Collate.noCase).equals(name) &
+            e.uuid.equals(excludeUuid).not() &
+            e.isNotePinned.equals(true) &
+            e.notes.isNotNull(),
+      )
+      ..orderBy([(e) => OrderingTerm.desc(e.lastPerformed)])
+      ..limit(1);
+    final result = await query.getSingleOrNull();
+    if (result == null) return null;
+    final note = result.notes;
+    return (note != null && note.isNotEmpty) ? note : null;
+  }
+
   /// Delete all exercises
   Future<int> deleteAll() {
     return delete(exercises).go();

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../core/theme/skins/skins.dart';
-import '../../data/models/training_cycle_template.dart';
-import '../../domain/providers/template_providers.dart';
+import '../../../core/theme/skins/skins.dart';
+import '../../../data/models/training_cycle_template.dart';
+import '../../../domain/providers/template_providers.dart';
 import 'template_preview_screen.dart';
 
 class TemplateSelectionScreen extends ConsumerStatefulWidget {

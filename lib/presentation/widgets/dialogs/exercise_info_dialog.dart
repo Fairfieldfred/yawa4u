@@ -628,7 +628,7 @@ class _ExerciseInfoDialogState extends ConsumerState<ExerciseInfoDialog> {
                     barWidth: 2.5,
                     dotData: FlDotData(
                       show: spots.length <= 15,
-                      getDotPainter: (spot, _, __, ___) =>
+                      getDotPainter: (spot, _, _, _) =>
                           FlDotCirclePainter(
                         radius: 3,
                         color: primaryColor,

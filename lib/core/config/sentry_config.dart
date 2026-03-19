@@ -31,5 +31,5 @@ class SentryConfig {
   );
 
   /// Check if Sentry should be initialized
-  static bool get shouldInitialize => enabled && dsn != 'YOUR_SENTRY_DSN_HERE';
+  static bool get shouldInitialize => enabled && dsn.isNotEmpty && dsn != 'YOUR_SENTRY_DSN_HERE';
 }

@@ -6,7 +6,7 @@ import 'database_providers.dart';
 
 /// Stats for a specific training cycle.
 final cycleStatsProvider =
-    FutureProvider.family<WorkoutStats, String>((ref, cycleId) async {
+    FutureProvider.autoDispose.family<WorkoutStats, String>((ref, cycleId) async {
   final repository = ref.watch(workoutRepositoryProvider);
   final workouts = await repository.getByTrainingCycleId(cycleId);
   return WorkoutStats.fromWorkouts(workouts);
@@ -21,7 +21,7 @@ final lifetimeStatsProvider = FutureProvider<WorkoutStats>((ref) async {
 
 /// All workouts for a specific training cycle (async, non-stream).
 final cycleWorkoutsProvider =
-    FutureProvider.family<List<Workout>, String>((ref, cycleId) async {
+    FutureProvider.autoDispose.family<List<Workout>, String>((ref, cycleId) async {
   final repository = ref.watch(workoutRepositoryProvider);
   return repository.getByTrainingCycleId(cycleId);
 });

@@ -5,10 +5,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
-import '../../core/theme/skins/skins.dart';
-import '../../data/services/data_backup_service.dart';
-import '../../data/services/wifi_sync_service.dart';
-import '../../domain/providers/sync_providers.dart';
+import '../../../core/theme/skins/skins.dart';
+import '../../../data/services/data_backup_service.dart';
+import '../../../data/services/wifi_sync_service.dart';
+import '../../../domain/providers/sync_providers.dart';
 
 /// Screen for WiFi-based sync between devices
 class SyncScreen extends ConsumerStatefulWidget {

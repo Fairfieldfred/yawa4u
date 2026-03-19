@@ -71,6 +71,7 @@ class ExerciseCardWidget extends ConsumerWidget {
   final bool showMoveDown;
   final bool isFirstExercise;
   final bool isLastExercise;
+  final Exercise? previousPerformance;
 
   const ExerciseCardWidget({
     super.key,
@@ -83,10 +84,16 @@ class ExerciseCardWidget extends ConsumerWidget {
     this.showMoveDown = true,
     this.isFirstExercise = false,
     this.isLastExercise = false,
+    this.previousPerformance,
   });
 
   /// Shows the previous performance summary below the equipment type.
   Widget _buildPreviousPerformance(BuildContext context, WidgetRef ref) {
+    // Use pre-fetched batch data when available; fall back to per-card provider.
+    if (previousPerformance != null) {
+      return _buildPreviousPerformanceContent(context, ref, previousPerformance);
+    }
+
     final asyncPrev = ref.watch(
       previousPerformanceProvider(
         (name: exercise.name, currentId: exercise.id),
@@ -94,73 +101,83 @@ class ExerciseCardWidget extends ConsumerWidget {
     );
 
     return asyncPrev.when(
-      data: (prevExercise) {
-        if (prevExercise == null) return const SizedBox.shrink();
-
-        final service = ref.read(exerciseHistoryServiceProvider);
-        final summary = service.formatPerformanceSummary(prevExercise);
-        if (summary.isEmpty) return const SizedBox.shrink();
-
-        // Find the date from the workout, fall back to lastPerformed
-        final date = prevExercise.lastPerformed;
-        final dateStr =
-            date != null ? ' - ${service.formatRelativeDate(date)}' : '';
-
-        // Check for weight increase suggestion
-        final hitAllReps = service.didHitAllReps(prevExercise);
-        final increment = service.getWeightIncrement(
-          exercise.equipmentType,
-        );
-        String? suggestionText;
-        if (hitAllReps && increment != null) {
-          final loggedSets =
-              prevExercise.sets.where((s) => s.isLogged).toList();
-          if (loggedSets.isNotEmpty && loggedSets.first.weight != null) {
-            final suggested = loggedSets.first.weight! + increment;
-            final display = formatWeightForDisplay(
-              suggested,
-              useMetric,
-            );
-            suggestionText = '\u2191 Try $display $weightUnit';
-          }
-        }
-
-        return Padding(
-          padding: const EdgeInsets.only(top: 2),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Last: $summary$dateStr',
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  fontSize: 11,
-                  color: Theme.of(context)
-                      .colorScheme
-                      .onSurface
-                      .withAlpha((255 * 0.5).round()),
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-              if (suggestionText != null)
-                Text(
-                  suggestionText,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                ),
-            ],
-          ),
-        );
-      },
+      data: (prevExercise) =>
+          _buildPreviousPerformanceContent(context, ref, prevExercise),
       loading: () => const SizedBox.shrink(),
-      error: (_, __) => const SizedBox.shrink(),
+      error: (_, _) => const SizedBox.shrink(),
     );
   }
 
-  /// Find the most recent pinned note for exercises with the same name
+  /// Renders the previous performance UI from a resolved Exercise.
+  Widget _buildPreviousPerformanceContent(
+    BuildContext context,
+    WidgetRef ref,
+    Exercise? prevExercise,
+  ) {
+    if (prevExercise == null) return const SizedBox.shrink();
+
+    final service = ref.read(exerciseHistoryServiceProvider);
+    final summary = service.formatPerformanceSummary(prevExercise);
+    if (summary.isEmpty) return const SizedBox.shrink();
+
+    // Find the date from the workout, fall back to lastPerformed
+    final date = prevExercise.lastPerformed;
+    final dateStr =
+        date != null ? ' - ${service.formatRelativeDate(date)}' : '';
+
+    // Check for weight increase suggestion
+    final hitAllReps = service.didHitAllReps(prevExercise);
+    final increment = service.getWeightIncrement(
+      exercise.equipmentType,
+    );
+    String? suggestionText;
+    if (hitAllReps && increment != null) {
+      final loggedSets =
+          prevExercise.sets.where((s) => s.isLogged).toList();
+      if (loggedSets.isNotEmpty && loggedSets.first.weight != null) {
+        final suggested = loggedSets.first.weight! + increment;
+        final display = formatWeightForDisplay(
+          suggested,
+          useMetric,
+        );
+        suggestionText = '\u2191 Try $display $weightUnit';
+      }
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 2),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Last: $summary$dateStr',
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              fontSize: 11,
+              color: Theme.of(context)
+                  .colorScheme
+                  .onSurface
+                  .withAlpha((255 * 0.5).round()),
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          if (suggestionText != null)
+            Text(
+              suggestionText,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  /// Find the most recent pinned note for exercises with the same name.
+  ///
+  /// Uses a targeted DB query instead of loading every workout.
   Future<String?> _findPinnedNoteForExercise(WidgetRef ref) async {
     // First check if current exercise has a pinned note
     if (exercise.isNotePinned &&
@@ -169,35 +186,12 @@ class ExerciseCardWidget extends ConsumerWidget {
       return exercise.notes;
     }
 
-    // Look for pinned notes from other exercises with the same name
+    // Targeted query: find the most recent pinned note by exercise name
     final workoutRepo = ref.read(workoutRepositoryProvider);
-    final allWorkouts = await workoutRepo.getAll();
-
-    // Find all exercises with the same name that have pinned notes
-    final pinnedExercises = <Exercise>[];
-    for (final workout in allWorkouts) {
-      for (final ex in workout.exercises) {
-        if (ex.name.toLowerCase() == exercise.name.toLowerCase() &&
-            ex.id != exercise.id &&
-            ex.isNotePinned &&
-            ex.notes != null &&
-            ex.notes!.isNotEmpty) {
-          pinnedExercises.add(ex);
-        }
-      }
-    }
-
-    if (pinnedExercises.isEmpty) return null;
-
-    // Return the most recent pinned note (by lastPerformed date, or just the first one)
-    pinnedExercises.sort((a, b) {
-      if (a.lastPerformed == null && b.lastPerformed == null) return 0;
-      if (a.lastPerformed == null) return 1;
-      if (b.lastPerformed == null) return -1;
-      return b.lastPerformed!.compareTo(a.lastPerformed!);
-    });
-
-    return pinnedExercises.first.notes;
+    return workoutRepo.findPinnedNoteByExerciseName(
+      exercise.name,
+      exercise.id,
+    );
   }
 
   @override

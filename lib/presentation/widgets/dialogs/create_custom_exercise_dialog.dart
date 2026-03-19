@@ -43,7 +43,7 @@ class _CreateCustomExerciseDialogState
     final exists = existsAsync.when(
       data: (value) => value,
       loading: () => false,
-      error: (_, __) => false,
+      error: (_, _) => false,
     );
     if (exists) {
       setState(() {

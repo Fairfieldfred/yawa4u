@@ -2,23 +2,23 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../core/constants/enums.dart';
-import '../../core/constants/equipment_types.dart';
-import '../../core/constants/muscle_groups.dart';
-import '../../core/theme/skins/skins.dart';
-import '../../core/utils/weight_conversion.dart';
-import '../../data/models/exercise.dart';
-import '../../data/models/exercise_set.dart';
-import '../../data/models/training_cycle.dart';
-import '../../data/models/workout.dart';
-import '../../domain/controllers/workout_home_controller.dart';
-import '../../domain/providers/database_providers.dart';
-import '../../domain/providers/onboarding_providers.dart';
-import '../../domain/providers/theme_provider.dart';
-import '../../domain/providers/training_cycle_providers.dart';
-import '../../domain/providers/workout_providers.dart';
-import '../widgets/dialogs/exercise_info_dialog.dart';
-import '../widgets/muscle_group_badge.dart';
+import '../../../core/constants/enums.dart';
+import '../../../core/constants/equipment_types.dart';
+import '../../../core/constants/muscle_groups.dart';
+import '../../../core/theme/skins/skins.dart';
+import '../../../core/utils/weight_conversion.dart';
+import '../../../data/models/exercise.dart';
+import '../../../data/models/exercise_set.dart';
+import '../../../data/models/training_cycle.dart';
+import '../../../data/models/workout.dart';
+import '../../../domain/controllers/workout_home_controller.dart';
+import '../../../domain/providers/database_providers.dart';
+import '../../../domain/providers/onboarding_providers.dart';
+import '../../../domain/providers/theme_provider.dart';
+import '../../../domain/providers/training_cycle_providers.dart';
+import '../../../domain/providers/workout_providers.dart';
+import '../../widgets/dialogs/exercise_info_dialog.dart';
+import '../../widgets/muscle_group_badge.dart';
 
 /// Read-only view of a completed trainingCycle's workouts
 /// Used for reviewing prior trainingCycle data and structure

@@ -3,18 +3,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uuid/uuid.dart';
 
-import '../../core/constants/enums.dart';
-import '../../core/constants/equipment_types.dart';
-import '../../core/constants/muscle_groups.dart';
-import '../../data/models/exercise.dart';
-import '../../data/models/exercise_definition.dart';
-import '../../data/models/exercise_set.dart';
-import '../../domain/providers/database_providers.dart';
-import '../../domain/providers/exercise_providers.dart';
-import '../../domain/providers/onboarding_providers.dart';
-import '../../domain/providers/workout_providers.dart';
-import '../widgets/available_equipment_filter.dart';
-import '../widgets/dialogs/create_custom_exercise_dialog.dart';
+import '../../../core/constants/enums.dart';
+import '../../../core/constants/equipment_types.dart';
+import '../../../core/constants/muscle_groups.dart';
+import '../../../data/models/exercise.dart';
+import '../../../data/models/exercise_definition.dart';
+import '../../../data/models/exercise_set.dart';
+import '../../../domain/providers/database_providers.dart';
+import '../../../domain/providers/exercise_providers.dart';
+import '../../../domain/providers/onboarding_providers.dart';
+import '../../../domain/providers/workout_providers.dart';
+import '../../widgets/available_equipment_filter.dart';
+import '../../widgets/dialogs/create_custom_exercise_dialog.dart';
 
 /// Screen for adding exercises from the library to a workout
 class AddExerciseScreen extends ConsumerStatefulWidget {

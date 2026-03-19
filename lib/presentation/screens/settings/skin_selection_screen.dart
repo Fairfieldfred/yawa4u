@@ -5,8 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../core/theme/skins/skins.dart';
-import '../../data/services/theme_image_service.dart';
+import '../../../core/theme/skins/skins.dart';
+import '../../../data/services/theme_image_service.dart';
 
 /// Screen for selecting and previewing app skins/themes.
 class SkinSelectionScreen extends ConsumerWidget {

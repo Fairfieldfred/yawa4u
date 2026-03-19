@@ -13,7 +13,9 @@ class MuscleGroupStatsDialog extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final workoutsAsync = ref.watch(workoutsProvider);
+    final workoutsAsync = ref.watch(
+      workoutsByTrainingCycleProvider(trainingCycle.id),
+    );
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final backgroundColor = isDark ? const Color(0xFF2C2C2E) : Colors.white;
     final textColor = isDark ? Colors.white : Colors.black87;
@@ -24,11 +26,7 @@ class MuscleGroupStatsDialog extends ConsumerWidget {
       backgroundColor: backgroundColor,
       insetPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 24),
       child: workoutsAsync.when(
-        data: (allWorkouts) {
-          // 1. Filter workouts for this trainingCycle
-          final workouts = allWorkouts
-              .where((w) => w.trainingCycleId == trainingCycle.id)
-              .toList();
+        data: (workouts) {
 
           if (workouts.isEmpty) {
             return Padding(

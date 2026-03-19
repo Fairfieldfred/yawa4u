@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../domain/providers/onboarding_providers.dart';
+import '../../../domain/providers/onboarding_providers.dart';
 import 'template_selection_screen.dart';
 
 /// Plan a trainingCycle screen - Shows different options for creating a trainingCycle

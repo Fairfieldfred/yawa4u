@@ -3,9 +3,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../../core/theme/skins/skins.dart';
-import '../../domain/providers/onboarding_providers.dart';
-import '../widgets/available_equipment_filter.dart';
+import '../../../core/theme/skins/skins.dart';
+import '../../../domain/providers/onboarding_providers.dart';
+import '../../widgets/available_equipment_filter.dart';
 
 /// Training cycle terminology options
 enum TrainingCycleTerm {

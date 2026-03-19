@@ -6,21 +6,21 @@ import 'package:go_router/go_router.dart';
 import '../../core/constants/muscle_groups.dart';
 import '../../core/theme/skins/skins.dart';
 import '../../domain/providers/onboarding_providers.dart';
-import '../screens/add_exercise_screen.dart';
-import '../screens/completed_cycle_workout_screen.dart';
-import '../screens/cycle_create_screen.dart';
-import '../screens/edit_workout_screen.dart';
-import '../screens/home_screen.dart';
+import '../screens/workout/add_exercise_screen.dart';
+import '../screens/workout/completed_cycle_workout_screen.dart';
+import '../screens/training_cycles/cycle_create_screen.dart';
+import '../screens/workout/edit_workout_screen.dart';
+import '../screens/home/home_screen.dart';
 import '../screens/onboarding/onboarding_profile_screen.dart';
-import '../screens/plan_a_cycle_screen.dart';
-import '../screens/sentry_debug_screen.dart';
-import '../screens/settings_screen.dart';
-import '../screens/skin_selection_screen.dart';
-import '../screens/stats_screen.dart';
-import '../screens/skin_share_screen.dart';
-import '../screens/sync_screen.dart';
-import '../screens/template_share_screen.dart';
-import '../screens/theme_editor_screen.dart';
+import '../screens/training_cycles/plan_a_cycle_screen.dart';
+import '../screens/settings/sentry_debug_screen.dart';
+import '../screens/settings/settings_screen.dart';
+import '../screens/settings/skin_selection_screen.dart';
+import '../screens/stats/stats_screen.dart';
+import '../screens/settings/skin_share_screen.dart';
+import '../screens/settings/sync_screen.dart';
+import '../screens/settings/template_share_screen.dart';
+import '../screens/settings/theme_editor_screen.dart';
 
 /// Navigation routes
 class AppRoutes {

@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../core/constants/muscle_groups.dart';
-import '../../data/models/training_cycle_template.dart';
-import '../../domain/providers/database_providers.dart';
-import '../../domain/providers/navigation_providers.dart';
-import '../../domain/providers/template_providers.dart';
-import '../../domain/providers/training_cycle_providers.dart';
-import '../../domain/providers/workout_providers.dart';
+import '../../../core/constants/muscle_groups.dart';
+import '../../../data/models/training_cycle_template.dart';
+import '../../../domain/providers/database_providers.dart';
+import '../../../domain/providers/navigation_providers.dart';
+import '../../../domain/providers/template_providers.dart';
+import '../../../domain/providers/training_cycle_providers.dart';
+import '../../../domain/providers/workout_providers.dart';
 
 class TemplatePreviewScreen extends ConsumerStatefulWidget {
   final TrainingCycleTemplate template;

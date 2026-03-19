@@ -6,27 +6,27 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uuid/uuid.dart';
 
-import '../../core/constants/enums.dart';
-import '../../data/database/app_database.dart' show ExerciseSetsCompanion;
-import '../../core/theme/skins/skins.dart';
-import '../../core/utils/day_sequence.dart';
-import '../../data/models/exercise.dart';
-import '../../data/models/exercise_set.dart';
-import '../../data/models/workout.dart';
-import '../../domain/controllers/workout_home_controller.dart';
-import '../../domain/providers/database_providers.dart';
-import '../../domain/providers/exercise_providers.dart';
-import '../../domain/providers/onboarding_providers.dart';
-import '../../domain/providers/theme_provider.dart';
-import '../../domain/providers/training_cycle_providers.dart';
-import '../../domain/providers/workout_providers.dart';
-import '../widgets/app_icon_widget.dart';
-import '../widgets/calendar_dropdown.dart';
-import '../widgets/cycle_summary_dialog.dart';
-import '../widgets/dialogs/add_exercise_dialog.dart';
-import '../widgets/dialogs/workout_dialogs.dart';
-import '../widgets/exercise_card_widget.dart';
-import '../widgets/screen_background.dart';
+import '../../../core/constants/enums.dart';
+import '../../../data/database/app_database.dart' show ExerciseSetsCompanion;
+import '../../../core/theme/skins/skins.dart';
+import '../../../core/utils/day_sequence.dart';
+import '../../../data/models/exercise.dart';
+import '../../../data/models/exercise_set.dart';
+import '../../../data/models/workout.dart';
+import '../../../domain/controllers/workout_home_controller.dart';
+import '../../../domain/providers/database_providers.dart';
+import '../../../domain/providers/exercise_providers.dart';
+import '../../../domain/providers/onboarding_providers.dart';
+import '../../../domain/providers/theme_provider.dart';
+import '../../../domain/providers/training_cycle_providers.dart';
+import '../../../domain/providers/workout_providers.dart';
+import '../../widgets/app_icon_widget.dart';
+import '../../widgets/calendar_dropdown.dart';
+import '../../widgets/cycle_summary_dialog.dart';
+import '../../widgets/dialogs/add_exercise_dialog.dart';
+import '../../widgets/dialogs/workout_dialogs.dart';
+import '../../widgets/exercise_card_widget.dart';
+import '../../widgets/screen_background.dart';
 import 'add_exercise_screen.dart';
 
 /// Workout home screen - shows current/upcoming workouts
@@ -53,6 +53,11 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
   /// Prevents _buildEmptyState from destroying text fields on invalidation.
   String? _cachedCycleId;
   List<Workout>? _cachedWorkouts;
+
+  /// Local overrides for set values during typing.
+  /// Prevents full provider invalidation on every debounced save.
+  final Map<String, double?> _localWeights = {};
+  final Map<String, String> _localReps = {};
 
   @override
   void dispose() {
@@ -94,10 +99,16 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
   /// Direct single-row update for set weight — avoids full workout
   /// tree reconstruction (O(1) instead of O(1+N+M) queries).
   /// Debounced to coalesce rapid keystrokes into a single DB write.
-  /// After the write, invalidates providers so the Log button updates.
+  /// Local state tracks edits so the Log button updates without
+  /// invalidating the full workout provider tree.
   void _updateSetWeight(String setId, String value) {
     final weight = double.tryParse(value);
     if (weight == null && value.isNotEmpty) return;
+
+    final wasLoggable = _isSetLoggable(setId);
+    _localWeights[setId] = weight;
+    if (wasLoggable != _isSetLoggable(setId)) setState(() {});
+
     final key = 'weight_$setId';
     _debounceTimers[key]?.cancel();
     _debounceTimers[key] = Timer(const Duration(milliseconds: 300), () async {
@@ -106,12 +117,15 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
         setId,
         ExerciseSetsCompanion(weight: Value(weight)),
       );
-      if (mounted) _invalidateWorkoutProviders();
     });
   }
 
   /// Direct single-row update for set reps (debounced).
   void _updateSetReps(String setId, String value) {
+    final wasLoggable = _isSetLoggable(setId);
+    _localReps[setId] = value;
+    if (wasLoggable != _isSetLoggable(setId)) setState(() {});
+
     final key = 'reps_$setId';
     _debounceTimers[key]?.cancel();
     _debounceTimers[key] = Timer(const Duration(milliseconds: 300), () async {
@@ -120,8 +134,57 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
         setId,
         ExerciseSetsCompanion(reps: Value(value)),
       );
-      if (mounted) _invalidateWorkoutProviders();
     });
+  }
+
+  /// Check if a set is loggable using local overrides + original data.
+  bool _isSetLoggable(String setId) {
+    final original = _findOriginalSet(setId);
+    final weight = _localWeights.containsKey(setId)
+        ? _localWeights[setId]
+        : original?.weight;
+    final reps = _localReps.containsKey(setId)
+        ? _localReps[setId]!
+        : (original?.reps ?? '');
+    return weight != null && reps.isNotEmpty;
+  }
+
+  /// Look up the original set data from cached workouts.
+  ExerciseSet? _findOriginalSet(String setId) {
+    if (_cachedWorkouts == null) return null;
+    for (final workout in _cachedWorkouts!) {
+      for (final exercise in workout.exercises) {
+        for (final set in exercise.sets) {
+          if (set.id == setId) return set;
+        }
+      }
+    }
+    return null;
+  }
+
+  /// Apply local weight/reps overrides to an exercise's sets.
+  Exercise _applyLocalEdits(Exercise exercise) {
+    if (_localWeights.isEmpty && _localReps.isEmpty) return exercise;
+
+    bool anyChanged = false;
+    final updatedSets = exercise.sets.map((set) {
+      final hasWeight = _localWeights.containsKey(set.id);
+      final hasReps = _localReps.containsKey(set.id);
+      if (!hasWeight && !hasReps) return set;
+      anyChanged = true;
+      return ExerciseSet(
+        id: set.id,
+        setNumber: set.setNumber,
+        weight: hasWeight ? _localWeights[set.id] : set.weight,
+        reps: hasReps ? _localReps[set.id]! : set.reps,
+        setType: set.setType,
+        isLogged: set.isLogged,
+        notes: set.notes,
+        isSkipped: set.isSkipped,
+      );
+    }).toList();
+
+    return anyChanged ? exercise.copyWith(sets: updatedSets) : exercise;
   }
 
   Future<void> _toggleSetLog(
@@ -789,6 +852,8 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
       if (currentTrainingCycle.id != _cachedCycleId) {
         _cachedCycleId = currentTrainingCycle.id;
         _cachedWorkouts = null;
+        _localWeights.clear();
+        _localReps.clear();
       }
 
       // Get workouts from the workout repository. Use cached data during
@@ -798,7 +863,14 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
         workoutsByTrainingCycleProvider(currentTrainingCycle.id),
       );
       if (cycleWorkoutsAsync.hasValue) {
-        _cachedWorkouts = cycleWorkoutsAsync.value;
+        final newWorkouts = cycleWorkoutsAsync.value;
+        if (!identical(newWorkouts, _cachedWorkouts)) {
+          _cachedWorkouts = newWorkouts;
+          // Provider refreshed (from toggle-log, add-set, etc.) —
+          // DB data is now authoritative, clear local overrides.
+          _localWeights.clear();
+          _localReps.clear();
+        }
       }
       if (_cachedWorkouts == null) {
         // First load — no cached data yet
@@ -1146,7 +1218,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     }
 
     // Collect all exercises from all workouts for this day
-    final allExercises = <dynamic>[];
+    final allExercises = <Exercise>[];
     for (var workout in dayWorkouts) {
       allExercises.addAll(workout.exercises);
     }
@@ -1164,6 +1236,12 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
         ),
       );
     }
+
+    // Batch-fetch previous performance for all exercises at once
+    final batchAsync = ref.watch(
+      previousPerformanceBatchProvider(allExercises),
+    );
+    final batchMap = batchAsync.value ?? <String, Exercise?>{};
 
     return ListView.separated(
       padding: const EdgeInsets.only(bottom: 80, top: 24),
@@ -1194,12 +1272,13 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
 
         final useMetric = ref.watch(useMetricProvider);
 
+        final mergedExercise = _applyLocalEdits(exercise);
         return RepaintBoundary(
           child: ExerciseCardWidget(
           key: ValueKey(
             '${exercise.id}_${exercise.sets.length}_${exercise.sets.map((s) => s.id).join(",")}',
           ),
-          exercise: exercise,
+          exercise: mergedExercise,
           showMuscleGroupBadge: showMuscleGroupBadge,
           targetRir: periodRir,
           weightUnit: ref.watch(weightUnitProvider),
@@ -1207,6 +1286,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
           showMoveDown: true,
           isFirstExercise: index == 0,
           isLastExercise: index == allExercises.length - 1,
+          previousPerformance: batchMap[exercise.id],
           callbacks: ExerciseCardCallbacks(
             onAddNote: (id) => _addNote(exercise.workoutId, id),
             onMoveUp: (id) => _moveExerciseUp(exercise.workoutId, id),

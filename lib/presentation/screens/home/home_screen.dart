@@ -2,15 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../core/extensions/context_extensions.dart';
-import '../../domain/providers/navigation_providers.dart';
-import '../../domain/providers/onboarding_providers.dart';
-import '../widgets/app_icon_widget.dart';
-import 'calendar_screen.dart';
-import 'cycle_list_screen.dart';
-import 'exercises_screen.dart';
-import 'more_screen.dart';
-import 'workout_screen.dart';
+import '../../../core/extensions/context_extensions.dart';
+import '../../../domain/providers/navigation_providers.dart';
+import '../../../domain/providers/onboarding_providers.dart';
+import '../../widgets/app_icon_widget.dart';
+import '../calendar/calendar_screen.dart';
+import '../training_cycles/cycle_list_screen.dart';
+import '../exercises/exercises_screen.dart';
+import '../more/more_screen.dart';
+import '../workout/workout_screen.dart';
 
 /// Main home screen with bottom navigation (mobile/tablet)
 /// or NavigationRail sidebar (desktop >= 1200dp).

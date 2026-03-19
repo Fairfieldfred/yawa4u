@@ -330,6 +330,16 @@ class WorkoutRepository {
     };
   }
 
+  /// Find the most recent pinned note for an exercise name, excluding a
+  /// specific exercise UUID. Uses a targeted DB query instead of loading all
+  /// workouts.
+  Future<String?> findPinnedNoteByExerciseName(
+    String name,
+    String excludeExerciseId,
+  ) {
+    return _exerciseDao.findPinnedNoteByName(name, excludeExerciseId);
+  }
+
   /// Get statistics for a specific trainingCycle
   Future<Map<String, dynamic>> getStatsForTrainingCycle(
     String trainingCycleId,

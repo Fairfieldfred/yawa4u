@@ -3,22 +3,22 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uuid/uuid.dart';
 
-import '../../core/constants/app_constants.dart';
-import '../../core/constants/enums.dart';
-import '../../core/constants/equipment_types.dart';
-import '../../core/constants/muscle_groups.dart';
-import '../../core/theme/skins/skins.dart';
-import '../../data/models/exercise.dart';
-import '../../data/models/exercise_set.dart';
-import '../../data/models/training_cycle.dart';
-import '../../data/models/training_cycle_template.dart';
-import '../../data/models/workout.dart';
-import '../../data/services/analytics_service.dart';
-import '../../domain/providers/database_providers.dart';
-import '../../domain/providers/navigation_providers.dart';
-import '../../domain/providers/onboarding_providers.dart';
-import '../../domain/providers/template_providers.dart';
-import '../../domain/providers/training_cycle_providers.dart';
+import '../../../core/constants/app_constants.dart';
+import '../../../core/constants/enums.dart';
+import '../../../core/constants/equipment_types.dart';
+import '../../../core/constants/muscle_groups.dart';
+import '../../../core/theme/skins/skins.dart';
+import '../../../data/models/exercise.dart';
+import '../../../data/models/exercise_set.dart';
+import '../../../data/models/training_cycle.dart';
+import '../../../data/models/training_cycle_template.dart';
+import '../../../data/models/workout.dart';
+import '../../../data/services/analytics_service.dart';
+import '../../../domain/providers/database_providers.dart';
+import '../../../domain/providers/navigation_providers.dart';
+import '../../../domain/providers/onboarding_providers.dart';
+import '../../../domain/providers/template_providers.dart';
+import '../../../domain/providers/training_cycle_providers.dart';
 
 /// TrainingCycle creation screen with form
 class TrainingCycleCreateScreen extends ConsumerStatefulWidget {
