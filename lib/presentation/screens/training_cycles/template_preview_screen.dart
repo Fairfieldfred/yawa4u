@@ -7,8 +7,6 @@ import '../../../data/models/training_cycle_template.dart';
 import '../../../domain/providers/database_providers.dart';
 import '../../../domain/providers/navigation_providers.dart';
 import '../../../domain/providers/template_providers.dart';
-import '../../../domain/providers/training_cycle_providers.dart';
-import '../../../domain/providers/workout_providers.dart';
 
 class TemplatePreviewScreen extends ConsumerStatefulWidget {
   final TrainingCycleTemplate template;
@@ -45,14 +43,9 @@ class _TemplatePreviewScreenState extends ConsumerState<TemplatePreviewScreen> {
         await workoutRepository.create(workout);
       }
 
-      // Invalidate providers to ensure fresh data is loaded
-      ref.invalidate(trainingCyclesProvider);
-      ref.invalidate(workoutsProvider);
-
       if (mounted) {
         // Set tab to TrainingCycles (index 1) to show the draft
         ref.read(homeTabIndexProvider.notifier).setTab(HomeTab.trainingCycles);
-        // Navigate to home
         context.go('/');
       }
     } catch (e) {

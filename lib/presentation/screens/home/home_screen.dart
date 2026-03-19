@@ -56,6 +56,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final selectedIndex = ref.watch(homeTabIndexProvider);
+    _visitedTabs.add(selectedIndex);
     final cycleTermPlural = ref.watch(trainingCycleTermPluralProvider);
     final isDesktop = context.isDesktop;
 
