@@ -1,7 +1,6 @@
 import 'package:drift/drift.dart' hide isNull, isNotNull;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:yawa4u/core/constants/enums.dart';
 import 'package:yawa4u/data/database/database.dart';
 import 'package:yawa4u/data/repositories/training_cycle_repository.dart';
 import 'package:yawa4u/data/repositories/workout_repository.dart';

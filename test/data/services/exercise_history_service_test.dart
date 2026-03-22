@@ -29,7 +29,7 @@ void main() {
     late ExerciseHistoryService service;
     final currentExerciseId = 'current-ex-id';
 
-    Workout _makeCompletedWorkout({
+    Workout makeCompletedWorkout({
       required String exerciseName,
       required List<ExerciseSet> sets,
       DateTime? completedDate,
@@ -61,7 +61,7 @@ void main() {
       });
 
       test('excludes exercise with currentExerciseId', () async {
-        final workout = _makeCompletedWorkout(
+        final workout = makeCompletedWorkout(
           exerciseName: 'Bench Press',
           exerciseId: currentExerciseId,
           sets: [TestFixtures.createExerciseSet(isLogged: true)],
@@ -75,7 +75,7 @@ void main() {
       });
 
       test('returns most recent logged exercise', () async {
-        final older = _makeCompletedWorkout(
+        final older = makeCompletedWorkout(
           exerciseName: 'Bench Press',
           exerciseId: 'old-id',
           completedDate: DateTime(2024, 1, 1),
@@ -87,7 +87,7 @@ void main() {
             ),
           ],
         );
-        final newer = _makeCompletedWorkout(
+        final newer = makeCompletedWorkout(
           exerciseName: 'Bench Press',
           exerciseId: 'new-id',
           completedDate: DateTime(2024, 3, 1),
@@ -109,7 +109,7 @@ void main() {
       });
 
       test('case-insensitive name matching', () async {
-        final workout = _makeCompletedWorkout(
+        final workout = makeCompletedWorkout(
           exerciseName: 'BENCH PRESS',
           sets: [TestFixtures.createExerciseSet(isLogged: true)],
         );
@@ -122,7 +122,7 @@ void main() {
       });
 
       test('ignores exercises with no logged sets', () async {
-        final workout = _makeCompletedWorkout(
+        final workout = makeCompletedWorkout(
           exerciseName: 'Bench Press',
           sets: [TestFixtures.createExerciseSet(isLogged: false)],
         );
@@ -146,7 +146,7 @@ void main() {
       });
 
       test('returns only logged sets', () async {
-        final workout = _makeCompletedWorkout(
+        final workout = makeCompletedWorkout(
           exerciseName: 'Bench Press',
           sets: [
             TestFixtures.createExerciseSet(
@@ -187,7 +187,7 @@ void main() {
       });
 
       test('returns weight at matching set index', () async {
-        final workout = _makeCompletedWorkout(
+        final workout = makeCompletedWorkout(
           exerciseName: 'Bench Press',
           sets: [
             TestFixtures.createExerciseSet(
@@ -214,7 +214,7 @@ void main() {
       });
 
       test('falls back to last set weight when index exceeds count', () async {
-        final workout = _makeCompletedWorkout(
+        final workout = makeCompletedWorkout(
           exerciseName: 'Bench Press',
           sets: [
             TestFixtures.createExerciseSet(
@@ -451,7 +451,7 @@ void main() {
 
     group('getAutoPopulateWeightWithSuggestion', () {
       test('returns suggestion when all reps were hit', () async {
-        final workout = _makeCompletedWorkout(
+        final workout = makeCompletedWorkout(
           exerciseName: 'Bench Press',
           equipmentType: EquipmentType.barbell,
           sets: [
@@ -477,7 +477,7 @@ void main() {
 
       test('returns base weight without suggestion when reps were ranges',
           () async {
-        final workout = _makeCompletedWorkout(
+        final workout = makeCompletedWorkout(
           exerciseName: 'Bench Press',
           equipmentType: EquipmentType.barbell,
           sets: [
@@ -502,7 +502,7 @@ void main() {
       });
 
       test('returns no suggestion for bodyweight exercises', () async {
-        final workout = _makeCompletedWorkout(
+        final workout = makeCompletedWorkout(
           exerciseName: 'Pull Up',
           equipmentType: EquipmentType.bodyweightOnly,
           sets: [
@@ -535,13 +535,13 @@ void main() {
       });
 
       test('returns entries sorted most recent first', () async {
-        final older = _makeCompletedWorkout(
+        final older = makeCompletedWorkout(
           exerciseName: 'Bench Press',
           exerciseId: 'old',
           completedDate: DateTime(2024, 1, 1),
           sets: [TestFixtures.createExerciseSet(isLogged: true)],
         );
-        final newer = _makeCompletedWorkout(
+        final newer = makeCompletedWorkout(
           exerciseName: 'Bench Press',
           exerciseId: 'new',
           completedDate: DateTime(2024, 3, 1),
@@ -557,7 +557,7 @@ void main() {
     group('clearCache', () {
       test('causes next lookup to re-fetch workouts', () async {
         final workouts = [
-          _makeCompletedWorkout(
+          makeCompletedWorkout(
             exerciseName: 'Bench Press',
             sets: [TestFixtures.createExerciseSet(isLogged: true)],
           ),
