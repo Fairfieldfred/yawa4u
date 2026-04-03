@@ -1,8 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:yawa4u/core/constants/enums.dart';
 import 'package:yawa4u/core/constants/equipment_types.dart';
-import 'package:yawa4u/core/constants/muscle_groups.dart';
-import 'package:yawa4u/data/models/exercise.dart';
 import 'package:yawa4u/data/models/exercise_set.dart';
 import 'package:yawa4u/data/models/workout.dart';
 import 'package:yawa4u/data/repositories/workout_repository.dart';
@@ -204,11 +202,19 @@ void main() {
         );
         service = ExerciseHistoryService(FakeWorkoutRepository([workout]));
         expect(
-          await service.getAutoPopulateWeight('Bench Press', currentExerciseId, 0),
+          await service.getAutoPopulateWeight(
+            'Bench Press',
+            currentExerciseId,
+            0,
+          ),
           100,
         );
         expect(
-          await service.getAutoPopulateWeight('Bench Press', currentExerciseId, 1),
+          await service.getAutoPopulateWeight(
+            'Bench Press',
+            currentExerciseId,
+            1,
+          ),
           110,
         );
       });
@@ -226,7 +232,11 @@ void main() {
         );
         service = ExerciseHistoryService(FakeWorkoutRepository([workout]));
         expect(
-          await service.getAutoPopulateWeight('Bench Press', currentExerciseId, 5),
+          await service.getAutoPopulateWeight(
+            'Bench Press',
+            currentExerciseId,
+            5,
+          ),
           100,
         );
       });
@@ -384,27 +394,21 @@ void main() {
 
       test('returns false for range reps like 8-12', () {
         final exercise = TestFixtures.createExercise(
-          sets: [
-            TestFixtures.createExerciseSet(reps: '8-12', isLogged: true),
-          ],
+          sets: [TestFixtures.createExerciseSet(reps: '8-12', isLogged: true)],
         );
         expect(service.didHitAllReps(exercise), false);
       });
 
       test('returns false for RIR format', () {
         final exercise = TestFixtures.createExercise(
-          sets: [
-            TestFixtures.createExerciseSet(reps: '2 RIR', isLogged: true),
-          ],
+          sets: [TestFixtures.createExerciseSet(reps: '2 RIR', isLogged: true)],
         );
         expect(service.didHitAllReps(exercise), false);
       });
 
       test('returns false for empty reps', () {
         final exercise = TestFixtures.createExercise(
-          sets: [
-            TestFixtures.createExerciseSet(reps: '', isLogged: true),
-          ],
+          sets: [TestFixtures.createExerciseSet(reps: '', isLogged: true)],
         );
         expect(service.didHitAllReps(exercise), false);
       });
@@ -438,7 +442,10 @@ void main() {
       });
 
       test('returns null for bodyweight only', () {
-        expect(service.getWeightIncrement(EquipmentType.bodyweightOnly), isNull);
+        expect(
+          service.getWeightIncrement(EquipmentType.bodyweightOnly),
+          isNull,
+        );
       });
 
       test('returns null for bodyweight loadable', () {
@@ -490,16 +497,17 @@ void main() {
         );
         service = ExerciseHistoryService(FakeWorkoutRepository([workout]));
 
-        final result = await service.getAutoPopulateWeightWithSuggestion(
-          'Bench Press',
-          currentExerciseId,
-          0,
-          EquipmentType.barbell,
-        );
+          final result = await service.getAutoPopulateWeightWithSuggestion(
+            'Bench Press',
+            currentExerciseId,
+            0,
+            EquipmentType.barbell,
+          );
 
-        expect(result.weight, 100.0);
-        expect(result.hasSuggestion, false);
-      });
+          expect(result.weight, 100.0);
+          expect(result.hasSuggestion, false);
+        },
+      );
 
       test('returns no suggestion for bodyweight exercises', () async {
         final workout = makeCompletedWorkout(

@@ -643,9 +643,13 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
       }
     }
 
-    // Batch-fetch previous performance for all exercises at once
+    // Batch-fetch previous performance using a stable string key
+    // to avoid infinite rebuild loops from list identity changes.
+    final batchKey = batchProviderKey(
+      allExercises.map((e) => (id: e.id, name: e.name)).toList(),
+    );
     final batchAsync = ref.watch(
-      previousPerformanceBatchProvider(allExercises),
+      previousPerformanceBatchProvider(batchKey),
     );
     final batchMap = batchAsync.value ?? <String, Exercise?>{};
 

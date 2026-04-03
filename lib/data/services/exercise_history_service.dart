@@ -68,6 +68,18 @@ class ExerciseHistoryService {
   Future<Map<String, Exercise?>> getPreviousPerformanceBatch(
     List<Exercise> exercises,
   ) async {
+    return getPreviousPerformanceBatchByKey(
+      exercises.map((e) => (id: e.id, name: e.name)).toList(),
+    );
+  }
+
+  /// Get previous performance using lightweight id/name pairs.
+  ///
+  /// Avoids requiring full [Exercise] objects, which enables providers
+  /// to use a stable string key instead of a list reference.
+  Future<Map<String, Exercise?>> getPreviousPerformanceBatchByKey(
+    List<({String id, String name})> exercises,
+  ) async {
     final allWorkouts = await _getAllCached();
     final result = <String, Exercise?>{};
 

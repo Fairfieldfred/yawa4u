@@ -62,14 +62,16 @@ void main() {
     required int day,
     DateTime? scheduledDate,
   }) async {
-    await workoutRepo.create(TestFixtures.createWorkout(
-      id: id,
-      trainingCycleId: cycleId,
-      periodNumber: period,
-      dayNumber: day,
-      scheduledDate: scheduledDate,
-      exercises: [],
-    ));
+    await workoutRepo.create(
+      TestFixtures.createWorkout(
+        id: id,
+        trainingCycleId: cycleId,
+        periodNumber: period,
+        dayNumber: day,
+        scheduledDate: scheduledDate,
+        exercises: [],
+      ),
+    );
   }
 
   group('shiftTrainingCycleStart', () {

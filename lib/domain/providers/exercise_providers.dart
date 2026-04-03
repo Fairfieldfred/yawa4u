@@ -259,15 +259,34 @@ final previousPerformanceProvider = FutureProvider.autoDispose.family<Exercise?,
   return service.getPreviousPerformance(params.name, params.currentId);
 });
 
+/// Build a stable, deterministic key from exercise id/name pairs.
+///
+/// Sorted by id so the same set of exercises always produces the
+/// same string, regardless of list order. This prevents Riverpod's
+/// `.family` from creating a new provider instance on every build
+/// (Dart lists use identity equality, causing infinite rebuild loops).
+String batchProviderKey(List<({String id, String name})> exercises) {
+  final sorted = [...exercises]..sort((a, b) => a.id.compareTo(b.id));
+  return sorted.map((e) => '${e.id}\t${e.name}').join('\n');
+}
+
 /// Batch provider for previous performance of multiple exercises.
 ///
-/// Fetches previous performance for all exercises in a single pass,
-/// returning a map of exerciseId → previous Exercise.
+/// Accepts a stable string key (from [batchProviderKey]) instead of
+/// a `List<Exercise>` to avoid rebuild loops from list identity changes.
 final previousPerformanceBatchProvider =
-    FutureProvider.autoDispose.family<Map<String, Exercise?>, List<Exercise>>((
+    FutureProvider.autoDispose.family<Map<String, Exercise?>, String>((
       ref,
-      exercises,
+      key,
     ) async {
+      if (key.isEmpty) return {};
       final service = ref.watch(exerciseHistoryServiceProvider);
-      return service.getPreviousPerformanceBatch(exercises);
+      final entries = key.split('\n').map((line) {
+        final tabIndex = line.indexOf('\t');
+        return (
+          id: line.substring(0, tabIndex),
+          name: line.substring(tabIndex + 1),
+        );
+      }).toList();
+      return service.getPreviousPerformanceBatchByKey(entries);
     });
