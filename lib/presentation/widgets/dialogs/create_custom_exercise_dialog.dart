@@ -24,12 +24,14 @@ class _CreateCustomExerciseDialogState
   MuscleGroup _selectedMuscleGroup = MuscleGroup.chest;
   MuscleGroup? _selectedSecondaryMuscleGroup;
   EquipmentType _selectedEquipmentType = EquipmentType.barbell;
+  final _restSecondsController = TextEditingController();
   bool _isSubmitting = false;
   String? _errorMessage;
 
   @override
   void dispose() {
     _nameController.dispose();
+    _restSecondsController.dispose();
     super.dispose();
   }
 
@@ -58,12 +60,17 @@ class _CreateCustomExerciseDialogState
     });
 
     try {
+      final restSeconds = _restSecondsController.text.trim().isNotEmpty
+          ? int.tryParse(_restSecondsController.text.trim())
+          : null;
+
       final customExercise = CustomExerciseDefinition(
         id: const Uuid().v4(),
         name: name,
         muscleGroup: _selectedMuscleGroup,
         secondaryMuscleGroup: _selectedSecondaryMuscleGroup,
         equipmentType: _selectedEquipmentType,
+        restSeconds: restSeconds,
       );
 
       final repository = ref.read(customExerciseRepositoryProvider);
@@ -216,6 +223,31 @@ class _CreateCustomExerciseDialogState
                   if (value != null) {
                     setState(() => _selectedEquipmentType = value);
                   }
+                },
+              ),
+              const SizedBox(height: 16),
+
+              // Rest timer (optional)
+              TextFormField(
+                controller: _restSecondsController,
+                decoration: InputDecoration(
+                  labelText: 'Rest Timer (Optional)',
+                  hintText: 'e.g., 90',
+                  suffixText: 'seconds',
+                  prefixIcon: const Icon(Icons.timer),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                keyboardType: TextInputType.number,
+                validator: (value) {
+                  if (value != null && value.trim().isNotEmpty) {
+                    final parsed = int.tryParse(value.trim());
+                    if (parsed == null || parsed < 0 || parsed > 600) {
+                      return 'Enter a value between 0 and 600';
+                    }
+                  }
+                  return null;
                 },
               ),
               const SizedBox(height: 16),

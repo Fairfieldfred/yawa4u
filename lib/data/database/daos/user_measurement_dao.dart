@@ -75,6 +75,23 @@ class UserMeasurementDao extends DatabaseAccessor<AppDatabase>
     return (delete(userMeasurements)..where((m) => m.uuid.equals(uuid))).go();
   }
 
+  /// Update a measurement by UUID
+  Future<int> updateByUuid(
+    String uuid,
+    UserMeasurementsCompanion measurement,
+  ) {
+    return (update(userMeasurements)..where((m) => m.uuid.equals(uuid)))
+        .write(measurement);
+  }
+
+  /// Get count of measurements
+  Future<int> countRows() async {
+    final countExp = userMeasurements.id.count();
+    final query = selectOnly(userMeasurements)..addColumns([countExp]);
+    final result = await query.getSingle();
+    return result.read(countExp)!;
+  }
+
   /// Delete all measurements
   Future<int> deleteAll() {
     return delete(userMeasurements).go();

@@ -33,6 +33,7 @@ class SentryService {
 
     if (!SentryConfig.shouldInitialize) {
       _debugPrint('⚠️ Sentry initialization skipped (DSN not configured)');
+      _setupFallbackErrorHandlers();
       await appRunner();
       return;
     }
@@ -79,6 +80,7 @@ class SentryService {
       _debugPrint('❌ Sentry initialization failed: $e');
       _debugPrint('   Stack: $stackTrace');
       // Still run the app even if Sentry fails
+      _setupFallbackErrorHandlers();
       await appRunner();
     }
   }
@@ -309,6 +311,25 @@ class SentryService {
     if (dsn.isEmpty) return '<empty>';
     if (dsn.length < 20) return '<too short>';
     return '${dsn.substring(0, 10)}...${dsn.substring(dsn.length - 10)}';
+  }
+
+  /// Set up fallback error handlers when Sentry is not available.
+  ///
+  /// Ensures Flutter framework errors and unhandled platform errors are
+  /// at least logged to the console instead of being silently lost.
+  void _setupFallbackErrorHandlers() {
+    FlutterError.onError = (FlutterErrorDetails details) {
+      FlutterError.presentError(details);
+      _debugPrint('❌ FlutterError: ${details.exception}');
+    };
+
+    PlatformDispatcher.instance.onError = (error, stack) {
+      _debugPrint('❌ Unhandled platform error: $error');
+      _debugPrint('   Stack: $stack');
+      return true;
+    };
+
+    _debugPrint('✅ Fallback error handlers configured');
   }
 
   /// Debug print helper (only in debug mode).

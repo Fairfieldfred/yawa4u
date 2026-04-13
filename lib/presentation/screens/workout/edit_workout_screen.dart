@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../core/constants/app_constants.dart';
@@ -159,8 +160,10 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
       },
       loading: () =>
           const Scaffold(body: Center(child: CircularProgressIndicator())),
-      error: (error, stack) =>
-          Scaffold(body: Center(child: Text('Error: $error'))),
+      error: (error, stack) {
+        Sentry.captureException(error, stackTrace: stack);
+        return Scaffold(body: Center(child: Text('Error: $error')));
+      },
     );
   }
 

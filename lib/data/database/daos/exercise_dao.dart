@@ -51,10 +51,10 @@ class ExerciseDao extends DatabaseAccessor<AppDatabase>
     )..where((e) => e.uuid.equals(uuid))).watchSingleOrNull();
   }
 
-  /// Get exercises by name (for history lookup)
+  /// Get exercises by name (case-insensitive, for history lookup)
   Future<List<Exercise>> getByName(String name) {
     return (select(exercises)
-          ..where((e) => e.name.equals(name))
+          ..where((e) => e.name.collate(Collate.noCase).equals(name))
           ..orderBy([(e) => OrderingTerm.desc(e.lastPerformed)]))
         .get();
   }
@@ -115,6 +115,65 @@ class ExerciseDao extends DatabaseAccessor<AppDatabase>
     if (result == null) return null;
     final note = result.notes;
     return (note != null && note.isNotEmpty) ? note : null;
+  }
+
+  /// Get exercises by muscle group index
+  Future<List<Exercise>> getByMuscleGroup(int muscleGroupIndex) {
+    return (select(exercises)
+          ..where((e) => e.muscleGroup.equals(muscleGroupIndex)))
+        .get();
+  }
+
+  /// Get exercises by equipment type index
+  Future<List<Exercise>> getByEquipmentType(int equipmentTypeIndex) {
+    return (select(exercises)
+          ..where((e) => e.equipmentType.equals(equipmentTypeIndex)))
+        .get();
+  }
+
+  /// Search exercises by name (case-insensitive partial match)
+  Future<List<Exercise>> searchByName(String query) {
+    return (select(exercises)
+          ..where(
+            (e) => e.name.collate(Collate.noCase).like('%$query%'),
+          ))
+        .get();
+  }
+
+  /// Get count of all exercises
+  Future<int> countRows() async {
+    final countExp = exercises.id.count();
+    final query = selectOnly(exercises)..addColumns([countExp]);
+    final result = await query.getSingle();
+    return result.read(countExp)!;
+  }
+
+  /// Cascade delete an exercise and its sets and feedback.
+  Future<void> cascadeDeleteByUuid(String exerciseUuid) async {
+    await customStatement(
+      'DELETE FROM exercise_feedbacks WHERE exercise_uuid = ?',
+      [exerciseUuid],
+    );
+    await customStatement(
+      'DELETE FROM exercise_sets WHERE exercise_uuid = ?',
+      [exerciseUuid],
+    );
+    await deleteByUuid(exerciseUuid);
+  }
+
+  /// Cascade delete all exercises for a workout (sets + feedbacks too).
+  Future<void> cascadeDeleteByWorkoutUuid(String workoutUuid) async {
+    await customStatement(
+      'DELETE FROM exercise_feedbacks WHERE exercise_uuid IN '
+      '(SELECT uuid FROM exercises WHERE workout_uuid = ?)',
+      [workoutUuid],
+    );
+    await customStatement(
+      'DELETE FROM exercise_sets WHERE exercise_uuid IN '
+      '(SELECT uuid FROM exercises WHERE workout_uuid = ?)',
+      [workoutUuid],
+    );
+    await deleteByWorkoutUuid(workoutUuid);
   }
 
   /// Delete all exercises

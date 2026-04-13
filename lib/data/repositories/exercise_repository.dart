@@ -7,7 +7,7 @@ import '../models/exercise.dart';
 import '../models/exercise_set.dart';
 
 /// Repository for Exercise CRUD operations using Drift
-/// Handles loading complete exercise hierarchy (exercise → sets)
+/// Handles loading complete exercise hierarchy (exercise -> sets)
 class ExerciseRepository {
   final ExerciseDao _exerciseDao;
   final ExerciseSetDao _exerciseSetDao;
@@ -26,36 +26,31 @@ class ExerciseRepository {
     return ExerciseMapper.fromRow(row, sets: sets);
   }
 
-  /// Watch all exercises (for reactive UI updates)
-  Stream<List<Exercise>> watchAll() {
-    return _exerciseDao.watchAll().asyncMap((rows) async {
-      final exercises = <Exercise>[];
-      for (final row in rows) {
-        exercises.add(await _mapRowToExercise(row));
-      }
-      return exercises;
-    });
-  }
-
-  /// Watch exercises for a specific workout
-  Stream<List<Exercise>> watchByWorkoutId(String workoutId) {
-    return _exerciseDao.watchByWorkoutUuid(workoutId).asyncMap((rows) async {
-      final exercises = <Exercise>[];
-      for (final row in rows) {
-        exercises.add(await _mapRowToExercise(row));
-      }
-      return exercises;
-    });
-  }
-
-  /// Get all exercises
-  Future<List<Exercise>> getAll() async {
-    final rows = await _exerciseDao.getAll();
+  /// Map a list of rows to Exercise models with sets
+  Future<List<Exercise>> _mapRowsToExercises(Iterable<dynamic> rows) async {
     final exercises = <Exercise>[];
     for (final row in rows) {
       exercises.add(await _mapRowToExercise(row));
     }
     return exercises;
+  }
+
+  /// Watch all exercises (for reactive UI updates)
+  Stream<List<Exercise>> watchAll() {
+    return _exerciseDao.watchAll().asyncMap(_mapRowsToExercises);
+  }
+
+  /// Watch exercises for a specific workout
+  Stream<List<Exercise>> watchByWorkoutId(String workoutId) {
+    return _exerciseDao
+        .watchByWorkoutUuid(workoutId)
+        .asyncMap(_mapRowsToExercises);
+  }
+
+  /// Get all exercises
+  Future<List<Exercise>> getAll() async {
+    final rows = await _exerciseDao.getAll();
+    return _mapRowsToExercises(rows);
   }
 
   /// Get exercise by ID
@@ -68,52 +63,32 @@ class ExerciseRepository {
   /// Get exercises by workout ID
   Future<List<Exercise>> getByWorkoutId(String workoutId) async {
     final rows = await _exerciseDao.getByWorkoutUuid(workoutId);
-    final exercises = <Exercise>[];
-    for (final row in rows) {
-      exercises.add(await _mapRowToExercise(row));
-    }
-    exercises.sort((a, b) => a.orderIndex.compareTo(b.orderIndex));
-    return exercises;
+    return _mapRowsToExercises(rows);
   }
 
-  /// Get exercises by muscle group
+  /// Get exercises by muscle group (uses indexed DB query)
   Future<List<Exercise>> getByMuscleGroup(MuscleGroup muscleGroup) async {
-    final rows = await _exerciseDao.getAll();
-    final filtered = rows.where((row) => row.muscleGroup == muscleGroup.index);
-    final exercises = <Exercise>[];
-    for (final row in filtered) {
-      exercises.add(await _mapRowToExercise(row));
-    }
-    return exercises;
+    final rows = await _exerciseDao.getByMuscleGroup(muscleGroup.index);
+    return _mapRowsToExercises(rows);
   }
 
-  /// Get exercises by equipment type
+  /// Get exercises by equipment type (uses indexed DB query)
   Future<List<Exercise>> getByEquipmentType(EquipmentType equipmentType) async {
-    final rows = await _exerciseDao.getAll();
-    final filtered = rows.where(
-      (row) => row.equipmentType == equipmentType.index,
-    );
-    final exercises = <Exercise>[];
-    for (final row in filtered) {
-      exercises.add(await _mapRowToExercise(row));
-    }
-    return exercises;
+    final rows = await _exerciseDao.getByEquipmentType(equipmentType.index);
+    return _mapRowsToExercises(rows);
   }
 
   /// Get exercises by name (exact match)
   Future<List<Exercise>> getByName(String name) async {
-    final all = await getAll();
-    return all
-        .where((e) => e.name.toLowerCase() == name.toLowerCase())
-        .toList();
+    final rows = await _exerciseDao.getByName(name);
+    return _mapRowsToExercises(rows);
   }
 
-  /// Search exercises by name (partial match)
+  /// Search exercises by name (uses DB LIKE query)
   Future<List<Exercise>> searchByName(String query) async {
     if (query.isEmpty) return getAll();
-    final lowerQuery = query.toLowerCase();
-    final all = await getAll();
-    return all.where((e) => e.name.toLowerCase().contains(lowerQuery)).toList();
+    final rows = await _exerciseDao.searchByName(query);
+    return _mapRowsToExercises(rows);
   }
 
   /// Create a new exercise with its sets
@@ -155,14 +130,9 @@ class ExerciseRepository {
     }
   }
 
-  /// Delete an exercise and its sets
+  /// Delete an exercise and its sets and feedback (cascade)
   Future<void> delete(String id) async {
-    // Delete all sets first
-    final sets = await _exerciseSetDao.getByExerciseUuid(id);
-    for (final set in sets) {
-      await _exerciseSetDao.deleteByUuid(set.uuid);
-    }
-    await _exerciseDao.deleteByUuid(id);
+    await _exerciseDao.cascadeDeleteByUuid(id);
   }
 
   /// Delete all exercises and their sets
@@ -171,12 +141,9 @@ class ExerciseRepository {
     await _exerciseDao.deleteAll();
   }
 
-  /// Delete all exercises for a workout
+  /// Delete all exercises for a workout (cascade deletes sets + feedbacks)
   Future<void> deleteByWorkoutId(String workoutId) async {
-    final exercises = await getByWorkoutId(workoutId);
-    for (final exercise in exercises) {
-      await delete(exercise.id);
-    }
+    await _exerciseDao.cascadeDeleteByWorkoutUuid(workoutId);
   }
 
   /// Get completed exercises (all sets logged)
@@ -197,10 +164,9 @@ class ExerciseRepository {
     return all.where((e) => e.hasMyorepSets).toList();
   }
 
-  /// Get total count
+  /// Get total count (uses SQL COUNT instead of loading all rows)
   Future<int> count() async {
-    final all = await getAll();
-    return all.length;
+    return _exerciseDao.countRows();
   }
 
   /// Clear all exercises

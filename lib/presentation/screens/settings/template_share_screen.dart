@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 import '../../../core/theme/skins/skins.dart';
@@ -238,12 +239,15 @@ class _TemplateShareScreenState extends ConsumerState<TemplateShareScreen> {
                 return _buildSelectionView(templates);
               },
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (error, stack) => Center(
-                child: Text(
-                  'Error: $error',
-                  style: TextStyle(color: context.errorColor),
-                ),
-              ),
+              error: (error, stack) {
+                Sentry.captureException(error, stackTrace: stack);
+                return Center(
+                  child: Text(
+                    'Error: $error',
+                    style: TextStyle(color: context.errorColor),
+                  ),
+                );
+              },
             ),
     );
   }

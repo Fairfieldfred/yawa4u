@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 import '../../../core/constants/enums.dart';
 import '../../../core/constants/equipment_types.dart';
@@ -160,25 +161,28 @@ class _CompletedCycleWorkoutScreenState
         ),
         body: const Center(child: CircularProgressIndicator()),
       ),
-      error: (error, stack) => Scaffold(
-        appBar: AppBar(
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () => context.pop(),
+      error: (error, stack) {
+        Sentry.captureException(error, stackTrace: stack);
+        return Scaffold(
+          appBar: AppBar(
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back),
+              onPressed: () => context.pop(),
+            ),
+            title: const Text('Error'),
           ),
-          title: const Text('Error'),
-        ),
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.error_outline, size: 64, color: context.errorColor),
-              const SizedBox(height: 16),
-              Text('Error loading trainingCycle: $error'),
-            ],
+          body: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.error_outline, size: 64, color: context.errorColor),
+                const SizedBox(height: 16),
+                Text('Error loading trainingCycle: $error'),
+              ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 

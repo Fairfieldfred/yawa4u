@@ -34,6 +34,8 @@ class Workouts extends Table {
   IntColumn get status => integer()(); // WorkoutStatus enum
   DateTimeColumn get scheduledDate => dateTime().nullable()();
   DateTimeColumn get completedDate => dateTime().nullable()();
+  DateTimeColumn get startTime => dateTime().nullable()();
+  DateTimeColumn get endTime => dateTime().nullable()();
   TextColumn get notes => text().nullable()();
 }
 
@@ -53,6 +55,7 @@ class Exercises extends Table {
   DateTimeColumn get lastPerformed => dateTime().nullable()();
   TextColumn get videoUrl => text().nullable()();
   BoolColumn get isNotePinned => boolean().withDefault(const Constant(false))();
+  IntColumn get restSeconds => integer().nullable()();
 }
 
 /// Exercise Sets table - individual sets within exercises
@@ -93,6 +96,7 @@ class CustomExerciseDefinitions extends Table {
       integer().nullable()(); // MuscleGroup enum (optional)
   IntColumn get equipmentType => integer()(); // EquipmentType enum
   TextColumn get videoUrl => text().nullable()();
+  IntColumn get restSeconds => integer().nullable()();
   DateTimeColumn get createdAt => dateTime()();
 }
 

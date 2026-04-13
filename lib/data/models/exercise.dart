@@ -8,6 +8,8 @@ import 'exercise_set.dart';
 
 part 'exercise.g.dart';
 
+const _sentinel = Object();
+
 /// Represents an exercise within a workout
 ///
 /// Contains exercise details, sets, feedback, and tracking information.
@@ -27,6 +29,7 @@ class Exercise {
   final DateTime? lastPerformed;
   final String? videoUrl;
   final bool isNotePinned;
+  final int? restSeconds;
 
   Exercise({
     required this.id,
@@ -43,6 +46,7 @@ class Exercise {
     this.lastPerformed,
     this.videoUrl,
     this.isNotePinned = false,
+    this.restSeconds,
   }) : sets = sets ?? [];
 
   /// Get total number of sets
@@ -118,6 +122,7 @@ class Exercise {
     DateTime? lastPerformed,
     String? videoUrl,
     bool? isNotePinned,
+    Object? restSeconds = _sentinel,
   }) {
     return Exercise(
       id: id ?? this.id,
@@ -134,6 +139,8 @@ class Exercise {
       lastPerformed: lastPerformed ?? this.lastPerformed,
       videoUrl: videoUrl ?? this.videoUrl,
       isNotePinned: isNotePinned ?? this.isNotePinned,
+      restSeconds:
+          restSeconds == _sentinel ? this.restSeconds : restSeconds as int?,
     );
   }
 

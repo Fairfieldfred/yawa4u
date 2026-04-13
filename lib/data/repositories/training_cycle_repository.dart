@@ -22,13 +22,10 @@ class TrainingCycleRepository {
     return rows.map((row) => TrainingCycleMapper.fromRow(row)).toList();
   }
 
-  /// Get trainingCycles by status
+  /// Get trainingCycles by status (uses indexed DB query)
   Future<List<TrainingCycle>> getByStatus(TrainingCycleStatus status) async {
-    final rows = await _dao.getAllSorted();
-    return rows
-        .where((row) => row.status == status.index)
-        .map((row) => TrainingCycleMapper.fromRow(row))
-        .toList();
+    final rows = await _dao.getByStatus(status.index);
+    return rows.map((row) => TrainingCycleMapper.fromRow(row)).toList();
   }
 
   /// Get current (active) trainingCycle
@@ -80,13 +77,8 @@ class TrainingCycleRepository {
     final trainingCycle = await getById(id);
     if (trainingCycle == null) return;
 
-    // Deactivate all other trainingCycles
-    final all = await getAll();
-    for (final m in all) {
-      if (m.id != id && m.status == TrainingCycleStatus.current) {
-        await update(m.copyWith(status: TrainingCycleStatus.draft));
-      }
-    }
+    // Deactivate all current trainingCycles in one query
+    await _dao.deactivateAllCurrent();
 
     // Activate the selected trainingCycle
     await update(trainingCycle.start());
@@ -124,39 +116,31 @@ class TrainingCycleRepository {
     return duplicated;
   }
 
-  /// Get total count
+  /// Get total count (uses SQL COUNT instead of loading all rows)
   Future<int> count() async {
-    final all = await getAll();
-    return all.length;
+    return _dao.countRows();
   }
 
   /// Clear all trainingCycles (use with caution!)
   Future<void> clear() async {
-    final all = await getAll();
-    for (final m in all) {
-      await delete(m.id);
-    }
+    await _dao.deleteAll();
   }
 
   /// Get trainingCycles sorted by creation date (newest first)
-  Future<List<TrainingCycle>> getAllSorted() async {
-    final all = await getAll();
-    all.sort((a, b) => b.createdDate.compareTo(a.createdDate));
-    return all;
-  }
+  ///
+  /// Note: [getAll] already returns sorted results from the DAO.
+  Future<List<TrainingCycle>> getAllSorted() => getAll();
 
-  /// Search trainingCycles by name
+  /// Search trainingCycles by name (uses indexed DB query)
   Future<List<TrainingCycle>> searchByName(String query) async {
     if (query.isEmpty) return getAll();
-
-    final lowerQuery = query.toLowerCase();
-    final all = await getAll();
-    return all.where((m) => m.name.toLowerCase().contains(lowerQuery)).toList();
+    final rows = await _dao.searchByName(query);
+    return rows.map((row) => TrainingCycleMapper.fromRow(row)).toList();
   }
 
-  /// Get trainingCycles by template name
+  /// Get trainingCycles by template name (uses DB query)
   Future<List<TrainingCycle>> getByTemplate(String templateName) async {
-    final all = await getAll();
-    return all.where((m) => m.templateName == templateName).toList();
+    final rows = await _dao.getByTemplateName(templateName);
+    return rows.map((row) => TrainingCycleMapper.fromRow(row)).toList();
   }
 }

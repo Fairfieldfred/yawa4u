@@ -22,6 +22,7 @@ class CustomExerciseMapper {
           : null,
       equipmentType: EquipmentType.values[row.equipmentType],
       videoUrl: row.videoUrl,
+      restSeconds: row.restSeconds,
       createdAt: row.createdAt,
     );
   }
@@ -37,6 +38,7 @@ class CustomExerciseMapper {
       secondaryMuscleGroup: Value(exercise.secondaryMuscleGroup?.index),
       equipmentType: Value(exercise.equipmentType.index),
       videoUrl: Value(exercise.videoUrl),
+      restSeconds: Value(exercise.restSeconds),
       createdAt: Value(exercise.createdAt),
     );
   }

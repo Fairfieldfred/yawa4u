@@ -1004,6 +1004,28 @@ class $WorkoutsTable extends Workouts with TableInfo<$WorkoutsTable, Workout> {
         type: DriftSqlType.dateTime,
         requiredDuringInsert: false,
       );
+  static const VerificationMeta _startTimeMeta = const VerificationMeta(
+    'startTime',
+  );
+  @override
+  late final GeneratedColumn<DateTime> startTime = GeneratedColumn<DateTime>(
+    'start_time',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _endTimeMeta = const VerificationMeta(
+    'endTime',
+  );
+  @override
+  late final GeneratedColumn<DateTime> endTime = GeneratedColumn<DateTime>(
+    'end_time',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _notesMeta = const VerificationMeta('notes');
   @override
   late final GeneratedColumn<String> notes = GeneratedColumn<String>(
@@ -1025,6 +1047,8 @@ class $WorkoutsTable extends Workouts with TableInfo<$WorkoutsTable, Workout> {
     status,
     scheduledDate,
     completedDate,
+    startTime,
+    endTime,
     notes,
   ];
   @override
@@ -1118,6 +1142,18 @@ class $WorkoutsTable extends Workouts with TableInfo<$WorkoutsTable, Workout> {
         ),
       );
     }
+    if (data.containsKey('start_time')) {
+      context.handle(
+        _startTimeMeta,
+        startTime.isAcceptableOrUnknown(data['start_time']!, _startTimeMeta),
+      );
+    }
+    if (data.containsKey('end_time')) {
+      context.handle(
+        _endTimeMeta,
+        endTime.isAcceptableOrUnknown(data['end_time']!, _endTimeMeta),
+      );
+    }
     if (data.containsKey('notes')) {
       context.handle(
         _notesMeta,
@@ -1173,6 +1209,14 @@ class $WorkoutsTable extends Workouts with TableInfo<$WorkoutsTable, Workout> {
         DriftSqlType.dateTime,
         data['${effectivePrefix}completed_date'],
       ),
+      startTime: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}start_time'],
+      ),
+      endTime: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}end_time'],
+      ),
       notes: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}notes'],
@@ -1197,6 +1241,8 @@ class Workout extends DataClass implements Insertable<Workout> {
   final int status;
   final DateTime? scheduledDate;
   final DateTime? completedDate;
+  final DateTime? startTime;
+  final DateTime? endTime;
   final String? notes;
   const Workout({
     required this.id,
@@ -1209,6 +1255,8 @@ class Workout extends DataClass implements Insertable<Workout> {
     required this.status,
     this.scheduledDate,
     this.completedDate,
+    this.startTime,
+    this.endTime,
     this.notes,
   });
   @override
@@ -1231,6 +1279,12 @@ class Workout extends DataClass implements Insertable<Workout> {
     }
     if (!nullToAbsent || completedDate != null) {
       map['completed_date'] = Variable<DateTime>(completedDate);
+    }
+    if (!nullToAbsent || startTime != null) {
+      map['start_time'] = Variable<DateTime>(startTime);
+    }
+    if (!nullToAbsent || endTime != null) {
+      map['end_time'] = Variable<DateTime>(endTime);
     }
     if (!nullToAbsent || notes != null) {
       map['notes'] = Variable<String>(notes);
@@ -1258,6 +1312,12 @@ class Workout extends DataClass implements Insertable<Workout> {
       completedDate: completedDate == null && nullToAbsent
           ? const Value.absent()
           : Value(completedDate),
+      startTime: startTime == null && nullToAbsent
+          ? const Value.absent()
+          : Value(startTime),
+      endTime: endTime == null && nullToAbsent
+          ? const Value.absent()
+          : Value(endTime),
       notes: notes == null && nullToAbsent
           ? const Value.absent()
           : Value(notes),
@@ -1280,6 +1340,8 @@ class Workout extends DataClass implements Insertable<Workout> {
       status: serializer.fromJson<int>(json['status']),
       scheduledDate: serializer.fromJson<DateTime?>(json['scheduledDate']),
       completedDate: serializer.fromJson<DateTime?>(json['completedDate']),
+      startTime: serializer.fromJson<DateTime?>(json['startTime']),
+      endTime: serializer.fromJson<DateTime?>(json['endTime']),
       notes: serializer.fromJson<String?>(json['notes']),
     );
   }
@@ -1297,6 +1359,8 @@ class Workout extends DataClass implements Insertable<Workout> {
       'status': serializer.toJson<int>(status),
       'scheduledDate': serializer.toJson<DateTime?>(scheduledDate),
       'completedDate': serializer.toJson<DateTime?>(completedDate),
+      'startTime': serializer.toJson<DateTime?>(startTime),
+      'endTime': serializer.toJson<DateTime?>(endTime),
       'notes': serializer.toJson<String?>(notes),
     };
   }
@@ -1312,6 +1376,8 @@ class Workout extends DataClass implements Insertable<Workout> {
     int? status,
     Value<DateTime?> scheduledDate = const Value.absent(),
     Value<DateTime?> completedDate = const Value.absent(),
+    Value<DateTime?> startTime = const Value.absent(),
+    Value<DateTime?> endTime = const Value.absent(),
     Value<String?> notes = const Value.absent(),
   }) => Workout(
     id: id ?? this.id,
@@ -1328,6 +1394,8 @@ class Workout extends DataClass implements Insertable<Workout> {
     completedDate: completedDate.present
         ? completedDate.value
         : this.completedDate,
+    startTime: startTime.present ? startTime.value : this.startTime,
+    endTime: endTime.present ? endTime.value : this.endTime,
     notes: notes.present ? notes.value : this.notes,
   );
   Workout copyWithCompanion(WorkoutsCompanion data) {
@@ -1350,6 +1418,8 @@ class Workout extends DataClass implements Insertable<Workout> {
       completedDate: data.completedDate.present
           ? data.completedDate.value
           : this.completedDate,
+      startTime: data.startTime.present ? data.startTime.value : this.startTime,
+      endTime: data.endTime.present ? data.endTime.value : this.endTime,
       notes: data.notes.present ? data.notes.value : this.notes,
     );
   }
@@ -1367,6 +1437,8 @@ class Workout extends DataClass implements Insertable<Workout> {
           ..write('status: $status, ')
           ..write('scheduledDate: $scheduledDate, ')
           ..write('completedDate: $completedDate, ')
+          ..write('startTime: $startTime, ')
+          ..write('endTime: $endTime, ')
           ..write('notes: $notes')
           ..write(')'))
         .toString();
@@ -1384,6 +1456,8 @@ class Workout extends DataClass implements Insertable<Workout> {
     status,
     scheduledDate,
     completedDate,
+    startTime,
+    endTime,
     notes,
   );
   @override
@@ -1400,6 +1474,8 @@ class Workout extends DataClass implements Insertable<Workout> {
           other.status == this.status &&
           other.scheduledDate == this.scheduledDate &&
           other.completedDate == this.completedDate &&
+          other.startTime == this.startTime &&
+          other.endTime == this.endTime &&
           other.notes == this.notes);
 }
 
@@ -1414,6 +1490,8 @@ class WorkoutsCompanion extends UpdateCompanion<Workout> {
   final Value<int> status;
   final Value<DateTime?> scheduledDate;
   final Value<DateTime?> completedDate;
+  final Value<DateTime?> startTime;
+  final Value<DateTime?> endTime;
   final Value<String?> notes;
   const WorkoutsCompanion({
     this.id = const Value.absent(),
@@ -1426,6 +1504,8 @@ class WorkoutsCompanion extends UpdateCompanion<Workout> {
     this.status = const Value.absent(),
     this.scheduledDate = const Value.absent(),
     this.completedDate = const Value.absent(),
+    this.startTime = const Value.absent(),
+    this.endTime = const Value.absent(),
     this.notes = const Value.absent(),
   });
   WorkoutsCompanion.insert({
@@ -1439,6 +1519,8 @@ class WorkoutsCompanion extends UpdateCompanion<Workout> {
     required int status,
     this.scheduledDate = const Value.absent(),
     this.completedDate = const Value.absent(),
+    this.startTime = const Value.absent(),
+    this.endTime = const Value.absent(),
     this.notes = const Value.absent(),
   }) : uuid = Value(uuid),
        trainingCycleUuid = Value(trainingCycleUuid),
@@ -1456,6 +1538,8 @@ class WorkoutsCompanion extends UpdateCompanion<Workout> {
     Expression<int>? status,
     Expression<DateTime>? scheduledDate,
     Expression<DateTime>? completedDate,
+    Expression<DateTime>? startTime,
+    Expression<DateTime>? endTime,
     Expression<String>? notes,
   }) {
     return RawValuesInsertable({
@@ -1469,6 +1553,8 @@ class WorkoutsCompanion extends UpdateCompanion<Workout> {
       if (status != null) 'status': status,
       if (scheduledDate != null) 'scheduled_date': scheduledDate,
       if (completedDate != null) 'completed_date': completedDate,
+      if (startTime != null) 'start_time': startTime,
+      if (endTime != null) 'end_time': endTime,
       if (notes != null) 'notes': notes,
     });
   }
@@ -1484,6 +1570,8 @@ class WorkoutsCompanion extends UpdateCompanion<Workout> {
     Value<int>? status,
     Value<DateTime?>? scheduledDate,
     Value<DateTime?>? completedDate,
+    Value<DateTime?>? startTime,
+    Value<DateTime?>? endTime,
     Value<String?>? notes,
   }) {
     return WorkoutsCompanion(
@@ -1497,6 +1585,8 @@ class WorkoutsCompanion extends UpdateCompanion<Workout> {
       status: status ?? this.status,
       scheduledDate: scheduledDate ?? this.scheduledDate,
       completedDate: completedDate ?? this.completedDate,
+      startTime: startTime ?? this.startTime,
+      endTime: endTime ?? this.endTime,
       notes: notes ?? this.notes,
     );
   }
@@ -1534,6 +1624,12 @@ class WorkoutsCompanion extends UpdateCompanion<Workout> {
     if (completedDate.present) {
       map['completed_date'] = Variable<DateTime>(completedDate.value);
     }
+    if (startTime.present) {
+      map['start_time'] = Variable<DateTime>(startTime.value);
+    }
+    if (endTime.present) {
+      map['end_time'] = Variable<DateTime>(endTime.value);
+    }
     if (notes.present) {
       map['notes'] = Variable<String>(notes.value);
     }
@@ -1553,6 +1649,8 @@ class WorkoutsCompanion extends UpdateCompanion<Workout> {
           ..write('status: $status, ')
           ..write('scheduledDate: $scheduledDate, ')
           ..write('completedDate: $completedDate, ')
+          ..write('startTime: $startTime, ')
+          ..write('endTime: $endTime, ')
           ..write('notes: $notes')
           ..write(')'))
         .toString();
@@ -1712,6 +1810,17 @@ class $ExercisesTable extends Exercises
     ),
     defaultValue: const Constant(false),
   );
+  static const VerificationMeta _restSecondsMeta = const VerificationMeta(
+    'restSeconds',
+  );
+  @override
+  late final GeneratedColumn<int> restSeconds = GeneratedColumn<int>(
+    'rest_seconds',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -1727,6 +1836,7 @@ class $ExercisesTable extends Exercises
     lastPerformed,
     videoUrl,
     isNotePinned,
+    restSeconds,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -1845,6 +1955,15 @@ class $ExercisesTable extends Exercises
         ),
       );
     }
+    if (data.containsKey('rest_seconds')) {
+      context.handle(
+        _restSecondsMeta,
+        restSeconds.isAcceptableOrUnknown(
+          data['rest_seconds']!,
+          _restSecondsMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -1906,6 +2025,10 @@ class $ExercisesTable extends Exercises
         DriftSqlType.bool,
         data['${effectivePrefix}is_note_pinned'],
       )!,
+      restSeconds: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}rest_seconds'],
+      ),
     );
   }
 
@@ -1929,6 +2052,7 @@ class Exercise extends DataClass implements Insertable<Exercise> {
   final DateTime? lastPerformed;
   final String? videoUrl;
   final bool isNotePinned;
+  final int? restSeconds;
   const Exercise({
     required this.id,
     required this.uuid,
@@ -1943,6 +2067,7 @@ class Exercise extends DataClass implements Insertable<Exercise> {
     this.lastPerformed,
     this.videoUrl,
     required this.isNotePinned,
+    this.restSeconds,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -1970,6 +2095,9 @@ class Exercise extends DataClass implements Insertable<Exercise> {
       map['video_url'] = Variable<String>(videoUrl);
     }
     map['is_note_pinned'] = Variable<bool>(isNotePinned);
+    if (!nullToAbsent || restSeconds != null) {
+      map['rest_seconds'] = Variable<int>(restSeconds);
+    }
     return map;
   }
 
@@ -1998,6 +2126,9 @@ class Exercise extends DataClass implements Insertable<Exercise> {
           ? const Value.absent()
           : Value(videoUrl),
       isNotePinned: Value(isNotePinned),
+      restSeconds: restSeconds == null && nullToAbsent
+          ? const Value.absent()
+          : Value(restSeconds),
     );
   }
 
@@ -2022,6 +2153,7 @@ class Exercise extends DataClass implements Insertable<Exercise> {
       lastPerformed: serializer.fromJson<DateTime?>(json['lastPerformed']),
       videoUrl: serializer.fromJson<String?>(json['videoUrl']),
       isNotePinned: serializer.fromJson<bool>(json['isNotePinned']),
+      restSeconds: serializer.fromJson<int?>(json['restSeconds']),
     );
   }
   @override
@@ -2041,6 +2173,7 @@ class Exercise extends DataClass implements Insertable<Exercise> {
       'lastPerformed': serializer.toJson<DateTime?>(lastPerformed),
       'videoUrl': serializer.toJson<String?>(videoUrl),
       'isNotePinned': serializer.toJson<bool>(isNotePinned),
+      'restSeconds': serializer.toJson<int?>(restSeconds),
     };
   }
 
@@ -2058,6 +2191,7 @@ class Exercise extends DataClass implements Insertable<Exercise> {
     Value<DateTime?> lastPerformed = const Value.absent(),
     Value<String?> videoUrl = const Value.absent(),
     bool? isNotePinned,
+    Value<int?> restSeconds = const Value.absent(),
   }) => Exercise(
     id: id ?? this.id,
     uuid: uuid ?? this.uuid,
@@ -2076,6 +2210,7 @@ class Exercise extends DataClass implements Insertable<Exercise> {
         : this.lastPerformed,
     videoUrl: videoUrl.present ? videoUrl.value : this.videoUrl,
     isNotePinned: isNotePinned ?? this.isNotePinned,
+    restSeconds: restSeconds.present ? restSeconds.value : this.restSeconds,
   );
   Exercise copyWithCompanion(ExercisesCompanion data) {
     return Exercise(
@@ -2108,6 +2243,9 @@ class Exercise extends DataClass implements Insertable<Exercise> {
       isNotePinned: data.isNotePinned.present
           ? data.isNotePinned.value
           : this.isNotePinned,
+      restSeconds: data.restSeconds.present
+          ? data.restSeconds.value
+          : this.restSeconds,
     );
   }
 
@@ -2126,7 +2264,8 @@ class Exercise extends DataClass implements Insertable<Exercise> {
           ..write('notes: $notes, ')
           ..write('lastPerformed: $lastPerformed, ')
           ..write('videoUrl: $videoUrl, ')
-          ..write('isNotePinned: $isNotePinned')
+          ..write('isNotePinned: $isNotePinned, ')
+          ..write('restSeconds: $restSeconds')
           ..write(')'))
         .toString();
   }
@@ -2146,6 +2285,7 @@ class Exercise extends DataClass implements Insertable<Exercise> {
     lastPerformed,
     videoUrl,
     isNotePinned,
+    restSeconds,
   );
   @override
   bool operator ==(Object other) =>
@@ -2163,7 +2303,8 @@ class Exercise extends DataClass implements Insertable<Exercise> {
           other.notes == this.notes &&
           other.lastPerformed == this.lastPerformed &&
           other.videoUrl == this.videoUrl &&
-          other.isNotePinned == this.isNotePinned);
+          other.isNotePinned == this.isNotePinned &&
+          other.restSeconds == this.restSeconds);
 }
 
 class ExercisesCompanion extends UpdateCompanion<Exercise> {
@@ -2180,6 +2321,7 @@ class ExercisesCompanion extends UpdateCompanion<Exercise> {
   final Value<DateTime?> lastPerformed;
   final Value<String?> videoUrl;
   final Value<bool> isNotePinned;
+  final Value<int?> restSeconds;
   const ExercisesCompanion({
     this.id = const Value.absent(),
     this.uuid = const Value.absent(),
@@ -2194,6 +2336,7 @@ class ExercisesCompanion extends UpdateCompanion<Exercise> {
     this.lastPerformed = const Value.absent(),
     this.videoUrl = const Value.absent(),
     this.isNotePinned = const Value.absent(),
+    this.restSeconds = const Value.absent(),
   });
   ExercisesCompanion.insert({
     this.id = const Value.absent(),
@@ -2209,6 +2352,7 @@ class ExercisesCompanion extends UpdateCompanion<Exercise> {
     this.lastPerformed = const Value.absent(),
     this.videoUrl = const Value.absent(),
     this.isNotePinned = const Value.absent(),
+    this.restSeconds = const Value.absent(),
   }) : uuid = Value(uuid),
        workoutUuid = Value(workoutUuid),
        name = Value(name),
@@ -2229,6 +2373,7 @@ class ExercisesCompanion extends UpdateCompanion<Exercise> {
     Expression<DateTime>? lastPerformed,
     Expression<String>? videoUrl,
     Expression<bool>? isNotePinned,
+    Expression<int>? restSeconds,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -2245,6 +2390,7 @@ class ExercisesCompanion extends UpdateCompanion<Exercise> {
       if (lastPerformed != null) 'last_performed': lastPerformed,
       if (videoUrl != null) 'video_url': videoUrl,
       if (isNotePinned != null) 'is_note_pinned': isNotePinned,
+      if (restSeconds != null) 'rest_seconds': restSeconds,
     });
   }
 
@@ -2262,6 +2408,7 @@ class ExercisesCompanion extends UpdateCompanion<Exercise> {
     Value<DateTime?>? lastPerformed,
     Value<String?>? videoUrl,
     Value<bool>? isNotePinned,
+    Value<int?>? restSeconds,
   }) {
     return ExercisesCompanion(
       id: id ?? this.id,
@@ -2277,6 +2424,7 @@ class ExercisesCompanion extends UpdateCompanion<Exercise> {
       lastPerformed: lastPerformed ?? this.lastPerformed,
       videoUrl: videoUrl ?? this.videoUrl,
       isNotePinned: isNotePinned ?? this.isNotePinned,
+      restSeconds: restSeconds ?? this.restSeconds,
     );
   }
 
@@ -2322,6 +2470,9 @@ class ExercisesCompanion extends UpdateCompanion<Exercise> {
     if (isNotePinned.present) {
       map['is_note_pinned'] = Variable<bool>(isNotePinned.value);
     }
+    if (restSeconds.present) {
+      map['rest_seconds'] = Variable<int>(restSeconds.value);
+    }
     return map;
   }
 
@@ -2340,7 +2491,8 @@ class ExercisesCompanion extends UpdateCompanion<Exercise> {
           ..write('notes: $notes, ')
           ..write('lastPerformed: $lastPerformed, ')
           ..write('videoUrl: $videoUrl, ')
-          ..write('isNotePinned: $isNotePinned')
+          ..write('isNotePinned: $isNotePinned, ')
+          ..write('restSeconds: $restSeconds')
           ..write(')'))
         .toString();
   }
@@ -3561,6 +3713,17 @@ class $CustomExerciseDefinitionsTable extends CustomExerciseDefinitions
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _restSecondsMeta = const VerificationMeta(
+    'restSeconds',
+  );
+  @override
+  late final GeneratedColumn<int> restSeconds = GeneratedColumn<int>(
+    'rest_seconds',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
   );
@@ -3581,6 +3744,7 @@ class $CustomExerciseDefinitionsTable extends CustomExerciseDefinitions
     secondaryMuscleGroup,
     equipmentType,
     videoUrl,
+    restSeconds,
     createdAt,
   ];
   @override
@@ -3651,6 +3815,15 @@ class $CustomExerciseDefinitionsTable extends CustomExerciseDefinitions
         videoUrl.isAcceptableOrUnknown(data['video_url']!, _videoUrlMeta),
       );
     }
+    if (data.containsKey('rest_seconds')) {
+      context.handle(
+        _restSecondsMeta,
+        restSeconds.isAcceptableOrUnknown(
+          data['rest_seconds']!,
+          _restSecondsMeta,
+        ),
+      );
+    }
     if (data.containsKey('created_at')) {
       context.handle(
         _createdAtMeta,
@@ -3699,6 +3872,10 @@ class $CustomExerciseDefinitionsTable extends CustomExerciseDefinitions
         DriftSqlType.string,
         data['${effectivePrefix}video_url'],
       ),
+      restSeconds: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}rest_seconds'],
+      ),
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
@@ -3721,6 +3898,7 @@ class CustomExerciseDefinition extends DataClass
   final int? secondaryMuscleGroup;
   final int equipmentType;
   final String? videoUrl;
+  final int? restSeconds;
   final DateTime createdAt;
   const CustomExerciseDefinition({
     required this.id,
@@ -3730,6 +3908,7 @@ class CustomExerciseDefinition extends DataClass
     this.secondaryMuscleGroup,
     required this.equipmentType,
     this.videoUrl,
+    this.restSeconds,
     required this.createdAt,
   });
   @override
@@ -3745,6 +3924,9 @@ class CustomExerciseDefinition extends DataClass
     map['equipment_type'] = Variable<int>(equipmentType);
     if (!nullToAbsent || videoUrl != null) {
       map['video_url'] = Variable<String>(videoUrl);
+    }
+    if (!nullToAbsent || restSeconds != null) {
+      map['rest_seconds'] = Variable<int>(restSeconds);
     }
     map['created_at'] = Variable<DateTime>(createdAt);
     return map;
@@ -3763,6 +3945,9 @@ class CustomExerciseDefinition extends DataClass
       videoUrl: videoUrl == null && nullToAbsent
           ? const Value.absent()
           : Value(videoUrl),
+      restSeconds: restSeconds == null && nullToAbsent
+          ? const Value.absent()
+          : Value(restSeconds),
       createdAt: Value(createdAt),
     );
   }
@@ -3782,6 +3967,7 @@ class CustomExerciseDefinition extends DataClass
       ),
       equipmentType: serializer.fromJson<int>(json['equipmentType']),
       videoUrl: serializer.fromJson<String?>(json['videoUrl']),
+      restSeconds: serializer.fromJson<int?>(json['restSeconds']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
     );
   }
@@ -3796,6 +3982,7 @@ class CustomExerciseDefinition extends DataClass
       'secondaryMuscleGroup': serializer.toJson<int?>(secondaryMuscleGroup),
       'equipmentType': serializer.toJson<int>(equipmentType),
       'videoUrl': serializer.toJson<String?>(videoUrl),
+      'restSeconds': serializer.toJson<int?>(restSeconds),
       'createdAt': serializer.toJson<DateTime>(createdAt),
     };
   }
@@ -3808,6 +3995,7 @@ class CustomExerciseDefinition extends DataClass
     Value<int?> secondaryMuscleGroup = const Value.absent(),
     int? equipmentType,
     Value<String?> videoUrl = const Value.absent(),
+    Value<int?> restSeconds = const Value.absent(),
     DateTime? createdAt,
   }) => CustomExerciseDefinition(
     id: id ?? this.id,
@@ -3819,6 +4007,7 @@ class CustomExerciseDefinition extends DataClass
         : this.secondaryMuscleGroup,
     equipmentType: equipmentType ?? this.equipmentType,
     videoUrl: videoUrl.present ? videoUrl.value : this.videoUrl,
+    restSeconds: restSeconds.present ? restSeconds.value : this.restSeconds,
     createdAt: createdAt ?? this.createdAt,
   );
   CustomExerciseDefinition copyWithCompanion(
@@ -3838,6 +4027,9 @@ class CustomExerciseDefinition extends DataClass
           ? data.equipmentType.value
           : this.equipmentType,
       videoUrl: data.videoUrl.present ? data.videoUrl.value : this.videoUrl,
+      restSeconds: data.restSeconds.present
+          ? data.restSeconds.value
+          : this.restSeconds,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
     );
   }
@@ -3852,6 +4044,7 @@ class CustomExerciseDefinition extends DataClass
           ..write('secondaryMuscleGroup: $secondaryMuscleGroup, ')
           ..write('equipmentType: $equipmentType, ')
           ..write('videoUrl: $videoUrl, ')
+          ..write('restSeconds: $restSeconds, ')
           ..write('createdAt: $createdAt')
           ..write(')'))
         .toString();
@@ -3866,6 +4059,7 @@ class CustomExerciseDefinition extends DataClass
     secondaryMuscleGroup,
     equipmentType,
     videoUrl,
+    restSeconds,
     createdAt,
   );
   @override
@@ -3879,6 +4073,7 @@ class CustomExerciseDefinition extends DataClass
           other.secondaryMuscleGroup == this.secondaryMuscleGroup &&
           other.equipmentType == this.equipmentType &&
           other.videoUrl == this.videoUrl &&
+          other.restSeconds == this.restSeconds &&
           other.createdAt == this.createdAt);
 }
 
@@ -3891,6 +4086,7 @@ class CustomExerciseDefinitionsCompanion
   final Value<int?> secondaryMuscleGroup;
   final Value<int> equipmentType;
   final Value<String?> videoUrl;
+  final Value<int?> restSeconds;
   final Value<DateTime> createdAt;
   const CustomExerciseDefinitionsCompanion({
     this.id = const Value.absent(),
@@ -3900,6 +4096,7 @@ class CustomExerciseDefinitionsCompanion
     this.secondaryMuscleGroup = const Value.absent(),
     this.equipmentType = const Value.absent(),
     this.videoUrl = const Value.absent(),
+    this.restSeconds = const Value.absent(),
     this.createdAt = const Value.absent(),
   });
   CustomExerciseDefinitionsCompanion.insert({
@@ -3910,6 +4107,7 @@ class CustomExerciseDefinitionsCompanion
     this.secondaryMuscleGroup = const Value.absent(),
     required int equipmentType,
     this.videoUrl = const Value.absent(),
+    this.restSeconds = const Value.absent(),
     required DateTime createdAt,
   }) : uuid = Value(uuid),
        name = Value(name),
@@ -3924,6 +4122,7 @@ class CustomExerciseDefinitionsCompanion
     Expression<int>? secondaryMuscleGroup,
     Expression<int>? equipmentType,
     Expression<String>? videoUrl,
+    Expression<int>? restSeconds,
     Expression<DateTime>? createdAt,
   }) {
     return RawValuesInsertable({
@@ -3935,6 +4134,7 @@ class CustomExerciseDefinitionsCompanion
         'secondary_muscle_group': secondaryMuscleGroup,
       if (equipmentType != null) 'equipment_type': equipmentType,
       if (videoUrl != null) 'video_url': videoUrl,
+      if (restSeconds != null) 'rest_seconds': restSeconds,
       if (createdAt != null) 'created_at': createdAt,
     });
   }
@@ -3947,6 +4147,7 @@ class CustomExerciseDefinitionsCompanion
     Value<int?>? secondaryMuscleGroup,
     Value<int>? equipmentType,
     Value<String?>? videoUrl,
+    Value<int?>? restSeconds,
     Value<DateTime>? createdAt,
   }) {
     return CustomExerciseDefinitionsCompanion(
@@ -3957,6 +4158,7 @@ class CustomExerciseDefinitionsCompanion
       secondaryMuscleGroup: secondaryMuscleGroup ?? this.secondaryMuscleGroup,
       equipmentType: equipmentType ?? this.equipmentType,
       videoUrl: videoUrl ?? this.videoUrl,
+      restSeconds: restSeconds ?? this.restSeconds,
       createdAt: createdAt ?? this.createdAt,
     );
   }
@@ -3985,6 +4187,9 @@ class CustomExerciseDefinitionsCompanion
     if (videoUrl.present) {
       map['video_url'] = Variable<String>(videoUrl.value);
     }
+    if (restSeconds.present) {
+      map['rest_seconds'] = Variable<int>(restSeconds.value);
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
@@ -4001,6 +4206,7 @@ class CustomExerciseDefinitionsCompanion
           ..write('secondaryMuscleGroup: $secondaryMuscleGroup, ')
           ..write('equipmentType: $equipmentType, ')
           ..write('videoUrl: $videoUrl, ')
+          ..write('restSeconds: $restSeconds, ')
           ..write('createdAt: $createdAt')
           ..write(')'))
         .toString();
@@ -5489,6 +5695,8 @@ typedef $$WorkoutsTableCreateCompanionBuilder =
       required int status,
       Value<DateTime?> scheduledDate,
       Value<DateTime?> completedDate,
+      Value<DateTime?> startTime,
+      Value<DateTime?> endTime,
       Value<String?> notes,
     });
 typedef $$WorkoutsTableUpdateCompanionBuilder =
@@ -5503,6 +5711,8 @@ typedef $$WorkoutsTableUpdateCompanionBuilder =
       Value<int> status,
       Value<DateTime?> scheduledDate,
       Value<DateTime?> completedDate,
+      Value<DateTime?> startTime,
+      Value<DateTime?> endTime,
       Value<String?> notes,
     });
 
@@ -5601,6 +5811,16 @@ class $$WorkoutsTableFilterComposer
 
   ColumnFilters<DateTime> get completedDate => $composableBuilder(
     column: $table.completedDate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get startTime => $composableBuilder(
+    column: $table.startTime,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get endTime => $composableBuilder(
+    column: $table.endTime,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -5712,6 +5932,16 @@ class $$WorkoutsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<DateTime> get startTime => $composableBuilder(
+    column: $table.startTime,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get endTime => $composableBuilder(
+    column: $table.endTime,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get notes => $composableBuilder(
     column: $table.notes,
     builder: (column) => ColumnOrderings(column),
@@ -5782,6 +6012,12 @@ class $$WorkoutsTableAnnotationComposer
     column: $table.completedDate,
     builder: (column) => column,
   );
+
+  GeneratedColumn<DateTime> get startTime =>
+      $composableBuilder(column: $table.startTime, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get endTime =>
+      $composableBuilder(column: $table.endTime, builder: (column) => column);
 
   GeneratedColumn<String> get notes =>
       $composableBuilder(column: $table.notes, builder: (column) => column);
@@ -5873,6 +6109,8 @@ class $$WorkoutsTableTableManager
                 Value<int> status = const Value.absent(),
                 Value<DateTime?> scheduledDate = const Value.absent(),
                 Value<DateTime?> completedDate = const Value.absent(),
+                Value<DateTime?> startTime = const Value.absent(),
+                Value<DateTime?> endTime = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
               }) => WorkoutsCompanion(
                 id: id,
@@ -5885,6 +6123,8 @@ class $$WorkoutsTableTableManager
                 status: status,
                 scheduledDate: scheduledDate,
                 completedDate: completedDate,
+                startTime: startTime,
+                endTime: endTime,
                 notes: notes,
               ),
           createCompanionCallback:
@@ -5899,6 +6139,8 @@ class $$WorkoutsTableTableManager
                 required int status,
                 Value<DateTime?> scheduledDate = const Value.absent(),
                 Value<DateTime?> completedDate = const Value.absent(),
+                Value<DateTime?> startTime = const Value.absent(),
+                Value<DateTime?> endTime = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
               }) => WorkoutsCompanion.insert(
                 id: id,
@@ -5911,6 +6153,8 @@ class $$WorkoutsTableTableManager
                 status: status,
                 scheduledDate: scheduledDate,
                 completedDate: completedDate,
+                startTime: startTime,
+                endTime: endTime,
                 notes: notes,
               ),
           withReferenceMapper: (p0) => p0
@@ -6018,6 +6262,7 @@ typedef $$ExercisesTableCreateCompanionBuilder =
       Value<DateTime?> lastPerformed,
       Value<String?> videoUrl,
       Value<bool> isNotePinned,
+      Value<int?> restSeconds,
     });
 typedef $$ExercisesTableUpdateCompanionBuilder =
     ExercisesCompanion Function({
@@ -6034,6 +6279,7 @@ typedef $$ExercisesTableUpdateCompanionBuilder =
       Value<DateTime?> lastPerformed,
       Value<String?> videoUrl,
       Value<bool> isNotePinned,
+      Value<int?> restSeconds,
     });
 
 final class $$ExercisesTableReferences
@@ -6174,6 +6420,11 @@ class $$ExercisesTableFilterComposer
 
   ColumnFilters<bool> get isNotePinned => $composableBuilder(
     column: $table.isNotePinned,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get restSeconds => $composableBuilder(
+    column: $table.restSeconds,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -6320,6 +6571,11 @@ class $$ExercisesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get restSeconds => $composableBuilder(
+    column: $table.restSeconds,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$WorkoutsTableOrderingComposer get workoutUuid {
     final $$WorkoutsTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -6400,6 +6656,11 @@ class $$ExercisesTableAnnotationComposer
 
   GeneratedColumn<bool> get isNotePinned => $composableBuilder(
     column: $table.isNotePinned,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get restSeconds => $composableBuilder(
+    column: $table.restSeconds,
     builder: (column) => column,
   );
 
@@ -6523,6 +6784,7 @@ class $$ExercisesTableTableManager
                 Value<DateTime?> lastPerformed = const Value.absent(),
                 Value<String?> videoUrl = const Value.absent(),
                 Value<bool> isNotePinned = const Value.absent(),
+                Value<int?> restSeconds = const Value.absent(),
               }) => ExercisesCompanion(
                 id: id,
                 uuid: uuid,
@@ -6537,6 +6799,7 @@ class $$ExercisesTableTableManager
                 lastPerformed: lastPerformed,
                 videoUrl: videoUrl,
                 isNotePinned: isNotePinned,
+                restSeconds: restSeconds,
               ),
           createCompanionCallback:
               ({
@@ -6553,6 +6816,7 @@ class $$ExercisesTableTableManager
                 Value<DateTime?> lastPerformed = const Value.absent(),
                 Value<String?> videoUrl = const Value.absent(),
                 Value<bool> isNotePinned = const Value.absent(),
+                Value<int?> restSeconds = const Value.absent(),
               }) => ExercisesCompanion.insert(
                 id: id,
                 uuid: uuid,
@@ -6567,6 +6831,7 @@ class $$ExercisesTableTableManager
                 lastPerformed: lastPerformed,
                 videoUrl: videoUrl,
                 isNotePinned: isNotePinned,
+                restSeconds: restSeconds,
               ),
           withReferenceMapper: (p0) => p0
               .map(
@@ -7500,6 +7765,7 @@ typedef $$CustomExerciseDefinitionsTableCreateCompanionBuilder =
       Value<int?> secondaryMuscleGroup,
       required int equipmentType,
       Value<String?> videoUrl,
+      Value<int?> restSeconds,
       required DateTime createdAt,
     });
 typedef $$CustomExerciseDefinitionsTableUpdateCompanionBuilder =
@@ -7511,6 +7777,7 @@ typedef $$CustomExerciseDefinitionsTableUpdateCompanionBuilder =
       Value<int?> secondaryMuscleGroup,
       Value<int> equipmentType,
       Value<String?> videoUrl,
+      Value<int?> restSeconds,
       Value<DateTime> createdAt,
     });
 
@@ -7555,6 +7822,11 @@ class $$CustomExerciseDefinitionsTableFilterComposer
 
   ColumnFilters<String> get videoUrl => $composableBuilder(
     column: $table.videoUrl,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get restSeconds => $composableBuilder(
+    column: $table.restSeconds,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -7608,6 +7880,11 @@ class $$CustomExerciseDefinitionsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get restSeconds => $composableBuilder(
+    column: $table.restSeconds,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
@@ -7649,6 +7926,11 @@ class $$CustomExerciseDefinitionsTableAnnotationComposer
 
   GeneratedColumn<String> get videoUrl =>
       $composableBuilder(column: $table.videoUrl, builder: (column) => column);
+
+  GeneratedColumn<int> get restSeconds => $composableBuilder(
+    column: $table.restSeconds,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
@@ -7707,6 +7989,7 @@ class $$CustomExerciseDefinitionsTableTableManager
                 Value<int?> secondaryMuscleGroup = const Value.absent(),
                 Value<int> equipmentType = const Value.absent(),
                 Value<String?> videoUrl = const Value.absent(),
+                Value<int?> restSeconds = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
               }) => CustomExerciseDefinitionsCompanion(
                 id: id,
@@ -7716,6 +7999,7 @@ class $$CustomExerciseDefinitionsTableTableManager
                 secondaryMuscleGroup: secondaryMuscleGroup,
                 equipmentType: equipmentType,
                 videoUrl: videoUrl,
+                restSeconds: restSeconds,
                 createdAt: createdAt,
               ),
           createCompanionCallback:
@@ -7727,6 +8011,7 @@ class $$CustomExerciseDefinitionsTableTableManager
                 Value<int?> secondaryMuscleGroup = const Value.absent(),
                 required int equipmentType,
                 Value<String?> videoUrl = const Value.absent(),
+                Value<int?> restSeconds = const Value.absent(),
                 required DateTime createdAt,
               }) => CustomExerciseDefinitionsCompanion.insert(
                 id: id,
@@ -7736,6 +8021,7 @@ class $$CustomExerciseDefinitionsTableTableManager
                 secondaryMuscleGroup: secondaryMuscleGroup,
                 equipmentType: equipmentType,
                 videoUrl: videoUrl,
+                restSeconds: restSeconds,
                 createdAt: createdAt,
               ),
           withReferenceMapper: (p0) => p0

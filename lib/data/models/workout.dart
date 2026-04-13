@@ -14,6 +14,8 @@ class Workout {
   final WorkoutStatus status;
   final DateTime? scheduledDate;
   final DateTime? completedDate;
+  final DateTime? startTime;
+  final DateTime? endTime;
   final List<Exercise> exercises;
   final String? notes;
 
@@ -27,6 +29,8 @@ class Workout {
     this.status = WorkoutStatus.incomplete,
     this.scheduledDate,
     this.completedDate,
+    this.startTime,
+    this.endTime,
     List<Exercise>? exercises,
     this.notes,
   }) : exercises = exercises ?? [];
@@ -47,6 +51,22 @@ class Workout {
   double get completionPercentage {
     if (exercises.isEmpty) return 0.0;
     return completedExercises / totalExercises;
+  }
+
+  /// Get workout duration if both start and end times are recorded.
+  Duration? get duration {
+    if (startTime == null || endTime == null) return null;
+    return endTime!.difference(startTime!);
+  }
+
+  /// Format duration as "Xh Ym" or "Ym" for display.
+  String? get durationDisplay {
+    final d = duration;
+    if (d == null) return null;
+    final hours = d.inHours;
+    final minutes = d.inMinutes % 60;
+    if (hours > 0) return '${hours}h ${minutes}m';
+    return '${minutes}m';
   }
 
   /// Check if workout has any Myorep sets
@@ -96,11 +116,13 @@ class Workout {
     return copyWith(exercises: newExercises);
   }
 
-  /// Mark workout as completed
+  /// Mark workout as completed and record end time.
   Workout complete() {
+    final now = DateTime.now();
     return copyWith(
       status: WorkoutStatus.completed,
-      completedDate: DateTime.now(),
+      completedDate: now,
+      endTime: endTime ?? now,
     );
   }
 
@@ -129,6 +151,8 @@ class Workout {
     DateTime? scheduledDate,
     bool clearScheduledDate = false,
     DateTime? completedDate,
+    DateTime? startTime,
+    DateTime? endTime,
     List<Exercise>? exercises,
     String? notes,
   }) {
@@ -144,6 +168,8 @@ class Workout {
           ? null
           : (scheduledDate ?? this.scheduledDate),
       completedDate: completedDate ?? this.completedDate,
+      startTime: startTime ?? this.startTime,
+      endTime: endTime ?? this.endTime,
       exercises: exercises ?? this.exercises,
       notes: notes ?? this.notes,
     );
@@ -161,6 +187,8 @@ class Workout {
       'status': status.name,
       'scheduledDate': scheduledDate?.toIso8601String(),
       'completedDate': completedDate?.toIso8601String(),
+      'startTime': startTime?.toIso8601String(),
+      'endTime': endTime?.toIso8601String(),
       'exercises': exercises.map((e) => e.toJson()).toList(),
       'notes': notes,
     };
@@ -184,6 +212,12 @@ class Workout {
           : null,
       completedDate: json['completedDate'] != null
           ? DateTime.parse(json['completedDate'] as String)
+          : null,
+      startTime: json['startTime'] != null
+          ? DateTime.parse(json['startTime'] as String)
+          : null,
+      endTime: json['endTime'] != null
+          ? DateTime.parse(json['endTime'] as String)
           : null,
       exercises:
           (json['exercises'] as List?)

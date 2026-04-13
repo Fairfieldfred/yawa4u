@@ -92,6 +92,8 @@ class WorkoutMapper {
       status: WorkoutStatus.values[row.status],
       scheduledDate: row.scheduledDate,
       completedDate: row.completedDate,
+      startTime: row.startTime,
+      endTime: row.endTime,
       notes: row.notes,
       exercises: exercises,
     );
@@ -109,6 +111,8 @@ class WorkoutMapper {
       status: Value(workout.status.index),
       scheduledDate: Value(workout.scheduledDate),
       completedDate: Value(workout.completedDate),
+      startTime: Value(workout.startTime),
+      endTime: Value(workout.endTime),
       notes: Value(workout.notes),
     );
   }
@@ -140,6 +144,7 @@ class ExerciseMapper {
       lastPerformed: row.lastPerformed,
       videoUrl: row.videoUrl,
       isNotePinned: row.isNotePinned,
+      restSeconds: row.restSeconds,
     );
   }
 
@@ -158,6 +163,7 @@ class ExerciseMapper {
       lastPerformed: Value(exercise.lastPerformed),
       videoUrl: Value(exercise.videoUrl),
       isNotePinned: Value(exercise.isNotePinned),
+      restSeconds: Value(exercise.restSeconds),
     );
   }
 }

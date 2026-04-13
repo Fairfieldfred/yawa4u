@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 import '../../core/constants/muscle_groups.dart';
 import '../../core/theme/skins/skins.dart';
@@ -249,15 +250,18 @@ class MuscleGroupStatsDialog extends ConsumerWidget {
           height: 200,
           child: Center(child: CircularProgressIndicator()),
         ),
-        error: (error, stack) => SizedBox(
-          height: 200,
-          child: Center(
-            child: Text(
-              'Error: $error',
-              style: TextStyle(color: context.errorColor),
+        error: (error, stack) {
+          Sentry.captureException(error, stackTrace: stack);
+          return SizedBox(
+            height: 200,
+            child: Center(
+              child: Text(
+                'Error: $error',
+                style: TextStyle(color: context.errorColor),
+              ),
             ),
-          ),
-        ),
+          );
+        },
       ),
     );
   }

@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:sentry_flutter/sentry_flutter.dart';
+
 import '../../core/theme/skins/skin_model.dart';
 import '../../core/theme/skins/skin_repository.dart';
 import '../models/custom_exercise_definition.dart';
@@ -222,7 +224,8 @@ class DataBackupService {
             // Save the skin
             await _skinRepository.saveCustomSkin(updatedSkin);
             customThemesImported++;
-          } catch (e) {
+          } catch (e, stack) {
+            Sentry.captureException(e, stackTrace: stack);
             // Log but continue with other themes
             continue;
           }
@@ -237,7 +240,8 @@ class DataBackupService {
         customExercisesImported: customExercisesImported,
         customThemesImported: customThemesImported,
       );
-    } catch (e) {
+    } catch (e, stack) {
+      Sentry.captureException(e, stackTrace: stack);
       return ImportResult(success: false, error: 'Failed to parse backup: $e');
     }
   }

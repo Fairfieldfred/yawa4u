@@ -8,6 +8,7 @@ import 'package:uuid/uuid.dart';
 
 import '../../../core/constants/enums.dart';
 import '../../../data/database/app_database.dart' show ExerciseSetsCompanion;
+import '../../../data/database/mappers/entity_mappers.dart' show ExerciseFeedbackMapper;
 import '../../../core/theme/skins/skins.dart';
 import '../../../core/utils/day_sequence.dart';
 import '../../../data/models/exercise.dart';
@@ -17,6 +18,7 @@ import '../../../domain/controllers/workout_home_controller.dart';
 import '../../../domain/providers/database_providers.dart';
 import '../../../domain/providers/exercise_providers.dart';
 import '../../../domain/providers/onboarding_providers.dart';
+import '../../../domain/providers/rest_timer_provider.dart';
 import '../../../domain/providers/theme_provider.dart';
 import '../../../domain/providers/training_cycle_providers.dart';
 import '../../../domain/providers/workout_providers.dart';
@@ -24,8 +26,11 @@ import '../../widgets/app_icon_widget.dart';
 import '../../widgets/calendar_dropdown.dart';
 import '../../widgets/cycle_summary_dialog.dart';
 import '../../widgets/dialogs/add_exercise_dialog.dart';
+import '../../widgets/dialogs/exercise_feedback_dialog.dart';
+import '../../widgets/dialogs/rest_timer_dialog.dart';
 import '../../widgets/dialogs/workout_dialogs.dart';
 import '../../widgets/exercise_card_widget.dart';
+import '../../widgets/rest_timer_widget.dart';
 import '../../widgets/screen_background.dart';
 import 'add_exercise_screen.dart';
 
@@ -205,15 +210,31 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     final set = exercise.sets[setIndex];
     if (set.weight == null || set.reps.isEmpty) return;
 
-    final updatedSet = set.copyWith(isLogged: !set.isLogged);
+    final nowLogging = !set.isLogged;
+    final updatedSet = set.copyWith(isLogged: nowLogging);
     final updatedExercise = exercise.updateSet(setIndex, updatedSet);
-    final updatedWorkout = workout.updateExercise(
+    var updatedWorkout = workout.updateExercise(
       exerciseIndex,
       updatedExercise,
     );
 
+    // Auto-record start time on the first logged set
+    if (nowLogging && updatedWorkout.startTime == null) {
+      updatedWorkout = updatedWorkout.copyWith(startTime: DateTime.now());
+    }
+
     await repository.update(updatedWorkout);
     _invalidateWorkoutProviders();
+
+    // Start rest timer when a set is logged
+    if (nowLogging) {
+      ref.read(restTimerProvider.notifier).start(
+        set.setType,
+        exerciseRestSeconds: exercise.restSeconds,
+        exerciseId: exercise.id,
+        workoutId: exercise.workoutId,
+      );
+    }
   }
 
   Future<void> _addSetBelow(
@@ -634,8 +655,62 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
   }
 
   Future<void> _logJointPain(String workoutId, String exerciseId) async {
-    // TODO: Implement joint pain dialog
-    debugPrint('Log joint pain for exercise: $exerciseId');
+    final repository = ref.read(workoutRepositoryProvider);
+    final workout = await repository.getById(workoutId);
+    if (workout == null) return;
+
+    final exercise = workout.exercises.firstWhere(
+      (e) => e.id == exerciseId,
+      orElse: () => workout.exercises.first,
+    );
+
+    if (!mounted) return;
+
+    final feedback = await ExerciseFeedbackDialog.show(
+      context,
+      exerciseName: exercise.name,
+      existing: exercise.feedback,
+    );
+
+    if (feedback == null) return;
+
+    final dao = ref.read(exerciseFeedbackDaoProvider);
+    final companion = ExerciseFeedbackMapper.toCompanion(
+      feedback,
+      exerciseId,
+    );
+    await dao.upsertFeedback(companion);
+    _invalidateWorkoutProviders();
+  }
+
+  Future<void> _setRestTimer(String workoutId, String exerciseId) async {
+    final repository = ref.read(workoutRepositoryProvider);
+    final workout = await repository.getById(workoutId);
+    if (workout == null) return;
+
+    final exerciseIndex = workout.exercises.indexWhere(
+      (e) => e.id == exerciseId,
+    );
+    if (exerciseIndex == -1) return;
+
+    final exercise = workout.exercises[exerciseIndex];
+    if (!mounted) return;
+
+    final result = await RestTimerDialog.show(
+      context,
+      currentRestSeconds: exercise.restSeconds,
+    );
+    if (result == null) return;
+
+    // -1 means "use default" (clear override)
+    final newRestSeconds = result == -1 ? null : result;
+    final updatedExercise = exercise.copyWith(restSeconds: newRestSeconds);
+    final updatedWorkout = workout.updateExercise(
+      exerciseIndex,
+      updatedExercise,
+    );
+    await repository.update(updatedWorkout);
+    _invalidateWorkoutProviders();
   }
 
   Future<void> _addSetToExercise(String workoutId, String exerciseId) async {
@@ -1247,7 +1322,14 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     );
     final batchMap = batchAsync.value ?? <String, Exercise?>{};
 
-    return ListView.separated(
+    return Column(
+      children: [
+        RestTimerWidget(
+          onTap: (exerciseId, workoutId) =>
+              _setRestTimer(workoutId, exerciseId),
+        ),
+        Expanded(
+          child: ListView.separated(
       padding: const EdgeInsets.only(bottom: 80, top: 24),
       itemCount: allExercises.length,
       separatorBuilder: (context, index) {
@@ -1297,6 +1379,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
             onMoveDown: (id) => _moveExerciseDown(exercise.workoutId, id),
             onReplace: (id) => _replaceExercise(exercise.workoutId, id),
             onJointPain: (id) => _logJointPain(exercise.workoutId, id),
+            onRestTimer: (id) => _setRestTimer(exercise.workoutId, id),
             onAddSet: (id) =>
                 _addSetToExercise(exercise.workoutId, id),
             onSkipSets: (id) =>
@@ -1326,6 +1409,9 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
         ),
         );
       },
+    ),
+        ),
+      ],
     );
   }
 

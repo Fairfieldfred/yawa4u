@@ -11,6 +11,7 @@ class ExerciseDefinition {
   final MuscleGroup? secondaryMuscleGroup;
   final EquipmentType equipmentType;
   final String? videoUrl;
+  final int? restSeconds;
 
   const ExerciseDefinition({
     required this.name,
@@ -18,6 +19,7 @@ class ExerciseDefinition {
     this.secondaryMuscleGroup,
     required this.equipmentType,
     this.videoUrl,
+    this.restSeconds,
   });
 
   /// Create from CSV row
@@ -63,11 +65,17 @@ class ExerciseDefinition {
       );
     }
 
+    // Parse optional rest seconds (4th column)
+    final restSeconds = row.length > 3 && row[3].trim().isNotEmpty
+        ? int.tryParse(row[3].trim())
+        : null;
+
     return ExerciseDefinition(
       name: name,
       muscleGroup: primaryMuscleGroup,
       secondaryMuscleGroup: secondaryMuscleGroup,
       equipmentType: equipmentType,
+      restSeconds: restSeconds,
     );
   }
 
@@ -80,6 +88,7 @@ class ExerciseDefinition {
       name,
       muscleGroupDisplay,
       equipmentType.displayName,
+      if (restSeconds != null) restSeconds.toString(),
     ];
   }
 
@@ -91,6 +100,7 @@ class ExerciseDefinition {
       'secondaryMuscleGroup': secondaryMuscleGroup?.name,
       'equipmentType': equipmentType.name,
       'videoUrl': videoUrl,
+      'restSeconds': restSeconds,
     };
   }
 
@@ -113,6 +123,7 @@ class ExerciseDefinition {
         orElse: () => EquipmentType.barbell,
       ),
       videoUrl: json['videoUrl'] as String?,
+      restSeconds: json['restSeconds'] as int?,
     );
   }
 
@@ -123,6 +134,7 @@ class ExerciseDefinition {
     MuscleGroup? secondaryMuscleGroup,
     EquipmentType? equipmentType,
     String? videoUrl,
+    int? restSeconds,
   }) {
     return ExerciseDefinition(
       name: name ?? this.name,
@@ -130,6 +142,7 @@ class ExerciseDefinition {
       secondaryMuscleGroup: secondaryMuscleGroup ?? this.secondaryMuscleGroup,
       equipmentType: equipmentType ?? this.equipmentType,
       videoUrl: videoUrl ?? this.videoUrl,
+      restSeconds: restSeconds ?? this.restSeconds,
     );
   }
 

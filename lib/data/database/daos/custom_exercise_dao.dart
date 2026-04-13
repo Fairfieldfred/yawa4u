@@ -62,6 +62,25 @@ class CustomExerciseDao extends DatabaseAccessor<AppDatabase>
     )..where((c) => c.uuid.equals(uuid))).go();
   }
 
+  /// Update a custom exercise by UUID
+  Future<int> updateByUuid(
+    String uuid,
+    CustomExerciseDefinitionsCompanion exercise,
+  ) {
+    return (update(customExerciseDefinitions)
+          ..where((c) => c.uuid.equals(uuid)))
+        .write(exercise);
+  }
+
+  /// Get count of custom exercises
+  Future<int> countRows() async {
+    final countExp = customExerciseDefinitions.id.count();
+    final query = selectOnly(customExerciseDefinitions)
+      ..addColumns([countExp]);
+    final result = await query.getSingle();
+    return result.read(countExp)!;
+  }
+
   /// Delete all custom exercises
   Future<int> deleteAll() {
     return delete(customExerciseDefinitions).go();

@@ -517,6 +517,7 @@ class _AddExerciseScreenState extends ConsumerState<AddExerciseScreen> {
       equipmentType: exerciseDef.equipmentType,
       orderIndex: existingExercise?.orderIndex ?? workout.exercises.length,
       videoUrl: exerciseDef.videoUrl,
+      restSeconds: exerciseDef.restSeconds,
       sets:
           existingExercise?.sets ??
           [

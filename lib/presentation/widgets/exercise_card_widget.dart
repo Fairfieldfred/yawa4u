@@ -28,6 +28,7 @@ class ExerciseCardCallbacks {
   final void Function(String exerciseId) onAddSet;
   final void Function(String exerciseId) onSkipSets;
   final void Function(String exerciseId) onDelete;
+  final void Function(String exerciseId)? onRestTimer;
 
   // Set-level callbacks
   final void Function(int setIndex) onAddSetBelow;
@@ -49,6 +50,7 @@ class ExerciseCardCallbacks {
     required this.onAddSet,
     required this.onSkipSets,
     required this.onDelete,
+    this.onRestTimer,
     required this.onAddSetBelow,
     required this.onToggleSetSkip,
     required this.onDeleteSet,
@@ -477,6 +479,9 @@ class ExerciseCardWidget extends ConsumerWidget {
           case 'joint_pain':
             callbacks.onJointPain(exercise.id);
             break;
+          case 'rest_timer':
+            callbacks.onRestTimer?.call(exercise.id);
+            break;
           case 'add_set':
             callbacks.onAddSet(exercise.id);
             break;
@@ -598,6 +603,24 @@ class ExerciseCardWidget extends ConsumerWidget {
             ],
           ),
         ),
+        // Rest timer
+        if (callbacks.onRestTimer != null)
+          PopupMenuItem<String>(
+            value: 'rest_timer',
+            height: 48,
+            child: Row(
+              children: [
+                Icon(Icons.timer, color: onSurfaceColor, size: 20),
+                const SizedBox(width: 12),
+                Text(
+                  exercise.restSeconds != null
+                      ? 'Rest: ${exercise.restSeconds}s'
+                      : 'Set rest timer',
+                  style: TextStyle(color: onSurfaceColor),
+                ),
+              ],
+            ),
+          ),
         // Add set
         PopupMenuItem<String>(
           value: 'add_set',

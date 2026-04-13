@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uuid/uuid.dart';
 
@@ -137,16 +138,19 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
             );
           },
           loading: () => const Center(child: CircularProgressIndicator()),
-          error: (error, stack) => Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.error_outline, size: 64, color: context.errorColor),
-                const SizedBox(height: 16),
-                Text('Error loading trainingCycles: $error'),
-              ],
-            ),
-          ),
+          error: (error, stack) {
+            Sentry.captureException(error, stackTrace: stack);
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.error_outline, size: 64, color: context.errorColor),
+                  const SizedBox(height: 16),
+                  Text('Error loading trainingCycles: $error'),
+                ],
+              ),
+            );
+          },
         ),
       ),
     );

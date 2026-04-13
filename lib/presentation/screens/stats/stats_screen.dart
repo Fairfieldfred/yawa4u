@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 import '../../../core/constants/enums.dart';
 import '../../../data/models/stats_data.dart';
 import '../../../data/models/training_cycle.dart';
+import '../../../domain/providers/measurement_providers.dart';
 import '../../../domain/providers/stats_providers.dart';
 import '../../../domain/providers/training_cycle_providers.dart';
 import '../../widgets/responsive_content.dart';
@@ -11,6 +13,7 @@ import '../../widgets/screen_background.dart';
 import '../../widgets/stats/cycle_comparison_view.dart';
 import '../../widgets/stats/volume_bar_chart.dart';
 import '../../widgets/stats/volume_line_chart.dart';
+import '../../widgets/stats/weight_progress_chart.dart';
 
 /// Statistics & Analytics screen showing workout volume,
 /// muscle group distribution, exercise frequency, and personal records.
@@ -29,7 +32,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
   }
 
   @override
@@ -77,6 +80,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen>
             tabs: const [
               Tab(text: 'Overview'),
               Tab(text: 'Compare'),
+              Tab(text: 'Body'),
             ],
           ),
         ),
@@ -99,17 +103,178 @@ class _StatsScreenState extends ConsumerState<StatsScreen>
                     data: (stats) => _buildStatsContent(context, stats),
                     loading: () =>
                         const Center(child: CircularProgressIndicator()),
-                    error: (error, _) => Center(
-                      child: Text('Error loading stats: $error'),
-                    ),
+                    error: (error, stack) {
+                      Sentry.captureException(error, stackTrace: stack);
+                      return Center(
+                        child: Text('Error loading stats: $error'),
+                      );
+                    },
                   ),
                 ),
               ],
             ),
             // Tab 2: Compare
             CycleComparisonView(availableCycles: cycleList),
+            // Tab 3: Body Metrics
+            _buildBodyMetricsTab(),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildBodyMetricsTab() {
+    final measurementsAsync = ref.watch(userMeasurementsProvider);
+
+    return measurementsAsync.when(
+      data: (measurements) {
+        if (measurements.isEmpty) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.monitor_weight_outlined,
+                  size: 64,
+                  color: Theme.of(context)
+                      .colorScheme
+                      .primary
+                      .withAlpha((255 * 0.5).round()),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'No Measurements Yet',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Add body measurements in Settings\nto see your progress here.',
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .onSurface
+                        .withAlpha((255 * 0.6).round()),
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+
+        final latest = measurements.first;
+        final bmiStr = latest.bmi.toStringAsFixed(1);
+        final weightStr = latest.weightKg.toStringAsFixed(1);
+
+        return ResponsiveContent(
+          child: ListView(
+            padding: const EdgeInsets.all(16),
+            children: [
+              // Summary cards
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildSummaryCard(
+                      context,
+                      'Weight',
+                      '$weightStr kg',
+                      Icons.monitor_weight_outlined,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: _buildSummaryCard(
+                      context,
+                      'BMI',
+                      bmiStr,
+                      Icons.straighten,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: _buildSummaryCard(
+                      context,
+                      'Entries',
+                      '${measurements.length}',
+                      Icons.timeline,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 24),
+
+              // Weight chart
+              _buildSectionHeader(context, 'Weight Progression'),
+              const SizedBox(height: 8),
+              SizedBox(
+                height: 200,
+                child: WeightProgressChart(
+                  measurements: measurements,
+                ),
+              ),
+              const SizedBox(height: 24),
+
+              // Body fat section (if available)
+              if (measurements.any((m) => m.bodyFatPercent != null)) ...[
+                _buildSectionHeader(context, 'Body Composition'),
+                const SizedBox(height: 8),
+                _buildCompositionList(context, measurements),
+                const SizedBox(height: 24),
+              ],
+            ],
+          ),
+        );
+      },
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (error, stack) {
+        Sentry.captureException(error, stackTrace: stack);
+        return Center(child: Text('Error loading measurements: $error'));
+      },
+    );
+  }
+
+  Widget _buildCompositionList(
+    BuildContext context,
+    List<dynamic> measurements,
+  ) {
+    final withFat = measurements
+        .where((m) => m.bodyFatPercent != null)
+        .take(5)
+        .toList();
+
+    return Container(
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardTheme.color,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        children: withFat.asMap().entries.map((entry) {
+          final index = entry.key;
+          final m = entry.value;
+          final fatStr = m.bodyFatPercent!.toStringAsFixed(1);
+          final leanStr = m.calculatedLeanMassKg?.toStringAsFixed(1);
+          return Column(
+            children: [
+              ListTile(
+                dense: true,
+                leading: Icon(
+                  Icons.pie_chart_outline,
+                  size: 20,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+                title: Text(
+                  '$fatStr% body fat${leanStr != null ? ' / $leanStr kg lean' : ''}',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+                trailing: Text(
+                  '${m.timestamp.month}/${m.timestamp.day}',
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+              ),
+              if (index < withFat.length - 1) const Divider(height: 1),
+            ],
+          );
+        }).toList(),
       ),
     );
   }

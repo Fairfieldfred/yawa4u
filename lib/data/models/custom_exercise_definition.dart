@@ -12,6 +12,7 @@ class CustomExerciseDefinition {
   final MuscleGroup? secondaryMuscleGroup;
   final EquipmentType equipmentType;
   final String? videoUrl;
+  final int? restSeconds;
   final DateTime createdAt;
 
   CustomExerciseDefinition({
@@ -21,6 +22,7 @@ class CustomExerciseDefinition {
     this.secondaryMuscleGroup,
     required this.equipmentType,
     this.videoUrl,
+    this.restSeconds,
     DateTime? createdAt,
   }) : createdAt = createdAt ?? DateTime.now();
 
@@ -32,6 +34,7 @@ class CustomExerciseDefinition {
       secondaryMuscleGroup: secondaryMuscleGroup,
       equipmentType: equipmentType,
       videoUrl: videoUrl,
+      restSeconds: restSeconds,
     );
   }
 
@@ -43,6 +46,7 @@ class CustomExerciseDefinition {
     MuscleGroup? secondaryMuscleGroup,
     EquipmentType? equipmentType,
     String? videoUrl,
+    int? restSeconds,
     DateTime? createdAt,
   }) {
     return CustomExerciseDefinition(
@@ -52,6 +56,7 @@ class CustomExerciseDefinition {
       secondaryMuscleGroup: secondaryMuscleGroup ?? this.secondaryMuscleGroup,
       equipmentType: equipmentType ?? this.equipmentType,
       videoUrl: videoUrl ?? this.videoUrl,
+      restSeconds: restSeconds ?? this.restSeconds,
       createdAt: createdAt ?? this.createdAt,
     );
   }
@@ -65,6 +70,7 @@ class CustomExerciseDefinition {
       'secondaryMuscleGroup': secondaryMuscleGroup?.name,
       'equipmentType': equipmentType.name,
       'videoUrl': videoUrl,
+      'restSeconds': restSeconds,
       'createdAt': createdAt.toIso8601String(),
     };
   }
@@ -89,6 +95,7 @@ class CustomExerciseDefinition {
         orElse: () => EquipmentType.barbell,
       ),
       videoUrl: json['videoUrl'] as String?,
+      restSeconds: json['restSeconds'] as int?,
       createdAt: json['createdAt'] != null
           ? DateTime.parse(json['createdAt'] as String)
           : DateTime.now(),

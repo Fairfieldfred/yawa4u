@@ -40,7 +40,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.e);
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration {
@@ -57,6 +57,54 @@ class AppDatabase extends _$AppDatabase {
             customExerciseDefinitions.secondaryMuscleGroup,
           );
         }
+        // Migration v2 -> v3: Add workout duration columns
+        if (from < 3) {
+          await m.addColumn(workouts, workouts.startTime);
+          await m.addColumn(workouts, workouts.endTime);
+        }
+        // Migration v3 -> v4: Add rest seconds columns
+        if (from < 4) {
+          await m.addColumn(exercises, exercises.restSeconds);
+          await m.addColumn(
+            customExerciseDefinitions,
+            customExerciseDefinitions.restSeconds,
+          );
+        }
+      },
+      beforeOpen: (details) async {
+        // Create indexes for frequently-filtered columns (idempotent)
+        await customStatement(
+          'CREATE INDEX IF NOT EXISTS idx_training_cycles_status '
+          'ON training_cycles(status)',
+        );
+        await customStatement(
+          'CREATE INDEX IF NOT EXISTS idx_workouts_training_cycle_uuid '
+          'ON workouts(training_cycle_uuid)',
+        );
+        await customStatement(
+          'CREATE INDEX IF NOT EXISTS idx_workouts_status '
+          'ON workouts(status)',
+        );
+        await customStatement(
+          'CREATE INDEX IF NOT EXISTS idx_workouts_scheduled_date '
+          'ON workouts(scheduled_date)',
+        );
+        await customStatement(
+          'CREATE INDEX IF NOT EXISTS idx_exercises_workout_uuid '
+          'ON exercises(workout_uuid)',
+        );
+        await customStatement(
+          'CREATE INDEX IF NOT EXISTS idx_exercises_name '
+          'ON exercises(name)',
+        );
+        await customStatement(
+          'CREATE INDEX IF NOT EXISTS idx_exercise_sets_exercise_uuid '
+          'ON exercise_sets(exercise_uuid)',
+        );
+        await customStatement(
+          'CREATE INDEX IF NOT EXISTS idx_exercise_feedbacks_exercise_uuid '
+          'ON exercise_feedbacks(exercise_uuid)',
+        );
       },
     );
   }

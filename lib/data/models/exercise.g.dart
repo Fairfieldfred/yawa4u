@@ -30,6 +30,7 @@ Exercise _$ExerciseFromJson(Map<String, dynamic> json) => Exercise(
       : DateTime.parse(json['lastPerformed'] as String),
   videoUrl: json['videoUrl'] as String?,
   isNotePinned: json['isNotePinned'] as bool? ?? false,
+  restSeconds: (json['restSeconds'] as num?)?.toInt(),
 );
 
 Map<String, dynamic> _$ExerciseToJson(Exercise instance) => <String, dynamic>{
@@ -47,6 +48,7 @@ Map<String, dynamic> _$ExerciseToJson(Exercise instance) => <String, dynamic>{
   'lastPerformed': instance.lastPerformed?.toIso8601String(),
   'videoUrl': instance.videoUrl,
   'isNotePinned': instance.isNotePinned,
+  'restSeconds': instance.restSeconds,
 };
 
 const _$MuscleGroupEnumMap = {

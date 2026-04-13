@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../core/constants/app_constants.dart';
@@ -580,10 +581,13 @@ class _TrainingCycleCreateScreenState
           children: [
             templatesAsync.when(
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (error, stack) => Text(
-                'Error loading templates: $error',
-                style: TextStyle(color: Theme.of(context).colorScheme.error),
-              ),
+              error: (error, stack) {
+                Sentry.captureException(error, stackTrace: stack);
+                return Text(
+                  'Error loading templates: $error',
+                  style: TextStyle(color: Theme.of(context).colorScheme.error),
+                );
+              },
               data: (templates) =>
                   DropdownButtonFormField<TrainingCycleTemplate?>(
                     initialValue: _selectedTemplate,

@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:network_info_plus/network_info_plus.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf/shelf_io.dart' as shelf_io;
@@ -234,7 +235,8 @@ class SkinShareService {
       onStatusChanged?.call(SkinShareStatus.waiting);
 
       return true;
-    } catch (e) {
+    } catch (e, stack) {
+      Sentry.captureException(e, stackTrace: stack);
       debugPrint('Failed to start skin share server: $e');
       return false;
     }
@@ -285,7 +287,8 @@ class SkinShareService {
               .toList(),
         );
       }
-    } catch (e) {
+    } catch (e, stack) {
+      Sentry.captureException(e, stackTrace: stack);
       debugPrint('Failed to connect to device: $e');
     }
     return null;
@@ -348,7 +351,8 @@ class SkinShareService {
             // Save the skin
             await _skinRepository.saveCustomSkin(updatedSkin);
             importedCount++;
-          } catch (e) {
+          } catch (e, stack) {
+            Sentry.captureException(e, stackTrace: stack);
             debugPrint('Error importing skin: $e');
           }
         }
@@ -364,7 +368,8 @@ class SkinShareService {
           message: 'Server returned ${response.statusCode}',
         );
       }
-    } catch (e) {
+    } catch (e, stack) {
+      Sentry.captureException(e, stackTrace: stack);
       return SkinShareResult(
         success: false,
         message: 'Connection failed: $e',

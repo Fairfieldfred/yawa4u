@@ -7,7 +7,7 @@ import '../models/exercise.dart' as model;
 import '../models/workout.dart';
 
 /// Repository for Workout CRUD operations using Drift
-/// Handles loading complete workout hierarchy (workout → exercises → sets)
+/// Handles loading complete workout hierarchy (workout -> exercises -> sets)
 class WorkoutRepository {
   final WorkoutDao _workoutDao;
   final ExerciseDao _exerciseDao;
@@ -78,27 +78,21 @@ class WorkoutRepository {
     return _mapRowToWorkout(row);
   }
 
-  /// Get workouts by trainingCycle ID
+  /// Get workouts by trainingCycle ID (sorted by period/day via DAO)
   Future<List<Workout>> getByTrainingCycleId(String trainingCycleId) async {
     final rows = await _workoutDao.getByTrainingCycleUuid(trainingCycleId);
     final workouts = <Workout>[];
     for (final row in rows) {
       workouts.add(await _mapRowToWorkout(row));
     }
-    workouts.sort((a, b) {
-      final periodCompare = a.periodNumber.compareTo(b.periodNumber);
-      if (periodCompare != 0) return periodCompare;
-      return a.dayNumber.compareTo(b.dayNumber);
-    });
     return workouts;
   }
 
-  /// Get workouts by status
+  /// Get workouts by status (uses indexed DB query)
   Future<List<Workout>> getByStatus(WorkoutStatus status) async {
-    final rows = await _workoutDao.getAll();
-    final filtered = rows.where((row) => row.status == status.index);
+    final rows = await _workoutDao.getByStatus(status.index);
     final workouts = <Workout>[];
-    for (final row in filtered) {
+    for (final row in rows) {
       workouts.add(await _mapRowToWorkout(row));
     }
     return workouts;
@@ -179,13 +173,8 @@ class WorkoutRepository {
 
     for (final existingExercise in existingExercises) {
       if (!newExerciseIds.contains(existingExercise.uuid)) {
-        final sets = await _exerciseSetDao.getByExerciseUuid(
-          existingExercise.uuid,
-        );
-        for (final set in sets) {
-          await _exerciseSetDao.deleteByUuid(set.uuid);
-        }
-        await _exerciseDao.deleteByUuid(existingExercise.uuid);
+        // Use cascade delete: removes sets + feedback in one go
+        await _exerciseDao.cascadeDeleteByUuid(existingExercise.uuid);
       }
     }
 
@@ -228,25 +217,14 @@ class WorkoutRepository {
     }
   }
 
-  /// Delete a workout and all its exercises and sets
+  /// Delete a workout and all its exercises, sets, and feedbacks
   Future<void> delete(String id) async {
-    final exercises = await _exerciseDao.getByWorkoutUuid(id);
-    for (final exercise in exercises) {
-      final sets = await _exerciseSetDao.getByExerciseUuid(exercise.uuid);
-      for (final set in sets) {
-        await _exerciseSetDao.deleteByUuid(set.uuid);
-      }
-      await _exerciseDao.deleteByUuid(exercise.uuid);
-    }
-    await _workoutDao.deleteByUuid(id);
+    await _workoutDao.cascadeDeleteByUuid(id);
   }
 
-  /// Delete all workouts for a trainingCycle
+  /// Delete all workouts for a trainingCycle (cascade deletes children)
   Future<void> deleteByTrainingCycleId(String trainingCycleId) async {
-    final workouts = await getByTrainingCycleId(trainingCycleId);
-    for (final workout in workouts) {
-      await delete(workout.id);
-    }
+    await _workoutDao.cascadeDeleteByTrainingCycleUuid(trainingCycleId);
   }
 
   /// Mark workout as completed
@@ -270,10 +248,9 @@ class WorkoutRepository {
     await update(workout.reset());
   }
 
-  /// Get total count
+  /// Get total count (uses SQL COUNT instead of loading all rows)
   Future<int> count() async {
-    final all = await getAll();
-    return all.length;
+    return _workoutDao.countRows();
   }
 
   /// Clear all workouts
@@ -288,24 +265,24 @@ class WorkoutRepository {
     await clear();
   }
 
-  /// Get workouts by date range
+  /// Get workouts by date range (uses indexed DB query)
   Future<List<Workout>> getByDateRange(DateTime start, DateTime end) async {
-    final all = await getAll();
-    return all.where((w) {
-      if (w.scheduledDate == null) return false;
-      return w.scheduledDate!.isAfter(start) && w.scheduledDate!.isBefore(end);
-    }).toList()..sort((a, b) => a.scheduledDate!.compareTo(b.scheduledDate!));
+    final rows = await _workoutDao.getByDateRange(start, end);
+    final workouts = <Workout>[];
+    for (final row in rows) {
+      workouts.add(await _mapRowToWorkout(row));
+    }
+    return workouts;
   }
 
-  /// Get upcoming workouts
+  /// Get upcoming workouts (uses indexed DB query)
   Future<List<Workout>> getUpcoming() async {
-    final now = DateTime.now();
-    final all = await getAll();
-    return all.where((w) {
-      if (w.status != WorkoutStatus.incomplete) return false;
-      if (w.scheduledDate == null) return false;
-      return w.scheduledDate!.isAfter(now);
-    }).toList()..sort((a, b) => a.scheduledDate!.compareTo(b.scheduledDate!));
+    final rows = await _workoutDao.getUpcoming(DateTime.now());
+    final workouts = <Workout>[];
+    for (final row in rows) {
+      workouts.add(await _mapRowToWorkout(row));
+    }
+    return workouts;
   }
 
   /// Get today's workouts
@@ -319,14 +296,14 @@ class WorkoutRepository {
   /// Get statistics
   Future<Map<String, dynamic>> getStats() async {
     final all = await getAll();
-    final completed = await getCompleted();
-    final incomplete = await getIncomplete();
-    final skipped = await getSkipped();
+    final completed = all.where((w) => w.isCompleted).length;
+    final incomplete = all.where((w) => !w.isCompleted && !w.isSkipped).length;
+    final skipped = all.where((w) => w.isSkipped).length;
     return {
       'total': all.length,
-      'completed': completed.length,
-      'incomplete': incomplete.length,
-      'skipped': skipped.length,
+      'completed': completed,
+      'incomplete': incomplete,
+      'skipped': skipped,
     };
   }
 

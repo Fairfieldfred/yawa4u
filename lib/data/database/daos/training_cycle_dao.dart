@@ -77,6 +77,46 @@ class TrainingCycleDao extends DatabaseAccessor<AppDatabase>
     return (delete(trainingCycles)..where((t) => t.uuid.equals(uuid))).go();
   }
 
+  /// Get training cycles by status
+  Future<List<TrainingCycle>> getByStatus(int status) {
+    return (select(trainingCycles)
+          ..where((t) => t.status.equals(status))
+          ..orderBy([(t) => OrderingTerm.desc(t.createdDate)]))
+        .get();
+  }
+
+  /// Search training cycles by name (case-insensitive partial match)
+  Future<List<TrainingCycle>> searchByName(String query) {
+    return (select(trainingCycles)
+          ..where(
+            (t) => t.name.collate(Collate.noCase).like('%$query%'),
+          )
+          ..orderBy([(t) => OrderingTerm.desc(t.createdDate)]))
+        .get();
+  }
+
+  /// Get training cycles by template name
+  Future<List<TrainingCycle>> getByTemplateName(String templateName) {
+    return (select(trainingCycles)
+          ..where((t) => t.templateName.equals(templateName))
+          ..orderBy([(t) => OrderingTerm.desc(t.createdDate)]))
+        .get();
+  }
+
+  /// Deactivate all current training cycles (set status to draft=0)
+  Future<int> deactivateAllCurrent() {
+    return (update(trainingCycles)..where((t) => t.status.equals(1)))
+        .write(const TrainingCyclesCompanion(status: Value(0)));
+  }
+
+  /// Get count of training cycles
+  Future<int> countRows() async {
+    final countExp = trainingCycles.id.count();
+    final query = selectOnly(trainingCycles)..addColumns([countExp]);
+    final result = await query.getSingle();
+    return result.read(countExp)!;
+  }
+
   /// Delete all training cycles
   Future<int> deleteAll() {
     return delete(trainingCycles).go();

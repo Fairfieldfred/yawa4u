@@ -8,6 +8,7 @@ import 'package:intl/intl.dart';
 
 import '../../../core/constants/enums.dart';
 import '../../../data/database/app_database.dart' show ExerciseSetsCompanion;
+import '../../../data/database/mappers/entity_mappers.dart' show ExerciseFeedbackMapper;
 import '../../../core/theme/skins/skins.dart';
 import '../../../core/utils/day_sequence.dart';
 import '../../../data/models/exercise.dart';
@@ -26,6 +27,7 @@ import '../../widgets/app_icon_widget.dart';
 import '../../widgets/calendar_dropdown.dart';
 import '../../widgets/cycle_summary_dialog.dart';
 import '../../widgets/dialogs/add_exercise_dialog.dart';
+import '../../widgets/dialogs/exercise_feedback_dialog.dart';
 import '../../widgets/dialogs/workout_dialogs.dart';
 import '../../widgets/exercise_card_widget.dart';
 import '../../widgets/screen_background.dart';
@@ -1470,11 +1472,33 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
         });
   }
 
-  void _logJointPain(String workoutId, String exerciseId) {
-    // TODO: Implement joint pain feedback
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Joint pain logging coming soon')),
+  Future<void> _logJointPain(String workoutId, String exerciseId) async {
+    final repository = ref.read(workoutRepositoryProvider);
+    final workout = await repository.getById(workoutId);
+    if (workout == null) return;
+
+    final exercise = workout.exercises.firstWhere(
+      (e) => e.id == exerciseId,
+      orElse: () => workout.exercises.first,
     );
+
+    if (!mounted) return;
+
+    final feedback = await ExerciseFeedbackDialog.show(
+      context,
+      exerciseName: exercise.name,
+      existing: exercise.feedback,
+    );
+
+    if (feedback == null) return;
+
+    final dao = ref.read(exerciseFeedbackDaoProvider);
+    final companion = ExerciseFeedbackMapper.toCompanion(
+      feedback,
+      exerciseId,
+    );
+    await dao.upsertFeedback(companion);
+    _invalidateWorkoutProviders();
   }
 
   Future<void> _addSetToExercise(String workoutId, String exerciseId) async {
@@ -1788,12 +1812,19 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
     if (setIndex >= exercise.sets.length) return;
 
     final set = exercise.sets[setIndex];
-    final updatedSet = set.copyWith(isLogged: !set.isLogged);
+    final nowLogging = !set.isLogged;
+    final updatedSet = set.copyWith(isLogged: nowLogging);
     final updatedExercise = exercise.updateSet(setIndex, updatedSet);
-    final updatedWorkout = workout.updateExercise(
+    var updatedWorkout = workout.updateExercise(
       exerciseIndex,
       updatedExercise,
     );
+
+    // Auto-record start time on the first logged set
+    if (nowLogging && updatedWorkout.startTime == null) {
+      updatedWorkout = updatedWorkout.copyWith(startTime: DateTime.now());
+    }
+
     await repository.update(updatedWorkout);
 
     // Force UI update

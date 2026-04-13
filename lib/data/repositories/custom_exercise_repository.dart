@@ -56,16 +56,10 @@ class CustomExerciseRepository {
     await _dao.insertExercise(companion);
   }
 
-  /// Update an existing custom exercise
+  /// Update an existing custom exercise (uses proper DAO updateByUuid)
   Future<void> update(CustomExerciseDefinition exercise) async {
     final companion = CustomExerciseMapper.toCompanion(exercise);
-    final existing = await _dao.getByUuid(exercise.id);
-    if (existing != null) {
-      // Update using the existing row's id
-      await ((_dao as dynamic).update(_dao.customExerciseDefinitions)
-            ..where((c) => (c as dynamic).uuid.equals(exercise.id)))
-          .write(companion);
-    }
+    await _dao.updateByUuid(exercise.id, companion);
   }
 
   /// Delete a custom exercise by ID
@@ -78,9 +72,8 @@ class CustomExerciseRepository {
     await _dao.deleteAll();
   }
 
-  /// Get count of custom exercises
+  /// Get count of custom exercises (uses SQL COUNT)
   Future<int> count() async {
-    final all = await getAll();
-    return all.length;
+    return _dao.countRows();
   }
 }

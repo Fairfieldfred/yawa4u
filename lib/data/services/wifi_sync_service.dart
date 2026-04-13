@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:network_info_plus/network_info_plus.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf/shelf_io.dart' as shelf_io;
@@ -205,7 +206,8 @@ class WifiSyncService {
       onStatusChanged?.call(SyncStatus.waiting);
 
       return true;
-    } catch (e) {
+    } catch (e, stack) {
+      Sentry.captureException(e, stackTrace: stack);
       debugPrint('Failed to start sync server: $e');
       return false;
     }
@@ -245,7 +247,8 @@ class WifiSyncService {
           exerciseCount: info['exercises'] as int,
         );
       }
-    } catch (e) {
+    } catch (e, stack) {
+      Sentry.captureException(e, stackTrace: stack);
       debugPrint('Failed to connect to device: $e');
     }
     return null;
@@ -289,7 +292,8 @@ class WifiSyncService {
           message: 'Server returned ${response.statusCode}',
         );
       }
-    } catch (e) {
+    } catch (e, stack) {
+      Sentry.captureException(e, stackTrace: stack);
       return SyncResult(success: false, message: 'Connection failed: $e');
     }
   }
@@ -331,7 +335,8 @@ class WifiSyncService {
           message: 'Server returned ${response.statusCode}',
         );
       }
-    } catch (e) {
+    } catch (e, stack) {
+      Sentry.captureException(e, stackTrace: stack);
       return SyncResult(success: false, message: 'Connection failed: $e');
     }
   }

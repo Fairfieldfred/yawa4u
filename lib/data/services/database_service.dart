@@ -2,8 +2,10 @@ import 'dart:io';
 
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
+import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 import '../database/database.dart';
 
@@ -35,8 +37,14 @@ class DatabaseService {
   Future<void> initialize() async {
     if (_initialized) return;
 
-    _database = AppDatabase(_openConnection());
-    _initialized = true;
+    try {
+      _database = AppDatabase(_openConnection());
+      _initialized = true;
+    } catch (e, stackTrace) {
+      debugPrint('DatabaseService: Failed to initialize database: $e');
+      Sentry.captureException(e, stackTrace: stackTrace);
+      rethrow;
+    }
   }
 
   /// Open the database connection
@@ -57,18 +65,24 @@ class DatabaseService {
   /// Clear all data from all tables
   Future<void> clearDatabase() async {
     if (_database == null) return;
-    
-    await _database!.transaction(() async {
-      // Delete in order respecting foreign key constraints
-      await _database!.delete(_database!.exerciseFeedbacks).go();
-      await _database!.delete(_database!.exerciseSets).go();
-      await _database!.delete(_database!.exercises).go();
-      await _database!.delete(_database!.workouts).go();
-      await _database!.delete(_database!.trainingCycles).go();
-      await _database!.delete(_database!.customExerciseDefinitions).go();
-      await _database!.delete(_database!.userMeasurements).go();
-      await _database!.delete(_database!.skins).go();
-    });
+
+    try {
+      await _database!.transaction(() async {
+        // Delete in order respecting foreign key constraints
+        await _database!.delete(_database!.exerciseFeedbacks).go();
+        await _database!.delete(_database!.exerciseSets).go();
+        await _database!.delete(_database!.exercises).go();
+        await _database!.delete(_database!.workouts).go();
+        await _database!.delete(_database!.trainingCycles).go();
+        await _database!.delete(_database!.customExerciseDefinitions).go();
+        await _database!.delete(_database!.userMeasurements).go();
+        await _database!.delete(_database!.skins).go();
+      });
+    } catch (e, stackTrace) {
+      debugPrint('DatabaseService: Failed to clear database: $e');
+      Sentry.captureException(e, stackTrace: stackTrace);
+      rethrow;
+    }
   }
 
   /// Close the database
@@ -80,37 +94,48 @@ class DatabaseService {
 
   /// Delete and recreate the database (for corrupted data scenarios)
   Future<void> resetDatabase() async {
-    await close();
-    
-    final dbPath = await getDatabasePath();
-    final file = File(dbPath);
-    if (await file.exists()) {
-      await file.delete();
+    try {
+      await close();
+
+      final dbPath = await getDatabasePath();
+      final file = File(dbPath);
+      if (await file.exists()) {
+        await file.delete();
+      }
+
+      await initialize();
+    } catch (e, stackTrace) {
+      debugPrint('DatabaseService: Failed to reset database: $e');
+      Sentry.captureException(e, stackTrace: stackTrace);
+      rethrow;
     }
-    
-    await initialize();
   }
 
-  /// Get database statistics
+  /// Get database statistics (uses efficient SQL COUNT queries)
   Future<Map<String, int>> getStatistics() async {
     if (_database == null) return {};
-    
-    final trainingCycleCount = await _database!.trainingCycleDao.getAllSorted().then((list) => list.length);
-    final workoutCount = await _database!.workoutDao.getAll().then((list) => list.length);
-    final exerciseCount = await _database!.exerciseDao.getAll().then((list) => list.length);
-    final exerciseSetCount = await _database!.exerciseSetDao.getAll().then((list) => list.length);
-    final customExerciseCount = await _database!.customExerciseDao.getAllSorted().then((list) => list.length);
-    final userMeasurementCount = await _database!.userMeasurementDao.getAllSorted().then((list) => list.length);
-    final skinCount = await _database!.skinDao.getAllSorted().then((list) => list.length);
-    
-    return {
-      'trainingCycles': trainingCycleCount,
-      'workouts': workoutCount,
-      'exercises': exerciseCount,
-      'exerciseSets': exerciseSetCount,
-      'customExercises': customExerciseCount,
-      'userMeasurements': userMeasurementCount,
-      'skins': skinCount,
-    };
+
+    try {
+      final trainingCycleCount =
+          await _database!.trainingCycleDao.countRows();
+      final workoutCount = await _database!.workoutDao.countRows();
+      final exerciseCount = await _database!.exerciseDao.countRows();
+      final customExerciseCount =
+          await _database!.customExerciseDao.countRows();
+      final userMeasurementCount =
+          await _database!.userMeasurementDao.countRows();
+
+      return {
+        'trainingCycles': trainingCycleCount,
+        'workouts': workoutCount,
+        'exercises': exerciseCount,
+        'customExercises': customExerciseCount,
+        'userMeasurements': userMeasurementCount,
+      };
+    } catch (e, stackTrace) {
+      debugPrint('DatabaseService: Failed to get statistics: $e');
+      Sentry.captureException(e, stackTrace: stackTrace);
+      return {};
+    }
   }
 }
