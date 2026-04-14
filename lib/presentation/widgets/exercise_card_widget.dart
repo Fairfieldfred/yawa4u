@@ -715,6 +715,7 @@ class ExerciseCardWidget extends ConsumerWidget {
                     ),
                     style: Theme.of(context).textTheme.bodyMedium,
                     textAlign: TextAlign.center,
+                    keyboardAppearance: Brightness.light,
                     decoration: InputDecoration(
                       filled: false,
                       hintText: weightUnit,
@@ -799,6 +800,7 @@ class ExerciseCardWidget extends ConsumerWidget {
                       style: Theme.of(context).textTheme.bodyMedium,
                       textAlign: TextAlign.center,
                       keyboardType: TextInputType.number,
+                      keyboardAppearance: Brightness.light,
                       decoration: InputDecoration(
                         filled: false,
                         hintText: targetRir != null ? '$targetRir RIR' : 'RIR',

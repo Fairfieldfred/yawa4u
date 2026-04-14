@@ -1363,6 +1363,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
                                     ).textTheme.bodyMedium,
                                     textAlign: TextAlign.center,
                                     keyboardType: TextInputType.number,
+                                    keyboardAppearance: Brightness.light,
                                     decoration: InputDecoration(
                                       filled: false,
                                       hintText: 'reps',
