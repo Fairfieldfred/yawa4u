@@ -1,8 +1,15 @@
+export 'cardio_feedback_dao.dart';
 export 'custom_exercise_dao.dart';
+export 'cycle_period_dao.dart';
 export 'exercise_dao.dart';
 export 'exercise_feedback_dao.dart';
 export 'exercise_set_dao.dart';
+export 'session_cardio_dao.dart';
+export 'session_dao.dart';
+export 'session_interval_dao.dart';
+export 'session_sample_dao.dart';
 export 'skin_dao.dart';
+export 'sport_zone_dao.dart';
 export 'training_cycle_dao.dart';
 export 'user_measurement_dao.dart';
 export 'workout_dao.dart';

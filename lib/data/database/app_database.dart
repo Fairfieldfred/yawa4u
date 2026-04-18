@@ -6,6 +6,7 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
 import 'daos/daos.dart';
+import 'migrations/v5_backfill.dart';
 import 'tables.dart';
 
 part 'app_database.g.dart';
@@ -21,6 +22,14 @@ part 'app_database.g.dart';
     CustomExerciseDefinitions,
     UserMeasurements,
     Skins,
+    // v5 — multi-sport expansion
+    Sessions,
+    CyclePeriods,
+    SessionCardio,
+    SessionIntervals,
+    SessionSamples,
+    SportZones,
+    CardioFeedback,
   ],
   daos: [
     TrainingCycleDao,
@@ -31,6 +40,14 @@ part 'app_database.g.dart';
     CustomExerciseDao,
     UserMeasurementDao,
     SkinDao,
+    // v5 — multi-sport expansion
+    SessionDao,
+    CyclePeriodDao,
+    SessionCardioDao,
+    SessionIntervalDao,
+    SessionSampleDao,
+    SportZoneDao,
+    CardioFeedbackDao,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -40,7 +57,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.e);
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration {
@@ -69,6 +86,33 @@ class AppDatabase extends _$AppDatabase {
             customExerciseDefinitions,
             customExerciseDefinitions.restSeconds,
           );
+        }
+        // Migration v4 -> v5: Multi-sport expansion.
+        //
+        // Structural-only in this commit. Data backfill
+        // (creatorUuid / ownerUuid / primarySport / workouts->sessions copy
+        // / cycle_periods generation) lives in a separate step wired up by
+        // [AppDatabaseV5Backfill] so it can be tested and reasoned about
+        // independently of the table / column shape.
+        if (from < 5) {
+          // New columns on existing tables
+          await m.addColumn(trainingCycles, trainingCycles.primarySport);
+          await m.addColumn(trainingCycles, trainingCycles.creatorUuid);
+          await m.addColumn(trainingCycles, trainingCycles.ownerUuid);
+          await m.addColumn(exercises, exercises.sessionUuid);
+          await m.addColumn(exerciseFeedbacks, exerciseFeedbacks.sessionUuid);
+
+          // New tables
+          await m.createTable(sessions);
+          await m.createTable(cyclePeriods);
+          await m.createTable(sessionCardio);
+          await m.createTable(sessionIntervals);
+          await m.createTable(sessionSamples);
+          await m.createTable(sportZones);
+          await m.createTable(cardioFeedback);
+
+          // Backfill existing rows so readers see a consistent v5 shape.
+          await AppDatabaseV5Backfill(this).run();
         }
       },
       beforeOpen: (details) async {
@@ -104,6 +148,47 @@ class AppDatabase extends _$AppDatabase {
         await customStatement(
           'CREATE INDEX IF NOT EXISTS idx_exercise_feedbacks_exercise_uuid '
           'ON exercise_feedbacks(exercise_uuid)',
+        );
+        // v5 indexes
+        await customStatement(
+          'CREATE INDEX IF NOT EXISTS idx_sessions_training_cycle_uuid '
+          'ON sessions(training_cycle_uuid)',
+        );
+        await customStatement(
+          'CREATE INDEX IF NOT EXISTS idx_sessions_sport '
+          'ON sessions(sport)',
+        );
+        await customStatement(
+          'CREATE INDEX IF NOT EXISTS idx_sessions_scheduled_date '
+          'ON sessions(scheduled_date)',
+        );
+        await customStatement(
+          'CREATE INDEX IF NOT EXISTS idx_sessions_external_id '
+          'ON sessions(external_id)',
+        );
+        await customStatement(
+          'CREATE INDEX IF NOT EXISTS idx_cycle_periods_cycle_uuid '
+          'ON cycle_periods(training_cycle_uuid)',
+        );
+        await customStatement(
+          'CREATE INDEX IF NOT EXISTS idx_session_cardio_session_uuid '
+          'ON session_cardio(session_uuid)',
+        );
+        await customStatement(
+          'CREATE INDEX IF NOT EXISTS idx_session_intervals_session_uuid '
+          'ON session_intervals(session_uuid)',
+        );
+        await customStatement(
+          'CREATE INDEX IF NOT EXISTS idx_session_samples_session_uuid '
+          'ON session_samples(session_uuid)',
+        );
+        await customStatement(
+          'CREATE INDEX IF NOT EXISTS idx_exercises_session_uuid '
+          'ON exercises(session_uuid)',
+        );
+        await customStatement(
+          'CREATE INDEX IF NOT EXISTS idx_sport_zones_sport '
+          'ON sport_zones(sport)',
         );
       },
     );

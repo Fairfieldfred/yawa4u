@@ -4,8 +4,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/constants/muscle_groups.dart';
+import '../../core/constants/sports.dart';
 import '../../core/theme/skins/skins.dart';
 import '../../domain/providers/onboarding_providers.dart';
+import '../screens/cardio/cardio_session_screen.dart';
 import '../screens/workout/add_exercise_screen.dart';
 import '../screens/workout/completed_cycle_workout_screen.dart';
 import '../screens/training_cycles/cycle_create_screen.dart';
@@ -33,6 +35,9 @@ class AppRoutes {
   static const String completedTrainingCycleView =
       '/trainingCycles/:trainingCycleId/view';
   static const String stats = '/stats';
+  // v5 — multi-sport cardio
+  static const String cardioSessionNew = '/cardio-session/new';
+  static const String cardioSessionEdit = '/cardio-session/:sessionId';
 }
 
 /// Provider for GoRouter instance
@@ -214,6 +219,35 @@ final routerProvider = Provider<GoRouter>((ref) {
           name: 'sentry-debug',
           builder: (context, state) => const SentryDebugScreen(),
         ),
+
+      // v5 — Cardio session screens.
+      // Create: /cardio-session/new?sport=run&trainingCycleId=...
+      GoRoute(
+        path: AppRoutes.cardioSessionNew,
+        name: 'cardio-session-new',
+        builder: (context, state) {
+          final sportParam = state.uri.queryParameters['sport'];
+          final trainingCycleId =
+              state.uri.queryParameters['trainingCycleId'];
+          final sport = sportParam != null
+              ? Sports.parse(sportParam)
+              : Sport.run;
+          return CardioSessionScreen(
+            sport: sport,
+            trainingCycleId: trainingCycleId,
+          );
+        },
+      ),
+
+      // Edit: /cardio-session/:sessionId
+      GoRoute(
+        path: AppRoutes.cardioSessionEdit,
+        name: 'cardio-session-edit',
+        builder: (context, state) {
+          final sessionId = state.pathParameters['sessionId']!;
+          return CardioSessionScreen(sessionId: sessionId);
+        },
+      ),
     ],
 
     // Error page

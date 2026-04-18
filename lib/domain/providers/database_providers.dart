@@ -1,8 +1,12 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/database/database.dart';
+import '../../data/repositories/cardio_feedback_repository.dart';
 import '../../data/repositories/custom_exercise_repository.dart';
+import '../../data/repositories/cycle_period_repository.dart';
 import '../../data/repositories/exercise_repository.dart';
+import '../../data/repositories/session_repository.dart';
+import '../../data/repositories/sport_zone_repository.dart';
 import '../../data/repositories/training_cycle_repository.dart';
 import '../../data/repositories/user_measurement_repository.dart';
 import '../../data/repositories/workout_repository.dart';
@@ -72,6 +76,52 @@ final skinDaoProvider = Provider<SkinDao>((ref) {
   return db.skinDao;
 });
 
+// ---------------------------------------------------------------------------
+// v5 — Multi-sport DAO providers.
+// ---------------------------------------------------------------------------
+
+/// Provider for SessionDao (v5).
+final sessionDaoProvider = Provider<SessionDao>((ref) {
+  final db = ref.watch(appDatabaseProvider);
+  return db.sessionDao;
+});
+
+/// Provider for CyclePeriodDao (v5).
+final cyclePeriodDaoProvider = Provider<CyclePeriodDao>((ref) {
+  final db = ref.watch(appDatabaseProvider);
+  return db.cyclePeriodDao;
+});
+
+/// Provider for SessionCardioDao (v5).
+final sessionCardioDaoProvider = Provider<SessionCardioDao>((ref) {
+  final db = ref.watch(appDatabaseProvider);
+  return db.sessionCardioDao;
+});
+
+/// Provider for SessionIntervalDao (v5).
+final sessionIntervalDaoProvider = Provider<SessionIntervalDao>((ref) {
+  final db = ref.watch(appDatabaseProvider);
+  return db.sessionIntervalDao;
+});
+
+/// Provider for SessionSampleDao (v5).
+final sessionSampleDaoProvider = Provider<SessionSampleDao>((ref) {
+  final db = ref.watch(appDatabaseProvider);
+  return db.sessionSampleDao;
+});
+
+/// Provider for SportZoneDao (v5).
+final sportZoneDaoProvider = Provider<SportZoneDao>((ref) {
+  final db = ref.watch(appDatabaseProvider);
+  return db.sportZoneDao;
+});
+
+/// Provider for CardioFeedbackDao (v5).
+final cardioFeedbackDaoProvider = Provider<CardioFeedbackDao>((ref) {
+  final db = ref.watch(appDatabaseProvider);
+  return db.cardioFeedbackDao;
+});
+
 // =============================================================================
 // Repository Providers
 // =============================================================================
@@ -113,4 +163,43 @@ final userMeasurementRepositoryProvider = Provider<UserMeasurementRepository>((
 ) {
   final dao = ref.watch(userMeasurementDaoProvider);
   return UserMeasurementRepository(dao);
+});
+
+// ---------------------------------------------------------------------------
+// v5 — Multi-sport repository providers.
+// ---------------------------------------------------------------------------
+
+/// Provider for [SessionRepository] (v5).
+///
+/// Reads the polymorphic sessions table and hydrates the appropriate child
+/// tables (exercises/sets for strength, cardio detail / intervals / samples
+/// for cardio). Cardio writes happen here; strength writes continue via
+/// [workoutRepositoryProvider] until the UI migrates in Phase 3.
+final sessionRepositoryProvider = Provider<SessionRepository>((ref) {
+  return SessionRepository(
+    ref.watch(sessionDaoProvider),
+    ref.watch(exerciseDaoProvider),
+    ref.watch(exerciseSetDaoProvider),
+    ref.watch(sessionCardioDaoProvider),
+    ref.watch(sessionIntervalDaoProvider),
+    ref.watch(sessionSampleDaoProvider),
+    ref.watch(cardioFeedbackDaoProvider),
+  );
+});
+
+/// Provider for [CyclePeriodRepository] (v5).
+final cyclePeriodRepositoryProvider = Provider<CyclePeriodRepository>((ref) {
+  return CyclePeriodRepository(ref.watch(cyclePeriodDaoProvider));
+});
+
+/// Provider for [SportZoneRepository] (v5).
+final sportZoneRepositoryProvider = Provider<SportZoneRepository>((ref) {
+  return SportZoneRepository(ref.watch(sportZoneDaoProvider));
+});
+
+/// Provider for [CardioFeedbackRepository] (v5).
+final cardioFeedbackRepositoryProvider = Provider<CardioFeedbackRepository>((
+  ref,
+) {
+  return CardioFeedbackRepository(ref.watch(cardioFeedbackDaoProvider));
 });

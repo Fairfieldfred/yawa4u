@@ -7,6 +7,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/constants/app_constants.dart';
+import '../../../core/constants/sports.dart';
 import '../../../core/services/sentry_service.dart';
 import '../../../core/theme/skins/skin_provider.dart';
 import '../../../domain/providers/onboarding_providers.dart';
@@ -14,6 +15,7 @@ import '../../../domain/providers/theme_provider.dart';
 import '../../widgets/app_icon_widget.dart';
 import '../../widgets/responsive_content.dart';
 import '../../widgets/screen_background.dart';
+import '../cardio/sport_picker_sheet.dart';
 
 /// More/Settings screen
 class MoreScreen extends ConsumerStatefulWidget {
@@ -261,6 +263,27 @@ class _MoreScreenState extends ConsumerState<MoreScreen>
               subtitle: const Text('Volume, records, and progress'),
               trailing: const Icon(Icons.chevron_right),
               onTap: () => context.push('/stats'),
+            ),
+            const Divider(height: 1),
+
+            // Log cardio session (v5)
+            ListTile(
+              leading: const Icon(Icons.directions_run),
+              title: const Text('Log cardio session'),
+              subtitle: const Text('Run, bike, or swim — quick entry'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () async {
+                final sport = await SportPickerSheet.show(
+                  context,
+                  title: 'Log a session',
+                  choices: const [Sport.run, Sport.bike, Sport.swim],
+                );
+                if (sport != null && context.mounted) {
+                  context.push(
+                    '/cardio-session/new?sport=${sport.name}',
+                  );
+                }
+              },
             ),
             const Divider(height: 1),
 

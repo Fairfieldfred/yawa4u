@@ -315,3 +315,84 @@ extension RecoveryPeriodTypeExtension on RecoveryPeriodType {
     }
   }
 }
+
+/// Cardio periodization phase attached to each period of a training cycle.
+///
+/// Distinct from [RecoveryPeriodType] (which stays strength-focused). Strength
+/// cycles leave this null. Cardio / mixed cycles set one phase per period.
+enum TrainingPhase {
+  base,
+  build,
+  peak,
+  taper,
+  transition,
+}
+
+extension TrainingPhaseExtension on TrainingPhase {
+  String get displayName {
+    switch (this) {
+      case TrainingPhase.base:
+        return 'Base';
+      case TrainingPhase.build:
+        return 'Build';
+      case TrainingPhase.peak:
+        return 'Peak';
+      case TrainingPhase.taper:
+        return 'Taper';
+      case TrainingPhase.transition:
+        return 'Transition';
+    }
+  }
+
+  /// Short label for calendar / stat chips.
+  String get abbreviation {
+    switch (this) {
+      case TrainingPhase.base:
+        return 'B';
+      case TrainingPhase.build:
+        return 'Bu';
+      case TrainingPhase.peak:
+        return 'Pk';
+      case TrainingPhase.taper:
+        return 'Tp';
+      case TrainingPhase.transition:
+        return 'Tr';
+    }
+  }
+
+  String get description {
+    switch (this) {
+      case TrainingPhase.base:
+        return 'Aerobic foundation — high volume, low intensity';
+      case TrainingPhase.build:
+        return 'Build fitness — volume plus targeted intensity';
+      case TrainingPhase.peak:
+        return 'Race-specific intensity, reduced total volume';
+      case TrainingPhase.taper:
+        return 'Reduce volume sharply, keep touches of intensity';
+      case TrainingPhase.transition:
+        return 'Active recovery between training blocks';
+    }
+  }
+}
+
+/// Measurement unit system. Stored per-sport in [OnboardingService] so users
+/// can run in miles, ride in km, and swim in meters independently.
+enum UnitSystem {
+  imperial,
+  metric,
+}
+
+extension UnitSystemExtension on UnitSystem {
+  String get displayName {
+    switch (this) {
+      case UnitSystem.imperial:
+        return 'Imperial';
+      case UnitSystem.metric:
+        return 'Metric';
+    }
+  }
+
+  bool get isMetric => this == UnitSystem.metric;
+  bool get isImperial => this == UnitSystem.imperial;
+}

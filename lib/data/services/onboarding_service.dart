@@ -1,4 +1,9 @@
+import 'dart:convert';
+
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../core/constants/enums.dart';
+import '../../core/constants/sports.dart';
 
 /// Service to manage onboarding state and user preferences
 class OnboardingService {
@@ -14,6 +19,23 @@ class OnboardingService {
   static const String _keyAppIconIndex = 'user_app_icon_index';
   static const String _keyBodyFatPercent = 'user_body_fat_percent';
   static const String _keyLeanMassKg = 'user_lean_mass_kg';
+  // v5 — per-sport unit preferences. Stored as a JSON Map<Sport.name,
+  // UnitSystem.name> so it extends cleanly without a schema migration.
+  static const String _keyPerSportUnits = 'user_per_sport_units';
+
+  /// Sport-aware defaults used when the user hasn't explicitly set a
+  /// per-sport preference. Matches real-world endurance conventions:
+  /// strength lifters default to their overall [useMetric] preference,
+  /// runners default to miles (US-heavy user base), cyclists default to km
+  /// (cycling-world standard), and swimmers default to meters.
+  ///
+  /// These are overridden on a per-sport basis by [setUnitsFor].
+  static const Map<Sport, UnitSystem> _sportDefaults = {
+    Sport.run: UnitSystem.imperial,
+    Sport.bike: UnitSystem.metric,
+    Sport.swim: UnitSystem.metric,
+    Sport.other: UnitSystem.metric,
+  };
 
   final SharedPreferences _prefs;
 
@@ -133,4 +155,66 @@ class OnboardingService {
         return 'Training Cycles';
     }
   }
+
+  // ---------------------------------------------------------------------------
+  // v5 — Per-sport unit preferences
+  // ---------------------------------------------------------------------------
+
+  Map<Sport, UnitSystem> _readPerSportUnits() {
+    final raw = _prefs.getString(_keyPerSportUnits);
+    if (raw == null || raw.isEmpty) return const {};
+    try {
+      final decoded = jsonDecode(raw) as Map<String, dynamic>;
+      final out = <Sport, UnitSystem>{};
+      decoded.forEach((sportName, unitName) {
+        final sport = Sport.values
+            .where((s) => s.name == sportName)
+            .firstOrNull;
+        final unit = UnitSystem.values
+            .where((u) => u.name == unitName)
+            .firstOrNull;
+        if (sport != null && unit != null) out[sport] = unit;
+      });
+      return out;
+    } on FormatException {
+      return const {};
+    }
+  }
+
+  Future<void> _writePerSportUnits(Map<Sport, UnitSystem> map) async {
+    final encoded = jsonEncode({
+      for (final e in map.entries) e.key.name: e.value.name,
+    });
+    await _prefs.setString(_keyPerSportUnits, encoded);
+  }
+
+  /// Resolved unit system for [sport]. Order of precedence:
+  ///   1. Explicit per-sport preference written by [setUnitsFor].
+  ///   2. Sport-specific default in [_sportDefaults] (e.g. bike → metric).
+  ///   3. The legacy global [useMetric] preference, for back-compat with
+  ///      pre-v5 users who only have one unit choice on record.
+  UnitSystem unitsFor(Sport sport) {
+    final explicit = _readPerSportUnits()[sport];
+    if (explicit != null) return explicit;
+    final sportDefault = _sportDefaults[sport];
+    if (sportDefault != null) return sportDefault;
+    return useMetric ? UnitSystem.metric : UnitSystem.imperial;
+  }
+
+  /// Write an explicit unit preference for [sport].
+  Future<void> setUnitsFor(Sport sport, UnitSystem units) async {
+    final current = Map<Sport, UnitSystem>.from(_readPerSportUnits());
+    current[sport] = units;
+    await _writePerSportUnits(current);
+  }
+
+  /// Clear every explicit per-sport preference so [unitsFor] falls back to
+  /// defaults + [useMetric]. Primarily for tests and settings "reset".
+  Future<void> clearPerSportUnits() async {
+    await _prefs.remove(_keyPerSportUnits);
+  }
+
+  /// Snapshot of the current per-sport preferences (only sports the user
+  /// has explicitly touched). Useful for the Settings → Units screen.
+  Map<Sport, UnitSystem> get perSportUnits => _readPerSportUnits();
 }

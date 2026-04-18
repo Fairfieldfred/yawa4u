@@ -5,6 +5,7 @@ import 'package:drift/drift.dart';
 import '../../core/constants/enums.dart';
 import '../../core/constants/equipment_types.dart';
 import '../../core/constants/muscle_groups.dart';
+import '../../core/constants/sports.dart';
 
 /// Type converter for TrainingCycleStatus enum
 class TrainingCycleStatusConverter
@@ -208,4 +209,75 @@ class MuscleGroupSorenessMapConverter
   String toSql(Map<String, Soreness> value) {
     return jsonEncode(value.map((key, v) => MapEntry(key, v.index)));
   }
+}
+
+// ---------------------------------------------------------------------------
+// v5 converters (multi-sport expansion).
+// ---------------------------------------------------------------------------
+
+/// Type converter for Sport enum.
+class SportConverter extends TypeConverter<Sport, int> {
+  const SportConverter();
+
+  @override
+  Sport fromSql(int fromDb) => Sport.values[fromDb];
+
+  @override
+  int toSql(Sport value) => value.index;
+}
+
+/// Type converter for SessionSource enum.
+class SessionSourceConverter extends TypeConverter<SessionSource, int> {
+  const SessionSourceConverter();
+
+  @override
+  SessionSource fromSql(int fromDb) => SessionSource.values[fromDb];
+
+  @override
+  int toSql(SessionSource value) => value.index;
+}
+
+/// Type converter for IntervalIntent enum.
+class IntervalIntentConverter extends TypeConverter<IntervalIntent, int> {
+  const IntervalIntentConverter();
+
+  @override
+  IntervalIntent fromSql(int fromDb) => IntervalIntent.values[fromDb];
+
+  @override
+  int toSql(IntervalIntent value) => value.index;
+}
+
+/// Type converter for IntervalTargetKind enum.
+class IntervalTargetKindConverter
+    extends TypeConverter<IntervalTargetKind, int> {
+  const IntervalTargetKindConverter();
+
+  @override
+  IntervalTargetKind fromSql(int fromDb) => IntervalTargetKind.values[fromDb];
+
+  @override
+  int toSql(IntervalTargetKind value) => value.index;
+}
+
+/// Type converter for StrokeType enum.
+class StrokeTypeConverter extends TypeConverter<StrokeType, int> {
+  const StrokeTypeConverter();
+
+  @override
+  StrokeType fromSql(int fromDb) => StrokeType.values[fromDb];
+
+  @override
+  int toSql(StrokeType value) => value.index;
+}
+
+/// Type converter for TrainingPhase enum.
+class TrainingPhaseConverter extends TypeConverter<TrainingPhase, int> {
+  const TrainingPhaseConverter();
+
+  @override
+  TrainingPhase fromSql(int fromDb) => TrainingPhase.values[fromDb];
+
+  @override
+  int toSql(TrainingPhase value) => value.index;
 }
