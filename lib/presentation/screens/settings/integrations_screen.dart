@@ -632,9 +632,11 @@ class _PelotonNote extends StatelessWidget {
         leading: const Icon(Icons.info_outline),
         title: const Text('Peloton comes through here'),
         subtitle: Text(
-          'Pair Peloton in your $providerName settings and your rides / '
-          'runs / treads will show up via the Health card above — no '
-          'separate Peloton login needed.',
+          'Peloton is paired inside the Peloton app — not $providerName.\n'
+          'Open Peloton → Profile / Settings → look for a $providerName '
+          'toggle and turn it on. Your rides, runs, and treads will then '
+          'flow into the Health card above, and YAWA4U picks them up on '
+          'the next sync. No separate Peloton login needed here.',
         ),
       ),
     );

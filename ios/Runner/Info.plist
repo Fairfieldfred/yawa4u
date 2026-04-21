@@ -22,20 +22,6 @@
 	<string>$(FLUTTER_BUILD_NAME)</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
-	<key>CFBundleVersion</key>
-	<string>$(FLUTTER_BUILD_NUMBER)</string>
-	<key>ITSAppUsesNonExemptEncryption</key>
-	<string>NO</string>
-	<key>LSRequiresIPhoneOS</key>
-	<true/>
-	<key>NSCameraUsageDescription</key>
-	<string>Camera access is required to scan QR codes for device sync.</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>This app does not access your photos or photo library.</string>
-	<key>NSHealthShareUsageDescription</key>
-	<string>YAWA4U can read completed workouts, heart rate, and distance from Apple Health so your runs, rides, and swims (including Peloton workouts paired to Health) show up alongside your strength sessions.</string>
-	<key>NSHealthUpdateUsageDescription</key>
-	<string>YAWA4U can optionally write workouts you log here to Apple Health so they appear in your Health app and other connected apps.</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
@@ -49,6 +35,20 @@
 			</array>
 		</dict>
 	</array>
+	<key>CFBundleVersion</key>
+	<string>$(FLUTTER_BUILD_NUMBER)</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<string>NO</string>
+	<key>LSRequiresIPhoneOS</key>
+	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>Camera access is required to scan QR codes for device sync.</string>
+	<key>NSHealthShareUsageDescription</key>
+	<string>YAWA4U can read completed workouts, heart rate, and distance from Apple Health so your runs, rides, and swims (including Peloton workouts paired to Health) show up alongside your strength sessions.</string>
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>YAWA4U can optionally write workouts you log here to Apple Health so they appear in your Health app and other connected apps.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>This app does not access your photos or photo library.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

@@ -94,6 +94,13 @@ class HealthSyncService {
        _health = health ?? Health();
 
   static const String _kLastSyncKey = 'health_sync_last_run_at';
+  // Apple HealthKit does not expose read-permission status to apps —
+  // [_health.hasPermissions] returns null on iOS even after the user has
+  // fully granted access. We persist this flag when
+  // [requestPermissions] returns true so [currentStatus] has something
+  // trustworthy to read on iOS. Android's Health Connect exposes live
+  // status, so the flag is iOS-only by design.
+  static const String _kGrantedKey = 'health_permissions_granted';
   static const Duration _initialLookback = Duration(days: 30);
 
   /// Data types we request read access to. Kept narrow — anything we
@@ -144,6 +151,14 @@ class HealthSyncService {
 
   /// Current authorization status. Returns [HealthSyncStatus.unavailable]
   /// on unsupported platforms so UI can render a single, consistent path.
+  ///
+  /// iOS nuance: [_health.hasPermissions] returns null on iOS for
+  /// read-only permissions even when access is fully granted (Apple
+  /// privacy design — apps can't detect what the user chose). On iOS we
+  /// fall back to the [_kGrantedKey] flag set by [requestPermissions];
+  /// if the user revokes in Settings later, the next sync still works
+  /// (Apple silently returns empty results), so the UX degrades to
+  /// "connected but no new data" rather than "stuck as disconnected."
   Future<HealthSyncStatus> currentStatus() async {
     if (!isSupported) return HealthSyncStatus.unavailable;
     try {
@@ -153,6 +168,11 @@ class HealthSyncService {
         permissions: _readPermissions,
       );
       if (granted == true) return HealthSyncStatus.ready;
+      if (!kIsWeb &&
+          Platform.isIOS &&
+          (_prefs.getBool(_kGrantedKey) ?? false)) {
+        return HealthSyncStatus.ready;
+      }
       return HealthSyncStatus.notAuthorized;
     } catch (e, stack) {
       Sentry.captureException(e, stackTrace: stack);
@@ -163,6 +183,10 @@ class HealthSyncService {
   /// Request read permissions. Returns true if every requested type is
   /// authorized after the prompt. Logs an analytics event with the outcome
   /// (no PII — just granted/denied).
+  ///
+  /// On success, persists [_kGrantedKey] so [currentStatus] can report
+  /// ready on iOS without needing Apple to tell us anything (see notes
+  /// in [currentStatus]).
   Future<bool> requestPermissions() async {
     if (!isSupported) return false;
     try {
@@ -175,6 +199,9 @@ class HealthSyncService {
         provider: providerName,
         granted: granted,
       );
+      if (granted) {
+        await _prefs.setBool(_kGrantedKey, true);
+      }
       return granted;
     } catch (e, stack) {
       Sentry.captureException(e, stackTrace: stack);

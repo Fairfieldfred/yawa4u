@@ -47,6 +47,8 @@ app.*.map.json
 sentry.properties
 .env
 firebase.json
+.env.local
+.env.*.local
 
 # Firebase configuration files (contain API keys)
 **/google-services.json
