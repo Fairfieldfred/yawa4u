@@ -100,8 +100,13 @@ class StravaIntegrationService {
   static const String clientSecret = String.fromEnvironment(
     'STRAVA_CLIENT_SECRET',
   );
+  // Strava's OAuth validation requires the HOST portion of the
+  // redirect_uri to equal the "Authorization Callback Domain" registered
+  // at https://www.strava.com/settings/api. Matching scheme + host keeps
+  // both config fields a single word ("yawa4u") and avoids the common
+  // "invalid redirect_uri" 400 you hit when they diverge.
   static const String redirectScheme = 'yawa4u';
-  static const String redirectUri = '$redirectScheme://strava-callback';
+  static const String redirectUri = '$redirectScheme://$redirectScheme';
   static const String callbackUrlScheme = redirectScheme;
 
   static const String _authBase = 'https://www.strava.com/oauth/authorize';
