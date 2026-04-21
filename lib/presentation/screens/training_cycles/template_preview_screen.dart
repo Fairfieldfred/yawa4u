@@ -95,9 +95,9 @@ class _TemplatePreviewScreenState extends ConsumerState<TemplatePreviewScreen> {
                 _buildInfoSection(),
                 const SizedBox(height: 24),
 
-                // Workouts
+                // Sessions
                 Text(
-                  'Workouts',
+                  'Sessions',
                   style: TextStyle(
                     color: colorScheme.onSurface,
                     fontSize: 20,

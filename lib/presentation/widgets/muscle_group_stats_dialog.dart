@@ -33,7 +33,7 @@ class MuscleGroupStatsDialog extends ConsumerWidget {
             return Padding(
               padding: const EdgeInsets.all(20.0),
               child: Text(
-                'No workouts found for this trainingCycle.',
+                'No sessions found for this training cycle.',
                 style: TextStyle(color: textColor),
               ),
             );

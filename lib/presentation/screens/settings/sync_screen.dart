@@ -288,7 +288,7 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
                         'TrainingCycles',
                         stats.trainingCycleCount,
                       ),
-                      _buildStatItem('Workouts', stats.workoutCount),
+                      _buildStatItem('Sessions', stats.workoutCount),
                       _buildStatItem('Exercises', stats.exerciseCount),
                     ],
                   ),
@@ -558,7 +558,7 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
                         _connectedDevice!.trainingCycleCount,
                       ),
                       _buildStatItem(
-                        'Workouts',
+                        'Sessions',
                         _connectedDevice!.workoutCount,
                       ),
                       _buildStatItem(

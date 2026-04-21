@@ -620,7 +620,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     if (dayWorkouts.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('No workout found for this day'),
+          content: Text('No session scheduled for this day'),
           backgroundColor: Colors.orange,
         ),
       );
@@ -973,7 +973,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
             )
           else
             Text(
-              'No workout scheduled',
+              'No session scheduled',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: Theme.of(context).colorScheme.onSurface.withAlpha(128),
               ),

@@ -95,7 +95,7 @@ class _WorkoutMoveSheetState extends ConsumerState<WorkoutMoveSheet> {
 
           // Title
           Text(
-            'Move Workout',
+            'Move Session',
             style: Theme.of(
               context,
             ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
@@ -165,21 +165,21 @@ class _WorkoutMoveSheetState extends ConsumerState<WorkoutMoveSheet> {
             context,
             mode: MoveMode.shiftSubsequent,
             title: 'Shift Subsequent',
-            description: 'Move this workout and shift all following workouts',
+            description: 'Move this session and shift all following sessions',
             isSelected: _selectedMode == MoveMode.shiftSubsequent,
           ),
           _buildModeOption(
             context,
             mode: MoveMode.swap,
             title: 'Swap',
-            description: 'Exchange with the workout on the target date',
+            description: 'Exchange with the session on the target date',
             isSelected: _selectedMode == MoveMode.swap,
           ),
           _buildModeOption(
             context,
             mode: MoveMode.single,
             title: 'Single',
-            description: 'Move only this workout (may create gaps)',
+            description: 'Move only this session (may create gaps)',
             isSelected: _selectedMode == MoveMode.single,
           ),
           const SizedBox(height: 24),

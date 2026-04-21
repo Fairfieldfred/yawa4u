@@ -70,48 +70,10 @@ void main() {
     });
   });
 
-  group('WorkoutMapper', () {
-    group('toCompanion', () {
-      test('converts all fields to companion', () {
-        final workout = TestFixtures.createWorkout(
-          id: 'workout-1',
-          trainingCycleId: 'cycle-1',
-          periodNumber: 2,
-          dayNumber: 3,
-          dayName: 'Pull Day',
-          label: 'Back',
-          status: WorkoutStatus.completed,
-          notes: 'Great session',
-        );
-
-        final companion = WorkoutMapper.toCompanion(workout);
-
-        expect(companion.uuid.value, equals('workout-1'));
-        expect(companion.trainingCycleUuid.value, equals('cycle-1'));
-        expect(companion.periodNumber.value, equals(2));
-        expect(companion.dayNumber.value, equals(3));
-        expect(companion.dayName.value, equals('Pull Day'));
-        expect(companion.label.value, equals('Back'));
-        expect(
-          companion.status.value,
-          equals(WorkoutStatus.completed.index),
-        );
-        expect(companion.notes.value, equals('Great session'));
-      });
-
-      test('handles null optional fields', () {
-        final workout = TestFixtures.createWorkout(
-          dayName: null,
-          notes: null,
-        );
-
-        final companion = WorkoutMapper.toCompanion(workout);
-
-        expect(companion.dayName.value, isNull);
-        expect(companion.notes.value, isNull);
-      });
-    });
-  });
+  // `WorkoutMapper` was removed in Phase 6d when the `workouts` table
+  // was dropped. Strength sessions now flow through
+  // [SessionMapper.toCompanion] (with Sport.strength); the
+  // SessionMapper tests cover that path.
 
   group('ExerciseMapper', () {
     group('toCompanion', () {

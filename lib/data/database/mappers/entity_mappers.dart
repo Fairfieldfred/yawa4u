@@ -79,49 +79,11 @@ class TrainingCycleMapper {
   }
 }
 
-/// Converts between Drift Workout row and domain Workout model
-class WorkoutMapper {
-  /// Convert a Drift Workout row to the domain model
-  /// Note: exercises are loaded separately and passed in
-  static model.Workout fromRow(
-    Workout row, {
-    List<model.Exercise> exercises = const [],
-  }) {
-    return model.Workout(
-      id: row.uuid,
-      trainingCycleId: row.trainingCycleUuid,
-      periodNumber: row.periodNumber,
-      dayNumber: row.dayNumber,
-      dayName: row.dayName,
-      label: row.label,
-      status: WorkoutStatus.values[row.status],
-      scheduledDate: row.scheduledDate,
-      completedDate: row.completedDate,
-      startTime: row.startTime,
-      endTime: row.endTime,
-      notes: row.notes,
-      exercises: exercises,
-    );
-  }
-
-  /// Convert a domain Workout model to a Drift Companion
-  static WorkoutsCompanion toCompanion(model.Workout workout) {
-    return WorkoutsCompanion(
-      uuid: Value(workout.id),
-      trainingCycleUuid: Value(workout.trainingCycleId),
-      periodNumber: Value(workout.periodNumber),
-      dayNumber: Value(workout.dayNumber),
-      dayName: Value(workout.dayName),
-      label: Value(workout.label),
-      status: Value(workout.status.index),
-      scheduledDate: Value(workout.scheduledDate),
-      completedDate: Value(workout.completedDate),
-      startTime: Value(workout.startTime),
-      endTime: Value(workout.endTime),
-      notes: Value(workout.notes),
-    );
-  }
-}
+// [WorkoutMapper] removed in v6. Strength sessions flow through
+// [SessionMapper] (strengthFromRow / toCompanion with Sport.strength).
+// [WorkoutRepository] wraps that mapper for legacy Workout-shaped call
+// sites; nothing in the app needs to speak the old Workouts-table
+// shape anymore.
 
 /// Converts between Drift Exercise row and domain Exercise model
 class ExerciseMapper {

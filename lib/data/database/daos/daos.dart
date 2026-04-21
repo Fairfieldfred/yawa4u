@@ -12,4 +12,3 @@ export 'skin_dao.dart';
 export 'sport_zone_dao.dart';
 export 'training_cycle_dao.dart';
 export 'user_measurement_dao.dart';
-export 'workout_dao.dart';

@@ -15,7 +15,6 @@ part 'app_database.g.dart';
 @DriftDatabase(
   tables: [
     TrainingCycles,
-    Workouts,
     Exercises,
     ExerciseSets,
     ExerciseFeedbacks,
@@ -33,7 +32,6 @@ part 'app_database.g.dart';
   ],
   daos: [
     TrainingCycleDao,
-    WorkoutDao,
     ExerciseDao,
     ExerciseSetDao,
     ExerciseFeedbackDao,
@@ -57,7 +55,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.e);
 
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 6;
 
   @override
   MigrationStrategy get migration {
@@ -74,10 +72,16 @@ class AppDatabase extends _$AppDatabase {
             customExerciseDefinitions.secondaryMuscleGroup,
           );
         }
-        // Migration v2 -> v3: Add workout duration columns
+        // Migration v2 -> v3: Add workout duration columns.
+        //
+        // Written as raw SQL (instead of m.addColumn) because the
+        // `workouts` table was dropped as a Dart symbol in v6 — we can
+        // no longer refer to it by name at compile time. The table still
+        // exists in the on-disk DB at this point in the migration chain
+        // for devices upgrading from v2.
         if (from < 3) {
-          await m.addColumn(workouts, workouts.startTime);
-          await m.addColumn(workouts, workouts.endTime);
+          await customStatement('ALTER TABLE workouts ADD COLUMN start_time INTEGER');
+          await customStatement('ALTER TABLE workouts ADD COLUMN end_time INTEGER');
         }
         // Migration v3 -> v4: Add rest seconds columns
         if (from < 4) {
@@ -112,26 +116,31 @@ class AppDatabase extends _$AppDatabase {
           await m.createTable(cardioFeedback);
 
           // Backfill existing rows so readers see a consistent v5 shape.
+          // Runs BEFORE the v6 drop below so the workouts rows are still
+          // available to copy into sessions.
           await AppDatabaseV5Backfill(this).run();
+        }
+        // Migration v5 -> v6: Drop the legacy `workouts` table.
+        //
+        // Nothing in the app reads or writes it anymore — [WorkoutRepository]
+        // is a facade over [SessionRepository] as of Phase 6c. Every row
+        // was copied into `sessions` by the v5 backfill, so the drop is
+        // safe. FK enforcement is off (see below), so exercises.workoutUuid
+        // no longer needing a target table is a non-issue.
+        if (from < 6) {
+          await customStatement('DROP INDEX IF EXISTS idx_workouts_training_cycle_uuid');
+          await customStatement('DROP INDEX IF EXISTS idx_workouts_status');
+          await customStatement('DROP INDEX IF EXISTS idx_workouts_scheduled_date');
+          await customStatement('DROP TABLE IF EXISTS workouts');
         }
       },
       beforeOpen: (details) async {
-        // Create indexes for frequently-filtered columns (idempotent)
+        // Create indexes for frequently-filtered columns (idempotent).
+        // Workouts-table indexes are gone — the table itself is dropped
+        // in the v5 -> v6 migration above.
         await customStatement(
           'CREATE INDEX IF NOT EXISTS idx_training_cycles_status '
           'ON training_cycles(status)',
-        );
-        await customStatement(
-          'CREATE INDEX IF NOT EXISTS idx_workouts_training_cycle_uuid '
-          'ON workouts(training_cycle_uuid)',
-        );
-        await customStatement(
-          'CREATE INDEX IF NOT EXISTS idx_workouts_status '
-          'ON workouts(status)',
-        );
-        await customStatement(
-          'CREATE INDEX IF NOT EXISTS idx_workouts_scheduled_date '
-          'ON workouts(scheduled_date)',
         );
         await customStatement(
           'CREATE INDEX IF NOT EXISTS idx_exercises_workout_uuid '

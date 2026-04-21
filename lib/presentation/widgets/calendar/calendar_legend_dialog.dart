@@ -21,19 +21,19 @@ class CalendarLegendDialog extends StatelessWidget {
               context,
               color: context.successColor,
               label: 'Completed',
-              description: 'All workouts for the day are done',
+              description: 'All sessions for the day are done',
             ),
             _buildLegendItem(
               context,
               color: context.warningColor,
               label: 'Partially Completed',
-              description: 'Some workouts are done',
+              description: 'Some sessions are done',
             ),
             _buildLegendItem(
               context,
               color: Theme.of(context).colorScheme.primaryContainer,
               label: 'Scheduled',
-              description: 'Workout day not yet completed',
+              description: 'Session day not yet completed',
             ),
             _buildLegendItem(
               context,

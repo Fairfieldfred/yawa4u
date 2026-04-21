@@ -16,10 +16,9 @@ final trainingCycleDaoProvider = Provider<TrainingCycleDao>((ref) {
   return TrainingCycleDao(ref.watch(appDatabaseProvider));
 });
 
-/// WorkoutDao provider
-final workoutDaoProvider = Provider<WorkoutDao>((ref) {
-  return WorkoutDao(ref.watch(appDatabaseProvider));
-});
+// `workoutDaoProvider` removed in Phase 6d — the `workouts` table was
+// dropped in the v6 migration. Strength data flows through
+// [SessionRepository] / [sessionDaoProvider].
 
 /// ExerciseDao provider
 final exerciseDaoProvider = Provider<ExerciseDao>((ref) {

@@ -38,7 +38,9 @@ class AppRoutes {
   static const String trainingCycleList = '/trainingCycles';
   static const String planTrainingCycle = '/plan-trainingCycle';
   static const String trainingCycleCreate = '/trainingCycles/create';
-  static const String workoutList = '/trainingCycles/:trainingCycleId/workouts';
+  // UX review P1 #6: user-facing path uses "sessions"; legacy
+  // "/workouts" still resolves via a redirect route for backward compat.
+  static const String workoutList = '/trainingCycles/:trainingCycleId/sessions';
   static const String completedTrainingCycleView =
       '/trainingCycles/:trainingCycleId/view';
   static const String stats = '/stats';
@@ -119,13 +121,30 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const TrainingCycleCreateScreen(),
       ),
 
-      // Edit workout screen for a trainingCycle
+      // Edit sessions screen for a trainingCycle.
+      //
+      // The route label uses "sessions" (UX review P1 #6) while the
+      // underlying screen still reads strength Workouts from the
+      // repository — that class name is kept one more major version to
+      // avoid a big refactor blast.
       GoRoute(
-        path: '/trainingCycles/:trainingCycleId/workouts',
-        name: 'workout-list',
+        path: '/trainingCycles/:trainingCycleId/sessions',
+        name: 'session-list',
         builder: (context, state) {
           final trainingCycleId = state.pathParameters['trainingCycleId']!;
           return EditWorkoutScreen(trainingCycleId: trainingCycleId);
+        },
+      ),
+
+      // Back-compat redirect for the old "/workouts" path. Any deep
+      // link or bookmark still works; go_router will rewrite to
+      // "/sessions". Safe to remove in a later major version once no
+      // external share URLs reference the old path.
+      GoRoute(
+        path: '/trainingCycles/:trainingCycleId/workouts',
+        redirect: (context, state) {
+          final id = state.pathParameters['trainingCycleId']!;
+          return '/trainingCycles/$id/sessions';
         },
       ),
 
@@ -139,10 +158,15 @@ final routerProvider = Provider<GoRouter>((ref) {
         },
       ),
 
-      // Add exercise screen (choose from library)
+      // Add exercise screen (choose from library).
+      //
+      // Path uses "sessions" (UX review P1 #6). The `:workoutId` path
+      // parameter keeps its historical name because [AddExerciseScreen]
+      // still takes `workoutId:` — a schema-level rename is a larger
+      // pass for another day.
       GoRoute(
         path:
-            '/trainingCycles/:trainingCycleId/workouts/:workoutId/choose-exercise',
+            '/trainingCycles/:trainingCycleId/sessions/:workoutId/choose-exercise',
         name: 'add-exercise',
         builder: (context, state) {
           final trainingCycleId = state.pathParameters['trainingCycleId']!;
@@ -165,6 +189,19 @@ final routerProvider = Provider<GoRouter>((ref) {
             workoutId: workoutId,
             initialMuscleGroup: initialMuscleGroup,
           );
+        },
+      ),
+
+      // Back-compat redirect for the legacy "/workouts/.../choose-exercise"
+      // path. Preserves the query string (muscleGroup).
+      GoRoute(
+        path:
+            '/trainingCycles/:trainingCycleId/workouts/:workoutId/choose-exercise',
+        redirect: (context, state) {
+          final tc = state.pathParameters['trainingCycleId']!;
+          final wid = state.pathParameters['workoutId']!;
+          final query = state.uri.query.isEmpty ? '' : '?${state.uri.query}';
+          return '/trainingCycles/$tc/sessions/$wid/choose-exercise$query';
         },
       ),
 

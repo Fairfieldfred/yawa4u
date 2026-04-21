@@ -539,7 +539,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen>
         Expanded(
           child: _buildSummaryCard(
             context,
-            'Workouts',
+            'Sessions',
             '${stats.completedWorkouts}/${stats.totalWorkouts}',
             Icons.fitness_center,
           ),

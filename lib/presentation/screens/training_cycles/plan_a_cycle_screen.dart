@@ -103,7 +103,7 @@ class _PlanATrainingCycleScreenState
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.play_circle_fill),
-            label: 'Workout',
+            label: 'Session',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.analytics),

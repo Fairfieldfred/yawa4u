@@ -107,7 +107,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               destinations: [
                 const NavigationRailDestination(
                   icon: Icon(Icons.play_circle_fill),
-                  label: Text('Workout'),
+                  label: Text('Session'),
                 ),
                 NavigationRailDestination(
                   icon: const Icon(Icons.analytics),
@@ -147,7 +147,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         items: [
           const BottomNavigationBarItem(
             icon: Icon(Icons.play_circle_fill),
-            label: 'Workout',
+            label: 'Session',
           ),
           BottomNavigationBarItem(
             icon: const Icon(Icons.analytics),

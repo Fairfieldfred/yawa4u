@@ -23,7 +23,10 @@ void main() {
     await db.close();
   });
 
-  /// Insert prerequisite rows (cycle + workout) so FK constraints pass.
+  /// Insert prerequisite rows so the exercises FK to training_cycles
+  /// passes. Phase 6d dropped the `workouts` table — exercises.workoutUuid
+  /// is now just a text column without an FK target, so we no longer
+  /// need to seed a workout row.
   Future<void> insertPrerequisites(String workoutUuid) async {
     const cycleUuid = 'cycle-1';
     await db.trainingCycleDao.insertCycle(
@@ -35,15 +38,6 @@ void main() {
         recoveryPeriod: 4,
         status: 0,
         createdDate: DateTime.now(),
-      ),
-    );
-    await db.workoutDao.insertWorkout(
-      WorkoutsCompanion.insert(
-        uuid: workoutUuid,
-        trainingCycleUuid: cycleUuid,
-        periodNumber: 1,
-        dayNumber: 1,
-        status: 0,
       ),
     );
   }

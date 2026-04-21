@@ -137,27 +137,29 @@ class _OnboardingProfileScreenState
   Widget _buildBmiIndicator() {
     if (_bmi == null) {
       return Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surfaceContainerHighest,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(10),
         ),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
               Icons.monitor_weight_outlined,
+              size: 18,
               color: Theme.of(
                 context,
               ).colorScheme.onSurface.withValues(alpha: 0.5),
             ),
-            const SizedBox(width: 8),
-            Text(
-              'Enter height and weight to see BMI',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Theme.of(
-                  context,
-                ).colorScheme.onSurface.withValues(alpha: 0.5),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                'Enter height and weight to see BMI',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.5),
+                ),
               ),
             ),
           ],
@@ -165,120 +167,149 @@ class _OnboardingProfileScreenState
       );
     }
 
+    // UX review P1 #8 — compact BMI display. The prior design was a
+    // two-column card with a 4-row category legend and a big coloured
+    // circle. That lives behind the expansion toggle now so the
+    // onboarding surface stays visually quiet by default.
     final color = _getBmiColor(context, _bmi!);
+    final category = _getBmiCategories(context).firstWhere(
+      (cat) =>
+          _bmi! >= cat.minBmi &&
+          (cat.maxBmi == null || _bmi! < cat.maxBmi!),
+    );
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(10),
       ),
       child: Row(
         children: [
-          // BMI category list on the left
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  'BMI Range',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.7),
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                ..._getBmiCategories(context).map((cat) {
-                  final isSelected =
-                      _bmi! >= cat.minBmi &&
-                      (cat.maxBmi == null || _bmi! < cat.maxBmi!);
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 2),
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 8,
-                          height: 8,
-                          decoration: BoxDecoration(
-                            color: isSelected
-                                ? cat.color
-                                : cat.color.withValues(alpha: 0.3),
-                            shape: BoxShape.circle,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          cat.label,
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: isSelected
-                                ? FontWeight.bold
-                                : FontWeight.normal,
-                            color: isSelected
-                                ? cat.color
-                                : Theme.of(context).colorScheme.onSurface
-                                      .withValues(alpha: 0.5),
-                          ),
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          cat.maxBmi == null
-                              ? '(${cat.minBmi.toInt()}+)'
-                              : '(${cat.minBmi == 0 ? '<' : ''}${cat.minBmi == 0 ? cat.maxBmi!.toStringAsFixed(1) : '${cat.minBmi.toStringAsFixed(1)}-${cat.maxBmi!.toInt()}'})',
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: isSelected
-                                ? cat.color.withValues(alpha: 0.8)
-                                : Theme.of(context).colorScheme.onSurface
-                                      .withValues(alpha: 0.3),
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                }),
-              ],
+          Container(
+            width: 10,
+            height: 10,
+            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+          ),
+          const SizedBox(width: 10),
+          Text(
+            'BMI ${_bmi!.toStringAsFixed(1)}',
+            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+              fontWeight: FontWeight.w600,
+              color: color,
             ),
           ),
-          const SizedBox(width: 16),
-          // BMI circle on the right
-          Container(
-            width: 70,
-            height: 70,
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.15),
-              shape: BoxShape.circle,
-              border: Border.all(color: color, width: 2),
-            ),
-            child: Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    _bmi!.toStringAsFixed(1),
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: color,
-                    ),
-                  ),
-                  Text(
-                    'BMI',
-                    style: TextStyle(
-                      fontSize: 10,
-                      color: color.withValues(alpha: 0.8),
-                    ),
-                  ),
-                ],
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              category.label,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.7),
               ),
             ),
           ),
+          // Small info trigger — expands a bottom sheet with the full
+          // category breakdown for users who want context.
+          IconButton(
+            icon: const Icon(Icons.info_outline, size: 18),
+            visualDensity: VisualDensity.compact,
+            tooltip: 'About BMI categories',
+            onPressed: () => _showBmiDetails(context),
+          ),
         ],
       ),
+    );
+  }
+
+  /// Expands the full BMI category breakdown + WHO / CDC reference link
+  /// in a bottom sheet. Keeps the onboarding surface lightweight while
+  /// preserving the educational content for users who want it.
+  Future<void> _showBmiDetails(BuildContext context) {
+    return showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      builder: (sheetContext) {
+        final categories = _getBmiCategories(sheetContext);
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'BMI categories',
+                  style: Theme.of(sheetContext).textTheme.titleMedium,
+                ),
+                const SizedBox(height: 12),
+                for (final cat in categories)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 10,
+                          height: 10,
+                          decoration: BoxDecoration(
+                            color: cat.color,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(child: Text(cat.label)),
+                        Text(
+                          cat.maxBmi == null
+                              ? '${cat.minBmi.toInt()}+'
+                              : cat.minBmi == 0
+                                  ? '< ${cat.maxBmi!.toStringAsFixed(1)}'
+                                  : '${cat.minBmi.toStringAsFixed(1)}–${cat.maxBmi!.toInt()}',
+                          style: Theme.of(sheetContext)
+                              .textTheme
+                              .bodyMedium
+                              ?.copyWith(
+                                color: Theme.of(sheetContext)
+                                    .colorScheme
+                                    .onSurface
+                                    .withValues(alpha: 0.7),
+                              ),
+                        ),
+                      ],
+                    ),
+                  ),
+                const SizedBox(height: 16),
+                InkWell(
+                  onTap: () => launchUrl(
+                    Uri.parse('https://www.cdc.gov/bmi/about/index.html'),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.open_in_new,
+                        size: 14,
+                        color: Theme.of(sheetContext).colorScheme.primary,
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        'Based on WHO / CDC guidelines',
+                        style: Theme.of(sheetContext)
+                            .textTheme
+                            .bodySmall
+                            ?.copyWith(
+                              color: Theme.of(sheetContext).colorScheme.primary,
+                            ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -584,63 +615,31 @@ class _OnboardingProfileScreenState
                         if (weight == null) {
                           return 'Please enter a valid number';
                         }
-                        // Tightened ranges catch typos (e.g. 300 instead
-                        // of 200). Outliers can still be entered by
-                        // removing the sanity check in a future release.
+                        // UX review P1 #8 — tightened ranges catch the
+                        // most likely typo (300 instead of 200, extra
+                        // digit). Covers ~99.9% of adult users. The
+                        // outlier case is an edge we're happy to force
+                        // through the validator rather than silently
+                        // accept an impossible value from a slip.
                         if (_useMetric) {
-                          if (weight < 35 || weight > 200) {
-                            return 'Please enter a valid weight (35-200 kg)';
+                          if (weight < 40 || weight > 180) {
+                            return 'Please enter a valid weight (40-180 kg)';
                           }
                         } else {
-                          if (weight < 77 || weight > 440) {
-                            return 'Please enter a valid weight (77-440 lbs)';
+                          if (weight < 80 || weight > 400) {
+                            return 'Please enter a valid weight (80-400 lbs)';
                           }
                         }
                         return null;
                       },
                     ),
 
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 16),
 
-                    // BMI Indicator
+                    // BMI Indicator — compact row + info-icon sheet.
+                    // The WHO / CDC reference lives inside the sheet now
+                    // to keep the onboarding surface uncluttered.
                     _buildBmiIndicator(),
-                    if (_bmi != null)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 6),
-                        child: GestureDetector(
-                          onTap: () => launchUrl(
-                            Uri.parse(
-                              'https://www.cdc.gov/bmi/about/index.html',
-                            ),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              Icon(
-                                Icons.open_in_new,
-                                size: 12,
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .onSurface
-                                    .withValues(alpha: 0.4),
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                'BMI categories based on WHO guidelines',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodySmall
-                                    ?.copyWith(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .onSurface
-                                          .withValues(alpha: 0.4),
-                                    ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
 
                     const SizedBox(height: 24),
 

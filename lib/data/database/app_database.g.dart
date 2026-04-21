@@ -1043,777 +1043,6 @@ class TrainingCyclesCompanion extends UpdateCompanion<TrainingCycle> {
   }
 }
 
-class $WorkoutsTable extends Workouts with TableInfo<$WorkoutsTable, Workout> {
-  @override
-  final GeneratedDatabase attachedDatabase;
-  final String? _alias;
-  $WorkoutsTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _idMeta = const VerificationMeta('id');
-  @override
-  late final GeneratedColumn<int> id = GeneratedColumn<int>(
-    'id',
-    aliasedName,
-    false,
-    hasAutoIncrement: true,
-    type: DriftSqlType.int,
-    requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'PRIMARY KEY AUTOINCREMENT',
-    ),
-  );
-  static const VerificationMeta _uuidMeta = const VerificationMeta('uuid');
-  @override
-  late final GeneratedColumn<String> uuid = GeneratedColumn<String>(
-    'uuid',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-    defaultConstraints: GeneratedColumn.constraintIsAlways('UNIQUE'),
-  );
-  static const VerificationMeta _trainingCycleUuidMeta = const VerificationMeta(
-    'trainingCycleUuid',
-  );
-  @override
-  late final GeneratedColumn<String> trainingCycleUuid =
-      GeneratedColumn<String>(
-        'training_cycle_uuid',
-        aliasedName,
-        false,
-        type: DriftSqlType.string,
-        requiredDuringInsert: true,
-        defaultConstraints: GeneratedColumn.constraintIsAlways(
-          'REFERENCES training_cycles (uuid)',
-        ),
-      );
-  static const VerificationMeta _periodNumberMeta = const VerificationMeta(
-    'periodNumber',
-  );
-  @override
-  late final GeneratedColumn<int> periodNumber = GeneratedColumn<int>(
-    'period_number',
-    aliasedName,
-    false,
-    type: DriftSqlType.int,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _dayNumberMeta = const VerificationMeta(
-    'dayNumber',
-  );
-  @override
-  late final GeneratedColumn<int> dayNumber = GeneratedColumn<int>(
-    'day_number',
-    aliasedName,
-    false,
-    type: DriftSqlType.int,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _dayNameMeta = const VerificationMeta(
-    'dayName',
-  );
-  @override
-  late final GeneratedColumn<String> dayName = GeneratedColumn<String>(
-    'day_name',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _labelMeta = const VerificationMeta('label');
-  @override
-  late final GeneratedColumn<String> label = GeneratedColumn<String>(
-    'label',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _statusMeta = const VerificationMeta('status');
-  @override
-  late final GeneratedColumn<int> status = GeneratedColumn<int>(
-    'status',
-    aliasedName,
-    false,
-    type: DriftSqlType.int,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _scheduledDateMeta = const VerificationMeta(
-    'scheduledDate',
-  );
-  @override
-  late final GeneratedColumn<DateTime> scheduledDate =
-      GeneratedColumn<DateTime>(
-        'scheduled_date',
-        aliasedName,
-        true,
-        type: DriftSqlType.dateTime,
-        requiredDuringInsert: false,
-      );
-  static const VerificationMeta _completedDateMeta = const VerificationMeta(
-    'completedDate',
-  );
-  @override
-  late final GeneratedColumn<DateTime> completedDate =
-      GeneratedColumn<DateTime>(
-        'completed_date',
-        aliasedName,
-        true,
-        type: DriftSqlType.dateTime,
-        requiredDuringInsert: false,
-      );
-  static const VerificationMeta _startTimeMeta = const VerificationMeta(
-    'startTime',
-  );
-  @override
-  late final GeneratedColumn<DateTime> startTime = GeneratedColumn<DateTime>(
-    'start_time',
-    aliasedName,
-    true,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _endTimeMeta = const VerificationMeta(
-    'endTime',
-  );
-  @override
-  late final GeneratedColumn<DateTime> endTime = GeneratedColumn<DateTime>(
-    'end_time',
-    aliasedName,
-    true,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _notesMeta = const VerificationMeta('notes');
-  @override
-  late final GeneratedColumn<String> notes = GeneratedColumn<String>(
-    'notes',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
-  @override
-  List<GeneratedColumn> get $columns => [
-    id,
-    uuid,
-    trainingCycleUuid,
-    periodNumber,
-    dayNumber,
-    dayName,
-    label,
-    status,
-    scheduledDate,
-    completedDate,
-    startTime,
-    endTime,
-    notes,
-  ];
-  @override
-  String get aliasedName => _alias ?? actualTableName;
-  @override
-  String get actualTableName => $name;
-  static const String $name = 'workouts';
-  @override
-  VerificationContext validateIntegrity(
-    Insertable<Workout> instance, {
-    bool isInserting = false,
-  }) {
-    final context = VerificationContext();
-    final data = instance.toColumns(true);
-    if (data.containsKey('id')) {
-      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
-    }
-    if (data.containsKey('uuid')) {
-      context.handle(
-        _uuidMeta,
-        uuid.isAcceptableOrUnknown(data['uuid']!, _uuidMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_uuidMeta);
-    }
-    if (data.containsKey('training_cycle_uuid')) {
-      context.handle(
-        _trainingCycleUuidMeta,
-        trainingCycleUuid.isAcceptableOrUnknown(
-          data['training_cycle_uuid']!,
-          _trainingCycleUuidMeta,
-        ),
-      );
-    } else if (isInserting) {
-      context.missing(_trainingCycleUuidMeta);
-    }
-    if (data.containsKey('period_number')) {
-      context.handle(
-        _periodNumberMeta,
-        periodNumber.isAcceptableOrUnknown(
-          data['period_number']!,
-          _periodNumberMeta,
-        ),
-      );
-    } else if (isInserting) {
-      context.missing(_periodNumberMeta);
-    }
-    if (data.containsKey('day_number')) {
-      context.handle(
-        _dayNumberMeta,
-        dayNumber.isAcceptableOrUnknown(data['day_number']!, _dayNumberMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_dayNumberMeta);
-    }
-    if (data.containsKey('day_name')) {
-      context.handle(
-        _dayNameMeta,
-        dayName.isAcceptableOrUnknown(data['day_name']!, _dayNameMeta),
-      );
-    }
-    if (data.containsKey('label')) {
-      context.handle(
-        _labelMeta,
-        label.isAcceptableOrUnknown(data['label']!, _labelMeta),
-      );
-    }
-    if (data.containsKey('status')) {
-      context.handle(
-        _statusMeta,
-        status.isAcceptableOrUnknown(data['status']!, _statusMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_statusMeta);
-    }
-    if (data.containsKey('scheduled_date')) {
-      context.handle(
-        _scheduledDateMeta,
-        scheduledDate.isAcceptableOrUnknown(
-          data['scheduled_date']!,
-          _scheduledDateMeta,
-        ),
-      );
-    }
-    if (data.containsKey('completed_date')) {
-      context.handle(
-        _completedDateMeta,
-        completedDate.isAcceptableOrUnknown(
-          data['completed_date']!,
-          _completedDateMeta,
-        ),
-      );
-    }
-    if (data.containsKey('start_time')) {
-      context.handle(
-        _startTimeMeta,
-        startTime.isAcceptableOrUnknown(data['start_time']!, _startTimeMeta),
-      );
-    }
-    if (data.containsKey('end_time')) {
-      context.handle(
-        _endTimeMeta,
-        endTime.isAcceptableOrUnknown(data['end_time']!, _endTimeMeta),
-      );
-    }
-    if (data.containsKey('notes')) {
-      context.handle(
-        _notesMeta,
-        notes.isAcceptableOrUnknown(data['notes']!, _notesMeta),
-      );
-    }
-    return context;
-  }
-
-  @override
-  Set<GeneratedColumn> get $primaryKey => {id};
-  @override
-  Workout map(Map<String, dynamic> data, {String? tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return Workout(
-      id: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}id'],
-      )!,
-      uuid: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}uuid'],
-      )!,
-      trainingCycleUuid: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}training_cycle_uuid'],
-      )!,
-      periodNumber: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}period_number'],
-      )!,
-      dayNumber: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}day_number'],
-      )!,
-      dayName: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}day_name'],
-      ),
-      label: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}label'],
-      ),
-      status: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}status'],
-      )!,
-      scheduledDate: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}scheduled_date'],
-      ),
-      completedDate: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}completed_date'],
-      ),
-      startTime: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}start_time'],
-      ),
-      endTime: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}end_time'],
-      ),
-      notes: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}notes'],
-      ),
-    );
-  }
-
-  @override
-  $WorkoutsTable createAlias(String alias) {
-    return $WorkoutsTable(attachedDatabase, alias);
-  }
-}
-
-class Workout extends DataClass implements Insertable<Workout> {
-  final int id;
-  final String uuid;
-  final String trainingCycleUuid;
-  final int periodNumber;
-  final int dayNumber;
-  final String? dayName;
-  final String? label;
-  final int status;
-  final DateTime? scheduledDate;
-  final DateTime? completedDate;
-  final DateTime? startTime;
-  final DateTime? endTime;
-  final String? notes;
-  const Workout({
-    required this.id,
-    required this.uuid,
-    required this.trainingCycleUuid,
-    required this.periodNumber,
-    required this.dayNumber,
-    this.dayName,
-    this.label,
-    required this.status,
-    this.scheduledDate,
-    this.completedDate,
-    this.startTime,
-    this.endTime,
-    this.notes,
-  });
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    map['id'] = Variable<int>(id);
-    map['uuid'] = Variable<String>(uuid);
-    map['training_cycle_uuid'] = Variable<String>(trainingCycleUuid);
-    map['period_number'] = Variable<int>(periodNumber);
-    map['day_number'] = Variable<int>(dayNumber);
-    if (!nullToAbsent || dayName != null) {
-      map['day_name'] = Variable<String>(dayName);
-    }
-    if (!nullToAbsent || label != null) {
-      map['label'] = Variable<String>(label);
-    }
-    map['status'] = Variable<int>(status);
-    if (!nullToAbsent || scheduledDate != null) {
-      map['scheduled_date'] = Variable<DateTime>(scheduledDate);
-    }
-    if (!nullToAbsent || completedDate != null) {
-      map['completed_date'] = Variable<DateTime>(completedDate);
-    }
-    if (!nullToAbsent || startTime != null) {
-      map['start_time'] = Variable<DateTime>(startTime);
-    }
-    if (!nullToAbsent || endTime != null) {
-      map['end_time'] = Variable<DateTime>(endTime);
-    }
-    if (!nullToAbsent || notes != null) {
-      map['notes'] = Variable<String>(notes);
-    }
-    return map;
-  }
-
-  WorkoutsCompanion toCompanion(bool nullToAbsent) {
-    return WorkoutsCompanion(
-      id: Value(id),
-      uuid: Value(uuid),
-      trainingCycleUuid: Value(trainingCycleUuid),
-      periodNumber: Value(periodNumber),
-      dayNumber: Value(dayNumber),
-      dayName: dayName == null && nullToAbsent
-          ? const Value.absent()
-          : Value(dayName),
-      label: label == null && nullToAbsent
-          ? const Value.absent()
-          : Value(label),
-      status: Value(status),
-      scheduledDate: scheduledDate == null && nullToAbsent
-          ? const Value.absent()
-          : Value(scheduledDate),
-      completedDate: completedDate == null && nullToAbsent
-          ? const Value.absent()
-          : Value(completedDate),
-      startTime: startTime == null && nullToAbsent
-          ? const Value.absent()
-          : Value(startTime),
-      endTime: endTime == null && nullToAbsent
-          ? const Value.absent()
-          : Value(endTime),
-      notes: notes == null && nullToAbsent
-          ? const Value.absent()
-          : Value(notes),
-    );
-  }
-
-  factory Workout.fromJson(
-    Map<String, dynamic> json, {
-    ValueSerializer? serializer,
-  }) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return Workout(
-      id: serializer.fromJson<int>(json['id']),
-      uuid: serializer.fromJson<String>(json['uuid']),
-      trainingCycleUuid: serializer.fromJson<String>(json['trainingCycleUuid']),
-      periodNumber: serializer.fromJson<int>(json['periodNumber']),
-      dayNumber: serializer.fromJson<int>(json['dayNumber']),
-      dayName: serializer.fromJson<String?>(json['dayName']),
-      label: serializer.fromJson<String?>(json['label']),
-      status: serializer.fromJson<int>(json['status']),
-      scheduledDate: serializer.fromJson<DateTime?>(json['scheduledDate']),
-      completedDate: serializer.fromJson<DateTime?>(json['completedDate']),
-      startTime: serializer.fromJson<DateTime?>(json['startTime']),
-      endTime: serializer.fromJson<DateTime?>(json['endTime']),
-      notes: serializer.fromJson<String?>(json['notes']),
-    );
-  }
-  @override
-  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return <String, dynamic>{
-      'id': serializer.toJson<int>(id),
-      'uuid': serializer.toJson<String>(uuid),
-      'trainingCycleUuid': serializer.toJson<String>(trainingCycleUuid),
-      'periodNumber': serializer.toJson<int>(periodNumber),
-      'dayNumber': serializer.toJson<int>(dayNumber),
-      'dayName': serializer.toJson<String?>(dayName),
-      'label': serializer.toJson<String?>(label),
-      'status': serializer.toJson<int>(status),
-      'scheduledDate': serializer.toJson<DateTime?>(scheduledDate),
-      'completedDate': serializer.toJson<DateTime?>(completedDate),
-      'startTime': serializer.toJson<DateTime?>(startTime),
-      'endTime': serializer.toJson<DateTime?>(endTime),
-      'notes': serializer.toJson<String?>(notes),
-    };
-  }
-
-  Workout copyWith({
-    int? id,
-    String? uuid,
-    String? trainingCycleUuid,
-    int? periodNumber,
-    int? dayNumber,
-    Value<String?> dayName = const Value.absent(),
-    Value<String?> label = const Value.absent(),
-    int? status,
-    Value<DateTime?> scheduledDate = const Value.absent(),
-    Value<DateTime?> completedDate = const Value.absent(),
-    Value<DateTime?> startTime = const Value.absent(),
-    Value<DateTime?> endTime = const Value.absent(),
-    Value<String?> notes = const Value.absent(),
-  }) => Workout(
-    id: id ?? this.id,
-    uuid: uuid ?? this.uuid,
-    trainingCycleUuid: trainingCycleUuid ?? this.trainingCycleUuid,
-    periodNumber: periodNumber ?? this.periodNumber,
-    dayNumber: dayNumber ?? this.dayNumber,
-    dayName: dayName.present ? dayName.value : this.dayName,
-    label: label.present ? label.value : this.label,
-    status: status ?? this.status,
-    scheduledDate: scheduledDate.present
-        ? scheduledDate.value
-        : this.scheduledDate,
-    completedDate: completedDate.present
-        ? completedDate.value
-        : this.completedDate,
-    startTime: startTime.present ? startTime.value : this.startTime,
-    endTime: endTime.present ? endTime.value : this.endTime,
-    notes: notes.present ? notes.value : this.notes,
-  );
-  Workout copyWithCompanion(WorkoutsCompanion data) {
-    return Workout(
-      id: data.id.present ? data.id.value : this.id,
-      uuid: data.uuid.present ? data.uuid.value : this.uuid,
-      trainingCycleUuid: data.trainingCycleUuid.present
-          ? data.trainingCycleUuid.value
-          : this.trainingCycleUuid,
-      periodNumber: data.periodNumber.present
-          ? data.periodNumber.value
-          : this.periodNumber,
-      dayNumber: data.dayNumber.present ? data.dayNumber.value : this.dayNumber,
-      dayName: data.dayName.present ? data.dayName.value : this.dayName,
-      label: data.label.present ? data.label.value : this.label,
-      status: data.status.present ? data.status.value : this.status,
-      scheduledDate: data.scheduledDate.present
-          ? data.scheduledDate.value
-          : this.scheduledDate,
-      completedDate: data.completedDate.present
-          ? data.completedDate.value
-          : this.completedDate,
-      startTime: data.startTime.present ? data.startTime.value : this.startTime,
-      endTime: data.endTime.present ? data.endTime.value : this.endTime,
-      notes: data.notes.present ? data.notes.value : this.notes,
-    );
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('Workout(')
-          ..write('id: $id, ')
-          ..write('uuid: $uuid, ')
-          ..write('trainingCycleUuid: $trainingCycleUuid, ')
-          ..write('periodNumber: $periodNumber, ')
-          ..write('dayNumber: $dayNumber, ')
-          ..write('dayName: $dayName, ')
-          ..write('label: $label, ')
-          ..write('status: $status, ')
-          ..write('scheduledDate: $scheduledDate, ')
-          ..write('completedDate: $completedDate, ')
-          ..write('startTime: $startTime, ')
-          ..write('endTime: $endTime, ')
-          ..write('notes: $notes')
-          ..write(')'))
-        .toString();
-  }
-
-  @override
-  int get hashCode => Object.hash(
-    id,
-    uuid,
-    trainingCycleUuid,
-    periodNumber,
-    dayNumber,
-    dayName,
-    label,
-    status,
-    scheduledDate,
-    completedDate,
-    startTime,
-    endTime,
-    notes,
-  );
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      (other is Workout &&
-          other.id == this.id &&
-          other.uuid == this.uuid &&
-          other.trainingCycleUuid == this.trainingCycleUuid &&
-          other.periodNumber == this.periodNumber &&
-          other.dayNumber == this.dayNumber &&
-          other.dayName == this.dayName &&
-          other.label == this.label &&
-          other.status == this.status &&
-          other.scheduledDate == this.scheduledDate &&
-          other.completedDate == this.completedDate &&
-          other.startTime == this.startTime &&
-          other.endTime == this.endTime &&
-          other.notes == this.notes);
-}
-
-class WorkoutsCompanion extends UpdateCompanion<Workout> {
-  final Value<int> id;
-  final Value<String> uuid;
-  final Value<String> trainingCycleUuid;
-  final Value<int> periodNumber;
-  final Value<int> dayNumber;
-  final Value<String?> dayName;
-  final Value<String?> label;
-  final Value<int> status;
-  final Value<DateTime?> scheduledDate;
-  final Value<DateTime?> completedDate;
-  final Value<DateTime?> startTime;
-  final Value<DateTime?> endTime;
-  final Value<String?> notes;
-  const WorkoutsCompanion({
-    this.id = const Value.absent(),
-    this.uuid = const Value.absent(),
-    this.trainingCycleUuid = const Value.absent(),
-    this.periodNumber = const Value.absent(),
-    this.dayNumber = const Value.absent(),
-    this.dayName = const Value.absent(),
-    this.label = const Value.absent(),
-    this.status = const Value.absent(),
-    this.scheduledDate = const Value.absent(),
-    this.completedDate = const Value.absent(),
-    this.startTime = const Value.absent(),
-    this.endTime = const Value.absent(),
-    this.notes = const Value.absent(),
-  });
-  WorkoutsCompanion.insert({
-    this.id = const Value.absent(),
-    required String uuid,
-    required String trainingCycleUuid,
-    required int periodNumber,
-    required int dayNumber,
-    this.dayName = const Value.absent(),
-    this.label = const Value.absent(),
-    required int status,
-    this.scheduledDate = const Value.absent(),
-    this.completedDate = const Value.absent(),
-    this.startTime = const Value.absent(),
-    this.endTime = const Value.absent(),
-    this.notes = const Value.absent(),
-  }) : uuid = Value(uuid),
-       trainingCycleUuid = Value(trainingCycleUuid),
-       periodNumber = Value(periodNumber),
-       dayNumber = Value(dayNumber),
-       status = Value(status);
-  static Insertable<Workout> custom({
-    Expression<int>? id,
-    Expression<String>? uuid,
-    Expression<String>? trainingCycleUuid,
-    Expression<int>? periodNumber,
-    Expression<int>? dayNumber,
-    Expression<String>? dayName,
-    Expression<String>? label,
-    Expression<int>? status,
-    Expression<DateTime>? scheduledDate,
-    Expression<DateTime>? completedDate,
-    Expression<DateTime>? startTime,
-    Expression<DateTime>? endTime,
-    Expression<String>? notes,
-  }) {
-    return RawValuesInsertable({
-      if (id != null) 'id': id,
-      if (uuid != null) 'uuid': uuid,
-      if (trainingCycleUuid != null) 'training_cycle_uuid': trainingCycleUuid,
-      if (periodNumber != null) 'period_number': periodNumber,
-      if (dayNumber != null) 'day_number': dayNumber,
-      if (dayName != null) 'day_name': dayName,
-      if (label != null) 'label': label,
-      if (status != null) 'status': status,
-      if (scheduledDate != null) 'scheduled_date': scheduledDate,
-      if (completedDate != null) 'completed_date': completedDate,
-      if (startTime != null) 'start_time': startTime,
-      if (endTime != null) 'end_time': endTime,
-      if (notes != null) 'notes': notes,
-    });
-  }
-
-  WorkoutsCompanion copyWith({
-    Value<int>? id,
-    Value<String>? uuid,
-    Value<String>? trainingCycleUuid,
-    Value<int>? periodNumber,
-    Value<int>? dayNumber,
-    Value<String?>? dayName,
-    Value<String?>? label,
-    Value<int>? status,
-    Value<DateTime?>? scheduledDate,
-    Value<DateTime?>? completedDate,
-    Value<DateTime?>? startTime,
-    Value<DateTime?>? endTime,
-    Value<String?>? notes,
-  }) {
-    return WorkoutsCompanion(
-      id: id ?? this.id,
-      uuid: uuid ?? this.uuid,
-      trainingCycleUuid: trainingCycleUuid ?? this.trainingCycleUuid,
-      periodNumber: periodNumber ?? this.periodNumber,
-      dayNumber: dayNumber ?? this.dayNumber,
-      dayName: dayName ?? this.dayName,
-      label: label ?? this.label,
-      status: status ?? this.status,
-      scheduledDate: scheduledDate ?? this.scheduledDate,
-      completedDate: completedDate ?? this.completedDate,
-      startTime: startTime ?? this.startTime,
-      endTime: endTime ?? this.endTime,
-      notes: notes ?? this.notes,
-    );
-  }
-
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    if (id.present) {
-      map['id'] = Variable<int>(id.value);
-    }
-    if (uuid.present) {
-      map['uuid'] = Variable<String>(uuid.value);
-    }
-    if (trainingCycleUuid.present) {
-      map['training_cycle_uuid'] = Variable<String>(trainingCycleUuid.value);
-    }
-    if (periodNumber.present) {
-      map['period_number'] = Variable<int>(periodNumber.value);
-    }
-    if (dayNumber.present) {
-      map['day_number'] = Variable<int>(dayNumber.value);
-    }
-    if (dayName.present) {
-      map['day_name'] = Variable<String>(dayName.value);
-    }
-    if (label.present) {
-      map['label'] = Variable<String>(label.value);
-    }
-    if (status.present) {
-      map['status'] = Variable<int>(status.value);
-    }
-    if (scheduledDate.present) {
-      map['scheduled_date'] = Variable<DateTime>(scheduledDate.value);
-    }
-    if (completedDate.present) {
-      map['completed_date'] = Variable<DateTime>(completedDate.value);
-    }
-    if (startTime.present) {
-      map['start_time'] = Variable<DateTime>(startTime.value);
-    }
-    if (endTime.present) {
-      map['end_time'] = Variable<DateTime>(endTime.value);
-    }
-    if (notes.present) {
-      map['notes'] = Variable<String>(notes.value);
-    }
-    return map;
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('WorkoutsCompanion(')
-          ..write('id: $id, ')
-          ..write('uuid: $uuid, ')
-          ..write('trainingCycleUuid: $trainingCycleUuid, ')
-          ..write('periodNumber: $periodNumber, ')
-          ..write('dayNumber: $dayNumber, ')
-          ..write('dayName: $dayName, ')
-          ..write('label: $label, ')
-          ..write('status: $status, ')
-          ..write('scheduledDate: $scheduledDate, ')
-          ..write('completedDate: $completedDate, ')
-          ..write('startTime: $startTime, ')
-          ..write('endTime: $endTime, ')
-          ..write('notes: $notes')
-          ..write(')'))
-        .toString();
-  }
-}
-
 class $ExercisesTable extends Exercises
     with TableInfo<$ExercisesTable, Exercise> {
   @override
@@ -1853,9 +1082,6 @@ class $ExercisesTable extends Exercises
     false,
     type: DriftSqlType.string,
     requiredDuringInsert: true,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES workouts (uuid)',
-    ),
   );
   static const VerificationMeta _sessionUuidMeta = const VerificationMeta(
     'sessionUuid',
@@ -11334,7 +10560,6 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
   late final $TrainingCyclesTable trainingCycles = $TrainingCyclesTable(this);
-  late final $WorkoutsTable workouts = $WorkoutsTable(this);
   late final $ExercisesTable exercises = $ExercisesTable(this);
   late final $ExerciseSetsTable exerciseSets = $ExerciseSetsTable(this);
   late final $ExerciseFeedbacksTable exerciseFeedbacks =
@@ -11357,7 +10582,6 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final TrainingCycleDao trainingCycleDao = TrainingCycleDao(
     this as AppDatabase,
   );
-  late final WorkoutDao workoutDao = WorkoutDao(this as AppDatabase);
   late final ExerciseDao exerciseDao = ExerciseDao(this as AppDatabase);
   late final ExerciseSetDao exerciseSetDao = ExerciseSetDao(
     this as AppDatabase,
@@ -11395,7 +10619,6 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities => [
     trainingCycles,
-    workouts,
     exercises,
     exerciseSets,
     exerciseFeedbacks,
@@ -11462,27 +10685,6 @@ final class $$TrainingCyclesTableReferences
     super.$_table,
     super.$_typedResult,
   );
-
-  static MultiTypedResultKey<$WorkoutsTable, List<Workout>> _workoutsRefsTable(
-    _$AppDatabase db,
-  ) => MultiTypedResultKey.fromTable(
-    db.workouts,
-    aliasName: $_aliasNameGenerator(
-      db.trainingCycles.uuid,
-      db.workouts.trainingCycleUuid,
-    ),
-  );
-
-  $$WorkoutsTableProcessedTableManager get workoutsRefs {
-    final manager = $$WorkoutsTableTableManager($_db, $_db.workouts).filter(
-      (f) => f.trainingCycleUuid.uuid.sqlEquals($_itemColumn<String>('uuid')!),
-    );
-
-    final cache = $_typedResult.readTableOrNull(_workoutsRefsTable($_db));
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: cache),
-    );
-  }
 
   static MultiTypedResultKey<$SessionsTable, List<Session>> _sessionsRefsTable(
     _$AppDatabase db,
@@ -11626,31 +10828,6 @@ class $$TrainingCyclesTableFilterComposer
     column: $table.ownerUuid,
     builder: (column) => ColumnFilters(column),
   );
-
-  Expression<bool> workoutsRefs(
-    Expression<bool> Function($$WorkoutsTableFilterComposer f) f,
-  ) {
-    final $$WorkoutsTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.uuid,
-      referencedTable: $db.workouts,
-      getReferencedColumn: (t) => t.trainingCycleUuid,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$WorkoutsTableFilterComposer(
-            $db: $db,
-            $table: $db.workouts,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
 
   Expression<bool> sessionsRefs(
     Expression<bool> Function($$SessionsTableFilterComposer f) f,
@@ -11884,31 +11061,6 @@ class $$TrainingCyclesTableAnnotationComposer
   GeneratedColumn<String> get ownerUuid =>
       $composableBuilder(column: $table.ownerUuid, builder: (column) => column);
 
-  Expression<T> workoutsRefs<T extends Object>(
-    Expression<T> Function($$WorkoutsTableAnnotationComposer a) f,
-  ) {
-    final $$WorkoutsTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.uuid,
-      referencedTable: $db.workouts,
-      getReferencedColumn: (t) => t.trainingCycleUuid,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$WorkoutsTableAnnotationComposer(
-            $db: $db,
-            $table: $db.workouts,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
-
   Expression<T> sessionsRefs<T extends Object>(
     Expression<T> Function($$SessionsTableAnnotationComposer a) f,
   ) {
@@ -11973,11 +11125,7 @@ class $$TrainingCyclesTableTableManager
           $$TrainingCyclesTableUpdateCompanionBuilder,
           (TrainingCycle, $$TrainingCyclesTableReferences),
           TrainingCycle,
-          PrefetchHooks Function({
-            bool workoutsRefs,
-            bool sessionsRefs,
-            bool cyclePeriodsRefs,
-          })
+          PrefetchHooks Function({bool sessionsRefs, bool cyclePeriodsRefs})
         > {
   $$TrainingCyclesTableTableManager(
     _$AppDatabase db,
@@ -12081,42 +11229,16 @@ class $$TrainingCyclesTableTableManager
               )
               .toList(),
           prefetchHooksCallback:
-              ({
-                workoutsRefs = false,
-                sessionsRefs = false,
-                cyclePeriodsRefs = false,
-              }) {
+              ({sessionsRefs = false, cyclePeriodsRefs = false}) {
                 return PrefetchHooks(
                   db: db,
                   explicitlyWatchedTables: [
-                    if (workoutsRefs) db.workouts,
                     if (sessionsRefs) db.sessions,
                     if (cyclePeriodsRefs) db.cyclePeriods,
                   ],
                   addJoins: null,
                   getPrefetchedDataCallback: (items) async {
                     return [
-                      if (workoutsRefs)
-                        await $_getPrefetchedData<
-                          TrainingCycle,
-                          $TrainingCyclesTable,
-                          Workout
-                        >(
-                          currentTable: table,
-                          referencedTable: $$TrainingCyclesTableReferences
-                              ._workoutsRefsTable(db),
-                          managerFromTypedResult: (p0) =>
-                              $$TrainingCyclesTableReferences(
-                                db,
-                                table,
-                                p0,
-                              ).workoutsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.trainingCycleUuid == item.uuid,
-                              ),
-                          typedResults: items,
-                        ),
                       if (sessionsRefs)
                         await $_getPrefetchedData<
                           TrainingCycle,
@@ -12179,575 +11301,7 @@ typedef $$TrainingCyclesTableProcessedTableManager =
       $$TrainingCyclesTableUpdateCompanionBuilder,
       (TrainingCycle, $$TrainingCyclesTableReferences),
       TrainingCycle,
-      PrefetchHooks Function({
-        bool workoutsRefs,
-        bool sessionsRefs,
-        bool cyclePeriodsRefs,
-      })
-    >;
-typedef $$WorkoutsTableCreateCompanionBuilder =
-    WorkoutsCompanion Function({
-      Value<int> id,
-      required String uuid,
-      required String trainingCycleUuid,
-      required int periodNumber,
-      required int dayNumber,
-      Value<String?> dayName,
-      Value<String?> label,
-      required int status,
-      Value<DateTime?> scheduledDate,
-      Value<DateTime?> completedDate,
-      Value<DateTime?> startTime,
-      Value<DateTime?> endTime,
-      Value<String?> notes,
-    });
-typedef $$WorkoutsTableUpdateCompanionBuilder =
-    WorkoutsCompanion Function({
-      Value<int> id,
-      Value<String> uuid,
-      Value<String> trainingCycleUuid,
-      Value<int> periodNumber,
-      Value<int> dayNumber,
-      Value<String?> dayName,
-      Value<String?> label,
-      Value<int> status,
-      Value<DateTime?> scheduledDate,
-      Value<DateTime?> completedDate,
-      Value<DateTime?> startTime,
-      Value<DateTime?> endTime,
-      Value<String?> notes,
-    });
-
-final class $$WorkoutsTableReferences
-    extends BaseReferences<_$AppDatabase, $WorkoutsTable, Workout> {
-  $$WorkoutsTableReferences(super.$_db, super.$_table, super.$_typedResult);
-
-  static $TrainingCyclesTable _trainingCycleUuidTable(_$AppDatabase db) =>
-      db.trainingCycles.createAlias(
-        $_aliasNameGenerator(
-          db.workouts.trainingCycleUuid,
-          db.trainingCycles.uuid,
-        ),
-      );
-
-  $$TrainingCyclesTableProcessedTableManager get trainingCycleUuid {
-    final $_column = $_itemColumn<String>('training_cycle_uuid')!;
-
-    final manager = $$TrainingCyclesTableTableManager(
-      $_db,
-      $_db.trainingCycles,
-    ).filter((f) => f.uuid.sqlEquals($_column));
-    final item = $_typedResult.readTableOrNull(_trainingCycleUuidTable($_db));
-    if (item == null) return manager;
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: [item]),
-    );
-  }
-
-  static MultiTypedResultKey<$ExercisesTable, List<Exercise>>
-  _exercisesRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
-    db.exercises,
-    aliasName: $_aliasNameGenerator(db.workouts.uuid, db.exercises.workoutUuid),
-  );
-
-  $$ExercisesTableProcessedTableManager get exercisesRefs {
-    final manager = $$ExercisesTableTableManager($_db, $_db.exercises).filter(
-      (f) => f.workoutUuid.uuid.sqlEquals($_itemColumn<String>('uuid')!),
-    );
-
-    final cache = $_typedResult.readTableOrNull(_exercisesRefsTable($_db));
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: cache),
-    );
-  }
-}
-
-class $$WorkoutsTableFilterComposer
-    extends Composer<_$AppDatabase, $WorkoutsTable> {
-  $$WorkoutsTableFilterComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnFilters<int> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get uuid => $composableBuilder(
-    column: $table.uuid,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<int> get periodNumber => $composableBuilder(
-    column: $table.periodNumber,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<int> get dayNumber => $composableBuilder(
-    column: $table.dayNumber,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get dayName => $composableBuilder(
-    column: $table.dayName,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get label => $composableBuilder(
-    column: $table.label,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<int> get status => $composableBuilder(
-    column: $table.status,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<DateTime> get scheduledDate => $composableBuilder(
-    column: $table.scheduledDate,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<DateTime> get completedDate => $composableBuilder(
-    column: $table.completedDate,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<DateTime> get startTime => $composableBuilder(
-    column: $table.startTime,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<DateTime> get endTime => $composableBuilder(
-    column: $table.endTime,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get notes => $composableBuilder(
-    column: $table.notes,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  $$TrainingCyclesTableFilterComposer get trainingCycleUuid {
-    final $$TrainingCyclesTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.trainingCycleUuid,
-      referencedTable: $db.trainingCycles,
-      getReferencedColumn: (t) => t.uuid,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$TrainingCyclesTableFilterComposer(
-            $db: $db,
-            $table: $db.trainingCycles,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
-
-  Expression<bool> exercisesRefs(
-    Expression<bool> Function($$ExercisesTableFilterComposer f) f,
-  ) {
-    final $$ExercisesTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.uuid,
-      referencedTable: $db.exercises,
-      getReferencedColumn: (t) => t.workoutUuid,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$ExercisesTableFilterComposer(
-            $db: $db,
-            $table: $db.exercises,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
-}
-
-class $$WorkoutsTableOrderingComposer
-    extends Composer<_$AppDatabase, $WorkoutsTable> {
-  $$WorkoutsTableOrderingComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnOrderings<int> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get uuid => $composableBuilder(
-    column: $table.uuid,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<int> get periodNumber => $composableBuilder(
-    column: $table.periodNumber,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<int> get dayNumber => $composableBuilder(
-    column: $table.dayNumber,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get dayName => $composableBuilder(
-    column: $table.dayName,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get label => $composableBuilder(
-    column: $table.label,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<int> get status => $composableBuilder(
-    column: $table.status,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<DateTime> get scheduledDate => $composableBuilder(
-    column: $table.scheduledDate,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<DateTime> get completedDate => $composableBuilder(
-    column: $table.completedDate,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<DateTime> get startTime => $composableBuilder(
-    column: $table.startTime,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<DateTime> get endTime => $composableBuilder(
-    column: $table.endTime,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get notes => $composableBuilder(
-    column: $table.notes,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  $$TrainingCyclesTableOrderingComposer get trainingCycleUuid {
-    final $$TrainingCyclesTableOrderingComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.trainingCycleUuid,
-      referencedTable: $db.trainingCycles,
-      getReferencedColumn: (t) => t.uuid,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$TrainingCyclesTableOrderingComposer(
-            $db: $db,
-            $table: $db.trainingCycles,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
-}
-
-class $$WorkoutsTableAnnotationComposer
-    extends Composer<_$AppDatabase, $WorkoutsTable> {
-  $$WorkoutsTableAnnotationComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  GeneratedColumn<int> get id =>
-      $composableBuilder(column: $table.id, builder: (column) => column);
-
-  GeneratedColumn<String> get uuid =>
-      $composableBuilder(column: $table.uuid, builder: (column) => column);
-
-  GeneratedColumn<int> get periodNumber => $composableBuilder(
-    column: $table.periodNumber,
-    builder: (column) => column,
-  );
-
-  GeneratedColumn<int> get dayNumber =>
-      $composableBuilder(column: $table.dayNumber, builder: (column) => column);
-
-  GeneratedColumn<String> get dayName =>
-      $composableBuilder(column: $table.dayName, builder: (column) => column);
-
-  GeneratedColumn<String> get label =>
-      $composableBuilder(column: $table.label, builder: (column) => column);
-
-  GeneratedColumn<int> get status =>
-      $composableBuilder(column: $table.status, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get scheduledDate => $composableBuilder(
-    column: $table.scheduledDate,
-    builder: (column) => column,
-  );
-
-  GeneratedColumn<DateTime> get completedDate => $composableBuilder(
-    column: $table.completedDate,
-    builder: (column) => column,
-  );
-
-  GeneratedColumn<DateTime> get startTime =>
-      $composableBuilder(column: $table.startTime, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get endTime =>
-      $composableBuilder(column: $table.endTime, builder: (column) => column);
-
-  GeneratedColumn<String> get notes =>
-      $composableBuilder(column: $table.notes, builder: (column) => column);
-
-  $$TrainingCyclesTableAnnotationComposer get trainingCycleUuid {
-    final $$TrainingCyclesTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.trainingCycleUuid,
-      referencedTable: $db.trainingCycles,
-      getReferencedColumn: (t) => t.uuid,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$TrainingCyclesTableAnnotationComposer(
-            $db: $db,
-            $table: $db.trainingCycles,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
-
-  Expression<T> exercisesRefs<T extends Object>(
-    Expression<T> Function($$ExercisesTableAnnotationComposer a) f,
-  ) {
-    final $$ExercisesTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.uuid,
-      referencedTable: $db.exercises,
-      getReferencedColumn: (t) => t.workoutUuid,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$ExercisesTableAnnotationComposer(
-            $db: $db,
-            $table: $db.exercises,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
-}
-
-class $$WorkoutsTableTableManager
-    extends
-        RootTableManager<
-          _$AppDatabase,
-          $WorkoutsTable,
-          Workout,
-          $$WorkoutsTableFilterComposer,
-          $$WorkoutsTableOrderingComposer,
-          $$WorkoutsTableAnnotationComposer,
-          $$WorkoutsTableCreateCompanionBuilder,
-          $$WorkoutsTableUpdateCompanionBuilder,
-          (Workout, $$WorkoutsTableReferences),
-          Workout,
-          PrefetchHooks Function({bool trainingCycleUuid, bool exercisesRefs})
-        > {
-  $$WorkoutsTableTableManager(_$AppDatabase db, $WorkoutsTable table)
-    : super(
-        TableManagerState(
-          db: db,
-          table: table,
-          createFilteringComposer: () =>
-              $$WorkoutsTableFilterComposer($db: db, $table: table),
-          createOrderingComposer: () =>
-              $$WorkoutsTableOrderingComposer($db: db, $table: table),
-          createComputedFieldComposer: () =>
-              $$WorkoutsTableAnnotationComposer($db: db, $table: table),
-          updateCompanionCallback:
-              ({
-                Value<int> id = const Value.absent(),
-                Value<String> uuid = const Value.absent(),
-                Value<String> trainingCycleUuid = const Value.absent(),
-                Value<int> periodNumber = const Value.absent(),
-                Value<int> dayNumber = const Value.absent(),
-                Value<String?> dayName = const Value.absent(),
-                Value<String?> label = const Value.absent(),
-                Value<int> status = const Value.absent(),
-                Value<DateTime?> scheduledDate = const Value.absent(),
-                Value<DateTime?> completedDate = const Value.absent(),
-                Value<DateTime?> startTime = const Value.absent(),
-                Value<DateTime?> endTime = const Value.absent(),
-                Value<String?> notes = const Value.absent(),
-              }) => WorkoutsCompanion(
-                id: id,
-                uuid: uuid,
-                trainingCycleUuid: trainingCycleUuid,
-                periodNumber: periodNumber,
-                dayNumber: dayNumber,
-                dayName: dayName,
-                label: label,
-                status: status,
-                scheduledDate: scheduledDate,
-                completedDate: completedDate,
-                startTime: startTime,
-                endTime: endTime,
-                notes: notes,
-              ),
-          createCompanionCallback:
-              ({
-                Value<int> id = const Value.absent(),
-                required String uuid,
-                required String trainingCycleUuid,
-                required int periodNumber,
-                required int dayNumber,
-                Value<String?> dayName = const Value.absent(),
-                Value<String?> label = const Value.absent(),
-                required int status,
-                Value<DateTime?> scheduledDate = const Value.absent(),
-                Value<DateTime?> completedDate = const Value.absent(),
-                Value<DateTime?> startTime = const Value.absent(),
-                Value<DateTime?> endTime = const Value.absent(),
-                Value<String?> notes = const Value.absent(),
-              }) => WorkoutsCompanion.insert(
-                id: id,
-                uuid: uuid,
-                trainingCycleUuid: trainingCycleUuid,
-                periodNumber: periodNumber,
-                dayNumber: dayNumber,
-                dayName: dayName,
-                label: label,
-                status: status,
-                scheduledDate: scheduledDate,
-                completedDate: completedDate,
-                startTime: startTime,
-                endTime: endTime,
-                notes: notes,
-              ),
-          withReferenceMapper: (p0) => p0
-              .map(
-                (e) => (
-                  e.readTable(table),
-                  $$WorkoutsTableReferences(db, table, e),
-                ),
-              )
-              .toList(),
-          prefetchHooksCallback:
-              ({trainingCycleUuid = false, exercisesRefs = false}) {
-                return PrefetchHooks(
-                  db: db,
-                  explicitlyWatchedTables: [if (exercisesRefs) db.exercises],
-                  addJoins:
-                      <
-                        T extends TableManagerState<
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic
-                        >
-                      >(state) {
-                        if (trainingCycleUuid) {
-                          state =
-                              state.withJoin(
-                                    currentTable: table,
-                                    currentColumn: table.trainingCycleUuid,
-                                    referencedTable: $$WorkoutsTableReferences
-                                        ._trainingCycleUuidTable(db),
-                                    referencedColumn: $$WorkoutsTableReferences
-                                        ._trainingCycleUuidTable(db)
-                                        .uuid,
-                                  )
-                                  as T;
-                        }
-
-                        return state;
-                      },
-                  getPrefetchedDataCallback: (items) async {
-                    return [
-                      if (exercisesRefs)
-                        await $_getPrefetchedData<
-                          Workout,
-                          $WorkoutsTable,
-                          Exercise
-                        >(
-                          currentTable: table,
-                          referencedTable: $$WorkoutsTableReferences
-                              ._exercisesRefsTable(db),
-                          managerFromTypedResult: (p0) =>
-                              $$WorkoutsTableReferences(
-                                db,
-                                table,
-                                p0,
-                              ).exercisesRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.workoutUuid == item.uuid,
-                              ),
-                          typedResults: items,
-                        ),
-                    ];
-                  },
-                );
-              },
-        ),
-      );
-}
-
-typedef $$WorkoutsTableProcessedTableManager =
-    ProcessedTableManager<
-      _$AppDatabase,
-      $WorkoutsTable,
-      Workout,
-      $$WorkoutsTableFilterComposer,
-      $$WorkoutsTableOrderingComposer,
-      $$WorkoutsTableAnnotationComposer,
-      $$WorkoutsTableCreateCompanionBuilder,
-      $$WorkoutsTableUpdateCompanionBuilder,
-      (Workout, $$WorkoutsTableReferences),
-      Workout,
-      PrefetchHooks Function({bool trainingCycleUuid, bool exercisesRefs})
+      PrefetchHooks Function({bool sessionsRefs, bool cyclePeriodsRefs})
     >;
 typedef $$ExercisesTableCreateCompanionBuilder =
     ExercisesCompanion Function({
@@ -12789,25 +11343,6 @@ typedef $$ExercisesTableUpdateCompanionBuilder =
 final class $$ExercisesTableReferences
     extends BaseReferences<_$AppDatabase, $ExercisesTable, Exercise> {
   $$ExercisesTableReferences(super.$_db, super.$_table, super.$_typedResult);
-
-  static $WorkoutsTable _workoutUuidTable(_$AppDatabase db) =>
-      db.workouts.createAlias(
-        $_aliasNameGenerator(db.exercises.workoutUuid, db.workouts.uuid),
-      );
-
-  $$WorkoutsTableProcessedTableManager get workoutUuid {
-    final $_column = $_itemColumn<String>('workout_uuid')!;
-
-    final manager = $$WorkoutsTableTableManager(
-      $_db,
-      $_db.workouts,
-    ).filter((f) => f.uuid.sqlEquals($_column));
-    final item = $_typedResult.readTableOrNull(_workoutUuidTable($_db));
-    if (item == null) return manager;
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: [item]),
-    );
-  }
 
   static MultiTypedResultKey<$ExerciseSetsTable, List<ExerciseSet>>
   _exerciseSetsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
@@ -12877,6 +11412,11 @@ class $$ExercisesTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<String> get workoutUuid => $composableBuilder(
+    column: $table.workoutUuid,
+    builder: (column) => ColumnFilters(column),
+  );
+
   ColumnFilters<String> get sessionUuid => $composableBuilder(
     column: $table.sessionUuid,
     builder: (column) => ColumnFilters(column),
@@ -12936,29 +11476,6 @@ class $$ExercisesTableFilterComposer
     column: $table.restSeconds,
     builder: (column) => ColumnFilters(column),
   );
-
-  $$WorkoutsTableFilterComposer get workoutUuid {
-    final $$WorkoutsTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.workoutUuid,
-      referencedTable: $db.workouts,
-      getReferencedColumn: (t) => t.uuid,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$WorkoutsTableFilterComposer(
-            $db: $db,
-            $table: $db.workouts,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
 
   Expression<bool> exerciseSetsRefs(
     Expression<bool> Function($$ExerciseSetsTableFilterComposer f) f,
@@ -13030,6 +11547,11 @@ class $$ExercisesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get workoutUuid => $composableBuilder(
+    column: $table.workoutUuid,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get sessionUuid => $composableBuilder(
     column: $table.sessionUuid,
     builder: (column) => ColumnOrderings(column),
@@ -13089,29 +11611,6 @@ class $$ExercisesTableOrderingComposer
     column: $table.restSeconds,
     builder: (column) => ColumnOrderings(column),
   );
-
-  $$WorkoutsTableOrderingComposer get workoutUuid {
-    final $$WorkoutsTableOrderingComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.workoutUuid,
-      referencedTable: $db.workouts,
-      getReferencedColumn: (t) => t.uuid,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$WorkoutsTableOrderingComposer(
-            $db: $db,
-            $table: $db.workouts,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
 }
 
 class $$ExercisesTableAnnotationComposer
@@ -13128,6 +11627,11 @@ class $$ExercisesTableAnnotationComposer
 
   GeneratedColumn<String> get uuid =>
       $composableBuilder(column: $table.uuid, builder: (column) => column);
+
+  GeneratedColumn<String> get workoutUuid => $composableBuilder(
+    column: $table.workoutUuid,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<String> get sessionUuid => $composableBuilder(
     column: $table.sessionUuid,
@@ -13182,29 +11686,6 @@ class $$ExercisesTableAnnotationComposer
     column: $table.restSeconds,
     builder: (column) => column,
   );
-
-  $$WorkoutsTableAnnotationComposer get workoutUuid {
-    final $$WorkoutsTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.workoutUuid,
-      referencedTable: $db.workouts,
-      getReferencedColumn: (t) => t.uuid,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$WorkoutsTableAnnotationComposer(
-            $db: $db,
-            $table: $db.workouts,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
 
   Expression<T> exerciseSetsRefs<T extends Object>(
     Expression<T> Function($$ExerciseSetsTableAnnotationComposer a) f,
@@ -13272,7 +11753,6 @@ class $$ExercisesTableTableManager
           (Exercise, $$ExercisesTableReferences),
           Exercise,
           PrefetchHooks Function({
-            bool workoutUuid,
             bool exerciseSetsRefs,
             bool exerciseFeedbacksRefs,
           })
@@ -13365,49 +11845,14 @@ class $$ExercisesTableTableManager
               )
               .toList(),
           prefetchHooksCallback:
-              ({
-                workoutUuid = false,
-                exerciseSetsRefs = false,
-                exerciseFeedbacksRefs = false,
-              }) {
+              ({exerciseSetsRefs = false, exerciseFeedbacksRefs = false}) {
                 return PrefetchHooks(
                   db: db,
                   explicitlyWatchedTables: [
                     if (exerciseSetsRefs) db.exerciseSets,
                     if (exerciseFeedbacksRefs) db.exerciseFeedbacks,
                   ],
-                  addJoins:
-                      <
-                        T extends TableManagerState<
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic
-                        >
-                      >(state) {
-                        if (workoutUuid) {
-                          state =
-                              state.withJoin(
-                                    currentTable: table,
-                                    currentColumn: table.workoutUuid,
-                                    referencedTable: $$ExercisesTableReferences
-                                        ._workoutUuidTable(db),
-                                    referencedColumn: $$ExercisesTableReferences
-                                        ._workoutUuidTable(db)
-                                        .uuid,
-                                  )
-                                  as T;
-                        }
-
-                        return state;
-                      },
+                  addJoins: null,
                   getPrefetchedDataCallback: (items) async {
                     return [
                       if (exerciseSetsRefs)
@@ -13473,7 +11918,6 @@ typedef $$ExercisesTableProcessedTableManager =
       (Exercise, $$ExercisesTableReferences),
       Exercise,
       PrefetchHooks Function({
-        bool workoutUuid,
         bool exerciseSetsRefs,
         bool exerciseFeedbacksRefs,
       })
@@ -18877,8 +17321,6 @@ class $AppDatabaseManager {
   $AppDatabaseManager(this._db);
   $$TrainingCyclesTableTableManager get trainingCycles =>
       $$TrainingCyclesTableTableManager(_db, _db.trainingCycles);
-  $$WorkoutsTableTableManager get workouts =>
-      $$WorkoutsTableTableManager(_db, _db.workouts);
   $$ExercisesTableTableManager get exercises =>
       $$ExercisesTableTableManager(_db, _db.exercises);
   $$ExerciseSetsTableTableManager get exerciseSets =>

@@ -6,7 +6,6 @@ import 'package:yawa4u/core/constants/muscle_groups.dart';
 import 'package:yawa4u/data/database/database.dart'
     hide
         TrainingCycle,
-        Workout,
         Exercise,
         ExerciseSet,
         ExerciseFeedback,

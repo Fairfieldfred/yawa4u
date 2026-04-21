@@ -84,9 +84,6 @@ class DatabaseService {
         await _database!.delete(_database!.cyclePeriods).go();
         await _database!.delete(_database!.sportZones).go();
 
-        // Legacy table — still present until the v6 migration drops it.
-        await _database!.delete(_database!.workouts).go();
-
         await _database!.delete(_database!.trainingCycles).go();
         await _database!.delete(_database!.customExerciseDefinitions).go();
         await _database!.delete(_database!.userMeasurements).go();
@@ -127,11 +124,10 @@ class DatabaseService {
 
   /// Get database statistics (uses efficient SQL COUNT queries).
   ///
-  /// Phase 6c: the `workouts` stat now counts strength rows in the
-  /// canonical `sessions` table. The legacy `workouts` table is no
-  /// longer written to; its row count is reported separately under
-  /// `legacyWorkouts` so stale-data dashboards can still spot it until
-  /// the v6 migration drops the table entirely.
+  /// Phase 6d: the legacy `workouts` table was dropped in the v6
+  /// migration. The `workouts` stat now counts strength rows in the
+  /// `sessions` table — the same number the old query would have
+  /// returned, just coming from the canonical source.
   Future<Map<String, int>> getStatistics() async {
     if (_database == null) return {};
 
@@ -140,7 +136,6 @@ class DatabaseService {
           await _database!.trainingCycleDao.countRows();
       final strengthSessionCount =
           await _database!.sessionDao.countBySport(0); // Sport.strength.index
-      final legacyWorkoutCount = await _database!.workoutDao.countRows();
       final exerciseCount = await _database!.exerciseDao.countRows();
       final customExerciseCount =
           await _database!.customExerciseDao.countRows();
@@ -150,7 +145,6 @@ class DatabaseService {
       return {
         'trainingCycles': trainingCycleCount,
         'workouts': strengthSessionCount,
-        'legacyWorkouts': legacyWorkoutCount,
         'exercises': exerciseCount,
         'customExercises': customExerciseCount,
         'userMeasurements': userMeasurementCount,

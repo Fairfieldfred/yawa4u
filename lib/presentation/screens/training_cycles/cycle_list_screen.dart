@@ -239,8 +239,8 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
             // Switch to workout tab (same as tapping Workout in bottomNav)
             ref.read(homeTabIndexProvider.notifier).setTab(HomeTab.workout);
           } else {
-            // Navigate to editable workout screen for draft trainingCycles
-            context.push('/trainingCycles/${trainingCycle.id}/workouts');
+            // Navigate to editable session list for draft training cycles.
+            context.push('/trainingCycles/${trainingCycle.id}/sessions');
           }
         },
         borderRadius: BorderRadius.circular(12),

@@ -51,6 +51,10 @@ class _TrainingCycleCreateScreenState
 
   // v5 — primary-sport hint (UI only, never restricts what the cycle
   // can contain). Null = "Skip / Mixed".
+  //
+  // UX review P0 #1: seeded from the user's onboarding sport selection
+  // in [initState]. If they picked Run first, the creator lands with
+  // "Run" pre-selected. The user can still change it or pick "Mixed".
   Sport? _primarySport;
 
   // Tracks whether the user has manually edited [_daysPerPeriod]. If they
@@ -58,6 +62,24 @@ class _TrainingCycleCreateScreenState
   // sport-aware defaults. Once the user touches the slider, we stop
   // overwriting their choice.
   bool _daysPerPeriodTouched = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Prefill primary sport from onboarding selection. ref.read is safe
+    // here — the onboardingServiceProvider is a plain Provider that
+    // resolves synchronously from SharedPreferences, already-loaded by
+    // the time any route past /onboarding renders.
+    final onboarding = ref.read(onboardingServiceProvider);
+    final selected = onboarding.selectedSports;
+    if (selected.isNotEmpty) {
+      _primarySport = selected.first;
+      // Seed days-per-period from the sport default to match
+      // _onSportChanged's logic. User edits to the slider will still
+      // flip _daysPerPeriodTouched true.
+      _daysPerPeriod = defaultDaysPerPeriodForSport(selected.first);
+    }
+  }
 
   @override
   void dispose() {
@@ -707,7 +729,7 @@ class _TrainingCycleCreateScreenState
             ),
             const SizedBox(height: 8),
             Text(
-              'Templates provide pre-configured workout splits with exercises',
+              'Templates provide pre-configured training splits with strength exercises',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: Theme.of(
                   context,

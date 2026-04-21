@@ -177,7 +177,7 @@ class _TemplateSelectionScreenState
                   ),
                   const SizedBox(width: 4),
                   Text(
-                    '${template.workouts.length} Workouts',
+                    '${template.workouts.length} Sessions',
                     style: TextStyle(
                       color: colorScheme.onSurfaceVariant,
                       fontSize: 13,

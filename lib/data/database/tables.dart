@@ -32,39 +32,20 @@ class TrainingCycles extends Table {
   TextColumn get ownerUuid => text().nullable()(); // v5 coach-mode hook
 }
 
-/// Workouts table - individual workout sessions
-///
-/// LEGACY as of v5: user-facing code moves to [Sessions]. The row-level
-/// semantics here are unchanged and the table stays populated during v5 so
-/// existing code keeps working. Will be dropped in a later v6 migration once
-/// all readers are on [SessionDao].
-class Workouts extends Table {
-  IntColumn get id => integer().autoIncrement()();
-  TextColumn get uuid => text().unique()();
-  TextColumn get trainingCycleUuid =>
-      text().references(TrainingCycles, #uuid)();
-  IntColumn get periodNumber => integer()();
-  IntColumn get dayNumber => integer()();
-  TextColumn get dayName => text().nullable()();
-  TextColumn get label => text().nullable()();
-  IntColumn get status => integer()(); // WorkoutStatus enum
-  DateTimeColumn get scheduledDate => dateTime().nullable()();
-  DateTimeColumn get completedDate => dateTime().nullable()();
-  DateTimeColumn get startTime => dateTime().nullable()();
-  DateTimeColumn get endTime => dateTime().nullable()();
-  TextColumn get notes => text().nullable()();
-}
-
 /// Exercises table - exercise instances within workouts (strength sessions)
 ///
-/// v5: [sessionUuid] added alongside [workoutUuid] so exercises can be
-/// resolved through the new [Sessions] table. Both columns stay populated
-/// during the transition; [workoutUuid] will be dropped in v6.
+/// v5 → v6 history: the column was named [workoutUuid] and pointed at the
+/// legacy `workouts` table via a foreign key. That table was dropped in
+/// v6; the column name is preserved for schema compatibility, but it is
+/// now the strength-session UUID (same value that would have gone into
+/// [sessionUuid]). The FK is gone because the target table no longer
+/// exists. Existing v5 rows keep their values — the v6 drop doesn't
+/// touch `exercises`.
 class Exercises extends Table {
   IntColumn get id => integer().autoIncrement()();
   TextColumn get uuid => text().unique()();
-  TextColumn get workoutUuid => text().references(Workouts, #uuid)();
-  TextColumn get sessionUuid => text().nullable()(); // v5; FK to sessions.uuid
+  TextColumn get workoutUuid => text()();
+  TextColumn get sessionUuid => text().nullable()(); // v5; redundant with workoutUuid post-v6
   TextColumn get name => text()();
   IntColumn get muscleGroup => integer()(); // MuscleGroup enum (primary)
   IntColumn get secondaryMuscleGroup =>

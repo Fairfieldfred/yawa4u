@@ -9,6 +9,7 @@ import 'package:uuid/uuid.dart';
 import '../../../core/constants/enums.dart';
 import '../../../core/constants/sports.dart';
 import '../../../data/database/app_database.dart' show ExerciseSetsCompanion;
+import '../../../data/database/daos/exercise_set_dao.dart' show ExerciseSetDao;
 import '../../../data/database/mappers/entity_mappers.dart' show ExerciseFeedbackMapper;
 import '../../../core/theme/skins/skins.dart';
 import '../../../core/utils/day_sequence.dart';
@@ -66,10 +67,54 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
   final Map<String, double?> _localWeights = {};
   final Map<String, String> _localReps = {};
 
+  /// DAO captured during [initState] for the flush-on-dispose path.
+  /// Riverpod forbids `ref.read` inside [dispose] because BuildContext is
+  /// already deactivated by then, so we save the reference up front.
+  ExerciseSetDao? _setDaoForDispose;
+
+  @override
+  void initState() {
+    super.initState();
+    _setDaoForDispose = ref.read(exerciseSetDaoProvider);
+  }
+
   @override
   void dispose() {
-    for (final timer in _debounceTimers.values) {
-      timer.cancel();
+    // UX review P0 #2 — flush any still-pending debounced set edits
+    // BEFORE cancelling their timers so in-flight text-field changes
+    // aren't lost when the user navigates away mid-keystroke. We use
+    // the DAO reference captured in initState (ref.read is unsafe in
+    // dispose). Writes are fire-and-forget by design — we don't want
+    // dispose() to block.
+    final setDao = _setDaoForDispose;
+    if (setDao != null) {
+      for (final entry in _debounceTimers.entries) {
+        final key = entry.key;
+        final timer = entry.value;
+        if (timer.isActive) {
+          if (key.startsWith('weight_')) {
+            final setId = key.substring('weight_'.length);
+            setDao.updateByUuid(
+              setId,
+              ExerciseSetsCompanion(weight: Value(_localWeights[setId])),
+            );
+          } else if (key.startsWith('reps_')) {
+            final setId = key.substring('reps_'.length);
+            final reps = _localReps[setId];
+            if (reps != null) {
+              setDao.updateByUuid(
+                setId,
+                ExerciseSetsCompanion(reps: Value(reps)),
+              );
+            }
+          }
+        }
+        timer.cancel();
+      }
+    } else {
+      for (final timer in _debounceTimers.values) {
+        timer.cancel();
+      }
     }
     _pageController?.dispose();
     super.dispose();
@@ -840,17 +885,68 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     _invalidateWorkoutProviders();
   }
 
+  /// Delete an exercise — optimistic with a 6s Undo snackbar.
+  ///
+  /// Mirrors [_deleteSet]'s pattern. Exercises with any logged sets are
+  /// already guarded upstream in [ExerciseCardWidget]'s popup menu (the
+  /// Delete item is disabled), so the undo path here only has to worry
+  /// about not-yet-logged exercises — which is exactly the case where
+  /// a mistyped tap is the likely cause.
   Future<void> _deleteExercise(String workoutId, String exerciseId) async {
     final repository = ref.read(workoutRepositoryProvider);
     final workout = await repository.getById(workoutId);
     if (workout == null) return;
 
-    final updatedExercises = workout.exercises
-        .where((e) => e.id != exerciseId)
-        .toList();
+    final originalIndex = workout.exercises.indexWhere(
+      (e) => e.id == exerciseId,
+    );
+    if (originalIndex == -1) return;
+
+    // Snapshot so Undo can put it back exactly where it was.
+    final removedExercise = workout.exercises[originalIndex];
+
+    final updatedExercises = List<Exercise>.from(workout.exercises)
+      ..removeAt(originalIndex);
 
     final updatedWorkout = workout.copyWith(exercises: updatedExercises);
     await repository.update(updatedWorkout);
+    _invalidateWorkoutProviders();
+
+    if (!mounted) return;
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text('${removedExercise.name} deleted'),
+          duration: const Duration(seconds: 6),
+          action: SnackBarAction(
+            label: 'Undo',
+            onPressed: () => _restoreExercise(
+              workoutId,
+              originalIndex,
+              removedExercise,
+            ),
+          ),
+        ),
+      );
+  }
+
+  /// Undo helper for [_deleteExercise]. Re-inserts [removedExercise] at
+  /// its original [originalIndex] (clamped so a since-shortened exercise
+  /// list still takes it).
+  Future<void> _restoreExercise(
+    String workoutId,
+    int originalIndex,
+    Exercise removedExercise,
+  ) async {
+    final repository = ref.read(workoutRepositoryProvider);
+    final workout = await repository.getById(workoutId);
+    if (workout == null) return;
+
+    final restored = List<Exercise>.from(workout.exercises)
+      ..insert(originalIndex.clamp(0, workout.exercises.length), removedExercise);
+
+    await repository.update(workout.copyWith(exercises: restored));
     _invalidateWorkoutProviders();
   }
 
@@ -1501,7 +1597,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
 
   Widget _buildEmptyState(BuildContext context, String title, String message) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Workout')),
+      appBar: AppBar(title: const Text('Session')),
       body: ScreenBackground.workout(
         child: Center(
           child: Column(
