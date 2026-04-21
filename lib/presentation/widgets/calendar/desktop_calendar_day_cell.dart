@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../domain/providers/calendar_providers.dart';
+import 'calendar_sport_dots.dart';
 import 'draggable_exercise_card.dart';
 
 /// A calendar day cell optimized for desktop with drag-and-drop support
@@ -177,9 +178,14 @@ class _DesktopCalendarDayCellState extends State<DesktopCalendarDayCell> {
                 overflow: TextOverflow.ellipsis,
               ),
             ),
+            // v5 — cardio sport indicators (collapses to nothing if none).
+            CalendarSportDots(date: widget.date, dotSize: 5, spacing: 2),
+            const SizedBox(width: 4),
             _buildStatusIndicator(context, dayData),
-          ] else
+          ] else ...[
             const Spacer(),
+            CalendarSportDots(date: widget.date, dotSize: 5, spacing: 2),
+          ],
         ],
       ),
     );

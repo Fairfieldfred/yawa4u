@@ -1,0 +1,12 @@
+{
+  "id": "bike_easy_45min",
+  "name": "Easy 45-minute spin",
+  "sport": "bike",
+  "description": "Recovery or base ride. Smooth pedalling, low effort, high cadence.",
+  "category": "endurance",
+  "difficulty": "beginner",
+  "durationEstimateSec": 2700,
+  "intervals": [
+    { "intent": "work", "targetKind": "durationSec", "targetDurationSec": 2700, "targetHrZone": 2, "notes": "Zone 2. Spin cadence 85-95 rpm." }
+  ]
+}

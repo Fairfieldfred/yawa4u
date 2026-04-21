@@ -1,8 +1,42 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/constants/enums.dart';
+import '../../data/models/session.dart';
 import '../../data/models/workout.dart';
 import 'database_providers.dart';
+import 'session_providers.dart';
+
+// Phase 6b: Stream-based `workoutsProvider` and
+// `workoutsByTrainingCycleProvider` stay backed by
+// [workoutRepositoryProvider] for now. Reactive invalidation semantics
+// in the debounce-heavy workout_screen rely on their current shape and
+// moving them carries risk. Because [WorkoutRepository] mirror-writes
+// every strength workout into the sessions table, session-backed
+// surfaces (stats Cardio, weekly summary, etc.) still see the same
+// data — they don't need this provider migrated.
+//
+// The _synchronous_ `workoutsByTrainingCycleListProvider` is safe to
+// migrate because its Provider.autoDispose wrapper already debounces
+// via .when(); readers that use it (cycle_list_screen) don't care about
+// Drift-level table reactivity, only about the latest snapshot.
+
+Workout _sessionToLegacyWorkout(StrengthSession s) {
+  return Workout(
+    id: s.id,
+    trainingCycleId: s.trainingCycleId ?? '',
+    periodNumber: s.periodNumber ?? 1,
+    dayNumber: s.dayNumber ?? 1,
+    dayName: s.dayName,
+    label: s.label,
+    status: s.status,
+    scheduledDate: s.scheduledDate,
+    completedDate: s.completedDate,
+    startTime: s.startTime,
+    endTime: s.endTime,
+    notes: s.notes,
+    exercises: s.exercises,
+  );
+}
 
 /// Provider for all workouts (reactive via Stream)
 final workoutsProvider = StreamProvider<List<Workout>>((ref) {
@@ -17,15 +51,23 @@ final workoutsByTrainingCycleProvider =
       return repository.watchByTrainingCycleId(trainingCycleId);
     });
 
-/// Provider for workouts by trainingCycle ID (synchronous accessor for convenience)
-/// Returns empty list while loading or on error
+/// Provider for workouts by trainingCycle ID (synchronous accessor for
+/// convenience). Returns empty list while loading or on error.
+///
+/// Phase 6b migration: reads from [sessionsByTrainingCycleProvider]
+/// and filters to [StrengthSession]. Behavior is identical to the
+/// pre-migration version because every strength write now mirrors
+/// into the sessions table.
 final workoutsByTrainingCycleListProvider =
     Provider.autoDispose.family<List<Workout>, String>((ref, trainingCycleId) {
-      final workoutsAsync = ref.watch(
-        workoutsByTrainingCycleProvider(trainingCycleId),
+      final sessionsAsync = ref.watch(
+        sessionsByTrainingCycleProvider(trainingCycleId),
       );
-      return workoutsAsync.when(
-        data: (list) => list,
+      return sessionsAsync.when(
+        data: (list) => list
+            .whereType<StrengthSession>()
+            .map(_sessionToLegacyWorkout)
+            .toList(),
         loading: () => [],
         error: (_, _) => [],
       );

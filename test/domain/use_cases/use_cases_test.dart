@@ -3,6 +3,7 @@ import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:yawa4u/core/constants/enums.dart';
 import 'package:yawa4u/data/database/database.dart';
+import 'package:yawa4u/data/repositories/session_repository.dart';
 import 'package:yawa4u/data/repositories/training_cycle_repository.dart';
 import 'package:yawa4u/data/repositories/workout_repository.dart';
 import 'package:yawa4u/domain/use_cases/add_exercise_set_use_case.dart';
@@ -22,11 +23,16 @@ void main() {
   setUp(() {
     driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
     db = AppDatabase.forTesting(NativeDatabase.memory());
-    workoutRepo = WorkoutRepository(
-      db.workoutDao,
+    final sessionRepo = SessionRepository(
+      db.sessionDao,
       db.exerciseDao,
       db.exerciseSetDao,
+      db.sessionCardioDao,
+      db.sessionIntervalDao,
+      db.sessionSampleDao,
+      db.cardioFeedbackDao,
     );
+    workoutRepo = WorkoutRepository(sessionRepo, db.exerciseDao);
     cycleRepo = TrainingCycleRepository(db.trainingCycleDao);
   });
 

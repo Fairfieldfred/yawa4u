@@ -1,0 +1,22 @@
+{
+  "id": "swim_pyramid",
+  "name": "Pyramid: 100/200/300/200/100",
+  "sport": "swim",
+  "description": "Classic mixed-distance set. Build up, come back down. Tests pacing and endurance.",
+  "category": "endurance",
+  "difficulty": "intermediate",
+  "durationEstimateSec": 1800,
+  "intervals": [
+    { "intent": "warmup", "targetKind": "distanceM", "targetDistanceM": 300, "notes": "Easy, with a few 25m pickups." },
+    { "intent": "work", "targetKind": "distanceM", "targetDistanceM": 100, "notes": "100m moderate." },
+    { "intent": "rest", "targetKind": "durationSec", "targetDurationSec": 20 },
+    { "intent": "work", "targetKind": "distanceM", "targetDistanceM": 200, "notes": "200m moderate." },
+    { "intent": "rest", "targetKind": "durationSec", "targetDurationSec": 30 },
+    { "intent": "work", "targetKind": "distanceM", "targetDistanceM": 300, "notes": "300m — pace yourself." },
+    { "intent": "rest", "targetKind": "durationSec", "targetDurationSec": 45 },
+    { "intent": "work", "targetKind": "distanceM", "targetDistanceM": 200, "notes": "200m — faster than the 300." },
+    { "intent": "rest", "targetKind": "durationSec", "targetDurationSec": 30 },
+    { "intent": "work", "targetKind": "distanceM", "targetDistanceM": 100, "notes": "100m — fastest of the set." },
+    { "intent": "cooldown", "targetKind": "distanceM", "targetDistanceM": 200, "notes": "Easy." }
+  ]
+}

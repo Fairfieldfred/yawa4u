@@ -1,4 +1,8 @@
-/// Template for creating a trainingCycle program
+/// Template for creating a trainingCycle program.
+///
+/// v6 added [primarySport] — a UI hint used when instantiating the
+/// resulting [TrainingCycle]. Optional; null-safe via "strength" default
+/// behavior at the call site.
 class TrainingCycleTemplate {
   final String id;
   final String name;
@@ -6,6 +10,7 @@ class TrainingCycleTemplate {
   final int periodsTotal;
   final int daysPerPeriod;
   final int? recoveryPeriod;
+  final String? primarySport;
   final List<WorkoutTemplate> workouts;
 
   TrainingCycleTemplate({
@@ -15,6 +20,7 @@ class TrainingCycleTemplate {
     required this.periodsTotal,
     required this.daysPerPeriod,
     this.recoveryPeriod,
+    this.primarySport,
     required this.workouts,
   });
 
@@ -26,6 +32,7 @@ class TrainingCycleTemplate {
       periodsTotal: json['periodsTotal'] as int,
       daysPerPeriod: json['daysPerPeriod'] as int,
       recoveryPeriod: json['recoveryPeriod'] as int?,
+      primarySport: json['primarySport'] as String?,
       workouts: (json['workouts'] as List)
           .map((w) => WorkoutTemplate.fromJson(w as Map<String, dynamic>))
           .toList(),
@@ -40,33 +47,54 @@ class TrainingCycleTemplate {
       'periodsTotal': periodsTotal,
       'daysPerPeriod': daysPerPeriod,
       'recoveryPeriod': recoveryPeriod,
+      if (primarySport != null) 'primarySport': primarySport,
       'workouts': workouts.map((w) => w.toJson()).toList(),
     };
   }
 }
 
-/// Template for a single workout within a trainingCycle
+/// Template for a single workout within a trainingCycle.
+///
+/// v6 additions:
+/// - [sport] — string name of the sport this day represents. Defaults to
+///   `"strength"` for back-compat with v5 templates.
+/// - [cardioTemplateId] — for non-strength days, the id of a cardio
+///   session template under `assets/cardio_sessions/`. The template
+///   loader resolves this into a real [CardioSession] when the cycle is
+///   instantiated.
 class WorkoutTemplate {
   final int periodNumber;
   final int dayNumber;
   final String? dayName;
+  final String sport;
+  final String? cardioTemplateId;
+  final String? notes;
   final List<ExerciseTemplate> exercises;
 
   WorkoutTemplate({
     required this.periodNumber,
     required this.dayNumber,
     this.dayName,
-    required this.exercises,
+    this.sport = 'strength',
+    this.cardioTemplateId,
+    this.notes,
+    this.exercises = const [],
   });
+
+  bool get isCardio => sport != 'strength';
 
   factory WorkoutTemplate.fromJson(Map<String, dynamic> json) {
     return WorkoutTemplate(
       periodNumber: json['periodNumber'] as int,
       dayNumber: json['dayNumber'] as int,
       dayName: json['dayName'] as String?,
-      exercises: (json['exercises'] as List)
-          .map((e) => ExerciseTemplate.fromJson(e as Map<String, dynamic>))
-          .toList(),
+      sport: (json['sport'] as String?) ?? 'strength',
+      cardioTemplateId: json['cardioTemplateId'] as String?,
+      notes: json['notes'] as String?,
+      exercises: (json['exercises'] as List?)
+              ?.map((e) => ExerciseTemplate.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          const [],
     );
   }
 
@@ -75,6 +103,9 @@ class WorkoutTemplate {
       'periodNumber': periodNumber,
       'dayNumber': dayNumber,
       'dayName': dayName,
+      'sport': sport,
+      if (cardioTemplateId != null) 'cardioTemplateId': cardioTemplateId,
+      if (notes != null && notes!.isNotEmpty) 'notes': notes,
       'exercises': exercises.map((e) => e.toJson()).toList(),
     };
   }

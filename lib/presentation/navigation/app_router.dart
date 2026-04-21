@@ -8,16 +8,23 @@ import '../../core/constants/sports.dart';
 import '../../core/theme/skins/skins.dart';
 import '../../domain/providers/onboarding_providers.dart';
 import '../screens/cardio/cardio_session_screen.dart';
+import '../screens/cardio/interval_builder_screen.dart';
 import '../screens/workout/add_exercise_screen.dart';
 import '../screens/workout/completed_cycle_workout_screen.dart';
 import '../screens/training_cycles/cycle_create_screen.dart';
 import '../screens/workout/edit_workout_screen.dart';
 import '../screens/home/home_screen.dart';
+import '../screens/onboarding/onboarding_equipment_screen.dart';
 import '../screens/onboarding/onboarding_profile_screen.dart';
+import '../screens/onboarding/onboarding_sports_screen.dart';
+import '../screens/onboarding/onboarding_terminology_screen.dart';
 import '../screens/training_cycles/plan_a_cycle_screen.dart';
 import '../screens/settings/sentry_debug_screen.dart';
 import '../screens/settings/settings_screen.dart';
 import '../screens/settings/skin_selection_screen.dart';
+import '../screens/settings/integrations_screen.dart';
+import '../screens/settings/units_screen.dart';
+import '../screens/settings/zones_screen.dart';
 import '../screens/stats/stats_screen.dart';
 import '../screens/settings/skin_share_screen.dart';
 import '../screens/settings/sync_screen.dart';
@@ -38,6 +45,7 @@ class AppRoutes {
   // v5 — multi-sport cardio
   static const String cardioSessionNew = '/cardio-session/new';
   static const String cardioSessionEdit = '/cardio-session/:sessionId';
+  static const String cardioIntervals = '/cardio-session/:sessionId/intervals';
 }
 
 /// Provider for GoRouter instance
@@ -62,11 +70,32 @@ final routerProvider = Provider<GoRouter>((ref) {
       return null;
     },
     routes: [
-      // Onboarding screen
+      // Onboarding — first screen (profile).
       GoRoute(
         path: AppRoutes.onboarding,
         name: 'onboarding',
         builder: (context, state) => const OnboardingProfileScreen(),
+      ),
+
+      // Onboarding — equipment selection.
+      GoRoute(
+        path: '/onboarding/equipment',
+        name: 'onboarding-equipment',
+        builder: (context, state) => const OnboardingEquipmentScreen(),
+      ),
+
+      // Onboarding — sport preference (v5).
+      GoRoute(
+        path: '/onboarding/sports',
+        name: 'onboarding-sports',
+        builder: (context, state) => const OnboardingSportsScreen(),
+      ),
+
+      // Onboarding — terminology selection (last step).
+      GoRoute(
+        path: '/onboarding/terminology',
+        name: 'onboarding-terminology',
+        builder: (context, state) => const OnboardingTerminologyScreen(),
       ),
 
       // Home screen with bottom navigation
@@ -220,21 +249,42 @@ final routerProvider = Provider<GoRouter>((ref) {
           builder: (context, state) => const SentryDebugScreen(),
         ),
 
+      // v5 — Settings → Units (per-sport unit overrides).
+      GoRoute(
+        path: '/settings/units',
+        name: 'settings-units',
+        builder: (context, state) => const UnitsScreen(),
+      ),
+
+      // v5 — Settings → Zones (per-sport training zones).
+      GoRoute(
+        path: '/settings/zones',
+        name: 'settings-zones',
+        builder: (context, state) => const ZonesScreen(),
+      ),
+
+      // Phase 5 — Settings → Integrations (Health / Peloton).
+      GoRoute(
+        path: '/settings/integrations',
+        name: 'settings-integrations',
+        builder: (context, state) => const IntegrationsScreen(),
+      ),
+
       // v5 — Cardio session screens.
-      // Create: /cardio-session/new?sport=run&trainingCycleId=...
+      // Create: /cardio-session/new?sport=run&trainingCycleId=...&period=1&day=2
       GoRoute(
         path: AppRoutes.cardioSessionNew,
         name: 'cardio-session-new',
         builder: (context, state) {
-          final sportParam = state.uri.queryParameters['sport'];
-          final trainingCycleId =
-              state.uri.queryParameters['trainingCycleId'];
-          final sport = sportParam != null
-              ? Sports.parse(sportParam)
+          final params = state.uri.queryParameters;
+          final sport = params['sport'] != null
+              ? Sports.parse(params['sport']!)
               : Sport.run;
           return CardioSessionScreen(
             sport: sport,
-            trainingCycleId: trainingCycleId,
+            trainingCycleId: params['trainingCycleId'],
+            periodNumber: int.tryParse(params['period'] ?? ''),
+            dayNumber: int.tryParse(params['day'] ?? ''),
           );
         },
       ),
@@ -246,6 +296,16 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) {
           final sessionId = state.pathParameters['sessionId']!;
           return CardioSessionScreen(sessionId: sessionId);
+        },
+      ),
+
+      // Interval builder: /cardio-session/:sessionId/intervals
+      GoRoute(
+        path: AppRoutes.cardioIntervals,
+        name: 'cardio-intervals',
+        builder: (context, state) {
+          final sessionId = state.pathParameters['sessionId']!;
+          return IntervalBuilderScreen(sessionId: sessionId);
         },
       ),
     ],

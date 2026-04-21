@@ -1,0 +1,12 @@
+{
+  "id": "swim_easy_500m",
+  "name": "500m easy warmup swim",
+  "sport": "swim",
+  "description": "Recovery swim or starting point for getting back in the water. 500m continuous easy freestyle.",
+  "category": "endurance",
+  "difficulty": "beginner",
+  "durationEstimateSec": 900,
+  "intervals": [
+    { "intent": "work", "targetKind": "distanceM", "targetDistanceM": 500, "notes": "Easy pace. Focus on stroke form, not speed." }
+  ]
+}

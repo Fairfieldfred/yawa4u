@@ -134,12 +134,19 @@ final trainingCycleRepositoryProvider = Provider<TrainingCycleRepository>((
   return TrainingCycleRepository(dao);
 });
 
-/// Provider for WorkoutRepository
+/// Provider for WorkoutRepository.
+///
+/// Phase 6: this is now a facade over [SessionRepository]. It no longer
+/// touches the `workouts` table directly — every read/write routes
+/// through the sessions table (filtered to [StrengthSession]). The
+/// [ExerciseDao] dependency is only kept for the exercise-level helper
+/// `findPinnedNoteByExerciseName`, which queries the `exercises` table
+/// directly and is orthogonal to the workouts-vs-sessions split.
 final workoutRepositoryProvider = Provider<WorkoutRepository>((ref) {
-  final workoutDao = ref.watch(workoutDaoProvider);
-  final exerciseDao = ref.watch(exerciseDaoProvider);
-  final exerciseSetDao = ref.watch(exerciseSetDaoProvider);
-  return WorkoutRepository(workoutDao, exerciseDao, exerciseSetDao);
+  return WorkoutRepository(
+    ref.watch(sessionRepositoryProvider),
+    ref.watch(exerciseDaoProvider),
+  );
 });
 
 /// Provider for ExerciseRepository
@@ -169,12 +176,13 @@ final userMeasurementRepositoryProvider = Provider<UserMeasurementRepository>((
 // v5 — Multi-sport repository providers.
 // ---------------------------------------------------------------------------
 
-/// Provider for [SessionRepository] (v5).
+/// Provider for [SessionRepository] (v5+).
 ///
 /// Reads the polymorphic sessions table and hydrates the appropriate child
 /// tables (exercises/sets for strength, cardio detail / intervals / samples
-/// for cardio). Cardio writes happen here; strength writes continue via
-/// [workoutRepositoryProvider] until the UI migrates in Phase 3.
+/// for cardio). As of Phase 6c this is the canonical write path for both
+/// sports — [workoutRepositoryProvider] is now a facade that delegates
+/// every strength mutation here.
 final sessionRepositoryProvider = Provider<SessionRepository>((ref) {
   return SessionRepository(
     ref.watch(sessionDaoProvider),

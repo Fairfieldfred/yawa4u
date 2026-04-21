@@ -8,7 +8,10 @@ import '../../../core/constants/app_constants.dart';
 import '../../../core/constants/enums.dart';
 import '../../../core/constants/equipment_types.dart';
 import '../../../core/constants/muscle_groups.dart';
+import '../../../core/constants/sports.dart';
 import '../../../core/theme/skins/skins.dart';
+import '../../../core/utils/session_defaults.dart';
+import '../../../core/utils/user_errors.dart';
 import '../../../data/models/exercise.dart';
 import '../../../data/models/exercise_set.dart';
 import '../../../data/models/training_cycle.dart';
@@ -20,6 +23,7 @@ import '../../../domain/providers/navigation_providers.dart';
 import '../../../domain/providers/onboarding_providers.dart';
 import '../../../domain/providers/template_providers.dart';
 import '../../../domain/providers/training_cycle_providers.dart';
+import '../../widgets/cardio/sport_chip_selector.dart';
 
 /// TrainingCycle creation screen with form
 class TrainingCycleCreateScreen extends ConsumerStatefulWidget {
@@ -44,6 +48,16 @@ class _TrainingCycleCreateScreenState
   TrainingCycleTemplate? _selectedTemplate;
   bool _hasDeload = false;
   bool _isSubmitting = false;
+
+  // v5 — primary-sport hint (UI only, never restricts what the cycle
+  // can contain). Null = "Skip / Mixed".
+  Sport? _primarySport;
+
+  // Tracks whether the user has manually edited [_daysPerPeriod]. If they
+  // haven't, changing the primary sport prefills days-per-period from the
+  // sport-aware defaults. Once the user touches the slider, we stop
+  // overwriting their choice.
+  bool _daysPerPeriodTouched = false;
 
   @override
   void dispose() {
@@ -90,6 +104,7 @@ class _TrainingCycleCreateScreenState
         workouts: _generateWorkouts(),
         muscleGroupPriorities: {},
         templateName: _selectedTemplate?.name,
+        primarySport: _primarySport,
       );
 
       // Save to database
@@ -123,9 +138,15 @@ class _TrainingCycleCreateScreenState
       }
     } catch (e) {
       if (mounted) {
+        final cycleTerm = ref.read(trainingCycleTermProvider);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error creating trainingCycle: $e'),
+            content: Text(
+              UserErrors.describe(
+                e,
+                context: 'create ${cycleTerm.toLowerCase()}',
+              ),
+            ),
             backgroundColor: context.errorColor,
           ),
         );
@@ -263,6 +284,23 @@ class _TrainingCycleCreateScreenState
             ),
             const SizedBox(height: 24),
 
+            // v5 — Primary sport picker (optional, UI hint only)
+            _buildSectionHeader('Primary sport (optional)'),
+            const SizedBox(height: 4),
+            Text(
+              'Hints which sport the cycle is built around. Does not '
+              'restrict what sessions you can add — every cycle can mix '
+              'any sports.',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.65),
+              ),
+            ),
+            const SizedBox(height: 12),
+            _buildPrimarySportRow(),
+            const SizedBox(height: 24),
+
             // Periods selector
             _buildSectionHeader('Duration'),
             const SizedBox(height: 12),
@@ -313,6 +351,46 @@ class _TrainingCycleCreateScreenState
           ],
         ),
       ),
+    );
+  }
+
+  /// v5 — Row of sport chips + a "Skip / Mixed" pill at the end.
+  /// Picking a sport prefills [_daysPerPeriod] via [defaultDaysPerPeriodForSport]
+  /// unless the user has already manually moved the slider.
+  Widget _buildPrimarySportRow() {
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: [
+        SportChipSelector(
+          selected: _primarySport,
+          onChanged: (sport) {
+            setState(() {
+              _primarySport = sport;
+              if (!_daysPerPeriodTouched) {
+                _daysPerPeriod = defaultDaysPerPeriodForSport(sport).clamp(
+                  2,
+                  AppConstants.maxDaysPerPeriod,
+                );
+              }
+            });
+          },
+        ),
+        _MixedChip(
+          isSelected: _primarySport == null,
+          onTap: () {
+            setState(() {
+              _primarySport = null;
+              if (!_daysPerPeriodTouched) {
+                _daysPerPeriod = defaultDaysPerPeriodForSport(null).clamp(
+                  2,
+                  AppConstants.maxDaysPerPeriod,
+                );
+              }
+            });
+          },
+        ),
+      ],
     );
   }
 
@@ -412,7 +490,10 @@ class _TrainingCycleCreateScreenState
               divisions: AppConstants.maxDaysPerPeriod - 2,
               label: '$_daysPerPeriod days',
               onChanged: (value) {
-                setState(() => _daysPerPeriod = value.toInt());
+                setState(() {
+                  _daysPerPeriod = value.toInt();
+                  _daysPerPeriodTouched = true;
+                });
               },
             ),
             Text(
@@ -631,6 +712,54 @@ class _TrainingCycleCreateScreenState
                 color: Theme.of(
                   context,
                 ).colorScheme.onSurface.withValues(alpha: 0.6),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// "Skip / Mixed" pill that complements the sport chips. Same visual
+/// weight as a chip but with a muted colour scheme because mixed is the
+/// default behaviour.
+class _MixedChip extends StatelessWidget {
+  const _MixedChip({required this.isSelected, required this.onTap});
+
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final bg = isSelected
+        ? theme.colorScheme.onSurface.withValues(alpha: 0.12)
+        : theme.colorScheme.surfaceContainerHighest;
+    final border =
+        isSelected ? theme.colorScheme.onSurface : Colors.transparent;
+    final textColor = theme.colorScheme.onSurface;
+
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(999),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        decoration: BoxDecoration(
+          color: bg,
+          borderRadius: BorderRadius.circular(999),
+          border: Border.all(color: border, width: 1.5),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.shuffle, size: 18, color: textColor),
+            const SizedBox(width: 8),
+            Text(
+              'Mixed',
+              style: theme.textTheme.labelLarge?.copyWith(
+                color: textColor,
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
               ),
             ),
           ],

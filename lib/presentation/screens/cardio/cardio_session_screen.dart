@@ -6,8 +6,10 @@ import 'package:uuid/uuid.dart';
 import '../../../core/constants/enums.dart';
 import '../../../core/constants/sports.dart';
 import '../../../core/utils/cardio_conversions.dart';
+import '../../../core/utils/user_errors.dart';
 import '../../../data/models/cardio_detail.dart';
 import '../../../data/models/session.dart';
+import '../../../data/services/cardio_session_library_service.dart';
 import '../../../domain/providers/database_providers.dart';
 import '../../../domain/providers/onboarding_providers.dart';
 import '../../../domain/providers/session_providers.dart';
@@ -15,6 +17,7 @@ import '../../widgets/cardio/distance_input.dart';
 import '../../widgets/cardio/duration_input.dart';
 import '../../widgets/cardio/hr_input.dart';
 import '../../widgets/cardio/sport_badge.dart';
+import 'cardio_template_picker.dart';
 
 /// Form screen for creating or editing a [CardioSession].
 ///
@@ -39,6 +42,8 @@ class CardioSessionScreen extends ConsumerStatefulWidget {
     this.sessionId,
     this.sport,
     this.trainingCycleId,
+    this.periodNumber,
+    this.dayNumber,
   });
 
   /// Existing session to edit. If null, the screen creates a new one.
@@ -50,6 +55,14 @@ class CardioSessionScreen extends ConsumerStatefulWidget {
   /// Optional — attach the new session to this training cycle. Null means
   /// the session is ad-hoc (not tied to a plan).
   final String? trainingCycleId;
+
+  /// Optional — the period this session belongs to in the training cycle.
+  /// Used when the creation flow knows which slot the session fills
+  /// (e.g., the Add cardio button on the edit-workout screen).
+  final int? periodNumber;
+
+  /// Optional — the day number within the period. See [periodNumber].
+  final int? dayNumber;
 
   @override
   ConsumerState<CardioSessionScreen> createState() =>
@@ -110,6 +123,51 @@ class _CardioSessionScreenState extends ConsumerState<CardioSessionScreen> {
 
   bool get _isReadOnly => _existing?.isReadOnly ?? false;
 
+  /// Show the library picker, instantiate the chosen template as a
+  /// brand-new CardioSession, save it, and navigate to the interval
+  /// builder so the user can review/tune the plan.
+  Future<void> _pickTemplate() async {
+    final template = await CardioTemplatePicker.show(
+      context,
+      sport: _sport,
+    );
+    if (template == null || !mounted) return;
+    setState(() => _saving = true);
+    try {
+      final session = CardioSessionLibraryService.instance.instantiate(
+        template,
+        sessionId: _uuid.v4(),
+        newIntervalId: () => _uuid.v4(),
+        trainingCycleId: widget.trainingCycleId,
+        periodNumber: widget.periodNumber,
+        dayNumber: widget.dayNumber,
+        scheduledDate: _scheduledDate,
+      );
+      await ref.read(sessionRepositoryProvider).createCardio(session);
+      ref.invalidate(sessionsProvider);
+      if (widget.trainingCycleId != null) {
+        ref.invalidate(
+          sessionsByTrainingCycleProvider(widget.trainingCycleId!),
+        );
+      }
+      if (!mounted) return;
+      // Replace this screen with the interval builder so Back lands the
+      // user on wherever they came from originally.
+      context.pushReplacement('/cardio-session/${session.id}/intervals');
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            UserErrors.describe(e, context: 'load template'),
+          ),
+        ),
+      );
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
+  }
+
   Future<void> _pickDate() async {
     final picked = await showDatePicker(
       context: context,
@@ -145,6 +203,8 @@ class _CardioSessionScreenState extends ConsumerState<CardioSessionScreen> {
               ? null
               : _notesController.text.trim(),
           detail: detail,
+          periodNumber: widget.periodNumber,
+          dayNumber: widget.dayNumber,
         );
         await repo.createCardio(session);
       } else {
@@ -180,7 +240,7 @@ class _CardioSessionScreenState extends ConsumerState<CardioSessionScreen> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Could not save session: $e'),
+          content: Text(UserErrors.describe(e, context: 'save session')),
           backgroundColor: Theme.of(context).colorScheme.error,
         ),
       );
@@ -206,6 +266,16 @@ class _CardioSessionScreenState extends ConsumerState<CardioSessionScreen> {
       appBar: AppBar(
         title: Text(title),
         actions: [
+          if (_existing != null)
+            IconButton(
+              tooltip: 'Edit intervals',
+              icon: const Icon(Icons.timeline),
+              onPressed: () {
+                context.push(
+                  '/cardio-session/${_existing!.id}/intervals',
+                );
+              },
+            ),
           if (_isReadOnly)
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 8),
@@ -234,6 +304,18 @@ class _CardioSessionScreenState extends ConsumerState<CardioSessionScreen> {
                 ),
               ],
             ),
+            // "Start from template" — only shown when creating a new
+            // session. Opens the template picker, instantiates the
+            // chosen one via SessionRepository, and routes straight to
+            // the interval builder so the user can review/edit.
+            if (_existing == null) ...[
+              const SizedBox(height: 8),
+              OutlinedButton.icon(
+                onPressed: _saving ? null : _pickTemplate,
+                icon: const Icon(Icons.auto_awesome),
+                label: const Text('Start from template'),
+              ),
+            ],
             const SizedBox(height: 16),
             DistanceInput(
               key: ValueKey('distance-${_sport.name}-${units.name}'),

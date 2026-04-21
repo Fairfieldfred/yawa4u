@@ -1,0 +1,62 @@
+{
+  "id": "hybrid_lift_run",
+  "name": "Hybrid: 3 lifts + 2 runs",
+  "description": "Strength + running hybrid. Three lifting days for upper, lower, full-body plus two running days (one easy, one quality). Swap days to match your week.",
+  "primarySport": "strength",
+  "periodsTotal": 4,
+  "daysPerPeriod": 5,
+  "recoveryPeriod": 4,
+  "_schemaNote": "v6 — uses cardioTemplateId to reference a file in assets/cardio_sessions/. Loader support lands in Phase 6.",
+  "workouts": [
+    {
+      "periodNumber": 1,
+      "dayNumber": 1,
+      "dayName": "Upper",
+      "sport": "strength",
+      "exercises": [
+        { "name": "Bench Press", "muscleGroup": "chest", "equipmentType": "barbell", "sets": 4, "reps": "6-8", "setType": "regular" },
+        { "name": "Barbell Row", "muscleGroup": "back", "equipmentType": "barbell", "sets": 4, "reps": "6-8", "setType": "regular" },
+        { "name": "Overhead Press", "muscleGroup": "shoulders", "equipmentType": "barbell", "sets": 3, "reps": "8-10", "setType": "regular" },
+        { "name": "Pull-up", "muscleGroup": "back", "equipmentType": "bodyweightOnly", "sets": 3, "reps": "max", "setType": "maxReps" }
+      ]
+    },
+    {
+      "periodNumber": 1,
+      "dayNumber": 2,
+      "dayName": "Easy run",
+      "sport": "run",
+      "cardioTemplateId": "run_easy_30min"
+    },
+    {
+      "periodNumber": 1,
+      "dayNumber": 3,
+      "dayName": "Lower",
+      "sport": "strength",
+      "exercises": [
+        { "name": "Barbell Squat", "muscleGroup": "quads", "equipmentType": "barbell", "sets": 4, "reps": "5-8", "setType": "regular" },
+        { "name": "Romanian Deadlift", "muscleGroup": "hamstrings", "equipmentType": "barbell", "sets": 3, "reps": "8-10", "setType": "regular" },
+        { "name": "Walking Lunge", "muscleGroup": "glutes", "equipmentType": "dumbbell", "sets": 3, "reps": "10", "setType": "regular" },
+        { "name": "Calf Raise", "muscleGroup": "calves", "equipmentType": "machine", "sets": 3, "reps": "12-15", "setType": "regular" }
+      ]
+    },
+    {
+      "periodNumber": 1,
+      "dayNumber": 4,
+      "dayName": "Quality run",
+      "sport": "run",
+      "cardioTemplateId": "run_tempo_20min"
+    },
+    {
+      "periodNumber": 1,
+      "dayNumber": 5,
+      "dayName": "Full body",
+      "sport": "strength",
+      "exercises": [
+        { "name": "Barbell Deadlift", "muscleGroup": "back", "equipmentType": "barbell", "sets": 3, "reps": "5", "setType": "regular" },
+        { "name": "Incline Dumbbell Press", "muscleGroup": "chest", "equipmentType": "dumbbell", "sets": 3, "reps": "8-10", "setType": "regular" },
+        { "name": "Dumbbell Row", "muscleGroup": "back", "equipmentType": "dumbbell", "sets": 3, "reps": "10-12", "setType": "regular" },
+        { "name": "Plank", "muscleGroup": "abs", "equipmentType": "bodyweightOnly", "sets": 3, "reps": "60s", "setType": "regular" }
+      ]
+    }
+  ]
+}

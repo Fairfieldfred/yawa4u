@@ -68,11 +68,25 @@ class DatabaseService {
 
     try {
       await _database!.transaction(() async {
-        // Delete in order respecting foreign key constraints
+        // Delete in order respecting foreign key constraints. Child
+        // tables first, parents last.
         await _database!.delete(_database!.exerciseFeedbacks).go();
         await _database!.delete(_database!.exerciseSets).go();
         await _database!.delete(_database!.exercises).go();
+
+        // v5 cardio side-tables hang off sessions — clear them before
+        // the parent session rows.
+        await _database!.delete(_database!.cardioFeedback).go();
+        await _database!.delete(_database!.sessionSamples).go();
+        await _database!.delete(_database!.sessionIntervals).go();
+        await _database!.delete(_database!.sessionCardio).go();
+        await _database!.delete(_database!.sessions).go();
+        await _database!.delete(_database!.cyclePeriods).go();
+        await _database!.delete(_database!.sportZones).go();
+
+        // Legacy table — still present until the v6 migration drops it.
         await _database!.delete(_database!.workouts).go();
+
         await _database!.delete(_database!.trainingCycles).go();
         await _database!.delete(_database!.customExerciseDefinitions).go();
         await _database!.delete(_database!.userMeasurements).go();
@@ -111,14 +125,22 @@ class DatabaseService {
     }
   }
 
-  /// Get database statistics (uses efficient SQL COUNT queries)
+  /// Get database statistics (uses efficient SQL COUNT queries).
+  ///
+  /// Phase 6c: the `workouts` stat now counts strength rows in the
+  /// canonical `sessions` table. The legacy `workouts` table is no
+  /// longer written to; its row count is reported separately under
+  /// `legacyWorkouts` so stale-data dashboards can still spot it until
+  /// the v6 migration drops the table entirely.
   Future<Map<String, int>> getStatistics() async {
     if (_database == null) return {};
 
     try {
       final trainingCycleCount =
           await _database!.trainingCycleDao.countRows();
-      final workoutCount = await _database!.workoutDao.countRows();
+      final strengthSessionCount =
+          await _database!.sessionDao.countBySport(0); // Sport.strength.index
+      final legacyWorkoutCount = await _database!.workoutDao.countRows();
       final exerciseCount = await _database!.exerciseDao.countRows();
       final customExerciseCount =
           await _database!.customExerciseDao.countRows();
@@ -127,7 +149,8 @@ class DatabaseService {
 
       return {
         'trainingCycles': trainingCycleCount,
-        'workouts': workoutCount,
+        'workouts': strengthSessionCount,
+        'legacyWorkouts': legacyWorkoutCount,
         'exercises': exerciseCount,
         'customExercises': customExerciseCount,
         'userMeasurements': userMeasurementCount,

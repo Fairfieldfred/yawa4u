@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/theme/skins/skins.dart';
 import '../../../domain/providers/onboarding_providers.dart';
-import 'onboarding_equipment_screen.dart';
 
 /// First onboarding screen - collects user's height and weight
 class OnboardingProfileScreen extends ConsumerStatefulWidget {
@@ -381,11 +381,7 @@ class _OnboardingProfileScreenState
           .updateAppIconIndex(_selectedIconIndex);
 
       if (mounted) {
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) => const OnboardingEquipmentScreen(),
-          ),
-        );
+        context.push('/onboarding/equipment');
       }
     }
   }
@@ -395,7 +391,11 @@ class _OnboardingProfileScreenState
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
-        appBar: AppBar(title: const Text('About You'), centerTitle: true),
+        appBar: AppBar(
+          title: const Text('About you'),
+          centerTitle: true,
+          bottom: const _OnboardingProgress(step: 1, total: 4),
+        ),
         body: SafeArea(
           child: Padding(
             padding: const EdgeInsets.all(24.0),
@@ -413,35 +413,15 @@ class _OnboardingProfileScreenState
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Your preferred app icon.',
+                      'Height + weight let us track body metrics and show '
+                      'BMI. Icon preference is optional at the bottom.',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: Theme.of(
                           context,
                         ).colorScheme.onSurface.withValues(alpha: 0.7),
                       ),
                     ),
-                    const SizedBox(height: 16),
-
-                    // App icon selection row
-                    Center(
-                      child: AnimatedBuilder(
-                        animation: _animation,
-                        builder: (context, child) {
-                          final orderedIndices = _getOrderedIndices();
-                          return Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              for (int i = 0; i < 3; i++)
-                                _buildSelectableIcon(
-                                  orderedIndices[i],
-                                  isCenter: i == 1,
-                                ),
-                            ],
-                          );
-                        },
-                      ),
-                    ),
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 24),
 
                     // Unit toggle
                     Row(
@@ -604,13 +584,16 @@ class _OnboardingProfileScreenState
                         if (weight == null) {
                           return 'Please enter a valid number';
                         }
+                        // Tightened ranges catch typos (e.g. 300 instead
+                        // of 200). Outliers can still be entered by
+                        // removing the sanity check in a future release.
                         if (_useMetric) {
-                          if (weight < 30 || weight > 300) {
-                            return 'Please enter a valid weight (30-300 kg)';
+                          if (weight < 35 || weight > 200) {
+                            return 'Please enter a valid weight (35-200 kg)';
                           }
                         } else {
-                          if (weight < 66 || weight > 660) {
-                            return 'Please enter a valid weight (66-660 lbs)';
+                          if (weight < 77 || weight > 440) {
+                            return 'Please enter a valid weight (77-440 lbs)';
                           }
                         }
                         return null;
@@ -790,6 +773,44 @@ class _OnboardingProfileScreenState
 
                     const SizedBox(height: 24),
 
+                    // App icon selection — optional, moved below the
+                    // core data entry so it doesn't gate onboarding.
+                    Text(
+                      'App icon (optional)',
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Three variants — tap one to pick.',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.6),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Center(
+                      child: AnimatedBuilder(
+                        animation: _animation,
+                        builder: (context, child) {
+                          final orderedIndices = _getOrderedIndices();
+                          return Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              for (int i = 0; i < 3; i++)
+                                _buildSelectableIcon(
+                                  orderedIndices[i],
+                                  isCenter: i == 1,
+                                ),
+                            ],
+                          );
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+
                     // Continue button
                     SizedBox(
                       width: double.infinity,
@@ -809,6 +830,31 @@ class _OnboardingProfileScreenState
           ),
         ),
       ),
+    );
+  }
+}
+
+/// Shared 4-step onboarding progress bar used by every onboarding
+/// screen's AppBar. Kept private here (also duplicated in the other
+/// onboarding files intentionally — each screen can declare its own
+/// step value without importing a shared widget).
+class _OnboardingProgress extends StatelessWidget implements PreferredSizeWidget {
+  const _OnboardingProgress({required this.step, required this.total});
+
+  final int step;
+  final int total;
+
+  @override
+  Size get preferredSize => const Size.fromHeight(8);
+
+  @override
+  Widget build(BuildContext context) {
+    return LinearProgressIndicator(
+      value: step / total,
+      minHeight: 3,
+      backgroundColor: Theme.of(
+        context,
+      ).colorScheme.surfaceContainerHighest,
     );
   }
 }

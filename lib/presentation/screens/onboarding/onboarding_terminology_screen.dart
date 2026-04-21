@@ -53,7 +53,11 @@ class _OnboardingTerminologyScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Terminology'), centerTitle: true),
+      appBar: AppBar(
+        title: const Text('Terminology'),
+        centerTitle: true,
+        bottom: const _OnboardingProgress(step: 4, total: 4),
+      ),
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -64,7 +68,7 @@ class _OnboardingTerminologyScreenState
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'What do you call a trainingCycle?',
+                    'What do you call a training cycle?',
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
@@ -185,6 +189,27 @@ class _OnboardingTerminologyScreenState
           ],
         ),
       ),
+    );
+  }
+}
+
+class _OnboardingProgress extends StatelessWidget implements PreferredSizeWidget {
+  const _OnboardingProgress({required this.step, required this.total});
+
+  final int step;
+  final int total;
+
+  @override
+  Size get preferredSize => const Size.fromHeight(8);
+
+  @override
+  Widget build(BuildContext context) {
+    return LinearProgressIndicator(
+      value: step / total,
+      minHeight: 3,
+      backgroundColor: Theme.of(
+        context,
+      ).colorScheme.surfaceContainerHighest,
     );
   }
 }

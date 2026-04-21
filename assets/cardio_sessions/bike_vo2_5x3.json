@@ -1,0 +1,22 @@
+{
+  "id": "bike_vo2_5x3",
+  "name": "5×3' VO2 max",
+  "sport": "bike",
+  "description": "Short, hard VO2 max intervals. 5 reps of 3 minutes all-out with equal recovery. The hardest session in the library — don't do this with fresh legs.",
+  "category": "vo2max",
+  "difficulty": "advanced",
+  "durationEstimateSec": 2700,
+  "intervals": [
+    { "intent": "warmup", "targetKind": "durationSec", "targetDurationSec": 900 },
+    { "intent": "work", "targetKind": "durationSec", "targetDurationSec": 180, "targetHrZone": 5, "notes": "Rep 1/5 — hard, hold steady." },
+    { "intent": "recovery", "targetKind": "durationSec", "targetDurationSec": 180 },
+    { "intent": "work", "targetKind": "durationSec", "targetDurationSec": 180, "targetHrZone": 5, "notes": "Rep 2/5" },
+    { "intent": "recovery", "targetKind": "durationSec", "targetDurationSec": 180 },
+    { "intent": "work", "targetKind": "durationSec", "targetDurationSec": 180, "targetHrZone": 5, "notes": "Rep 3/5" },
+    { "intent": "recovery", "targetKind": "durationSec", "targetDurationSec": 180 },
+    { "intent": "work", "targetKind": "durationSec", "targetDurationSec": 180, "targetHrZone": 5, "notes": "Rep 4/5" },
+    { "intent": "recovery", "targetKind": "durationSec", "targetDurationSec": 180 },
+    { "intent": "work", "targetKind": "durationSec", "targetDurationSec": 180, "targetHrZone": 5, "notes": "Rep 5/5 — leave it all." },
+    { "intent": "cooldown", "targetKind": "durationSec", "targetDurationSec": 300 }
+  ]
+}

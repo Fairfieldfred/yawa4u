@@ -134,6 +134,15 @@ class AppConstants {
   static const String eventMyorepSetUsed = 'myorep_set_used';
   static const String eventFilterUsed = 'filter_used';
 
+  // Phase 5 — Health Sync events.
+  static const String eventHealthSyncStarted = 'health_sync_started';
+  static const String eventHealthSyncCompleted = 'health_sync_completed';
+  static const String eventHealthSyncFailed = 'health_sync_failed';
+  static const String eventHealthPermissionsGranted =
+      'health_permissions_granted';
+  static const String eventHealthPermissionsDenied =
+      'health_permissions_denied';
+
   // RIR (Reps In Reserve) Patterns
   static final RegExp rirPattern = RegExp(r'^\d+\s*RIR$', caseSensitive: false);
 

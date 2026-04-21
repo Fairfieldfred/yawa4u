@@ -28,19 +28,24 @@ class _TemplatePreviewScreenState extends ConsumerState<TemplatePreviewScreen> {
 
     try {
       final repository = ref.read(templateRepositoryProvider);
-      final trainingCycle = await repository.createTrainingCycleFromTemplate(
+      final result = await repository.createTrainingCycleFromTemplate(
         widget.template,
       );
 
-      // Save trainingCycle
+      // Save the strength cycle (existing flow).
       final trainingCycleRepository = ref.read(trainingCycleRepositoryProvider);
-      await trainingCycleRepository.create(trainingCycle);
+      await trainingCycleRepository.create(result.trainingCycle);
 
       // Save workouts (which includes exercises and sets)
       final workoutRepository = ref.read(workoutRepositoryProvider);
-
-      for (final workout in trainingCycle.workouts) {
+      for (final workout in result.trainingCycle.workouts) {
         await workoutRepository.create(workout);
+      }
+
+      // v6 — write any cardio sessions the template resolved.
+      final sessionRepository = ref.read(sessionRepositoryProvider);
+      for (final cardio in result.cardioSessions) {
+        await sessionRepository.createCardio(cardio);
       }
 
       if (mounted) {

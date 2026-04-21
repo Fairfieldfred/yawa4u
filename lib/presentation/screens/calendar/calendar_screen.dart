@@ -15,6 +15,7 @@ import '../../../domain/providers/workout_providers.dart';
 import '../../widgets/app_icon_widget.dart';
 import '../../widgets/calendar/calendar_edit_sheet.dart';
 import '../../widgets/calendar/calendar_legend_dialog.dart';
+import '../../widgets/calendar/calendar_sport_dots.dart';
 import '../../widgets/calendar/desktop_calendar_day_cell.dart';
 import '../../widgets/screen_background.dart';
 import '../workout/add_exercise_screen.dart';
@@ -425,6 +426,14 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                         fontWeight: FontWeight.w500,
                       ),
                     ),
+                  // v5 — cardio sport indicators. Renders nothing if the
+                  // day has no cardio sessions so strength-only days are
+                  // unchanged.
+                  CalendarSportDots(
+                    date: day,
+                    dotSize: 4,
+                    spacing: 2,
+                  ),
                 ],
               ),
             ),

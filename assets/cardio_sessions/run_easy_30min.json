@@ -1,0 +1,18 @@
+{
+  "id": "run_easy_30min",
+  "name": "Easy 30-minute run",
+  "sport": "run",
+  "description": "Conversational aerobic run. Keep effort easy — you should be able to hold a full conversation.",
+  "category": "endurance",
+  "difficulty": "beginner",
+  "durationEstimateSec": 1800,
+  "intervals": [
+    {
+      "intent": "work",
+      "targetKind": "durationSec",
+      "targetDurationSec": 1800,
+      "targetHrZone": 2,
+      "notes": "Zone 2 effort. Nasal breathing if possible."
+    }
+  ]
+}

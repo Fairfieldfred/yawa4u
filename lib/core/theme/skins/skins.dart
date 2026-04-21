@@ -65,4 +65,26 @@ extension SkinContext on BuildContext {
 
   /// Get input field border radius from skin, with fallback to 8.
   double get inputBorderRadius => skinColors?.inputBorderRadius ?? 8;
+
+  /// Secondary on-surface text color. Use for supporting copy (labels,
+  /// helper text, captions) where the body style's full-contrast primary
+  /// would feel too heavy.
+  ///
+  /// Alpha = 0.75 keeps us above WCAG AA for body text on the default
+  /// surface in both light and dark modes. Replaces ad-hoc `withValues
+  /// (alpha: 0.5)` scattered through the codebase — those are often too
+  /// low-contrast in bright environments.
+  Color get textSecondary =>
+      Theme.of(this).colorScheme.onSurface.withValues(alpha: 0.75);
+
+  /// Tertiary on-surface text color. Reserve for genuinely de-emphasised
+  /// metadata (timestamps, parenthetical context). Still above AA for
+  /// large text (14pt+); avoid for body paragraphs.
+  Color get textTertiary =>
+      Theme.of(this).colorScheme.onSurface.withValues(alpha: 0.55);
+
+  /// Disabled / near-invisible text. Use sparingly — only for decorative
+  /// elements where illegibility is acceptable.
+  Color get textDisabled =>
+      Theme.of(this).colorScheme.onSurface.withValues(alpha: 0.38);
 }

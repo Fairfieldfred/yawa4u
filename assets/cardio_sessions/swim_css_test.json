@@ -1,0 +1,32 @@
+{
+  "id": "swim_css_test",
+  "name": "CSS test — 10×100m",
+  "sport": "swim",
+  "description": "Critical Swim Speed test. 10 reps of 100m freestyle with 30 seconds rest between. Average pace for reps 3-10 is your CSS — the basis for all your swim training zones.",
+  "category": "test",
+  "difficulty": "intermediate",
+  "durationEstimateSec": 2400,
+  "intervals": [
+    { "intent": "warmup", "targetKind": "distanceM", "targetDistanceM": 400, "notes": "Easy swim, include some drills and a few faster strokes." },
+    { "intent": "work", "targetKind": "distanceM", "targetDistanceM": 100, "notes": "Rep 1/10 — settle in, don't go out too fast." },
+    { "intent": "rest", "targetKind": "durationSec", "targetDurationSec": 30 },
+    { "intent": "work", "targetKind": "distanceM", "targetDistanceM": 100, "notes": "Rep 2/10" },
+    { "intent": "rest", "targetKind": "durationSec", "targetDurationSec": 30 },
+    { "intent": "work", "targetKind": "distanceM", "targetDistanceM": 100, "notes": "Rep 3/10 — CSS window starts." },
+    { "intent": "rest", "targetKind": "durationSec", "targetDurationSec": 30 },
+    { "intent": "work", "targetKind": "distanceM", "targetDistanceM": 100, "notes": "Rep 4/10" },
+    { "intent": "rest", "targetKind": "durationSec", "targetDurationSec": 30 },
+    { "intent": "work", "targetKind": "distanceM", "targetDistanceM": 100, "notes": "Rep 5/10" },
+    { "intent": "rest", "targetKind": "durationSec", "targetDurationSec": 30 },
+    { "intent": "work", "targetKind": "distanceM", "targetDistanceM": 100, "notes": "Rep 6/10" },
+    { "intent": "rest", "targetKind": "durationSec", "targetDurationSec": 30 },
+    { "intent": "work", "targetKind": "distanceM", "targetDistanceM": 100, "notes": "Rep 7/10" },
+    { "intent": "rest", "targetKind": "durationSec", "targetDurationSec": 30 },
+    { "intent": "work", "targetKind": "distanceM", "targetDistanceM": 100, "notes": "Rep 8/10" },
+    { "intent": "rest", "targetKind": "durationSec", "targetDurationSec": 30 },
+    { "intent": "work", "targetKind": "distanceM", "targetDistanceM": 100, "notes": "Rep 9/10" },
+    { "intent": "rest", "targetKind": "durationSec", "targetDurationSec": 30 },
+    { "intent": "work", "targetKind": "distanceM", "targetDistanceM": 100, "notes": "Rep 10/10 — finish strong." },
+    { "intent": "cooldown", "targetKind": "distanceM", "targetDistanceM": 200, "notes": "Easy swim." }
+  ]
+}

@@ -17,6 +17,10 @@ final dataBackupServiceProvider = Provider<DataBackupService>((ref) {
     workoutRepository: ref.watch(workoutRepositoryProvider),
     exerciseRepository: ref.watch(exerciseRepositoryProvider),
     customExerciseRepository: ref.watch(customExerciseRepositoryProvider),
+    sessionRepository: ref.watch(sessionRepositoryProvider),
+    cyclePeriodRepository: ref.watch(cyclePeriodRepositoryProvider),
+    sportZoneRepository: ref.watch(sportZoneRepositoryProvider),
+    cardioFeedbackRepository: ref.watch(cardioFeedbackRepositoryProvider),
     skinRepository: ref.watch(skinRepositoryForBackupProvider),
   );
 });

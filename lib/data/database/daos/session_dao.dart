@@ -156,5 +156,16 @@ class SessionDao extends DatabaseAccessor<AppDatabase> with _$SessionDaoMixin {
     return result.read(countExp)!;
   }
 
+  /// Count rows whose `sport` column matches the given index (i.e.
+  /// `Sport.strength.index`, `Sport.run.index`, etc.).
+  Future<int> countBySport(int sportIndex) async {
+    final countExp = sessions.id.count();
+    final query = selectOnly(sessions)
+      ..addColumns([countExp])
+      ..where(sessions.sport.equals(sportIndex));
+    final result = await query.getSingle();
+    return result.read(countExp)!;
+  }
+
   Future<int> deleteAll() => delete(sessions).go();
 }

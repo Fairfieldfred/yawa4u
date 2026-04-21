@@ -23,6 +23,11 @@ class OnboardingService {
   // UnitSystem.name> so it extends cleanly without a schema migration.
   static const String _keyPerSportUnits = 'user_per_sport_units';
 
+  /// Sports the user said they care about during onboarding. Drives
+  /// defaults on the cycle creator and hides UI for sports they never
+  /// opted into. Users can always toggle this later in Settings.
+  static const String _keySelectedSports = 'user_selected_sports';
+
   /// Sport-aware defaults used when the user hasn't explicitly set a
   /// per-sport preference. Matches real-world endurance conventions:
   /// strength lifters default to their overall [useMetric] preference,
@@ -217,4 +222,36 @@ class OnboardingService {
   /// Snapshot of the current per-sport preferences (only sports the user
   /// has explicitly touched). Useful for the Settings → Units screen.
   Map<Sport, UnitSystem> get perSportUnits => _readPerSportUnits();
+
+  // ---------------------------------------------------------------------------
+  // v5 — Selected sports (onboarding + Settings).
+  // ---------------------------------------------------------------------------
+
+  /// The sports the user has opted into. Empty list means "unset" — we
+  /// treat it as "strength only" for back-compat with users who onboarded
+  /// before this field existed.
+  List<Sport> get selectedSports {
+    final raw = _prefs.getStringList(_keySelectedSports);
+    if (raw == null || raw.isEmpty) return const [Sport.strength];
+    final parsed = <Sport>[];
+    for (final name in raw) {
+      final sport = Sports.parse(name);
+      if (sport != null) parsed.add(sport);
+    }
+    return parsed.isEmpty ? const [Sport.strength] : parsed;
+  }
+
+  Future<void> setSelectedSports(List<Sport> sports) async {
+    // Normalize order so the stored list matches [Sport.values] order,
+    // giving stable defaults wherever consumers iterate.
+    final normalized = Sport.values.where(sports.contains).toList();
+    await _prefs.setStringList(
+      _keySelectedSports,
+      normalized.map((s) => s.name).toList(),
+    );
+  }
+
+  /// True if [sport] is enabled for this user. UI can use this to hide
+  /// cardio surfaces from strength-only users and vice-versa.
+  bool hasSport(Sport sport) => selectedSports.contains(sport);
 }

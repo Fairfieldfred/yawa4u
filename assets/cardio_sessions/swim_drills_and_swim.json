@@ -1,0 +1,20 @@
+{
+  "id": "swim_drills_and_swim",
+  "name": "Drills + main set (1500m)",
+  "sport": "swim",
+  "description": "Technique-focused session. 500m of drills, 1000m steady main set. Good for rebuilding feel for the water.",
+  "category": "technique",
+  "difficulty": "intermediate",
+  "durationEstimateSec": 2400,
+  "intervals": [
+    { "intent": "warmup", "targetKind": "distanceM", "targetDistanceM": 200, "notes": "Easy swim." },
+    { "intent": "work", "targetKind": "distanceM", "targetDistanceM": 100, "notes": "Catch-up drill." },
+    { "intent": "work", "targetKind": "distanceM", "targetDistanceM": 100, "notes": "6-1-6 (six kicks, one stroke)." },
+    { "intent": "work", "targetKind": "distanceM", "targetDistanceM": 100, "notes": "Single-arm freestyle (50m each arm)." },
+    { "intent": "work", "targetKind": "distanceM", "targetDistanceM": 100, "notes": "Fingertip drag." },
+    { "intent": "work", "targetKind": "distanceM", "targetDistanceM": 100, "notes": "Full stroke, focus on rotation." },
+    { "intent": "rest", "targetKind": "durationSec", "targetDurationSec": 60, "notes": "Quick break before main set." },
+    { "intent": "work", "targetKind": "distanceM", "targetDistanceM": 1000, "notes": "Steady aerobic freestyle. Focus on long, even strokes." },
+    { "intent": "cooldown", "targetKind": "distanceM", "targetDistanceM": 200, "notes": "Easy choice of stroke." }
+  ]
+}

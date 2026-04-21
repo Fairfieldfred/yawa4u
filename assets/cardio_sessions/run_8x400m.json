@@ -1,0 +1,28 @@
+{
+  "id": "run_8x400m",
+  "name": "8×400m at 5K pace",
+  "sport": "run",
+  "description": "Classic speed workout. 8 reps of 400 meters at goal 5K pace with 90 seconds easy jog recovery. Builds lactate tolerance and running economy.",
+  "category": "speed",
+  "difficulty": "intermediate",
+  "durationEstimateSec": 2700,
+  "intervals": [
+    { "intent": "warmup", "targetKind": "durationSec", "targetDurationSec": 900, "notes": "Easy warmup jog, build into strides the last 5 minutes." },
+    { "intent": "work", "targetKind": "distanceM", "targetDistanceM": 400, "notes": "Rep 1/8 — 5K pace" },
+    { "intent": "recovery", "targetKind": "durationSec", "targetDurationSec": 90, "notes": "Easy jog." },
+    { "intent": "work", "targetKind": "distanceM", "targetDistanceM": 400, "notes": "Rep 2/8" },
+    { "intent": "recovery", "targetKind": "durationSec", "targetDurationSec": 90 },
+    { "intent": "work", "targetKind": "distanceM", "targetDistanceM": 400, "notes": "Rep 3/8" },
+    { "intent": "recovery", "targetKind": "durationSec", "targetDurationSec": 90 },
+    { "intent": "work", "targetKind": "distanceM", "targetDistanceM": 400, "notes": "Rep 4/8" },
+    { "intent": "recovery", "targetKind": "durationSec", "targetDurationSec": 90 },
+    { "intent": "work", "targetKind": "distanceM", "targetDistanceM": 400, "notes": "Rep 5/8" },
+    { "intent": "recovery", "targetKind": "durationSec", "targetDurationSec": 90 },
+    { "intent": "work", "targetKind": "distanceM", "targetDistanceM": 400, "notes": "Rep 6/8" },
+    { "intent": "recovery", "targetKind": "durationSec", "targetDurationSec": 90 },
+    { "intent": "work", "targetKind": "distanceM", "targetDistanceM": 400, "notes": "Rep 7/8" },
+    { "intent": "recovery", "targetKind": "durationSec", "targetDurationSec": 90 },
+    { "intent": "work", "targetKind": "distanceM", "targetDistanceM": 400, "notes": "Rep 8/8 — hold form." },
+    { "intent": "cooldown", "targetKind": "durationSec", "targetDurationSec": 600, "notes": "Easy jog, walk the last minute." }
+  ]
+}

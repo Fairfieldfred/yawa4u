@@ -61,6 +61,15 @@ dependencies:
   flutter_image_compress: ^2.3.0
   palette_generator: ^0.3.3+4
   fl_chart: ^1.1.1
+  # Phase 5 — HealthKit + Health Connect. The health plugin presents a
+  # unified Dart API that picks the right backend per platform, which is
+  # the lightest-lift way to cover iOS + Android + (indirectly) Peloton.
+  # ^13.x is the lowest major that accepts intl ^0.20.
+  health: ^13.1.4
+  # Bucket 3 — Strava OAuth. flutter_web_auth_2 opens the Strava auth
+  # URL in an in-app browser and captures the redirect back, including
+  # the auth code.
+  flutter_web_auth_2: ^5.0.0
 
 dev_dependencies:
   sentry_dart_plugin: ^3.2.0
@@ -87,6 +96,7 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/templates/
+    - assets/cardio_sessions/
     - exercises.csv
     - assets/images/
     - assets/common/

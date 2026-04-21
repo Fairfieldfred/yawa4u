@@ -19,6 +19,7 @@ import 'package:yawa4u/data/models/training_cycle.dart';
 import 'package:yawa4u/data/models/workout.dart';
 import 'package:yawa4u/data/repositories/custom_exercise_repository.dart';
 import 'package:yawa4u/data/repositories/exercise_repository.dart';
+import 'package:yawa4u/data/repositories/session_repository.dart';
 import 'package:yawa4u/data/repositories/training_cycle_repository.dart';
 import 'package:yawa4u/data/repositories/workout_repository.dart';
 import 'package:yawa4u/data/services/exercise_history_service.dart';
@@ -38,11 +39,16 @@ class IntegrationTestContext {
     driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
     db = AppDatabase.forTesting(NativeDatabase.memory());
     cycleRepo = TrainingCycleRepository(db.trainingCycleDao);
-    workoutRepo = WorkoutRepository(
-      db.workoutDao,
+    final sessionRepo = SessionRepository(
+      db.sessionDao,
       db.exerciseDao,
       db.exerciseSetDao,
+      db.sessionCardioDao,
+      db.sessionIntervalDao,
+      db.sessionSampleDao,
+      db.cardioFeedbackDao,
     );
+    workoutRepo = WorkoutRepository(sessionRepo, db.exerciseDao);
     exerciseRepo = ExerciseRepository(db.exerciseDao, db.exerciseSetDao);
     customExerciseRepo = CustomExerciseRepository(db.customExerciseDao);
     historyService = ExerciseHistoryService(workoutRepo);

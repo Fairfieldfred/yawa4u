@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/skins/skins.dart';
 import '../../../domain/providers/onboarding_providers.dart';
-import 'onboarding_terminology_screen.dart';
 
 /// Available equipment options for the user to select
 enum EquipmentOption {
@@ -56,17 +56,17 @@ class _OnboardingEquipmentScreenState
     final equipmentNames = _selectedEquipment.map((e) => e.name).toList();
     ref.read(userProfileProvider.notifier).updateEquipment(equipmentNames);
 
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => const OnboardingTerminologyScreen(),
-      ),
-    );
+    context.push('/onboarding/sports');
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Your Equipment'), centerTitle: true),
+      appBar: AppBar(
+        title: const Text('Your equipment'),
+        centerTitle: true,
+        bottom: const _OnboardingProgress(step: 2, total: 4),
+      ),
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -201,12 +201,7 @@ class _OnboardingEquipmentScreenState
                       ref
                           .read(userProfileProvider.notifier)
                           .updateEquipment([]);
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              const OnboardingTerminologyScreen(),
-                        ),
-                      );
+                      context.push('/onboarding/sports');
                     },
                     child: const Text('Skip for now'),
                   ),
@@ -216,6 +211,27 @@ class _OnboardingEquipmentScreenState
           ],
         ),
       ),
+    );
+  }
+}
+
+class _OnboardingProgress extends StatelessWidget implements PreferredSizeWidget {
+  const _OnboardingProgress({required this.step, required this.total});
+
+  final int step;
+  final int total;
+
+  @override
+  Size get preferredSize => const Size.fromHeight(8);
+
+  @override
+  Widget build(BuildContext context) {
+    return LinearProgressIndicator(
+      value: step / total,
+      minHeight: 3,
+      backgroundColor: Theme.of(
+        context,
+      ).colorScheme.surfaceContainerHighest,
     );
   }
 }

@@ -8,21 +8,26 @@ import 'package:uuid/uuid.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/constants/enums.dart';
 import '../../../core/constants/equipment_types.dart';
+import '../../../core/constants/sports.dart';
 import '../../../core/theme/skins/skins.dart';
 import '../../../core/utils/template_exporter.dart';
 import '../../../data/models/exercise.dart';
 import '../../../data/models/exercise_set.dart';
+import '../../../data/models/session.dart';
 import '../../../data/models/training_cycle.dart';
 import '../../../data/models/workout.dart';
 import '../../../domain/providers/database_providers.dart';
 import '../../../domain/providers/navigation_providers.dart';
 import '../../../domain/providers/onboarding_providers.dart';
+import '../../../domain/providers/session_providers.dart';
 import '../../../domain/providers/training_cycle_providers.dart';
 import '../../../domain/providers/workout_providers.dart';
+import '../../widgets/cardio/sport_badge.dart';
 import '../../widgets/dialogs/add_exercise_dialog.dart';
 import '../../widgets/dialogs/exercise_info_dialog.dart';
 import '../../widgets/dialogs/workout_dialogs.dart';
 import '../../widgets/muscle_group_badge.dart';
+import '../cardio/sport_picker_sheet.dart';
 import 'add_exercise_screen.dart';
 import 'edit_workout_controller.dart';
 
@@ -133,6 +138,9 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
                 // Day selector
                 _buildDaySelector(trainingCycle, workouts, controller),
 
+                // v5 — Cardio banner (collapses if no cardio for this day).
+                _buildCardioBanner(trainingCycle),
+
                 // Exercise list
                 Expanded(
                   child: dayWorkouts.isEmpty
@@ -164,6 +172,98 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
         Sentry.captureException(error, stackTrace: stack);
         return Scaffold(body: Center(child: Text('Error: $error')));
       },
+    );
+  }
+
+  /// v5 — Cardio banner shown below the day selector.
+  ///
+  /// Always present: renders as a compact single-row "Add cardio session"
+  /// hint when there are none for this period/day, or expands into a
+  /// scrollable row of cardio tiles otherwise. Tapping a tile opens the
+  /// cardio session editor; the "+" chip opens the sport picker and then
+  /// creates a new session tied to this cycle.
+  Widget _buildCardioBanner(TrainingCycle trainingCycle) {
+    return Consumer(
+      builder: (context, ref, _) {
+        final async = ref.watch(
+          sessionsByTrainingCycleProvider(widget.trainingCycleId),
+        );
+        final cardioForDay = async.when(
+          data: (sessions) => sessions
+              .whereType<CardioSession>()
+              .where(
+                (s) =>
+                    s.periodNumber == _selectedPeriod &&
+                    s.dayNumber == _selectedDayIndex + 1,
+              )
+              .toList(),
+          loading: () => const <CardioSession>[],
+          error: (_, _) => const <CardioSession>[],
+        );
+
+        if (cardioForDay.isEmpty) {
+          return _buildCardioAddHint(trainingCycle);
+        }
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          color: Theme.of(
+            context,
+          ).colorScheme.surfaceContainerHigh.withValues(alpha: 0.5),
+          child: SizedBox(
+            height: 52,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              itemCount: cardioForDay.length + 1,
+              separatorBuilder: (_, _) => const SizedBox(width: 8),
+              itemBuilder: (ctx, i) {
+                if (i == cardioForDay.length) {
+                  return _AddCardioChip(
+                    onTap: () => _pickAndCreateCardio(trainingCycle),
+                  );
+                }
+                final session = cardioForDay[i];
+                return _CardioPill(
+                  session: session,
+                  onTap: () {
+                    context.push('/cardio-session/${session.id}');
+                  },
+                );
+              },
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildCardioAddHint(TrainingCycle trainingCycle) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(12, 4, 12, 4),
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: _AddCardioChip(
+          onTap: () => _pickAndCreateCardio(trainingCycle),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _pickAndCreateCardio(TrainingCycle trainingCycle) async {
+    final sport = await SportPickerSheet.show(
+      context,
+      title: 'Add cardio session',
+      choices: const [Sport.run, Sport.bike, Sport.swim],
+    );
+    if (sport == null || !mounted) return;
+    // Pass the selected period + day as query params so the cardio screen
+    // attaches the new session to the same slot in the cycle. That's what
+    // makes it appear in this banner.
+    context.push(
+      '/cardio-session/new'
+      '?sport=${sport.name}'
+      '&trainingCycleId=${trainingCycle.id}'
+      '&period=$_selectedPeriod'
+      '&day=${_selectedDayIndex + 1}',
     );
   }
 
@@ -1907,5 +2007,90 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
         );
       }
     }
+  }
+}
+
+/// Pill displayed in the cardio banner for an existing [CardioSession].
+class _CardioPill extends StatelessWidget {
+  const _CardioPill({required this.session, required this.onTap});
+
+  final CardioSession session;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = session.sport.color;
+    return Material(
+      color: color.withValues(alpha: 0.1),
+      borderRadius: BorderRadius.circular(999),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(999),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SportBadge(sport: session.sport, compact: true),
+              const SizedBox(width: 8),
+              Text(
+                session.displayName,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              if (session.isCompleted) ...[
+                const SizedBox(width: 6),
+                Icon(Icons.check_circle, size: 14, color: color),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Dashed-outline "+ Add cardio" chip at the end of the banner row
+/// (or shown alone when no cardio exists for the day).
+class _AddCardioChip extends StatelessWidget {
+  const _AddCardioChip({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = Theme.of(context).colorScheme.primary;
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(999),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(999),
+            border: Border.all(
+              color: color.withValues(alpha: 0.5),
+              width: 1.5,
+            ),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.directions_run, size: 16, color: color),
+              const SizedBox(width: 6),
+              Text(
+                'Add cardio',
+                style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                  color: color,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }

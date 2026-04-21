@@ -273,6 +273,83 @@ class AnalyticsService {
   }
 
   // =============================================================================
+  // Health Sync Events (Phase 5)
+  // =============================================================================
+
+  /// A health-sync run has kicked off.
+  Future<void> logHealthSyncStarted({required String provider}) async {
+    try {
+      await _analytics.logEvent(
+        name: AppConstants.eventHealthSyncStarted,
+        parameters: {'provider': provider},
+      );
+    } catch (e, stackTrace) {
+      Sentry.captureException(e, stackTrace: stackTrace);
+    }
+  }
+
+  /// A health-sync run finished. Counts are aggregate only — never
+  /// includes distance / HR / any performance data.
+  Future<void> logHealthSyncCompleted({
+    required String provider,
+    required int imported,
+    required int duplicates,
+    required int unsupported,
+    required int failed,
+  }) async {
+    try {
+      await _analytics.logEvent(
+        name: AppConstants.eventHealthSyncCompleted,
+        parameters: {
+          'provider': provider,
+          'imported': imported,
+          'duplicates': duplicates,
+          'unsupported': unsupported,
+          'failed': failed,
+        },
+      );
+    } catch (e, stackTrace) {
+      Sentry.captureException(e, stackTrace: stackTrace);
+    }
+  }
+
+  /// A health-sync run blew up. [errorCategory] is a coarse bucket like
+  /// `not_authorized` or `fetch_error` — never a raw error message.
+  Future<void> logHealthSyncFailed({
+    required String provider,
+    required String errorCategory,
+  }) async {
+    try {
+      await _analytics.logEvent(
+        name: AppConstants.eventHealthSyncFailed,
+        parameters: {
+          'provider': provider,
+          'error_category': errorCategory,
+        },
+      );
+    } catch (e, stackTrace) {
+      Sentry.captureException(e, stackTrace: stackTrace);
+    }
+  }
+
+  /// The user granted or denied health permissions at the OS prompt.
+  Future<void> logHealthPermissions({
+    required String provider,
+    required bool granted,
+  }) async {
+    try {
+      await _analytics.logEvent(
+        name: granted
+            ? AppConstants.eventHealthPermissionsGranted
+            : AppConstants.eventHealthPermissionsDenied,
+        parameters: {'provider': provider},
+      );
+    } catch (e, stackTrace) {
+      Sentry.captureException(e, stackTrace: stackTrace);
+    }
+  }
+
+  // =============================================================================
   // User Properties (Non-PII)
   // =============================================================================
 

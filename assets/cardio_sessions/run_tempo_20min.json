@@ -1,0 +1,14 @@
+{
+  "id": "run_tempo_20min",
+  "name": "20-minute tempo run",
+  "sport": "run",
+  "description": "Sustained threshold effort. 20 minutes at a pace you could hold for about an hour — comfortably hard.",
+  "category": "threshold",
+  "difficulty": "intermediate",
+  "durationEstimateSec": 2700,
+  "intervals": [
+    { "intent": "warmup", "targetKind": "durationSec", "targetDurationSec": 900, "notes": "Easy jog." },
+    { "intent": "work", "targetKind": "durationSec", "targetDurationSec": 1200, "targetHrZone": 4, "notes": "Threshold — comfortably hard. Effort should feel like 7/10." },
+    { "intent": "cooldown", "targetKind": "durationSec", "targetDurationSec": 600, "notes": "Easy jog." }
+  ]
+}

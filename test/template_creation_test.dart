@@ -44,9 +44,10 @@ void main() {
           ],
         );
 
-        final trainingCycle = await repository.createTrainingCycleFromTemplate(
+        final result = await repository.createTrainingCycleFromTemplate(
           template,
         );
+        final trainingCycle = result.trainingCycle;
 
         // Should create 2 workouts (one for Chest, one for Back)
         expect(trainingCycle.workouts.length, 2);
@@ -62,6 +63,9 @@ void main() {
         );
         expect(backWorkout.exercises.length, 1);
         expect(backWorkout.exercises.first.name, 'Barbell Row');
+
+        // v6 — this strength-only template should produce no cardio.
+        expect(result.cardioSessions, isEmpty);
       },
     );
   });

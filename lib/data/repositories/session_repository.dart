@@ -9,10 +9,8 @@ import '../database/daos/session_interval_dao.dart';
 import '../database/daos/session_sample_dao.dart';
 import '../database/mappers/entity_mappers.dart';
 import '../database/mappers/session_mappers.dart';
-import '../models/cardio_detail.dart';
 import '../models/exercise.dart' as exercise_model;
 import '../models/session.dart';
-import '../models/session_interval.dart';
 import '../models/session_sample.dart';
 
 /// Repository for [Session] CRUD operations.
@@ -24,11 +22,12 @@ import '../models/session_sample.dart';
 ///     samples) from their dedicated DAOs.
 ///
 /// Design notes:
-///   * This repository reads the sessions table only. The legacy
-///     `workouts` table still exists and is still the write path used by
-///     the existing lifting code — this repo is intentionally additive and
-///     does not mutate workouts. Once Phase 3 UI is wired up to sessions
-///     directly, the workouts table becomes redundant and is dropped in v6.
+///   * As of Phase 6c, this repository is the single source of truth for
+///     every session — strength and cardio. The [WorkoutRepository]
+///     facade delegates here for all strength reads and writes, so the
+///     legacy `workouts` table is no longer written-to by the app. It
+///     still exists on disk with the v5 backfill snapshot; the v6
+///     migration drops it.
 ///   * For strength sessions, exercises are found by
 ///     `exercises.session_uuid` (populated by the v5 backfill). Legacy rows
 ///     that were written before v5 but never migrated are effectively
@@ -290,5 +289,113 @@ class SessionRepository {
   /// Delete a session and every related row (cascades via the DAO).
   Future<void> delete(String id) async {
     await _sessionDao.cascadeDeleteByUuid(id);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Strength session writes.
+  //
+  // Sessions are now the single source of truth for strength data.
+  // [WorkoutRepository] is a facade that funnels every legacy
+  // `Workout`-shaped call site into these three methods.
+  //
+  // Child reconciliation (exercises + sets) happens in
+  // [_writeStrengthChildren]. The shape matches the previous
+  // WorkoutRepository diff logic — insert new rows, update existing ones
+  // in place, cascade-delete anything the new session no longer contains.
+  // ---------------------------------------------------------------------------
+
+  /// Create a strength session and its full child hierarchy (exercises +
+  /// sets).
+  Future<void> createStrength(StrengthSession session) async {
+    if (session.sport != Sport.strength) {
+      throw StateError('createStrength requires Sport.strength');
+    }
+    await _sessionDao.insertSession(SessionMapper.toCompanion(session));
+    await _writeStrengthChildren(session, isUpdate: false);
+  }
+
+  /// Update a strength session and reconcile its exercise/set children.
+  /// Exercises or sets no longer present in [session] are cascade-deleted.
+  Future<void> updateStrength(StrengthSession session) async {
+    if (session.sport != Sport.strength) {
+      throw StateError('updateStrength requires Sport.strength');
+    }
+    await _sessionDao.updateByUuid(
+      session.id,
+      SessionMapper.toCompanion(session),
+    );
+    await _writeStrengthChildren(session, isUpdate: true);
+  }
+
+  Future<void> _writeStrengthChildren(
+    StrengthSession session, {
+    required bool isUpdate,
+  }) async {
+    // Query even on create — the initial list is empty so the cost is
+    // negligible and the single code path keeps this method readable.
+    final existingExercises =
+        await _exerciseDao.getByWorkoutUuid(session.id);
+    final existingExerciseIds = existingExercises.map((e) => e.uuid).toSet();
+    final newExerciseIds = session.exercises.map((e) => e.id).toSet();
+
+    // Remove exercises no longer in the session.
+    if (isUpdate) {
+      for (final ex in existingExercises) {
+        if (!newExerciseIds.contains(ex.uuid)) {
+          await _exerciseDao.cascadeDeleteByUuid(ex.uuid);
+        }
+      }
+    }
+
+    for (final exercise in session.exercises) {
+      final companion = ExerciseMapper.toCompanion(
+        exercise.copyWith(workoutId: session.id),
+      );
+      if (existingExerciseIds.contains(exercise.id)) {
+        await _exerciseDao.updateByUuid(exercise.id, companion);
+      } else {
+        // Check cross-workout existence for moved exercises.
+        final global = await _exerciseDao.getByUuid(exercise.id);
+        if (global != null) {
+          await _exerciseDao.updateByUuid(exercise.id, companion);
+        } else {
+          await _exerciseDao.insertExercise(companion);
+        }
+      }
+
+      // Reconcile sets.
+      final existingSets =
+          await _exerciseSetDao.getByExerciseUuid(exercise.id);
+      final existingSetIds = existingSets.map((s) => s.uuid).toSet();
+      final newSetIds = exercise.sets.map((s) => s.id).toSet();
+      if (isUpdate) {
+        for (final set in existingSets) {
+          if (!newSetIds.contains(set.uuid)) {
+            await _exerciseSetDao.deleteByUuid(set.uuid);
+          }
+        }
+      }
+      for (final set in exercise.sets) {
+        final setCompanion = ExerciseSetMapper.toCompanion(set, exercise.id);
+        if (existingSetIds.contains(set.id)) {
+          await _exerciseSetDao.updateByUuid(set.id, setCompanion);
+        } else {
+          await _exerciseSetDao.insertSet(setCompanion);
+        }
+      }
+    }
+  }
+
+  /// Cascade-delete a strength session — SessionDao handles session_cardio
+  /// / session_intervals / session_samples (no-op for strength) plus the
+  /// session row itself, while the exercises/sets/feedbacks that hang off
+  /// the session by `session_uuid` are removed via ExerciseDao's cascade
+  /// per-exercise.
+  Future<void> deleteStrength(String sessionId) async {
+    final existingExercises = await _exerciseDao.getByWorkoutUuid(sessionId);
+    for (final ex in existingExercises) {
+      await _exerciseDao.cascadeDeleteByUuid(ex.uuid);
+    }
+    await _sessionDao.cascadeDeleteByUuid(sessionId);
   }
 }

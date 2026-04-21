@@ -32,6 +32,23 @@
 	<string>Camera access is required to scan QR codes for device sync.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>This app does not access your photos or photo library.</string>
+	<key>NSHealthShareUsageDescription</key>
+	<string>YAWA4U can read completed workouts, heart rate, and distance from Apple Health so your runs, rides, and swims (including Peloton workouts paired to Health) show up alongside your strength sessions.</string>
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>YAWA4U can optionally write workouts you log here to Apple Health so they appear in your Health app and other connected apps.</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>com.yawa4u.oauth</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>yawa4u</string>
+			</array>
+		</dict>
+	</array>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

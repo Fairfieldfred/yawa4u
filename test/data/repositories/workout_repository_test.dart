@@ -3,6 +3,7 @@ import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:yawa4u/core/constants/enums.dart';
 import 'package:yawa4u/data/database/database.dart';
+import 'package:yawa4u/data/repositories/session_repository.dart';
 import 'package:yawa4u/data/repositories/workout_repository.dart';
 
 import '../../helpers/test_fixtures.dart';
@@ -11,10 +12,23 @@ void main() {
   late AppDatabase db;
   late WorkoutRepository repo;
 
+  // As of Phase 6c, [WorkoutRepository] is a facade over
+  // [SessionRepository]. The constructor takes a fully-wired
+  // SessionRepository plus an ExerciseDao (only used for the
+  // `findPinnedNoteByExerciseName` helper).
   setUp(() {
     driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
     db = AppDatabase.forTesting(NativeDatabase.memory());
-    repo = WorkoutRepository(db.workoutDao, db.exerciseDao, db.exerciseSetDao);
+    final sessionRepo = SessionRepository(
+      db.sessionDao,
+      db.exerciseDao,
+      db.exerciseSetDao,
+      db.sessionCardioDao,
+      db.sessionIntervalDao,
+      db.sessionSampleDao,
+      db.cardioFeedbackDao,
+    );
+    repo = WorkoutRepository(sessionRepo, db.exerciseDao);
   });
 
   tearDown(() async {

@@ -1,0 +1,12 @@
+{
+  "id": "run_long_60min",
+  "name": "Long run — 60 minutes easy",
+  "sport": "run",
+  "description": "Weekend volume builder. All easy aerobic pace. The goal is time on feet, not speed.",
+  "category": "endurance",
+  "difficulty": "intermediate",
+  "durationEstimateSec": 3600,
+  "intervals": [
+    { "intent": "work", "targetKind": "durationSec", "targetDurationSec": 3600, "targetHrZone": 2, "notes": "Conversational pace the whole way." }
+  ]
+}

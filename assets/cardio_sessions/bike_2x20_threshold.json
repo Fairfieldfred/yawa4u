@@ -1,0 +1,16 @@
+{
+  "id": "bike_2x20_threshold",
+  "name": "2×20' at threshold",
+  "sport": "bike",
+  "description": "Classic threshold session used as a fitness test and a training staple. 2 reps of 20 minutes at FTP or threshold HR, with 10 minutes easy between.",
+  "category": "threshold",
+  "difficulty": "intermediate",
+  "durationEstimateSec": 4200,
+  "intervals": [
+    { "intent": "warmup", "targetKind": "durationSec", "targetDurationSec": 900, "notes": "Gradually build effort." },
+    { "intent": "work", "targetKind": "durationSec", "targetDurationSec": 1200, "targetHrZone": 4, "notes": "Rep 1/2 — hold threshold power/HR steady." },
+    { "intent": "recovery", "targetKind": "durationSec", "targetDurationSec": 600, "notes": "Easy spin between reps." },
+    { "intent": "work", "targetKind": "durationSec", "targetDurationSec": 1200, "targetHrZone": 4, "notes": "Rep 2/2 — match or beat rep 1." },
+    { "intent": "cooldown", "targetKind": "durationSec", "targetDurationSec": 300, "notes": "Easy spin." }
+  ]
+}

@@ -1,0 +1,67 @@
+{
+  "id": "sprint_triathlon_prep",
+  "name": "Sprint triathlon — 6 week prep",
+  "description": "Build toward a sprint-distance triathlon (750m swim, 20km bike, 5km run). Six 7-day periods with the classic swim-bike-run pattern plus one strength day.",
+  "primarySport": "run",
+  "periodsTotal": 6,
+  "daysPerPeriod": 7,
+  "recoveryPeriod": 6,
+  "_schemaNote": "v6 — primarySport hint drives defaults only. Cardio days reference templates in assets/cardio_sessions/. Loader for cardioTemplateId lands in Phase 6.",
+  "workouts": [
+    {
+      "periodNumber": 1,
+      "dayNumber": 1,
+      "dayName": "Swim — technique",
+      "sport": "swim",
+      "cardioTemplateId": "swim_drills_and_swim"
+    },
+    {
+      "periodNumber": 1,
+      "dayNumber": 2,
+      "dayName": "Easy run",
+      "sport": "run",
+      "cardioTemplateId": "run_easy_30min"
+    },
+    {
+      "periodNumber": 1,
+      "dayNumber": 3,
+      "dayName": "Bike — sweet spot",
+      "sport": "bike",
+      "cardioTemplateId": "bike_sweet_spot_3x10"
+    },
+    {
+      "periodNumber": 1,
+      "dayNumber": 4,
+      "dayName": "Strength",
+      "sport": "strength",
+      "exercises": [
+        { "name": "Barbell Squat", "muscleGroup": "quads", "equipmentType": "barbell", "sets": 3, "reps": "6-8", "setType": "regular" },
+        { "name": "Romanian Deadlift", "muscleGroup": "hamstrings", "equipmentType": "barbell", "sets": 3, "reps": "8-10", "setType": "regular" },
+        { "name": "Pull-up", "muscleGroup": "back", "equipmentType": "bodyweightOnly", "sets": 3, "reps": "max", "setType": "maxReps" },
+        { "name": "Plank", "muscleGroup": "abs", "equipmentType": "bodyweightOnly", "sets": 3, "reps": "60s", "setType": "regular" }
+      ]
+    },
+    {
+      "periodNumber": 1,
+      "dayNumber": 5,
+      "dayName": "Swim — CSS",
+      "sport": "swim",
+      "cardioTemplateId": "swim_css_test"
+    },
+    {
+      "periodNumber": 1,
+      "dayNumber": 6,
+      "dayName": "Brick — bike+run",
+      "sport": "bike",
+      "cardioTemplateId": "bike_easy_45min",
+      "notes": "Follow the ride with a 10-min easy run off the bike."
+    },
+    {
+      "periodNumber": 1,
+      "dayNumber": 7,
+      "dayName": "Rest or long run",
+      "sport": "run",
+      "cardioTemplateId": "run_long_60min"
+    }
+  ]
+}

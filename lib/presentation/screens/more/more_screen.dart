@@ -244,19 +244,19 @@ class _MoreScreenState extends ConsumerState<MoreScreen>
               ),
             ),
             const SizedBox(height: 24),
-            const Divider(height: 1),
 
-            // Appearance / Skins
+            // ─── Appearance ──────────────────────────────────────────────
+            const _MoreSectionHeader('Appearance'),
             ListTile(
               leading: const Icon(Icons.palette_outlined),
-              title: const Text('Appearance'),
+              title: const Text('Theme'),
               subtitle: const Text('Choose your app theme'),
               trailing: const Icon(Icons.chevron_right),
               onTap: () => context.push('/skins'),
             ),
-            const Divider(height: 1),
 
-            // Statistics
+            // ─── Training ────────────────────────────────────────────────
+            const _MoreSectionHeader('Training'),
             ListTile(
               leading: const Icon(Icons.bar_chart_outlined),
               title: const Text('Statistics'),
@@ -264,9 +264,6 @@ class _MoreScreenState extends ConsumerState<MoreScreen>
               trailing: const Icon(Icons.chevron_right),
               onTap: () => context.push('/stats'),
             ),
-            const Divider(height: 1),
-
-            // Log cardio session (v5)
             ListTile(
               leading: const Icon(Icons.directions_run),
               title: const Text('Log cardio session'),
@@ -285,22 +282,49 @@ class _MoreScreenState extends ConsumerState<MoreScreen>
                 }
               },
             ),
-            const Divider(height: 1),
+            ListTile(
+              leading: const Icon(Icons.straighten),
+              title: const Text('Units'),
+              subtitle: const Text('Metric or imperial — per sport'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => context.push('/settings/units'),
+            ),
+            ListTile(
+              leading: const Icon(Icons.favorite_outline),
+              title: const Text('Zones'),
+              subtitle: const Text('Heart-rate zones per sport'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => context.push('/settings/zones'),
+            ),
 
-            // Sync Data
+            // ─── Integrations & Data ─────────────────────────────────────
+            const _MoreSectionHeader('Integrations & data'),
+            ListTile(
+              leading: const Icon(Icons.integration_instructions_outlined),
+              title: const Text('Integrations'),
+              subtitle: const Text(
+                'Apple Health / Health Connect — includes Peloton',
+              ),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => context.push('/settings/integrations'),
+            ),
             ListTile(
               leading: const Icon(Icons.sync),
-              title: const Text('Sync Data'),
+              title: const Text('Sync data'),
               subtitle: const Text('Sync with another device via WiFi'),
               trailing: const Icon(Icons.chevron_right),
               onTap: () => context.push('/sync'),
             ),
-            const Divider(height: 1),
-
-            // Share App
+            ListTile(
+              leading: const Icon(Icons.file_copy_outlined),
+              title: const Text('Share template'),
+              subtitle: const Text('Share workout templates via WiFi'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => context.push('/template-share'),
+            ),
             ListTile(
               leading: const Icon(Icons.share_outlined),
-              title: const Text('Share App'),
+              title: const Text('Share app'),
               subtitle: const Text('Share YAWA4U with friends'),
               trailing: const Icon(Icons.chevron_right),
               onTap: () async {
@@ -312,67 +336,30 @@ class _MoreScreenState extends ConsumerState<MoreScreen>
                 );
               },
             ),
-            const Divider(height: 1),
 
-            // Share Template
-            ListTile(
-              leading: const Icon(Icons.file_copy_outlined),
-              title: const Text('Share Template'),
-              subtitle: const Text('Share workout templates via WiFi'),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () => context.push('/template-share'),
-            ),
-            const Divider(height: 1),
-
-            // Settings
+            // ─── Preferences ─────────────────────────────────────────────
+            const _MoreSectionHeader('Preferences'),
             ListTile(
               leading: const Icon(Icons.settings_outlined),
               title: const Text('Settings'),
-              subtitle: const Text('Units, terminology, equipment'),
+              subtitle: const Text('Terminology, equipment, body metrics'),
               trailing: const Icon(Icons.chevron_right),
               onTap: () => context.push('/settings'),
             ),
-            const Divider(height: 1),
 
-            // Send Feedback
+            // ─── Help & feedback ─────────────────────────────────────────
+            const _MoreSectionHeader('Help & feedback'),
             ListTile(
+              leading: const Icon(Icons.feedback_outlined),
               title: const Text('Send feedback'),
               trailing: const Icon(Icons.chevron_right),
               onTap: () {
                 SentryService.instance.showBetterFeedback(context);
               },
             ),
-            const Divider(height: 1),
 
-            // Sentry Debug (debug builds only)
-            if (kDebugMode) ...[
-              ListTile(
-                leading: const Icon(Icons.bug_report, color: Colors.orange),
-                title: const Text('Sentry Debug'),
-                subtitle: const Text('Test Sentry integration'),
-                trailing: const Icon(Icons.chevron_right),
-                onTap: () => context.push('/sentry-debug'),
-              ),
-              const Divider(height: 1),
-            ],
-
-            // Website
             ListTile(
-              title: const Text('Website'),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () async {
-                final url = Uri.parse(
-                  'https://github.com/Fairfieldfred/yawa4u',
-                );
-                if (await canLaunchUrl(url)) {
-                  await launchUrl(url);
-                }
-              },
-            ),
-            const Divider(height: 1),
-
-            // Language
-            ListTile(
+              leading: const Icon(Icons.language),
               title: const Text('Language'),
               trailing: const Icon(Icons.chevron_right),
               onTap: () {
@@ -383,12 +370,26 @@ class _MoreScreenState extends ConsumerState<MoreScreen>
                 );
               },
             ),
-            const Divider(height: 1),
 
-            // Privacy Policy
+            // ─── About ───────────────────────────────────────────────────
+            const _MoreSectionHeader('About'),
             ListTile(
-              title: const Text('Privacy Policy'),
-              trailing: const Icon(Icons.chevron_right),
+              leading: const Icon(Icons.public),
+              title: const Text('Website'),
+              trailing: const Icon(Icons.open_in_new, size: 18),
+              onTap: () async {
+                final url = Uri.parse(
+                  'https://github.com/Fairfieldfred/yawa4u',
+                );
+                if (await canLaunchUrl(url)) {
+                  await launchUrl(url);
+                }
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.privacy_tip_outlined),
+              title: const Text('Privacy policy'),
+              trailing: const Icon(Icons.open_in_new, size: 18),
               onTap: () async {
                 final url = Uri.parse(AppConstants.privacyPolicyUrl);
                 if (await canLaunchUrl(url)) {
@@ -396,10 +397,45 @@ class _MoreScreenState extends ConsumerState<MoreScreen>
                 }
               },
             ),
-            const Divider(height: 1),
+
+            // Debug-only tools live at the very bottom so they don't
+            // clutter the normal browsing experience.
+            if (kDebugMode) ...[
+              const _MoreSectionHeader('Developer'),
+              ListTile(
+                leading: const Icon(Icons.bug_report, color: Colors.orange),
+                title: const Text('Sentry debug'),
+                subtitle: const Text('Test Sentry integration'),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => context.push('/sentry-debug'),
+              ),
+            ],
             const SizedBox(height: 32),
           ],
         ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Section header used inside MoreScreen's list. Lives here rather than
+/// in a shared widget because it's heavily styled for this one surface —
+/// if another screen needs similar section headers, extract later.
+class _MoreSectionHeader extends StatelessWidget {
+  const _MoreSectionHeader(this.label);
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 4),
+      child: Text(
+        label.toUpperCase(),
+        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+          fontWeight: FontWeight.w700,
+          letterSpacing: 0.6,
+          color: Theme.of(context).colorScheme.primary,
         ),
       ),
     );

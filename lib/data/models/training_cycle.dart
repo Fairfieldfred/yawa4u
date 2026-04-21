@@ -1,4 +1,5 @@
 import '../../core/constants/enums.dart';
+import '../../core/constants/sports.dart';
 import '../../core/utils/date_helpers.dart';
 import 'workout.dart';
 
@@ -24,6 +25,14 @@ class TrainingCycle {
   final String? notes;
   final RecoveryPeriodType? _recoveryPeriodType;
 
+  /// Primary sport for this cycle — a UI hint only.
+  ///
+  /// Prefills daysPerPeriod during creation, drives the default sport on
+  /// the add-session sheet, and can be used to pick an accent color. Never
+  /// restricts what sessions the cycle may contain: every cycle is
+  /// mixed-capable. Existing (pre-v5) cycles backfill to [Sport.strength].
+  final Sport? primarySport;
+
   /// Recovery period type with default fallback for existing records
   RecoveryPeriodType get recoveryPeriodType =>
       _recoveryPeriodType ?? RecoveryPeriodType.deload;
@@ -44,6 +53,7 @@ class TrainingCycle {
     this.muscleGroupPriorities,
     this.templateName,
     this.notes,
+    this.primarySport,
   }) : _recoveryPeriodType = recoveryPeriodType ?? RecoveryPeriodType.deload,
        recoveryPeriod = recoveryPeriod ?? periodsTotal,
        createdDate = createdDate ?? DateTime.now(),
@@ -145,7 +155,11 @@ class TrainingCycle {
       ..sort((a, b) => a.dayNumber.compareTo(b.dayNumber));
   }
 
-  /// Create a copy with updated fields
+  /// Create a copy with updated fields.
+  ///
+  /// [clearPrimarySport] explicitly sets primarySport to null; passing
+  /// `primarySport: null` alone leaves the existing value untouched
+  /// (consistent with how [clearScheduledDate] works on [Workout]).
   TrainingCycle copyWith({
     String? id,
     String? name,
@@ -162,6 +176,8 @@ class TrainingCycle {
     Map<String, int>? muscleGroupPriorities,
     String? templateName,
     String? notes,
+    Sport? primarySport,
+    bool clearPrimarySport = false,
   }) {
     return TrainingCycle(
       id: id ?? this.id,
@@ -180,6 +196,9 @@ class TrainingCycle {
           muscleGroupPriorities ?? this.muscleGroupPriorities,
       templateName: templateName ?? this.templateName,
       notes: notes ?? this.notes,
+      primarySport: clearPrimarySport
+          ? null
+          : (primarySport ?? this.primarySport),
     );
   }
 
@@ -201,6 +220,7 @@ class TrainingCycle {
       'muscleGroupPriorities': muscleGroupPriorities,
       'templateName': templateName,
       'notes': notes,
+      'primarySport': primarySport?.name,
     };
   }
 
@@ -246,6 +266,9 @@ class TrainingCycle {
           ),
       templateName: json['templateName'] as String?,
       notes: json['notes'] as String?,
+      primarySport: json['primarySport'] != null
+          ? Sports.parse(json['primarySport'] as String)
+          : null,
     );
   }
 

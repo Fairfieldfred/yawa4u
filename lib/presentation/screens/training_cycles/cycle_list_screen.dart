@@ -17,6 +17,7 @@ import '../../../domain/providers/theme_provider.dart';
 import '../../../domain/providers/training_cycle_providers.dart';
 import '../../../domain/providers/workout_providers.dart';
 import '../../widgets/app_icon_widget.dart';
+import '../../widgets/cardio/weekly_summary_card.dart';
 import '../../widgets/cycle_summary_dialog.dart';
 import '../../widgets/dialogs/workout_dialogs.dart';
 import '../../widgets/responsive_content.dart';
@@ -91,6 +92,14 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
               child: ListView(
               padding: const EdgeInsets.only(top: 20),
               children: [
+                // v5 — compact "This week" recap. Auto-collapses to a
+                // gentle empty state when nothing's logged, so it stays
+                // out of the way for strength-only users.
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                  child: WeeklySummaryCard(),
+                ),
+
                 // Draft TrainingCycles Section
                 if (draftTrainingCycles.isNotEmpty) ...[
                   _buildSectionHeader(context, 'Draft $cycleTerm'),

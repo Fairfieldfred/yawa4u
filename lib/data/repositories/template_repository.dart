@@ -8,11 +8,15 @@ import 'package:uuid/uuid.dart';
 import '../../core/constants/enums.dart';
 import '../../core/constants/equipment_types.dart';
 import '../../core/constants/muscle_groups.dart';
+import '../../core/constants/sports.dart';
+import '../models/cardio_session_template.dart';
 import '../models/exercise.dart';
 import '../models/exercise_set.dart';
+import '../models/session.dart';
 import '../models/training_cycle.dart';
 import '../models/training_cycle_template.dart';
 import '../models/workout.dart';
+import '../services/cardio_session_library_service.dart';
 
 /// Repository for managing trainingCycle templates
 class TemplateRepository {
@@ -328,23 +332,69 @@ class TemplateRepository {
     }
   }
 
-  /// Create a trainingCycle from a template
-  Future<TrainingCycle> createTrainingCycleFromTemplate(
+  /// Create a trainingCycle from a template.
+  ///
+  /// v6-compatible. Strength workouts turn into [Workout] objects (same
+  /// as v5); cardio workouts with a `cardioTemplateId` are resolved
+  /// against the cardio session library and returned as a side list of
+  /// [CardioSession]s that the caller must write via [SessionRepository].
+  ///
+  /// Splitting the return lets us keep the legacy [TrainingCycle.workouts]
+  /// strength-shaped until Phase 6's main strength-UI migration lands.
+  Future<TemplateInstantiation> createTrainingCycleFromTemplate(
     TrainingCycleTemplate template,
   ) async {
     final trainingCycleId = _uuid.v4();
     final now = DateTime.now();
-
-    // Create workouts from template
     final workouts = <Workout>[];
+    final cardioSessions = <CardioSession>[];
+
+    // Cache the cardio library once per call — if any workout has a
+    // cardioTemplateId we'll reuse it.
+    List<CardioSessionTemplate>? cardioLibrary;
+    Future<List<CardioSessionTemplate>> ensureLibrary() async {
+      cardioLibrary ??=
+          await CardioSessionLibraryService.instance.loadAll();
+      return cardioLibrary!;
+    }
+
     for (final workoutTemplate in template.workouts) {
-      // Group exercises by muscle group
+      if (workoutTemplate.isCardio &&
+          workoutTemplate.cardioTemplateId != null) {
+        final sport = Sports.parse(workoutTemplate.sport) ?? Sport.other;
+        final library = await ensureLibrary();
+        final cardioTemplate = library
+            .where((t) => t.id == workoutTemplate.cardioTemplateId)
+            .firstOrNull;
+        if (cardioTemplate != null) {
+          final session = CardioSessionLibraryService.instance.instantiate(
+            cardioTemplate,
+            sessionId: _uuid.v4(),
+            newIntervalId: () => _uuid.v4(),
+            trainingCycleId: trainingCycleId,
+            periodNumber: workoutTemplate.periodNumber,
+            dayNumber: workoutTemplate.dayNumber,
+          );
+          // Override sport in case the JSON's explicit sport differs
+          // (it shouldn't, but we respect the template's intent).
+          cardioSessions.add(
+            session.copyWith(
+              sport: sport,
+              label: workoutTemplate.dayName ?? cardioTemplate.name,
+              notes: workoutTemplate.notes ?? cardioTemplate.description,
+            ),
+          );
+        }
+        // Fall through — a cardio day produces zero Workouts.
+        continue;
+      }
+
+      // Strength path (existing logic).
       final exercisesByMuscleGroup = <MuscleGroup, List<Exercise>>{};
 
       for (final exerciseTemplate in workoutTemplate.exercises) {
         final exerciseId = _uuid.v4();
 
-        // Parse muscle group
         final muscleGroup = MuscleGroup.values.firstWhere(
           (mg) =>
               mg.name.toLowerCase() ==
@@ -352,7 +402,6 @@ class TemplateRepository {
           orElse: () => MuscleGroup.chest,
         );
 
-        // Parse equipment type
         final equipmentType = EquipmentType.values.firstWhere(
           (et) =>
               et.name.toLowerCase() ==
@@ -360,30 +409,27 @@ class TemplateRepository {
           orElse: () => EquipmentType.barbell,
         );
 
-        // Parse set type
         final setType = SetType.values.firstWhere(
           (st) =>
               st.name.toLowerCase() == exerciseTemplate.setType.toLowerCase(),
           orElse: () => SetType.regular,
         );
 
-        // Create sets
         final sets = <ExerciseSet>[];
         for (int i = 0; i < exerciseTemplate.sets; i++) {
           sets.add(
             ExerciseSet(
               id: _uuid.v4(),
               setNumber: i + 1,
-              reps: '', // Start empty, user will fill in
+              reps: '',
               setType: setType,
             ),
           );
         }
 
-        // Create exercise (temporarily without workoutId)
         final exercise = Exercise(
           id: exerciseId,
-          workoutId: '', // Will be set later
+          workoutId: '',
           name: exerciseTemplate.name,
           muscleGroup: muscleGroup,
           equipmentType: equipmentType,
@@ -397,13 +443,11 @@ class TemplateRepository {
         exercisesByMuscleGroup[muscleGroup]!.add(exercise);
       }
 
-      // Create a workout for each muscle group
       for (final entry in exercisesByMuscleGroup.entries) {
         final muscleGroup = entry.key;
         final groupExercises = entry.value;
         final workoutId = _uuid.v4();
 
-        // Update exercises with correct workoutId
         final updatedExercises = groupExercises
             .map((e) => e.copyWith(workoutId: workoutId))
             .toList();
@@ -414,14 +458,18 @@ class TemplateRepository {
             trainingCycleId: trainingCycleId,
             periodNumber: workoutTemplate.periodNumber,
             dayNumber: workoutTemplate.dayNumber,
-            label: muscleGroup.displayName, // Use muscle group as label
+            label: muscleGroup.displayName,
             exercises: updatedExercises,
           ),
         );
       }
     }
 
-    return TrainingCycle(
+    final primarySport = template.primarySport != null
+        ? Sports.parse(template.primarySport!)
+        : null;
+
+    final cycle = TrainingCycle(
       id: trainingCycleId,
       name: template.name,
       startDate: now,
@@ -429,6 +477,29 @@ class TemplateRepository {
       daysPerPeriod: template.daysPerPeriod,
       recoveryPeriod: template.recoveryPeriod,
       workouts: workouts,
+      primarySport: primarySport,
+    );
+
+    return TemplateInstantiation(
+      trainingCycle: cycle,
+      cardioSessions: cardioSessions,
     );
   }
+}
+
+/// Bundle returned by [TemplateRepository.createTrainingCycleFromTemplate].
+///
+/// The caller is responsible for writing the strength cycle via
+/// [TrainingCycleRepository.create] AND writing each cardio session via
+/// [SessionRepository.createCardio]. Splitting the two keeps the
+/// repositories cleanly separated — template creation doesn't reach
+/// across into SessionRepository directly.
+class TemplateInstantiation {
+  final TrainingCycle trainingCycle;
+  final List<CardioSession> cardioSessions;
+
+  const TemplateInstantiation({
+    required this.trainingCycle,
+    required this.cardioSessions,
+  });
 }

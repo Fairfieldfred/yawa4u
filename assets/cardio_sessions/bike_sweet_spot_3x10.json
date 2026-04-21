@@ -1,0 +1,18 @@
+{
+  "id": "bike_sweet_spot_3x10",
+  "name": "3×10' sweet spot",
+  "sport": "bike",
+  "description": "Sweet spot (88-93% FTP) balances stimulus and recovery. Good midweek session for time-crunched riders.",
+  "category": "threshold",
+  "difficulty": "intermediate",
+  "durationEstimateSec": 3300,
+  "intervals": [
+    { "intent": "warmup", "targetKind": "durationSec", "targetDurationSec": 600 },
+    { "intent": "work", "targetKind": "durationSec", "targetDurationSec": 600, "targetHrZone": 3, "notes": "Rep 1/3 — sweet spot, 88-93% FTP." },
+    { "intent": "recovery", "targetKind": "durationSec", "targetDurationSec": 300 },
+    { "intent": "work", "targetKind": "durationSec", "targetDurationSec": 600, "targetHrZone": 3, "notes": "Rep 2/3" },
+    { "intent": "recovery", "targetKind": "durationSec", "targetDurationSec": 300 },
+    { "intent": "work", "targetKind": "durationSec", "targetDurationSec": 600, "targetHrZone": 3, "notes": "Rep 3/3 — finish strong." },
+    { "intent": "cooldown", "targetKind": "durationSec", "targetDurationSec": 300 }
+  ]
+}

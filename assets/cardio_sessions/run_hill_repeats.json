@@ -1,0 +1,24 @@
+{
+  "id": "run_hill_repeats",
+  "name": "6×2-minute hill repeats",
+  "sport": "run",
+  "description": "Build leg strength and running economy. Find a 2-minute hill, run up hard, jog down for recovery. Six times.",
+  "category": "strength",
+  "difficulty": "advanced",
+  "durationEstimateSec": 2700,
+  "intervals": [
+    { "intent": "warmup", "targetKind": "durationSec", "targetDurationSec": 600, "notes": "Jog to the hill." },
+    { "intent": "work", "targetKind": "durationSec", "targetDurationSec": 120, "targetHrZone": 5, "notes": "Hill rep 1/6 — hard up." },
+    { "intent": "recovery", "targetKind": "durationSec", "targetDurationSec": 120, "notes": "Jog down." },
+    { "intent": "work", "targetKind": "durationSec", "targetDurationSec": 120, "targetHrZone": 5, "notes": "Hill rep 2/6" },
+    { "intent": "recovery", "targetKind": "durationSec", "targetDurationSec": 120 },
+    { "intent": "work", "targetKind": "durationSec", "targetDurationSec": 120, "targetHrZone": 5, "notes": "Hill rep 3/6" },
+    { "intent": "recovery", "targetKind": "durationSec", "targetDurationSec": 120 },
+    { "intent": "work", "targetKind": "durationSec", "targetDurationSec": 120, "targetHrZone": 5, "notes": "Hill rep 4/6" },
+    { "intent": "recovery", "targetKind": "durationSec", "targetDurationSec": 120 },
+    { "intent": "work", "targetKind": "durationSec", "targetDurationSec": 120, "targetHrZone": 5, "notes": "Hill rep 5/6" },
+    { "intent": "recovery", "targetKind": "durationSec", "targetDurationSec": 120 },
+    { "intent": "work", "targetKind": "durationSec", "targetDurationSec": 120, "targetHrZone": 5, "notes": "Hill rep 6/6 — hold form." },
+    { "intent": "cooldown", "targetKind": "durationSec", "targetDurationSec": 600, "notes": "Easy jog home." }
+  ]
+}

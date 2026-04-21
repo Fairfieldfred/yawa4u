@@ -256,7 +256,7 @@ class CardioSession extends Session {
   const CardioSession({
     required super.id,
     required super.trainingCycleId,
-    required Sport sport,
+    required super.sport,
     required super.source,
     required super.status,
     super.periodNumber,
@@ -274,8 +274,7 @@ class CardioSession extends Session {
     this.detail,
     this.intervals = const [],
     this.samples,
-  }) : assert(sport != Sport.strength, 'CardioSession.sport must be cardio'),
-       super(sport: sport);
+  }) : assert(sport != Sport.strength, 'CardioSession.sport must be cardio');
 
   bool get hasStructuredPlan => intervals.isNotEmpty;
   bool get hasSamples => samples != null && samples!.isNotEmpty;

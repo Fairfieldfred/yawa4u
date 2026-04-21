@@ -2,6 +2,7 @@ import 'package:drift/drift.dart' hide isNull, isNotNull;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:yawa4u/data/database/database.dart';
+import 'package:yawa4u/data/repositories/session_repository.dart';
 import 'package:yawa4u/data/repositories/training_cycle_repository.dart';
 import 'package:yawa4u/data/repositories/workout_repository.dart';
 import 'package:yawa4u/data/services/schedule_service.dart';
@@ -18,11 +19,16 @@ void main() {
     driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
     db = AppDatabase.forTesting(NativeDatabase.memory());
     cycleRepo = TrainingCycleRepository(db.trainingCycleDao);
-    workoutRepo = WorkoutRepository(
-      db.workoutDao,
+    final sessionRepo = SessionRepository(
+      db.sessionDao,
       db.exerciseDao,
       db.exerciseSetDao,
+      db.sessionCardioDao,
+      db.sessionIntervalDao,
+      db.sessionSampleDao,
+      db.cardioFeedbackDao,
     );
+    workoutRepo = WorkoutRepository(sessionRepo, db.exerciseDao);
     service = ScheduleService(
       cycleRepository: cycleRepo,
       workoutRepository: workoutRepo,

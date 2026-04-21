@@ -5,6 +5,7 @@ import 'package:drift/drift.dart';
 import '../../../core/constants/enums.dart';
 import '../../../core/constants/equipment_types.dart';
 import '../../../core/constants/muscle_groups.dart';
+import '../../../core/constants/sports.dart';
 import '../../models/exercise.dart' as model;
 import '../../models/exercise_feedback.dart' as model;
 import '../../models/exercise_set.dart' as model;
@@ -46,6 +47,9 @@ class TrainingCycleMapper {
       recoveryPeriodType: row.recoveryPeriodType != null
           ? RecoveryPeriodType.values[row.recoveryPeriodType!]
           : null,
+      primarySport: row.primarySport != null
+          ? Sport.values[row.primarySport!]
+          : null,
     );
   }
 
@@ -70,6 +74,7 @@ class TrainingCycleMapper {
       templateName: Value(cycle.templateName),
       notes: Value(cycle.notes),
       recoveryPeriodType: Value(cycle.recoveryPeriodType.index),
+      primarySport: Value(cycle.primarySport?.index),
     );
   }
 }

@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../core/constants/enums.dart';
+import '../../../core/constants/sports.dart';
 import '../../../data/database/app_database.dart' show ExerciseSetsCompanion;
 import '../../../data/database/mappers/entity_mappers.dart' show ExerciseFeedbackMapper;
 import '../../../core/theme/skins/skins.dart';
@@ -32,6 +33,7 @@ import '../../widgets/dialogs/workout_dialogs.dart';
 import '../../widgets/exercise_card_widget.dart';
 import '../../widgets/rest_timer_widget.dart';
 import '../../widgets/screen_background.dart';
+import '../cardio/sport_picker_sheet.dart';
 import 'add_exercise_screen.dart';
 
 /// Workout home screen - shows current/upcoming workouts
@@ -324,6 +326,13 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     _invalidateWorkoutProviders();
   }
 
+  /// Delete a set — optimistic with a 6s Undo snackbar.
+  ///
+  /// This is the UX pattern Gmail / Material use for destructive actions:
+  /// we commit the delete immediately so the user sees the effect, but
+  /// show an Undo chip that restores the original set if tapped in time.
+  /// A confirmation dialog would be safer but more annoying, especially
+  /// in the middle of a workout.
   Future<void> _deleteSet(
     String workoutId,
     String exerciseId,
@@ -341,6 +350,9 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     final exercise = workout.exercises[exerciseIndex];
     if (setIndex >= exercise.sets.length) return;
 
+    // Snapshot the set we're removing so Undo can put it back.
+    final removedSet = exercise.sets[setIndex];
+
     // Remove set
     final updatedSets = List<ExerciseSet>.from(exercise.sets);
     updatedSets.removeAt(setIndex);
@@ -357,6 +369,53 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     );
 
     await repository.update(updatedWorkout);
+    _invalidateWorkoutProviders();
+
+    if (!mounted) return;
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text('Set ${removedSet.setNumber} deleted'),
+          duration: const Duration(seconds: 6),
+          action: SnackBarAction(
+            label: 'Undo',
+            onPressed: () =>
+                _restoreSet(workoutId, exerciseId, setIndex, removedSet),
+          ),
+        ),
+      );
+  }
+
+  /// Undo helper for [_deleteSet]. Re-inserts [removedSet] at the
+  /// original [originalIndex] and renumbers the following sets.
+  Future<void> _restoreSet(
+    String workoutId,
+    String exerciseId,
+    int originalIndex,
+    ExerciseSet removedSet,
+  ) async {
+    final repository = ref.read(workoutRepositoryProvider);
+    final workout = await repository.getById(workoutId);
+    if (workout == null) return;
+
+    final exerciseIndex = workout.exercises.indexWhere(
+      (e) => e.id == exerciseId,
+    );
+    if (exerciseIndex == -1) return;
+
+    final exercise = workout.exercises[exerciseIndex];
+    final restored = List<ExerciseSet>.from(exercise.sets)
+      ..insert(originalIndex.clamp(0, exercise.sets.length), removedSet);
+
+    for (var i = 0; i < restored.length; i++) {
+      restored[i] = restored[i].copyWith(setNumber: i + 1);
+    }
+
+    final updatedExercise = exercise.copyWith(sets: restored);
+    await repository.update(
+      workout.updateExercise(exerciseIndex, updatedExercise),
+    );
     _invalidateWorkoutProviders();
   }
 
@@ -1080,6 +1139,31 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
               ],
             ),
             actions: [
+              // v5 — quick-log cardio session. Opens the sport picker,
+              // then routes to a pre-filled cardio session screen. Keeps
+              // cardio discoverable from the primary workout surface.
+              IconButton(
+                icon: const Icon(Icons.directions_run),
+                tooltip: 'Log cardio session',
+                onPressed: () async {
+                  final sport = await SportPickerSheet.show(
+                    context,
+                    title: 'Log a cardio session',
+                    choices: const [Sport.run, Sport.bike, Sport.swim],
+                  );
+                  if (sport != null && context.mounted) {
+                    // Attach to the visible period/day so the cardio
+                    // banner in the edit screen picks it up.
+                    context.push(
+                      '/cardio-session/new'
+                      '?sport=${sport.name}'
+                      '&trainingCycleId=${currentTrainingCycle.id}'
+                      '&period=$displayPeriod'
+                      '&day=$displayDay',
+                    );
+                  }
+                },
+              ),
               IconButton(
                 icon: const Icon(Icons.calendar_today),
                 onPressed: _togglePeriodSelector,

@@ -1,0 +1,410 @@
+import 'dart:async';
+import 'dart:io' show Platform;
+
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:health/health.dart';
+import 'package:logging/logging.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uuid/uuid.dart';
+
+import '../../core/constants/enums.dart';
+import '../../core/constants/sports.dart';
+import '../models/cardio_detail.dart';
+import '../models/session.dart';
+import '../repositories/session_repository.dart';
+import 'analytics_service.dart';
+
+/// Health Sync status — exposed so the Integrations screen can render the
+/// right state without poking at [HealthSyncService] internals.
+enum HealthSyncStatus {
+  /// The platform doesn't support this integration (web / desktop).
+  unavailable,
+
+  /// Supported but the user hasn't granted permissions yet.
+  notAuthorized,
+
+  /// Granted — ready to sync.
+  ready,
+
+  /// A sync is in progress.
+  syncing,
+}
+
+/// Outcome of a single [HealthSyncService.syncNow] call. Consumers use
+/// this to render "Synced N sessions, M skipped" without needing to
+/// inspect individual items.
+class HealthSyncResult {
+  final int imported;
+  final int skippedDuplicate;
+  final int skippedUnsupportedType;
+  final int failed;
+  final String? error;
+  final DateTime syncedAt;
+
+  const HealthSyncResult({
+    required this.imported,
+    required this.skippedDuplicate,
+    required this.skippedUnsupportedType,
+    required this.failed,
+    required this.syncedAt,
+    this.error,
+  });
+
+  /// Build an error-only result. [syncedAt] is the instant the error was
+  /// produced — kept so the Integrations screen can show "Last attempt at
+  /// HH:MM" regardless of success.
+  HealthSyncResult.errorOnly({required this.error})
+    : imported = 0,
+      skippedDuplicate = 0,
+      skippedUnsupportedType = 0,
+      failed = 0,
+      syncedAt = DateTime.now();
+
+  bool get isSuccess => error == null;
+}
+
+/// Integration with Apple HealthKit (iOS) and Google Health Connect
+/// (Android). Unified by the `health` plugin.
+///
+/// Scope v1: one-way read of cardio workouts (run / bike / swim) into
+/// [CardioSession]s. Strength sessions from Health are ignored — the user
+/// logs strength in-app. Writes back to Health are deliberately out of
+/// scope for v1 but the permissions + entitlements are requested so a
+/// future "publish to Health" toggle is additive.
+///
+/// Peloton workouts reach YAWA4U through this service: on iOS they appear
+/// in Apple Health when the user pairs the Peloton app; on Android they
+/// appear in Health Connect. There's no Peloton-specific code path.
+///
+/// Idempotency: every imported session is stamped with the HealthKit /
+/// Health Connect workout UUID as `externalId`. Re-syncs check this via
+/// [SessionRepository.getByExternalId] before inserting. A "last synced
+/// at" cursor in SharedPreferences narrows each query to the delta since
+/// the previous run.
+class HealthSyncService {
+  HealthSyncService({
+    required SessionRepository sessionRepository,
+    required SharedPreferences prefs,
+    required AnalyticsService analytics,
+    Health? health,
+  }) : _sessionRepository = sessionRepository,
+       _prefs = prefs,
+       _analytics = analytics,
+       _health = health ?? Health();
+
+  static const String _kLastSyncKey = 'health_sync_last_run_at';
+  static const Duration _initialLookback = Duration(days: 30);
+
+  /// Data types we request read access to. Kept narrow — anything we
+  /// don't plan to consume in v1 is omitted to reduce the scope of the
+  /// permission prompt.
+  static const List<HealthDataType> _readTypes = [
+    HealthDataType.WORKOUT,
+    HealthDataType.HEART_RATE,
+    HealthDataType.DISTANCE_DELTA,
+    HealthDataType.ACTIVE_ENERGY_BURNED,
+  ];
+
+  static final List<HealthDataAccess> _readPermissions = List.filled(
+    _readTypes.length,
+    HealthDataAccess.READ,
+  );
+
+  static final Logger _log = Logger('HealthSyncService');
+
+  final SessionRepository _sessionRepository;
+  final SharedPreferences _prefs;
+  final AnalyticsService _analytics;
+  final Health _health;
+  final Uuid _uuid = const Uuid();
+
+  bool _configured = false;
+
+  /// Whether the `health` plugin can run at all on this platform. Web +
+  /// macOS / Windows / Linux return false — the Integrations screen uses
+  /// this to show an "unsupported platform" card.
+  bool get isSupported {
+    if (kIsWeb) return false;
+    return Platform.isIOS || Platform.isAndroid;
+  }
+
+  /// Platform-appropriate display name for the data store.
+  String get providerName {
+    if (!isSupported) return 'Health';
+    if (kIsWeb) return 'Health';
+    return Platform.isIOS ? 'Apple Health' : 'Health Connect';
+  }
+
+  Future<void> _ensureConfigured() async {
+    if (_configured) return;
+    await _health.configure();
+    _configured = true;
+  }
+
+  /// Current authorization status. Returns [HealthSyncStatus.unavailable]
+  /// on unsupported platforms so UI can render a single, consistent path.
+  Future<HealthSyncStatus> currentStatus() async {
+    if (!isSupported) return HealthSyncStatus.unavailable;
+    try {
+      await _ensureConfigured();
+      final granted = await _health.hasPermissions(
+        _readTypes,
+        permissions: _readPermissions,
+      );
+      if (granted == true) return HealthSyncStatus.ready;
+      return HealthSyncStatus.notAuthorized;
+    } catch (e, stack) {
+      Sentry.captureException(e, stackTrace: stack);
+      return HealthSyncStatus.notAuthorized;
+    }
+  }
+
+  /// Request read permissions. Returns true if every requested type is
+  /// authorized after the prompt. Logs an analytics event with the outcome
+  /// (no PII — just granted/denied).
+  Future<bool> requestPermissions() async {
+    if (!isSupported) return false;
+    try {
+      await _ensureConfigured();
+      final granted = await _health.requestAuthorization(
+        _readTypes,
+        permissions: _readPermissions,
+      );
+      await _analytics.logHealthPermissions(
+        provider: providerName,
+        granted: granted,
+      );
+      return granted;
+    } catch (e, stack) {
+      Sentry.captureException(e, stackTrace: stack);
+      return false;
+    }
+  }
+
+  /// Pull workouts from the health store and import any new ones as
+  /// [CardioSession]s. Narrowed by a persisted "last synced at" cursor; on
+  /// first run it looks back [_initialLookback].
+  Future<HealthSyncResult> syncNow() async {
+    if (!isSupported) {
+      return HealthSyncResult.errorOnly(
+        error: 'Health integration is not supported on this platform.',
+      );
+    }
+
+    await _analytics.logHealthSyncStarted(provider: providerName);
+
+    try {
+      await _ensureConfigured();
+      final status = await currentStatus();
+      if (status != HealthSyncStatus.ready) {
+        await _analytics.logHealthSyncFailed(
+          provider: providerName,
+          errorCategory: 'not_authorized',
+        );
+        return HealthSyncResult.errorOnly(
+          error: 'Health permissions are not granted.',
+        );
+      }
+
+      final now = DateTime.now();
+      final lastSyncMillis = _prefs.getInt(_kLastSyncKey);
+      final since = lastSyncMillis != null
+          ? DateTime.fromMillisecondsSinceEpoch(lastSyncMillis)
+          : now.subtract(_initialLookback);
+
+      final points = await _health.getHealthDataFromTypes(
+        types: const [HealthDataType.WORKOUT],
+        startTime: since,
+        endTime: now,
+      );
+
+      var imported = 0;
+      var duplicates = 0;
+      var unsupported = 0;
+      var failed = 0;
+
+      for (final p in points) {
+        final value = p.value;
+        if (value is! WorkoutHealthValue) continue;
+
+        final sport = _mapSport(value.workoutActivityType);
+        if (sport == null) {
+          unsupported++;
+          continue;
+        }
+
+        // Dedupe: if a session with this externalId already exists, skip.
+        final externalId = _externalIdFor(p);
+        final existing = await _sessionRepository.getByExternalId(externalId);
+        if (existing != null) {
+          duplicates++;
+          continue;
+        }
+
+        try {
+          final session = await _buildSession(
+            point: p,
+            value: value,
+            sport: sport,
+            externalId: externalId,
+            rangeStart: p.dateFrom,
+            rangeEnd: p.dateTo,
+          );
+          await _sessionRepository.createCardio(session);
+          imported++;
+        } catch (e, stack) {
+          Sentry.captureException(e, stackTrace: stack);
+          failed++;
+        }
+      }
+
+      await _prefs.setInt(_kLastSyncKey, now.millisecondsSinceEpoch);
+
+      await _analytics.logHealthSyncCompleted(
+        provider: providerName,
+        imported: imported,
+        duplicates: duplicates,
+        unsupported: unsupported,
+        failed: failed,
+      );
+
+      return HealthSyncResult(
+        imported: imported,
+        skippedDuplicate: duplicates,
+        skippedUnsupportedType: unsupported,
+        failed: failed,
+        syncedAt: now,
+      );
+    } catch (e, stack) {
+      Sentry.captureException(e, stackTrace: stack);
+      await _analytics.logHealthSyncFailed(
+        provider: providerName,
+        errorCategory: 'fetch_error',
+      );
+      return HealthSyncResult.errorOnly(error: e.toString());
+    }
+  }
+
+  /// Map the health-plugin [HealthWorkoutActivityType] enum onto our own
+  /// [Sport] enum. Matching by the enum's string name keeps us resilient
+  /// across minor plugin versions — HealthKit + Health Connect both
+  /// periodically add new specific sub-types (e.g. RUNNING_SAND,
+  /// BIKING_SPINNING) and we'd rather classify them broadly than fail
+  /// to compile when the plugin adds one we didn't list.
+  ///
+  /// Strength / weight-training activities intentionally return null —
+  /// the user logs strength in-app; importing them would create phantom
+  /// sessions with no exercise list.
+  Sport? _mapSport(HealthWorkoutActivityType type) {
+    final name = type.name.toUpperCase();
+    if (name.contains('RUNNING') ||
+        name == 'WALKING' ||
+        name == 'HIKING' ||
+        name == 'JOGGING') {
+      return Sport.run;
+    }
+    if (name.contains('BIKING') ||
+        name.contains('CYCLING') ||
+        name == 'SPINNING') {
+      return Sport.bike;
+    }
+    if (name.contains('SWIMMING') || name == 'SWIM') {
+      return Sport.swim;
+    }
+    return null;
+  }
+
+  /// Stable identifier for a workout that survives re-sync. The health
+  /// plugin exposes [HealthDataPoint.sourceId] and
+  /// [HealthDataPoint.uuid] on iOS; on Android it's the record's id. We
+  /// concatenate `source|uuid|start` as a defensive compound key so
+  /// identical records across sources don't collide.
+  String _externalIdFor(HealthDataPoint p) {
+    final parts = <String>[
+      'health',
+      p.sourceName,
+      p.sourceId,
+      p.uuid,
+      p.dateFrom.toIso8601String(),
+    ];
+    return parts.where((s) => s.isNotEmpty).join('|');
+  }
+
+  Future<CardioSession> _buildSession({
+    required HealthDataPoint point,
+    required WorkoutHealthValue value,
+    required Sport sport,
+    required String externalId,
+    required DateTime rangeStart,
+    required DateTime rangeEnd,
+  }) async {
+    final durationSec = rangeEnd.difference(rangeStart).inSeconds;
+
+    // Aggregate HR across this workout's window.
+    int? avgHr;
+    int? maxHr;
+    try {
+      final hrPoints = await _health.getHealthDataFromTypes(
+        types: const [HealthDataType.HEART_RATE],
+        startTime: rangeStart,
+        endTime: rangeEnd,
+      );
+      final numericBeats = <int>[];
+      for (final hp in hrPoints) {
+        final v = hp.value;
+        if (v is NumericHealthValue) {
+          final beats = v.numericValue.toInt();
+          if (beats > 0) numericBeats.add(beats);
+        }
+      }
+      if (numericBeats.isNotEmpty) {
+        numericBeats.sort();
+        avgHr = numericBeats.reduce((a, b) => a + b) ~/ numericBeats.length;
+        maxHr = numericBeats.last;
+      }
+    } catch (e, stack) {
+      // HR is a bonus — don't fail the import on a HR-sub-query error.
+      _log.fine('HR aggregation failed: $e', e, stack);
+    }
+
+    final detail = CardioDetail(
+      actualDurationSec: durationSec > 0 ? durationSec : null,
+      // health 13.x exposes totalDistance as an int (same underlying
+      // meters value); our CardioDetail stores it as double for
+      // consistency with manually-entered distance.
+      actualDistanceM: value.totalDistance?.toDouble(),
+      averageHr: avgHr,
+      maxHr: maxHr,
+    );
+
+    final provider = !kIsWeb && Platform.isIOS
+        ? SessionSource.healthKit
+        : SessionSource.healthConnect;
+
+    return CardioSession(
+      id: _uuid.v4(),
+      trainingCycleId: null,
+      sport: sport,
+      source: provider,
+      status: WorkoutStatus.completed,
+      scheduledDate: rangeStart,
+      completedDate: rangeEnd,
+      startTime: rangeStart,
+      endTime: rangeEnd,
+      externalId: externalId,
+      detail: detail,
+    );
+  }
+
+  /// Timestamp of the last completed sync, for the Integrations screen.
+  DateTime? get lastSyncAt {
+    final ms = _prefs.getInt(_kLastSyncKey);
+    return ms == null ? null : DateTime.fromMillisecondsSinceEpoch(ms);
+  }
+
+  /// Reset the cursor so the next sync looks back over [_initialLookback].
+  Future<void> resetCursor() async {
+    await _prefs.remove(_kLastSyncKey);
+  }
+}

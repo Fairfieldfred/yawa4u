@@ -3,13 +3,20 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 import '../../../core/constants/enums.dart';
+import '../../../core/utils/user_errors.dart';
+import '../../../data/models/cardio_stats.dart';
 import '../../../data/models/stats_data.dart';
 import '../../../data/models/training_cycle.dart';
 import '../../../domain/providers/measurement_providers.dart';
+import '../../../domain/providers/onboarding_providers.dart';
 import '../../../domain/providers/stats_providers.dart';
 import '../../../domain/providers/training_cycle_providers.dart';
+import '../../widgets/cardio/weekly_summary_card.dart';
 import '../../widgets/responsive_content.dart';
 import '../../widgets/screen_background.dart';
+import '../../widgets/stats/cardio/sport_legend.dart';
+import '../../widgets/stats/cardio/sport_summary_tile.dart';
+import '../../widgets/stats/cardio/weekly_volume_chart.dart';
 import '../../widgets/stats/cycle_comparison_view.dart';
 import '../../widgets/stats/volume_bar_chart.dart';
 import '../../widgets/stats/volume_line_chart.dart';
@@ -32,7 +39,8 @@ class _StatsScreenState extends ConsumerState<StatsScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    // v5: added Cardio tab after Overview. Compare + Body stay in place.
+    _tabController = TabController(length: 4, vsync: this);
   }
 
   @override
@@ -77,8 +85,10 @@ class _StatsScreenState extends ConsumerState<StatsScreen>
           title: const Text('Statistics'),
           bottom: TabBar(
             controller: _tabController,
+            isScrollable: true,
             tabs: const [
               Tab(text: 'Overview'),
+              Tab(text: 'Cardio'),
               Tab(text: 'Compare'),
               Tab(text: 'Body'),
             ],
@@ -87,7 +97,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen>
         body: TabBarView(
           controller: _tabController,
           children: [
-            // Tab 1: Overview (existing content)
+            // Tab 1: Overview (existing strength content — unchanged)
             Column(
               children: [
                 if (cycleList.isNotEmpty)
@@ -106,20 +116,175 @@ class _StatsScreenState extends ConsumerState<StatsScreen>
                     error: (error, stack) {
                       Sentry.captureException(error, stackTrace: stack);
                       return Center(
-                        child: Text('Error loading stats: $error'),
+                        child: Padding(
+                          padding: const EdgeInsets.all(24),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.error_outline,
+                                size: 48,
+                                color: Theme.of(context).colorScheme.error,
+                              ),
+                              const SizedBox(height: 12),
+                              Text(
+                                UserErrors.describe(
+                                  error,
+                                  context: 'load stats',
+                                ),
+                                textAlign: TextAlign.center,
+                                style: Theme.of(context).textTheme.bodyMedium,
+                              ),
+                              const SizedBox(height: 16),
+                              FilledButton.icon(
+                                onPressed: () {
+                                  if (effectiveCycleId != null) {
+                                    ref.invalidate(
+                                      cycleStatsProvider(effectiveCycleId),
+                                    );
+                                  } else {
+                                    ref.invalidate(lifetimeStatsProvider);
+                                  }
+                                },
+                                icon: const Icon(Icons.refresh),
+                                label: const Text('Retry'),
+                              ),
+                            ],
+                          ),
+                        ),
                       );
                     },
                   ),
                 ),
               ],
             ),
-            // Tab 2: Compare
+            // Tab 2: Cardio (v5)
+            _buildCardioTab(),
+            // Tab 3: Compare
             CycleComparisonView(availableCycles: cycleList),
-            // Tab 3: Body Metrics
+            // Tab 4: Body Metrics
             _buildBodyMetricsTab(),
           ],
         ),
       ),
+    );
+  }
+
+  /// v5 Cardio tab. Weekly volume (stacked bars, last 12 weeks) +
+  /// per-sport summary tiles. Empty state for users with no cardio logged.
+  Widget _buildCardioTab() {
+    final stats = ref.watch(cardioStatsProvider);
+    final recentWeeks = ref.watch(recentCardioWeeksProvider(12));
+    final onboarding = ref.watch(onboardingServiceProvider);
+
+    if (stats.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.directions_run,
+              size: 64,
+              color: Theme.of(
+                context,
+              ).colorScheme.primary.withValues(alpha: 0.5),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'No cardio logged yet',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 8),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Text(
+                'Log a run, bike, or swim from the More tab — stats will '
+                'show up here once you have a session or two on record.',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.6),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    final sportsWithData = stats.perSport.keys.toList()
+      ..sort((a, b) => a.index.compareTo(b.index));
+
+    return ResponsiveContent(
+      child: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          _buildSectionHeader(context, 'Weekly volume — last 12 weeks'),
+          const SizedBox(height: 12),
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                children: [
+                  WeeklyVolumeChart(weeks: recentWeeks),
+                  const SizedBox(height: 8),
+                  SportLegend(include: sportsWithData),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 20),
+          _buildSectionHeader(context, 'By sport'),
+          const SizedBox(height: 12),
+          for (final sport in sportsWithData) ...[
+            SportSummaryTile(
+              aggregate: stats.perSport[sport]!,
+              units: onboarding.unitsFor(sport),
+            ),
+            const SizedBox(height: 8),
+          ],
+          const SizedBox(height: 20),
+          _buildSectionHeader(context, 'Lifetime totals'),
+          const SizedBox(height: 12),
+          _buildCardioLifetimeRow(context, stats),
+          const SizedBox(height: 24),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCardioLifetimeRow(BuildContext context, CardioStats stats) {
+    final totalHours = (stats.totalDurationSec / 3600).toStringAsFixed(1);
+    return Row(
+      children: [
+        Expanded(
+          child: _buildSummaryCard(
+            context,
+            'Sessions',
+            '${stats.totalSessions}',
+            Icons.directions_run,
+          ),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: _buildSummaryCard(
+            context,
+            'Hours',
+            totalHours,
+            Icons.timer_outlined,
+          ),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: _buildSummaryCard(
+            context,
+            'Completed',
+            '${stats.completedSessions}',
+            Icons.check_circle_outline,
+          ),
+        ),
+      ],
     );
   }
 
@@ -320,6 +485,12 @@ class _StatsScreenState extends ConsumerState<StatsScreen>
       child: ListView(
       padding: const EdgeInsets.all(16),
       children: [
+        // v5 — weekly summary across all sports at the top of Overview.
+        // Auto-collapses to a soft empty state for strength-only users,
+        // so it's never visual clutter.
+        const WeeklySummaryCard(),
+        const SizedBox(height: 12),
+
         // Summary cards
         _buildSummaryRow(context, stats),
         const SizedBox(height: 24),
