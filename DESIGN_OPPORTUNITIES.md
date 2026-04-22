@@ -8,56 +8,147 @@ Author: Claude, 2026-04-22. Grounded in a read of the post-Phase-6 codebase.
 
 ## A. Home screen redesign — "today's plan"
 
+**Status:** decisions locked in 2026-04-23 based on Fred's direction. Approach is a single unified vertical scroll of session cards (strength + cardio as siblings), with a pinned sport-grid footer for adding sessions. No "stack of distinct cards" (earlier A2 proposal), no weekly-summary inline (deferred to its own placement later). Cardio cards mirror the visual rhythm of existing strength exercise cards.
+
 ### The problem
 
 The Workout tab is still shaped by the strength-only world that predates the multi-sport expansion. You land on it, and it answers one question: "what's my next lifting workout inside the active cycle?" That was fine when strength was the only sport. Post-v5, a user who installs YAWA4U to track runs and occasionally lift gets a screen that can't represent their training — cardio is reachable only via a button in the AppBar.
 
-The reframe worth considering: make the Workout tab a "today" surface that gathers everything the user might act on this morning. Today's planned sessions regardless of sport, yesterday's imported HealthKit activity that hasn't been acknowledged yet, this week's volume at a glance, and a next-step when there's nothing scheduled. The workout viewer stops being the main surface and becomes one card among several — the one you drill into when you tap "start today's strength session."
+The reframe: make the Workout tab a "today" surface where every session the user might act on — strength or cardio, planned or completed, user-logged or imported — is a sibling card in one vertical scroll. Below the scroll, a pinned 2×2 grid of sport boxes makes adding a new session a single tap.
 
 ### Current state
 
-`WorkoutHomeScreen` in `lib/presentation/screens/workout/workout_screen.dart` is 2,258 lines. Its body is a `PageView` over a day sequence computed from the active cycle; each page renders `ExerciseCardWidget`s for that day's strength exercises. States it handles: no current cycle, cycle not started, cycle ended, active cycle with workouts, all workouts complete. Cardio is surfaced only through the AppBar's quick-log button.
+`WorkoutHomeScreen` in `lib/presentation/screens/workout/workout_screen.dart` is 2,258 lines. Its body is a `PageView` over a day sequence computed from the active cycle; each page renders `ExerciseCardWidget`s for that day's strength exercises. Cardio is surfaced only through the AppBar's quick-log button.
 
-The data infrastructure for a "today" view is mostly already there. `sessionsProvider` emits all sessions polymorphically. `thisWeekVolumeProvider` and `thisWeekStrengthCountProvider` aggregate the weekly view. `WeeklySummaryCard` exists, rendered today only on the cycle list screen. There's no `todaysSessionsProvider` yet, but it's a one-liner derived from `sessionsInDateRangeProvider` with today's bounds.
+The data infrastructure is in place. `sessionsByTrainingCycleProvider(cycleId)` emits all sessions polymorphically; `sessionsInDateRangeProvider` scopes by date. `ExerciseCardWidget` exists; a `CardioSessionCardWidget` does not yet. `SportPickerSheet` exists as a modal; an inline grid widget does not.
 
-### Options
+### Locked-in design
 
-**A1 — Minimum: add a weekly summary header on top of the existing Workout tab.** Embed `WeeklySummaryCard` above the PageView. User still sees today's strength workout as the primary content; the week summary gives cardio visibility as secondary context. Shipping cost: a day.
+**Card list.** Today's sessions render as a vertical scroll of cards. Each `StrengthSession`'s exercises render as the current `ExerciseCardWidget`, one card per exercise. Each `CardioSession` renders as a new `CardioSessionCard` with matching outer shape (rounded-12 radius, same padding, same shadow) so the scroll reads as siblings. Cardio card internals diverge because the data diverges — see below.
 
-**A2 — Middle: stack cards.** Replace the PageView-as-whole-page with a scrollable column of cards: "today's plan" card (the current PageView, compressed), "recent imports" card (HealthKit activity not yet acknowledged), "this week" card (WeeklySummaryCard), and a "create cycle" CTA when there's no active cycle. The day-navigation carousel stays inside the "today's plan" card. Shipping cost: 2-3 focused sessions.
+**Card order.** Sorted by performed order (completed-first using `completedDate`, then in-progress, then planned by `scheduledDate`/creation order). Users can reorder via the existing move-up / move-down affordances that strength already exposes; drag-to-reorder is the P2 #14 item from the UX review and extends naturally to cardio cards when it lands.
 
-**A3 — Full rethink: today/upcoming/past tabs.** Turn the Workout tab into a three-tab surface. "Today" shows everything scheduled for the current day. "Upcoming" shows the next N days with a calendar-style timeline. "Recent" shows the past week including imports. Each item is a card that drills into its own detail view (strength session, cardio session, or acknowledged-import). Shipping cost: multi-week.
+**Sport grid.** Pinned at the bottom of the scroll as a floating footer with a "ADD SESSION" header strip and four icon-labelled boxes: Lift, Run, Bike, Swim. Tapping:
 
-### Recommendation
+- **Lift** → existing Add Exercise flow (`AddExerciseScreen`). If the current training day has no `StrengthSession` yet, the grid creates one before navigating so the exercise has a parent to attach to.
+- **Run / Bike / Swim** → `/cardio-session/new?sport=<sport>` with current `trainingCycleId`, `periodNumber`, `dayNumber` pre-filled.
 
-**A2 (stack cards).** A1 is too small a lever — it improves discoverability but doesn't change the mental model. A3 is attractive in principle but it's a second app inside YAWA4U and the payoff isn't proportional to the risk at this stage. A2 keeps the existing day-navigation affordances that users already know (don't force relearning), while recomposing the Workout tab so cardio, strength, and imports are all first-class.
+**Empty day.** When the current day has zero sessions, the 2×2 grid becomes the full screen content (bigger tap targets, centered), replacing the empty-state illustration that's there now. Adding a session converts the day to populated state and the grid returns to its pinned footer form.
 
-A2 also lets us incrementally land A3's pieces later. "Today's plan" card can grow a sport-switcher. "Recent imports" card can become the start of a HealthKit acknowledgement flow. "This week" card can link to a fuller weekly view.
+### Card structure
+
+Same outer card (rounded-12, 16px padding, shadow-2) across types. Same header slot (icon tag + title + ⋮ menu). Same two-slot footer (primary action left, secondary action right). Internals vary.
+
+**Strength exercise card** (existing, for reference):
+
+```
+┌──────────────────────────────────────────────┐
+│ 💪 Chest · Bench Press                 ⋮    │
+├──────────────────────────────────────────────┤
+│ Set 1   225 lb × 8      ✓ logged            │
+│ Set 2   225 lb × 8      ✓ logged            │
+│ Set 3   225 lb × 6      ○                   │
+│ [+ Add set]                                 │
+├──────────────────────────────────────────────┤
+│ 📝 Notes        😊 Feedback                  │
+└──────────────────────────────────────────────┘
+```
+
+**Cardio card — planned / not yet done:**
+
+```
+┌──────────────────────────────────────────────┐
+│ 🏃 Run · Tempo run                     ⋮    │
+├──────────────────────────────────────────────┤
+│ TARGET                                       │
+│ 5.0 km · 30 min · Zone 3                    │
+│                                              │
+│ ⏱ 4 intervals                          ▼    │
+├──────────────────────────────────────────────┤
+│ [ Log session ]             📝 Notes         │
+└──────────────────────────────────────────────┘
+```
+
+Fields shown: sport icon + session label, target line (distance / duration / zone target if any), interval count with expand chevron. Primary button: "Log session" (opens `/cardio-session/:id` in edit mode with plan fields pre-filled).
+
+**Cardio card — completed, imported (Strava / Apple Health):**
+
+```
+┌──────────────────────────────────────────────┐
+│ 🏃 Run · Morning loop                  ⋮    │
+│   🟠 Strava                                  │
+├──────────────────────────────────────────────┤
+│ 5.2 km       31:14       6:00 /km           │
+│ ▲ 45 m       avg 155 bpm     max 172        │
+├──────────────────────────────────────────────┤
+│ ✓ Completed              [ Add feedback ]    │
+└──────────────────────────────────────────────┘
+```
+
+Fields: sport icon + activity name, source badge (tucked under title for imports only), hero metrics row (distance / duration / pace or speed), secondary metrics row (elevation / HR). Primary: status, secondary: feedback.
+
+**Cardio card — swim variant:**
+
+```
+┌──────────────────────────────────────────────┐
+│ 🏊 Swim · Technique day                ⋮    │
+├──────────────────────────────────────────────┤
+│ 1,200 m · 30 laps                25 m pool  │
+│ 28:30        SWOLF 32        Freestyle      │
+├──────────────────────────────────────────────┤
+│ ✓ Completed              [ Add feedback ]    │
+└──────────────────────────────────────────────┘
+```
+
+Swim substitutes pool-specific fields (`poolLengthM`, `lapCount`, `swolf`, `strokeType`) for the run/bike pace/elevation fields.
+
+**Sport grid (pinned footer or empty-day full content):**
+
+```
+┌──────────────────────────────────────────────┐
+│ ADD SESSION                                  │
+├──────────────────────────────────────────────┤
+│  ┌──────────┐    ┌──────────┐               │
+│  │    🏋️    │    │    🏃    │               │
+│  │   Lift   │    │   Run    │               │
+│  └──────────┘    └──────────┘               │
+│  ┌──────────┐    ┌──────────┐               │
+│  │    🚴    │    │    🏊    │               │
+│  │   Bike   │    │   Swim   │               │
+│  └──────────┘    └──────────┘               │
+└──────────────────────────────────────────────┘
+```
+
+2×2 grid, each box ≥ 88×88px for comfortable tap targets. In empty-day mode, scales up to fill available space below the AppBar.
 
 ### Risks
 
-The PageView's text-field focus behaviour is delicate — the debounce-flush work in Phase 6/Session 1 proves it. Wrapping the PageView in a scrollable parent needs careful keyboard-dismiss and scroll-position handling, otherwise mid-workout taps bounce between the nested scroll and the outer scroll. Worth mocking up on device before committing.
+PageView text-field focus behaviour is delicate — the debounce-flush work in Phase 6/Session 1 proves it. Replacing the PageView with a `CustomScrollView` + slivers needs careful keyboard-dismiss and scroll-position handling, otherwise mid-workout taps bounce between nested scrolls. Worth mocking up on device before committing.
 
-The "recent imports" card depends on HealthKit sync state that the current tree tracks loosely. Might need a provider that flags "unseen" imports explicitly — either a last-acked-timestamp on the user profile or an `acknowledgedAt` column on the session.
+The pinned sport-grid footer competes with the iOS keyboard for screen space. When a text field (weight / reps / cardio actual) is focused, the grid should hide behind the keyboard rather than push content up. `Scaffold.resizeToAvoidBottomInset: false` on the Workout tab plus an explicit `MediaQuery.viewInsets` check in the grid widget handles this.
+
+Cardio card heights vary by data availability — a bare user-logged session has less to show than a Strava import with HR + power + elevation. Constrain visual height via a 3-line-max body; overflow metrics go behind the ⋮ menu "Details" item.
 
 ### Implementable chunks
 
-1. Add `todaysSessionsProvider` (1 function, re-uses `sessionsInDateRangeProvider`).
-2. Move the existing PageView into a widget (`TodayStrengthCard` or similar), no behaviour change.
-3. Wrap `WorkoutHomeScreen` in a `CustomScrollView` with slivers for each card; initial pass renders just the strength card so it's a visual no-op.
-4. Add the WeeklySummaryCard sliver above the strength card.
-5. Add the "recent imports" provider + card — this is where the HealthKit acknowledgement work lives.
-6. Empty-state: when there's no active cycle, surface a "create cycle" card and the week summary instead of the current empty view.
+1. Add `todaysSessionsProvider` — derived from `sessionsInDateRangeProvider(todayStart, todayEnd)`, filtered to the current cycle.
+2. Build `CardioSessionCard` widget with three state branches (planned / completed user-logged / completed imported) and the swim-specific field swap.
+3. Build `SportGrid` widget — stateless 2×2 with callback for each box; handles the "Lift" branch's auto-create-StrengthSession-if-missing logic by reading/writing through `SessionRepository`.
+4. Replace the `PageView`-based day view with a `CustomScrollView` whose slivers are: the existing day navigation chrome, a `SliverList` of session cards (strength + cardio interleaved by performed order), and a pinned `SliverFillRemaining` footer holding `SportGrid`.
+5. Empty-day state: swap in `SportGrid` as the whole body instead of the current empty illustration.
+6. Wire the grid's "Lift" box to ensure a `StrengthSession` exists for the current `(cycleId, period, day)` before pushing to `AddExerciseScreen`; the cardio branches push to `/cardio-session/new?sport=...` with period/day params.
 
 ---
 
 ## B. Persistent quick-log affordance
 
+**Status:** scoped down 2026-04-23. The Workout tab's quick-log is now handled by the pinned sport grid from Section A — no AppBar ⊕ needed there. B applies only to the *other* top-level tabs (Stats, Cycle list, Exercises, Calendar) where the grid isn't visible.
+
 ### The problem
 
-Logging a cardio session today requires being on the Workout tab. If you're looking at Stats, Exercises, the Calendar, or the More menu, you have to navigate back to Workout to log a run. This is minor friction but it's the kind of friction that compounds into "I'll log it later" and then never.
+Logging a cardio session from anywhere outside the Workout tab still requires navigating back to Workout first. If the user is looking at Stats or reviewing the Calendar and decides to log a just-finished run, the friction of switching tabs to find the grid compounds into "I'll log it later."
 
-The reframe: make starting a session a first-class action available from every screen, the same way Strava, TrainingPeaks, and Garmin Connect do with a persistent ⊕ button.
+The reframe: put the quick-log action in every top-level tab's AppBar so starting a session is never more than one tap away. Strava, TrainingPeaks, and Garmin Connect all ship some variant of this.
 
 ### Current state
 
@@ -150,17 +241,37 @@ The three opportunities share one latent question: **how much does YAWA4U want t
 
 Worth knowing which design direction feels right before building any of them. A reasonable sequencing if you do commit: **B first (cheapest, immediate user win), then C (visual identity), then A (the biggest restructure)**. B and C together reshape perception; A then delivers the payoff when the user lands on the Workout tab and it finally feels like one app for all their training.
 
-## Open questions to converge on before any code
+## All decisions locked in (final pass 2026-04-23)
 
-1. **Primary icon.** For the quick-log action (B), stick with the current `directions_run`, switch to a generic `add`, or use a sport-aware adaptive icon (strength vs. run based on cycle context)?
+### Section A — Home screen redesign
 
-2. **Empty cycle.** What should the Workout tab look like when there is no active cycle AND there is no session scheduled today AND there's nothing to acknowledge from HealthKit? Review said "create a cycle" CTA — should it also suggest one-off session logging?
+- **Workout tab shape** — unified card scroll, not stacked distinct cards.
+- **Card rhythm** — strength and cardio cards share outer shape / header slot / footer slot. See card structure sketches above.
+- **Sport grid visibility** — pinned footer when the day has content; whole-body 2×2 when the day is empty.
+- **Card ordering** — performed order (completed first, then in-progress, then planned), with existing move-up/down affordances retained.
+- **Weightlift grid box** — auto-creates a `StrengthSession` for the current day if one doesn't exist, then pushes to `AddExerciseScreen`.
+- **Empty-cycle day** — the 2×2 grid IS the empty-state. No separate "no sessions" illustration; the grid itself communicates "tap to start something."
+- **HealthKit / Strava imports** — land as `WorkoutStatus.completed` and render as regular cardio cards with a source badge under the title. No separate acknowledgement UI. The "recent imports" sliver from the earlier A2 proposal is retired — imports flow directly into the today-card scroll.
 
-3. **Multi-sport cycle identity.** For the sport distribution ribbon (C), should the segment colors match the sport accent colors (from `Sport.color`) or a dedicated cycle palette? The former is simpler; the latter lets a designer tune specifically for this surface.
+### Section B — Persistent quick-log
 
-4. **HealthKit ack model.** Do imported activities need an explicit acknowledgement step, or do they just appear in the session list as already-logged? This affects A5-6 and the "recent imports" card.
+- **Scope** — applies only to Stats, Cycle list, Exercises, Calendar. The Workout tab is handled by the sport grid.
+- **Icon** — generic `add_circle_outline` with tooltip "Log session". Sport picker sheet disambiguates on tap. `directions_run` on the Workout tab AppBar stays as-is for continuity.
 
-5. **Order of execution.** Does B-then-C-then-A feel right, or does one of these feel more urgent than the others?
+### Section C — Sport distribution ribbon
+
+- **Colors** — reuse `Sport.color`. Shared color vocabulary with session cards, stats charts, and calendar dots keeps the user's mental model compressed: one hue per sport, used everywhere.
+
+### Execution order
+
+**A → C → B.**
+
+Rationale: A is the biggest-leverage change and is now fully designed. Doing A first transforms what the user sees every day and reshapes B's value (the Workout tab's sport grid reduces the need for a quick-log button there). C carries the multi-sport identity through to the Training Cycles tile list, reinforcing what A just established. B closes the loop with discoverability on secondary surfaces.
+
+Rough effort:
+- **A:** 3–4 focused sessions. New `todaysSessionsProvider`, `CardioSessionCard` widget, `SportGrid` widget, `CustomScrollView` rewrite of `WorkoutHomeScreen`, empty-state swap, Lift-box auto-create logic.
+- **C:** ~1 focused session. `cycleSessionDistribution` provider, `SportDistributionRibbon` widget, `_buildTrainingCycleCard` swap, strength-only edge case.
+- **B:** ~half a session. Extract `QuickLogAction` widget, drop into 4 AppBars.
 
 ---
 
