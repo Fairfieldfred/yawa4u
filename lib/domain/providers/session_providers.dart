@@ -57,6 +57,45 @@ final sessionsInDateRangeProvider = StreamProvider.autoDispose.family<
   return repo.watchByDateRange(range.start, range.end);
 });
 
+/// Computes the `[start, end]` bounds of the day containing [at], in
+/// local time. `start` is midnight at the beginning of the day, `end`
+/// is one microsecond before the next day's midnight (inclusive upper
+/// bound matches [SessionRepository.watchByDateRange]'s
+/// `isSmallerOrEqualValue` filter without letting tomorrow's midnight
+/// leak in).
+///
+/// Kept as a top-level function so chunk-1 unit tests can exercise the
+/// boundary behavior without standing up a real DB.
+({DateTime start, DateTime end}) dayRangeContaining(DateTime at) {
+  final start = DateTime(at.year, at.month, at.day);
+  final end = start
+      .add(const Duration(days: 1))
+      .subtract(const Duration(microseconds: 1));
+  return (start: start, end: end);
+}
+
+/// Sessions scheduled or performed today (local time), reactive.
+///
+/// Used by the Workout home screen's unified card list (Section A
+/// of DESIGN_OPPORTUNITIES.md). Deliberately NOT cycle-scoped —
+/// ad-hoc imports from HealthKit / Strava that land with
+/// `trainingCycleId: null` appear here too, so today's Peloton ride
+/// shows up alongside today's lifting session.
+///
+/// Recomputes `DateTime.now()` on each rebuild, so the range stays
+/// fresh while the widget tree is live. If the app is left open past
+/// local midnight without a rebuild trigger, the range stays on the
+/// previous day — callers relying on midnight rollover should
+/// `ref.invalidate(todaysSessionsProvider)` from an
+/// `AppLifecycleState.resumed` listener.
+final todaysSessionsProvider = StreamProvider.autoDispose<List<Session>>((
+  ref,
+) {
+  final repo = ref.watch(sessionRepositoryProvider);
+  final range = dayRangeContaining(DateTime.now());
+  return repo.watchByDateRange(range.start, range.end);
+});
+
 /// Single session by ID. Loads children (exercises / cardio detail /
 /// intervals) but not high-resolution samples. Prefer
 /// [sessionWithSamplesProvider] for detail screens that need GPS / HR

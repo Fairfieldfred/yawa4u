@@ -131,12 +131,15 @@ Cardio card heights vary by data availability — a bare user-logged session has
 
 ### Implementable chunks
 
-1. Add `todaysSessionsProvider` — derived from `sessionsInDateRangeProvider(todayStart, todayEnd)`, filtered to the current cycle.
+1. Add `todaysSessionsProvider` — derived from `sessionsInDateRangeProvider(todayStart, todayEnd)`, **no cycle filter** so imports are included.
 2. Build `CardioSessionCard` widget with three state branches (planned / completed user-logged / completed imported) and the swim-specific field swap.
 3. Build `SportGrid` widget — stateless 2×2 with callback for each box; handles the "Lift" branch's auto-create-StrengthSession-if-missing logic by reading/writing through `SessionRepository`.
 4. Replace the `PageView`-based day view with a `CustomScrollView` whose slivers are: the existing day navigation chrome, a `SliverList` of session cards (strength + cardio interleaved by performed order), and a pinned `SliverFillRemaining` footer holding `SportGrid`.
 5. Empty-day state: swap in `SportGrid` as the whole body instead of the current empty illustration.
 6. Wire the grid's "Lift" box to ensure a `StrengthSession` exists for the current `(cycleId, period, day)` before pushing to `AddExerciseScreen`; the cardio branches push to `/cardio-session/new?sport=...` with period/day params.
+7. **Calendar screen** — migrate `calendar_screen.dart` from its cycle-scoped provider to `sessionsInDateRangeProvider` so the day buckets include imports.
+8. **Calendar sport dots** — `calendar_sport_dots.dart` reads the same date-scoped provider so the per-day colored indicators reflect imported sessions alongside cycle-attached ones.
+9. **Exercises home screen day view** — extend `_WorkoutSessionView` in `exercises_screen.dart` to accept cardio sessions for the day alongside strength workouts. The inner PageView builds its page list as `[...strengthExercises, ...cardioSessionsForDay]`, ordered performed-then-planned. Cardio pages render a full-page `CardioSessionCard` variant (same fields as the compact card from chunk 2, but scaled up to fill the page — room for a larger metrics hero and optional future additions like HR-over-time charts from `SessionSample` data). Date-filter the sessions so imports appear here too.
 
 ---
 
@@ -252,6 +255,11 @@ Worth knowing which design direction feels right before building any of them. A 
 - **Weightlift grid box** — auto-creates a `StrengthSession` for the current day if one doesn't exist, then pushes to `AddExerciseScreen`.
 - **Empty-cycle day** — the 2×2 grid IS the empty-state. No separate "no sessions" illustration; the grid itself communicates "tap to start something."
 - **HealthKit / Strava imports** — land as `WorkoutStatus.completed` and render as regular cardio cards with a source badge under the title. No separate acknowledgement UI. The "recent imports" sliver from the earlier A2 proposal is retired — imports flow directly into the today-card scroll.
+- **Imports across every date-anchored view** — imports are `trainingCycleId: null` ad-hoc sessions, so any screen that currently filters by cycle misses them. All date-anchored views must switch to a date-filter (via `sessionsInDateRangeProvider`), not a cycle-filter, so imports appear wherever a cycle-attached session would for that date:
+  - **Calendar screen** — day buckets + per-day detail read by date.
+  - **Calendar sport dots** — the little sport-color indicators on each calendar day include imported sessions.
+  - **Workout home screen** — `todaysSessionsProvider` is defined against the date range, not the cycle; cycle-attached and ad-hoc sessions interleave.
+  - **Exercises home screen (`ExercisesHomeScreen`)** — the existing two-level swipe (outer day PageView, inner exercise PageView) extends so the inner PageView treats "unit for this day" as either a strength exercise OR a cardio session. Swiping left-right moves through strength exercises, then cardio sessions (imports + cycle-attached), ordered performed-then-planned. Cardio sessions render a full-page version of the `CardioSessionCard` with the same hero / sub-metrics / feedback treatment defined for Section A. Strength-exercise-level "previous performance" history stays strength-only because imports don't carry exercises.
 
 ### Section B — Persistent quick-log
 
