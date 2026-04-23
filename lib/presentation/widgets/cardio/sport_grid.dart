@@ -45,25 +45,37 @@ class SportGridCallbacks {
 ///     the only content when a day has no scheduled sessions.
 enum SportGridVariant { compact, expanded }
 
-/// Four-box sport-picker grid: Lift / Run / Bike / Swim.
+/// Sport-picker grid for adding a session.
 ///
 /// The primary "add a session today" affordance in the redesigned
 /// Workout tab — see Section A of DESIGN_OPPORTUNITIES.md. Pairs with
 /// [CardioSessionCard] to form the building blocks of the redesigned
 /// `WorkoutHomeScreen`.
+///
+/// Renders one box per entry in [sports]. When [sports] is null, the
+/// grid falls back to the canonical four — Lift / Run / Bike / Swim —
+/// so existing callers and tests don't need to be updated. Pass the
+/// user's `selectedSportsProvider` value to honour their onboarding /
+/// Settings choice.
 class SportGrid extends StatelessWidget {
   final SportGridCallbacks callbacks;
   final SportGridVariant variant;
+
+  /// The sports to render, in display order. Null = fall back to
+  /// [_defaultSports]. `Sport.other` is filtered out — there's no box
+  /// for it because it has no sport-specific logging flow.
+  final List<Sport>? sports;
 
   const SportGrid({
     super.key,
     this.callbacks = const SportGridCallbacks(),
     this.variant = SportGridVariant.compact,
+    this.sports,
   });
 
-  /// Fixed sport order: strength, run, bike, swim. Mirrors the four
+  /// Default sport order, used when [sports] is null. Mirrors the four
   /// boxes called out in the design doc and the card list.
-  static const _sportsInOrder = <Sport>[
+  static const _defaultSports = <Sport>[
     Sport.strength,
     Sport.run,
     Sport.bike,
@@ -75,30 +87,68 @@ class SportGrid extends StatelessWidget {
     final theme = Theme.of(context);
     final isExpanded = variant == SportGridVariant.expanded;
 
+    // Resolve which sports to render. Filter out `other` because the
+    // grid has no UI affordance for it (no _onLiftPressed / _onCardioPressed
+    // equivalent).
+    final visibleSports =
+        (sports ?? _defaultSports).where((s) => s != Sport.other).toList();
+
+    // Defensive fallback — if the caller passes an empty list (or only
+    // `Sport.other`), render nothing rather than an empty grid that
+    // would still consume the footer's vertical space.
+    if (visibleSports.isEmpty) return const SizedBox.shrink();
+
+    final count = visibleSports.length;
+
+    // Layout chosen by sport count so 1, 2, 3, or 4 sports each look
+    // intentional rather than like a missing-item bug:
+    //
+    //   compact (footer)         | expanded (empty day)
+    //   1 sport: 1×1, very wide  | 1×1, square
+    //   2 sports: 1×2            | 1×2
+    //   3 sports: 1×3            | 1×3
+    //   4 sports: 1×4            | 2×2
+    final crossAxisCount = isExpanded
+        ? (count >= 4 ? 2 : count)
+        : count;
+
+    // Aspect ratios: keep each box ≥ 48 px in both axes (Material
+    // touch-target minimum) and visually balanced for the count.
+    final compactAspect = switch (count) {
+      1 => 5.0,
+      2 => 2.6,
+      3 => 1.8,
+      _ => 1.4,
+    };
+    final expandedAspect = switch (count) {
+      1 => 1.6,
+      2 => 1.4,
+      3 => 1.2,
+      _ => 1.15,
+    };
+
     return Padding(
       padding: isExpanded
           ? const EdgeInsets.symmetric(horizontal: 24, vertical: 24)
-          : const EdgeInsets.fromLTRB(12, 10, 12, 16),
+          // Compact footer — minimal padding so the grid sits right
+          // above the iOS home indicator without consuming much
+          // vertical real estate.
+          : const EdgeInsets.fromLTRB(8, 6, 8, 6),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(
-            isExpanded ? 'Ready to train?' : 'ADD SESSION',
-            textAlign: isExpanded ? TextAlign.center : TextAlign.center,
-            style: isExpanded
-                ? theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  )
-                : theme.textTheme.labelSmall?.copyWith(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: 0.8,
-                    color:
-                        theme.colorScheme.onSurface.withValues(alpha: 0.55),
-                  ),
-          ),
+          // Header is shown only in the expanded (empty-day) variant.
+          // Compact footer drops it to keep total height tight — the
+          // icon-labelled boxes are self-explanatory.
           if (isExpanded) ...[
+            Text(
+              'Ready to train?',
+              textAlign: TextAlign.center,
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+            ),
             const SizedBox(height: 4),
             Text(
               'Pick a sport to add today\'s session.',
@@ -109,19 +159,16 @@ class SportGrid extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 24),
-          ] else
-            const SizedBox(height: 8),
+          ],
           GridView.count(
-            crossAxisCount: 2,
-            mainAxisSpacing: 8,
-            crossAxisSpacing: 8,
-            // Fixed aspect ratios keep the boxes tall enough to hit
-            // comfortably without blowing out the footer height.
-            childAspectRatio: isExpanded ? 1.15 : 2.4,
+            crossAxisCount: crossAxisCount,
+            mainAxisSpacing: isExpanded ? 8 : 6,
+            crossAxisSpacing: isExpanded ? 8 : 6,
+            childAspectRatio: isExpanded ? expandedAspect : compactAspect,
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             children: [
-              for (final sport in _sportsInOrder)
+              for (final sport in visibleSports)
                 _SportBox(
                   sport: sport,
                   variant: variant,
@@ -202,10 +249,14 @@ class _SportBox extends StatelessWidget {
           )
         : Row(
             mainAxisAlignment: MainAxisAlignment.center,
+            // Compact 1×4 boxes are narrow (~85 px on a typical phone);
+            // small spacer + flexible text keeps "Bike"/"Swim" from
+            // touching the icon while allowing graceful ellipsis on
+            // very narrow screens.
             children: [
               _icon(theme, expanded: false),
-              const SizedBox(width: 10),
-              _text(theme, expanded: false),
+              const SizedBox(width: 6),
+              Flexible(child: _text(theme, expanded: false)),
             ],
           );
 
@@ -236,14 +287,14 @@ class _SportBox extends StatelessWidget {
   }
 
   Widget _icon(ThemeData theme, {required bool expanded}) {
-    final size = expanded ? 48.0 : 32.0;
-    final iconSize = expanded ? 26.0 : 18.0;
+    final size = expanded ? 48.0 : 28.0;
+    final iconSize = expanded ? 26.0 : 16.0;
     return Container(
       width: size,
       height: size,
       decoration: BoxDecoration(
         color: sport.color.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(expanded ? 12 : 10),
+        borderRadius: BorderRadius.circular(expanded ? 12 : 8),
       ),
       child: Icon(sport.icon, size: iconSize, color: sport.color),
     );
@@ -252,13 +303,15 @@ class _SportBox extends StatelessWidget {
   Widget _text(ThemeData theme, {required bool expanded}) {
     return Text(
       _label,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
       style: expanded
           ? theme.textTheme.titleMedium?.copyWith(
               fontSize: 16,
               fontWeight: FontWeight.w600,
             )
           : theme.textTheme.titleMedium?.copyWith(
-              fontSize: 15,
+              fontSize: 13,
               fontWeight: FontWeight.w600,
             ),
     );

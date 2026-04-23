@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../core/constants/sports.dart';
 import '../../data/services/onboarding_service.dart';
 import 'database_providers.dart';
 
@@ -203,3 +204,34 @@ final selectedEquipmentProvider = Provider<List<String>>((ref) {
   final service = ref.watch(onboardingServiceProvider);
   return service.equipment;
 });
+
+/// Reactive holder for the user's chosen sports.
+///
+/// Reads the initial selection from [OnboardingService.selectedSports]
+/// (which itself defaults to `[Sport.strength]` when nothing is stored,
+/// covering pre-v5 users who never went through the sport-picker step).
+/// `setSports` writes through the service and updates state, so any
+/// widget watching [selectedSportsProvider] rebuilds when the user
+/// edits the selection from Settings.
+class SelectedSportsNotifier extends Notifier<List<Sport>> {
+  @override
+  List<Sport> build() {
+    return ref.watch(onboardingServiceProvider).selectedSports;
+  }
+
+  /// Persist [sports] and refresh state. Empty input is rejected (the
+  /// onboarding screen enforces the same rule — at least one sport
+  /// must stay selected so the SportGrid is never blank).
+  Future<void> setSports(List<Sport> sports) async {
+    if (sports.isEmpty) return;
+    final service = ref.read(onboardingServiceProvider);
+    await service.setSelectedSports(sports);
+    state = service.selectedSports;
+  }
+}
+
+/// Provider for the user's chosen sports — survives Settings edits.
+final selectedSportsProvider =
+    NotifierProvider<SelectedSportsNotifier, List<Sport>>(
+  SelectedSportsNotifier.new,
+);

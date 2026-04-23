@@ -3,9 +3,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../../core/constants/sports.dart';
 import '../../../core/theme/skins/skins.dart';
 import '../../../domain/providers/onboarding_providers.dart';
 import '../../widgets/available_equipment_filter.dart';
+import '../../widgets/cardio/sport_badge.dart';
 
 /// Training cycle terminology options
 enum TrainingCycleTerm {
@@ -736,8 +738,182 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             padding: const EdgeInsets.all(16),
             child: AvailableEquipmentFilter(compact: false, autoSave: true),
           ),
+          const Divider(height: 1),
+
+          // Sports I train — drives which boxes appear in the Workout
+          // tab's SportGrid. Mirrors the onboarding sport-picker so the
+          // user can change their mind later without re-onboarding.
+          const Padding(
+            padding: EdgeInsets.all(16),
+            child: _SportsSection(),
+          ),
           const SizedBox(height: 32),
         ],
+      ),
+    );
+  }
+}
+
+/// Settings → "Sports I train" multi-select.
+///
+/// Mirrors the onboarding sport-picker tile UI so the choice feels the
+/// same in both places. Auto-saves through `selectedSportsProvider` so
+/// the SportGrid on the Workout tab updates immediately. At least one
+/// sport must stay selected — the last tap on the only-selected sport
+/// is a no-op (matching onboarding's "you can't deselect everything"
+/// guard).
+class _SportsSection extends ConsumerWidget {
+  const _SportsSection();
+
+  static const _choices = [
+    Sport.strength,
+    Sport.run,
+    Sport.bike,
+    Sport.swim,
+  ];
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final selected = ref.watch(selectedSportsProvider);
+    final selectedSet = selected.toSet();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Sports I train',
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          'Pick the sports you want to log. The Workout tab\'s '
+          '"Add session" grid only shows these.',
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color:
+                    Theme.of(context).colorScheme.onSurface.withValues(
+                          alpha: 0.7,
+                        ),
+              ),
+        ),
+        const SizedBox(height: 12),
+        for (final sport in _choices)
+          _SportToggleTile(
+            sport: sport,
+            selected: selectedSet.contains(sport),
+            isLastSelected:
+                selectedSet.contains(sport) && selectedSet.length == 1,
+            onToggle: () async {
+              final next = selectedSet.contains(sport)
+                  // Deselect — but never go below 1 sport.
+                  ? (selectedSet.length == 1
+                      ? selectedSet
+                      : (selectedSet..remove(sport)))
+                  : (selectedSet..add(sport));
+              await ref
+                  .read(selectedSportsProvider.notifier)
+                  .setSports(next.toList());
+            },
+          ),
+      ],
+    );
+  }
+}
+
+class _SportToggleTile extends StatelessWidget {
+  const _SportToggleTile({
+    required this.sport,
+    required this.selected,
+    required this.isLastSelected,
+    required this.onToggle,
+  });
+
+  final Sport sport;
+  final bool selected;
+  final bool isLastSelected;
+  final VoidCallback onToggle;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = sport.color;
+    final border = selected ? color : Colors.transparent;
+    final bg = selected
+        ? color.withValues(alpha: 0.1)
+        : Theme.of(context).colorScheme.surfaceContainerHighest;
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Material(
+        color: bg,
+        borderRadius: BorderRadius.circular(14),
+        child: InkWell(
+          onTap: isLastSelected ? null : onToggle,
+          borderRadius: BorderRadius.circular(14),
+          child: Container(
+            padding:
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: border, width: 2),
+            ),
+            child: Row(
+              children: [
+                SportBadge(sport: sport, showLabel: false),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        sport.displayName,
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                              fontWeight: FontWeight.w600,
+                            ),
+                      ),
+                      if (isLastSelected)
+                        Text(
+                          'At least one sport is required.',
+                          style:
+                              Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurface
+                                        .withValues(alpha: 0.6),
+                                  ),
+                        ),
+                    ],
+                  ),
+                ),
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  width: 28,
+                  height: 28,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: selected ? color : Colors.transparent,
+                    border: Border.all(
+                      color: selected
+                          ? color
+                          : Theme.of(context)
+                              .colorScheme
+                              .outline
+                              .withValues(alpha: 0.5),
+                      width: 2,
+                    ),
+                  ),
+                  child: selected
+                      ? const Icon(
+                          Icons.check,
+                          size: 18,
+                          color: Colors.white,
+                        )
+                      : null,
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }

@@ -22,7 +22,7 @@ if (localPropertiesFile.exists()) {
 
 val flutterVersionName = localProperties.getProperty("flutter.versionName") ?: "1.0.6"
 val flutterVersionCode = localProperties.getProperty("flutter.versionCode")?.toInt() ?: 106
-val flutterMinSdkVersion = localProperties.getProperty("flutter.minSdkVersion")?.toInt() ?: 23
+val flutterMinSdkVersion = localProperties.getProperty("flutter.minSdkVersion")?.toInt() ?: 26
 val flutterTargetSdkVersion = localProperties.getProperty("flutter.targetSdkVersion")?.toInt() ?: 35
 
 val keystoreProperties = Properties()
@@ -55,12 +55,19 @@ android {
         versionName = flutterVersionName
     }
 
+    // Only create the release signing config when key.properties is
+    // present. On dev machines (and CI without secrets), the file is
+    // absent and any unconditional `as String` cast on a missing key
+    // throws "null cannot be cast to non-null type kotlin.String" at
+    // configure time — which would fail every build, including debug.
     signingConfigs {
-        create("release") {
-            keyAlias = keystoreProperties["keyAlias"] as String
-            keyPassword = keystoreProperties["keyPassword"] as String
-            storeFile = file(keystoreProperties["storeFile"] as String)
-            storePassword = keystoreProperties["storePassword"] as String
+        if (keystorePropertiesFile.exists()) {
+            create("release") {
+                keyAlias = keystoreProperties["keyAlias"] as String
+                keyPassword = keystoreProperties["keyPassword"] as String
+                storeFile = file(keystoreProperties["storeFile"] as String)
+                storePassword = keystoreProperties["storePassword"] as String
+            }
         }
     }
 
@@ -68,9 +75,15 @@ android {
         getByName("release") {
             isMinifyEnabled = false
             isShrinkResources = false
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("release")
+            // Use the real release signing config when available;
+            // otherwise fall back to debug keys so `flutter run` and
+            // `flutter run --release` work on machines that don't have
+            // the keystore set up.
+            signingConfig = if (keystorePropertiesFile.exists()) {
+                signingConfigs.getByName("release")
+            } else {
+                signingConfigs.getByName("debug")
+            }
         }
     }
 }

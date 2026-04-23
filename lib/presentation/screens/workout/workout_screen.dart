@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart' show ScrollDirection;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uuid/uuid.dart';
@@ -12,20 +13,24 @@ import '../../../data/database/app_database.dart' show ExerciseSetsCompanion;
 import '../../../data/database/daos/exercise_set_dao.dart' show ExerciseSetDao;
 import '../../../data/database/mappers/entity_mappers.dart' show ExerciseFeedbackMapper;
 import '../../../core/theme/skins/skins.dart';
-import '../../../core/utils/day_sequence.dart';
+import '../../../core/utils/session_order.dart';
 import '../../../data/models/exercise.dart';
 import '../../../data/models/exercise_set.dart';
+import '../../../data/models/session.dart';
 import '../../../data/models/workout.dart';
 import '../../../domain/controllers/workout_home_controller.dart';
 import '../../../domain/providers/database_providers.dart';
 import '../../../domain/providers/exercise_providers.dart';
 import '../../../domain/providers/onboarding_providers.dart';
 import '../../../domain/providers/rest_timer_provider.dart';
+import '../../../domain/providers/session_providers.dart';
 import '../../../domain/providers/theme_provider.dart';
 import '../../../domain/providers/training_cycle_providers.dart';
 import '../../../domain/providers/workout_providers.dart';
 import '../../widgets/app_icon_widget.dart';
 import '../../widgets/calendar_dropdown.dart';
+import '../../widgets/cardio/cardio_session_card.dart';
+import '../../widgets/cardio/sport_grid.dart';
 import '../../widgets/cycle_summary_dialog.dart';
 import '../../widgets/dialogs/add_exercise_dialog.dart';
 import '../../widgets/dialogs/exercise_feedback_dialog.dart';
@@ -34,7 +39,6 @@ import '../../widgets/dialogs/workout_dialogs.dart';
 import '../../widgets/exercise_card_widget.dart';
 import '../../widgets/rest_timer_widget.dart';
 import '../../widgets/screen_background.dart';
-import '../cardio/sport_picker_sheet.dart';
 import 'add_exercise_screen.dart';
 
 /// Workout home screen - shows current/upcoming workouts
@@ -47,12 +51,12 @@ class WorkoutHomeScreen extends ConsumerStatefulWidget {
 
 class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
   // ---------------------------------------------------------------------------
-  // PageView State for Swipe Navigation
+  // Scroll / keyboard state
   // ---------------------------------------------------------------------------
 
-  PageController? _pageController;
-  bool _isSwiping = false;
-  int? _lastSyncedPageIndex;
+  /// Tracks the last scroll direction so we only dismiss the keyboard
+  /// on a genuine scroll, not on rest-position notifications.
+  ScrollDirection _lastScrollDirection = ScrollDirection.idle;
 
   /// Per-field debounce timers for weight/reps saves.
   final Map<String, Timer> _debounceTimers = {};
@@ -116,7 +120,6 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
         timer.cancel();
       }
     }
-    _pageController?.dispose();
     super.dispose();
   }
 
@@ -145,6 +148,10 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     if (trainingCycle != null) {
       ref.invalidate(workoutsByTrainingCycleListProvider(trainingCycle.id));
       ref.invalidate(workoutsByTrainingCycleProvider(trainingCycle.id));
+      // v6 chunk A4 — the Workout tab now also watches the Session
+      // provider to pull in cardio sessions for the day. Invalidating
+      // here keeps the cardio cards in step with every strength write.
+      ref.invalidate(sessionsByTrainingCycleProvider(trainingCycle.id));
     }
   }
 
@@ -1158,34 +1165,6 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
 
       debugPrint('Display period: $displayPeriod, Display day: $displayDay');
 
-      // Build day sequence for swipe navigation
-      final daySequence = buildDaySequence(
-        currentTrainingCycle.periodsTotal,
-        currentTrainingCycle.daysPerPeriod,
-      );
-      final currentPageIndex =
-          findDayIndex(daySequence, displayPeriod, displayDay) ?? 0;
-
-      // Initialize or sync PageController
-      if (_pageController == null) {
-        _pageController = PageController(initialPage: currentPageIndex);
-        _lastSyncedPageIndex = currentPageIndex;
-      } else if (!_isSwiping &&
-          _pageController!.hasClients &&
-          _lastSyncedPageIndex != currentPageIndex) {
-        _lastSyncedPageIndex = currentPageIndex;
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (_pageController?.hasClients == true) {
-            _pageController!.animateToPage(
-              currentPageIndex,
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.easeInOut,
-            );
-          }
-        });
-      }
-      _isSwiping = false;
-
       // Get workouts for the currently displayed day (for AppBar/FINISH)
       final todaysWorkouts = allWorkouts
           .where(
@@ -1194,6 +1173,66 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                 w.dayNumber == displayDay,
           )
           .toList();
+
+      // Cardio sessions attached to this cycle, for the displayed day.
+      // Chunk 4 (Section A of DESIGN_OPPORTUNITIES.md) — strength and
+      // cardio render as siblings in the same scroll.
+      final cycleSessionsAsync = ref.watch(
+        sessionsByTrainingCycleProvider(currentTrainingCycle.id),
+      );
+      final cycleSessions = cycleSessionsAsync.value ?? const <Session>[];
+      final cycleCardioForDay = cycleSessions
+          .whereType<CardioSession>()
+          .where(
+            (s) =>
+                s.periodNumber == displayPeriod &&
+                s.dayNumber == displayDay,
+          )
+          .toList();
+
+      // Ad-hoc imports (HealthKit / Strava / Peloton) that landed today
+      // with no cycle attached. Included only when the user is viewing
+      // today's cycle day so imports show up in the right place without
+      // leaking onto other days' views.
+      final now = DateTime.now();
+      final daysSinceStart = currentTrainingCycle.startDate == null
+          ? null
+          : now
+              .difference(currentTrainingCycle.startDate!)
+              .inDays;
+      final todayPeriod = daysSinceStart == null
+          ? null
+          : (daysSinceStart ~/ currentTrainingCycle.daysPerPeriod) + 1;
+      final todayDay = daysSinceStart == null
+          ? null
+          : (daysSinceStart % currentTrainingCycle.daysPerPeriod) + 1;
+      final isViewingToday =
+          todayPeriod == displayPeriod && todayDay == displayDay;
+
+      final todaysSessionsAsync = ref.watch(todaysSessionsProvider);
+      final adHocImportsToday = !isViewingToday
+          ? const <CardioSession>[]
+          : (todaysSessionsAsync.value ?? const <Session>[])
+              .whereType<CardioSession>()
+              .where((s) => s.trainingCycleId == null)
+              .toList();
+
+      final dayCardioSessions = [
+        ...cycleCardioForDay,
+        ...adHocImportsToday,
+      ];
+
+      // Whether to show the "FINISH WORKOUT" button, same condition as
+      // before: strength workouts exist, not yet marked complete, but
+      // every set is logged or skipped.
+      final showFinishButton = todaysWorkouts.isNotEmpty &&
+          !todaysWorkouts.every((w) => w.isCompleted) &&
+          todaysWorkouts.every((w) => _isWorkoutComplete(w));
+
+      // The user's chosen sports drive which boxes appear in the
+      // SportGrid. Watching here means edits made in Settings rebuild
+      // the Workout tab automatically.
+      final selectedSports = ref.watch(selectedSportsProvider);
 
       // Compute day name for AppBar
       final dayName = calculateDayName(
@@ -1207,6 +1246,12 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
       return GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),
         child: Scaffold(
+          // v6 chunk A4 — keyboard covers the SportGrid + FINISH WORKOUT
+          // rather than pushing them up into the scroll area. The grid
+          // and finish button are already accessible with the keyboard
+          // dismissed; forcing a resize would push the user's active
+          // text field off-screen in a way that feels worse.
+          resizeToAvoidBottomInset: false,
           appBar: AppBar(
             elevation: 0,
             automaticallyImplyLeading: false,
@@ -1235,31 +1280,9 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
               ],
             ),
             actions: [
-              // v5 — quick-log cardio session. Opens the sport picker,
-              // then routes to a pre-filled cardio session screen. Keeps
-              // cardio discoverable from the primary workout surface.
-              IconButton(
-                icon: const Icon(Icons.directions_run),
-                tooltip: 'Log cardio session',
-                onPressed: () async {
-                  final sport = await SportPickerSheet.show(
-                    context,
-                    title: 'Log a cardio session',
-                    choices: const [Sport.run, Sport.bike, Sport.swim],
-                  );
-                  if (sport != null && context.mounted) {
-                    // Attach to the visible period/day so the cardio
-                    // banner in the edit screen picks it up.
-                    context.push(
-                      '/cardio-session/new'
-                      '?sport=${sport.name}'
-                      '&trainingCycleId=${currentTrainingCycle.id}'
-                      '&period=$displayPeriod'
-                      '&day=$displayDay',
-                    );
-                  }
-                },
-              ),
+              // v6 — quick-log cardio moved out of the AppBar into the
+              // pinned SportGrid footer. See Section A/B of
+              // DESIGN_OPPORTUNITIES.md.
               IconButton(
                 icon: const Icon(Icons.calendar_today),
                 onPressed: _togglePeriodSelector,
@@ -1293,29 +1316,50 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
           body: ScreenBackground.workout(
             child: Stack(
               children: [
-                // Swipeable day content
-                PageView.builder(
-                  controller: _pageController,
-                  itemCount: daySequence.length,
-                  onPageChanged: (index) {
-                    _isSwiping = true;
-                    FocusScope.of(context).unfocus();
-                    final pos = daySequence[index];
-                    _selectDay(pos.period, pos.day);
-                  },
-                  itemBuilder: (context, index) {
-                    final pos = daySequence[index];
-                    return _buildDayPageContent(
-                      context,
-                      currentTrainingCycle,
-                      allWorkouts,
-                      pos.period,
-                      pos.day,
-                    );
-                  },
+                // v6 chunk A4 — unified vertical scroll of session cards
+                // (strength exercises + cardio sessions as siblings),
+                // pinned SportGrid footer, and FINISH WORKOUT button
+                // below the grid when applicable.
+                //
+                // Empty-day mode: when the day has zero sessions, the
+                // full-screen expanded SportGrid IS the body — no
+                // compact footer, no separate empty illustration.
+                Positioned.fill(
+                  child: (todaysWorkouts.isEmpty &&
+                          dayCardioSessions.isEmpty)
+                      ? _buildEmptyDayBody(
+                          cycleId: currentTrainingCycle.id,
+                          period: displayPeriod,
+                          day: displayDay,
+                          sports: selectedSports,
+                        )
+                      : Column(
+                          children: [
+                            Expanded(
+                              child: _buildSessionScroll(
+                                context: context,
+                                trainingCycle: currentTrainingCycle,
+                                displayPeriod: displayPeriod,
+                                displayDay: displayDay,
+                                dayStrengthWorkouts: todaysWorkouts,
+                                dayCardioSessions: dayCardioSessions,
+                                sports: selectedSports,
+                              ),
+                            ),
+                            _buildSportGridFooter(
+                              cycleId: currentTrainingCycle.id,
+                              period: displayPeriod,
+                              day: displayDay,
+                              sports: selectedSports,
+                            ),
+                            if (showFinishButton)
+                              _buildFinishWorkoutBar(todaysWorkouts),
+                          ],
+                        ),
                 ),
 
-                // Calendar dropdown overlay
+                // Calendar dropdown overlay — stays in the Stack so it
+                // can render above the Column's pinned footer.
                 if (_homeState.showPeriodSelector) ...[
                   Positioned.fill(
                     child: GestureDetector(
@@ -1339,62 +1383,6 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                     ),
                   ),
                 ],
-
-                // FINISH WORKOUT button
-                if (todaysWorkouts.isNotEmpty &&
-                    !todaysWorkouts.every((w) => w.isCompleted) &&
-                    todaysWorkouts.every((w) => _isWorkoutComplete(w)))
-                  Positioned(
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    child: Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.surface,
-                        border: Border(
-                          top: BorderSide(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .onSurface
-                                .withValues(alpha: 0.1),
-                          ),
-                        ),
-                      ),
-                      child: SafeArea(
-                        top: false,
-                        child: Semantics(
-                          label: 'Finish workout',
-                          button: true,
-                          child: ElevatedButton(
-                            onPressed: () => _finishWorkout(todaysWorkouts),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: context.successColor,
-                              foregroundColor:
-                                  Theme.of(context).colorScheme.onPrimary,
-                              padding:
-                                  const EdgeInsets.symmetric(vertical: 16),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              elevation: 0,
-                            ),
-                            child: Text(
-                              'FINISH WORKOUT',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleMedium
-                                  ?.copyWith(
-                                fontWeight: FontWeight.w600,
-                                letterSpacing: 0.5,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
               ],
             ),
           ),
@@ -1410,90 +1398,87 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     );
   }
 
-  /// Build the content for a single day page in the PageView.
+  // ---------------------------------------------------------------------------
+  // v6 chunk A4 — new body structure
+  // ---------------------------------------------------------------------------
+
+  /// Build the scrollable portion of the Workout tab — strength exercises
+  /// and cardio sessions as siblings in a single vertical scroll.
   ///
-  /// Returns the exercise list if workouts exist for this day,
-  /// or an empty state with an "Add Exercise" button.
-  Widget _buildDayPageContent(
-    BuildContext context,
-    dynamic trainingCycle,
-    List<Workout> allWorkouts,
-    int period,
-    int day,
-  ) {
-    final dayWorkouts = allWorkouts
-        .where((w) => w.periodNumber == period && w.dayNumber == day)
-        .toList();
-
-    if (dayWorkouts.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.event_busy,
-              size: 80,
-              color: Theme.of(context)
-                  .colorScheme
-                  .primary
-                  .withValues(alpha: 0.5),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'No Exercises Scheduled',
-              style: Theme.of(context).textTheme.headlineSmall,
-            ),
-            const SizedBox(height: 8),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 32),
-              child: Text(
-                'No exercises found for Period $period, Day $day',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Theme.of(context)
-                      .colorScheme
-                      .onSurface
-                      .withValues(alpha: 0.7),
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ),
-            const SizedBox(height: 24),
-            FilledButton.icon(
-              onPressed: () => _addExerciseForDay(
-                trainingCycle.id,
-                period,
-                day,
-              ),
-              icon: const Icon(Icons.add),
-              label: const Text('Add Exercise'),
-            ),
-          ],
-        ),
-      );
-    }
-
-    // Collect all exercises from all workouts for this day
+  /// Empty-day mode: returns the expanded [SportGrid] filling the space
+  /// so the 2×2 grid IS the empty state (no separate illustration).
+  Widget _buildSessionScroll({
+    required BuildContext context,
+    required dynamic trainingCycle,
+    required int displayPeriod,
+    required int displayDay,
+    required List<Workout> dayStrengthWorkouts,
+    required List<CardioSession> dayCardioSessions,
+    required List<Sport> sports,
+  }) {
+    // Flatten strength exercises.
     final allExercises = <Exercise>[];
-    for (var workout in dayWorkouts) {
-      allExercises.addAll(workout.exercises);
+    for (final w in dayStrengthWorkouts) {
+      allExercises.addAll(w.exercises);
     }
 
-    if (allExercises.isEmpty) {
-      return Center(
-        child: Text(
-          'No exercises',
-          style: TextStyle(
-            color: Theme.of(context)
-                .colorScheme
-                .onSurface
-                .withValues(alpha: 0.5),
-          ),
-        ),
+    // Classify strength block (as a single sort unit) by its aggregate
+    // state — mirrors the bucket logic in sortByPerformedOrder.
+    final hasStrength = allExercises.isNotEmpty;
+    final strengthAllCompleted = hasStrength &&
+        dayStrengthWorkouts.every((w) => w.isCompleted);
+    final strengthAnyInProgress = hasStrength &&
+        !strengthAllCompleted &&
+        dayStrengthWorkouts.any(
+          (w) => w.exercises.any((e) => e.sets.any((s) => s.isLogged)),
+        );
+    final strengthBucket = strengthAllCompleted
+        ? 0
+        : (strengthAnyInProgress ? 1 : 2);
+
+    // Sort cardio sessions using the shared helper.
+    final sortedCardio =
+        sortByPerformedOrder(dayCardioSessions).cast<CardioSession>();
+
+    // Merge into render items by bucket. Within each bucket the cardio
+    // cards appear in performed order; strength (as a single block of
+    // exercise cards) slots in between once, at its bucket's natural
+    // sort position.
+    final renderOrder = <_RenderSlot>[];
+    bool strengthInserted = false;
+    final strengthSlot = _RenderSlot.strengthBlock();
+
+    for (final session in sortedCardio) {
+      final bucket = session.isCompleted
+          ? 0
+          : (session.startTime != null ? 1 : 2);
+      if (hasStrength &&
+          !strengthInserted &&
+          strengthBucket <= bucket) {
+        renderOrder.add(strengthSlot);
+        strengthInserted = true;
+      }
+      renderOrder.add(_RenderSlot.cardio(session));
+    }
+    if (hasStrength && !strengthInserted) {
+      renderOrder.add(strengthSlot);
+    }
+
+    // The empty-day case is normally handled by the parent
+    // (`_buildEmptyDayBody`). Fall back to the same widget here if we
+    // land with no slots — e.g. a Workout exists but has no exercises
+    // yet, so dayStrengthWorkouts.isNotEmpty but allExercises.isEmpty.
+    if (renderOrder.isEmpty) {
+      return _buildEmptyDayBody(
+        cycleId: trainingCycle.id as String,
+        period: displayPeriod,
+        day: displayDay,
+        sports: sports,
       );
     }
 
-    // Batch-fetch previous performance using a stable string key
-    // to avoid infinite rebuild loops from list identity changes.
+    // Batch-fetch previous performance for all strength exercises in
+    // this day. Stable key-by-name so the list identity is consistent.
     final batchKey = batchProviderKey(
       allExercises.map((e) => (id: e.id, name: e.name)).toList(),
     );
@@ -1501,97 +1486,360 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
       previousPerformanceBatchProvider(batchKey),
     );
     final batchMap = batchAsync.value ?? <String, Exercise?>{};
+    final periodRir =
+        calculateRIR(displayPeriod, trainingCycle.recoveryPeriod);
+    final useMetric = ref.watch(useMetricProvider);
+    final weightUnit = ref.watch(weightUnitProvider);
 
-    return Column(
-      children: [
-        RestTimerWidget(
+    // Build the sliver children list.
+    final slivers = <Widget>[
+      SliverToBoxAdapter(
+        child: RestTimerWidget(
           onTap: (exerciseId, workoutId) =>
               _setRestTimer(workoutId, exerciseId),
         ),
-        Expanded(
-          child: ListView.separated(
-      padding: const EdgeInsets.only(bottom: 80, top: 24),
-      itemCount: allExercises.length,
-      separatorBuilder: (context, index) {
-        final currentMuscleGroup = allExercises[index].muscleGroup;
-        final nextMuscleGroup = index + 1 < allExercises.length
-            ? allExercises[index + 1].muscleGroup
-            : null;
-        final isSameMuscleGroup = currentMuscleGroup == nextMuscleGroup;
+      ),
+      const SliverToBoxAdapter(child: SizedBox(height: 16)),
+    ];
 
-        return isSameMuscleGroup
-            ? Container(
-                height: 1,
-                color: Theme.of(context).dividerColor,
-              )
-            : const SizedBox(height: 32);
-      },
-      itemBuilder: (context, index) {
-        final exercise = allExercises[index];
-        final showMuscleGroupBadge = index == 0 ||
-            allExercises[index - 1].muscleGroup != exercise.muscleGroup;
+    for (var slotIndex = 0; slotIndex < renderOrder.length; slotIndex++) {
+      final slot = renderOrder[slotIndex];
+      final isLastSlot = slotIndex == renderOrder.length - 1;
 
-        final periodRir = calculateRIR(
-          period,
-          trainingCycle.recoveryPeriod,
-        );
+      if (slot.isStrength) {
+        // Strength block — render every exercise in order with the
+        // existing muscle-group separator logic.
+        slivers.add(
+          SliverList(
+            delegate: SliverChildBuilderDelegate(
+              (context, index) {
+                final exercise = allExercises[index];
+                final showMuscleGroupBadge = index == 0 ||
+                    allExercises[index - 1].muscleGroup !=
+                        exercise.muscleGroup;
+                final mergedExercise = _applyLocalEdits(exercise);
+                final card = RepaintBoundary(
+                  child: ExerciseCardWidget(
+                    key: ValueKey(
+                      '${exercise.id}_${exercise.sets.length}'
+                      '_${exercise.sets.map((s) => s.id).join(",")}',
+                    ),
+                    exercise: mergedExercise,
+                    showMuscleGroupBadge: showMuscleGroupBadge,
+                    targetRir: periodRir,
+                    weightUnit: weightUnit,
+                    useMetric: useMetric,
+                    showMoveDown: true,
+                    isFirstExercise: index == 0,
+                    isLastExercise: index == allExercises.length - 1,
+                    previousPerformance: batchMap[exercise.id],
+                    callbacks: ExerciseCardCallbacks(
+                      onAddNote: (id) =>
+                          _addNote(exercise.workoutId, id),
+                      onMoveUp: (id) =>
+                          _moveExerciseUp(exercise.workoutId, id),
+                      onMoveDown: (id) =>
+                          _moveExerciseDown(exercise.workoutId, id),
+                      onReplace: (id) =>
+                          _replaceExercise(exercise.workoutId, id),
+                      onJointPain: (id) =>
+                          _logJointPain(exercise.workoutId, id),
+                      onRestTimer: (id) =>
+                          _setRestTimer(exercise.workoutId, id),
+                      onAddSet: (id) =>
+                          _addSetToExercise(exercise.workoutId, id),
+                      onSkipSets: (id) =>
+                          _skipExerciseSets(exercise.workoutId, id),
+                      onDelete: (id) =>
+                          _deleteExercise(exercise.workoutId, id),
+                      onAddSetBelow: (i) => _addSetBelow(
+                        exercise.workoutId,
+                        exercise.id,
+                        i,
+                      ),
+                      onToggleSetSkip: (i) => _toggleSetSkip(
+                        exercise.workoutId,
+                        exercise.id,
+                        i,
+                      ),
+                      onDeleteSet: (i) => _deleteSet(
+                        exercise.workoutId,
+                        exercise.id,
+                        i,
+                      ),
+                      onUpdateSetType: (i, type) => _updateSetType(
+                        exercise.workoutId,
+                        exercise.id,
+                        i,
+                        type,
+                      ),
+                      onUpdateSetWeight: (i, setId, v) =>
+                          _updateSetWeight(setId, v),
+                      onUpdateSetReps: (i, setId, v) =>
+                          _updateSetReps(setId, v),
+                      onToggleSetLog: (i) => _toggleSetLog(
+                        exercise.workoutId,
+                        exercise.id,
+                        i,
+                      ),
+                    ),
+                  ),
+                );
 
-        final useMetric = ref.watch(useMetricProvider);
-
-        final mergedExercise = _applyLocalEdits(exercise);
-        return RepaintBoundary(
-          child: ExerciseCardWidget(
-          key: ValueKey(
-            '${exercise.id}_${exercise.sets.length}_${exercise.sets.map((s) => s.id).join(",")}',
+                // Separator between consecutive exercises — preserves
+                // the existing muscle-group logic (1px when same group,
+                // 32px gap when different).
+                if (index == allExercises.length - 1) return card;
+                final nextMuscle = allExercises[index + 1].muscleGroup;
+                final sameGroup = exercise.muscleGroup == nextMuscle;
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    card,
+                    if (sameGroup)
+                      Container(
+                        height: 1,
+                        color: Theme.of(context).dividerColor,
+                      )
+                    else
+                      const SizedBox(height: 32),
+                  ],
+                );
+              },
+              childCount: allExercises.length,
+            ),
           ),
-          exercise: mergedExercise,
-          showMuscleGroupBadge: showMuscleGroupBadge,
-          targetRir: periodRir,
-          weightUnit: ref.watch(weightUnitProvider),
-          useMetric: useMetric,
-          showMoveDown: true,
-          isFirstExercise: index == 0,
-          isLastExercise: index == allExercises.length - 1,
-          previousPerformance: batchMap[exercise.id],
-          callbacks: ExerciseCardCallbacks(
-            onAddNote: (id) => _addNote(exercise.workoutId, id),
-            onMoveUp: (id) => _moveExerciseUp(exercise.workoutId, id),
-            onMoveDown: (id) => _moveExerciseDown(exercise.workoutId, id),
-            onReplace: (id) => _replaceExercise(exercise.workoutId, id),
-            onJointPain: (id) => _logJointPain(exercise.workoutId, id),
-            onRestTimer: (id) => _setRestTimer(exercise.workoutId, id),
-            onAddSet: (id) =>
-                _addSetToExercise(exercise.workoutId, id),
-            onSkipSets: (id) =>
-                _skipExerciseSets(exercise.workoutId, id),
-            onDelete: (id) =>
-                _deleteExercise(exercise.workoutId, id),
-            onAddSetBelow: (i) => _addSetBelow(
-              exercise.workoutId, exercise.id, i,
+        );
+      } else {
+        // Cardio card.
+        final session = slot.cardio!;
+        slivers.add(
+          SliverToBoxAdapter(
+            child: CardioSessionCard(
+              key: ValueKey('cardio_${session.id}'),
+              session: session,
+              callbacks: CardioSessionCardCallbacks(
+                onPrimary: (id) => context.push('/cardio-session/$id'),
+                onAddFeedback: (id) => context.push('/cardio-session/$id'),
+                onAddNote: (id) => context.push('/cardio-session/$id'),
+                onViewIntervals: (id) =>
+                    context.push('/cardio-session/$id/intervals'),
+              ),
             ),
-            onToggleSetSkip: (i) => _toggleSetSkip(
-              exercise.workoutId, exercise.id, i,
+          ),
+        );
+      }
+
+      // Inter-slot spacer (except after the last slot).
+      if (!isLastSlot) {
+        slivers.add(
+          const SliverToBoxAdapter(child: SizedBox(height: 24)),
+        );
+      }
+    }
+
+    slivers.add(const SliverToBoxAdapter(child: SizedBox(height: 16)));
+
+    return NotificationListener<UserScrollNotification>(
+      onNotification: (notification) {
+        // Dismiss the keyboard when the user actively scrolls.
+        // Mirrors the PageView.onPageChanged unfocus behaviour from
+        // the previous implementation without firing on every
+        // incidental rest-position notification.
+        final direction = notification.direction;
+        if (direction != _lastScrollDirection &&
+            (direction == ScrollDirection.forward ||
+                direction == ScrollDirection.reverse)) {
+          FocusScope.of(context).unfocus();
+        }
+        _lastScrollDirection = direction;
+        return false;
+      },
+      child: CustomScrollView(
+        slivers: slivers,
+      ),
+    );
+  }
+
+  /// Build the empty-day body — the expanded SportGrid filling the
+  /// available space so the grid itself IS the empty state. Per Section
+  /// A of `DESIGN_OPPORTUNITIES.md`: no separate illustration; the grid
+  /// communicates "tap to start something" on its own.
+  ///
+  /// [sports] is the user's onboarding/Settings selection — empty list
+  /// means we'll fall back to all four (defensive — in practice the
+  /// provider returns at least `[Sport.strength]`).
+  Widget _buildEmptyDayBody({
+    required String cycleId,
+    required int period,
+    required int day,
+    required List<Sport> sports,
+  }) {
+    return SafeArea(
+      top: false,
+      child: Center(
+        child: SportGrid(
+          variant: SportGridVariant.expanded,
+          sports: sports.isEmpty ? null : sports,
+          callbacks: SportGridCallbacks(
+            onLift: () => _onLiftPressed(cycleId, period, day),
+            onRun: () => _onCardioPressed(Sport.run, cycleId, period, day),
+            onBike: () =>
+                _onCardioPressed(Sport.bike, cycleId, period, day),
+            onSwim: () =>
+                _onCardioPressed(Sport.swim, cycleId, period, day),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Build the pinned sport grid that sits below the session scroll.
+  ///
+  /// Primary "add a session today" affordance in the redesigned Workout
+  /// tab — see Section A of DESIGN_OPPORTUNITIES.md. Renders only the
+  /// sports the user opted into via onboarding / Settings.
+  Widget _buildSportGridFooter({
+    required String cycleId,
+    required int period,
+    required int day,
+    required List<Sport> sports,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        border: Border(
+          top: BorderSide(
+            color: Theme.of(context)
+                .colorScheme
+                .onSurface
+                .withValues(alpha: 0.08),
+          ),
+        ),
+      ),
+      child: SafeArea(
+        top: false,
+        child: SportGrid(
+          sports: sports.isEmpty ? null : sports,
+          callbacks: SportGridCallbacks(
+            onLift: () => _onLiftPressed(cycleId, period, day),
+            onRun: () => _onCardioPressed(Sport.run, cycleId, period, day),
+            onBike: () =>
+                _onCardioPressed(Sport.bike, cycleId, period, day),
+            onSwim: () =>
+                _onCardioPressed(Sport.swim, cycleId, period, day),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Build the FINISH WORKOUT button that sits BELOW the SportGrid
+  /// (per the locked-in design decision — the grid never lifts above
+  /// the button). Visibility is driven upstream by [build]; this
+  /// widget just produces the bar itself.
+  Widget _buildFinishWorkoutBar(List<Workout> todaysWorkouts) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        border: Border(
+          top: BorderSide(
+            color:
+                Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
+          ),
+        ),
+      ),
+      child: SafeArea(
+        top: false,
+        child: Semantics(
+          label: 'Finish workout',
+          button: true,
+          child: ElevatedButton(
+            onPressed: () => _finishWorkout(todaysWorkouts),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: context.successColor,
+              foregroundColor: Theme.of(context).colorScheme.onPrimary,
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              elevation: 0,
             ),
-            onDeleteSet: (i) => _deleteSet(
-              exercise.workoutId, exercise.id, i,
-            ),
-            onUpdateSetType: (i, type) => _updateSetType(
-              exercise.workoutId, exercise.id, i, type,
-            ),
-            onUpdateSetWeight: (i, setId, v) =>
-                _updateSetWeight(setId, v),
-            onUpdateSetReps: (i, setId, v) =>
-                _updateSetReps(setId, v),
-            onToggleSetLog: (i) => _toggleSetLog(
-              exercise.workoutId, exercise.id, i,
+            child: Text(
+              'FINISH WORKOUT',
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.5,
+                    color: Colors.white,
+                  ),
             ),
           ),
         ),
-        );
-      },
-    ),
+      ),
+    );
+  }
+
+  /// SportGrid "Lift" tap handler.
+  ///
+  /// Auto-creates a `StrengthSession` for (cycleId, period, day) if one
+  /// doesn't already exist, then pushes [AddExerciseScreen]. This keeps
+  /// the tap path single-step even when the day is empty.
+  Future<void> _onLiftPressed(
+    String cycleId,
+    int period,
+    int day,
+  ) async {
+    final workoutRepo = ref.read(workoutRepositoryProvider);
+    final existing = await workoutRepo.getByTrainingCycleId(cycleId);
+    final dayWorkouts = existing
+        .where((w) => w.periodNumber == period && w.dayNumber == day)
+        .toList();
+
+    String workoutId;
+    if (dayWorkouts.isNotEmpty) {
+      workoutId = dayWorkouts.first.id;
+    } else {
+      // Create an empty strength workout for the day so AddExerciseScreen
+      // has a parent to attach the new exercise to.
+      workoutId = const Uuid().v4();
+      final newWorkout = Workout(
+        id: workoutId,
+        trainingCycleId: cycleId,
+        periodNumber: period,
+        dayNumber: day,
+        status: WorkoutStatus.incomplete,
+      );
+      await workoutRepo.create(newWorkout);
+      _invalidateWorkoutProviders();
+    }
+
+    if (!mounted) return;
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => AddExerciseScreen(
+          trainingCycleId: cycleId,
+          workoutId: workoutId,
         ),
-      ],
+      ),
+    );
+  }
+
+  /// SportGrid Run/Bike/Swim tap handler. Pushes the cardio session
+  /// creator, pre-filled with cycle/period/day so the session attaches
+  /// to the correct slot on save.
+  void _onCardioPressed(
+    Sport sport,
+    String cycleId,
+    int period,
+    int day,
+  ) {
+    context.push(
+      '/cardio-session/new'
+      '?sport=${sport.name}'
+      '&trainingCycleId=$cycleId'
+      '&period=$period'
+      '&day=$day',
     );
   }
 
@@ -2163,22 +2411,6 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     );
   }
 
-  /// Add exercise to a day that has no workouts yet
-  void _addExerciseForDay(
-    String trainingCycleId,
-    int periodNumber,
-    int dayNumber,
-  ) {
-    showAddExerciseDialog(
-      context: context,
-      ref: ref,
-      workouts: [], // No existing workouts
-      trainingCycleId: trainingCycleId,
-      periodNumber: periodNumber,
-      dayNumber: dayNumber,
-    );
-  }
-
   void _logBodyweight() {
     debugPrint('Log bodyweight');
   }
@@ -2254,5 +2486,28 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
 
   void _skipWorkout(List<Workout> workouts) {
     debugPrint('Skip workout');
+  }
+}
+
+/// A single slot in the v6 chunk A4 unified scroll.
+///
+/// Either a strength block (one slot per day, contains every exercise
+/// across all that day's strength workouts) or a single cardio session
+/// card. Used by `_buildSessionScroll` to interleave the two card types
+/// in performed-order while keeping the strength block as a single
+/// sortable unit. Bucket / sort-key choices happen at the call site;
+/// the slot itself is just a render-time discriminator.
+class _RenderSlot {
+  final bool isStrength;
+  final CardioSession? cardio;
+
+  const _RenderSlot._({required this.isStrength, required this.cardio});
+
+  factory _RenderSlot.strengthBlock() {
+    return const _RenderSlot._(isStrength: true, cardio: null);
+  }
+
+  factory _RenderSlot.cardio(CardioSession session) {
+    return _RenderSlot._(isStrength: false, cardio: session);
   }
 }
