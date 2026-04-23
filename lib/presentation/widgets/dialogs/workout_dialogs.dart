@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 /// Type of note being edited - determines dialog title and hint text
-enum NoteType { trainingCycle, workout, exercise }
+enum NoteType { trainingCycle, workout, exercise, cardioSession }
 
 /// Result from NoteDialog for exercise notes (includes pin status)
 class ExerciseNoteResult {
@@ -42,6 +42,8 @@ class NoteDialog extends StatefulWidget {
         return 'Workout Note';
       case NoteType.exercise:
         return 'Exercise Note';
+      case NoteType.cardioSession:
+        return 'Session Note';
     }
   }
 
@@ -54,6 +56,8 @@ class NoteDialog extends StatefulWidget {
         return 'Enter note for this workout...';
       case NoteType.exercise:
         return 'Enter note for this exercise...';
+      case NoteType.cardioSession:
+        return 'Enter note for this session...';
     }
   }
 }

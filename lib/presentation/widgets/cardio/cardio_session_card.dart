@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/constants/enums.dart';
 import '../../../core/constants/sports.dart';
+import '../../../core/theme/skins/skins.dart';
 import '../../../core/utils/cardio_conversions.dart';
 import '../../../data/models/session.dart';
 import '../../../domain/providers/onboarding_providers.dart';
@@ -23,7 +24,7 @@ class CardioSessionCardCallbacks {
   /// (RPE / enjoyment / notes).
   final void Function(String sessionId)? onAddFeedback;
 
-  /// Opens the note editor. Shown in the footer on planned cards.
+  /// Opens the note editor via the overflow menu.
   final void Function(String sessionId)? onAddNote;
 
   /// Move this session up in the day's card list.
@@ -31,6 +32,12 @@ class CardioSessionCardCallbacks {
 
   /// Move this session down in the day's card list.
   final void Function(String sessionId)? onMoveDown;
+
+  /// Delete current session and navigate to create a replacement.
+  final void Function(String sessionId)? onReplace;
+
+  /// Mark this session as skipped.
+  final void Function(String sessionId)? onSkip;
 
   /// Delete this session. Screen is responsible for the Undo-snackbar.
   final void Function(String sessionId)? onDelete;
@@ -44,6 +51,8 @@ class CardioSessionCardCallbacks {
     this.onAddNote,
     this.onMoveUp,
     this.onMoveDown,
+    this.onReplace,
+    this.onSkip,
     this.onDelete,
     this.onViewIntervals,
   });
@@ -58,13 +67,14 @@ class CardioSessionCardCallbacks {
 /// strength cards render sets rows, cardio cards render target
 /// (planned) or actual metrics (completed).
 ///
-/// Three render paths:
-///   * Planned (incomplete, status != completed) — TARGET row,
+/// Four render paths:
+///   * Planned (incomplete, status != completed/skipped) — TARGET row,
 ///     optional intervals expansion, "Log session" primary button.
 ///   * Completed (user-logged) — MetricsHero + MetricsSub, "Add
 ///     feedback" secondary button.
 ///   * Completed (imported from HealthKit / Strava / Peloton / etc.) —
 ///     same as above plus a source pill under the title.
+///   * Skipped — muted "Skipped" footer.
 ///
 /// Swim sessions substitute pool-specific metrics (pool length, SWOLF,
 /// stroke type, lap count) for the run/bike elevation/pace row.
@@ -72,10 +82,20 @@ class CardioSessionCard extends ConsumerWidget {
   final CardioSession session;
   final CardioSessionCardCallbacks callbacks;
 
+  /// Whether this card is first in the day's slot list. Disables
+  /// "Move up" in the overflow menu when true.
+  final bool isFirstInDayList;
+
+  /// Whether this card is last in the day's slot list. Disables
+  /// "Move down" in the overflow menu when true.
+  final bool isLastInDayList;
+
   const CardioSessionCard({
     super.key,
     required this.session,
     this.callbacks = const CardioSessionCardCallbacks(),
+    this.isFirstInDayList = true,
+    this.isLastInDayList = true,
   });
 
   @override
@@ -85,6 +105,7 @@ class CardioSessionCard extends ConsumerWidget {
     final theme = Theme.of(context);
 
     final isCompleted = session.status == WorkoutStatus.completed;
+    final isSkipped = session.status == WorkoutStatus.skipped;
     final isExternal = session.source.isExternal;
 
     return Container(
@@ -100,7 +121,9 @@ class CardioSessionCard extends ConsumerWidget {
           children: [
             _buildHeader(context, theme, isExternal),
             const SizedBox(height: 12),
-            if (!isCompleted)
+            if (isSkipped)
+              _buildSkippedBody(theme)
+            else if (!isCompleted)
               _buildPlannedBody(context, theme, units)
             else
               _buildCompletedBody(context, theme, units),
@@ -110,7 +133,7 @@ class CardioSessionCard extends ConsumerWidget {
               color: theme.colorScheme.outline.withValues(alpha: 0.15),
             ),
             const SizedBox(height: 8),
-            _buildFooter(context, theme, isCompleted),
+            _buildFooter(context, theme),
           ],
         ),
       ),
@@ -170,6 +193,10 @@ class CardioSessionCard extends ConsumerWidget {
         _OverflowMenu(
           sessionId: session.id,
           callbacks: callbacks,
+          isFirst: isFirstInDayList,
+          isLast: isLastInDayList,
+          status: session.status,
+          isExternal: session.source.isExternal,
         ),
       ],
     );
@@ -380,58 +407,83 @@ class CardioSessionCard extends ConsumerWidget {
   }
 
   // ---------------------------------------------------------------------------
+  // Body — skipped variant
+  // ---------------------------------------------------------------------------
+
+  Widget _buildSkippedBody(ThemeData theme) {
+    return Text(
+      'Session skipped',
+      style: theme.textTheme.bodyMedium?.copyWith(
+        fontStyle: FontStyle.italic,
+        color: theme.colorScheme.onSurface.withValues(alpha: 0.45),
+      ),
+    );
+  }
+
+  // ---------------------------------------------------------------------------
   // Footer
   // ---------------------------------------------------------------------------
 
-  Widget _buildFooter(
-    BuildContext context,
-    ThemeData theme,
-    bool isCompleted,
-  ) {
-    if (!isCompleted) {
-      // Planned: primary "Log session", secondary "Notes".
+  Widget _buildFooter(BuildContext context, ThemeData theme) {
+    final status = session.status;
+
+    if (status == WorkoutStatus.skipped) {
       return Row(
         children: [
-          FilledButton.icon(
-            onPressed: callbacks.onPrimary == null
-                ? null
-                : () => callbacks.onPrimary!(session.id),
-            icon: const Icon(Icons.check_circle_outline, size: 18),
-            label: const Text('Log session'),
+          Icon(
+            Icons.skip_next,
+            size: 18,
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.45),
+          ),
+          const SizedBox(width: 6),
+          Text(
+            'Skipped',
+            style: theme.textTheme.bodyMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.45),
+            ),
+          ),
+        ],
+      );
+    }
+
+    if (status == WorkoutStatus.completed) {
+      return Row(
+        children: [
+          Icon(
+            Icons.check_circle,
+            size: 18,
+            color: theme.colorScheme.primary,
+          ),
+          const SizedBox(width: 6),
+          Text(
+            'Completed',
+            style: theme.textTheme.bodyMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+              color: theme.colorScheme.primary,
+            ),
           ),
           const Spacer(),
-          if (callbacks.onAddNote != null)
+          if (callbacks.onAddFeedback != null)
             TextButton.icon(
-              onPressed: () => callbacks.onAddNote!(session.id),
-              icon: const Icon(Icons.edit_note, size: 18),
-              label: const Text('Notes'),
+              onPressed: () => callbacks.onAddFeedback!(session.id),
+              icon: const Icon(Icons.sentiment_satisfied, size: 18),
+              label: const Text('Add feedback'),
             ),
         ],
       );
     }
-    // Completed: "✓ Completed" on the left, "Add feedback" on the right.
+
+    // Planned / incomplete — just the "Log session" button.
     return Row(
       children: [
-        Icon(
-          Icons.check_circle,
-          size: 18,
-          color: theme.colorScheme.primary,
+        FilledButton.icon(
+          onPressed: callbacks.onPrimary == null
+              ? null
+              : () => callbacks.onPrimary!(session.id),
+          icon: const Icon(Icons.check_circle_outline, size: 18),
+          label: const Text('Log session'),
         ),
-        const SizedBox(width: 6),
-        Text(
-          'Completed',
-          style: theme.textTheme.bodyMedium?.copyWith(
-            fontWeight: FontWeight.w600,
-            color: theme.colorScheme.primary,
-          ),
-        ),
-        const Spacer(),
-        if (callbacks.onAddFeedback != null)
-          TextButton.icon(
-            onPressed: () => callbacks.onAddFeedback!(session.id),
-            icon: const Icon(Icons.sentiment_satisfied, size: 18),
-            label: const Text('Add feedback'),
-          ),
       ],
     );
   }
@@ -495,48 +547,222 @@ class _SourceBadge extends StatelessWidget {
   }
 }
 
+/// Overflow menu matching the exercise card's `_buildExerciseOverflowMenu`
+/// visual pattern: header label, icon+text rows, disabled states.
 class _OverflowMenu extends StatelessWidget {
   final String sessionId;
   final CardioSessionCardCallbacks callbacks;
-  const _OverflowMenu({required this.sessionId, required this.callbacks});
+  final bool isFirst;
+  final bool isLast;
+  final WorkoutStatus status;
+  final bool isExternal;
+
+  const _OverflowMenu({
+    required this.sessionId,
+    required this.callbacks,
+    required this.isFirst,
+    required this.isLast,
+    required this.status,
+    required this.isExternal,
+  });
+
+  bool get _hasAnyItem =>
+      callbacks.onAddNote != null ||
+      callbacks.onMoveUp != null ||
+      callbacks.onMoveDown != null ||
+      callbacks.onReplace != null ||
+      callbacks.onSkip != null ||
+      callbacks.onDelete != null;
 
   @override
   Widget build(BuildContext context) {
+    if (!_hasAnyItem) return const SizedBox(width: 32);
+
     final theme = Theme.of(context);
-    final items = <PopupMenuEntry<String>>[];
-    if (callbacks.onMoveUp != null) {
-      items.add(const PopupMenuItem(value: 'move_up', child: Text('Move up')));
-    }
-    if (callbacks.onMoveDown != null) {
-      items.add(
-        const PopupMenuItem(value: 'move_down', child: Text('Move down')),
-      );
-    }
-    if (callbacks.onDelete != null) {
-      items.add(const PopupMenuItem(value: 'delete', child: Text('Delete')));
-    }
-    if (items.isEmpty) {
-      return const SizedBox(width: 32);
-    }
+    final onSurface = theme.colorScheme.onSurface;
+    final isCompleted = status == WorkoutStatus.completed;
+    final isSkipped = status == WorkoutStatus.skipped;
+
     return PopupMenuButton<String>(
       icon: Icon(
         Icons.more_vert,
-        color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+        color: theme.textTheme.bodySmall?.color,
+        size: 24,
       ),
-      itemBuilder: (_) => items,
-      onSelected: (v) {
-        switch (v) {
+      offset: const Offset(-180, 40),
+      padding: EdgeInsets.zero,
+      constraints: const BoxConstraints(minWidth: 250),
+      color: theme.cardTheme.color,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+        side: BorderSide(color: theme.dividerColor),
+      ),
+      onSelected: (value) {
+        switch (value) {
+          case 'note':
+            callbacks.onAddNote?.call(sessionId);
           case 'move_up':
             callbacks.onMoveUp?.call(sessionId);
-            break;
           case 'move_down':
             callbacks.onMoveDown?.call(sessionId);
-            break;
+          case 'replace':
+            callbacks.onReplace?.call(sessionId);
+          case 'skip':
+            callbacks.onSkip?.call(sessionId);
           case 'delete':
             callbacks.onDelete?.call(sessionId);
-            break;
         }
       },
+      itemBuilder: (context) => [
+        // Header
+        const PopupMenuItem<String>(
+          enabled: false,
+          height: 32,
+          child: Text(
+            'SESSION',
+            style: TextStyle(
+              color: Colors.grey,
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+        // Notes
+        if (callbacks.onAddNote != null)
+          PopupMenuItem<String>(
+            value: 'note',
+            height: 48,
+            child: Row(
+              children: [
+                Icon(Icons.edit_outlined, color: onSurface, size: 20),
+                const SizedBox(width: 12),
+                Text('Notes', style: TextStyle(color: onSurface)),
+              ],
+            ),
+          ),
+        // Move up
+        if (callbacks.onMoveUp != null)
+          PopupMenuItem<String>(
+            value: 'move_up',
+            enabled: !isFirst,
+            height: 48,
+            child: Row(
+              children: [
+                Icon(
+                  Icons.arrow_upward,
+                  color: isFirst ? Colors.grey : onSurface,
+                  size: 20,
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  'Move up',
+                  style: TextStyle(
+                    color: isFirst ? Colors.grey : onSurface,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        // Move down
+        if (callbacks.onMoveDown != null)
+          PopupMenuItem<String>(
+            value: 'move_down',
+            enabled: !isLast,
+            height: 48,
+            child: Row(
+              children: [
+                Icon(
+                  Icons.arrow_downward,
+                  color: isLast ? Colors.grey : onSurface,
+                  size: 20,
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  'Move down',
+                  style: TextStyle(
+                    color: isLast ? Colors.grey : onSurface,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        // Replace
+        if (callbacks.onReplace != null)
+          PopupMenuItem<String>(
+            value: 'replace',
+            enabled: !isCompleted && !isExternal,
+            height: 48,
+            child: Row(
+              children: [
+                Icon(
+                  Icons.swap_horiz,
+                  color: (isCompleted || isExternal)
+                      ? Colors.grey
+                      : onSurface,
+                  size: 20,
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  'Replace',
+                  style: TextStyle(
+                    color: (isCompleted || isExternal)
+                        ? Colors.grey
+                        : onSurface,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        // Skip
+        if (callbacks.onSkip != null)
+          PopupMenuItem<String>(
+            value: 'skip',
+            enabled: !isCompleted && !isSkipped && !isExternal,
+            height: 48,
+            child: Row(
+              children: [
+                Icon(
+                  Icons.fast_forward,
+                  color: (isCompleted || isSkipped || isExternal)
+                      ? Colors.grey
+                      : onSurface,
+                  size: 20,
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  'Skip session',
+                  style: TextStyle(
+                    color: (isCompleted || isSkipped || isExternal)
+                        ? Colors.grey
+                        : onSurface,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        // Delete
+        if (callbacks.onDelete != null)
+          PopupMenuItem<String>(
+            value: 'delete',
+            height: 48,
+            child: Builder(
+              builder: (context) => Row(
+                children: [
+                  Icon(
+                    Icons.delete_outline,
+                    color: context.errorColor,
+                    size: 20,
+                  ),
+                  const SizedBox(width: 12),
+                  Text(
+                    'Delete session',
+                    style: TextStyle(color: context.errorColor),
+                  ),
+                ],
+              ),
+            ),
+          ),
+      ],
     );
   }
 }

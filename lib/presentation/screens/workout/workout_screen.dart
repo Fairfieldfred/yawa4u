@@ -58,6 +58,11 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
   /// on a genuine scroll, not on rest-position notifications.
   ScrollDirection _lastScrollDirection = ScrollDirection.idle;
 
+  /// Manual override for slot render order (move up/down).
+  /// Null = use natural sort from [sortByPerformedOrder].
+  /// Reset on any data mutation via [_invalidateWorkoutProviders].
+  List<String>? _manualSlotOrder;
+
   /// Per-field debounce timers for weight/reps saves.
   final Map<String, Timer> _debounceTimers = {};
 
@@ -144,6 +149,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
   /// Only invalidates cycle-specific providers — the global
   /// workoutsProvider is left alone to avoid re-fetching every workout.
   void _invalidateWorkoutProviders() {
+    _manualSlotOrder = null;
     final trainingCycle = ref.read(currentTrainingCycleProvider);
     if (trainingCycle != null) {
       ref.invalidate(workoutsByTrainingCycleListProvider(trainingCycle.id));
@@ -957,6 +963,140 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     _invalidateWorkoutProviders();
   }
 
+  // ---------------------------------------------------------------------------
+  // Cardio session actions
+  // ---------------------------------------------------------------------------
+
+  /// Open the note dialog for a cardio session. Uses the lightweight
+  /// [SessionRepository.updateSession] path so intervals/detail are
+  /// not re-written.
+  Future<void> _addCardioNote(String sessionId) async {
+    final repo = ref.read(sessionRepositoryProvider);
+    final session = await repo.getById(sessionId);
+    if (session == null || session is! CardioSession) return;
+
+    if (!mounted) return;
+    final result = await showDialog<String>(
+      context: context,
+      builder: (context) => NoteDialog(
+        initialNote: session.notes,
+        noteType: NoteType.cardioSession,
+      ),
+    );
+
+    if (result != null) {
+      final updated = session.copyWith(
+        notes: result.isEmpty ? null : result,
+      );
+      await repo.updateSession(updated);
+      _invalidateWorkoutProviders();
+    }
+  }
+
+  /// Delete the current cardio session and navigate to the new-session
+  /// screen with the same sport/period/day so the user can create a
+  /// replacement.
+  Future<void> _replaceCardioSession(CardioSession session) async {
+    final repo = ref.read(sessionRepositoryProvider);
+    await repo.delete(session.id);
+    _invalidateWorkoutProviders();
+
+    if (!mounted) return;
+    final params = <String, String>{
+      'sport': session.sport.name,
+    };
+    if (session.trainingCycleId != null) {
+      params['trainingCycleId'] = session.trainingCycleId!;
+    }
+    if (session.periodNumber != null) {
+      params['period'] = session.periodNumber.toString();
+    }
+    if (session.dayNumber != null) {
+      params['day'] = session.dayNumber.toString();
+    }
+    final query = params.entries.map((e) => '${e.key}=${e.value}').join('&');
+    context.push('/cardio-session/new?$query');
+  }
+
+  /// Mark a cardio session as skipped.
+  Future<void> _skipCardioSession(String sessionId) async {
+    final repo = ref.read(sessionRepositoryProvider);
+    await repo.markAsSkipped(sessionId);
+    _invalidateWorkoutProviders();
+  }
+
+  /// Delete a cardio session with a 6-second undo snackbar.
+  Future<void> _deleteCardioSession(String sessionId) async {
+    final repo = ref.read(sessionRepositoryProvider);
+    final session = await repo.getById(sessionId);
+    if (session == null || session is! CardioSession) return;
+
+    await repo.delete(sessionId);
+    _invalidateWorkoutProviders();
+
+    if (!mounted) return;
+    final label = session.label?.trim().isNotEmpty == true
+        ? session.label!
+        : session.sport.displayName;
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text('$label deleted'),
+          duration: const Duration(seconds: 6),
+          action: SnackBarAction(
+            label: 'Undo',
+            onPressed: () => _restoreCardioSession(session),
+          ),
+        ),
+      );
+  }
+
+  /// Undo helper for [_deleteCardioSession].
+  Future<void> _restoreCardioSession(CardioSession session) async {
+    final repo = ref.read(sessionRepositoryProvider);
+    await repo.createCardio(session);
+    _invalidateWorkoutProviders();
+  }
+
+  /// Move a slot (strength block or cardio card) up in the day's
+  /// render order. Operates on the ephemeral [_manualSlotOrder].
+  void _moveSlotUp(String slotId) {
+    final order = _manualSlotOrder;
+    if (order == null) return;
+    final idx = order.indexOf(slotId);
+    if (idx <= 0) return;
+    setState(() {
+      final updated = List<String>.from(order);
+      final tmp = updated[idx - 1];
+      updated[idx - 1] = updated[idx];
+      updated[idx] = tmp;
+      _manualSlotOrder = updated;
+    });
+  }
+
+  /// Move a slot (strength block or cardio card) down in the day's
+  /// render order. Operates on the ephemeral [_manualSlotOrder].
+  void _moveSlotDown(String slotId) {
+    final order = _manualSlotOrder;
+    if (order == null) return;
+    final idx = order.indexOf(slotId);
+    if (idx < 0 || idx >= order.length - 1) return;
+    setState(() {
+      final updated = List<String>.from(order);
+      final tmp = updated[idx + 1];
+      updated[idx + 1] = updated[idx];
+      updated[idx] = tmp;
+      _manualSlotOrder = updated;
+    });
+  }
+
+  /// Initialise [_manualSlotOrder] from the current render order if it
+  /// hasn't been set yet. Called lazily before the first move operation.
+  void _ensureManualSlotOrder(List<_RenderSlot> renderOrder) {
+    _manualSlotOrder ??= renderOrder.map((s) => s.slotId).toList();
+  }
+
   bool _isWorkoutComplete(Workout workout) {
     // Check if all sets in all exercises are either logged or skipped
     for (final exercise in workout.exercises) {
@@ -1444,7 +1584,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     // cards appear in performed order; strength (as a single block of
     // exercise cards) slots in between once, at its bucket's natural
     // sort position.
-    final renderOrder = <_RenderSlot>[];
+    var renderOrder = <_RenderSlot>[];
     bool strengthInserted = false;
     final strengthSlot = _RenderSlot.strengthBlock();
 
@@ -1462,6 +1602,17 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     }
     if (hasStrength && !strengthInserted) {
       renderOrder.add(strengthSlot);
+    }
+
+    // Apply manual slot order if the user has reordered via move up/down.
+    if (_manualSlotOrder != null) {
+      final byId = {for (final s in renderOrder) s.slotId: s};
+      final validIds =
+          _manualSlotOrder!.where(byId.containsKey).toList();
+      final newIds =
+          byId.keys.where((id) => !validIds.contains(id)).toList();
+      validIds.addAll(newIds);
+      renderOrder = validIds.map((id) => byId[id]!).toList();
     }
 
     // The empty-day case is normally handled by the parent
@@ -1618,10 +1769,23 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
             child: CardioSessionCard(
               key: ValueKey('cardio_${session.id}'),
               session: session,
+              isFirstInDayList: slotIndex == 0,
+              isLastInDayList: isLastSlot,
               callbacks: CardioSessionCardCallbacks(
                 onPrimary: (id) => context.push('/cardio-session/$id'),
                 onAddFeedback: (id) => context.push('/cardio-session/$id'),
-                onAddNote: (id) => context.push('/cardio-session/$id'),
+                onAddNote: (id) => _addCardioNote(id),
+                onMoveUp: (id) {
+                  _ensureManualSlotOrder(renderOrder);
+                  _moveSlotUp(id);
+                },
+                onMoveDown: (id) {
+                  _ensureManualSlotOrder(renderOrder);
+                  _moveSlotDown(id);
+                },
+                onReplace: (id) => _replaceCardioSession(session),
+                onSkip: (id) => _skipCardioSession(id),
+                onDelete: (id) => _deleteCardioSession(id),
                 onViewIntervals: (id) =>
                     context.push('/cardio-session/$id/intervals'),
               ),
@@ -2510,4 +2674,8 @@ class _RenderSlot {
   factory _RenderSlot.cardio(CardioSession session) {
     return _RenderSlot._(isStrength: false, cardio: session);
   }
+
+  /// Stable identifier for manual reordering. The strength block uses a
+  /// sentinel string; cardio slots use the session UUID.
+  String get slotId => isStrength ? 'strength' : cardio!.id;
 }

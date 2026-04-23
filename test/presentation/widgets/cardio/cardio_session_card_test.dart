@@ -9,12 +9,14 @@ import 'package:yawa4u/data/models/session.dart';
 import 'package:yawa4u/domain/providers/onboarding_providers.dart';
 import 'package:yawa4u/presentation/widgets/cardio/cardio_session_card.dart';
 
-/// Covers the three render paths in [CardioSessionCard]:
+/// Covers the render paths in [CardioSessionCard]:
 ///   * Planned (incomplete) — target metrics + "Log session" button.
 ///   * Completed user-logged — hero metrics + "Add feedback" button.
 ///   * Completed imported (external source) — adds a source pill.
+///   * Skipped — muted "Skipped" footer.
 ///
-/// Also covers the swim variant's pool-specific metrics.
+/// Also covers the swim variant's pool-specific metrics and the
+/// overflow menu items (notes, move, replace, skip, delete).
 void main() {
   late SharedPreferences prefs;
 
@@ -87,6 +89,24 @@ void main() {
         ),
       );
 
+  CardioSession skippedRun() => CardioSession(
+        id: 'skipped-1',
+        trainingCycleId: 'cycle-1',
+        source: SessionSource.userPlanned,
+        status: WorkoutStatus.skipped,
+        sport: Sport.run,
+        label: 'Easy jog',
+        scheduledDate: DateTime(2026, 4, 22, 7),
+        detail: const CardioDetail(
+          plannedDistanceM: 3000,
+          plannedDurationSec: 1200,
+        ),
+      );
+
+  // ---------------------------------------------------------------------------
+  // Render paths
+  // ---------------------------------------------------------------------------
+
   testWidgets('planned run renders target + Log session primary button',
       (tester) async {
     await tester.pumpWidget(wrap(CardioSessionCard(session: plannedRun())));
@@ -146,6 +166,23 @@ void main() {
     expect(find.text('Logged'), findsNothing);
   });
 
+  testWidgets('skipped session shows Skipped footer', (tester) async {
+    await tester.pumpWidget(wrap(CardioSessionCard(session: skippedRun())));
+    await tester.pump();
+
+    expect(find.text('Easy jog'), findsOneWidget);
+    expect(find.text('Session skipped'), findsOneWidget);
+    expect(find.text('Skipped'), findsOneWidget);
+    expect(find.byIcon(Icons.skip_next), findsOneWidget);
+    // No Log session or Completed text.
+    expect(find.text('Log session'), findsNothing);
+    expect(find.text('Completed'), findsNothing);
+  });
+
+  // ---------------------------------------------------------------------------
+  // Footer callback invocations
+  // ---------------------------------------------------------------------------
+
   testWidgets('primary button invokes onPrimary with session id',
       (tester) async {
     String? captured;
@@ -178,12 +215,30 @@ void main() {
     expect(captured, 'completed-1');
   });
 
+  testWidgets('planned footer has no Notes button (moved to overflow)',
+      (tester) async {
+    await tester.pumpWidget(wrap(CardioSessionCard(
+      session: plannedRun(),
+      callbacks: CardioSessionCardCallbacks(
+        onAddNote: (_) {},
+      ),
+    )));
+    await tester.pump();
+
+    // Notes button should NOT appear in the footer.
+    final footerNotes = find.widgetWithText(TextButton, 'Notes');
+    expect(footerNotes, findsNothing);
+  });
+
+  // ---------------------------------------------------------------------------
+  // Overflow menu visibility
+  // ---------------------------------------------------------------------------
+
   testWidgets('overflow menu is hidden when no menu callbacks are provided',
       (tester) async {
     await tester.pumpWidget(wrap(CardioSessionCard(session: plannedRun())));
     await tester.pump();
-    // With zero callbacks for move/delete, the PopupMenuButton should not
-    // render a trigger icon.
+    // With zero callbacks, the PopupMenuButton should not render.
     expect(find.byIcon(Icons.more_vert), findsNothing);
   });
 
@@ -197,5 +252,186 @@ void main() {
     )));
     await tester.pump();
     expect(find.byIcon(Icons.more_vert), findsOneWidget);
+  });
+
+  // ---------------------------------------------------------------------------
+  // Overflow menu items
+  // ---------------------------------------------------------------------------
+
+  testWidgets('overflow menu shows all items for a planned session',
+      (tester) async {
+    await tester.pumpWidget(wrap(CardioSessionCard(
+      session: plannedRun(),
+      isFirstInDayList: false,
+      isLastInDayList: false,
+      callbacks: CardioSessionCardCallbacks(
+        onAddNote: (_) {},
+        onMoveUp: (_) {},
+        onMoveDown: (_) {},
+        onReplace: (_) {},
+        onSkip: (_) {},
+        onDelete: (_) {},
+      ),
+    )));
+    await tester.pump();
+
+    // Open the menu.
+    await tester.tap(find.byIcon(Icons.more_vert));
+    await tester.pumpAndSettle();
+
+    expect(find.text('SESSION'), findsOneWidget);
+    expect(find.text('Notes'), findsOneWidget);
+    expect(find.text('Move up'), findsOneWidget);
+    expect(find.text('Move down'), findsOneWidget);
+    expect(find.text('Replace'), findsOneWidget);
+    expect(find.text('Skip session'), findsOneWidget);
+    expect(find.text('Delete session'), findsOneWidget);
+  });
+
+  testWidgets('move up disabled when isFirstInDayList', (tester) async {
+    String? captured;
+    await tester.pumpWidget(wrap(CardioSessionCard(
+      session: plannedRun(),
+      isFirstInDayList: true,
+      isLastInDayList: false,
+      callbacks: CardioSessionCardCallbacks(
+        onMoveUp: (id) => captured = id,
+        onMoveDown: (_) {},
+      ),
+    )));
+    await tester.pump();
+
+    await tester.tap(find.byIcon(Icons.more_vert));
+    await tester.pumpAndSettle();
+
+    // Tap "Move up" — should be disabled (no callback invocation).
+    await tester.tap(find.text('Move up'));
+    await tester.pumpAndSettle();
+    expect(captured, isNull);
+  });
+
+  testWidgets('move down disabled when isLastInDayList', (tester) async {
+    String? captured;
+    await tester.pumpWidget(wrap(CardioSessionCard(
+      session: plannedRun(),
+      isFirstInDayList: false,
+      isLastInDayList: true,
+      callbacks: CardioSessionCardCallbacks(
+        onMoveUp: (_) {},
+        onMoveDown: (id) => captured = id,
+      ),
+    )));
+    await tester.pump();
+
+    await tester.tap(find.byIcon(Icons.more_vert));
+    await tester.pumpAndSettle();
+
+    // Tap "Move down" — should be disabled.
+    await tester.tap(find.text('Move down'));
+    await tester.pumpAndSettle();
+    expect(captured, isNull);
+  });
+
+  testWidgets('skip and replace disabled for completed external session',
+      (tester) async {
+    await tester.pumpWidget(wrap(CardioSessionCard(
+      session: completedRunFromStrava(),
+      callbacks: CardioSessionCardCallbacks(
+        onReplace: (_) {},
+        onSkip: (_) {},
+        onDelete: (_) {},
+      ),
+    )));
+    await tester.pump();
+
+    await tester.tap(find.byIcon(Icons.more_vert));
+    await tester.pumpAndSettle();
+
+    // Both items should be present but disabled.
+    expect(find.text('Replace'), findsOneWidget);
+    expect(find.text('Skip session'), findsOneWidget);
+
+    // Verify they are disabled via the PopupMenuItem widget.
+    final replaceItem = tester.widget<PopupMenuItem<String>>(
+      find.widgetWithText(PopupMenuItem<String>, 'Replace'),
+    );
+    expect(replaceItem.enabled, isFalse);
+
+    final skipItem = tester.widget<PopupMenuItem<String>>(
+      find.widgetWithText(PopupMenuItem<String>, 'Skip session'),
+    );
+    expect(skipItem.enabled, isFalse);
+  });
+
+  testWidgets('delete callback invoked from overflow menu', (tester) async {
+    String? captured;
+    await tester.pumpWidget(wrap(CardioSessionCard(
+      session: plannedRun(),
+      callbacks: CardioSessionCardCallbacks(
+        onDelete: (id) => captured = id,
+      ),
+    )));
+    await tester.pump();
+
+    await tester.tap(find.byIcon(Icons.more_vert));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Delete session'));
+    await tester.pumpAndSettle();
+    expect(captured, 'planned-1');
+  });
+
+  testWidgets('notes callback invoked from overflow menu', (tester) async {
+    String? captured;
+    await tester.pumpWidget(wrap(CardioSessionCard(
+      session: plannedRun(),
+      callbacks: CardioSessionCardCallbacks(
+        onAddNote: (id) => captured = id,
+      ),
+    )));
+    await tester.pump();
+
+    await tester.tap(find.byIcon(Icons.more_vert));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Notes'));
+    await tester.pumpAndSettle();
+    expect(captured, 'planned-1');
+  });
+
+  testWidgets('skip callback invoked for planned session', (tester) async {
+    String? captured;
+    await tester.pumpWidget(wrap(CardioSessionCard(
+      session: plannedRun(),
+      callbacks: CardioSessionCardCallbacks(
+        onSkip: (id) => captured = id,
+      ),
+    )));
+    await tester.pump();
+
+    await tester.tap(find.byIcon(Icons.more_vert));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Skip session'));
+    await tester.pumpAndSettle();
+    expect(captured, 'planned-1');
+  });
+
+  testWidgets('replace callback invoked for planned session', (tester) async {
+    String? captured;
+    await tester.pumpWidget(wrap(CardioSessionCard(
+      session: plannedRun(),
+      callbacks: CardioSessionCardCallbacks(
+        onReplace: (id) => captured = id,
+      ),
+    )));
+    await tester.pump();
+
+    await tester.tap(find.byIcon(Icons.more_vert));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Replace'));
+    await tester.pumpAndSettle();
+    expect(captured, 'planned-1');
   });
 }
