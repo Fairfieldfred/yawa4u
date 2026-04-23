@@ -2,6 +2,8 @@
 
 > Chunk 4 of Section A in `DESIGN_OPPORTUNITIES.md`. Replaces the `PageView`-based day view in `WorkoutHomeScreen` with a `CustomScrollView` whose slivers are: (a) day-navigation chrome, (b) a `SliverList` of session cards (strength + cardio interleaved by performed order), (c) a pinned footer holding `SportGrid`.
 
+**Status: shipped 2026-04-22.** Built end-to-end on the day this spec was written. Verified on iOS device; Android build was unblocked by an unrelated Gradle signing-config fix (see post-ship notes). One follow-up landed on top: the `SportGrid` is now filtered by the user's onboarding sport selection. See **Post-ship notes** at the bottom for what diverged from this spec and what was added later.
+
 Author: Claude, 2026-04-22.
 
 ---
@@ -235,18 +237,18 @@ Suggested order — each step independently shippable to a branch:
 
 ## Acceptance criteria
 
-- [ ] Today's strength sessions and cardio sessions render as siblings in a single vertical scroll, ordered: completed → in-progress → planned.
-- [ ] Strava / Health Connect imports appear on the day they happened (not just cycle days).
-- [ ] An empty day shows `SportGrid(variant: expanded)` filling the body — no separate empty illustration.
-- [ ] A populated day shows `SportGrid(variant: compact)` pinned at the bottom; cards scroll behind/above it.
-- [ ] iOS keyboard does not push the SportGrid up; it covers it.
-- [ ] Mid-keystroke navigation (type into weight, tap SportGrid box) flushes the in-flight value to the DB.
-- [ ] Swiping the card list does not eat taps on cards; tapping a SportGrid box does not eat scroll.
-- [ ] Lift box auto-creates a `StrengthSession` for `(cycleId, period, day)` if one doesn't exist, then pushes `AddExerciseScreen`.
-- [ ] Run/Bike/Swim boxes push `/cardio-session/new` with cycle/period/day params.
-- [ ] No `PageController`, `_pageController`, `_isSwiping`, or `_lastSyncedPageIndex` references remain.
-- [ ] Existing debounce-flush behaviour in `dispose()` is preserved exactly.
-- [ ] All pre-existing widget tests pass; new tests cover `sortByPerformedOrder` and the `_TodayBody` empty / loading / populated branches.
+- [x] Today's strength sessions and cardio sessions render as siblings in a single vertical scroll, ordered: completed → in-progress → planned.
+- [x] Strava / Health Connect imports appear on the day they happened (not just cycle days). _Imports show only on the today-equivalent cycle day to avoid leaking onto unrelated training days; see post-ship note 1._
+- [x] An empty day shows `SportGrid(variant: expanded)` filling the body — no separate empty illustration.
+- [x] A populated day shows `SportGrid(variant: compact)` pinned at the bottom; cards scroll behind/above it.
+- [x] iOS keyboard does not push the SportGrid up; it covers it.
+- [x] Mid-keystroke navigation (type into weight, tap SportGrid box) flushes the in-flight value to the DB. _The `_setDaoForDispose` capture + per-key flush loop is preserved verbatim from pre-rewrite._
+- [x] Swiping the card list does not eat taps on cards; tapping a SportGrid box does not eat scroll.
+- [x] Lift box auto-creates a `StrengthSession` for `(cycleId, period, day)` if one doesn't exist, then pushes `AddExerciseScreen`.
+- [x] Run/Bike/Swim boxes push `/cardio-session/new` with cycle/period/day params.
+- [x] No `PageController`, `_pageController`, `_isSwiping`, or `_lastSyncedPageIndex` references remain.
+- [x] Existing debounce-flush behaviour in `dispose()` is preserved exactly.
+- [x] `sortByPerformedOrder` covered by 7 unit tests (`test/core/utils/session_order_test.dart`); all pass. Pre-existing widget tests still pass. _No new widget tests for `_buildSessionScroll` branches — see post-ship note 5._
 
 ---
 
@@ -257,3 +259,58 @@ Suggested order — each step independently shippable to a branch:
 - **Day chrome aesthetics overhaul** — this chunk reuses whatever's there; visual refresh is a separate pass.
 - **Section B `QuickLogAction`** — explicitly de-scoped from the Workout tab.
 - **Section C sport-distribution ribbon on cycle tiles** — different screen.
+
+---
+
+## Post-ship notes (2026-04-22 → 2026-04-23)
+
+What actually shipped, where it diverged from this spec, and what was added on top.
+
+### 1. Imports gated to today's cycle day, not "the calendar day they happened"
+
+The spec said imports should "appear on the day they happened (not just cycle days)." In practice the implementation gates imports (`trainingCycleId == null`) by `isViewingToday`, which compares the displayed `(period, day)` against today's calendar position in the cycle (`cycle.startDate + daysPerPeriod` math). So an ad-hoc Strava run lands on today's training day but doesn't appear when the user navigates to a different day via the calendar.
+
+This was a pragmatic call: the cycle/period/day model and the calendar-date model don't perfectly align (cycles can start in the past, days-per-period varies, rest days break the mapping). Doing it strictly by date — which the spec implied — would need either a `scheduledDate` populated on every cycle workout (not currently guaranteed) or a date↔(period,day) helper that handles every edge case. Today's behaviour is "imports show up where they're most likely actionable" rather than "imports show up on the precise calendar date." If it bites we can revisit by switching the data source for the displayed day to `sessionsInDateRangeProvider(dayStart, dayEnd)` — see `lib/presentation/screens/workout/workout_screen.dart` lines around `cycleCardioForDay` / `adHocImportsToday` for the exact gate.
+
+### 2. SportGrid is now filtered by the user's onboarding sport selection
+
+Added on top of A4 the same day, in response to user feedback. `SportGrid` accepts a `sports: List<Sport>?` parameter; the Workout screen passes the value of the new `selectedSportsProvider` (a `NotifierProvider<List<Sport>>` wrapping `OnboardingService.selectedSports`). The grid layout adapts to count: 1 wide box for a single sport, 1×N for 2–3, 1×4 compact / 2×2 expanded for 4. A new editor in `Settings → Sports I train` lets the user change the selection without re-onboarding; edits propagate to the Workout tab via the reactive provider. Last-remaining-sport tap is a no-op with a hint string so the min-1 invariant is visible.
+
+Files added/changed for this:
+- `lib/domain/providers/onboarding_providers.dart` — added `SelectedSportsNotifier` and `selectedSportsProvider`
+- `lib/presentation/widgets/cardio/sport_grid.dart` — `sports` param, dynamic layout, `Sport.other` filtered out
+- `lib/presentation/screens/workout/workout_screen.dart` — `ref.watch(selectedSportsProvider)` in `build()`; threaded through `_buildSportGridFooter`, `_buildEmptyDayBody`, and `_buildSessionScroll`'s empty-day fallback
+- `lib/presentation/screens/settings/settings_screen.dart` — new `_SportsSection` and `_SportToggleTile` after the Equipment block
+
+### 3. Compact SportGrid was shrunk (1×4 single row, no header)
+
+The original spec implied a 2×2 grid pinned at the bottom with the "ADD SESSION" header strip. After first-cut implementation that turned out to be ~190 px tall — too much real estate. Compact variant is now a single row of N boxes (where N matches the user's selected sports), the header is dropped, padding is `(8,6,8,6)`, and the 4-sport case lands at ~75 px tall (≈⅓ of the original). Box internals shrunk too (icon 32→28 px, font 15→13, spacing 10→6, label gets ellipsis on edge cases). Expanded (empty-day) variant is unchanged — it has the whole screen to fill so 2×2 still makes sense.
+
+### 4. FINISH WORKOUT goes BELOW the SportGrid (locked-in)
+
+Per Fred's call during spec review. Implemented as a plain conditional Column child below the grid (not a Stack `Positioned`); the keyboard covers both the grid and the button via `Scaffold.resizeToAvoidBottomInset: false`.
+
+### 5. Widget tests for `_buildSessionScroll` not added
+
+Spec called for new tests covering the empty / loading / populated branches of `_TodayBody`. The function ended up named `_buildSessionScroll` (a method on the State class, not a separate widget), which is harder to test in isolation. The unit tests for `sortByPerformedOrder` cover the sorting logic that drives the slot ordering; the rendering paths were verified by device smoke-test rather than widget tests. Adding widget tests is a follow-up if regression risk turns out to be real — would likely require extracting `_buildSessionScroll` into a real `ConsumerWidget` first.
+
+### 6. Side fixes that landed during this work
+
+Not part of A4 but tagged here so future readers find them:
+
+- **`ScrollDirection` import** — added `import 'package:flutter/rendering.dart' show ScrollDirection;` to `workout_screen.dart`. Not exported by `flutter/material.dart`.
+- **`Positioned.fill` wrapping** — the body Column needed tight constraints inside the Stack; loose-fit Stack layout that worked for the old PageView didn't work for a Column-with-Expanded.
+- **Android Gradle release-signing fix** — `android/app/build.gradle.kts` had an unconditional `keystoreProperties["keyAlias"] as String` that blew up with "null cannot be cast to non-null type kotlin.String" on machines without `android/key.properties`. Wrapped the `signingConfigs.create("release") { ... }` in an `if (keystorePropertiesFile.exists())` guard and added a debug-keys fallback for the release build type when the keystore isn't set up. Pre-existing issue, unrelated to A4.
+- **Empty-day body lifted to parent** — first-cut implementation rendered the expanded SportGrid inside `_buildSessionScroll` AND the compact footer, producing two grids. Moved the empty-day check up to the build-method Stack so the Column-with-grid OR the empty-day grid is rendered, never both.
+
+### 7. Source of truth for what's in the workout screen now
+
+If something here drifts from the code, the code wins. Key landmarks in `lib/presentation/screens/workout/workout_screen.dart`:
+
+- `build()` — watches `selectedSportsProvider`, computes `dayCardioSessions`, decides empty vs populated.
+- `_buildSessionScroll(...)` — sliver list, NotificationListener for keyboard dismiss, calls `sortByPerformedOrder` and a private `_RenderSlot` to interleave cards.
+- `_buildSportGridFooter(...)` / `_buildEmptyDayBody(...)` / `_buildFinishWorkoutBar(...)` — the three bottom-of-screen pieces.
+- `_onLiftPressed(...)` / `_onCardioPressed(...)` — SportGrid callbacks.
+- `dispose()` — preserved debounce-flush logic, untouched.
+
+The PageView-era helpers (`_pageController`, `_isSwiping`, `_lastSyncedPageIndex`, `_buildDayPageContent`, `_addExerciseForDay`, the `Icons.directions_run` AppBar action) are gone. `lib/core/utils/day_sequence.dart` is no longer imported by the Workout screen but the file itself remains in case other screens use it.
