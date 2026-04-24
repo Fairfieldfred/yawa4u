@@ -1,295 +1,285 @@
-# YAWA4U - Yet Another Workout App (For You!)
+# YAWA4U — Yet Another Workout App (For You!)
 
 <p align="center">
-  <!-- TODO: Add app logo/icon here -->
-  <img src="docs/images/app_logo_placeholder.png" alt="YAWA4U Logo" width="150"/>
+  <img src="assets/yawa4u-icon-dark-124.png" alt="YAWA4U Logo" width="124"/>
 </p>
 
 <p align="center">
-  <strong>A free, open-source, multi-platform workout tracking app built with Flutter</strong>
+  <strong>A free, open-source, multi-sport training app built with Flutter</strong>
 </p>
 
 <p align="center">
-  <a href="#features">Features</a> •
-  <a href="#screenshots">Screenshots</a> •
-  <a href="#installation">Installation</a> •
-  <a href="#getting-started">Getting Started</a> •
+  <a href="#features">Features</a> &bull;
+  <a href="#tech-stack">Tech Stack</a> &bull;
+  <a href="#installation">Installation</a> &bull;
+  <a href="#architecture">Architecture</a> &bull;
   <a href="#contributing">Contributing</a>
 </p>
 
 ---
 
-## 📱 Overview
+## Overview
 
-YAWA4U is a comprehensive gym workout tracking application designed to help you plan, track, and progress through your training programs. Built with a local-first architecture, your data stays on your device with easy export/import capabilities for backup and cross-device sync.
+YAWA4U is a local-first training tracker for strength, running, cycling, and swimming. Plan periodized training cycles, log workouts on the fly, import sessions from Apple Health / Health Connect / Strava, and review your progress — all without an account or subscription.
+
+Your data lives on your device. Export, import, and device-to-device WiFi sync keep you in control.
 
 ### Why YAWA4U?
 
-- **100% Free & Open Source** - No subscriptions, no ads, no hidden costs
-- **Privacy First** - Your workout data stays on your device
-- **Progressive Overload** - Built-in support for progressive training principles
-- **Multi-Platform** - Works on iOS, Android, Web, macOS, Windows, and Linux
-- **Community Driven** - Contribute templates and help improve the app
+- **Multi-sport** — Strength, run, bike, and swim in a single app with sport-aware defaults
+- **Periodized planning** — Training cycles with flexible periods, recovery phases, and muscle-group priorities
+- **Privacy first** — No cloud dependency, no PII collected, anonymous analytics only
+- **Cross-platform** — iOS, Android, macOS, Web, Windows, Linux
+- **Open source** — No ads, no subscriptions, no paywalls
 
 ---
 
-## ✨ Features
+## Features
 
-### Training Cycle Management
+### Training Cycles
 
-- Create and manage training cycles, blocks, phases, waves, mesocycles
-- Customizable weeks, days per week, and taper, recover/rest, deload weeks
-- Set muscle group priorities to emphasize specific areas
-- Track progress with comprehensive summaries
+- Create cycles with configurable periods, days per period, and recovery weeks (deload / taper / recovery)
+- Mixed-sport cycles — a single cycle can hold strength workouts and cardio sessions side by side
+- Optional primary sport hint with sport-aware `daysPerPeriod` defaults (strength: 4, endurance: 7)
+- Muscle-group priority editor for emphasizing lagging body parts
+- Pre-built templates and community-contributed cycle blueprints
+- User-chosen terminology: Block, Mesocycle, Phase, Module, Wave, or default "Training Cycle"
 
-### Workout Logging
+### Strength Training
 
-- Intuitive workout interface with easy set logging
-- Support for weight, reps, and RIR (Reps In Reserve) tracking
-- Multiple set types: Regular, Myorep, Myorep Match
-- Exercise feedback system (joint pain, muscle pump, workload, soreness)
-- Workout notes and exercise notes
+- Intuitive set logging: weight, reps, RIR (Reps In Reserve), RPE
+- Set types: Regular, Myorep, Myorep Match, Max Reps, End With Partials, Drop Set
+- Per-exercise feedback: joint pain, muscle pump, workload, soreness
+- Exercise notes with pin-to-top option
+- Exercise history overlay showing previous performances
+- Configurable rest timers per exercise
+
+### Cardio Sessions
+
+- Log runs, rides, and swims with distance, duration, heart rate, cadence, and power
+- Structured interval builder with nested repeat groups (warmup / work / recovery / cooldown / rest)
+- Planned vs. logged sessions — plan cardio during cycle drafting, log when performed
+- Swim-specific fields: pool length, stroke type, lap count, SWOLF
+- Post-session feedback: RPE, enjoyment, breathing, GI comfort, weather notes
+- Cardio session template library for common workouts (5k tempo, sweet-spot intervals, etc.)
+
+### Home Screen
+
+- Unified vertical scroll of strength and cardio cards, sorted by completion status
+- Pinned sport grid footer for one-tap session creation (Lift, Run, Bike, Swim)
+- Grid adapts to the sports you selected during onboarding — show only what you train
+- Quick-log action in the app bar of every non-Workout tab
+
+### Integrations
+
+- **Apple Health / Health Connect** — Import workouts via the `health` plugin; de-duped by external ID
+- **Strava** — OAuth connect + activity import
+- **Peloton** — Covered via the HealthKit bridge (Peloton syncs to Apple Health)
+- HR / pace / power zone configuration per sport
 
 ### Exercise Library
 
-- Extensive exercise database with muscle groups and equipment types
-- Create custom exercises
-- Exercise history tracking
+- ~290 built-in exercises loaded from CSV, covering all muscle groups and equipment types
+- Create custom exercises with muscle group, equipment, video link, and default rest timer
 - YouTube video integration for exercise demonstrations
 
-### Templates
+### Calendar
 
-- Pre-built workout templates to get started quickly
-- Browse templates by days per week and category
-- Create training cycles from templates
-- Community-contributed templates
+- Visual calendar with colored sport dots per day (strength, run, bike, swim)
+- Quick navigation between training days
+- Desktop and mobile calendar variants with consistent data
 
-### Calendar Navigation
+### Statistics
 
-- Visual calendar view of your training cycle
-- Quick navigation between workout days
-- Color-coded completion status (completed, current, upcoming)
+- **Strength:** Volume progression, personal records, sets by muscle group, completion rate
+- **Cardio:** Per-sport aggregates (distance, duration, elevation), weekly volume buckets, sport distribution charts
+- Cycle selector shared across all stats tabs
+
+### Theming
+
+- Custom "Skins" system — create themes from seed colors or images
+- Light and dark mode with system-follows option
+- Share skins between devices via QR code
 
 ### Data Management
 
-- **Local-first storage** using Drift database
-- **Manual export/import** - Export your data as JSON
-- **Share functionality** - Share your workout data easily
-- No cloud dependency - you own your data
+- Local-first SQLite storage via Drift
+- JSON export/import (backup format v4 — multi-sport aware)
+- Device-to-device WiFi sync via embedded HTTP server
+- Template sharing between devices
 
 ---
 
-## 📸 Screenshots
+## Tech Stack
 
-<!-- TODO: Add actual screenshots of the app -->
-
-<p align="center">
-  <img src="docs/screenshots/workout_screen.png" alt="Workout Screen" width="200"/>
-  <img src="docs/screenshots/calendar_view.png" alt="Calendar View" width="200"/>
-  <img src="docs/screenshots/exercise_card.png" alt="Exercise Card" width="200"/>
-</p>
-
-<p align="center">
-  <em>Workout logging screen • Calendar navigation • Exercise details</em>
-</p>
-
-<p align="center">
-  <img src="docs/screenshots/training_cycles.png" alt="Training Cycles" width="200"/>
-  <img src="docs/screenshots/exercise_library.png" alt="Exercise Library" width="200"/>
-  <img src="docs/screenshots/templates.png" alt="Templates" width="200"/>
-</p>
-
-<p align="center">
-  <em>Training cycles • Exercise library • Workout templates</em>
-</p>
+| Category | Technology | Version |
+|---|---|---|
+| Framework | Flutter | SDK ^3.10.0 |
+| Language | Dart | ^3.10.0 |
+| Database | Drift (SQLite) | ^2.22.1 |
+| State management | Riverpod | ^3.0.3 |
+| Routing | go_router | ^17.0.0 |
+| Charts | fl_chart | ^1.1.1 |
+| Calendar | table_calendar | ^3.2.0 |
+| Health data | health | ^13.1.4 |
+| Strava OAuth | flutter_web_auth_2 | ^5.0.0 |
+| Analytics | Firebase Analytics | ^12.0.4 |
+| Error tracking | Sentry | ^9.8.0 |
+| WiFi sync | shelf + shelf_router | ^1.4.2 |
+| QR sharing | qr_flutter + mobile_scanner | — |
 
 ---
 
-## 🛠 Technology Stack
-
-| Category         | Technology         |
-| ---------------- | ------------------ |
-| Framework        | Flutter            |
-| Database         | Drift.             |
-| State Management | Riverpod           |
-| Routing          | go_router          |
-| Analytics        | Firebase Analytics |
-| Error Tracking   | Sentry             |
-
----
-
-## 📦 Installation
+## Installation
 
 ### Prerequisites
 
-- [Flutter SDK](https://docs.flutter.dev/get-started/install) (3.x or later)
-- Dart SDK (included with Flutter)
-- iOS: Xcode (for iOS development)
-- Android: Android Studio (for Android development)
+- [Flutter SDK](https://docs.flutter.dev/get-started/install) 3.x or later
+- Xcode (iOS/macOS) or Android Studio (Android)
 
-### Clone the Repository
+### Build
 
 ```bash
 git clone https://github.com/Fairfieldfred/yawa4u.git
 cd yawa4u
-```
-
-### Install Dependencies
-
-```bash
 flutter pub get
-```
-
-### Generate Drift
-
-```bash
 dart run build_runner build --delete-conflicting-outputs
+flutter run
 ```
 
-### Run the App
+Target a specific platform:
 
 ```bash
-# Run on connected device/emulator
-flutter run
+flutter run -d chrome      # Web
+flutter run -d macos        # macOS
+flutter run -d ios          # iOS simulator
+```
 
-# Run on specific platform
-flutter run -d chrome    # Web
-flutter run -d macos     # macOS
-flutter run -d windows   # Windows
+### Environment variables (optional)
+
+```bash
+flutter run --dart-define=SENTRY_ENABLED=false           # Disable Sentry
+flutter run --dart-define=SENTRY_ENVIRONMENT=production   # Set environment
 ```
 
 ---
 
-## 🚀 Getting Started
+## Architecture
 
-### Creating Your First Training Cycle
-
-1. **Open the app** and navigate to the **Training Cycles** tab
-2. Tap **+ NEW** to create a new training cycle
-3. Configure your cycle:
-   - Give it a name (e.g., "Summer Bulk")
-   - Set the number of weeks (typically 4-8)
-   - Set days per week (how often you train)
-   - Select a deload week if desired
-4. Choose to **Start from template** or **Create blank**
-5. Start logging your workouts!
-
-### Logging a Workout
-
-1. Navigate to today's workout from the **Workout** tab
-2. For each exercise:
-   - Enter the **weight** used
-   - Enter the **reps** performed (or RIR target like "2 RIR")
-   - Tap the **checkbox** to log the set
-3. Add **feedback** (optional) for joint pain, pump, and workload
-4. Mark the workout as complete when finished
-
-### Exporting Your Data
-
-1. Go to the **More** tab
-2. Tap **Export Data**
-3. Choose to save or share your JSON backup file
-4. Store safely for backup or transfer to another device
-
----
-
-## 🤝 Contributing
-
-We welcome contributions from the community! Here's how you can help:
-
-### Contributing Workout Templates
-
-1. Create a new JSON file in `assets/templates/`
-2. Follow the existing template format (see [template examples](assets/templates/))
-3. Submit a pull request with your template
-
-### Reporting Bugs
-
-1. Check existing [issues](https://github.com/Fairfieldfred/yawa4u/issues)
-2. Create a new issue with:
-   - Device and OS version
-   - Steps to reproduce
-   - Expected vs actual behavior
-   - Screenshots if applicable
-
-### Feature Requests
-
-Open an issue with the "enhancement" label describing:
-
-- The feature you'd like to see
-- Why it would be useful
-- Any implementation ideas
-
-### Code Contributions
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Make your changes
-4. Run tests (`flutter test`)
-5. Commit your changes (`git commit -m 'Add amazing feature'`)
-6. Push to the branch (`git push origin feature/amazing-feature`)
-7. Open a Pull Request
-
----
-
-## 📁 Project Structure
+### Project layout
 
 ```
 lib/
-├── main.dart                 # App entry point
-├── core/                     # Core utilities, constants, themes
-│   ├── constants/            # Muscle groups, equipment types, enums
-│   ├── theme/                # App theming (dark/light mode)
-│   ├── utils/                # Helper functions
-│   └── extensions/           # Dart extensions
-├── data/                     # Data layer
-│   ├── models/               # Drift data models
-│   ├── repositories/         # Data repositories
-│   ├── services/             # Database, export/import services
-│   └── dto/                  # Data transfer objects
-├── domain/                   # Business logic
-│   ├── providers/            # Riverpod providers
-│   └── use_cases/            # Application use cases
-└── presentation/             # UI layer
-    ├── screens/              # App screens
-    ├── widgets/              # Reusable widgets
-    └── routes/               # Navigation configuration
+├── core/               # Config, constants, enums, theme/skins, extensions, utils
+│   ├── constants/      # Enums, muscle groups, equipment types, sports
+│   ├── theme/skins/    # Custom skin system
+│   └── utils/          # Helpers, user-facing error copy, session defaults
+├── data/               # Data layer
+│   ├── database/       # Drift tables, DAOs, mappers, migrations
+│   ├── models/         # Domain models (Session, Exercise, CardioStats, etc.)
+│   ├── repositories/   # Repository pattern (Session, Workout facade, Exercise, etc.)
+│   └── services/       # Analytics, health sync, Strava, CSV loader, backup, WiFi sync
+├── domain/             # Business logic
+│   └── providers/      # Riverpod providers (training cycle, session, workout, stats, etc.)
+└── presentation/       # UI layer
+    ├── navigation/     # GoRouter configuration with onboarding redirect
+    ├── screens/        # Workout, cardio, calendar, stats, settings, onboarding
+    └── widgets/        # Reusable widgets (exercise card, cardio card, sport grid, etc.)
 ```
 
+### Data model
+
+The database is a normalized relational schema at **schema version 6** (Drift / SQLite).
+
+The core abstraction is the **sealed `Session` class** with two variants — `StrengthSession` and `CardioSession`. Every training action is a row in the `sessions` table, discriminated by sport. The compiler enforces exhaustive handling via `switch`.
+
+```
+Session (sealed)
+├── StrengthSession → exercises → exercise_sets, exercise_feedbacks
+└── CardioSession   → session_cardio (1:1), session_intervals, session_samples (opt-in)
+                    └── cardio_feedback (loaded separately via repository)
+```
+
+`WorkoutRepository` exists as a **facade** over `SessionRepository` so that pre-expansion UI code keeps working. New code uses `SessionRepository` directly.
+
+Key tables: `training_cycles`, `sessions`, `session_cardio`, `session_intervals`, `session_samples`, `cardio_feedback`, `cycle_periods`, `sport_zones`, `exercises`, `exercise_sets`, `exercise_feedbacks`, `custom_exercise_definitions`, `user_measurements`, `skins`.
+
+### State management
+
+- **Riverpod `StreamProvider`** for reactive Drift queries (training cycles, sessions, workouts)
+- **`Provider.family`** for parameterized lookups (sessions by cycle, stats by sport)
+- **Repository pattern** — repositories own all reads/writes; DAOs used directly only for hot-path debounced updates (e.g., weight/reps entry)
+
+### Terminology
+
+| Concept | User-facing | Code |
+|---|---|---|
+| A training action | Workout | `Session` (sealed) |
+| A training plan | Training Cycle (user's choice of term) | `TrainingCycle` |
+| A repeating segment | Period | `CyclePeriod` |
+| A cardio interval step | Step | `SessionInterval` |
+
 ---
 
-## 📋 Roadmap
+## Onboarding
 
-- [x] Core workout logging functionality
-- [x] Training cycle management
-- [x] Exercise library with muscle groups
-- [x] Template system
-- [x] Export/Import functionality
-- [ ] Apple Watch companion app (In Progress)
-- [ ] Workout statistics and analytics
-- [ ] Exercise progression recommendations
-- [ ] Cloud sync (optional), maybe not
+A 4-screen flow guides new users:
+
+1. **Profile** — Height, weight, gender
+2. **Sports** — Multi-select: Strength, Run, Bike, Swim. Seeds per-sport unit preferences
+3. **Equipment** — Available equipment types for exercise filtering
+4. **Terminology** — Pick preferred term for "Training Cycle" (Block, Mesocycle, Phase, etc.)
 
 ---
 
-## 📄 License
+## Contributing
 
-This project is open source and available under the [MIT License](LICENSE).
+### Reporting bugs
+
+1. Check [existing issues](https://github.com/Fairfieldfred/yawa4u/issues)
+2. Open a new issue with device info, reproduction steps, expected vs. actual behavior, and screenshots
+
+### Feature requests
+
+Open an issue with the "enhancement" label.
+
+### Code contributions
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/my-feature`)
+3. Run `dart run build_runner build --delete-conflicting-outputs` after schema changes
+4. Run tests (`flutter test`)
+5. Open a pull request
+
+### Contributing templates
+
+Add a JSON file to `assets/templates/` following the existing format and submit a PR.
 
 ---
 
-## 🙏 Acknowledgments
+## Documentation
 
-- Thanks to all contributors who help make this app better
-- Exercise database compiled from various fitness resources
-- Built with love for the fitness community
+Detailed reference documents in the repository root:
+
+| Document | Purpose |
+|---|---|
+| `DATA_STRUCTURE_v5.md` | Schema v6 reference — tables, models, providers, enums, pitfalls |
+| `TERMINOLOGY.md` | Naming conventions: Workout vs Session, Period vs Week |
+| `MULTISPORT_EXPANSION_PLAN.md` | Multi-sport expansion completion record (Phases 1–6) |
+| `DESIGN_OPPORTUNITIES.md` | UX redesign completion record (home screen, quick-log, sport ribbon) |
+| `UX_REVIEW.md` | UX review status tracker with remaining polish items |
+| `WORKOUT_SCREEN_REWRITE.md` | Workout tab sliver-scroll rewrite record |
+
+---
+
+## Acknowledgments
+
+- Exercise database compiled from public fitness resources
+- Built with Flutter and the Dart ecosystem
+- Multi-sport expansion designed and implemented with Claude Code
 
 ---
 
 <p align="center">
-  <strong>Happy Training! 💪</strong>
-</p>
-
-<p align="center">
-  <a href="https://github.com/Fairfieldfred/yawa4u/stargazers">⭐ Star this repo</a> if you find it useful!
+  <a href="https://github.com/Fairfieldfred/yawa4u/stargazers">Star this repo</a> if you find it useful!
 </p>
