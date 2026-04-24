@@ -44,6 +44,7 @@ class CardioSessionScreen extends ConsumerStatefulWidget {
     this.trainingCycleId,
     this.periodNumber,
     this.dayNumber,
+    this.planned = false,
   });
 
   /// Existing session to edit. If null, the screen creates a new one.
@@ -63,6 +64,11 @@ class CardioSessionScreen extends ConsumerStatefulWidget {
 
   /// Optional — the day number within the period. See [periodNumber].
   final int? dayNumber;
+
+  /// When true, the session is saved as a plan (`WorkoutStatus.incomplete`,
+  /// `SessionSource.userPlanned`) with values in the planned detail fields.
+  /// Used when adding cardio to a draft cycle or from the sport grid.
+  final bool planned;
 
   @override
   ConsumerState<CardioSessionScreen> createState() =>
@@ -102,8 +108,12 @@ class _CardioSessionScreenState extends ConsumerState<CardioSessionScreen> {
       _existing = loaded;
       _sport = loaded.sport;
       _scheduledDate = loaded.scheduledDate ?? DateTime.now();
-      _distanceMeters = loaded.detail?.actualDistanceM;
-      _durationSeconds = loaded.detail?.actualDurationSec;
+      // Prefill from actuals; fall back to planned values so
+      // opening a planned session shows the targets the user set.
+      _distanceMeters = loaded.detail?.actualDistanceM ??
+          loaded.detail?.plannedDistanceM;
+      _durationSeconds = loaded.detail?.actualDurationSec ??
+          loaded.detail?.plannedDurationSec;
       _averageHr = loaded.detail?.averageHr;
       _rpe = loaded.detail?.perceivedExertion;
       _notesController.text = loaded.notes ?? '';
@@ -182,12 +192,33 @@ class _CardioSessionScreenState extends ConsumerState<CardioSessionScreen> {
     setState(() => _saving = true);
     final repo = ref.read(sessionRepositoryProvider);
 
-    final detail = CardioDetail(
-      actualDistanceM: _distanceMeters,
-      actualDurationSec: _durationSeconds,
-      averageHr: _averageHr,
-      perceivedExertion: _rpe,
-    );
+    // When creating a planned session, values go to the planned fields.
+    // When logging (new or completing an existing plan), values go to
+    // the actual fields.  Editing an existing planned session promotes
+    // it to completed and writes actuals while preserving the original
+    // planned targets.
+    final isPlanning = widget.planned && _existing == null;
+
+    final detail = isPlanning
+        ? CardioDetail(
+            plannedDistanceM: _distanceMeters,
+            plannedDurationSec: _durationSeconds,
+            averageHr: _averageHr,
+            perceivedExertion: _rpe,
+          )
+        : CardioDetail(
+            // Preserve original planned values when completing a plan.
+            plannedDistanceM: _existing?.detail?.plannedDistanceM,
+            plannedDurationSec: _existing?.detail?.plannedDurationSec,
+            actualDistanceM: _distanceMeters,
+            actualDurationSec: _durationSeconds,
+            averageHr: _averageHr,
+            perceivedExertion: _rpe,
+          );
+
+    final trimmedNotes = _notesController.text.trim().isEmpty
+        ? null
+        : _notesController.text.trim();
 
     try {
       if (_existing == null) {
@@ -195,13 +226,15 @@ class _CardioSessionScreenState extends ConsumerState<CardioSessionScreen> {
           id: _uuid.v4(),
           trainingCycleId: widget.trainingCycleId,
           sport: _sport,
-          source: SessionSource.userLogged,
-          status: WorkoutStatus.completed,
+          source: isPlanning
+              ? SessionSource.userPlanned
+              : SessionSource.userLogged,
+          status: isPlanning
+              ? WorkoutStatus.incomplete
+              : WorkoutStatus.completed,
           scheduledDate: _scheduledDate,
-          completedDate: DateTime.now(),
-          notes: _notesController.text.trim().isEmpty
-              ? null
-              : _notesController.text.trim(),
+          completedDate: isPlanning ? null : DateTime.now(),
+          notes: trimmedNotes,
           detail: detail,
           periodNumber: widget.periodNumber,
           dayNumber: widget.dayNumber,
@@ -210,13 +243,15 @@ class _CardioSessionScreenState extends ConsumerState<CardioSessionScreen> {
       } else {
         final updated = _existing!.copyWith(
           scheduledDate: _scheduledDate,
-          notes: _notesController.text.trim().isEmpty
-              ? null
-              : _notesController.text.trim(),
+          notes: trimmedNotes,
           detail: detail,
+          // Completing a planned session promotes to completed.
           status: _existing!.status == WorkoutStatus.incomplete
               ? WorkoutStatus.completed
               : _existing!.status,
+          completedDate: _existing!.status == WorkoutStatus.incomplete
+              ? DateTime.now()
+              : _existing!.completedDate,
         );
         await repo.updateCardio(updated);
       }
@@ -232,7 +267,11 @@ class _CardioSessionScreenState extends ConsumerState<CardioSessionScreen> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(_existing == null ? 'Session logged' : 'Session updated'),
+          content: Text(
+            _existing == null
+                ? (isPlanning ? 'Session planned' : 'Session logged')
+                : 'Session updated',
+          ),
         ),
       );
       context.pop();
@@ -258,9 +297,15 @@ class _CardioSessionScreenState extends ConsumerState<CardioSessionScreen> {
     }
 
     final units = _units();
-    final title = _existing == null
-        ? 'Log ${_sport.displayName.toLowerCase()}'
-        : 'Edit ${_sport.displayName.toLowerCase()}';
+    final sportName = _sport.displayName.toLowerCase();
+    final String title;
+    if (_existing != null) {
+      title = _existing!.status == WorkoutStatus.incomplete
+          ? 'Log $sportName'
+          : 'Edit $sportName';
+    } else {
+      title = widget.planned ? 'Plan $sportName' : 'Log $sportName';
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -366,7 +411,11 @@ class _CardioSessionScreenState extends ConsumerState<CardioSessionScreen> {
                     )
                   : const Icon(Icons.check),
               label: Text(
-                _existing == null ? 'Save session' : 'Update session',
+                _existing == null
+                    ? (widget.planned ? 'Plan session' : 'Save session')
+                    : (_existing!.status == WorkoutStatus.incomplete
+                        ? 'Log session'
+                        : 'Update session'),
               ),
               style: FilledButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 14),

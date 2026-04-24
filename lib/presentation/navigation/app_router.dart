@@ -308,7 +308,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
 
       // v5 — Cardio session screens.
-      // Create: /cardio-session/new?sport=run&trainingCycleId=...&period=1&day=2
+      // Create: /cardio-session/new?sport=run&trainingCycleId=...&period=1&day=2&planned=true
       GoRoute(
         path: AppRoutes.cardioSessionNew,
         name: 'cardio-session-new',
@@ -322,6 +322,7 @@ final routerProvider = Provider<GoRouter>((ref) {
             trainingCycleId: params['trainingCycleId'],
             periodNumber: int.tryParse(params['period'] ?? ''),
             dayNumber: int.tryParse(params['day'] ?? ''),
+            planned: params['planned'] == 'true',
           );
         },
       ),

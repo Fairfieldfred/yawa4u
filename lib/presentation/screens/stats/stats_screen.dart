@@ -11,6 +11,7 @@ import '../../../domain/providers/measurement_providers.dart';
 import '../../../domain/providers/onboarding_providers.dart';
 import '../../../domain/providers/stats_providers.dart';
 import '../../../domain/providers/training_cycle_providers.dart';
+import '../../widgets/cardio/quick_log_action.dart';
 import '../../widgets/cardio/weekly_summary_card.dart';
 import '../../widgets/responsive_content.dart';
 import '../../widgets/screen_background.dart';
@@ -83,6 +84,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen>
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           title: const Text('Statistics'),
+          actions: const [QuickLogAction()],
           bottom: TabBar(
             controller: _tabController,
             isScrollable: true,

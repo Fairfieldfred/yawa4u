@@ -14,9 +14,12 @@ import '../../../domain/providers/navigation_providers.dart';
 import '../../../domain/providers/onboarding_providers.dart';
 import '../../../domain/providers/template_providers.dart';
 import '../../../domain/providers/theme_provider.dart';
+import '../../../domain/providers/session_providers.dart';
 import '../../../domain/providers/training_cycle_providers.dart';
 import '../../../domain/providers/workout_providers.dart';
 import '../../widgets/app_icon_widget.dart';
+import '../../widgets/cardio/quick_log_action.dart';
+import '../../widgets/cardio/sport_distribution_ribbon.dart';
 import '../../widgets/cardio/weekly_summary_card.dart';
 import '../../widgets/cycle_summary_dialog.dart';
 import '../../widgets/dialogs/workout_dialogs.dart';
@@ -45,6 +48,7 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
         leadingWidth: kToolbarHeight + 12,
         title: Text(cycleTermPlural, style: const TextStyle(fontSize: 18)),
         actions: [
+          const QuickLogAction(),
           // Theme toggle
           IconButton(
             icon: Icon(
@@ -469,7 +473,11 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 8),
+
+              // Sport distribution ribbon
+              _SportRibbon(cycleId: trainingCycle.id),
+              const SizedBox(height: 8),
 
               // Info row with optional Start button for drafts
               Row(
@@ -1152,6 +1160,24 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
       'Dec',
     ];
     return '${months[date.month - 1]} ${date.day}, ${date.year}';
+  }
+}
+
+/// Watches [cycleSessionDistributionProvider] and renders a
+/// [SportDistributionRibbon] inside the cycle tile card. Collapses
+/// to nothing while session data is still loading.
+class _SportRibbon extends ConsumerWidget {
+  const _SportRibbon({required this.cycleId});
+
+  final String cycleId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final distribution = ref.watch(
+      cycleSessionDistributionProvider(cycleId),
+    );
+    if (distribution.isEmpty) return const SizedBox.shrink();
+    return SportDistributionRibbon(distribution: distribution);
   }
 }
 

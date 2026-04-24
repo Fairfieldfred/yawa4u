@@ -2003,7 +2003,8 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
       '?sport=${sport.name}'
       '&trainingCycleId=$cycleId'
       '&period=$period'
-      '&day=$day',
+      '&day=$day'
+      '&planned=true',
     );
   }
 

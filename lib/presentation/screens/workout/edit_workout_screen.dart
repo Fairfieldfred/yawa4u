@@ -263,7 +263,8 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
       '?sport=${sport.name}'
       '&trainingCycleId=${trainingCycle.id}'
       '&period=$_selectedPeriod'
-      '&day=${_selectedDayIndex + 1}',
+      '&day=${_selectedDayIndex + 1}'
+      '&planned=true',
     );
   }
 

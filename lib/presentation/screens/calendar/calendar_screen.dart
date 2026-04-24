@@ -7,12 +7,17 @@ import 'package:table_calendar/table_calendar.dart';
 import '../../../core/theme/skins/skins.dart';
 import '../../../core/utils/date_helpers.dart';
 import '../../../domain/controllers/workout_home_controller.dart';
+import '../../../core/constants/enums.dart';
+import '../../../core/constants/sports.dart';
+import '../../../data/models/session.dart';
 import '../../../domain/providers/calendar_providers.dart';
 import '../../../domain/providers/navigation_providers.dart';
+import '../../../domain/providers/session_providers.dart';
 import '../../../domain/providers/theme_provider.dart';
 import '../../../domain/providers/training_cycle_providers.dart';
 import '../../../domain/providers/workout_providers.dart';
 import '../../widgets/app_icon_widget.dart';
+import '../../widgets/cardio/quick_log_action.dart';
 import '../../widgets/calendar/calendar_edit_sheet.dart';
 import '../../widgets/calendar/calendar_legend_dialog.dart';
 import '../../widgets/calendar/calendar_sport_dots.dart';
@@ -55,6 +60,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
           leadingWidth: kToolbarHeight + 12,
           title: const Text('Calendar'),
           actions: [
+            const QuickLogAction(),
             // Today button
             IconButton(
               icon: const Icon(Icons.today),
@@ -99,21 +105,40 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     final prevMonth = DateTime(_focusedDay.year, _focusedDay.month - 1, 1);
     final nextMonth = DateTime(_focusedDay.year, _focusedDay.month + 1, 1);
 
+    // Load date-range sessions for the 3-month window so imports
+    // (HealthKit / Strava) and cycle-attached cardio appear on calendar.
+    final rangeStart = prevMonth;
+    final rangeEnd = DateTime(
+      _focusedDay.year,
+      _focusedDay.month + 2,
+      0,
+      23,
+      59,
+      59,
+    );
+    final sessionsAsync = ref.watch(
+      sessionsInDateRangeProvider((start: rangeStart, end: rangeEnd)),
+    );
+    final dateRangeSessions = sessionsAsync.value ?? const <Session>[];
+
     final calendarData = [
       ...buildCalendarData(
         cycle: trainingCycle,
         allWorkouts: allWorkouts,
         month: prevMonth,
+        dateRangeSessions: dateRangeSessions,
       ),
       ...buildCalendarData(
         cycle: trainingCycle,
         allWorkouts: allWorkouts,
         month: currentMonth,
+        dateRangeSessions: dateRangeSessions,
       ),
       ...buildCalendarData(
         cycle: trainingCycle,
         allWorkouts: allWorkouts,
         month: nextMonth,
+        dateRangeSessions: dateRangeSessions,
       ),
     ];
 
@@ -933,7 +958,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
-              if (dayData?.hasWorkout ?? false)
+              if (dayData?.hasAnySession ?? false)
                 Padding(
                   padding: const EdgeInsets.only(left: 8),
                   child: _buildStatusBadge(context, dayData!),
@@ -942,42 +967,49 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
           ),
           const SizedBox(height: 8),
           if (dayData?.hasWorkout ?? false)
-            _buildWorkoutSummary(context, dayData!, trainingCycle)
-          else if (dayData != null)
-            // Rest day - show message and edit button
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  'Rest Day',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withAlpha(128),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton.icon(
-                        onPressed: () => _showEditSheet(context, dayData),
-                        icon: const Icon(Icons.edit, size: 18),
-                        label: const Text('Edit'),
-                      ),
+            _buildWorkoutSummary(context, dayData!, trainingCycle),
+          if (dayData?.hasCardio ?? false) ...[
+            if (dayData!.hasWorkout) const SizedBox(height: 12),
+            _buildCardioSummary(context, dayData),
+          ],
+          if (!(dayData?.hasAnySession ?? false))
+            if (dayData != null)
+              // Rest day - show message and edit button
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Rest Day',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withAlpha(128),
                     ),
-                  ],
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: () => _showEditSheet(context, dayData),
+                          icon: const Icon(Icons.edit, size: 18),
+                          label: const Text('Edit'),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              )
+            else
+              Text(
+                'No session scheduled',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withAlpha(128),
                 ),
-              ],
-            )
-          else
-            Text(
-              'No session scheduled',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Theme.of(context).colorScheme.onSurface.withAlpha(128),
               ),
-            ),
         ],
       ),
     );
@@ -1067,6 +1099,94 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
           ],
         ),
       ],
+    );
+  }
+
+  /// Compact summary of cardio sessions for the selected day.
+  Widget _buildCardioSummary(
+    BuildContext context,
+    CalendarDayData dayData,
+  ) {
+    final theme = Theme.of(context);
+    final sessions = dayData.cardioSessions;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          '${sessions.length} cardio session${sessions.length == 1 ? '' : 's'}',
+          style: theme.textTheme.bodyMedium?.copyWith(
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        const SizedBox(height: 4),
+        for (final session in sessions)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 4),
+            child: Row(
+              children: [
+                Icon(
+                  session.sport.icon,
+                  size: 16,
+                  color: session.sport.color,
+                ),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    session.label ?? session.sport.displayName,
+                    style: theme.textTheme.bodySmall,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                _buildSessionStatusChip(context, session),
+              ],
+            ),
+          ),
+        if (!dayData.hasWorkout) ...[
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              if (dayData.periodNumber != null && dayData.dayNumber != null)
+                Expanded(
+                  child: FilledButton.icon(
+                    onPressed: () => _navigateToWorkout(dayData),
+                    icon: const Icon(Icons.visibility, size: 18),
+                    label: const Text('View Day'),
+                  ),
+                ),
+            ],
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildSessionStatusChip(BuildContext context, CardioSession session) {
+    final Color color;
+    final String label;
+    switch (session.status) {
+      case WorkoutStatus.completed:
+        color = context.successColor;
+        label = 'Done';
+      case WorkoutStatus.skipped:
+        color = Theme.of(context).colorScheme.outline;
+        label = 'Skipped';
+      case WorkoutStatus.incomplete:
+        color = Theme.of(context).colorScheme.primary;
+        label = 'Planned';
+    }
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: color.withAlpha(30),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: color.withAlpha(80)),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(color: color, fontSize: 10, fontWeight: FontWeight.w500),
+      ),
     );
   }
 

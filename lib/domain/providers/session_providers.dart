@@ -150,3 +150,23 @@ final cardioFeedbackProvider = StreamProvider.autoDispose
       final repo = ref.watch(cardioFeedbackRepositoryProvider);
       return repo.watchForSession(sessionId);
     });
+
+// ---------------------------------------------------------------------------
+// Sport distribution
+// ---------------------------------------------------------------------------
+
+/// Session count per [Sport] for a given training cycle.
+///
+/// Derived from [sessionsByTrainingCycleProvider] — folds the full session
+/// list into a `Map<Sport, int>`. Used by [SportDistributionRibbon] on
+/// cycle tiles to show the sport mix at a glance.
+final cycleSessionDistributionProvider = Provider.autoDispose
+    .family<Map<Sport, int>, String>((ref, cycleId) {
+  final sessionsAsync = ref.watch(sessionsByTrainingCycleProvider(cycleId));
+  final sessions = sessionsAsync.value ?? const <Session>[];
+  final counts = <Sport, int>{};
+  for (final s in sessions) {
+    counts[s.sport] = (counts[s.sport] ?? 0) + 1;
+  }
+  return counts;
+});

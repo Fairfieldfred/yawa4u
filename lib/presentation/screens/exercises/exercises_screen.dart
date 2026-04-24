@@ -13,6 +13,7 @@ import '../../../core/theme/skins/skins.dart';
 import '../../../core/utils/day_sequence.dart';
 import '../../../data/models/exercise.dart';
 import '../../../data/models/exercise_set.dart';
+import '../../../data/models/session.dart';
 import '../../../data/models/training_cycle.dart';
 import '../../../data/models/workout.dart';
 import '../../../data/repositories/training_cycle_repository.dart';
@@ -20,11 +21,14 @@ import '../../../domain/controllers/workout_home_controller.dart';
 import '../../../domain/providers/database_providers.dart';
 import '../../../domain/providers/exercise_providers.dart';
 import '../../../domain/providers/onboarding_providers.dart';
+import '../../../domain/providers/session_providers.dart';
 import '../../../domain/providers/theme_provider.dart';
 import '../../../domain/providers/training_cycle_providers.dart';
 import '../../../domain/providers/workout_providers.dart';
 import '../../widgets/app_icon_widget.dart';
 import '../../widgets/calendar_dropdown.dart';
+import '../../widgets/cardio/cardio_session_card.dart';
+import '../../widgets/cardio/quick_log_action.dart';
 import '../../widgets/cycle_summary_dialog.dart';
 import '../../widgets/dialogs/add_exercise_dialog.dart';
 import '../../widgets/dialogs/exercise_feedback_dialog.dart';
@@ -68,6 +72,7 @@ class _ExercisesHomeScreenState extends ConsumerState<ExercisesHomeScreen> {
   /// Cached workouts to keep UI stable during provider refresh.
   String? _cachedCycleId;
   List<Workout>? _cachedWorkouts;
+  List<Session>? _cachedSessions;
 
   @override
   void dispose() {
@@ -261,6 +266,7 @@ class _ExercisesHomeScreenState extends ConsumerState<ExercisesHomeScreen> {
     if (currentTrainingCycle.id != _cachedCycleId) {
       _cachedCycleId = currentTrainingCycle.id;
       _cachedWorkouts = null;
+      _cachedSessions = null;
     }
 
     // Use cached data during provider refresh to keep the UI stable
@@ -271,6 +277,15 @@ class _ExercisesHomeScreenState extends ConsumerState<ExercisesHomeScreen> {
     if (cycleWorkoutsAsync.hasValue) {
       _cachedWorkouts = cycleWorkoutsAsync.value;
     }
+
+    // Also load all sessions for the cycle so we can extract cardio per day.
+    final cycleSessionsAsync = ref.watch(
+      sessionsByTrainingCycleProvider(currentTrainingCycle.id),
+    );
+    if (cycleSessionsAsync.hasValue) {
+      _cachedSessions = cycleSessionsAsync.value;
+    }
+
     if (_cachedWorkouts == null) {
       // First load — no cached data yet
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
@@ -278,6 +293,16 @@ class _ExercisesHomeScreenState extends ConsumerState<ExercisesHomeScreen> {
 
     // Get workouts for the current trainingCycle
     final allWorkouts = _cachedWorkouts!;
+
+    // Group cardio sessions by (period, day) key so they can be passed
+    // to each day's _WorkoutSessionView alongside strength exercises.
+    final Map<String, List<CardioSession>> cardioByDay = {};
+    for (final session in _cachedSessions ?? const <Session>[]) {
+      if (session is! CardioSession) continue;
+      if (session.periodNumber == null || session.dayNumber == null) continue;
+      final key = '${session.periodNumber}-${session.dayNumber}';
+      cardioByDay.putIfAbsent(key, () => []).add(session);
+    }
 
     // Find the first incomplete workout day (not just workout/muscle group)
     // Group by (periodNumber, dayNumber) to find unique days
@@ -343,8 +368,10 @@ class _ExercisesHomeScreenState extends ConsumerState<ExercisesHomeScreen> {
       itemBuilder: (context, index) {
         final pos = daySequence[index];
         final key = '${pos.period}-${pos.day}';
+        final dayCardio = cardioByDay[key] ?? const <CardioSession>[];
 
-        if (!workoutsByDay.containsKey(key)) {
+        // Show empty state only when there are no exercises AND no cardio.
+        if (!workoutsByDay.containsKey(key) && dayCardio.isEmpty) {
           return _buildEmptyDayPage(
             context,
             currentTrainingCycle,
@@ -358,7 +385,8 @@ class _ExercisesHomeScreenState extends ConsumerState<ExercisesHomeScreen> {
 
         return _WorkoutSessionView(
           key: ValueKey(key),
-          workouts: workoutsByDay[key]!,
+          workouts: workoutsByDay[key] ?? const [],
+          cardioSessions: dayCardio,
           trainingCycle: currentTrainingCycle,
           allWorkouts: allWorkouts,
           currentPeriod: currentPeriod,
@@ -411,6 +439,7 @@ class _ExercisesHomeScreenState extends ConsumerState<ExercisesHomeScreen> {
           ],
         ),
         actions: [
+          const QuickLogAction(),
           IconButton(
             icon: const Icon(Icons.calendar_today),
             onPressed: _togglePeriodSelector,
@@ -525,6 +554,7 @@ class _ExercisesHomeScreenState extends ConsumerState<ExercisesHomeScreen> {
 
 class _WorkoutSessionView extends ConsumerStatefulWidget {
   final List<Workout> workouts;
+  final List<CardioSession> cardioSessions;
   final TrainingCycle trainingCycle;
   final List<Workout> allWorkouts;
   final int currentPeriod;
@@ -536,6 +566,7 @@ class _WorkoutSessionView extends ConsumerStatefulWidget {
   const _WorkoutSessionView({
     required Key key,
     required this.workouts,
+    this.cardioSessions = const [],
     required this.trainingCycle,
     required this.allWorkouts,
     required this.currentPeriod,
@@ -655,13 +686,16 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
     );
     final batchMap = batchAsync.value ?? <String, Exercise?>{};
 
-    // Use the first workout's display info for the appBar
-    final firstWorkout = widget.workouts.first;
     final trainingCycle = widget.trainingCycle;
+    final cardioSessions = widget.cardioSessions;
+    final totalPages = allExercises.length + cardioSessions.length;
 
-    final displayPeriod = firstWorkout.periodNumber;
-    final displayDay = firstWorkout.dayNumber;
-    final dayName = firstWorkout.dayName ?? '';
+    // Use selected period/day — safe even for cardio-only days.
+    final displayPeriod = widget.selectedPeriod;
+    final displayDay = widget.selectedDay;
+    final dayName = widget.workouts.isNotEmpty
+        ? (widget.workouts.first.dayName ?? '')
+        : '';
 
     // Check if all exercises are completed
     final allExercisesCompleted =
@@ -672,7 +706,8 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
         );
 
     // Check if workouts are already marked as finished
-    final workoutsAlreadyFinished = widget.workouts.every((w) => w.isCompleted);
+    final workoutsAlreadyFinished = widget.workouts.isNotEmpty &&
+        widget.workouts.every((w) => w.isCompleted);
 
     // Show finish button only if all exercises done AND workout not already finished
     final showFinishButton = allExercisesCompleted && !workoutsAlreadyFinished;
@@ -709,6 +744,7 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
             ],
           ),
           actions: [
+            const QuickLogAction(),
             IconButton(
               icon: const Icon(Icons.calendar_today),
               onPressed: _togglePeriodSelector,
@@ -746,7 +782,7 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
           ],
         ),
         body: ScreenBackground.exercises(
-          child: allExercises.isEmpty
+          child: totalPages == 0
               ? _buildEmptyExercisesState(context, widget.workouts)
               : Stack(
                   children: [
@@ -754,20 +790,33 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
                       children: [
                         // Progress Indicator
                         LinearProgressIndicator(
-                          value: (_currentPage + 1) / allExercises.length,
+                          value: (_currentPage + 1) / totalPages,
                           backgroundColor: Theme.of(context).dividerColor,
                         ),
 
                         Expanded(
                           child: PageView.builder(
                             controller: _pageController,
-                            itemCount: allExercises.length,
+                            itemCount: totalPages,
                             onPageChanged: (index) {
                               setState(() {
                                 _currentPage = index;
                               });
                             },
                             itemBuilder: (context, index) {
+                              // Cardio pages come after exercise pages.
+                              if (index >= allExercises.length) {
+                                final cardioIdx =
+                                    index - allExercises.length;
+                                final session =
+                                    cardioSessions[cardioIdx];
+                                return _buildCardioPage(
+                                  context,
+                                  session,
+                                  totalPages,
+                                );
+                              }
+
                               final source = exerciseSources[index]!;
                               final exercise = allExercises[index];
                               // Always show muscle group badge on exercises screen
@@ -857,7 +906,7 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
                                       ),
                                       ),
                                       // Swipe indicator
-                                      if (allExercises.length > 1)
+                                      if (totalPages > 1)
                                         Padding(
                                           padding: const EdgeInsets.only(
                                             top: 8,
@@ -1832,6 +1881,48 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
     if (mounted) {
       setState(() {});
     }
+  }
+
+  // ========== Cardio Page ==========
+
+  /// Renders a full-page [CardioSessionCard] for the inner PageView.
+  Widget _buildCardioPage(
+    BuildContext context,
+    CardioSession session,
+    int totalPages,
+  ) {
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(vertical: 24),
+        child: Column(
+          children: [
+            CardioSessionCard(
+              session: session,
+              callbacks: CardioSessionCardCallbacks(
+                onPrimary: (id) => context.push('/cardio-session/$id'),
+                onAddFeedback: (id) => context.push('/cardio-session/$id'),
+              ),
+            ),
+            // Swipe indicator
+            if (totalPages > 1)
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Center(
+                  child: Icon(
+                    Icons.swap_horiz,
+                    size: 24,
+                    color: Theme.of(context)
+                        .colorScheme
+                        .onSurface
+                        .withValues(alpha: 0.4),
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
   }
 
   // ========== Exercise History ==========

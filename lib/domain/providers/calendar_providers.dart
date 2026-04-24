@@ -5,10 +5,12 @@ import '../../core/constants/enums.dart';
 import '../../core/constants/muscle_groups.dart';
 import '../../core/utils/date_helpers.dart';
 import '../../data/models/exercise.dart';
+import '../../data/models/session.dart';
 import '../../data/models/training_cycle.dart';
 import '../../data/models/workout.dart';
 import '../../data/services/schedule_service.dart';
 import 'database_providers.dart';
+import 'session_providers.dart';
 import 'training_cycle_providers.dart';
 import 'workout_providers.dart';
 
@@ -46,6 +48,10 @@ class CalendarDayData {
   final int? periodNumber;
   final int? dayNumber;
   final List<Workout> workouts;
+
+  /// Non-strength sessions on this day (imports, cycle-attached cardio, etc.)
+  final List<CardioSession> cardioSessions;
+
   final bool isRecoveryPeriod;
   final bool isCompleted;
   final bool isPartiallyCompleted;
@@ -65,6 +71,7 @@ class CalendarDayData {
     this.periodNumber,
     this.dayNumber,
     this.workouts = const [],
+    this.cardioSessions = const [],
     this.isRecoveryPeriod = false,
     this.isCompleted = false,
     this.isPartiallyCompleted = false,
@@ -74,7 +81,14 @@ class CalendarDayData {
     this.exercises = const [],
   });
 
+  /// True if this day has at least one strength workout.
   bool get hasWorkout => workouts.isNotEmpty;
+
+  /// True if this day has at least one cardio session.
+  bool get hasCardio => cardioSessions.isNotEmpty;
+
+  /// True if this day has any session (strength or cardio).
+  bool get hasAnySession => hasWorkout || hasCardio;
 }
 
 /// Get the effective scheduled date for a workout
@@ -93,16 +107,22 @@ DateTime _getWorkoutScheduledDate(
   return DateHelpers.addDays(cycleStart, absoluteDayIndex);
 }
 
-/// Build calendar data for a month given a training cycle
+/// Build calendar data for a month given a training cycle.
 ///
 /// This function maps workouts to calendar dates using scheduledDate when
 /// available, falling back to calculating the date from period/day.
 /// This allows workouts to be shifted to different dates while preserving
 /// their original period/day designations.
+///
+/// When [dateRangeSessions] is provided, non-strength sessions are grouped
+/// by date and attached to each day's [CalendarDayData.cardioSessions].
+/// This lets imports (HealthKit / Strava) and cycle-attached cardio appear
+/// alongside strength workouts on the calendar.
 List<CalendarDayData> buildCalendarData({
   required TrainingCycle cycle,
   required List<Workout> allWorkouts,
   required DateTime month,
+  List<Session> dateRangeSessions = const [],
 }) {
   final result = <CalendarDayData>[];
 
@@ -141,6 +161,17 @@ List<CalendarDayData> buildCalendarData({
       cycle.daysPerPeriod,
     );
     workoutsByDate.putIfAbsent(date, () => []).add(workout);
+  }
+
+  // Group non-strength sessions by date so imports appear alongside
+  // cycle-attached workouts on the calendar.
+  final cardioByDate = <DateTime, List<CardioSession>>{};
+  for (final session in dateRangeSessions) {
+    if (session is! CardioSession) continue;
+    final date = session.scheduledDate ?? session.completedDate;
+    if (date == null) continue;
+    final stripped = DateHelpers.stripTime(date);
+    cardioByDate.putIfAbsent(stripped, () => []).add(session);
   }
 
   // Get first and last day of the month
@@ -215,14 +246,21 @@ List<CalendarDayData> buildCalendarData({
       (a, b) => a.exercise.orderIndex.compareTo(b.exercise.orderIndex),
     );
 
-    // Determine completion status
-    final isCompleted =
-        dayWorkouts.isNotEmpty &&
+    // Cardio sessions for this day (imports + cycle-attached).
+    final dayCardio = cardioByDate[strippedDay] ?? const <CardioSession>[];
+
+    // Determine completion status across both strength and cardio.
+    final strengthDone = dayWorkouts.isEmpty ||
         dayWorkouts.every((w) => w.status == WorkoutStatus.completed);
-    final isPartiallyCompleted =
-        dayWorkouts.isNotEmpty &&
+    final cardioDone = dayCardio.isEmpty ||
+        dayCardio.every((s) => s.status == WorkoutStatus.completed);
+    final hasSessions = dayWorkouts.isNotEmpty || dayCardio.isNotEmpty;
+
+    final isCompleted = hasSessions && strengthDone && cardioDone;
+    final isPartiallyCompleted = hasSessions &&
         !isCompleted &&
-        dayWorkouts.any((w) => w.status == WorkoutStatus.completed);
+        (dayWorkouts.any((w) => w.status == WorkoutStatus.completed) ||
+            dayCardio.any((s) => s.status == WorkoutStatus.completed));
 
     result.add(
       CalendarDayData(
@@ -230,6 +268,7 @@ List<CalendarDayData> buildCalendarData({
         periodNumber: displayPeriod,
         dayNumber: displayDay,
         workouts: dayWorkouts,
+        cardioSessions: dayCardio,
         isRecoveryPeriod: displayPeriod == cycle.recoveryPeriod,
         isCompleted: isCompleted,
         isPartiallyCompleted: isPartiallyCompleted,
@@ -244,7 +283,10 @@ List<CalendarDayData> buildCalendarData({
   return result;
 }
 
-/// Provider for calendar data for a specific month
+/// Provider for calendar data for a specific month.
+///
+/// Merges cycle-attached strength workouts with date-scoped sessions
+/// so that imports (HealthKit / Strava) appear on the calendar.
 final calendarDataProvider = Provider.autoDispose.family<List<CalendarDayData>, DateTime>((
   ref,
   month,
@@ -255,7 +297,20 @@ final calendarDataProvider = Provider.autoDispose.family<List<CalendarDayData>, 
 
   final workouts = ref.watch(workoutsByTrainingCycleListProvider(cycle.id));
 
-  return buildCalendarData(cycle: cycle, allWorkouts: workouts, month: month);
+  // Watch date-range sessions for the full month to pick up imports.
+  final monthStart = DateTime(month.year, month.month, 1);
+  final monthEnd = DateTime(month.year, month.month + 1, 0, 23, 59, 59);
+  final sessionsAsync = ref.watch(
+    sessionsInDateRangeProvider((start: monthStart, end: monthEnd)),
+  );
+  final dateRangeSessions = sessionsAsync.value ?? const <Session>[];
+
+  return buildCalendarData(
+    cycle: cycle,
+    allWorkouts: workouts,
+    month: month,
+    dateRangeSessions: dateRangeSessions,
+  );
 });
 
 /// Provider for period background colors

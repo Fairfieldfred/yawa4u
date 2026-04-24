@@ -1,6 +1,6 @@
 # YAWA4U — Terminology Convention
 
-Post-v5 multi-sport: how to name things consistently in code and UI.
+Post-v6 multi-sport: how to name things consistently in code and UI.
 
 ## TL;DR
 
@@ -18,7 +18,9 @@ Post-v5 multi-sport: how to name things consistently in code and UI.
 
 **Keep "Session" as the code-level term.** The polymorphic data model built in Phase 2 is `Session` / `StrengthSession` / `CardioSession`, and repositories / providers / mappers all follow that name. Don't rename these back to Workout — the sealed-class pattern loses its meaning.
 
-**Mixed routes are acceptable.** `/trainingCycles/:id/workouts` (legacy strength) and `/cardio-session/:id` (v5) coexist. Users never see URLs, so consistency there is cosmetic.
+**Mixed routes are acceptable.** `/trainingCycles/:id/workouts` (legacy strength) and `/cardio-session/:id` (v5+) coexist. Users never see URLs, so consistency there is cosmetic.
+
+**WorkoutRepository is a facade (v6).** The `workouts` table was dropped in v6. `WorkoutRepository` now wraps `SessionRepository` and translates between the legacy `Workout` shape and `StrengthSession`. New code should use `SessionRepository` directly; existing call sites can migrate at their leisure.
 
 ## Period vs. Week
 
@@ -49,4 +51,5 @@ This matches `Sport.displayName`.
 
 - `Session` is a sealed class → exhaustive switches are checked at compile time. Don't add new variants without updating every `switch (session)` site.
 - `CyclePeriod.phase` is the cardio periodization type (base / build / peak / taper / transition). Distinct from `TrainingCycle.recoveryPeriodType` which is strength (deload / taper / recovery).
-- `Session.source` marks where data came from — `userLogged`, `healthKit`, `healthConnect`, etc. Imported sessions are considered read-only for aggregate data.
+- `Session.source` marks where data came from — `userPlanned`, `userLogged`, `healthKit`, `healthConnect`, `peloton`, `strava`, `garmin`, `imported`. Sources other than `userPlanned` and `userLogged` are considered external (`.isExternal` extension). External sessions are read-only for aggregate data.
+- **Planned vs Logged:** A cardio session created during draft cycle planning uses `SessionSource.userPlanned` and `WorkoutStatus.incomplete`. The card shows a "Log" button to promote it to completed. This mirrors how strength exercises work with the "Log" affordance.

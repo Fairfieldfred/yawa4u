@@ -314,3 +314,27 @@ If something here drifts from the code, the code wins. Key landmarks in `lib/pre
 - `dispose()` — preserved debounce-flush logic, untouched.
 
 The PageView-era helpers (`_pageController`, `_isSwiping`, `_lastSyncedPageIndex`, `_buildDayPageContent`, `_addExerciseForDay`, the `Icons.directions_run` AppBar action) are gone. `lib/core/utils/day_sequence.dart` is no longer imported by the Workout screen but the file itself remains in case other screens use it.
+
+### 8. CardioSessionCard overflow menu (2026-04-23)
+
+Added a full overflow menu to `CardioSessionCard` matching the exercise card's `_buildExerciseOverflowMenu` pattern. The cardio card now has feature parity with the exercise card for session-level actions.
+
+**Menu items (in order):**
+- **Notes** — opens `NoteDialog` with `NoteType.cardioSession` (new enum value); uses the lightweight `SessionRepository.updateSession` path so intervals/detail are not re-written.
+- **Move up / Move down** — reorders slots (strength block or cardio cards) within the day's render list. Operates on ephemeral `_manualSlotOrder` state in `_WorkoutHomeScreenState`; reset on any data mutation via `_invalidateWorkoutProviders()`. Cardio cards can move past the strength exercise block. Disabled at list boundaries.
+- **Replace** — deletes the current session, then navigates to `/cardio-session/new` with the same sport/period/day params so the user can create a fresh replacement. Disabled for completed or external sessions.
+- **Skip session** — marks session as `WorkoutStatus.skipped` via `SessionRepository.markAsSkipped`. Disabled for completed, already-skipped, or external sessions. The card renders a "Session skipped" body and muted "Skipped" footer with `Icons.skip_next`.
+- **Delete session** — deletes with a 6-second undo snackbar (same pattern as `_deleteExercise`). Undo re-creates via `SessionRepository.createCardio`. Always enabled; red `context.errorColor` styling.
+
+**Visual specs:** "SESSION" header, `Offset(-180, 40)`, `minWidth: 250`, card-color background, rounded border — identical to the exercise menu. Menu hidden when no actionable callbacks exist (preserves backward compatibility for bare widget instantiation).
+
+**Footer change:** The "Notes" `TextButton` was removed from the planned-session footer (now accessible via the overflow menu). Planned footer is just the "Log session" button.
+
+**`_RenderSlot` enhancement:** Added `slotId` getter (`'strength'` sentinel or session UUID) to support the manual ordering map.
+
+**Files changed:**
+- `lib/presentation/widgets/dialogs/workout_dialogs.dart` — added `NoteType.cardioSession`
+- `lib/presentation/widgets/cardio/cardio_session_card.dart` — `onReplace`, `onSkip` callbacks; `isFirstInDayList`, `isLastInDayList` widget fields; redesigned `_OverflowMenu`; skipped body/footer variants
+- `lib/presentation/screens/workout/workout_screen.dart` — `_manualSlotOrder` state; `_addCardioNote`, `_replaceCardioSession`, `_skipCardioSession`, `_deleteCardioSession`, `_restoreCardioSession`, `_moveSlotUp`, `_moveSlotDown`, `_ensureManualSlotOrder` handlers; `_RenderSlot.slotId`; full callback wiring in `_buildSessionScroll`
+
+**Test coverage:** 17 tests in `test/presentation/widgets/cardio/cardio_session_card_test.dart` covering all four render paths (planned, completed, skipped, swim), footer callbacks, overflow menu visibility, all menu items, disabled states (first/last position, completed/external), and callback invocations. All pass.
