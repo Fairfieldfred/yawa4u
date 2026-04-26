@@ -69,8 +69,6 @@ const _$MuscleGroupEnumMap = {
   MuscleGroup.core: 'core',
   MuscleGroup.grip: 'grip',
   MuscleGroup.obliques: 'obliques',
-  MuscleGroup.legs: 'legs',
-  MuscleGroup.hips: 'hips',
 };
 
 const _$EquipmentTypeEnumMap = {

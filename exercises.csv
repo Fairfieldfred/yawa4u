@@ -37,6 +37,7 @@ Barbell Upright Row,Shoulders,Barbell
 Bayesian Curl,Biceps,Cable
 Belt Squat,Quads,Cable
 Belt Calf Raises,Calves,Cable
+Bicycle Crunch,Obliques,Bodyweight Only
 Bench Press,Chest,Barbell
 Bench Press (Incline),Chest,Barbell
 Bench Press (Decline),Chest,Barbell
@@ -62,6 +63,7 @@ Cable Leaning Lateral Raise,Shoulders,Cable
 Cable Overhead triceps Extension,Triceps,Cable
 Cable Pull Through,Glutes,Cable
 Cable Pullover,Back,Cable
+Cable Pallof Press,Obliques,Cable
 Cable Rope Crunch,Abs,Cable
 Cable Rope Facepull,Shoulders,Cable
 Cable Rope Facepull (Kneeling),Shoulders,Cable
@@ -75,6 +77,8 @@ Cable Triceps Pushdown (Bar),Triceps,Cable
 Cable Triceps Pushdown (Rope),Triceps,Cable
 Cable Triceps Pushdown (SIngle Arm),Triceps,Cable
 Cable Upright Row,Shoulders,Cable
+Cable Woodchop (High to Low),Obliques,Cable
+Cable Woodchop (Low to High),Obliques,Cable
 Cable Wrist Curl,Forearms,Cable
 Calf Machine,Calves,Machine
 Cambered Bar Row,Back,Barbell
@@ -93,6 +97,7 @@ Dip (Triceps-Focused),Triceps,Bodyweight Only
 "Dip (Weighted, Triceps Focused)",Triceps,Bodyweight Loadable 
 "Dip (Weighted, Chest-Focused",Chest,Bodyweight Loadable 
 Dip Machine,Triceps,Machine
+Dumbbell Side Bend,Obliques,Dumbbell
 Dumbbell Bench Wrist Curl,Forearms,Dumbbell
 Dumbbell Bent Lateral Raise,Shoulders,Dumbbell
 Dumbbell Bent Over Shrug,Shoulders,Dumbbell
@@ -102,8 +107,9 @@ Dumbbell Curl (Alternating),Biceps,Dumbbell
 Dumbbell Curl (Incline),Biceps,Dumbbell
 Dumbbell Fiacepull,Shoulders,Dumbbell
 Dumbbell Facepull (Incline),Shoulders,Dumbbell
+Dumbbell Farmer's Walk, Grip, Dumbbell
 Dumbbell Flye (Flat),Chest,Dumbbell
-Dumbbell Dlye (Incline),Chest,Dumbbell
+Dumbbell Flye (Incline),Chest,Dumbbell
 Dumbbell Front Raise,Shoulders,Dumbbell
 Dumbbell Front Squat,Quads,Dumbbell
 Dumbbell Hip Thrust (Single Leg),Glutes,Dumbbell
@@ -127,7 +133,7 @@ Dumbbell Press Flye (Incline),Chest,Dumbbell
 Dumbbell Pullover,Back,Dumbbell
 Dumbbell Row (2-Arm),Back,Dumbbell
 "Dumbbell Row (2-Arm, Incline)",Back,Dumbbell
-"Dumbbell Row (Single Arm, Supported",Back,Dumbbell
+"Dumbbell Row (Single Arm, Supported)",Back,Dumbbell
 Dumbbell Row to Hips,Back,Dumbbell
 Dumbbell Shoulder Press (Seated),Shoulders,Dumbbell
 Dumbbell Shoulder Press (Standing),Shoulders,Dumbbell
@@ -172,9 +178,16 @@ Hammer Machine Row (High),Back,Machine
 Hammer Machine Row (Low),Back,Machine
 Hammer Preacher Curl,Biceps,Dumbbell
 Hanging Knee Raise,Abs,Bodyweight Only
+Hanging Oblique Knee Raise,Obliques,Bodyweight Only
 Hanging Straight Leg Raise,Abs,Bodyweight Only
 Hip Abduction Machine,Glutes,Machine
-Hip Adduction,Quads,Machine
+Hip Adduction Machine,Adductors,Machine
+Hip Adduction Machine (Single Leg),Adductors,Machine
+Cable Hip Adduction,Adductors,Cable
+Copenhagen Plank,Adductors,Bodyweight Only
+Copenhagen Plank (Elevated),Adductors,Bodyweight Only
+Side-Lying Hip Adduction,Adductors,Bodyweight Only
+Side-Lying Hip Adduction (Weighted),Adductors,Dumbbell
 In and Out Straight Arm Shoulder Flyes,Shoulders,Dumbbell
 Incline Dumbbell Y Raises,Shoulders,Dumbbell
 Inverted Row,Back,Bodyweight Only
@@ -184,10 +197,10 @@ Two-Hand Kettlebell Swing,Glutes/Hamstrings,Kettlebell
 Single-Arm Kettlebell Swing,Glutes/Hamstrings,Kettlebell
 Kettlebell Goblet Squat,Quads/Glutes,Kettlebell
 Kettlebell Turkish Get-Up,Full Body,Kettlebell
-Kettlebell Clean,Shoulders/Hips,Kettlebell
+Kettlebell Clean,Shoulders/Glutes,Kettlebell
 Kettlebell Snatch,Full Body,Kettlebell
 Kettlebell Overhead Press,Shoulders,Kettlebell
-Kettlebell Push Press,Shoulders/Legs,Kettlebell
+Kettlebell Push Press,Shoulders/Quads,Kettlebell
 Kettlebell Deadlift,Hamstrings/Back,Kettlebell
 Kettlebell Single-Leg Deadlift,Hamstrings/Glutes,Kettlebell
 Kettlebell Row,Back,Kettlebell
@@ -201,7 +214,7 @@ Kettlebell Farmer's Walk,Grip/Core,Kettlebell
 Kettlebell Racked Carry,Core/Shoulders,Kettlebell
 Kettlebell Overhead Carry,Shoulders/Core,Kettlebell
 Kettlebell Sumo Squat,Quads,Kettlebell
-Kettlebell Figure-8,Core/Legs,Kettlebell
+Kettlebell Figure-8,Core/Quads,Kettlebell
 Kettlebell Around the Body Pass,Core/Shoulders,Kettlebell
 Kettlebell Russian Twist,Core/Obliques,Kettlebell
 Kettlebell Sit-Up,Core/Abs,Kettlebell
@@ -220,6 +233,7 @@ Kettlebell Bicep Curl,Biceps,Kettlebell
 Kettlebell Tricep Extension,Triceps,Kettlebell
 Kettlebell Suitcase Carry,Core/Grip,Kettlebell
 Kettlebell Swing to Squat,Full Body,Kettlebell
+Landmine Rotation,Obliques,Barbell
 Landmine Row,Back,Barbell
 Lat Pulldown,Back,Cable
 Lawnmowers,Back,Barbell
@@ -262,6 +276,8 @@ Pulldown (Straight Arm),Back,Cable
 Pulldown (Underhand Grip),Back,Cable
 Pulldown (Upright Torso to Abs),Back,Cable
 Pulldown (Wide Grip),Back,Cable
+Pullup Bar Hang, Grip, Bodyweight Only
+Pullup Bar Hang, Grip, Bodyweight Loadable
 Pullup (Normal Grip),Back,Bodyweight Only
 Pullup (Parallel Grip),Back,Bodyweight Only
 Pullup (Close Grip Overhand),Back,Bodyweight Only
@@ -282,6 +298,8 @@ Pushup (Divebomber),Chest,Bodyweight Only
 "Pushup (Weighted, Military)",Chest,Bodyweight Loadable 
 "Pushup (Weighted, Normal Grip)",Chest,Bodyweight Loadable 
 Reaching Sit-Up,Abs,Bodyweight Only
+Russian Twist,Obliques,Bodyweight Only
+Russian Twist (Weighted),Obliques,Dumbbell
 Reverse Cable Crossover, Shoulders, Cable
 Reverse Curl,Forearms,Barbell
 Reverse Hyper,Glutes,Machine
@@ -299,6 +317,8 @@ Single Leg Squats,Quads,Bodyweight Only
 Single-Leg Leg Curl,Hamstrings,Machine
 Sissy Squat (Machine),Quads,Bodyweight Only
 Sissy Squat (No Machine),Quads,Bodyweight Only
+Side Plank,Obliques,Bodyweight Only
+Side Plank (Weighted),Obliques,Dumbbell
 Sit-ups,Abs,Bodyweight Only
 Slant Board Sit-Up (Weighted),Abs,Bodyweight Loadable 
 Smith Machine Bench Press (Medium Grip),Chest,Smith Machine

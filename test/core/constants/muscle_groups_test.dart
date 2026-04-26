@@ -24,8 +24,6 @@ void main() {
       expect(MuscleGroups.parse('Core'), equals(MuscleGroup.core));
       expect(MuscleGroups.parse('Grip'), equals(MuscleGroup.grip));
       expect(MuscleGroups.parse('Obliques'), equals(MuscleGroup.obliques));
-      expect(MuscleGroups.parse('Legs'), equals(MuscleGroup.legs));
-      expect(MuscleGroups.parse('Hips'), equals(MuscleGroup.hips));
     });
 
     test('is case insensitive', () {

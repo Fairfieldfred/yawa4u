@@ -19,8 +19,6 @@ enum MuscleGroup {
   core,
   grip,
   obliques,
-  legs,
-  hips,
 }
 
 extension MuscleGroupExtension on MuscleGroup {
@@ -61,10 +59,6 @@ extension MuscleGroupExtension on MuscleGroup {
         return 'Grip';
       case MuscleGroup.obliques:
         return 'Obliques';
-      case MuscleGroup.legs:
-        return 'Legs';
-      case MuscleGroup.hips:
-        return 'Hips';
     }
   }
 
@@ -72,9 +66,9 @@ extension MuscleGroupExtension on MuscleGroup {
   /// Based on UI screenshots:
   /// - Pink/Magenta: Chest, Triceps, Shoulders
   /// - Cyan/Blue: Back, Biceps
-  /// - Teal/Green: Quads, Hamstrings, Glutes, Calves, Adductors, Legs
+  /// - Teal/Green: Quads, Hamstrings, Glutes, Calves, Adductors
   /// - Purple: Traps, Forearms, Abs, Core, Obliques, Grip
-  /// - Orange: Full Body, Hips
+  /// - Orange: Full Body
   Color get color {
     switch (this) {
       case MuscleGroup.chest:
@@ -89,7 +83,6 @@ extension MuscleGroupExtension on MuscleGroup {
       case MuscleGroup.glutes:
       case MuscleGroup.calves:
       case MuscleGroup.adductors:
-      case MuscleGroup.legs:
         return const Color(0xFF009688); // Teal/Green
       case MuscleGroup.traps:
       case MuscleGroup.forearms:
@@ -99,7 +92,6 @@ extension MuscleGroupExtension on MuscleGroup {
       case MuscleGroup.grip:
         return const Color(0xFF9C27B0); // Purple
       case MuscleGroup.fullBody:
-      case MuscleGroup.hips:
         return const Color(0xFFFF9800); // Orange
     }
   }
