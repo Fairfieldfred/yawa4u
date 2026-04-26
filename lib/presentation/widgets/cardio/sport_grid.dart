@@ -221,7 +221,7 @@ class _SportBox extends StatelessWidget {
   String get _label {
     switch (sport) {
       case Sport.strength:
-        return 'Lift';
+        return 'Strength';
       case Sport.run:
         return 'Run';
       case Sport.bike:

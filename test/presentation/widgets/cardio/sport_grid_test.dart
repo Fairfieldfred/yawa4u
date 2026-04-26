@@ -23,13 +23,14 @@ void main() {
     );
   }
 
-  testWidgets('compact variant renders ADD SESSION header + four boxes',
+  testWidgets('compact variant renders four sport boxes without header',
       (tester) async {
     await tester.pumpWidget(wrap(const SportGrid()));
     await tester.pump();
 
-    expect(find.text('ADD SESSION'), findsOneWidget);
-    expect(find.text('Lift'), findsOneWidget);
+    // Compact variant has no header text — just the sport boxes.
+    expect(find.text('Ready to train?'), findsNothing);
+    expect(find.text('Strength'), findsOneWidget);
     expect(find.text('Run'), findsOneWidget);
     expect(find.text('Bike'), findsOneWidget);
     expect(find.text('Swim'), findsOneWidget);
@@ -49,13 +50,13 @@ void main() {
     );
     // The compact "ADD SESSION" header is hidden in expanded mode.
     expect(find.text('ADD SESSION'), findsNothing);
-    expect(find.text('Lift'), findsOneWidget);
+    expect(find.text('Strength'), findsOneWidget);
     expect(find.text('Run'), findsOneWidget);
     expect(find.text('Bike'), findsOneWidget);
     expect(find.text('Swim'), findsOneWidget);
   });
 
-  testWidgets('tapping Lift invokes both onTap(strength) and onLift',
+  testWidgets('tapping Strength invokes both onTap(strength) and onLift',
       (tester) async {
     Sport? tappedSport;
     var liftCount = 0;
@@ -68,7 +69,7 @@ void main() {
     )));
     await tester.pump();
 
-    await tester.tap(find.text('Lift'));
+    await tester.tap(find.text('Strength'));
     await tester.pump();
 
     expect(tappedSport, Sport.strength);

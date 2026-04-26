@@ -1392,6 +1392,20 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
           // dismissed; forcing a resize would push the user's active
           // text field off-screen in a way that feels worse.
           resizeToAvoidBottomInset: false,
+          floatingActionButton:
+              (todaysWorkouts.isEmpty && dayCardioSessions.isEmpty)
+                  ? null
+                  : FloatingActionButton(
+                      onPressed: () => _showAddSessionDialog(
+                        cycleId: currentTrainingCycle.id,
+                        period: displayPeriod,
+                        day: displayDay,
+                        workouts: todaysWorkouts,
+                        sports: selectedSports,
+                      ),
+                      tooltip: 'Add session',
+                      child: const Icon(Icons.add),
+                    ),
           appBar: AppBar(
             elevation: 0,
             automaticallyImplyLeading: false,
@@ -1448,6 +1462,9 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                       context,
                       currentTrainingCycle,
                       todaysWorkouts,
+                      displayPeriod,
+                      displayDay,
+                      selectedSports,
                     ),
                   ),
                 ),
@@ -1456,14 +1473,13 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
           body: ScreenBackground.workout(
             child: Stack(
               children: [
-                // v6 chunk A4 — unified vertical scroll of session cards
-                // (strength exercises + cardio sessions as siblings),
-                // pinned SportGrid footer, and FINISH WORKOUT button
-                // below the grid when applicable.
+                // Session-present mode: unified vertical scroll of session
+                // cards + FINISH WORKOUT button. A FAB opens the
+                // add-session dialog (sport picker + muscle groups).
                 //
                 // Empty-day mode: when the day has zero sessions, the
                 // full-screen expanded SportGrid IS the body — no
-                // compact footer, no separate empty illustration.
+                // FAB, no separate empty illustration.
                 Positioned.fill(
                   child: (todaysWorkouts.isEmpty &&
                           dayCardioSessions.isEmpty)
@@ -1485,12 +1501,6 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                                 dayCardioSessions: dayCardioSessions,
                                 sports: selectedSports,
                               ),
-                            ),
-                            _buildSportGridFooter(
-                              cycleId: currentTrainingCycle.id,
-                              period: displayPeriod,
-                              day: displayDay,
-                              sports: selectedSports,
                             ),
                             if (showFinishButton)
                               _buildFinishWorkoutBar(todaysWorkouts),
@@ -1858,46 +1868,6 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     );
   }
 
-  /// Build the pinned sport grid that sits below the session scroll.
-  ///
-  /// Primary "add a session today" affordance in the redesigned Workout
-  /// tab — see Section A of DESIGN_OPPORTUNITIES.md. Renders only the
-  /// sports the user opted into via onboarding / Settings.
-  Widget _buildSportGridFooter({
-    required String cycleId,
-    required int period,
-    required int day,
-    required List<Sport> sports,
-  }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        border: Border(
-          top: BorderSide(
-            color: Theme.of(context)
-                .colorScheme
-                .onSurface
-                .withValues(alpha: 0.08),
-          ),
-        ),
-      ),
-      child: SafeArea(
-        top: false,
-        child: SportGrid(
-          sports: sports.isEmpty ? null : sports,
-          callbacks: SportGridCallbacks(
-            onLift: () => _onLiftPressed(cycleId, period, day),
-            onRun: () => _onCardioPressed(Sport.run, cycleId, period, day),
-            onBike: () =>
-                _onCardioPressed(Sport.bike, cycleId, period, day),
-            onSwim: () =>
-                _onCardioPressed(Sport.swim, cycleId, period, day),
-          ),
-        ),
-      ),
-    );
-  }
-
   /// Build the FINISH WORKOUT button that sits BELOW the SportGrid
   /// (per the locked-in design decision — the grid never lifts above
   /// the button). Visibility is driven upstream by [build]; this
@@ -2008,6 +1978,26 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     );
   }
 
+  /// FAB handler — opens the unified add-session dialog with sport
+  /// picker at the top. Replaces the removed compact SportGrid footer.
+  void _showAddSessionDialog({
+    required String cycleId,
+    required int period,
+    required int day,
+    required List<Workout> workouts,
+    required List<Sport> sports,
+  }) {
+    showAddExerciseDialog(
+      context: context,
+      ref: ref,
+      workouts: workouts,
+      trainingCycleId: cycleId,
+      periodNumber: period,
+      dayNumber: day,
+      selectedSports: sports,
+    );
+  }
+
   Widget _buildEmptyState(BuildContext context, String title, String message) {
     return Scaffold(
       appBar: AppBar(title: const Text('Session')),
@@ -2049,6 +2039,9 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     BuildContext context,
     dynamic trainingCycle,
     List<Workout> workouts,
+    int period,
+    int day,
+    List<Sport> sports,
   ) {
     final RenderBox button = context.findRenderObject() as RenderBox;
     final RenderBox overlay =
@@ -2115,8 +2108,14 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
         ),
         _buildMenuItem(
           icon: Icons.add,
-          text: 'Add exercise',
-          onTap: () => _addExerciseToWorkout(workouts),
+          text: 'Add session',
+          onTap: () => _showAddSessionDialog(
+            cycleId: trainingCycle.id as String,
+            period: period,
+            day: day,
+            workouts: workouts,
+            sports: sports,
+          ),
         ),
         _buildMenuItem(
           icon: Icons.monitor_weight_outlined,
@@ -2565,15 +2564,6 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
         }
       }
     }
-  }
-
-  void _addExerciseToWorkout(List<Workout> workouts) {
-    if (workouts.isEmpty) return;
-    showAddExerciseDialogFromWorkouts(
-      context: context,
-      ref: ref,
-      workouts: workouts,
-    );
   }
 
   void _logBodyweight() {
