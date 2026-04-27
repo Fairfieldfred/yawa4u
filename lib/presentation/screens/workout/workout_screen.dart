@@ -1812,7 +1812,9 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
       }
     }
 
-    slivers.add(const SliverToBoxAdapter(child: SizedBox(height: 16)));
+    // Extra bottom padding so the last LOG button isn't hidden behind
+    // the floating action button (56 px FAB + 16 px margin + buffer).
+    slivers.add(const SliverToBoxAdapter(child: SizedBox(height: 88)));
 
     return NotificationListener<UserScrollNotification>(
       onNotification: (notification) {

@@ -1,214 +1,1834 @@
 {
-    "id": "upper_lower_split",
-    "name": "Upper/Lower Split",
-    "description": "A 4-day per week upper/lower body split. Train upper body twice and lower body twice per week for balanced development.",
-    "periodsTotal": 6,
-    "daysPerPeriod": 4,
-    "recoveryPeriod": 7,
-    "workouts": [
+  "id": "upper/lower_split",
+  "name": "Upper/Lower Split",
+  "description": "Exported from app: Upper/Lower Split",
+  "periodsTotal": 6,
+  "daysPerPeriod": 4,
+  "recoveryPeriod": 7,
+  "workouts": [
+    {
+      "periodNumber": 1,
+      "dayNumber": 1,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
         {
-            "periodNumber": 1,
-            "dayNumber": 1,
-            "dayName": "Monday - Upper",
-            "exercises": [
-                {
-                    "name": "Bench Press",
-                    "muscleGroup": "chest",
-                    "equipmentType": "barbell",
-                    "sets": 4,
-                    "reps": "6-10",
-                    "setType": "regular"
-                },
-                {
-                    "name": "Barbell Row",
-                    "muscleGroup": "back",
-                    "equipmentType": "barbell",
-                    "sets": 4,
-                    "reps": "6-10",
-                    "setType": "regular"
-                },
-                {
-                    "name": "Overhead Press",
-                    "muscleGroup": "shoulders",
-                    "equipmentType": "barbell",
-                    "sets": 3,
-                    "reps": "8-12",
-                    "setType": "regular"
-                },
-                {
-                    "name": "Lat Pulldown",
-                    "muscleGroup": "back",
-                    "equipmentType": "machine",
-                    "sets": 3,
-                    "reps": "10-12",
-                    "setType": "regular"
-                },
-                {
-                    "name": "Barbell Curl",
-                    "muscleGroup": "biceps",
-                    "equipmentType": "barbell",
-                    "sets": 3,
-                    "reps": "10-12",
-                    "setType": "regular"
-                },
-                {
-                    "name": "Tricep Pushdown",
-                    "muscleGroup": "triceps",
-                    "equipmentType": "cable",
-                    "sets": 3,
-                    "reps": "10-12",
-                    "setType": "regular"
-                }
-            ]
-        },
-        {
-            "periodNumber": 1,
-            "dayNumber": 2,
-            "dayName": "Tuesday - Lower",
-            "exercises": [
-                {
-                    "name": "Barbell Squat",
-                    "muscleGroup": "quads",
-                    "equipmentType": "barbell",
-                    "sets": 4,
-                    "reps": "6-10",
-                    "setType": "regular"
-                },
-                {
-                    "name": "Romanian Deadlift",
-                    "muscleGroup": "hamstrings",
-                    "equipmentType": "barbell",
-                    "sets": 3,
-                    "reps": "8-12",
-                    "setType": "regular"
-                },
-                {
-                    "name": "Leg Press",
-                    "muscleGroup": "quads",
-                    "equipmentType": "machine",
-                    "sets": 3,
-                    "reps": "10-15",
-                    "setType": "regular"
-                },
-                {
-                    "name": "Leg Curl",
-                    "muscleGroup": "hamstrings",
-                    "equipmentType": "machine",
-                    "sets": 3,
-                    "reps": "10-12",
-                    "setType": "regular"
-                },
-                {
-                    "name": "Calf Raise",
-                    "muscleGroup": "calves",
-                    "equipmentType": "machine",
-                    "sets": 4,
-                    "reps": "12-15",
-                    "setType": "regular"
-                }
-            ]
-        },
-        {
-            "periodNumber": 1,
-            "dayNumber": 3,
-            "dayName": "Thursday - Upper",
-            "exercises": [
-                {
-                    "name": "Incline Dumbbell Press",
-                    "muscleGroup": "chest",
-                    "equipmentType": "dumbbell",
-                    "sets": 4,
-                    "reps": "8-12",
-                    "setType": "regular"
-                },
-                {
-                    "name": "Cable Row",
-                    "muscleGroup": "back",
-                    "equipmentType": "cable",
-                    "sets": 4,
-                    "reps": "8-12",
-                    "setType": "regular"
-                },
-                {
-                    "name": "Dumbbell Lateral Raise",
-                    "muscleGroup": "shoulders",
-                    "equipmentType": "dumbbell",
-                    "sets": 3,
-                    "reps": "12-15",
-                    "setType": "regular"
-                },
-                {
-                    "name": "Face Pull",
-                    "muscleGroup": "shoulders",
-                    "equipmentType": "cable",
-                    "sets": 3,
-                    "reps": "15-20",
-                    "setType": "regular"
-                },
-                {
-                    "name": "Hammer Curl",
-                    "muscleGroup": "biceps",
-                    "equipmentType": "dumbbell",
-                    "sets": 3,
-                    "reps": "10-12",
-                    "setType": "regular"
-                },
-                {
-                    "name": "Overhead Tricep Extension",
-                    "muscleGroup": "triceps",
-                    "equipmentType": "dumbbell",
-                    "sets": 3,
-                    "reps": "10-12",
-                    "setType": "regular"
-                }
-            ]
-        },
-        {
-            "periodNumber": 1,
-            "dayNumber": 4,
-            "dayName": "Friday - Lower",
-            "exercises": [
-                {
-                    "name": "Front Squat",
-                    "muscleGroup": "quads",
-                    "equipmentType": "barbell",
-                    "sets": 4,
-                    "reps": "8-12",
-                    "setType": "regular"
-                },
-                {
-                    "name": "Leg Curl",
-                    "muscleGroup": "hamstrings",
-                    "equipmentType": "machine",
-                    "sets": 4,
-                    "reps": "10-12",
-                    "setType": "regular"
-                },
-                {
-                    "name": "Bulgarian Split Squat",
-                    "muscleGroup": "quads",
-                    "equipmentType": "dumbbell",
-                    "sets": 3,
-                    "reps": "10-12",
-                    "setType": "regular"
-                },
-                {
-                    "name": "Leg Extension",
-                    "muscleGroup": "quads",
-                    "equipmentType": "machine",
-                    "sets": 3,
-                    "reps": "12-15",
-                    "setType": "regular"
-                },
-                {
-                    "name": "Seated Calf Raise",
-                    "muscleGroup": "calves",
-                    "equipmentType": "machine",
-                    "sets": 4,
-                    "reps": "15-20",
-                    "setType": "regular"
-                }
-            ]
+          "name": "Bench Press",
+          "muscleGroup": "chest",
+          "equipmentType": "barbell",
+          "sets": 4,
+          "reps": "8-12",
+          "setType": "regular"
         }
-    ]
+      ]
+    },
+    {
+      "periodNumber": 1,
+      "dayNumber": 1,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Barbell Row",
+          "muscleGroup": "back",
+          "equipmentType": "barbell",
+          "sets": 4,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Lat Pulldown",
+          "muscleGroup": "back",
+          "equipmentType": "machine",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 1,
+      "dayNumber": 1,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Overhead Press",
+          "muscleGroup": "shoulders",
+          "equipmentType": "barbell",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 1,
+      "dayNumber": 1,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Barbell Curl",
+          "muscleGroup": "biceps",
+          "equipmentType": "barbell",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 1,
+      "dayNumber": 1,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Tricep Pushdown",
+          "muscleGroup": "triceps",
+          "equipmentType": "cable",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 1,
+      "dayNumber": 2,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Barbell Squat",
+          "muscleGroup": "quads",
+          "equipmentType": "barbell",
+          "sets": 4,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Leg Press",
+          "muscleGroup": "quads",
+          "equipmentType": "machine",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 1,
+      "dayNumber": 2,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Romanian Deadlift",
+          "muscleGroup": "hamstrings",
+          "equipmentType": "barbell",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Leg Curl",
+          "muscleGroup": "hamstrings",
+          "equipmentType": "machine",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 1,
+      "dayNumber": 2,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Calf Raise",
+          "muscleGroup": "calves",
+          "equipmentType": "machine",
+          "sets": 4,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 1,
+      "dayNumber": 3,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Incline Dumbbell Press",
+          "muscleGroup": "chest",
+          "equipmentType": "dumbbell",
+          "sets": 4,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 1,
+      "dayNumber": 3,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Cable Row",
+          "muscleGroup": "back",
+          "equipmentType": "cable",
+          "sets": 4,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 1,
+      "dayNumber": 3,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Dumbbell Lateral Raise",
+          "muscleGroup": "shoulders",
+          "equipmentType": "dumbbell",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Face Pull",
+          "muscleGroup": "shoulders",
+          "equipmentType": "cable",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 1,
+      "dayNumber": 3,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Hammer Curl",
+          "muscleGroup": "biceps",
+          "equipmentType": "dumbbell",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 1,
+      "dayNumber": 3,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Overhead Tricep Extension",
+          "muscleGroup": "triceps",
+          "equipmentType": "dumbbell",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 1,
+      "dayNumber": 4,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Front Squat",
+          "muscleGroup": "quads",
+          "equipmentType": "barbell",
+          "sets": 4,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Bulgarian Split Squat",
+          "muscleGroup": "quads",
+          "equipmentType": "dumbbell",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Leg Extension",
+          "muscleGroup": "quads",
+          "equipmentType": "machine",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 1,
+      "dayNumber": 4,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Leg Curl",
+          "muscleGroup": "hamstrings",
+          "equipmentType": "machine",
+          "sets": 4,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 1,
+      "dayNumber": 4,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Seated Calf Raise",
+          "muscleGroup": "calves",
+          "equipmentType": "machine",
+          "sets": 4,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 2,
+      "dayNumber": 1,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Bench Press",
+          "muscleGroup": "chest",
+          "equipmentType": "barbell",
+          "sets": 4,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 2,
+      "dayNumber": 1,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Barbell Row",
+          "muscleGroup": "back",
+          "equipmentType": "barbell",
+          "sets": 4,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Lat Pulldown",
+          "muscleGroup": "back",
+          "equipmentType": "machine",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 2,
+      "dayNumber": 1,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Overhead Press",
+          "muscleGroup": "shoulders",
+          "equipmentType": "barbell",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 2,
+      "dayNumber": 1,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Barbell Curl",
+          "muscleGroup": "biceps",
+          "equipmentType": "barbell",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 2,
+      "dayNumber": 1,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Tricep Pushdown",
+          "muscleGroup": "triceps",
+          "equipmentType": "cable",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 2,
+      "dayNumber": 2,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Barbell Squat",
+          "muscleGroup": "quads",
+          "equipmentType": "barbell",
+          "sets": 4,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Leg Press",
+          "muscleGroup": "quads",
+          "equipmentType": "machine",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 2,
+      "dayNumber": 2,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Romanian Deadlift",
+          "muscleGroup": "hamstrings",
+          "equipmentType": "barbell",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Leg Curl",
+          "muscleGroup": "hamstrings",
+          "equipmentType": "machine",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 2,
+      "dayNumber": 2,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Calf Raise",
+          "muscleGroup": "calves",
+          "equipmentType": "machine",
+          "sets": 4,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 2,
+      "dayNumber": 3,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Incline Dumbbell Press",
+          "muscleGroup": "chest",
+          "equipmentType": "dumbbell",
+          "sets": 4,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 2,
+      "dayNumber": 3,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Cable Row",
+          "muscleGroup": "back",
+          "equipmentType": "cable",
+          "sets": 4,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 2,
+      "dayNumber": 3,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Dumbbell Lateral Raise",
+          "muscleGroup": "shoulders",
+          "equipmentType": "dumbbell",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Face Pull",
+          "muscleGroup": "shoulders",
+          "equipmentType": "cable",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 2,
+      "dayNumber": 3,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Hammer Curl",
+          "muscleGroup": "biceps",
+          "equipmentType": "dumbbell",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 2,
+      "dayNumber": 3,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Overhead Tricep Extension",
+          "muscleGroup": "triceps",
+          "equipmentType": "dumbbell",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 2,
+      "dayNumber": 4,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Seated Calf Raise",
+          "muscleGroup": "calves",
+          "equipmentType": "machine",
+          "sets": 4,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 2,
+      "dayNumber": 4,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Leg Curl",
+          "muscleGroup": "hamstrings",
+          "equipmentType": "machine",
+          "sets": 4,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 2,
+      "dayNumber": 4,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Front Squat",
+          "muscleGroup": "quads",
+          "equipmentType": "barbell",
+          "sets": 4,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Bulgarian Split Squat",
+          "muscleGroup": "quads",
+          "equipmentType": "dumbbell",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Leg Extension",
+          "muscleGroup": "quads",
+          "equipmentType": "machine",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 3,
+      "dayNumber": 1,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Bench Press",
+          "muscleGroup": "chest",
+          "equipmentType": "barbell",
+          "sets": 4,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 3,
+      "dayNumber": 1,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Barbell Row",
+          "muscleGroup": "back",
+          "equipmentType": "barbell",
+          "sets": 4,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Lat Pulldown",
+          "muscleGroup": "back",
+          "equipmentType": "machine",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 3,
+      "dayNumber": 1,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Overhead Press",
+          "muscleGroup": "shoulders",
+          "equipmentType": "barbell",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 3,
+      "dayNumber": 1,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Barbell Curl",
+          "muscleGroup": "biceps",
+          "equipmentType": "barbell",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 3,
+      "dayNumber": 1,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Tricep Pushdown",
+          "muscleGroup": "triceps",
+          "equipmentType": "cable",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 3,
+      "dayNumber": 2,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Barbell Squat",
+          "muscleGroup": "quads",
+          "equipmentType": "barbell",
+          "sets": 4,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Leg Press",
+          "muscleGroup": "quads",
+          "equipmentType": "machine",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 3,
+      "dayNumber": 2,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Romanian Deadlift",
+          "muscleGroup": "hamstrings",
+          "equipmentType": "barbell",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Leg Curl",
+          "muscleGroup": "hamstrings",
+          "equipmentType": "machine",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 3,
+      "dayNumber": 2,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Calf Raise",
+          "muscleGroup": "calves",
+          "equipmentType": "machine",
+          "sets": 4,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 3,
+      "dayNumber": 3,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Incline Dumbbell Press",
+          "muscleGroup": "chest",
+          "equipmentType": "dumbbell",
+          "sets": 4,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 3,
+      "dayNumber": 3,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Cable Row",
+          "muscleGroup": "back",
+          "equipmentType": "cable",
+          "sets": 4,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 3,
+      "dayNumber": 3,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Dumbbell Lateral Raise",
+          "muscleGroup": "shoulders",
+          "equipmentType": "dumbbell",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Face Pull",
+          "muscleGroup": "shoulders",
+          "equipmentType": "cable",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 3,
+      "dayNumber": 3,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Hammer Curl",
+          "muscleGroup": "biceps",
+          "equipmentType": "dumbbell",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 3,
+      "dayNumber": 3,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Overhead Tricep Extension",
+          "muscleGroup": "triceps",
+          "equipmentType": "dumbbell",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 3,
+      "dayNumber": 4,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Front Squat",
+          "muscleGroup": "quads",
+          "equipmentType": "barbell",
+          "sets": 4,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Bulgarian Split Squat",
+          "muscleGroup": "quads",
+          "equipmentType": "dumbbell",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Leg Extension",
+          "muscleGroup": "quads",
+          "equipmentType": "machine",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 3,
+      "dayNumber": 4,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Leg Curl",
+          "muscleGroup": "hamstrings",
+          "equipmentType": "machine",
+          "sets": 4,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 3,
+      "dayNumber": 4,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Seated Calf Raise",
+          "muscleGroup": "calves",
+          "equipmentType": "machine",
+          "sets": 4,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 4,
+      "dayNumber": 1,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Bench Press",
+          "muscleGroup": "chest",
+          "equipmentType": "barbell",
+          "sets": 4,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 4,
+      "dayNumber": 1,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Barbell Row",
+          "muscleGroup": "back",
+          "equipmentType": "barbell",
+          "sets": 4,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Lat Pulldown",
+          "muscleGroup": "back",
+          "equipmentType": "machine",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 4,
+      "dayNumber": 1,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Overhead Press",
+          "muscleGroup": "shoulders",
+          "equipmentType": "barbell",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 4,
+      "dayNumber": 1,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Barbell Curl",
+          "muscleGroup": "biceps",
+          "equipmentType": "barbell",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 4,
+      "dayNumber": 1,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Tricep Pushdown",
+          "muscleGroup": "triceps",
+          "equipmentType": "cable",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 4,
+      "dayNumber": 2,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Barbell Squat",
+          "muscleGroup": "quads",
+          "equipmentType": "barbell",
+          "sets": 4,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Leg Press",
+          "muscleGroup": "quads",
+          "equipmentType": "machine",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 4,
+      "dayNumber": 2,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Romanian Deadlift",
+          "muscleGroup": "hamstrings",
+          "equipmentType": "barbell",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Leg Curl",
+          "muscleGroup": "hamstrings",
+          "equipmentType": "machine",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 4,
+      "dayNumber": 2,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Calf Raise",
+          "muscleGroup": "calves",
+          "equipmentType": "machine",
+          "sets": 4,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 4,
+      "dayNumber": 3,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Incline Dumbbell Press",
+          "muscleGroup": "chest",
+          "equipmentType": "dumbbell",
+          "sets": 4,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 4,
+      "dayNumber": 3,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Cable Row",
+          "muscleGroup": "back",
+          "equipmentType": "cable",
+          "sets": 4,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 4,
+      "dayNumber": 3,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Dumbbell Lateral Raise",
+          "muscleGroup": "shoulders",
+          "equipmentType": "dumbbell",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Face Pull",
+          "muscleGroup": "shoulders",
+          "equipmentType": "cable",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 4,
+      "dayNumber": 3,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Hammer Curl",
+          "muscleGroup": "biceps",
+          "equipmentType": "dumbbell",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 4,
+      "dayNumber": 3,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Overhead Tricep Extension",
+          "muscleGroup": "triceps",
+          "equipmentType": "dumbbell",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 4,
+      "dayNumber": 4,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Front Squat",
+          "muscleGroup": "quads",
+          "equipmentType": "barbell",
+          "sets": 4,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Bulgarian Split Squat",
+          "muscleGroup": "quads",
+          "equipmentType": "dumbbell",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Leg Extension",
+          "muscleGroup": "quads",
+          "equipmentType": "machine",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 4,
+      "dayNumber": 4,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Leg Curl",
+          "muscleGroup": "hamstrings",
+          "equipmentType": "machine",
+          "sets": 4,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 4,
+      "dayNumber": 4,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Seated Calf Raise",
+          "muscleGroup": "calves",
+          "equipmentType": "machine",
+          "sets": 4,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 5,
+      "dayNumber": 1,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Bench Press",
+          "muscleGroup": "chest",
+          "equipmentType": "barbell",
+          "sets": 4,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 5,
+      "dayNumber": 1,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Barbell Row",
+          "muscleGroup": "back",
+          "equipmentType": "barbell",
+          "sets": 4,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Lat Pulldown",
+          "muscleGroup": "back",
+          "equipmentType": "machine",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 5,
+      "dayNumber": 1,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Overhead Press",
+          "muscleGroup": "shoulders",
+          "equipmentType": "barbell",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 5,
+      "dayNumber": 1,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Barbell Curl",
+          "muscleGroup": "biceps",
+          "equipmentType": "barbell",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 5,
+      "dayNumber": 1,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Tricep Pushdown",
+          "muscleGroup": "triceps",
+          "equipmentType": "cable",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 5,
+      "dayNumber": 2,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Barbell Squat",
+          "muscleGroup": "quads",
+          "equipmentType": "barbell",
+          "sets": 4,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Leg Press",
+          "muscleGroup": "quads",
+          "equipmentType": "machine",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 5,
+      "dayNumber": 2,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Romanian Deadlift",
+          "muscleGroup": "hamstrings",
+          "equipmentType": "barbell",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Leg Curl",
+          "muscleGroup": "hamstrings",
+          "equipmentType": "machine",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 5,
+      "dayNumber": 2,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Calf Raise",
+          "muscleGroup": "calves",
+          "equipmentType": "machine",
+          "sets": 4,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 5,
+      "dayNumber": 3,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Incline Dumbbell Press",
+          "muscleGroup": "chest",
+          "equipmentType": "dumbbell",
+          "sets": 4,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 5,
+      "dayNumber": 3,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Cable Row",
+          "muscleGroup": "back",
+          "equipmentType": "cable",
+          "sets": 4,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 5,
+      "dayNumber": 3,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Dumbbell Lateral Raise",
+          "muscleGroup": "shoulders",
+          "equipmentType": "dumbbell",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Face Pull",
+          "muscleGroup": "shoulders",
+          "equipmentType": "cable",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 5,
+      "dayNumber": 3,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Hammer Curl",
+          "muscleGroup": "biceps",
+          "equipmentType": "dumbbell",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 5,
+      "dayNumber": 3,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Overhead Tricep Extension",
+          "muscleGroup": "triceps",
+          "equipmentType": "dumbbell",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 5,
+      "dayNumber": 4,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Front Squat",
+          "muscleGroup": "quads",
+          "equipmentType": "barbell",
+          "sets": 4,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Bulgarian Split Squat",
+          "muscleGroup": "quads",
+          "equipmentType": "dumbbell",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Leg Extension",
+          "muscleGroup": "quads",
+          "equipmentType": "machine",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 5,
+      "dayNumber": 4,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Leg Curl",
+          "muscleGroup": "hamstrings",
+          "equipmentType": "machine",
+          "sets": 4,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 5,
+      "dayNumber": 4,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Seated Calf Raise",
+          "muscleGroup": "calves",
+          "equipmentType": "machine",
+          "sets": 4,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 6,
+      "dayNumber": 1,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Bench Press",
+          "muscleGroup": "chest",
+          "equipmentType": "barbell",
+          "sets": 4,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 6,
+      "dayNumber": 1,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Barbell Row",
+          "muscleGroup": "back",
+          "equipmentType": "barbell",
+          "sets": 4,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Lat Pulldown",
+          "muscleGroup": "back",
+          "equipmentType": "machine",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 6,
+      "dayNumber": 1,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Overhead Press",
+          "muscleGroup": "shoulders",
+          "equipmentType": "barbell",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 6,
+      "dayNumber": 1,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Barbell Curl",
+          "muscleGroup": "biceps",
+          "equipmentType": "barbell",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 6,
+      "dayNumber": 1,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Tricep Pushdown",
+          "muscleGroup": "triceps",
+          "equipmentType": "cable",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 6,
+      "dayNumber": 2,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Barbell Squat",
+          "muscleGroup": "quads",
+          "equipmentType": "barbell",
+          "sets": 4,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Leg Press",
+          "muscleGroup": "quads",
+          "equipmentType": "machine",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 6,
+      "dayNumber": 2,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Romanian Deadlift",
+          "muscleGroup": "hamstrings",
+          "equipmentType": "barbell",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Leg Curl",
+          "muscleGroup": "hamstrings",
+          "equipmentType": "machine",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 6,
+      "dayNumber": 2,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Calf Raise",
+          "muscleGroup": "calves",
+          "equipmentType": "machine",
+          "sets": 4,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 6,
+      "dayNumber": 3,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Incline Dumbbell Press",
+          "muscleGroup": "chest",
+          "equipmentType": "dumbbell",
+          "sets": 4,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 6,
+      "dayNumber": 3,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Cable Row",
+          "muscleGroup": "back",
+          "equipmentType": "cable",
+          "sets": 4,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 6,
+      "dayNumber": 3,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Dumbbell Lateral Raise",
+          "muscleGroup": "shoulders",
+          "equipmentType": "dumbbell",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Face Pull",
+          "muscleGroup": "shoulders",
+          "equipmentType": "cable",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 6,
+      "dayNumber": 3,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Hammer Curl",
+          "muscleGroup": "biceps",
+          "equipmentType": "dumbbell",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 6,
+      "dayNumber": 3,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Overhead Tricep Extension",
+          "muscleGroup": "triceps",
+          "equipmentType": "dumbbell",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 6,
+      "dayNumber": 4,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Front Squat",
+          "muscleGroup": "quads",
+          "equipmentType": "barbell",
+          "sets": 4,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Bulgarian Split Squat",
+          "muscleGroup": "quads",
+          "equipmentType": "dumbbell",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Leg Extension",
+          "muscleGroup": "quads",
+          "equipmentType": "machine",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 6,
+      "dayNumber": 4,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Leg Curl",
+          "muscleGroup": "hamstrings",
+          "equipmentType": "machine",
+          "sets": 4,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 6,
+      "dayNumber": 4,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Seated Calf Raise",
+          "muscleGroup": "calves",
+          "equipmentType": "machine",
+          "sets": 4,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    }
+  ]
 }

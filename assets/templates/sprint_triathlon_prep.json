@@ -1,13 +1,17 @@
 {
   "id": "sprint_triathlon_prep",
   "name": "Sprint triathlon — 6 week prep",
-  "description": "Build toward a sprint-distance triathlon (750m swim, 20km bike, 5km run). Six 7-day periods with the classic swim-bike-run pattern plus one strength day.",
+  "description": "Build toward a sprint-distance triathlon (750m swim, 20km bike, 5km run). Six 7-day periods with the classic swim-bike-run pattern plus one strength day. Progresses from base through build and peak, finishing with a taper week.",
   "primarySport": "run",
   "periodsTotal": 6,
   "daysPerPeriod": 7,
   "recoveryPeriod": 6,
   "_schemaNote": "v6 — primarySport hint drives defaults only. Cardio days reference templates in assets/cardio_sessions/. Loader for cardioTemplateId lands in Phase 6.",
+
   "workouts": [
+
+    {"_comment": "════════ Period 1 — Base 1 ════════"},
+
     {
       "periodNumber": 1,
       "dayNumber": 1,
@@ -35,7 +39,7 @@
       "dayName": "Strength",
       "sport": "strength",
       "exercises": [
-        { "name": "Barbell Squat", "muscleGroup": "quads", "equipmentType": "barbell", "sets": 3, "reps": "6-8", "setType": "regular" },
+        { "name": "Barbell Squat", "muscleGroup": "quads", "equipmentType": "barbell", "sets": 3, "reps": "8-10", "setType": "regular" },
         { "name": "Romanian Deadlift", "muscleGroup": "hamstrings", "equipmentType": "barbell", "sets": 3, "reps": "8-10", "setType": "regular" },
         { "name": "Pull-up", "muscleGroup": "back", "equipmentType": "bodyweightOnly", "sets": 3, "reps": "max", "setType": "maxReps" },
         { "name": "Plank", "muscleGroup": "abs", "equipmentType": "bodyweightOnly", "sets": 3, "reps": "60s", "setType": "regular" }
@@ -44,14 +48,14 @@
     {
       "periodNumber": 1,
       "dayNumber": 5,
-      "dayName": "Swim — CSS",
+      "dayName": "Swim — CSS test",
       "sport": "swim",
       "cardioTemplateId": "swim_css_test"
     },
     {
       "periodNumber": 1,
       "dayNumber": 6,
-      "dayName": "Brick — bike+run",
+      "dayName": "Brick — bike + run",
       "sport": "bike",
       "cardioTemplateId": "bike_easy_45min",
       "notes": "Follow the ride with a 10-min easy run off the bike."
@@ -59,9 +63,308 @@
     {
       "periodNumber": 1,
       "dayNumber": 7,
-      "dayName": "Rest or long run",
+      "dayName": "Long run",
       "sport": "run",
       "cardioTemplateId": "run_long_60min"
+    },
+
+    {"_comment": "════════ Period 2 — Base 2 ════════"},
+
+    {
+      "periodNumber": 2,
+      "dayNumber": 1,
+      "dayName": "Swim — easy",
+      "sport": "swim",
+      "cardioTemplateId": "swim_easy_500m"
+    },
+    {
+      "periodNumber": 2,
+      "dayNumber": 2,
+      "dayName": "Easy run",
+      "sport": "run",
+      "cardioTemplateId": "run_easy_30min"
+    },
+    {
+      "periodNumber": 2,
+      "dayNumber": 3,
+      "dayName": "Bike — easy",
+      "sport": "bike",
+      "cardioTemplateId": "bike_easy_45min"
+    },
+    {
+      "periodNumber": 2,
+      "dayNumber": 4,
+      "dayName": "Strength",
+      "sport": "strength",
+      "exercises": [
+        { "name": "Barbell Squat", "muscleGroup": "quads", "equipmentType": "barbell", "sets": 3, "reps": "8-10", "setType": "regular" },
+        { "name": "Romanian Deadlift", "muscleGroup": "hamstrings", "equipmentType": "barbell", "sets": 3, "reps": "8-10", "setType": "regular" },
+        { "name": "Pull-up", "muscleGroup": "back", "equipmentType": "bodyweightOnly", "sets": 3, "reps": "max", "setType": "maxReps" },
+        { "name": "Plank", "muscleGroup": "abs", "equipmentType": "bodyweightOnly", "sets": 3, "reps": "60s", "setType": "regular" }
+      ]
+    },
+    {
+      "periodNumber": 2,
+      "dayNumber": 5,
+      "dayName": "Swim — drills",
+      "sport": "swim",
+      "cardioTemplateId": "swim_drills_and_swim"
+    },
+    {
+      "periodNumber": 2,
+      "dayNumber": 6,
+      "dayName": "Brick — bike + run",
+      "sport": "bike",
+      "cardioTemplateId": "bike_sweet_spot_3x10",
+      "notes": "Follow the ride with a 15-min easy run off the bike."
+    },
+    {
+      "periodNumber": 2,
+      "dayNumber": 7,
+      "dayName": "Long run",
+      "sport": "run",
+      "cardioTemplateId": "run_long_60min"
+    },
+
+    {"_comment": "════════ Period 3 — Build 1 ════════"},
+
+    {
+      "periodNumber": 3,
+      "dayNumber": 1,
+      "dayName": "Swim — pyramid",
+      "sport": "swim",
+      "cardioTemplateId": "swim_pyramid"
+    },
+    {
+      "periodNumber": 3,
+      "dayNumber": 2,
+      "dayName": "Run — tempo",
+      "sport": "run",
+      "cardioTemplateId": "run_tempo_20min"
+    },
+    {
+      "periodNumber": 3,
+      "dayNumber": 3,
+      "dayName": "Bike — threshold",
+      "sport": "bike",
+      "cardioTemplateId": "bike_2x20_threshold"
+    },
+    {
+      "periodNumber": 3,
+      "dayNumber": 4,
+      "dayName": "Strength",
+      "sport": "strength",
+      "exercises": [
+        { "name": "Barbell Squat", "muscleGroup": "quads", "equipmentType": "barbell", "sets": 3, "reps": "6-8", "setType": "regular" },
+        { "name": "Romanian Deadlift", "muscleGroup": "hamstrings", "equipmentType": "barbell", "sets": 3, "reps": "6-8", "setType": "regular" },
+        { "name": "Pull-up", "muscleGroup": "back", "equipmentType": "bodyweightOnly", "sets": 3, "reps": "max", "setType": "maxReps" },
+        { "name": "Dumbbell Lunge", "muscleGroup": "quads", "equipmentType": "dumbbell", "sets": 3, "reps": "8-10", "setType": "regular", "notes": "Each leg" },
+        { "name": "Plank", "muscleGroup": "abs", "equipmentType": "bodyweightOnly", "sets": 3, "reps": "60s", "setType": "regular" }
+      ]
+    },
+    {
+      "periodNumber": 3,
+      "dayNumber": 5,
+      "dayName": "Swim — technique",
+      "sport": "swim",
+      "cardioTemplateId": "swim_drills_and_swim"
+    },
+    {
+      "periodNumber": 3,
+      "dayNumber": 6,
+      "dayName": "Brick — bike + run",
+      "sport": "bike",
+      "cardioTemplateId": "bike_easy_45min",
+      "notes": "Follow the ride with a 15-min run at race effort."
+    },
+    {
+      "periodNumber": 3,
+      "dayNumber": 7,
+      "dayName": "Long run",
+      "sport": "run",
+      "cardioTemplateId": "run_long_60min"
+    },
+
+    {"_comment": "════════ Period 4 — Build 2 ════════"},
+
+    {
+      "periodNumber": 4,
+      "dayNumber": 1,
+      "dayName": "Swim — CSS",
+      "sport": "swim",
+      "cardioTemplateId": "swim_css_test"
+    },
+    {
+      "periodNumber": 4,
+      "dayNumber": 2,
+      "dayName": "Run — hills",
+      "sport": "run",
+      "cardioTemplateId": "run_hill_repeats"
+    },
+    {
+      "periodNumber": 4,
+      "dayNumber": 3,
+      "dayName": "Bike — sweet spot",
+      "sport": "bike",
+      "cardioTemplateId": "bike_sweet_spot_3x10"
+    },
+    {
+      "periodNumber": 4,
+      "dayNumber": 4,
+      "dayName": "Strength",
+      "sport": "strength",
+      "exercises": [
+        { "name": "Barbell Squat", "muscleGroup": "quads", "equipmentType": "barbell", "sets": 3, "reps": "6-8", "setType": "regular" },
+        { "name": "Romanian Deadlift", "muscleGroup": "hamstrings", "equipmentType": "barbell", "sets": 3, "reps": "6-8", "setType": "regular" },
+        { "name": "Pull-up", "muscleGroup": "back", "equipmentType": "bodyweightOnly", "sets": 3, "reps": "max", "setType": "maxReps" },
+        { "name": "Dumbbell Lunge", "muscleGroup": "quads", "equipmentType": "dumbbell", "sets": 3, "reps": "8-10", "setType": "regular", "notes": "Each leg" },
+        { "name": "Plank", "muscleGroup": "abs", "equipmentType": "bodyweightOnly", "sets": 3, "reps": "60s", "setType": "regular" }
+      ]
+    },
+    {
+      "periodNumber": 4,
+      "dayNumber": 5,
+      "dayName": "Swim — pyramid",
+      "sport": "swim",
+      "cardioTemplateId": "swim_pyramid"
+    },
+    {
+      "periodNumber": 4,
+      "dayNumber": 6,
+      "dayName": "Brick — bike + run",
+      "sport": "bike",
+      "cardioTemplateId": "bike_2x20_threshold",
+      "notes": "Follow the ride with a 15-min run building to race pace."
+    },
+    {
+      "periodNumber": 4,
+      "dayNumber": 7,
+      "dayName": "Long run",
+      "sport": "run",
+      "cardioTemplateId": "run_long_60min"
+    },
+
+    {"_comment": "════════ Period 5 — Peak ════════"},
+
+    {
+      "periodNumber": 5,
+      "dayNumber": 1,
+      "dayName": "Swim — CSS",
+      "sport": "swim",
+      "cardioTemplateId": "swim_css_test"
+    },
+    {
+      "periodNumber": 5,
+      "dayNumber": 2,
+      "dayName": "Run — intervals",
+      "sport": "run",
+      "cardioTemplateId": "run_8x400m"
+    },
+    {
+      "periodNumber": 5,
+      "dayNumber": 3,
+      "dayName": "Bike — VO2max",
+      "sport": "bike",
+      "cardioTemplateId": "bike_vo2_5x3"
+    },
+    {
+      "periodNumber": 5,
+      "dayNumber": 4,
+      "dayName": "Strength",
+      "sport": "strength",
+      "exercises": [
+        { "name": "Barbell Squat", "muscleGroup": "quads", "equipmentType": "barbell", "sets": 3, "reps": "5", "setType": "regular" },
+        { "name": "Romanian Deadlift", "muscleGroup": "hamstrings", "equipmentType": "barbell", "sets": 3, "reps": "5", "setType": "regular" },
+        { "name": "Pull-up", "muscleGroup": "back", "equipmentType": "bodyweightOnly", "sets": 3, "reps": "max", "setType": "maxReps" },
+        { "name": "Dumbbell Lunge", "muscleGroup": "quads", "equipmentType": "dumbbell", "sets": 3, "reps": "6-8", "setType": "regular", "notes": "Each leg" },
+        { "name": "Plank", "muscleGroup": "abs", "equipmentType": "bodyweightOnly", "sets": 3, "reps": "60s", "setType": "regular" }
+      ]
+    },
+    {
+      "periodNumber": 5,
+      "dayNumber": 5,
+      "dayName": "Swim — pyramid",
+      "sport": "swim",
+      "cardioTemplateId": "swim_pyramid"
+    },
+    {
+      "periodNumber": 5,
+      "dayNumber": 6,
+      "dayName": "Brick — bike + run",
+      "sport": "bike",
+      "cardioTemplateId": "bike_sweet_spot_3x10",
+      "notes": "Follow the ride with a 20-min run at race pace."
+    },
+    {
+      "periodNumber": 5,
+      "dayNumber": 7,
+      "dayName": "Run — tempo",
+      "sport": "run",
+      "cardioTemplateId": "run_tempo_20min"
+    },
+
+    {"_comment": "════════ Period 6 — Taper ════════"},
+
+    {
+      "periodNumber": 6,
+      "dayNumber": 1,
+      "dayName": "Swim — easy",
+      "sport": "swim",
+      "cardioTemplateId": "swim_easy_500m",
+      "notes": "Taper week — focus on feel and technique, not speed."
+    },
+    {
+      "periodNumber": 6,
+      "dayNumber": 2,
+      "dayName": "Easy run",
+      "sport": "run",
+      "cardioTemplateId": "run_easy_30min",
+      "notes": "Taper week — keep the effort conversational."
+    },
+    {
+      "periodNumber": 6,
+      "dayNumber": 3,
+      "dayName": "Bike — easy spin",
+      "sport": "bike",
+      "cardioTemplateId": "bike_easy_45min",
+      "notes": "Taper week — easy spin, stay loose."
+    },
+    {
+      "periodNumber": 6,
+      "dayNumber": 4,
+      "dayName": "Strength — maintenance",
+      "sport": "strength",
+      "notes": "Taper week — reduced volume, keep loads moderate.",
+      "exercises": [
+        { "name": "Barbell Squat", "muscleGroup": "quads", "equipmentType": "barbell", "sets": 2, "reps": "8", "setType": "regular" },
+        { "name": "Romanian Deadlift", "muscleGroup": "hamstrings", "equipmentType": "barbell", "sets": 2, "reps": "8", "setType": "regular" },
+        { "name": "Pull-up", "muscleGroup": "back", "equipmentType": "bodyweightOnly", "sets": 2, "reps": "max", "setType": "maxReps" },
+        { "name": "Plank", "muscleGroup": "abs", "equipmentType": "bodyweightOnly", "sets": 2, "reps": "45s", "setType": "regular" }
+      ]
+    },
+    {
+      "periodNumber": 6,
+      "dayNumber": 5,
+      "dayName": "Swim — drills",
+      "sport": "swim",
+      "cardioTemplateId": "swim_drills_and_swim",
+      "notes": "Taper week — half volume, keep strokes smooth."
+    },
+    {
+      "periodNumber": 6,
+      "dayNumber": 6,
+      "dayName": "Brick — short",
+      "sport": "bike",
+      "cardioTemplateId": "bike_easy_45min",
+      "notes": "Taper week — 20-min easy ride + 10-min jog. Just open the legs."
+    },
+    {
+      "periodNumber": 6,
+      "dayNumber": 7,
+      "dayName": "Shakeout run",
+      "sport": "run",
+      "cardioTemplateId": "run_easy_30min",
+      "notes": "Taper week — 15-20 min very easy. Save it for race day."
     }
   ]
 }
