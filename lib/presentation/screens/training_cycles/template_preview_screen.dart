@@ -236,59 +236,79 @@ class _TemplatePreviewScreenState extends ConsumerState<TemplatePreviewScreen> {
             ),
           ),
           subtitle: Text(
-            '${workout.exercises.length} Exercises',
+            workout.isCardio
+                ? '${workout.sport[0].toUpperCase()}${workout.sport.substring(1)} session'
+                : '${workout.exercises.length} Exercises',
             style: TextStyle(color: colorScheme.onSurfaceVariant),
           ),
           children: [
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-              child: Column(
-                children: workout.exercises.map((exercise) {
-                  final muscleGroup = MuscleGroup.values.firstWhere(
-                    (m) => m.name == exercise.muscleGroup.toLowerCase(),
-                    orElse: () => MuscleGroup.chest,
-                  );
-
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: Row(
+              child: workout.isCardio
+                  ? Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Container(
-                          width: 4,
-                          height: 40,
-                          decoration: BoxDecoration(
-                            color: muscleGroup.color,
-                            borderRadius: BorderRadius.circular(2),
+                        if (workout.notes != null &&
+                            workout.notes!.isNotEmpty)
+                          Text(
+                            workout.notes!,
+                            style: TextStyle(
+                              color: colorScheme.onSurfaceVariant,
+                              fontSize: 14,
+                              height: 1.4,
+                            ),
                           ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                      ],
+                    )
+                  : Column(
+                      children: workout.exercises.map((exercise) {
+                        final muscleGroup = MuscleGroup.values.firstWhere(
+                          (m) =>
+                              m.name == exercise.muscleGroup.toLowerCase(),
+                          orElse: () => MuscleGroup.chest,
+                        );
+
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: Row(
                             children: [
-                              Text(
-                                exercise.name,
-                                style: TextStyle(
-                                  color: colorScheme.onSurface,
-                                  fontSize: 15,
+                              Container(
+                                width: 4,
+                                height: 40,
+                                decoration: BoxDecoration(
+                                  color: muscleGroup.color,
+                                  borderRadius: BorderRadius.circular(2),
                                 ),
                               ),
-                              const SizedBox(height: 2),
-                              Text(
-                                '${exercise.sets} sets × ${exercise.reps}',
-                                style: TextStyle(
-                                  color: colorScheme.onSurfaceVariant,
-                                  fontSize: 13,
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      exercise.name,
+                                      style: TextStyle(
+                                        color: colorScheme.onSurface,
+                                        fontSize: 15,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      '${exercise.sets} sets × ${exercise.reps}',
+                                      style: TextStyle(
+                                        color: colorScheme.onSurfaceVariant,
+                                        fontSize: 13,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ],
                           ),
-                        ),
-                      ],
+                        );
+                      }).toList(),
                     ),
-                  );
-                }).toList(),
-              ),
             ),
           ],
         ),

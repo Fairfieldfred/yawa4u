@@ -9,9 +9,6 @@
   "_schemaNote": "v6 — primarySport hint drives defaults only. Cardio days reference templates in assets/cardio_sessions/. Loader for cardioTemplateId lands in Phase 6.",
 
   "workouts": [
-
-    {"_comment": "════════ Period 1 — Base 1 ════════"},
-
     {
       "periodNumber": 1,
       "dayNumber": 1,
@@ -68,8 +65,6 @@
       "cardioTemplateId": "run_long_60min"
     },
 
-    {"_comment": "════════ Period 2 — Base 2 ════════"},
-
     {
       "periodNumber": 2,
       "dayNumber": 1,
@@ -125,8 +120,6 @@
       "sport": "run",
       "cardioTemplateId": "run_long_60min"
     },
-
-    {"_comment": "════════ Period 3 — Build 1 ════════"},
 
     {
       "periodNumber": 3,
@@ -185,8 +178,6 @@
       "cardioTemplateId": "run_long_60min"
     },
 
-    {"_comment": "════════ Period 4 — Build 2 ════════"},
-
     {
       "periodNumber": 4,
       "dayNumber": 1,
@@ -244,8 +235,6 @@
       "cardioTemplateId": "run_long_60min"
     },
 
-    {"_comment": "════════ Period 5 — Peak ════════"},
-
     {
       "periodNumber": 5,
       "dayNumber": 1,
@@ -302,8 +291,6 @@
       "sport": "run",
       "cardioTemplateId": "run_tempo_20min"
     },
-
-    {"_comment": "════════ Period 6 — Taper ════════"},
 
     {
       "periodNumber": 6,

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -24,7 +25,12 @@ class _TemplateSelectionScreenState
     return Scaffold(
       appBar: AppBar(title: const Text('Choose a Program'), elevation: 0),
       body: templatesAsync.when(
-        data: (templates) {
+        data: (allTemplates) {
+          final templates = kDebugMode
+              ? allTemplates
+              : allTemplates
+                  .where((t) => t.id != 'short')
+                  .toList();
           if (templates.isEmpty) {
             return Center(
               child: Text(
