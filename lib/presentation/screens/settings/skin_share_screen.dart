@@ -414,35 +414,57 @@ class _SkinShareScreenState extends ConsumerState<SkinShareScreen> {
           ),
         ),
 
-        // Share button at bottom
+        // Share buttons at bottom
         SafeArea(
           child: Padding(
             padding: const EdgeInsets.all(16),
-            child: ElevatedButton.icon(
-              onPressed: _selectedSkinIds.isEmpty || _isLoading
-                  ? null
-                  : () {
-                      final selectedSkins = skins
-                          .where((s) => _selectedSkinIds.contains(s.id))
-                          .toList();
-                      _startServer(selectedSkins);
-                    },
-              icon: _isLoading
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Icon(Icons.share),
-              label: Text(
-                _selectedSkinIds.isEmpty
-                    ? 'Select Themes to Share'
-                    : 'Share ${_selectedSkinIds.length} Theme${_selectedSkinIds.length > 1 ? 's' : ''}',
-              ),
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                minimumSize: const Size(double.infinity, 56),
-              ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Share via QR Code button
+                OutlinedButton.icon(
+                  onPressed: _selectedSkinIds.isEmpty || _isLoading
+                      ? null
+                      : () {
+                          final selectedSkins = skins
+                              .where((s) => _selectedSkinIds.contains(s.id))
+                              .toList();
+                          _startServer(selectedSkins);
+                        },
+                  icon: _isLoading
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.qr_code),
+                  label: Text(
+                    _selectedSkinIds.isEmpty
+                        ? 'Select Themes to Share'
+                        : 'Share via QR Code',
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    minimumSize: const Size(double.infinity, 56),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                // Upload to Cloud button
+                FilledButton.icon(
+                  onPressed: _selectedSkinIds.isEmpty || _isLoading
+                      ? null
+                      : () {
+                          final skinId = _selectedSkinIds.first;
+                          context.push('/community/upload-skin?skinId=$skinId');
+                        },
+                  icon: const Icon(Icons.cloud_upload),
+                  label: const Text('Upload to Cloud'),
+                  style: FilledButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    minimumSize: const Size(double.infinity, 56),
+                  ),
+                ),
+              ],
             ),
           ),
         ),

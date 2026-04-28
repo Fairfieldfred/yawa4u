@@ -747,6 +747,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             padding: EdgeInsets.all(16),
             child: _SportsSection(),
           ),
+          const Divider(height: 1),
+
           const SizedBox(height: 32),
         ],
       ),

@@ -27,6 +27,9 @@ import '../screens/settings/units_screen.dart';
 import '../screens/settings/zones_screen.dart';
 import '../screens/stats/stats_screen.dart';
 import '../screens/settings/skin_share_screen.dart';
+import '../screens/community/community_browse_screen.dart';
+import '../screens/community/upload_skin_screen.dart';
+import '../screens/community/upload_template_screen.dart';
 import '../screens/settings/sync_screen.dart';
 import '../screens/settings/template_share_screen.dart';
 import '../screens/settings/theme_editor_screen.dart';
@@ -344,6 +347,34 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) {
           final sessionId = state.pathParameters['sessionId']!;
           return IntervalBuilderScreen(sessionId: sessionId);
+        },
+      ),
+
+      // Community library — browse + download templates & themes.
+      GoRoute(
+        path: '/community',
+        name: 'community',
+        builder: (context, state) {
+          final tab = int.tryParse(
+                state.uri.queryParameters['tab'] ?? '',
+              ) ??
+              0;
+          return CommunityBrowseScreen(initialTab: tab);
+        },
+      ),
+
+      // Community uploads (email-verified users only).
+      GoRoute(
+        path: '/community/upload-template',
+        name: 'upload-template',
+        builder: (context, state) => const UploadTemplateScreen(),
+      ),
+      GoRoute(
+        path: '/community/upload-skin',
+        name: 'upload-skin',
+        builder: (context, state) {
+          final skinId = state.uri.queryParameters['skinId'];
+          return UploadSkinScreen(preSelectedSkinId: skinId);
         },
       ),
     ],
