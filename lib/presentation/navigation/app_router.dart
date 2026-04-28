@@ -367,7 +367,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/community/upload-template',
         name: 'upload-template',
-        builder: (context, state) => const UploadTemplateScreen(),
+        builder: (context, state) {
+          final templateId = state.uri.queryParameters['templateId'];
+          return UploadTemplateScreen(preSelectedTemplateId: templateId);
+        },
       ),
       GoRoute(
         path: '/community/upload-skin',

@@ -11,7 +11,10 @@ import '../../widgets/auth/email_link_prompt.dart';
 /// Screen for selecting a local template and publishing it to the
 /// community library.
 class UploadTemplateScreen extends ConsumerStatefulWidget {
-  const UploadTemplateScreen({super.key});
+  /// Optional template ID to pre-select when opening the screen.
+  final String? preSelectedTemplateId;
+
+  const UploadTemplateScreen({super.key, this.preSelectedTemplateId});
 
   @override
   ConsumerState<UploadTemplateScreen> createState() =>
@@ -156,6 +159,21 @@ class _UploadTemplateScreenState
                 const SizedBox(height: 8),
                 templatesAsync.when(
                   data: (templates) {
+                    // Pre-select template from route param (once).
+                    if (_selectedTemplate == null &&
+                        widget.preSelectedTemplateId != null) {
+                      final match = templates.where(
+                        (t) => t.id == widget.preSelectedTemplateId,
+                      );
+                      if (match.isNotEmpty) {
+                        // Schedule after build to avoid setState during build.
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          if (mounted) {
+                            setState(() => _selectedTemplate = match.first);
+                          }
+                        });
+                      }
+                    }
                     if (templates.isEmpty) {
                       return Text(
                         'No saved programs to share.',

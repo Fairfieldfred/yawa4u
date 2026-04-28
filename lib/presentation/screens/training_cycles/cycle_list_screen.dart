@@ -339,9 +339,7 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
                               children: [
                                 const Icon(Icons.edit_outlined),
                                 const SizedBox(width: 12),
-                                Text(
-                                  'Rename the ${ref.watch(trainingCycleTermProvider)}',
-                                ),
+                                const Text('Rename'),
                               ],
                             ),
                           ),

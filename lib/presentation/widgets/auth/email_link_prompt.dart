@@ -61,6 +61,12 @@ class _EmailLinkSheetState extends ConsumerState<_EmailLinkSheet> {
   /// True if the user already linked an email but hasn't verified yet.
   bool _awaitingVerification = false;
 
+  /// True when the user should sign in with an existing account rather than
+  /// linking a new email to their anonymous account. Activates automatically
+  /// when [linkWithEmail] returns `email-already-in-use`, or manually via
+  /// the "Sign in instead" toggle.
+  bool _isSignInMode = false;
+
   @override
   void initState() {
     super.initState();
@@ -96,12 +102,65 @@ class _EmailLinkSheetState extends ConsumerState<_EmailLinkSheet> {
     if (!mounted) return;
 
     if (result != null) {
-      // Error occurred.
+      // If the email is already in use, switch to sign-in mode so the user
+      // can authenticate with the existing account.
+      if (result.contains('already registered')) {
+        setState(() {
+          _isLoading = false;
+          _isSignInMode = true;
+          _error = null;
+        });
+      } else {
+        setState(() {
+          _isLoading = false;
+          _error = result;
+        });
+      }
+    } else {
+      setState(() {
+        _isLoading = false;
+        _awaitingVerification = true;
+      });
+    }
+  }
+
+  /// Signs in with an existing email/password account. Replaces the current
+  /// anonymous user — local data (Drift DB, SharedPreferences) is unaffected
+  /// because it's not keyed by Firebase UID.
+  Future<void> _signInEmail() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
+
+    final authService = ref.read(firebaseAuthServiceProvider);
+    final result = await authService.signInWithEmail(
+      _emailController.text.trim(),
+      _passwordController.text,
+    );
+
+    if (!mounted) return;
+
+    if (result != null) {
       setState(() {
         _isLoading = false;
         _error = result;
       });
+      return;
+    }
+
+    // Sign-in succeeded. Reload to get current verification status.
+    await authService.reloadUser();
+    if (!mounted) return;
+
+    if (authService.isEmailVerified) {
+      await authService.forceTokenRefresh();
+      ref.invalidate(authStateProvider);
+      if (mounted) Navigator.of(context).pop(true);
     } else {
+      // Signed in but not yet verified — show verification view.
       setState(() {
         _isLoading = false;
         _awaitingVerification = true;
@@ -164,6 +223,8 @@ class _EmailLinkSheetState extends ConsumerState<_EmailLinkSheet> {
   }
 
   Widget _buildLinkForm(ColorScheme colorScheme) {
+    final onSubmit = _isSignInMode ? _signInEmail : _linkEmail;
+
     return Form(
       key: _formKey,
       child: Column(
@@ -184,14 +245,14 @@ class _EmailLinkSheetState extends ConsumerState<_EmailLinkSheet> {
           const SizedBox(height: 20),
 
           Icon(
-            Icons.verified_user_outlined,
+            _isSignInMode ? Icons.login : Icons.verified_user_outlined,
             size: 48,
             color: colorScheme.primary,
           ),
           const SizedBox(height: 16),
 
           Text(
-            'Verify to Upload',
+            _isSignInMode ? 'Sign In' : 'Verify to Upload',
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
@@ -199,8 +260,11 @@ class _EmailLinkSheetState extends ConsumerState<_EmailLinkSheet> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Link an email to your account to share content with the '
-            'community. Your anonymous data is preserved.',
+            _isSignInMode
+                ? 'Sign in with the email and password you used on '
+                    'your other device.'
+                : 'Link an email to your account to share content with the '
+                    'community. Your anonymous data is preserved.',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: colorScheme.onSurfaceVariant,
                 ),
@@ -244,7 +308,7 @@ class _EmailLinkSheetState extends ConsumerState<_EmailLinkSheet> {
               }
               return null;
             },
-            onFieldSubmitted: (_) => _linkEmail(),
+            onFieldSubmitted: (_) => onSubmit(),
           ),
           const SizedBox(height: 8),
 
@@ -259,7 +323,7 @@ class _EmailLinkSheetState extends ConsumerState<_EmailLinkSheet> {
 
           const SizedBox(height: 8),
           FilledButton(
-            onPressed: _isLoading ? null : _linkEmail,
+            onPressed: _isLoading ? null : onSubmit,
             style: FilledButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: 16),
               shape: RoundedRectangleBorder(
@@ -275,9 +339,22 @@ class _EmailLinkSheetState extends ConsumerState<_EmailLinkSheet> {
                       color: Colors.white,
                     ),
                   )
-                : const Text('LINK EMAIL & VERIFY'),
+                : Text(_isSignInMode
+                    ? 'SIGN IN'
+                    : 'LINK EMAIL & VERIFY'),
           ),
           const SizedBox(height: 8),
+          TextButton(
+            onPressed: () {
+              setState(() {
+                _isSignInMode = !_isSignInMode;
+                _error = null;
+              });
+            },
+            child: Text(_isSignInMode
+                ? 'CREATE NEW ACCOUNT'
+                : 'SIGN IN WITH EXISTING ACCOUNT'),
+          ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
             child: const Text('CANCEL'),

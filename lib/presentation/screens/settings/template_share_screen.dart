@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:qr_flutter/qr_flutter.dart';
@@ -381,35 +382,61 @@ class _TemplateShareScreenState extends ConsumerState<TemplateShareScreen> {
           ),
         ),
 
-        // Share button at bottom
+        // Share buttons at bottom
         SafeArea(
           child: Padding(
             padding: const EdgeInsets.all(16),
-            child: ElevatedButton.icon(
-              onPressed: _selectedTemplateIds.isEmpty || _isLoading
-                  ? null
-                  : () {
-                      final selectedTemplates = templates
-                          .where((t) => _selectedTemplateIds.contains(t.id))
-                          .toList();
-                      _startServer(selectedTemplates);
-                    },
-              icon: _isLoading
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Icon(Icons.share),
-              label: Text(
-                _selectedTemplateIds.isEmpty
-                    ? 'Select Templates to Share'
-                    : 'Share ${_selectedTemplateIds.length} Template${_selectedTemplateIds.length > 1 ? 's' : ''}',
-              ),
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                minimumSize: const Size(double.infinity, 56),
-              ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Share via QR Code button
+                OutlinedButton.icon(
+                  onPressed: _selectedTemplateIds.isEmpty || _isLoading
+                      ? null
+                      : () {
+                          final selectedTemplates = templates
+                              .where(
+                                (t) => _selectedTemplateIds.contains(t.id),
+                              )
+                              .toList();
+                          _startServer(selectedTemplates);
+                        },
+                  icon: _isLoading
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.qr_code),
+                  label: Text(
+                    _selectedTemplateIds.isEmpty
+                        ? 'Select Templates to Share'
+                        : 'Share via QR Code',
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    minimumSize: const Size(double.infinity, 56),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                // Upload to Cloud button
+                FilledButton.icon(
+                  onPressed: _selectedTemplateIds.isEmpty || _isLoading
+                      ? null
+                      : () {
+                          final templateId = _selectedTemplateIds.first;
+                          context.push(
+                            '/community/upload-template?templateId=$templateId',
+                          );
+                        },
+                  icon: const Icon(Icons.cloud_upload),
+                  label: const Text('Upload to Cloud'),
+                  style: FilledButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    minimumSize: const Size(double.infinity, 56),
+                  ),
+                ),
+              ],
             ),
           ),
         ),

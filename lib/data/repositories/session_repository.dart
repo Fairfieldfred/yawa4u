@@ -310,21 +310,31 @@ class SessionRepository {
     if (session.sport != Sport.strength) {
       throw StateError('createStrength requires Sport.strength');
     }
-    await _sessionDao.insertSession(SessionMapper.toCompanion(session));
-    await _writeStrengthChildren(session, isUpdate: false);
+    await _sessionDao.transaction(() async {
+      await _sessionDao.insertSession(SessionMapper.toCompanion(session));
+      await _writeStrengthChildren(session, isUpdate: false);
+    });
   }
 
   /// Update a strength session and reconcile its exercise/set children.
   /// Exercises or sets no longer present in [session] are cascade-deleted.
+  ///
+  /// Wrapped in a transaction so that Drift stream watchers fire only after
+  /// both the session row and its exercise/set children have been written.
+  /// Without this, the `sessions` stream fires on the session-row update
+  /// before the exercises are reconciled, causing listeners to hydrate
+  /// stale exercise data.
   Future<void> updateStrength(StrengthSession session) async {
     if (session.sport != Sport.strength) {
       throw StateError('updateStrength requires Sport.strength');
     }
-    await _sessionDao.updateByUuid(
-      session.id,
-      SessionMapper.toCompanion(session),
-    );
-    await _writeStrengthChildren(session, isUpdate: true);
+    await _sessionDao.transaction(() async {
+      await _sessionDao.updateByUuid(
+        session.id,
+        SessionMapper.toCompanion(session),
+      );
+      await _writeStrengthChildren(session, isUpdate: true);
+    });
   }
 
   Future<void> _writeStrengthChildren(
