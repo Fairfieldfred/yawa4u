@@ -693,6 +693,7 @@ class _TrainingCycleCreateScreenState
               },
               data: (templates) =>
                   DropdownButtonFormField<TrainingCycleTemplate?>(
+                    isExpanded: true,
                     initialValue: _selectedTemplate,
                     decoration: const InputDecoration(
                       labelText: 'Choose a Template',

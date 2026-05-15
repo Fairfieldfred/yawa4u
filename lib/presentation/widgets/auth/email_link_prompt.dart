@@ -227,10 +227,11 @@ class _EmailLinkSheetState extends ConsumerState<_EmailLinkSheet> {
 
     return Form(
       key: _formKey,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
           // Handle
           Center(
             child: Container(
@@ -360,12 +361,14 @@ class _EmailLinkSheetState extends ConsumerState<_EmailLinkSheet> {
             child: const Text('CANCEL'),
           ),
         ],
+        ),
       ),
     );
   }
 
   Widget _buildVerificationView(ColorScheme colorScheme) {
-    return Column(
+    return SingleChildScrollView(
+      child: Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -441,6 +444,7 @@ class _EmailLinkSheetState extends ConsumerState<_EmailLinkSheet> {
           child: const Text('CANCEL'),
         ),
       ],
+      ),
     );
   }
 }
