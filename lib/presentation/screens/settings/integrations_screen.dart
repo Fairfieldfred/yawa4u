@@ -38,16 +38,61 @@ class _IntegrationsScreenState
         .requestPermissions();
     ref.invalidate(healthSyncStatusProvider);
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          granted
-              ? 'Health permissions granted'
-              : 'Health permissions were not granted',
+    if (granted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Health permissions granted')),
+      );
+    } else {
+      _showHealthConnectGuide();
+    }
+    setState(() => _busy = false);
+  }
+
+  void _showHealthConnectGuide() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
         ),
+        title: const Row(
+          children: [
+            Icon(Icons.health_and_safety, color: Colors.green),
+            SizedBox(width: 12),
+            Expanded(child: Text('Health Connect Required')),
+          ],
+        ),
+        content: const Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'To sync workouts from Health Connect and Peloton, '
+              'please follow these steps:',
+            ),
+            SizedBox(height: 16),
+            Text('1. Download and install Health Connect from the '
+                'Google Play Store (Android 14+ has it built in).'),
+            SizedBox(height: 8),
+            Text('2. Open Health Connect and go to '
+                'App permissions.'),
+            SizedBox(height: 8),
+            Text('3. Find Yawa4u in the list and allow access '
+                'to Exercise sessions, Heart rate, Distance, '
+                'and Active energy burned.'),
+            SizedBox(height: 8),
+            Text('4. Return here and tap "Grant permissions" '
+                'again.'),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('GOT IT'),
+          ),
+        ],
       ),
     );
-    setState(() => _busy = false);
   }
 
   Future<void> _sync() async {
