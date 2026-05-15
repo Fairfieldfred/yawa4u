@@ -436,7 +436,18 @@ class EditWorkoutController {
     final exercise = workout.exercises[exerciseIndex];
     if (setIndex >= exercise.sets.length) return;
 
-    final updatedSet = exercise.sets[setIndex].copyWith(setType: type);
+    // Myorep Match: prefill weight/reps from the preceding set
+    final ExerciseSet updatedSet;
+    if (type == SetType.myorepMatch && setIndex > 0) {
+      final prevSet = exercise.sets[setIndex - 1];
+      updatedSet = exercise.sets[setIndex].copyWith(
+        setType: type,
+        weight: prevSet.weight,
+        reps: prevSet.reps.isNotEmpty ? prevSet.reps : null,
+      );
+    } else {
+      updatedSet = exercise.sets[setIndex].copyWith(setType: type);
+    }
     final updatedSets = List<ExerciseSet>.from(exercise.sets);
     updatedSets[setIndex] = updatedSet;
 

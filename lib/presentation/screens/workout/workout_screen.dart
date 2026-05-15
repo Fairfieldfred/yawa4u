@@ -272,7 +272,21 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
 
     final nowLogging = !set.isLogged;
     final updatedSet = set.copyWith(isLogged: nowLogging);
-    final updatedExercise = exercise.updateSet(setIndex, updatedSet);
+    var updatedExercise = exercise.updateSet(setIndex, updatedSet);
+
+    // Myorep Match: propagate weight/reps to the next set if it's myorepMatch
+    if (nowLogging) {
+      final nextIndex = setIndex + 1;
+      if (nextIndex < updatedExercise.sets.length &&
+          updatedExercise.sets[nextIndex].setType == SetType.myorepMatch) {
+        final nextSet = updatedExercise.sets[nextIndex].copyWith(
+          weight: set.weight,
+          reps: set.reps,
+        );
+        updatedExercise = updatedExercise.updateSet(nextIndex, nextSet);
+      }
+    }
+
     var updatedWorkout = workout.updateExercise(
       exerciseIndex,
       updatedExercise,
@@ -495,7 +509,18 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     final exercise = workout.exercises[exerciseIndex];
     if (setIndex >= exercise.sets.length) return;
 
-    final updatedSet = exercise.sets[setIndex].copyWith(setType: type);
+    // Myorep Match: prefill weight/reps from the preceding set
+    final ExerciseSet updatedSet;
+    if (type == SetType.myorepMatch && setIndex > 0) {
+      final prevSet = exercise.sets[setIndex - 1];
+      updatedSet = exercise.sets[setIndex].copyWith(
+        setType: type,
+        weight: prevSet.weight,
+        reps: prevSet.reps.isNotEmpty ? prevSet.reps : null,
+      );
+    } else {
+      updatedSet = exercise.sets[setIndex].copyWith(setType: type);
+    }
     final updatedSets = List<ExerciseSet>.from(exercise.sets);
     updatedSets[setIndex] = updatedSet;
 

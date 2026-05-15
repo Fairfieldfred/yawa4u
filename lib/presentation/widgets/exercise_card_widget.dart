@@ -680,6 +680,12 @@ class ExerciseCardWidget extends ConsumerWidget {
   Widget _buildSetRow(BuildContext context, ExerciseSet set, int index) {
     final isLoggable = set.weight != null && set.reps.isNotEmpty;
 
+    // Myorep Match sets include weight/reps in the key so the field
+    // rebuilds when _toggleSetLog propagates values from the set above.
+    // Regular sets use a stable key to avoid focus loss during typing.
+    final isMyorepMatch =
+        set.setType == SetType.myorepMatch && index > 0;
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 6),
       child: Row(
@@ -708,7 +714,11 @@ class ExerciseCardWidget extends ConsumerWidget {
                 ),
                 child: Center(
                   child: TextFormField(
-                    key: ValueKey('weight_${set.id}_$useMetric'),
+                    key: ValueKey(
+                      isMyorepMatch
+                          ? 'weight_${set.id}_${set.setType.name}_${set.weight}_$useMetric'
+                          : 'weight_${set.id}_${set.setType.name}_$useMetric',
+                    ),
                     initialValue: formatWeightForDisplay(
                       set.weight,
                       useMetric,
@@ -795,7 +805,11 @@ class ExerciseCardWidget extends ConsumerWidget {
                   ),
                   child: Center(
                     child: TextFormField(
-                      key: ValueKey('reps_${set.id}'),
+                      key: ValueKey(
+                        isMyorepMatch
+                            ? 'reps_${set.id}_${set.setType.name}_${set.reps}'
+                            : 'reps_${set.id}_${set.setType.name}',
+                      ),
                       initialValue: set.reps,
                       style: Theme.of(context).textTheme.bodyMedium,
                       textAlign: TextAlign.center,
@@ -1123,36 +1137,32 @@ class ExerciseCardWidget extends ConsumerWidget {
             ],
           ),
         ),
-        // Myorep match
-        PopupMenuItem<String>(
-          value: 'myorep_match',
-          enabled: index > 0,
-          height: 40,
-          child: Row(
-            children: [
-              Icon(
-                set.setType == SetType.myorepMatch
-                    ? Icons.radio_button_checked
-                    : Icons.radio_button_unchecked,
-                color: index > 0
-                    ? (set.setType == SetType.myorepMatch
-                          ? context.selectedIndicatorColor
-                          : Colors.grey)
-                    : Colors.grey.withValues(alpha: 0.4),
-                size: 20,
-              ),
-              const SizedBox(width: 12),
-              Text(
-                'Myorep match',
-                style: TextStyle(
-                  color: index > 0
-                      ? Theme.of(context).colorScheme.onSurface
-                      : Colors.grey.withValues(alpha: 0.4),
+        // Myorep match (hidden for first set — requires a preceding set)
+        if (index > 0)
+          PopupMenuItem<String>(
+            value: 'myorep_match',
+            height: 40,
+            child: Row(
+              children: [
+                Icon(
+                  set.setType == SetType.myorepMatch
+                      ? Icons.radio_button_checked
+                      : Icons.radio_button_unchecked,
+                  color: set.setType == SetType.myorepMatch
+                      ? context.selectedIndicatorColor
+                      : Colors.grey,
+                  size: 20,
                 ),
-              ),
-            ],
+                const SizedBox(width: 12),
+                Text(
+                  'Myorep match',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
         // Max reps
         PopupMenuItem<String>(
           value: 'max_reps',
@@ -1203,36 +1213,32 @@ class ExerciseCardWidget extends ConsumerWidget {
             ],
           ),
         ),
-        // Drop set
-        PopupMenuItem<String>(
-          value: 'drop_set',
-          enabled: index > 0,
-          height: 40,
-          child: Row(
-            children: [
-              Icon(
-                set.setType == SetType.dropSet
-                    ? Icons.radio_button_checked
-                    : Icons.radio_button_unchecked,
-                color: index > 0
-                    ? (set.setType == SetType.dropSet
-                          ? context.selectedIndicatorColor
-                          : Colors.grey)
-                    : Colors.grey.withValues(alpha: 0.4),
-                size: 20,
-              ),
-              const SizedBox(width: 12),
-              Text(
-                'Drop set',
-                style: TextStyle(
-                  color: index > 0
-                      ? Theme.of(context).colorScheme.onSurface
-                      : Colors.grey.withValues(alpha: 0.4),
+        // Drop set (hidden for first set — requires a preceding set)
+        if (index > 0)
+          PopupMenuItem<String>(
+            value: 'drop_set',
+            height: 40,
+            child: Row(
+              children: [
+                Icon(
+                  set.setType == SetType.dropSet
+                      ? Icons.radio_button_checked
+                      : Icons.radio_button_unchecked,
+                  color: set.setType == SetType.dropSet
+                      ? context.selectedIndicatorColor
+                      : Colors.grey,
+                  size: 20,
                 ),
-              ),
-            ],
+                const SizedBox(width: 12),
+                Text(
+                  'Drop set',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
       ],
     );
   }

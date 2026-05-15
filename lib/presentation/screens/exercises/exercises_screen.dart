@@ -1794,8 +1794,18 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
     final exercise = workout.exercises[exerciseIndex];
     if (setIndex >= exercise.sets.length) return;
 
-    final set = exercise.sets[setIndex];
-    final updatedSet = set.copyWith(setType: setType);
+    // Myorep Match: prefill weight/reps from the preceding set
+    final ExerciseSet updatedSet;
+    if (setType == SetType.myorepMatch && setIndex > 0) {
+      final prevSet = exercise.sets[setIndex - 1];
+      updatedSet = exercise.sets[setIndex].copyWith(
+        setType: setType,
+        weight: prevSet.weight,
+        reps: prevSet.reps.isNotEmpty ? prevSet.reps : null,
+      );
+    } else {
+      updatedSet = exercise.sets[setIndex].copyWith(setType: setType);
+    }
     final updatedExercise = exercise.updateSet(setIndex, updatedSet);
     final updatedWorkout = workout.updateExercise(
       exerciseIndex,
@@ -1863,7 +1873,21 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
     final set = exercise.sets[setIndex];
     final nowLogging = !set.isLogged;
     final updatedSet = set.copyWith(isLogged: nowLogging);
-    final updatedExercise = exercise.updateSet(setIndex, updatedSet);
+    var updatedExercise = exercise.updateSet(setIndex, updatedSet);
+
+    // Myorep Match: propagate weight/reps to the next set if it's myorepMatch
+    if (nowLogging) {
+      final nextIndex = setIndex + 1;
+      if (nextIndex < updatedExercise.sets.length &&
+          updatedExercise.sets[nextIndex].setType == SetType.myorepMatch) {
+        final nextSet = updatedExercise.sets[nextIndex].copyWith(
+          weight: set.weight,
+          reps: set.reps,
+        );
+        updatedExercise = updatedExercise.updateSet(nextIndex, nextSet);
+      }
+    }
+
     var updatedWorkout = workout.updateExercise(
       exerciseIndex,
       updatedExercise,
