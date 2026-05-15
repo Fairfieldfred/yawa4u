@@ -85,29 +85,39 @@ class SkinSelectionScreen extends ConsumerWidget {
                   ),
                 ),
 
-                // Skin grid
-                GridView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    childAspectRatio: 0.85,
-                    crossAxisSpacing: 12,
-                    mainAxisSpacing: 12,
+                // Browse community themes
+                Card(
+                  child: ListTile(
+                    leading: const Icon(Icons.explore),
+                    title: const Text('Browse Community Library'),
+                    subtitle: const Text(
+                      'Discover themes shared by other users',
+                    ),
+                    trailing: const Icon(
+                      Icons.chevron_right,
+                      size: 20,
+                    ),
+                    onTap: () => context.push('/community?tab=1'),
                   ),
-                  itemCount: skins.length,
-                  itemBuilder: (context, index) {
-                    final skin = skins[index];
-                    final isSelected = skin.id == activeSkinId;
-                    return _SkinCard(
+                ),
+                const SizedBox(height: 8),
+
+                // Skin list
+                ...skins.map((skin) {
+                  final isSelected = skin.id == activeSkinId;
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: _SkinCard(
                       skin: skin,
                       isSelected: isSelected,
                       onTap: () {
-                        ref.read(skinProvider.notifier).setActiveSkin(skin.id);
+                        ref
+                            .read(skinProvider.notifier)
+                            .setActiveSkin(skin.id);
                       },
-                    );
-                  },
-                ),
+                    ),
+                  );
+                }),
                 const SizedBox(height: 32),
               ],
             ),
@@ -291,102 +301,123 @@ class _SkinCard extends ConsumerWidget {
         duration: const Duration(milliseconds: 200),
         decoration: BoxDecoration(
           color: theme.cardTheme.color,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: isSelected ? primaryColor : Colors.transparent,
-            width: 3,
+            width: 2,
           ),
           boxShadow: isSelected
               ? [
                   BoxShadow(
                     color: primaryColor.withValues(alpha: 0.3),
-                    blurRadius: 12,
-                    offset: const Offset(0, 4),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
                   ),
                 ]
               : null,
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Color swatches preview
-            Expanded(
-              child: ClipRRect(
-                borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(13),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          child: Row(
+            children: [
+              // Color swatch preview
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: SizedBox(
+                  width: 56,
+                  height: 56,
+                  child: _ColorSwatchPreview(skin: skin),
                 ),
-                child: _ColorSwatchPreview(skin: skin),
               ),
-            ),
-
-            // Skin name and selection indicator
-            Padding(
-              padding: const EdgeInsets.all(12),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          skin.name,
-                          style: theme.textTheme.titleSmall?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        if (skin.isPremium)
-                          Padding(
-                            padding: const EdgeInsets.only(top: 2),
-                            child: Row(
-                              children: [
-                                Icon(
-                                  Icons.star,
-                                  size: 12,
-                                  color: Colors.amber[600],
-                                ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  'Premium',
-                                  style: theme.textTheme.bodySmall?.copyWith(
-                                    color: Colors.amber[600],
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 10,
-                                  ),
-                                ),
-                              ],
+              const SizedBox(width: 12),
+              // Name and premium badge
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      skin.name,
+                      style: theme.textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    if (skin.isPremium)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 2),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.star,
+                              size: 12,
+                              color: Colors.amber[600],
                             ),
-                          ),
-                      ],
+                            const SizedBox(width: 4),
+                            Text(
+                              'Premium',
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: Colors.amber[600],
+                                fontWeight: FontWeight.w600,
+                                fontSize: 10,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    // Color dots row
+                    Padding(
+                      padding: const EdgeInsets.only(top: 6),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          _colorDot(skin.colors.primaryColor),
+                          const SizedBox(width: 6),
+                          _colorDot(skin.colors.successColor),
+                          const SizedBox(width: 6),
+                          _colorDot(skin.colors.warningColor),
+                          const SizedBox(width: 6),
+                          _colorDot(skin.colors.infoColor),
+                        ],
+                      ),
                     ),
-                  ),
-                  if (isSelected)
-                    Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: BoxDecoration(
-                        color: primaryColor,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.check,
-                        color: Colors.white,
-                        size: 16,
-                      ),
-                    )
-                  else if (isCustomSkin)
-                    GestureDetector(
-                      onTap: () => context.push('/theme-editor/${skin.id}'),
-                      child: Icon(
-                        Icons.edit,
-                        color: theme.colorScheme.onSurfaceVariant,
-                        size: 20,
-                      ),
-                    ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          ],
+              // Trailing: selection indicator or edit button
+              if (isSelected)
+                Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: primaryColor,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.check,
+                    color: Colors.white,
+                    size: 16,
+                  ),
+                )
+              else if (isCustomSkin)
+                GestureDetector(
+                  onTap: () => context.push('/theme-editor/${skin.id}'),
+                  child: Icon(
+                    Icons.edit,
+                    color: theme.colorScheme.onSurfaceVariant,
+                    size: 20,
+                  ),
+                ),
+            ],
+          ),
         ),
       ),
+    );
+  }
+
+  Widget _colorDot(Color color) {
+    return Container(
+      width: 10,
+      height: 10,
+      decoration: BoxDecoration(color: color, shape: BoxShape.circle),
     );
   }
 
@@ -463,7 +494,7 @@ class _SkinCard extends ConsumerWidget {
   }
 }
 
-/// Preview of a skin's color palette.
+/// Compact preview of a skin's color palette for the list tile.
 class _ColorSwatchPreview extends StatelessWidget {
   final SkinModel skin;
 
@@ -478,108 +509,84 @@ class _ColorSwatchPreview extends StatelessWidget {
       color: modeColors.scaffoldBackgroundColor,
       child: Column(
         children: [
-          // Top bar simulation
+          // Top bar
           Container(
-            height: 32,
+            height: 14,
             color: modeColors.cardBackgroundColor,
-            padding: const EdgeInsets.symmetric(horizontal: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 4),
             child: Row(
               children: [
                 Container(
-                  width: 24,
-                  height: 12,
+                  width: 12,
+                  height: 6,
                   decoration: BoxDecoration(
                     color: skin.colors.primaryColor,
-                    borderRadius: BorderRadius.circular(4),
+                    borderRadius: BorderRadius.circular(2),
                   ),
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: 4),
                 Expanded(
                   child: Container(
-                    height: 8,
+                    height: 4,
                     decoration: BoxDecoration(
-                      color: modeColors.textPrimaryColor.withValues(alpha: 0.2),
-                      borderRadius: BorderRadius.circular(4),
+                      color: modeColors.textPrimaryColor
+                          .withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(2),
                     ),
                   ),
                 ),
               ],
             ),
           ),
-
-          // Content simulation
+          // Content area
           Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(8),
+            child: Container(
+              margin: const EdgeInsets.all(3),
+              decoration: BoxDecoration(
+                color: modeColors.cardBackgroundColor,
+                borderRadius: BorderRadius.circular(4),
+              ),
+              padding: const EdgeInsets.all(4),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Card simulation
-                  Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: modeColors.cardBackgroundColor,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      padding: const EdgeInsets.all(8),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Text lines
-                          Container(
-                            height: 6,
-                            width: 40,
-                            decoration: BoxDecoration(
-                              color: modeColors.textPrimaryColor,
-                              borderRadius: BorderRadius.circular(3),
-                            ),
-                          ),
-                          const SizedBox(height: 6),
-                          Container(
-                            height: 4,
-                            width: double.infinity,
-                            decoration: BoxDecoration(
-                              color: modeColors.textSecondaryColor.withValues(
-                                alpha: 0.5,
-                              ),
-                              borderRadius: BorderRadius.circular(2),
-                            ),
-                          ),
-                          const Spacer(),
-                          // Color dots row
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              _colorDot(skin.colors.primaryColor),
-                              _colorDot(skin.colors.successColor),
-                              _colorDot(skin.colors.warningColor),
-                              _colorDot(skin.colors.infoColor),
-                            ],
-                          ),
-                        ],
-                      ),
+                  Container(
+                    height: 3,
+                    width: 20,
+                    decoration: BoxDecoration(
+                      color: modeColors.textPrimaryColor,
+                      borderRadius: BorderRadius.circular(1),
+                    ),
+                  ),
+                  const SizedBox(height: 3),
+                  Container(
+                    height: 2,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: modeColors.textSecondaryColor
+                          .withValues(alpha: 0.5),
+                      borderRadius: BorderRadius.circular(1),
                     ),
                   ),
                 ],
               ),
             ),
           ),
-
-          // Bottom bar simulation
+          // Bottom bar
           Container(
-            height: 24,
+            height: 12,
             color: modeColors.cardBackgroundColor,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                Icon(Icons.home, size: 14, color: skin.colors.primaryColor),
                 Icon(
-                  Icons.fitness_center,
-                  size: 14,
-                  color: modeColors.textSecondaryColor,
+                  Icons.home,
+                  size: 8,
+                  color: skin.colors.primaryColor,
                 ),
                 Icon(
-                  Icons.more_horiz,
-                  size: 14,
+                  Icons.fitness_center,
+                  size: 8,
                   color: modeColors.textSecondaryColor,
                 ),
               ],
@@ -587,14 +594,6 @@ class _ColorSwatchPreview extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-
-  Widget _colorDot(Color color) {
-    return Container(
-      width: 12,
-      height: 12,
-      decoration: BoxDecoration(color: color, shape: BoxShape.circle),
     );
   }
 }
