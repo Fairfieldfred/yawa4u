@@ -17,6 +17,7 @@ import '../../../core/utils/session_order.dart';
 import '../../../data/models/exercise.dart';
 import '../../../data/models/exercise_set.dart';
 import '../../../data/models/session.dart';
+import '../../../data/models/training_cycle.dart';
 import '../../../data/models/workout.dart';
 import '../../../domain/controllers/workout_home_controller.dart';
 import '../../../domain/providers/database_providers.dart';
@@ -66,10 +67,10 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
   /// Per-field debounce timers for weight/reps saves.
   final Map<String, Timer> _debounceTimers = {};
 
-  /// Cached workouts to keep UI stable during provider refresh.
+  /// Cached workouts per cycle to keep UI stable during provider refresh.
   /// Prevents _buildEmptyState from destroying text fields on invalidation.
-  String? _cachedCycleId;
-  List<Workout>? _cachedWorkouts;
+  Set<String> _cachedCycleIds = {};
+  final Map<String, List<Workout>> _cachedWorkoutsPerCycle = {};
 
   /// Local overrides for set values during typing.
   /// Prevents full provider invalidation on every debounced save.
@@ -150,14 +151,13 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
   /// workoutsProvider is left alone to avoid re-fetching every workout.
   void _invalidateWorkoutProviders() {
     _manualSlotOrder = null;
-    final trainingCycle = ref.read(currentTrainingCycleProvider);
-    if (trainingCycle != null) {
-      ref.invalidate(workoutsByTrainingCycleListProvider(trainingCycle.id));
-      ref.invalidate(workoutsByTrainingCycleProvider(trainingCycle.id));
+    for (final cycle in ref.read(currentTrainingCyclesProvider)) {
+      ref.invalidate(workoutsByTrainingCycleListProvider(cycle.id));
+      ref.invalidate(workoutsByTrainingCycleProvider(cycle.id));
       // v6 chunk A4 — the Workout tab now also watches the Session
       // provider to pull in cardio sessions for the day. Invalidating
       // here keeps the cardio cards in step with every strength write.
-      ref.invalidate(sessionsByTrainingCycleProvider(trainingCycle.id));
+      ref.invalidate(sessionsByTrainingCycleProvider(cycle.id));
     }
   }
 
@@ -216,11 +216,12 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
 
   /// Look up the original set data from cached workouts.
   ExerciseSet? _findOriginalSet(String setId) {
-    if (_cachedWorkouts == null) return null;
-    for (final workout in _cachedWorkouts!) {
-      for (final exercise in workout.exercises) {
-        for (final set in exercise.sets) {
-          if (set.id == setId) return set;
+    for (final workouts in _cachedWorkoutsPerCycle.values) {
+      for (final workout in workouts) {
+        for (final exercise in workout.exercises) {
+          for (final set in exercise.sets) {
+            if (set.id == setId) return set;
+          }
         }
       }
     }
@@ -1243,42 +1244,64 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     _controller.navigateToNextDay(nextPeriod, nextDay);
   }
 
+  /// Compute (period, day) for a given cycle based on its own start date.
+  (int, int) _currentDayForCycle(TrainingCycle cycle) {
+    if (cycle.startDate == null) return (1, 1);
+    final daysSinceStart =
+        DateTime.now().difference(cycle.startDate!).inDays;
+    final period = (daysSinceStart ~/ cycle.daysPerPeriod) + 1;
+    final day = (daysSinceStart % cycle.daysPerPeriod) + 1;
+    return (
+      period.clamp(1, cycle.periodsTotal).toInt(),
+      day.clamp(1, cycle.daysPerPeriod).toInt(),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final currentTrainingCycle = ref.watch(currentTrainingCycleProvider);
+    final currentCycles = ref.watch(currentTrainingCyclesProvider);
+    final currentTrainingCycle =
+        currentCycles.isEmpty ? null : currentCycles.first;
 
     // If there's a current trainingCycle, show today's workout
     if (currentTrainingCycle != null &&
         currentTrainingCycle.startDate != null) {
-      // Clear cache when switching cycles
-      if (currentTrainingCycle.id != _cachedCycleId) {
-        _cachedCycleId = currentTrainingCycle.id;
-        _cachedWorkouts = null;
+      // Clear cache when the set of active cycles changes.
+      final cycleIds = currentCycles.map((c) => c.id).toSet();
+      if (_cachedCycleIds.length != cycleIds.length ||
+          !_cachedCycleIds.containsAll(cycleIds)) {
+        _cachedCycleIds = cycleIds;
+        _cachedWorkoutsPerCycle.clear();
         _localWeights.clear();
         _localReps.clear();
       }
 
-      // Get workouts from the workout repository. Use cached data during
-      // provider refresh to keep the UI stable (prevents text field focus
-      // loss when providers are invalidated after debounced saves).
-      final cycleWorkoutsAsync = ref.watch(
-        workoutsByTrainingCycleProvider(currentTrainingCycle.id),
-      );
-      if (cycleWorkoutsAsync.hasValue) {
-        final newWorkouts = cycleWorkoutsAsync.value;
-        if (!identical(newWorkouts, _cachedWorkouts)) {
-          _cachedWorkouts = newWorkouts;
-          // Provider refreshed (from toggle-log, add-set, etc.) —
-          // DB data is now authoritative, clear local overrides.
-          _localWeights.clear();
-          _localReps.clear();
+      // Get workouts from the workout repository for ALL current cycles.
+      // Use cached data during provider refresh to keep the UI stable
+      // (prevents text field focus loss when providers are invalidated
+      // after debounced saves).
+      for (final cycle in currentCycles) {
+        final cycleWorkoutsAsync = ref.watch(
+          workoutsByTrainingCycleProvider(cycle.id),
+        );
+        if (cycleWorkoutsAsync.hasValue) {
+          final newWorkouts = cycleWorkoutsAsync.value;
+          if (!identical(newWorkouts, _cachedWorkoutsPerCycle[cycle.id])) {
+            _cachedWorkoutsPerCycle[cycle.id] = newWorkouts ?? [];
+            _localWeights.clear();
+            _localReps.clear();
+          }
         }
       }
-      if (_cachedWorkouts == null) {
+
+      // Primary cycle drives period/day selection and AppBar.
+      final allWorkouts =
+          _cachedWorkoutsPerCycle[currentTrainingCycle.id] ?? [];
+      if (allWorkouts.isEmpty &&
+          !_cachedWorkoutsPerCycle.containsKey(currentTrainingCycle.id)) {
         // First load — no cached data yet
         return _buildEmptyState(context, currentTrainingCycle.name, '');
       }
-      final allWorkouts = _cachedWorkouts!;
 
       final currentPeriod = currentTrainingCycle.getCurrentPeriod();
 
@@ -1331,6 +1354,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
       debugPrint('Display period: $displayPeriod, Display day: $displayDay');
 
       // Get workouts for the currently displayed day (for AppBar/FINISH)
+      // from the PRIMARY cycle.
       final todaysWorkouts = allWorkouts
           .where(
             (w) =>
@@ -1339,9 +1363,35 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
           )
           .toList();
 
-      // Cardio sessions attached to this cycle, for the displayed day.
-      // Chunk 4 (Section A of DESIGN_OPPORTUNITIES.md) — strength and
-      // cardio render as siblings in the same scroll.
+      // Collect workouts from SECONDARY stacked cycles for their own
+      // independently computed (period, day).
+      final secondaryCycleWorkouts = <TrainingCycle, List<Workout>>{};
+      final secondaryCycleCardio = <TrainingCycle, List<CardioSession>>{};
+      for (final cycle in currentCycles.skip(1)) {
+        final (secPeriod, secDay) = _currentDayForCycle(cycle);
+        final secWorkouts =
+            (_cachedWorkoutsPerCycle[cycle.id] ?? <Workout>[])
+                .where(
+                  (w) =>
+                      w.periodNumber == secPeriod &&
+                      w.dayNumber == secDay,
+                )
+                .toList();
+        secondaryCycleWorkouts[cycle] = secWorkouts;
+
+        final secSessionsAsync = ref.watch(
+          sessionsByTrainingCycleProvider(cycle.id),
+        );
+        final secSessions = secSessionsAsync.value ?? const <Session>[];
+        secondaryCycleCardio[cycle] = secSessions
+            .whereType<CardioSession>()
+            .where(
+              (s) => s.periodNumber == secPeriod && s.dayNumber == secDay,
+            )
+            .toList();
+      }
+
+      // Cardio sessions attached to the primary cycle, for the displayed day.
       final cycleSessionsAsync = ref.watch(
         sessionsByTrainingCycleProvider(currentTrainingCycle.id),
       );
@@ -1387,19 +1437,25 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
         ...adHocImportsToday,
       ];
 
-      // Whether to show the "FINISH WORKOUT" button, same condition as
-      // before: strength workouts exist, not yet marked complete, but
-      // every set is logged or skipped.
-      final showFinishButton = todaysWorkouts.isNotEmpty &&
-          !todaysWorkouts.every((w) => w.isCompleted) &&
-          todaysWorkouts.every((w) => _isWorkoutComplete(w));
+      // Aggregate ALL strength workouts across all stacked cycles for
+      // the FINISH WORKOUT check.
+      final allDayWorkouts = [
+        ...todaysWorkouts,
+        ...secondaryCycleWorkouts.values.expand((w) => w),
+      ];
+
+      // Whether to show the "FINISH WORKOUT" button: all strength workouts
+      // across all stacked cycles are fully logged.
+      final showFinishButton = allDayWorkouts.isNotEmpty &&
+          !allDayWorkouts.every((w) => w.isCompleted) &&
+          allDayWorkouts.every((w) => _isWorkoutComplete(w));
 
       // The user's chosen sports drive which boxes appear in the
       // SportGrid. Watching here means edits made in Settings rebuild
       // the Workout tab automatically.
       final selectedSports = ref.watch(selectedSportsProvider);
 
-      // Compute day name for AppBar
+      // Compute day name for AppBar (primary cycle)
       final dayName = calculateDayName(
         workouts: todaysWorkouts,
         startDate: currentTrainingCycle.startDate,
@@ -1408,29 +1464,31 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
         displayDay: displayDay,
       );
 
+      // Determine if all stacked cycles have any content today.
+      final allDayCardio = [
+        ...dayCardioSessions,
+        ...secondaryCycleCardio.values.expand((c) => c),
+      ];
+      final hasAnySessions =
+          allDayWorkouts.isNotEmpty || allDayCardio.isNotEmpty;
+
       return GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),
         child: Scaffold(
-          // v6 chunk A4 — keyboard covers the SportGrid + FINISH WORKOUT
-          // rather than pushing them up into the scroll area. The grid
-          // and finish button are already accessible with the keyboard
-          // dismissed; forcing a resize would push the user's active
-          // text field off-screen in a way that feels worse.
           resizeToAvoidBottomInset: false,
-          floatingActionButton:
-              (todaysWorkouts.isEmpty && dayCardioSessions.isEmpty)
-                  ? null
-                  : FloatingActionButton(
-                      onPressed: () => _showAddSessionDialog(
-                        cycleId: currentTrainingCycle.id,
-                        period: displayPeriod,
-                        day: displayDay,
-                        workouts: todaysWorkouts,
-                        sports: selectedSports,
-                      ),
-                      tooltip: 'Add session',
-                      child: const Icon(Icons.add),
-                    ),
+          floatingActionButton: !hasAnySessions
+              ? null
+              : FloatingActionButton(
+                  onPressed: () => _showAddSessionDialog(
+                    cycleId: currentTrainingCycle.id,
+                    period: displayPeriod,
+                    day: displayDay,
+                    workouts: todaysWorkouts,
+                    sports: selectedSports,
+                  ),
+                  tooltip: 'Add session',
+                  child: const Icon(Icons.add),
+                ),
           appBar: AppBar(
             elevation: 0,
             automaticallyImplyLeading: false,
@@ -1506,8 +1564,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                 // full-screen expanded SportGrid IS the body — no
                 // FAB, no separate empty illustration.
                 Positioned.fill(
-                  child: (todaysWorkouts.isEmpty &&
-                          dayCardioSessions.isEmpty)
+                  child: !hasAnySessions
                       ? _buildEmptyDayBody(
                           cycleId: currentTrainingCycle.id,
                           period: displayPeriod,
@@ -1517,18 +1574,23 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                       : Column(
                           children: [
                             Expanded(
-                              child: _buildSessionScroll(
+                              child: _buildStackedSessionScroll(
                                 context: context,
-                                trainingCycle: currentTrainingCycle,
-                                displayPeriod: displayPeriod,
-                                displayDay: displayDay,
-                                dayStrengthWorkouts: todaysWorkouts,
-                                dayCardioSessions: dayCardioSessions,
+                                primaryCycle: currentTrainingCycle,
+                                primaryPeriod: displayPeriod,
+                                primaryDay: displayDay,
+                                primaryWorkouts: todaysWorkouts,
+                                primaryCardio: dayCardioSessions,
+                                secondaryCycleWorkouts:
+                                    secondaryCycleWorkouts,
+                                secondaryCycleCardio:
+                                    secondaryCycleCardio,
                                 sports: selectedSports,
+                                showHeaders: currentCycles.length > 1,
                               ),
                             ),
                             if (showFinishButton)
-                              _buildFinishWorkoutBar(todaysWorkouts),
+                              _buildFinishWorkoutBar(allDayWorkouts),
                           ],
                         ),
                 ),
@@ -1577,12 +1639,167 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
   // v6 chunk A4 — new body structure
   // ---------------------------------------------------------------------------
 
+  /// Builds the scrollable session list with optional cycle section headers.
+  ///
+  /// When [showHeaders] is false (single active cycle), delegates directly
+  /// to [_buildSessionScroll] for the primary cycle — no visual change from
+  /// the pre-stacking behaviour.
+  ///
+  /// When [showHeaders] is true (multiple stacked cycles), renders each
+  /// cycle's sessions under a labelled section header showing the cycle
+  /// name and its independently-computed period/day. All cycles' slivers
+  /// are combined into a single [CustomScrollView] to avoid nested scrolls.
+  Widget _buildStackedSessionScroll({
+    required BuildContext context,
+    required TrainingCycle primaryCycle,
+    required int primaryPeriod,
+    required int primaryDay,
+    required List<Workout> primaryWorkouts,
+    required List<CardioSession> primaryCardio,
+    required Map<TrainingCycle, List<Workout>> secondaryCycleWorkouts,
+    required Map<TrainingCycle, List<CardioSession>> secondaryCycleCardio,
+    required List<Sport> sports,
+    required bool showHeaders,
+  }) {
+    if (!showHeaders) {
+      // Single cycle — delegate directly (preserves existing UX).
+      return _buildSessionScroll(
+        context: context,
+        trainingCycle: primaryCycle,
+        displayPeriod: primaryPeriod,
+        displayDay: primaryDay,
+        dayStrengthWorkouts: primaryWorkouts,
+        dayCardioSessions: primaryCardio,
+        sports: sports,
+      );
+    }
+
+    // Multiple stacked cycles — build a combined CustomScrollView with
+    // section headers separating each cycle's sessions. We use
+    // _buildSessionSlivers to extract raw slivers (no nested scrollview).
+    final slivers = <Widget>[
+      const SliverToBoxAdapter(child: SizedBox(height: 8)),
+    ];
+
+    // --- Primary cycle section ---
+    if (primaryWorkouts.isNotEmpty || primaryCardio.isNotEmpty) {
+      slivers.add(SliverToBoxAdapter(
+        child: _CycleSectionHeader(
+          cycleName: primaryCycle.name,
+          period: primaryPeriod,
+          day: primaryDay,
+        ),
+      ));
+      slivers.addAll(_buildSessionSlivers(
+        context: context,
+        trainingCycle: primaryCycle,
+        displayPeriod: primaryPeriod,
+        displayDay: primaryDay,
+        dayStrengthWorkouts: primaryWorkouts,
+        dayCardioSessions: primaryCardio,
+        sports: sports,
+      ));
+    }
+
+    // --- Secondary cycle sections ---
+    for (final entry in secondaryCycleWorkouts.entries) {
+      final cycle = entry.key;
+      final workouts = entry.value;
+      final cardio = secondaryCycleCardio[cycle] ?? [];
+      if (workouts.isEmpty && cardio.isEmpty) continue;
+
+      final (secPeriod, secDay) = _currentDayForCycle(cycle);
+      slivers.add(const SliverToBoxAdapter(child: SizedBox(height: 24)));
+      slivers.add(SliverToBoxAdapter(
+        child: _CycleSectionHeader(
+          cycleName: cycle.name,
+          period: secPeriod,
+          day: secDay,
+        ),
+      ));
+      slivers.addAll(_buildSessionSlivers(
+        context: context,
+        trainingCycle: cycle,
+        displayPeriod: secPeriod,
+        displayDay: secDay,
+        dayStrengthWorkouts: workouts,
+        dayCardioSessions: cardio,
+        sports: sports,
+      ));
+    }
+
+    slivers.add(const SliverToBoxAdapter(child: SizedBox(height: 88)));
+
+    return NotificationListener<UserScrollNotification>(
+      onNotification: (notification) {
+        final direction = notification.direction;
+        if (direction != _lastScrollDirection &&
+            (direction == ScrollDirection.forward ||
+                direction == ScrollDirection.reverse)) {
+          FocusScope.of(context).unfocus();
+        }
+        _lastScrollDirection = direction;
+        return false;
+      },
+      child: CustomScrollView(slivers: slivers),
+    );
+  }
+
   /// Build the scrollable portion of the Workout tab — strength exercises
   /// and cardio sessions as siblings in a single vertical scroll.
   ///
   /// Empty-day mode: returns the expanded [SportGrid] filling the space
   /// so the 2×2 grid IS the empty state (no separate illustration).
   Widget _buildSessionScroll({
+    required BuildContext context,
+    required dynamic trainingCycle,
+    required int displayPeriod,
+    required int displayDay,
+    required List<Workout> dayStrengthWorkouts,
+    required List<CardioSession> dayCardioSessions,
+    required List<Sport> sports,
+  }) {
+    final slivers = _buildSessionSlivers(
+      context: context,
+      trainingCycle: trainingCycle,
+      displayPeriod: displayPeriod,
+      displayDay: displayDay,
+      dayStrengthWorkouts: dayStrengthWorkouts,
+      dayCardioSessions: dayCardioSessions,
+      sports: sports,
+    );
+
+    // If slivers is empty, show empty day body.
+    if (slivers.isEmpty) {
+      return _buildEmptyDayBody(
+        cycleId: trainingCycle.id as String,
+        period: displayPeriod,
+        day: displayDay,
+        sports: sports,
+      );
+    }
+
+    return NotificationListener<UserScrollNotification>(
+      onNotification: (notification) {
+        final direction = notification.direction;
+        if (direction != _lastScrollDirection &&
+            (direction == ScrollDirection.forward ||
+                direction == ScrollDirection.reverse)) {
+          FocusScope.of(context).unfocus();
+        }
+        _lastScrollDirection = direction;
+        return false;
+      },
+      child: CustomScrollView(slivers: slivers),
+    );
+  }
+
+  /// Returns the raw sliver list for a single cycle's day of sessions.
+  /// Used by both [_buildSessionScroll] (single cycle) and
+  /// [_buildStackedSessionScroll] (multi-cycle combined scroll).
+  ///
+  /// Returns an empty list if there are no renderable slots.
+  List<Widget> _buildSessionSlivers({
     required BuildContext context,
     required dynamic trainingCycle,
     required int displayPeriod,
@@ -1650,18 +1867,8 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
       renderOrder = validIds.map((id) => byId[id]!).toList();
     }
 
-    // The empty-day case is normally handled by the parent
-    // (`_buildEmptyDayBody`). Fall back to the same widget here if we
-    // land with no slots — e.g. a Workout exists but has no exercises
-    // yet, so dayStrengthWorkouts.isNotEmpty but allExercises.isEmpty.
-    if (renderOrder.isEmpty) {
-      return _buildEmptyDayBody(
-        cycleId: trainingCycle.id as String,
-        period: displayPeriod,
-        day: displayDay,
-        sports: sports,
-      );
-    }
+    // Return empty if nothing to render.
+    if (renderOrder.isEmpty) return [];
 
     // Batch-fetch previous performance for all strength exercises in
     // this day. Stable key-by-name so the list identity is consistent.
@@ -1841,25 +2048,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     // the floating action button (56 px FAB + 16 px margin + buffer).
     slivers.add(const SliverToBoxAdapter(child: SizedBox(height: 88)));
 
-    return NotificationListener<UserScrollNotification>(
-      onNotification: (notification) {
-        // Dismiss the keyboard when the user actively scrolls.
-        // Mirrors the PageView.onPageChanged unfocus behaviour from
-        // the previous implementation without firing on every
-        // incidental rest-position notification.
-        final direction = notification.direction;
-        if (direction != _lastScrollDirection &&
-            (direction == ScrollDirection.forward ||
-                direction == ScrollDirection.reverse)) {
-          FocusScope.of(context).unfocus();
-        }
-        _lastScrollDirection = direction;
-        return false;
-      },
-      child: CustomScrollView(
-        slivers: slivers,
-      ),
-    );
+    return slivers;
   }
 
   /// Build the empty-day body — the expanded SportGrid filling the
@@ -2696,4 +2885,61 @@ class _RenderSlot {
   /// Stable identifier for manual reordering. The strength block uses a
   /// sentinel string; cardio slots use the session UUID.
   String get slotId => isStrength ? 'strength' : cardio!.id;
+}
+
+/// Section header shown above each cycle's sessions when multiple training
+/// cycles are stacked (running simultaneously). Displays the cycle name and
+/// the independently-computed period/day for that cycle.
+class _CycleSectionHeader extends StatelessWidget {
+  const _CycleSectionHeader({
+    required this.cycleName,
+    required this.period,
+    required this.day,
+  });
+
+  final String cycleName;
+  final int period;
+  final int day;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  cycleName.toUpperCase(),
+                  style: theme.textTheme.labelMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.8,
+                    color: theme.colorScheme.primary,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  'Period $period \u2022 Day $day',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Container(
+            width: 4,
+            height: 32,
+            decoration: BoxDecoration(
+              color: theme.colorScheme.primary.withValues(alpha: 0.6),
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }

@@ -10,20 +10,30 @@ final trainingCyclesProvider = StreamProvider<List<TrainingCycle>>((ref) {
   return repository.watchAll();
 });
 
-/// Provider for current (active) trainingCycle
-final currentTrainingCycleProvider = Provider<TrainingCycle?>((ref) {
+/// Provider for all current (active) trainingCycles — supports stacking.
+/// Sorted by startDate ascending so the earliest-started cycle is the
+/// "primary" (index 0).
+final currentTrainingCyclesProvider = Provider<List<TrainingCycle>>((ref) {
   final trainingCycles = ref.watch(trainingCyclesProvider);
   return trainingCycles.when(
-    data: (list) {
-      try {
-        return list.firstWhere((m) => m.status == TrainingCycleStatus.current);
-      } catch (e) {
-        return null;
-      }
-    },
-    loading: () => null,
-    error: (_, _) => null,
+    data: (list) => list
+        .where((m) => m.status == TrainingCycleStatus.current)
+        .toList()
+      ..sort(
+        (a, b) => (a.startDate ?? a.createdDate)
+            .compareTo(b.startDate ?? b.createdDate),
+      ),
+    loading: () => [],
+    error: (_, _) => [],
   );
+});
+
+/// Provider for the "primary" current trainingCycle — the earliest-started
+/// active cycle. Used by calendar, stats, exercises, and other screens
+/// that only need a single cycle reference.
+final currentTrainingCycleProvider = Provider<TrainingCycle?>((ref) {
+  final currentCycles = ref.watch(currentTrainingCyclesProvider);
+  return currentCycles.isEmpty ? null : currentCycles.first;
 });
 
 /// Provider for draft trainingCycles

@@ -1856,44 +1856,81 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
     TrainingCycle trainingCycle,
   ) async {
     final cycleTerm = ref.read(trainingCycleTermProvider);
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Start $cycleTerm'),
-        content: Text(
-          'Start "${trainingCycle.name}"? This will set it as your current $cycleTerm.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Start'),
-          ),
-        ],
-      ),
-    );
+    final currentCycles = ref.read(currentTrainingCyclesProvider);
 
-    if (confirmed == true && context.mounted) {
-      try {
-        await controller.startTrainingCycle(trainingCycle);
+    bool stack = false;
 
-        if (context.mounted) {
-          // Navigate to workout tab on home screen
-          ref.read(homeTabIndexProvider.notifier).setTab(HomeTab.workout);
-          context.go('/');
-        }
-      } catch (e) {
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Error: $e'),
-              backgroundColor: context.errorColor,
+    if (currentCycles.isEmpty) {
+      // No existing current cycle — simple confirmation.
+      final confirmed = await showDialog<bool>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text('Start $cycleTerm'),
+          content: Text(
+            'Start "${trainingCycle.name}"? '
+            'This will set it as your current $cycleTerm.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancel'),
             ),
-          );
-        }
+            FilledButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Start'),
+            ),
+          ],
+        ),
+      );
+      if (confirmed != true || !context.mounted) return;
+    } else {
+      // Existing current cycle(s) — offer replace vs stack.
+      final activeNames =
+          currentCycles.map((c) => c.name).join(', ');
+      final result = await showDialog<String>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text('Start $cycleTerm'),
+          content: Text(
+            'You have an active $cycleTerm: "$activeNames".\n\n'
+            'How would you like to start "${trainingCycle.name}"?',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, 'cancel'),
+              child: const Text('Cancel'),
+            ),
+            OutlinedButton(
+              onPressed: () => Navigator.pop(context, 'replace'),
+              child: const Text('Replace current'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(context, 'stack'),
+              child: const Text('Stack alongside'),
+            ),
+          ],
+        ),
+      );
+      if (result == null || result == 'cancel' || !context.mounted) return;
+      stack = result == 'stack';
+    }
+
+    try {
+      await controller.startTrainingCycle(trainingCycle, stack: stack);
+
+      if (context.mounted) {
+        // Navigate to workout tab on home screen
+        ref.read(homeTabIndexProvider.notifier).setTab(HomeTab.workout);
+        context.go('/');
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: $e'),
+            backgroundColor: context.errorColor,
+          ),
+        );
       }
     }
   }

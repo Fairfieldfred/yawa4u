@@ -96,10 +96,21 @@ class EditWorkoutController {
     await repository.delete(workoutId);
   }
 
-  /// Start the trainingCycle
-  Future<void> startTrainingCycle(TrainingCycle trainingCycle) async {
+  /// Start the trainingCycle.
+  ///
+  /// When [stack] is true the cycle is activated alongside any existing
+  /// current cycles. When false (default) all other current cycles are
+  /// deactivated first.
+  Future<void> startTrainingCycle(
+    TrainingCycle trainingCycle, {
+    bool stack = false,
+  }) async {
     final repository = ref.read(trainingCycleRepositoryProvider);
-    await repository.setAsCurrent(trainingCycle.id);
+    if (stack) {
+      await repository.stackAsCurrent(trainingCycle.id);
+    } else {
+      await repository.setAsCurrent(trainingCycle.id);
+    }
   }
 
   /// Create workouts for selected muscle groups

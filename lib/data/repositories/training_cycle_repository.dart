@@ -72,7 +72,8 @@ class TrainingCycleRepository {
     await _dao.deleteAll();
   }
 
-  /// Set a trainingCycle as current (and deactivate others)
+  /// Set a trainingCycle as current (and deactivate others).
+  /// Use this for the "replace" flow where only one cycle should be active.
   Future<void> setAsCurrent(String id) async {
     final trainingCycle = await getById(id);
     if (trainingCycle == null) return;
@@ -81,6 +82,16 @@ class TrainingCycleRepository {
     await _dao.deactivateAllCurrent();
 
     // Activate the selected trainingCycle
+    await update(trainingCycle.start());
+  }
+
+  /// Activate a trainingCycle WITHOUT deactivating other current cycles.
+  /// Use this for the "stack alongside" flow where multiple cycles run
+  /// simultaneously.
+  Future<void> stackAsCurrent(String id) async {
+    final trainingCycle = await getById(id);
+    if (trainingCycle == null) return;
+
     await update(trainingCycle.start());
   }
 
