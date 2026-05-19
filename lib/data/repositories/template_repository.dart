@@ -43,8 +43,7 @@ class TemplateRepository {
 
       templatePaths = allAssets
           .where(
-            (String key) =>
-                key.startsWith('assets/templates/') && key.endsWith('.json'),
+            (String key) => key.startsWith('assets/templates/') && key.endsWith('.json'),
           )
           .toList();
 
@@ -63,8 +62,7 @@ class TemplateRepository {
 
         templatePaths = manifestMap.keys
             .where(
-              (String key) =>
-                  key.startsWith('assets/templates/') && key.endsWith('.json'),
+              (String key) => key.startsWith('assets/templates/') && key.endsWith('.json'),
             )
             .toList();
         debugPrint(
@@ -115,8 +113,7 @@ class TemplateRepository {
         return [];
       }
 
-      final savedTemplatesMap =
-          json.decode(savedTemplatesJson) as Map<String, dynamic>;
+      final savedTemplatesMap = json.decode(savedTemplatesJson) as Map<String, dynamic>;
       debugPrint(
         'Saved templates map contains ${savedTemplatesMap.length} items',
       );
@@ -156,8 +153,7 @@ class TemplateRepository {
       if (savedTemplatesJson == null || savedTemplatesJson.isEmpty) {
         return false;
       }
-      final savedTemplatesMap =
-          json.decode(savedTemplatesJson) as Map<String, dynamic>;
+      final savedTemplatesMap = json.decode(savedTemplatesJson) as Map<String, dynamic>;
       return savedTemplatesMap.containsKey(templateId);
     } catch (e) {
       debugPrint('Error checking if template is saved: $e');
@@ -172,8 +168,7 @@ class TemplateRepository {
       if (savedTemplatesJson == null || savedTemplatesJson.isEmpty) {
         return;
       }
-      final savedTemplatesMap =
-          json.decode(savedTemplatesJson) as Map<String, dynamic>;
+      final savedTemplatesMap = json.decode(savedTemplatesJson) as Map<String, dynamic>;
       savedTemplatesMap.remove(templateId);
       await _prefs?.setString(
         _savedTemplatesKey,
@@ -193,8 +188,7 @@ class TemplateRepository {
     try {
       // Get existing templates map
       final savedTemplatesJson = _prefs?.getString(_savedTemplatesKey);
-      final savedTemplatesMap =
-          savedTemplatesJson != null && savedTemplatesJson.isNotEmpty
+      final savedTemplatesMap = savedTemplatesJson != null && savedTemplatesJson.isNotEmpty
           ? json.decode(savedTemplatesJson) as Map<String, dynamic>
           : <String, dynamic>{};
 
@@ -247,8 +241,7 @@ class TemplateRepository {
 
     // Get existing templates map
     final savedTemplatesJson = _prefs?.getString(_savedTemplatesKey);
-    final savedTemplatesMap =
-        savedTemplatesJson != null && savedTemplatesJson.isNotEmpty
+    final savedTemplatesMap = savedTemplatesJson != null && savedTemplatesJson.isNotEmpty
         ? json.decode(savedTemplatesJson) as Map<String, dynamic>
         : <String, dynamic>{};
 
@@ -291,12 +284,8 @@ class TemplateRepository {
           muscleGroup: exercise.muscleGroup.name,
           equipmentType: exercise.equipmentType.name,
           sets: exercise.sets.length,
-          reps: exercise.sets.isNotEmpty && exercise.sets.first.reps.isNotEmpty
-              ? exercise.sets.first.reps
-              : '8-12',
-          setType: exercise.sets.isNotEmpty
-              ? exercise.sets.first.setType.name
-              : 'regular',
+          reps: exercise.sets.isNotEmpty && exercise.sets.first.reps.isNotEmpty ? exercise.sets.first.reps : '8-12',
+          setType: exercise.sets.isNotEmpty ? exercise.sets.first.setType.name : 'regular',
           notes: exercise.notes,
         );
       }).toList();
@@ -353,19 +342,15 @@ class TemplateRepository {
     // cardioTemplateId we'll reuse it.
     List<CardioSessionTemplate>? cardioLibrary;
     Future<List<CardioSessionTemplate>> ensureLibrary() async {
-      cardioLibrary ??=
-          await CardioSessionLibraryService.instance.loadAll();
+      cardioLibrary ??= await CardioSessionLibraryService.instance.loadAll();
       return cardioLibrary!;
     }
 
     for (final workoutTemplate in template.workouts) {
-      if (workoutTemplate.isCardio &&
-          workoutTemplate.cardioTemplateId != null) {
+      if (workoutTemplate.isCardio && workoutTemplate.cardioTemplateId != null) {
         final sport = Sports.parse(workoutTemplate.sport) ?? Sport.other;
         final library = await ensureLibrary();
-        final cardioTemplate = library
-            .where((t) => t.id == workoutTemplate.cardioTemplateId)
-            .firstOrNull;
+        final cardioTemplate = library.where((t) => t.id == workoutTemplate.cardioTemplateId).firstOrNull;
         if (cardioTemplate != null) {
           final session = CardioSessionLibraryService.instance.instantiate(
             cardioTemplate,
@@ -396,22 +381,17 @@ class TemplateRepository {
         final exerciseId = _uuid.v4();
 
         final muscleGroup = MuscleGroup.values.firstWhere(
-          (mg) =>
-              mg.name.toLowerCase() ==
-              exerciseTemplate.muscleGroup.toLowerCase(),
+          (mg) => mg.name.toLowerCase() == exerciseTemplate.muscleGroup.toLowerCase(),
           orElse: () => MuscleGroup.chest,
         );
 
         final equipmentType = EquipmentType.values.firstWhere(
-          (et) =>
-              et.name.toLowerCase() ==
-              exerciseTemplate.equipmentType.toLowerCase(),
+          (et) => et.name.toLowerCase() == exerciseTemplate.equipmentType.toLowerCase(),
           orElse: () => EquipmentType.barbell,
         );
 
         final setType = SetType.values.firstWhere(
-          (st) =>
-              st.name.toLowerCase() == exerciseTemplate.setType.toLowerCase(),
+          (st) => st.name.toLowerCase() == exerciseTemplate.setType.toLowerCase(),
           orElse: () => SetType.regular,
         );
 
@@ -448,9 +428,7 @@ class TemplateRepository {
         final groupExercises = entry.value;
         final workoutId = _uuid.v4();
 
-        final updatedExercises = groupExercises
-            .map((e) => e.copyWith(workoutId: workoutId))
-            .toList();
+        final updatedExercises = groupExercises.map((e) => e.copyWith(workoutId: workoutId)).toList();
 
         workouts.add(
           Workout(
@@ -465,9 +443,7 @@ class TemplateRepository {
       }
     }
 
-    final primarySport = template.primarySport != null
-        ? Sports.parse(template.primarySport!)
-        : null;
+    final primarySport = template.primarySport != null ? Sports.parse(template.primarySport!) : null;
 
     final cycle = TrainingCycle(
       id: trainingCycleId,

@@ -88,34 +88,34 @@ class _AddExerciseScreenState extends ConsumerState<AddExerciseScreen> {
             child: Semantics(
               label: 'Search exercises',
               child: TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                hintText: 'Search',
-                prefixIcon: const Icon(Icons.search),
-                suffixIcon: _searchQuery.isNotEmpty
-                    ? IconButton(
-                        icon: const Icon(Icons.clear),
-                        tooltip: 'Clear search',
-                        onPressed: () {
-                          setState(() {
-                            _searchController.clear();
-                            _searchQuery = '';
-                          });
-                        },
-                      )
-                    : null,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
+                controller: _searchController,
+                decoration: InputDecoration(
+                  hintText: 'Search',
+                  prefixIcon: const Icon(Icons.search),
+                  suffixIcon: _searchQuery.isNotEmpty
+                      ? IconButton(
+                          icon: const Icon(Icons.clear),
+                          tooltip: 'Clear search',
+                          onPressed: () {
+                            setState(() {
+                              _searchController.clear();
+                              _searchQuery = '';
+                            });
+                          },
+                        )
+                      : null,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  filled: true,
+                  fillColor: Theme.of(
+                    context,
+                  ).colorScheme.surfaceContainerHighest,
                 ),
-                filled: true,
-                fillColor: Theme.of(
-                  context,
-                ).colorScheme.surfaceContainerHighest,
+                onChanged: (value) {
+                  setState(() => _searchQuery = value);
+                },
               ),
-              onChanged: (value) {
-                setState(() => _searchQuery = value);
-              },
-            ),
             ),
           ),
 
@@ -135,13 +135,9 @@ class _AddExerciseScreenState extends ConsumerState<AddExerciseScreen> {
                         label: Text(
                           _selectedMuscleGroup!.displayName,
                           style: TextStyle(
-                            color:
-                                Theme.of(context).brightness == Brightness.light
+                            color: Theme.of(context).brightness == Brightness.light
                                 ? Colors.black.withValues(alpha: 0.85)
-                                : Theme.of(context)
-                                      .colorScheme
-                                      .onPrimaryContainer
-                                      .withValues(alpha: 0.85),
+                                : Theme.of(context).colorScheme.onPrimaryContainer.withValues(alpha: 0.85),
                           ),
                         ),
                         selected: true,
@@ -175,13 +171,9 @@ class _AddExerciseScreenState extends ConsumerState<AddExerciseScreen> {
                         label: Text(
                           equipment.displayName,
                           style: TextStyle(
-                            color:
-                                Theme.of(context).brightness == Brightness.light
+                            color: Theme.of(context).brightness == Brightness.light
                                 ? Colors.black.withValues(alpha: 0.85)
-                                : Theme.of(context)
-                                      .colorScheme
-                                      .onSecondaryContainer
-                                      .withValues(alpha: 0.85),
+                                : Theme.of(context).colorScheme.onSecondaryContainer.withValues(alpha: 0.85),
                           ),
                         ),
                         selected: true,
@@ -280,16 +272,12 @@ class _AddExerciseScreenState extends ConsumerState<AddExerciseScreen> {
 
     // Filter by muscle group
     if (_selectedMuscleGroup != null) {
-      filtered = filtered
-          .where((e) => e.muscleGroup == _selectedMuscleGroup)
-          .toList();
+      filtered = filtered.where((e) => e.muscleGroup == _selectedMuscleGroup).toList();
     }
 
     // Filter by selected equipment types (manual filter in modal)
     if (_selectedEquipment.isNotEmpty) {
-      filtered = filtered
-          .where((e) => _selectedEquipment.contains(e.equipmentType))
-          .toList();
+      filtered = filtered.where((e) => _selectedEquipment.contains(e.equipmentType)).toList();
     }
 
     // Filter by user's available equipment (persisted setting)
@@ -301,9 +289,7 @@ class _AddExerciseScreenState extends ConsumerState<AddExerciseScreen> {
         final availableTypes = EquipmentOption.getEquipmentTypes(
           availableEquipment.toSet(),
         );
-        filtered = filtered
-            .where((e) => availableTypes.contains(e.equipmentType))
-            .toList();
+        filtered = filtered.where((e) => availableTypes.contains(e.equipmentType)).toList();
       }
     }
 
@@ -333,16 +319,10 @@ class _AddExerciseScreenState extends ConsumerState<AddExerciseScreen> {
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      color: Theme.of(context)
-                          .colorScheme
-                          .primaryContainer
-                          .withValues(alpha: 0.5),
+                      color: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.5),
                       borderRadius: BorderRadius.circular(4),
                       border: Border.all(
-                        color: Theme.of(context)
-                            .colorScheme
-                            .primary
-                            .withValues(alpha: 0.5),
+                        color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.5),
                         width: 1,
                       ),
                     ),
@@ -351,10 +331,7 @@ class _AddExerciseScreenState extends ConsumerState<AddExerciseScreen> {
                       style: Theme.of(context).textTheme.labelSmall?.copyWith(
                         color: Theme.of(context).brightness == Brightness.light
                             ? Colors.black.withValues(alpha: 0.85)
-                            : Theme.of(context)
-                                  .colorScheme
-                                  .onPrimaryContainer
-                                  .withValues(alpha: 0.85),
+                            : Theme.of(context).colorScheme.onPrimaryContainer.withValues(alpha: 0.85),
                       ),
                     ),
                   ),
@@ -366,16 +343,10 @@ class _AddExerciseScreenState extends ConsumerState<AddExerciseScreen> {
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      color: Theme.of(context)
-                          .colorScheme
-                          .secondaryContainer
-                          .withValues(alpha: 0.5),
+                      color: Theme.of(context).colorScheme.secondaryContainer.withValues(alpha: 0.5),
                       borderRadius: BorderRadius.circular(4),
                       border: Border.all(
-                        color: Theme.of(context)
-                            .colorScheme
-                            .secondary
-                            .withValues(alpha: 0.5),
+                        color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.5),
                         width: 1,
                       ),
                     ),
@@ -384,10 +355,7 @@ class _AddExerciseScreenState extends ConsumerState<AddExerciseScreen> {
                       style: Theme.of(context).textTheme.labelSmall?.copyWith(
                         color: Theme.of(context).brightness == Brightness.light
                             ? Colors.black.withValues(alpha: 0.85)
-                            : Theme.of(context)
-                                  .colorScheme
-                                  .onSecondaryContainer
-                                  .withValues(alpha: 0.85),
+                            : Theme.of(context).colorScheme.onSecondaryContainer.withValues(alpha: 0.85),
                       ),
                     ),
                   ),
@@ -421,10 +389,7 @@ class _AddExerciseScreenState extends ConsumerState<AddExerciseScreen> {
             'Last performed $dateStr',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
               fontSize: 11,
-              color: Theme.of(context)
-                  .colorScheme
-                  .onSurface
-                  .withAlpha((255 * 0.5).round()),
+              color: Theme.of(context).colorScheme.onSurface.withAlpha((255 * 0.5).round()),
             ),
           ),
         );
@@ -503,9 +468,7 @@ class _AddExerciseScreenState extends ConsumerState<AddExerciseScreen> {
     // Check if we're replacing an existing exercise
     final isReplacing = widget.replaceExerciseId != null;
     final existingExercise = isReplacing
-        ? workout.exercises
-              .where((e) => e.id == widget.replaceExerciseId)
-              .firstOrNull
+        ? workout.exercises.where((e) => e.id == widget.replaceExerciseId).firstOrNull
         : null;
 
     // Create new exercise from definition
@@ -676,9 +639,7 @@ class _FilterModalState extends ConsumerState<_FilterModal> {
                         context,
                       ).colorScheme.primaryContainer,
                       labelStyle: TextStyle(
-                        color: isSelected
-                            ? Theme.of(context).colorScheme.onPrimaryContainer
-                            : null,
+                        color: isSelected ? Theme.of(context).colorScheme.onPrimaryContainer : null,
                       ),
                     );
                   }).toList(),
@@ -724,9 +685,7 @@ class _FilterModalState extends ConsumerState<_FilterModal> {
                         context,
                       ).colorScheme.secondaryContainer,
                       labelStyle: TextStyle(
-                        color: isSelected
-                            ? Theme.of(context).colorScheme.onSecondaryContainer
-                            : null,
+                        color: isSelected ? Theme.of(context).colorScheme.onSecondaryContainer : null,
                       ),
                     );
                   }).toList(),

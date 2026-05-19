@@ -73,10 +73,7 @@ class WorkoutRepository {
     );
   }
 
-  List<Workout> _strengthOnly(List<Session> list) => list
-      .whereType<StrengthSession>()
-      .map(_toWorkout)
-      .toList();
+  List<Workout> _strengthOnly(List<Session> list) => list.whereType<StrengthSession>().map(_toWorkout).toList();
 
   // ---------------------------------------------------------------------------
   // Reads — all via SessionRepository, filtered to strength.
@@ -89,9 +86,7 @@ class WorkoutRepository {
 
   /// Watch strength workouts for a specific training cycle.
   Stream<List<Workout>> watchByTrainingCycleId(String trainingCycleId) {
-    return _sessionRepository
-        .watchByTrainingCycleId(trainingCycleId)
-        .map(_strengthOnly);
+    return _sessionRepository.watchByTrainingCycleId(trainingCycleId).map(_strengthOnly);
   }
 
   Future<List<Workout>> getAll() async {
@@ -106,8 +101,7 @@ class WorkoutRepository {
   }
 
   Future<List<Workout>> getByTrainingCycleId(String trainingCycleId) async {
-    final sessions =
-        await _sessionRepository.watchByTrainingCycleId(trainingCycleId).first;
+    final sessions = await _sessionRepository.watchByTrainingCycleId(trainingCycleId).first;
     return _strengthOnly(sessions);
   }
 
@@ -118,8 +112,7 @@ class WorkoutRepository {
 
   Future<List<Workout>> getCompleted() => getByStatus(WorkoutStatus.completed);
 
-  Future<List<Workout>> getIncomplete() =>
-      getByStatus(WorkoutStatus.incomplete);
+  Future<List<Workout>> getIncomplete() => getByStatus(WorkoutStatus.incomplete);
 
   Future<List<Workout>> getSkipped() => getByStatus(WorkoutStatus.skipped);
 
@@ -147,8 +140,7 @@ class WorkoutRepository {
   }
 
   Future<List<Workout>> getByDateRange(DateTime start, DateTime end) async {
-    final sessions =
-        await _sessionRepository.watchByDateRange(start, end).first;
+    final sessions = await _sessionRepository.watchByDateRange(start, end).first;
     return _strengthOnly(sessions);
   }
 
@@ -157,10 +149,7 @@ class WorkoutRepository {
     final all = await getAll();
     return all
         .where(
-          (w) =>
-              w.status == WorkoutStatus.incomplete &&
-              w.scheduledDate != null &&
-              w.scheduledDate!.isAfter(now),
+          (w) => w.status == WorkoutStatus.incomplete && w.scheduledDate != null && w.scheduledDate!.isAfter(now),
         )
         .toList()
       ..sort((a, b) => a.scheduledDate!.compareTo(b.scheduledDate!));
@@ -278,6 +267,5 @@ class WorkoutRepository {
 
   /// Unused after the facade rewrite — kept to satisfy any callers that
   /// still reference it. The session-based [getAll] is the right entry.
-  Future<List<model.Exercise>> loadExercisesForWorkout(String workoutId) =>
-      Future.value(const []);
+  Future<List<model.Exercise>> loadExercisesForWorkout(String workoutId) => Future.value(const []);
 }

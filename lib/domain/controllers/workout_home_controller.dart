@@ -32,9 +32,7 @@ class WorkoutHomeState {
   }) {
     return WorkoutHomeState(
       showPeriodSelector: showPeriodSelector ?? this.showPeriodSelector,
-      selectedPeriod: clearSelection
-          ? null
-          : (selectedPeriod ?? this.selectedPeriod),
+      selectedPeriod: clearSelection ? null : (selectedPeriod ?? this.selectedPeriod),
       selectedDay: clearSelection ? null : (selectedDay ?? this.selectedDay),
     );
   }
@@ -319,9 +317,7 @@ class WorkoutHomeController extends Notifier<WorkoutHomeState> {
     final updatedExercise = exercise.copyWith(
       notes: note?.isEmpty == true ? null : note,
     );
-    final updatedExercises = workout.exercises
-        .map((e) => e.id == exerciseId ? updatedExercise : e)
-        .toList();
+    final updatedExercises = workout.exercises.map((e) => e.id == exerciseId ? updatedExercise : e).toList();
     final updatedWorkout = workout.copyWith(exercises: updatedExercises);
     await repository.update(updatedWorkout);
   }
@@ -386,9 +382,7 @@ class WorkoutHomeController extends Notifier<WorkoutHomeState> {
       final updatedWorkout = workout.copyWith(exercises: exercises);
       await repository.update(updatedWorkout);
     } else {
-      final exercises1 = workoutWithMovingExercise.exercises
-          .where((e) => e.id != exerciseToMove.id)
-          .toList();
+      final exercises1 = workoutWithMovingExercise.exercises.where((e) => e.id != exerciseToMove.id).toList();
 
       final exercises2 = List<Exercise>.from(workoutWithSwapExercise.exercises);
       final insertIndex = exercises2.indexWhere(
@@ -414,9 +408,7 @@ class WorkoutHomeController extends Notifier<WorkoutHomeState> {
     final workout = await repository.getById(workoutId);
     if (workout == null) return;
 
-    final updatedExercises = workout.exercises
-        .where((e) => e.id != exerciseId)
-        .toList();
+    final updatedExercises = workout.exercises.where((e) => e.id != exerciseId).toList();
 
     final updatedWorkout = workout.copyWith(exercises: updatedExercises);
     await repository.update(updatedWorkout);
@@ -439,9 +431,7 @@ class WorkoutHomeController extends Notifier<WorkoutHomeState> {
 
     final exercise = workout.exercises[exerciseIndex];
 
-    final updatedSets = exercise.sets
-        .map((s) => !s.isLogged ? s.copyWith(isSkipped: true) : s)
-        .toList();
+    final updatedSets = exercise.sets.map((s) => !s.isLogged ? s.copyWith(isSkipped: true) : s).toList();
 
     final updatedExercise = exercise.copyWith(sets: updatedSets);
     final updatedWorkout = workout.updateExercise(
@@ -505,18 +495,14 @@ class WorkoutHomeController extends Notifier<WorkoutHomeState> {
       final allWorkouts = ref.read(
         workoutsByTrainingCycleListProvider(workout.trainingCycleId),
       );
-      final workoutsToUpdate = allWorkouts
-          .where((w) => w.dayNumber == workout.dayNumber)
-          .toList();
+      final workoutsToUpdate = allWorkouts.where((w) => w.dayNumber == workout.dayNumber).toList();
 
       for (final w in workoutsToUpdate) {
         await repository.update(w.copyWith(dayName: label));
       }
     } else {
       final currentPeriodNumber = workouts.first.periodNumber;
-      final currentPeriodWorkouts = workouts
-          .where((w) => w.periodNumber == currentPeriodNumber)
-          .toList();
+      final currentPeriodWorkouts = workouts.where((w) => w.periodNumber == currentPeriodNumber).toList();
 
       for (final w in currentPeriodWorkouts) {
         await repository.update(w.copyWith(dayName: label));
@@ -592,21 +578,15 @@ class WorkoutHomeController extends Notifier<WorkoutHomeState> {
 
     List<Workout> templateWorkouts = [];
     if (templatePeriod >= 1) {
-      templateWorkouts = allWorkouts
-          .where((w) => w.periodNumber == templatePeriod)
-          .toList();
+      templateWorkouts = allWorkouts.where((w) => w.periodNumber == templatePeriod).toList();
     } else {
-      templateWorkouts = allWorkouts
-          .where((w) => w.periodNumber == trainingCycle.periodsTotal)
-          .toList();
+      templateWorkouts = allWorkouts.where((w) => w.periodNumber == trainingCycle.periodsTotal).toList();
     }
 
     if (templateWorkouts.isEmpty) return;
 
     // Shift recovery period
-    final recoveryWorkouts = allWorkouts
-        .where((w) => w.periodNumber == trainingCycle.periodsTotal)
-        .toList();
+    final recoveryWorkouts = allWorkouts.where((w) => w.periodNumber == trainingCycle.periodsTotal).toList();
     for (var workout in recoveryWorkouts) {
       await repository.update(
         workout.copyWith(periodNumber: trainingCycle.periodsTotal + 1),
@@ -666,17 +646,13 @@ class WorkoutHomeController extends Notifier<WorkoutHomeState> {
     if (periodToRemove < 1) return;
 
     // Delete period
-    final workoutsToRemove = allWorkouts
-        .where((w) => w.periodNumber == periodToRemove)
-        .toList();
+    final workoutsToRemove = allWorkouts.where((w) => w.periodNumber == periodToRemove).toList();
     for (var workout in workoutsToRemove) {
       await repository.delete(workout.id);
     }
 
     // Shift recovery period
-    final recoveryWorkouts = allWorkouts
-        .where((w) => w.periodNumber == trainingCycle.periodsTotal)
-        .toList();
+    final recoveryWorkouts = allWorkouts.where((w) => w.periodNumber == trainingCycle.periodsTotal).toList();
     for (var workout in recoveryWorkouts) {
       await repository.update(workout.copyWith(periodNumber: periodToRemove));
     }
@@ -697,10 +673,9 @@ class WorkoutHomeController extends Notifier<WorkoutHomeState> {
 // -----------------------------------------------------------------------------
 
 /// Provider for WorkoutHomeController.
-final workoutHomeControllerProvider =
-    NotifierProvider<WorkoutHomeController, WorkoutHomeState>(() {
-      return WorkoutHomeController();
-    });
+final workoutHomeControllerProvider = NotifierProvider<WorkoutHomeController, WorkoutHomeState>(() {
+  return WorkoutHomeController();
+});
 
 /// Find the first incomplete workout in the trainingCycle.
 (int, int)? findFirstIncompleteWorkout(List<Workout> allWorkouts) {
@@ -824,8 +799,7 @@ String calculateDayName({
   // Priority 3: contiguous formula (legacy fallback)
   if (startDate != null) {
     final startDayOfWeek = startDate.weekday % 7;
-    final daysElapsed =
-        ((displayPeriod - 1) * daysPerPeriod) + (displayDay - 1);
+    final daysElapsed = ((displayPeriod - 1) * daysPerPeriod) + (displayDay - 1);
     final actualDayOfWeek = (startDayOfWeek + daysElapsed) % 7;
     return DateHelpers.dayOfWeekNames[actualDayOfWeek];
   }

@@ -63,16 +63,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     // Global keyboard shortcuts for tab switching (Ctrl+1..5)
     final body = CallbackShortcuts(
       bindings: {
-        const SingleActivator(LogicalKeyboardKey.digit1, control: true):
-            () => _onItemTapped(0),
-        const SingleActivator(LogicalKeyboardKey.digit2, control: true):
-            () => _onItemTapped(1),
-        const SingleActivator(LogicalKeyboardKey.digit3, control: true):
-            () => _onItemTapped(2),
-        const SingleActivator(LogicalKeyboardKey.digit4, control: true):
-            () => _onItemTapped(3),
-        const SingleActivator(LogicalKeyboardKey.digit5, control: true):
-            () => _onItemTapped(4),
+        const SingleActivator(LogicalKeyboardKey.digit1, control: true): () => _onItemTapped(0),
+        const SingleActivator(LogicalKeyboardKey.digit2, control: true): () => _onItemTapped(1),
+        const SingleActivator(LogicalKeyboardKey.digit3, control: true): () => _onItemTapped(2),
+        const SingleActivator(LogicalKeyboardKey.digit4, control: true): () => _onItemTapped(3),
+        const SingleActivator(LogicalKeyboardKey.digit5, control: true): () => _onItemTapped(4),
       },
       child: Focus(
         autofocus: true,

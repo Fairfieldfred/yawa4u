@@ -482,20 +482,21 @@ void main() {
         expect(result.hasSuggestion, true);
       });
 
-      test('returns base weight without suggestion when reps were ranges',
-          () async {
-        final workout = makeCompletedWorkout(
-          exerciseName: 'Bench Press',
-          equipmentType: EquipmentType.barbell,
-          sets: [
-            TestFixtures.createExerciseSet(
-              weight: 100,
-              reps: '8-12',
-              isLogged: true,
-            ),
-          ],
-        );
-        service = ExerciseHistoryService(FakeWorkoutRepository([workout]));
+      test(
+        'returns base weight without suggestion when reps were ranges',
+        () async {
+          final workout = makeCompletedWorkout(
+            exerciseName: 'Bench Press',
+            equipmentType: EquipmentType.barbell,
+            sets: [
+              TestFixtures.createExerciseSet(
+                weight: 100,
+                reps: '8-12',
+                isLogged: true,
+              ),
+            ],
+          );
+          service = ExerciseHistoryService(FakeWorkoutRepository([workout]));
 
           final result = await service.getAutoPopulateWeightWithSuggestion(
             'Bench Press',

@@ -116,9 +116,7 @@ class AppColors {
   /// Get muscle group color by name
   static Color getMuscleColor(String muscleGroup) {
     final normalized = muscleGroup.toLowerCase();
-    if (normalized.contains('chest') ||
-        normalized.contains('tricep') ||
-        normalized.contains('shoulder')) {
+    if (normalized.contains('chest') || normalized.contains('tricep') || normalized.contains('shoulder')) {
       return musclePink;
     } else if (normalized.contains('back') || normalized.contains('bicep')) {
       return muscleCyan;
@@ -127,9 +125,7 @@ class AppColors {
         normalized.contains('glute') ||
         normalized.contains('calv')) {
       return muscleTeal;
-    } else if (normalized.contains('trap') ||
-        normalized.contains('forearm') ||
-        normalized.contains('ab')) {
+    } else if (normalized.contains('trap') || normalized.contains('forearm') || normalized.contains('ab')) {
       return musclePurple;
     }
     return primary; // Default

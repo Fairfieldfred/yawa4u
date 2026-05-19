@@ -20,8 +20,7 @@ class CardioSessionLibraryService {
   CardioSessionLibraryService._();
 
   /// Process-wide singleton — templates never change at runtime.
-  static final CardioSessionLibraryService instance =
-      CardioSessionLibraryService._();
+  static final CardioSessionLibraryService instance = CardioSessionLibraryService._();
 
   List<CardioSessionTemplate>? _cache;
 
@@ -37,8 +36,7 @@ class CardioSessionLibraryService {
       paths = manifest
           .listAssets()
           .where(
-            (k) =>
-                k.startsWith('assets/cardio_sessions/') && k.endsWith('.json'),
+            (k) => k.startsWith('assets/cardio_sessions/') && k.endsWith('.json'),
           )
           .toList();
     } catch (_) {
@@ -49,9 +47,7 @@ class CardioSessionLibraryService {
         final legacy = jsonDecode(raw) as Map<String, dynamic>;
         paths = legacy.keys
             .where(
-              (k) =>
-                  k.startsWith('assets/cardio_sessions/') &&
-                  k.endsWith('.json'),
+              (k) => k.startsWith('assets/cardio_sessions/') && k.endsWith('.json'),
             )
             .toList();
       } catch (_) {
@@ -101,19 +97,21 @@ class CardioSessionLibraryService {
     final planned = template.intervals
         .asMap()
         .entries
-        .map((entry) => SessionInterval(
-              id: newIntervalId(),
-              sessionId: sessionId,
-              orderIndex: entry.key,
-              intent: entry.value.intent,
-              targetKind: entry.value.targetKind,
-              targetDurationSec: entry.value.targetDurationSec,
-              targetDistanceM: entry.value.targetDistanceM,
-              targetHrZone: entry.value.targetHrZone,
-              targetPaceZone: entry.value.targetPaceZone,
-              targetPowerZone: entry.value.targetPowerZone,
-              notes: entry.value.notes,
-            ))
+        .map(
+          (entry) => SessionInterval(
+            id: newIntervalId(),
+            sessionId: sessionId,
+            orderIndex: entry.key,
+            intent: entry.value.intent,
+            targetKind: entry.value.targetKind,
+            targetDurationSec: entry.value.targetDurationSec,
+            targetDistanceM: entry.value.targetDistanceM,
+            targetHrZone: entry.value.targetHrZone,
+            targetPaceZone: entry.value.targetPaceZone,
+            targetPowerZone: entry.value.targetPowerZone,
+            notes: entry.value.notes,
+          ),
+        )
         .toList();
 
     // Aggregate planned distance / duration from intervals so the
@@ -122,8 +120,7 @@ class CardioSessionLibraryService {
     double? plannedDistance;
     for (final i in planned) {
       if (i.targetDurationSec != null) {
-        plannedDuration =
-            (plannedDuration ?? 0) + i.targetDurationSec!;
+        plannedDuration = (plannedDuration ?? 0) + i.targetDurationSec!;
       }
       if (i.targetDistanceM != null) {
         plannedDistance = (plannedDistance ?? 0) + i.targetDistanceM!;

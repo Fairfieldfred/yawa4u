@@ -23,94 +23,87 @@ class RestTimerWidget extends ConsumerWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    final canTap = onTap != null &&
-        timer.exerciseId != null &&
-        timer.workoutId != null;
+    final canTap = onTap != null && timer.exerciseId != null && timer.workoutId != null;
 
     return Semantics(
       label: 'Rest timer: ${timer.displayTime} remaining',
       child: GestureDetector(
-        onTap: canTap
-            ? () => onTap!(timer.exerciseId!, timer.workoutId!)
-            : null,
+        onTap: canTap ? () => onTap!(timer.exerciseId!, timer.workoutId!) : null,
         child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: colorScheme.primaryContainer,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Progress bar
-            ClipRRect(
-              borderRadius: BorderRadius.circular(4),
-              child: LinearProgressIndicator(
-                value: timer.progress,
-                minHeight: 6,
-                backgroundColor: colorScheme.onPrimaryContainer
-                    .withAlpha((255 * 0.15).round()),
-                valueColor: AlwaysStoppedAnimation<Color>(
-                  colorScheme.primary,
-                ),
-              ),
-            ),
-            const SizedBox(height: 8),
-            // Timer display and controls
-            Row(
-              children: [
-                Icon(
-                  Icons.timer_outlined,
-                  size: 20,
-                  color: colorScheme.onPrimaryContainer,
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  'Rest: ${timer.displayTime}',
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: colorScheme.onPrimaryContainer,
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: colorScheme.primaryContainer,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Progress bar
+              ClipRRect(
+                borderRadius: BorderRadius.circular(4),
+                child: LinearProgressIndicator(
+                  value: timer.progress,
+                  minHeight: 6,
+                  backgroundColor: colorScheme.onPrimaryContainer.withAlpha((255 * 0.15).round()),
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                    colorScheme.primary,
                   ),
                 ),
-                const Spacer(),
-                // Pause / Resume
-                _TimerButton(
-                  icon: timer.isPaused
-                      ? Icons.play_arrow_rounded
-                      : Icons.pause_rounded,
-                  tooltip: timer.isPaused ? 'Resume' : 'Pause',
-                  onPressed: () {
-                    final notifier = ref.read(restTimerProvider.notifier);
-                    timer.isPaused ? notifier.resume() : notifier.pause();
-                  },
-                  color: colorScheme.onPrimaryContainer,
-                ),
-                const SizedBox(width: 4),
-                // +30s
-                _TimerButton(
-                  icon: Icons.add,
-                  tooltip: 'Add 30 seconds',
-                  onPressed: () {
-                    ref.read(restTimerProvider.notifier).addTime();
-                  },
-                  color: colorScheme.onPrimaryContainer,
-                ),
-                const SizedBox(width: 4),
-                // Skip
-                _TimerButton(
-                  icon: Icons.skip_next_rounded,
-                  tooltip: 'Skip rest',
-                  onPressed: () {
-                    ref.read(restTimerProvider.notifier).cancel();
-                  },
-                  color: colorScheme.onPrimaryContainer,
-                ),
-              ],
-            ),
-          ],
+              ),
+              const SizedBox(height: 8),
+              // Timer display and controls
+              Row(
+                children: [
+                  Icon(
+                    Icons.timer_outlined,
+                    size: 20,
+                    color: colorScheme.onPrimaryContainer,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Rest: ${timer.displayTime}',
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: colorScheme.onPrimaryContainer,
+                    ),
+                  ),
+                  const Spacer(),
+                  // Pause / Resume
+                  _TimerButton(
+                    icon: timer.isPaused ? Icons.play_arrow_rounded : Icons.pause_rounded,
+                    tooltip: timer.isPaused ? 'Resume' : 'Pause',
+                    onPressed: () {
+                      final notifier = ref.read(restTimerProvider.notifier);
+                      timer.isPaused ? notifier.resume() : notifier.pause();
+                    },
+                    color: colorScheme.onPrimaryContainer,
+                  ),
+                  const SizedBox(width: 4),
+                  // +30s
+                  _TimerButton(
+                    icon: Icons.add,
+                    tooltip: 'Add 30 seconds',
+                    onPressed: () {
+                      ref.read(restTimerProvider.notifier).addTime();
+                    },
+                    color: colorScheme.onPrimaryContainer,
+                  ),
+                  const SizedBox(width: 4),
+                  // Skip
+                  _TimerButton(
+                    icon: Icons.skip_next_rounded,
+                    tooltip: 'Skip rest',
+                    onPressed: () {
+                      ref.read(restTimerProvider.notifier).cancel();
+                    },
+                    color: colorScheme.onPrimaryContainer,
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
-      ),
       ),
     );
   }

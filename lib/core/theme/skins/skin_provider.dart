@@ -36,12 +36,10 @@ class SkinState {
   }
 
   /// Build light theme from active skin
-  ThemeData get lightTheme =>
-      SkinBuilder.buildTheme(activeSkin, Brightness.light);
+  ThemeData get lightTheme => SkinBuilder.buildTheme(activeSkin, Brightness.light);
 
   /// Build dark theme from active skin
-  ThemeData get darkTheme =>
-      SkinBuilder.buildTheme(activeSkin, Brightness.dark);
+  ThemeData get darkTheme => SkinBuilder.buildTheme(activeSkin, Brightness.dark);
 }
 
 /// Notifier for managing skin state using Riverpod 3.0 Notifier pattern

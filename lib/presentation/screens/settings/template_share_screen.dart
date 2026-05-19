@@ -26,8 +26,7 @@ class TemplateShareScreen extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<TemplateShareScreen> createState() =>
-      _TemplateShareScreenState();
+  ConsumerState<TemplateShareScreen> createState() => _TemplateShareScreenState();
 }
 
 class _TemplateShareScreenState extends ConsumerState<TemplateShareScreen> {
@@ -72,9 +71,7 @@ class _TemplateShareScreenState extends ConsumerState<TemplateShareScreen> {
   ) async {
     if (_autoStartTriggered || !widget.autoStart) return;
 
-    final selectedTemplates = templates
-        .where((t) => _selectedTemplateIds.contains(t.id))
-        .toList();
+    final selectedTemplates = templates.where((t) => _selectedTemplateIds.contains(t.id)).toList();
     if (selectedTemplates.isNotEmpty) {
       _autoStartTriggered = true;
       _startServer(selectedTemplates);
@@ -107,8 +104,7 @@ class _TemplateShareScreenState extends ConsumerState<TemplateShareScreen> {
       _isServerRunning = success;
       _connectionInfo = shareService.connectionInfo;
       if (!success) {
-        _errorMessage =
-            'Could not start share server. Make sure you are connected to WiFi.';
+        _errorMessage = 'Could not start share server. Make sure you are connected to WiFi.';
       }
     });
   }
@@ -200,14 +196,9 @@ class _TemplateShareScreenState extends ConsumerState<TemplateShareScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            result.message ??
-                (result.success
-                    ? 'Templates received!'
-                    : 'Failed to receive templates'),
+            result.message ?? (result.success ? 'Templates received!' : 'Failed to receive templates'),
           ),
-          backgroundColor: result.success
-              ? context.successColor
-              : context.errorColor,
+          backgroundColor: result.success ? context.successColor : context.errorColor,
         ),
       );
 
@@ -360,9 +351,7 @@ class _TemplateShareScreenState extends ConsumerState<TemplateShareScreen> {
                   });
                 },
                 child: Text(
-                  _selectedTemplateIds.length == templates.length
-                      ? 'Deselect All'
-                      : 'Select All',
+                  _selectedTemplateIds.length == templates.length ? 'Deselect All' : 'Select All',
                 ),
               ),
             ],
@@ -409,9 +398,7 @@ class _TemplateShareScreenState extends ConsumerState<TemplateShareScreen> {
                         )
                       : const Icon(Icons.qr_code),
                   label: Text(
-                    _selectedTemplateIds.isEmpty
-                        ? 'Select Templates to Share'
-                        : 'Share via QR Code',
+                    _selectedTemplateIds.isEmpty ? 'Select Templates to Share' : 'Share via QR Code',
                   ),
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
@@ -452,9 +439,7 @@ class _TemplateShareScreenState extends ConsumerState<TemplateShareScreen> {
     final isSelected = _selectedTemplateIds.contains(template.id);
 
     return Card(
-      color: isSelected
-          ? colorScheme.primaryContainer
-          : colorScheme.surfaceContainerHighest,
+      color: isSelected ? colorScheme.primaryContainer : colorScheme.surfaceContainerHighest,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: InkWell(
         onTap: () {
@@ -497,9 +482,7 @@ class _TemplateShareScreenState extends ConsumerState<TemplateShareScreen> {
                           child: Text(
                             template.name,
                             style: TextStyle(
-                              color: isSelected
-                                  ? colorScheme.onPrimaryContainer
-                                  : colorScheme.onSurface,
+                              color: isSelected ? colorScheme.onPrimaryContainer : colorScheme.onSurface,
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
                             ),

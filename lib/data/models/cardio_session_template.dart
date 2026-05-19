@@ -43,8 +43,7 @@ class CardioSessionTemplate {
       intervals:
           (json['intervals'] as List?)
               ?.map(
-                (i) =>
-                    CardioIntervalTemplate.fromJson(i as Map<String, dynamic>),
+                (i) => CardioIntervalTemplate.fromJson(i as Map<String, dynamic>),
               )
               .toList() ??
           const [],

@@ -12,12 +12,10 @@ class CommunitySkinDetailScreen extends ConsumerStatefulWidget {
   const CommunitySkinDetailScreen({super.key, required this.skin});
 
   @override
-  ConsumerState<CommunitySkinDetailScreen> createState() =>
-      _CommunitySkinDetailScreenState();
+  ConsumerState<CommunitySkinDetailScreen> createState() => _CommunitySkinDetailScreenState();
 }
 
-class _CommunitySkinDetailScreenState
-    extends ConsumerState<CommunitySkinDetailScreen> {
+class _CommunitySkinDetailScreenState extends ConsumerState<CommunitySkinDetailScreen> {
   bool _isDownloading = false;
   bool _downloaded = false;
 
@@ -175,8 +173,7 @@ class _CommunitySkinDetailScreenState
                       return Chip(
                         label: Text(tag),
                         visualDensity: VisualDensity.compact,
-                        materialTapTargetSize:
-                            MaterialTapTargetSize.shrinkWrap,
+                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       );
                     }).toList(),
                   ),
@@ -212,13 +209,8 @@ class _CommunitySkinDetailScreenState
               child: SizedBox(
                 width: double.infinity,
                 child: FilledButton.icon(
-                  onPressed:
-                      _isDownloading || _downloaded || skin.skin == null
-                          ? null
-                          : _download,
-                  icon: _downloaded
-                      ? const Icon(Icons.check)
-                      : const Icon(Icons.download),
+                  onPressed: _isDownloading || _downloaded || skin.skin == null ? null : _download,
+                  icon: _downloaded ? const Icon(Icons.check) : const Icon(Icons.download),
                   label: _isDownloading
                       ? const SizedBox(
                           height: 20,

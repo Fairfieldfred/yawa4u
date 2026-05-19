@@ -67,9 +67,7 @@ class DateHelpers {
 
   /// Check if two dates are on the same day
   static bool isSameDay(DateTime date1, DateTime date2) {
-    return date1.year == date2.year &&
-        date1.month == date2.month &&
-        date1.day == date2.day;
+    return date1.year == date2.year && date1.month == date2.month && date1.day == date2.day;
   }
 
   /// Check if a date is today
@@ -236,8 +234,7 @@ class DateHelpers {
   /// from a list of items that have period, day, and optional scheduled
   /// date. Each item is represented as a record.
   static Map<(int, int), DateTime> extractScheduledDates(
-    Iterable<({int periodNumber, int dayNumber, DateTime? scheduledDate})>
-        items,
+    Iterable<({int periodNumber, int dayNumber, DateTime? scheduledDate})> items,
   ) {
     final map = <(int, int), DateTime>{};
     for (final item in items) {

@@ -63,9 +63,7 @@ class UserErrors {
   }
 
   static bool _looksPermission(String lower) {
-    return lower.contains('permission') ||
-        lower.contains('unauthoriz') ||
-        lower.contains('authoriz');
+    return lower.contains('permission') || lower.contains('unauthoriz') || lower.contains('authoriz');
   }
 
   static bool _looksDbConstraint(String lower) {
@@ -75,8 +73,6 @@ class UserErrors {
   }
 
   static bool _looksNotFound(String lower) {
-    return lower.contains('no element') ||
-        lower.contains('not found') ||
-        lower.contains('does not exist');
+    return lower.contains('no element') || lower.contains('not found') || lower.contains('does not exist');
   }
 }

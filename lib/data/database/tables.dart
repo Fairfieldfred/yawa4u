@@ -21,12 +21,10 @@ class TrainingCycles extends Table {
   DateTimeColumn get createdDate => dateTime()();
   DateTimeColumn get startDate => dateTime().nullable()();
   DateTimeColumn get endDate => dateTime().nullable()();
-  TextColumn get muscleGroupPriorities =>
-      text().nullable()(); // JSON Map<String, int>
+  TextColumn get muscleGroupPriorities => text().nullable()(); // JSON Map<String, int>
   TextColumn get templateName => text().nullable()();
   TextColumn get notes => text().nullable()();
-  IntColumn get recoveryPeriodType =>
-      integer().nullable()(); // RecoveryPeriodType enum
+  IntColumn get recoveryPeriodType => integer().nullable()(); // RecoveryPeriodType enum
   IntColumn get primarySport => integer().nullable()(); // Sport enum (v5)
   TextColumn get creatorUuid => text().nullable()(); // v5 coach-mode hook
   TextColumn get ownerUuid => text().nullable()(); // v5 coach-mode hook
@@ -48,8 +46,7 @@ class Exercises extends Table {
   TextColumn get sessionUuid => text().nullable()(); // v5; redundant with workoutUuid post-v6
   TextColumn get name => text()();
   IntColumn get muscleGroup => integer()(); // MuscleGroup enum (primary)
-  IntColumn get secondaryMuscleGroup =>
-      integer().nullable()(); // MuscleGroup enum (optional)
+  IntColumn get secondaryMuscleGroup => integer().nullable()(); // MuscleGroup enum (optional)
   IntColumn get equipmentType => integer()(); // EquipmentType enum
   IntColumn get orderIndex => integer()();
   RealColumn get bodyweight => real().nullable()();
@@ -80,15 +77,13 @@ class ExerciseSets extends Table {
 /// legacy rows stay valid until the v5 backfill runs.
 class ExerciseFeedbacks extends Table {
   IntColumn get id => integer().autoIncrement()();
-  TextColumn get exerciseUuid =>
-      text().unique().references(Exercises, #uuid)(); // One-to-one
+  TextColumn get exerciseUuid => text().unique().references(Exercises, #uuid)(); // One-to-one
   TextColumn get sessionUuid => text().nullable()(); // v5
   IntColumn get jointPain => integer().nullable()(); // JointPain enum
   IntColumn get musclePump => integer().nullable()(); // MusclePump enum
   IntColumn get workload => integer().nullable()(); // Workload enum
   IntColumn get soreness => integer().nullable()(); // Soreness enum
-  TextColumn get muscleGroupSoreness =>
-      text().nullable()(); // JSON Map<String, int>
+  TextColumn get muscleGroupSoreness => text().nullable()(); // JSON Map<String, int>
   DateTimeColumn get timestamp => dateTime().nullable()();
 }
 
@@ -98,8 +93,7 @@ class CustomExerciseDefinitions extends Table {
   TextColumn get uuid => text().unique()();
   TextColumn get name => text()();
   IntColumn get muscleGroup => integer()(); // MuscleGroup enum (primary)
-  IntColumn get secondaryMuscleGroup =>
-      integer().nullable()(); // MuscleGroup enum (optional)
+  IntColumn get secondaryMuscleGroup => integer().nullable()(); // MuscleGroup enum (optional)
   IntColumn get equipmentType => integer()(); // EquipmentType enum
   TextColumn get videoUrl => text().nullable()();
   IntColumn get restSeconds => integer().nullable()();
@@ -144,8 +138,7 @@ class Skins extends Table {
 class Sessions extends Table {
   IntColumn get id => integer().autoIncrement()();
   TextColumn get uuid => text().unique()();
-  TextColumn get trainingCycleUuid =>
-      text().nullable().references(TrainingCycles, #uuid)();
+  TextColumn get trainingCycleUuid => text().nullable().references(TrainingCycles, #uuid)();
   IntColumn get sport => integer()(); // Sport enum
   IntColumn get source => integer()(); // SessionSource enum
   IntColumn get periodNumber => integer().nullable()();
@@ -173,8 +166,7 @@ class Sessions extends Table {
 class CyclePeriods extends Table {
   IntColumn get id => integer().autoIncrement()();
   TextColumn get uuid => text().unique()();
-  TextColumn get trainingCycleUuid =>
-      text().references(TrainingCycles, #uuid)();
+  TextColumn get trainingCycleUuid => text().references(TrainingCycles, #uuid)();
   IntColumn get periodNumber => integer()();
   IntColumn get phase => integer().nullable()(); // TrainingPhase enum
   TextColumn get notes => text().nullable()();
@@ -195,8 +187,7 @@ class CyclePeriods extends Table {
 /// values.
 class SessionCardio extends Table {
   IntColumn get id => integer().autoIncrement()();
-  TextColumn get sessionUuid =>
-      text().unique().references(Sessions, #uuid)(); // 1:1
+  TextColumn get sessionUuid => text().unique().references(Sessions, #uuid)(); // 1:1
   // Distance / duration -----------------------------------------------------
   RealColumn get plannedDistanceM => real().nullable()();
   RealColumn get actualDistanceM => real().nullable()();
@@ -298,8 +289,7 @@ class SportZones extends Table {
 /// questions (RPE, breathing, GI comfort, weather).
 class CardioFeedback extends Table {
   IntColumn get id => integer().autoIncrement()();
-  TextColumn get sessionUuid =>
-      text().unique().references(Sessions, #uuid)(); // 1:1
+  TextColumn get sessionUuid => text().unique().references(Sessions, #uuid)(); // 1:1
   IntColumn get rpe => integer().nullable()(); // 1..10
   IntColumn get breathing => integer().nullable()(); // 1..5
   IntColumn get giComfort => integer().nullable()(); // 1..5

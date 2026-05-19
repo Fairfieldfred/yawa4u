@@ -39,14 +39,15 @@ void main() {
       expect(saved.videoUrl, 'https://youtube.com/watch?v=example');
     });
 
-    test('custom exercise appears in combined list via toExerciseDefinition',
-        () async {
-      await ctx.customExerciseRepo.add(TestDataFactory.createCustomExercise(
-        id: 'custom-combined',
-        name: 'Z-Bar Curl',
-        muscleGroup: MuscleGroup.biceps,
-        equipmentType: EquipmentType.barbell,
-      ));
+    test('custom exercise appears in combined list via toExerciseDefinition', () async {
+      await ctx.customExerciseRepo.add(
+        TestDataFactory.createCustomExercise(
+          id: 'custom-combined',
+          name: 'Z-Bar Curl',
+          muscleGroup: MuscleGroup.biceps,
+          equipmentType: EquipmentType.barbell,
+        ),
+      );
 
       final all = await ctx.customExerciseRepo.getAll();
       expect(all.length, 1);
@@ -60,12 +61,14 @@ void main() {
 
     test('use a custom exercise in a workout', () async {
       // Create custom exercise definition
-      await ctx.customExerciseRepo.add(TestDataFactory.createCustomExercise(
-        id: 'custom-use',
-        name: 'Cable Overhead Tricep Extension',
-        muscleGroup: MuscleGroup.triceps,
-        equipmentType: EquipmentType.cable,
-      ));
+      await ctx.customExerciseRepo.add(
+        TestDataFactory.createCustomExercise(
+          id: 'custom-use',
+          name: 'Cable Overhead Tricep Extension',
+          muscleGroup: MuscleGroup.triceps,
+          equipmentType: EquipmentType.cable,
+        ),
+      );
 
       // Create a cycle and workout
       final cycle = TestDataFactory.createCycle(id: 'cycle-custom');
@@ -112,12 +115,14 @@ void main() {
     });
 
     test('edit a custom exercise definition', () async {
-      await ctx.customExerciseRepo.add(TestDataFactory.createCustomExercise(
-        id: 'custom-edit',
-        name: 'My Press',
-        muscleGroup: MuscleGroup.chest,
-        equipmentType: EquipmentType.machine,
-      ));
+      await ctx.customExerciseRepo.add(
+        TestDataFactory.createCustomExercise(
+          id: 'custom-edit',
+          name: 'My Press',
+          muscleGroup: MuscleGroup.chest,
+          equipmentType: EquipmentType.machine,
+        ),
+      );
 
       var saved = await ctx.customExerciseRepo.getById('custom-edit');
       expect(saved!.name, 'My Press');
@@ -142,14 +147,18 @@ void main() {
     });
 
     test('delete a custom exercise and verify removal', () async {
-      await ctx.customExerciseRepo.add(TestDataFactory.createCustomExercise(
-        id: 'custom-del-1',
-        name: 'Custom A',
-      ));
-      await ctx.customExerciseRepo.add(TestDataFactory.createCustomExercise(
-        id: 'custom-del-2',
-        name: 'Custom B',
-      ));
+      await ctx.customExerciseRepo.add(
+        TestDataFactory.createCustomExercise(
+          id: 'custom-del-1',
+          name: 'Custom A',
+        ),
+      );
+      await ctx.customExerciseRepo.add(
+        TestDataFactory.createCustomExercise(
+          id: 'custom-del-2',
+          name: 'Custom B',
+        ),
+      );
 
       expect(await ctx.customExerciseRepo.count(), 2);
 
@@ -165,32 +174,34 @@ void main() {
     });
 
     test('check existsByName is case-insensitive', () async {
-      await ctx.customExerciseRepo.add(TestDataFactory.createCustomExercise(
-        id: 'custom-case',
-        name: 'Reverse Grip Curl',
-      ));
+      await ctx.customExerciseRepo.add(
+        TestDataFactory.createCustomExercise(
+          id: 'custom-case',
+          name: 'Reverse Grip Curl',
+        ),
+      );
 
-      expect(await ctx.customExerciseRepo.existsByName('Reverse Grip Curl'),
-          isTrue);
-      expect(await ctx.customExerciseRepo.existsByName('reverse grip curl'),
-          isTrue);
-      expect(await ctx.customExerciseRepo.existsByName('REVERSE GRIP CURL'),
-          isTrue);
-      expect(
-          await ctx.customExerciseRepo.existsByName('Nonexistent'), isFalse);
+      expect(await ctx.customExerciseRepo.existsByName('Reverse Grip Curl'), isTrue);
+      expect(await ctx.customExerciseRepo.existsByName('reverse grip curl'), isTrue);
+      expect(await ctx.customExerciseRepo.existsByName('REVERSE GRIP CURL'), isTrue);
+      expect(await ctx.customExerciseRepo.existsByName('Nonexistent'), isFalse);
     });
 
     test('getByName returns correct exercise', () async {
-      await ctx.customExerciseRepo.add(TestDataFactory.createCustomExercise(
-        id: 'custom-name-1',
-        name: 'Alpha Exercise',
-        muscleGroup: MuscleGroup.back,
-      ));
-      await ctx.customExerciseRepo.add(TestDataFactory.createCustomExercise(
-        id: 'custom-name-2',
-        name: 'Beta Exercise',
-        muscleGroup: MuscleGroup.biceps,
-      ));
+      await ctx.customExerciseRepo.add(
+        TestDataFactory.createCustomExercise(
+          id: 'custom-name-1',
+          name: 'Alpha Exercise',
+          muscleGroup: MuscleGroup.back,
+        ),
+      );
+      await ctx.customExerciseRepo.add(
+        TestDataFactory.createCustomExercise(
+          id: 'custom-name-2',
+          name: 'Beta Exercise',
+          muscleGroup: MuscleGroup.biceps,
+        ),
+      );
 
       final result = await ctx.customExerciseRepo.getByName('beta exercise');
       expect(result, isNotNull);
@@ -202,18 +213,24 @@ void main() {
     });
 
     test('custom exercises are sorted alphabetically', () async {
-      await ctx.customExerciseRepo.add(TestDataFactory.createCustomExercise(
-        id: 'sort-3',
-        name: 'Zottman Curl',
-      ));
-      await ctx.customExerciseRepo.add(TestDataFactory.createCustomExercise(
-        id: 'sort-1',
-        name: 'Arnold Press',
-      ));
-      await ctx.customExerciseRepo.add(TestDataFactory.createCustomExercise(
-        id: 'sort-2',
-        name: 'Meadow Row',
-      ));
+      await ctx.customExerciseRepo.add(
+        TestDataFactory.createCustomExercise(
+          id: 'sort-3',
+          name: 'Zottman Curl',
+        ),
+      );
+      await ctx.customExerciseRepo.add(
+        TestDataFactory.createCustomExercise(
+          id: 'sort-1',
+          name: 'Arnold Press',
+        ),
+      );
+      await ctx.customExerciseRepo.add(
+        TestDataFactory.createCustomExercise(
+          id: 'sort-2',
+          name: 'Meadow Row',
+        ),
+      );
 
       final all = await ctx.customExerciseRepo.getAll();
       expect(all.length, 3);
@@ -224,10 +241,12 @@ void main() {
 
     test('deleteAll removes all custom exercises', () async {
       for (var i = 0; i < 5; i++) {
-        await ctx.customExerciseRepo.add(TestDataFactory.createCustomExercise(
-          id: 'bulk-$i',
-          name: 'Bulk Exercise $i',
-        ));
+        await ctx.customExerciseRepo.add(
+          TestDataFactory.createCustomExercise(
+            id: 'bulk-$i',
+            name: 'Bulk Exercise $i',
+          ),
+        );
       }
       expect(await ctx.customExerciseRepo.count(), 5);
 
@@ -241,10 +260,12 @@ void main() {
       final first = await stream.first;
       expect(first, isEmpty);
 
-      await ctx.customExerciseRepo.add(TestDataFactory.createCustomExercise(
-        id: 'stream-1',
-        name: 'Stream Exercise',
-      ));
+      await ctx.customExerciseRepo.add(
+        TestDataFactory.createCustomExercise(
+          id: 'stream-1',
+          name: 'Stream Exercise',
+        ),
+      );
 
       final second = await stream.first;
       expect(second.length, 1);
@@ -252,13 +273,15 @@ void main() {
     });
 
     test('custom exercise with secondary muscle group', () async {
-      await ctx.customExerciseRepo.add(TestDataFactory.createCustomExercise(
-        id: 'secondary-1',
-        name: 'Close Grip Bench',
-        muscleGroup: MuscleGroup.triceps,
-        secondaryMuscleGroup: MuscleGroup.chest,
-        equipmentType: EquipmentType.barbell,
-      ));
+      await ctx.customExerciseRepo.add(
+        TestDataFactory.createCustomExercise(
+          id: 'secondary-1',
+          name: 'Close Grip Bench',
+          muscleGroup: MuscleGroup.triceps,
+          secondaryMuscleGroup: MuscleGroup.chest,
+          equipmentType: EquipmentType.barbell,
+        ),
+      );
 
       final saved = await ctx.customExerciseRepo.getById('secondary-1');
       expect(saved, isNotNull);

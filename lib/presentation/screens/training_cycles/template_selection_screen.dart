@@ -13,12 +13,10 @@ class TemplateSelectionScreen extends ConsumerStatefulWidget {
   const TemplateSelectionScreen({super.key});
 
   @override
-  ConsumerState<TemplateSelectionScreen> createState() =>
-      _TemplateSelectionScreenState();
+  ConsumerState<TemplateSelectionScreen> createState() => _TemplateSelectionScreenState();
 }
 
-class _TemplateSelectionScreenState
-    extends ConsumerState<TemplateSelectionScreen> {
+class _TemplateSelectionScreenState extends ConsumerState<TemplateSelectionScreen> {
   @override
   Widget build(BuildContext context) {
     final templatesAsync = ref.watch(availableTemplatesProvider);
@@ -27,11 +25,7 @@ class _TemplateSelectionScreenState
       appBar: AppBar(title: const Text('Choose a Program'), elevation: 0),
       body: templatesAsync.when(
         data: (allTemplates) {
-          final templates = kDebugMode
-              ? allTemplates
-              : allTemplates
-                  .where((t) => t.id != 'short')
-                  .toList();
+          final templates = kDebugMode ? allTemplates : allTemplates.where((t) => t.id != 'short').toList();
           if (templates.isEmpty) {
             return Center(
               child: Text(
@@ -191,9 +185,7 @@ class _TemplateSelectionScreenState
                         ),
                       ),
                       FutureBuilder<bool>(
-                        future: ref
-                            .read(templateRepositoryProvider)
-                            .isSavedTemplate(template.id),
+                        future: ref.read(templateRepositoryProvider).isSavedTemplate(template.id),
                         builder: (context, snapshot) {
                           if (snapshot.data == true) {
                             return IconButton(

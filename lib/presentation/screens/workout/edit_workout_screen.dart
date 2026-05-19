@@ -66,9 +66,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
         // Get workouts for the selected period and day
         final dayWorkouts = workouts
             .where(
-              (w) =>
-                  w.periodNumber == _selectedPeriod &&
-                  w.dayNumber == _selectedDayIndex + 1,
+              (w) => w.periodNumber == _selectedPeriod && w.dayNumber == _selectedDayIndex + 1,
             )
             .toList();
 
@@ -86,8 +84,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
                 if (kDebugMode)
                   IconButton(
                     icon: const Icon(Icons.save_alt),
-                    onPressed: () =>
-                        _exportTemplate(context, trainingCycle, workouts),
+                    onPressed: () => _exportTemplate(context, trainingCycle, workouts),
                     tooltip: 'Export Template (Debug)',
                   ),
                 // Start trainingCycle button (if draft)
@@ -161,13 +158,11 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
                     label: const Text('Add Exercise'),
                     icon: const Icon(Icons.add),
                   ),
-            floatingActionButtonLocation:
-                FloatingActionButtonLocation.centerFloat,
+            floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
           ),
         );
       },
-      loading: () =>
-          const Scaffold(body: Center(child: CircularProgressIndicator())),
+      loading: () => const Scaffold(body: Center(child: CircularProgressIndicator())),
       error: (error, stack) {
         Sentry.captureException(error, stackTrace: stack);
         return Scaffold(body: Center(child: Text('Error: $error')));
@@ -192,9 +187,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
           data: (sessions) => sessions
               .whereType<CardioSession>()
               .where(
-                (s) =>
-                    s.periodNumber == _selectedPeriod &&
-                    s.dayNumber == _selectedDayIndex + 1,
+                (s) => s.periodNumber == _selectedPeriod && s.dayNumber == _selectedDayIndex + 1,
               )
               .toList(),
           loading: () => const <CardioSession>[],
@@ -299,9 +292,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
           // Remove period button
           IconButton(
             icon: const Icon(Icons.remove_circle_outline, size: 20),
-            onPressed: trainingCycle.periodsTotal > 2
-                ? () => _showRemovePeriodDialog(trainingCycle, controller)
-                : null,
+            onPressed: trainingCycle.periodsTotal > 2 ? () => _showRemovePeriodDialog(trainingCycle, controller) : null,
             tooltip: 'Remove Period',
             visualDensity: VisualDensity.compact,
             padding: EdgeInsets.zero,
@@ -324,21 +315,16 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
                 children: List.generate(trainingCycle.periodsTotal, (index) {
                   final periodNumber = index + 1;
                   final isSelected = periodNumber == _selectedPeriod;
-                  final isRecoveryPeriod =
-                      periodNumber == trainingCycle.recoveryPeriod;
+                  final isRecoveryPeriod = periodNumber == trainingCycle.recoveryPeriod;
 
                   final chip = ChoiceChip(
                     label: Text(
-                      isRecoveryPeriod
-                          ? trainingCycle.recoveryPeriodType.abbreviation
-                          : '$periodNumber',
+                      isRecoveryPeriod ? trainingCycle.recoveryPeriodType.abbreviation : '$periodNumber',
                       style: TextStyle(
                         color: isSelected
                             ? Theme.of(context).colorScheme.onPrimary
                             : Theme.of(context).colorScheme.onSurface,
-                        fontWeight: isSelected
-                            ? FontWeight.bold
-                            : FontWeight.normal,
+                        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                       ),
                     ),
                     selected: isSelected,
@@ -376,8 +362,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
           if (_selectedPeriod > 1 && period1HasWorkouts)
             IconButton(
               icon: const Icon(Icons.content_copy, size: 20),
-              onPressed: () =>
-                  _mirrorPeriod1ToSelectedPeriod(trainingCycle, controller),
+              onPressed: () => _mirrorPeriod1ToSelectedPeriod(trainingCycle, controller),
               tooltip: 'Mirror Period 1',
               style: IconButton.styleFrom(
                 backgroundColor: Theme.of(context).colorScheme.primaryContainer,
@@ -467,9 +452,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                removeRecovery
-                    ? 'Recovery period removed'
-                    : 'Period $lastNonRecoveryPeriod removed',
+                removeRecovery ? 'Recovery period removed' : 'Period $lastNonRecoveryPeriod removed',
               ),
               backgroundColor: context.successColor,
             ),
@@ -516,9 +499,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
                 type.abbreviation,
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
-                  color: isSelected
-                      ? Theme.of(context).colorScheme.primary
-                      : null,
+                  color: isSelected ? Theme.of(context).colorScheme.primary : null,
                 ),
               ),
               onTap: () => Navigator.pop(context, type),
@@ -534,9 +515,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
       ),
     );
 
-    if (result != null &&
-        result != trainingCycle.recoveryPeriodType &&
-        mounted) {
+    if (result != null && result != trainingCycle.recoveryPeriodType && mounted) {
       try {
         await controller.updateRecoveryPeriodType(trainingCycle, result);
         if (mounted) {
@@ -587,9 +566,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
           // Remove day button
           IconButton(
             icon: const Icon(Icons.remove_circle_outline, size: 20),
-            onPressed: trainingCycle.daysPerPeriod > 1
-                ? () => _removeDay(trainingCycle, controller)
-                : null,
+            onPressed: trainingCycle.daysPerPeriod > 1 ? () => _removeDay(trainingCycle, controller) : null,
             tooltip: 'Remove Day',
             visualDensity: VisualDensity.compact,
             padding: EdgeInsets.zero,
@@ -598,8 +575,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
           // Add day button
           IconButton(
             icon: const Icon(Icons.add_circle_outline, size: 20),
-            onPressed:
-                trainingCycle.daysPerPeriod < AppConstants.maxDaysPerPeriod
+            onPressed: trainingCycle.daysPerPeriod < AppConstants.maxDaysPerPeriod
                 ? () => _addDay(trainingCycle, controller)
                 : null,
             tooltip: 'Add Day',
@@ -623,9 +599,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
                         color: isSelected
                             ? Theme.of(context).colorScheme.onPrimary
                             : Theme.of(context).colorScheme.onSurface,
-                        fontWeight: isSelected
-                            ? FontWeight.bold
-                            : FontWeight.normal,
+                        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                       ),
                     ),
                     selected: isSelected,
@@ -774,21 +748,15 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
       separatorBuilder: (context, index) {
         // Check if next exercise is same muscle group
         final currentMuscleGroup = allExercises[index].muscleGroup;
-        final nextMuscleGroup = index + 1 < allExercises.length
-            ? allExercises[index + 1].muscleGroup
-            : null;
+        final nextMuscleGroup = index + 1 < allExercises.length ? allExercises[index + 1].muscleGroup : null;
         final isSameMuscleGroup = currentMuscleGroup == nextMuscleGroup;
 
         // Thin grey divider for same muscle group, black spacer for different
-        return isSameMuscleGroup
-            ? Container(height: 1, color: const Color(0xFF3A3A3C))
-            : const SizedBox(height: 32);
+        return isSameMuscleGroup ? Container(height: 1, color: const Color(0xFF3A3A3C)) : const SizedBox(height: 32);
       },
       itemBuilder: (context, index) {
         final exercise = allExercises[index];
-        final showMuscleGroupBadge =
-            index == 0 ||
-            allExercises[index - 1].muscleGroup != exercise.muscleGroup;
+        final showMuscleGroupBadge = index == 0 || allExercises[index - 1].muscleGroup != exercise.muscleGroup;
 
         return _buildExerciseCard(
           context,
@@ -836,21 +804,19 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
                         children: [
                           Text(
                             exercise.name,
-                            style: Theme.of(context).textTheme.titleMedium
-                                ?.copyWith(
-                                  fontSize: 17,
-                                  fontWeight: FontWeight.w600,
-                                ),
+                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              fontSize: 17,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                           const SizedBox(height: 4),
                           Text(
                             equipmentType.displayName.toUpperCase(),
-                            style: Theme.of(context).textTheme.bodySmall
-                                ?.copyWith(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w500,
-                                  letterSpacing: 0.3,
-                                ),
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                              letterSpacing: 0.3,
+                            ),
                           ),
                         ],
                       ),
@@ -882,8 +848,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
                           ),
                         ),
                       ),
-                      onPressed: () =>
-                          showExerciseInfoDialog(context, exercise),
+                      onPressed: () => showExerciseInfoDialog(context, exercise),
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(
                         minWidth: 24,
@@ -1000,18 +965,14 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
                             children: [
                               Icon(
                                 Icons.arrow_downward,
-                                color: index < totalExercises - 1
-                                    ? Colors.white
-                                    : Colors.grey,
+                                color: index < totalExercises - 1 ? Colors.white : Colors.grey,
                                 size: 20,
                               ),
                               const SizedBox(width: 12),
                               Text(
                                 'Move down',
                                 style: TextStyle(
-                                  color: index < totalExercises - 1
-                                      ? Colors.white
-                                      : Colors.grey,
+                                  color: index < totalExercises - 1 ? Colors.white : Colors.grey,
                                 ),
                               ),
                             ],
@@ -1087,11 +1048,8 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
                           child: Text(
                             'SET',
                             style: TextStyle(
-                              color:
-                                  Theme.of(context).brightness ==
-                                      Brightness.light
-                                  ? Theme.of(context).textTheme.bodySmall?.color
-                                        ?.withValues(alpha: 0.7)
+                              color: Theme.of(context).brightness == Brightness.light
+                                  ? Theme.of(context).textTheme.bodySmall?.color?.withValues(alpha: 0.7)
                                   : Colors.white,
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
@@ -1104,11 +1062,8 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
                           child: Text(
                             'REPS',
                             style: TextStyle(
-                              color:
-                                  Theme.of(context).brightness ==
-                                      Brightness.light
-                                  ? Theme.of(context).textTheme.bodySmall?.color
-                                        ?.withValues(alpha: 0.7)
+                              color: Theme.of(context).brightness == Brightness.light
+                                  ? Theme.of(context).textTheme.bodySmall?.color?.withValues(alpha: 0.7)
                                   : Colors.white,
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
@@ -1392,8 +1347,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
                                       set.setType == SetType.endWithPartials
                                           ? Icons.radio_button_checked
                                           : Icons.radio_button_unchecked,
-                                      color:
-                                          set.setType == SetType.endWithPartials
+                                      color: set.setType == SetType.endWithPartials
                                           ? context.selectedIndicatorColor
                                           : Colors.grey,
                                       size: 20,
@@ -1538,9 +1492,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
                                     child: Text(
                                       _getSetTypeBadge(set.setType)!,
                                       style: TextStyle(
-                                        color:
-                                            Theme.of(context).brightness ==
-                                                Brightness.light
+                                        color: Theme.of(context).brightness == Brightness.light
                                             ? Colors.black
                                             : Colors.white,
                                         fontSize: 9,
@@ -1562,16 +1514,14 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
                 }),
 
                 // Note display (if exercise has a note)
-                if (exercise.notes != null && exercise.notes!.isNotEmpty)
-                  _buildNoteDisplay(context, exercise),
+                if (exercise.notes != null && exercise.notes!.isNotEmpty) _buildNoteDisplay(context, exercise),
               ],
             ),
           ),
         ),
 
         // Muscle group badge - overlays the card
-        if (showMuscleGroupBadge)
-          MuscleGroupBadge.compact(muscleGroup: muscleGroup),
+        if (showMuscleGroupBadge) MuscleGroupBadge.compact(muscleGroup: muscleGroup),
       ],
     );
   }
@@ -1787,8 +1737,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
           if (trainingCycle != null) ...[
             const SizedBox(height: 24),
             FilledButton.icon(
-              onPressed: () =>
-                  _showMuscleGroupSelector(context, trainingCycle, controller),
+              onPressed: () => _showMuscleGroupSelector(context, trainingCycle, controller),
               icon: const Icon(Icons.add),
               label: const Text('Add Exercise'),
             ),
@@ -1885,8 +1834,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
       if (confirmed != true || !context.mounted) return;
     } else {
       // Existing current cycle(s) — offer replace vs stack.
-      final activeNames =
-          currentCycles.map((c) => c.name).join(', ');
+      final activeNames = currentCycles.map((c) => c.name).join(', ');
       final result = await showDialog<String>(
         context: context,
         builder: (context) => AlertDialog(
@@ -1946,9 +1894,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
     );
     final dayWorkouts = workouts
         .where(
-          (w) =>
-              w.periodNumber == _selectedPeriod &&
-              w.dayNumber == _selectedDayIndex + 1,
+          (w) => w.periodNumber == _selectedPeriod && w.dayNumber == _selectedDayIndex + 1,
         )
         .toList();
 
@@ -1987,9 +1933,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
           notes: result.note.isEmpty ? null : result.note,
           isNotePinned: result.isPinned,
         );
-        final updatedExercises = workout.exercises
-            .map((e) => e.id == exercise.id ? updatedExercise : e)
-            .toList();
+        final updatedExercises = workout.exercises.map((e) => e.id == exercise.id ? updatedExercise : e).toList();
         final updatedWorkout = workout.copyWith(exercises: updatedExercises);
         await repository.update(updatedWorkout);
 

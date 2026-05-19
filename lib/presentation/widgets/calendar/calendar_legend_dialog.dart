@@ -49,8 +49,7 @@ class CalendarLegendDialog extends StatelessWidget {
               icon: Icons.circle,
               iconSize: 8,
               label: 'P#D#',
-              description:
-                  'Period and Day number (e.g., P2D3 = Period 2, Day 3)',
+              description: 'Period and Day number (e.g., P2D3 = Period 2, Day 3)',
             ),
             _buildIndicatorItem(
               context,

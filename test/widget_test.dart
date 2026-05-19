@@ -75,8 +75,7 @@ void main() {
     expect(find.byType(MaterialApp), findsOneWidget);
   });
 
-  testWidgets('Theme is configured with light and dark modes',
-      (WidgetTester tester) async {
+  testWidgets('Theme is configured with light and dark modes', (WidgetTester tester) async {
     await tester.pumpWidget(buildTestApp());
     await tester.pump();
 

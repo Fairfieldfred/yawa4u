@@ -44,8 +44,7 @@ void main() {
         );
 
         // Verify muscle group priorities are JSON encoded
-        final decoded = jsonDecode(companion.muscleGroupPriorities.value!)
-            as Map<String, dynamic>;
+        final decoded = jsonDecode(companion.muscleGroupPriorities.value!) as Map<String, dynamic>;
         expect(decoded['Chest'], equals(3));
         expect(decoded['Back'], equals(2));
       });
@@ -188,8 +187,7 @@ void main() {
         );
 
         // Verify muscle group soreness JSON encoding
-        final decoded =
-            jsonDecode(companion.muscleGroupSoreness.value!) as Map<String, dynamic>;
+        final decoded = jsonDecode(companion.muscleGroupSoreness.value!) as Map<String, dynamic>;
         expect(
           decoded['chest'],
           equals(Soreness.healedAWhileAgo.index),

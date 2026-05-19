@@ -23,8 +23,7 @@ void main() {
     );
   }
 
-  testWidgets('compact variant renders four sport boxes without header',
-      (tester) async {
+  testWidgets('compact variant renders four sport boxes without header', (tester) async {
     await tester.pumpWidget(wrap(const SportGrid()));
     await tester.pump();
 
@@ -36,11 +35,12 @@ void main() {
     expect(find.text('Swim'), findsOneWidget);
   });
 
-  testWidgets('expanded variant renders headline + subtitle + four boxes',
-      (tester) async {
-    await tester.pumpWidget(wrap(
-      const SportGrid(variant: SportGridVariant.expanded),
-    ));
+  testWidgets('expanded variant renders headline + subtitle + four boxes', (tester) async {
+    await tester.pumpWidget(
+      wrap(
+        const SportGrid(variant: SportGridVariant.expanded),
+      ),
+    );
     await tester.pump();
 
     expect(find.text('Ready to train?'), findsOneWidget);
@@ -56,17 +56,20 @@ void main() {
     expect(find.text('Swim'), findsOneWidget);
   });
 
-  testWidgets('tapping Strength invokes both onTap(strength) and onLift',
-      (tester) async {
+  testWidgets('tapping Strength invokes both onTap(strength) and onLift', (tester) async {
     Sport? tappedSport;
     var liftCount = 0;
 
-    await tester.pumpWidget(wrap(SportGrid(
-      callbacks: SportGridCallbacks(
-        onTap: (sport) => tappedSport = sport,
-        onLift: () => liftCount++,
+    await tester.pumpWidget(
+      wrap(
+        SportGrid(
+          callbacks: SportGridCallbacks(
+            onTap: (sport) => tappedSport = sport,
+            onLift: () => liftCount++,
+          ),
+        ),
       ),
-    )));
+    );
     await tester.pump();
 
     await tester.tap(find.text('Strength'));
@@ -76,17 +79,20 @@ void main() {
     expect(liftCount, 1);
   });
 
-  testWidgets('tapping Run dispatches Sport.run to onTap and calls onRun',
-      (tester) async {
+  testWidgets('tapping Run dispatches Sport.run to onTap and calls onRun', (tester) async {
     Sport? tappedSport;
     var runCount = 0;
 
-    await tester.pumpWidget(wrap(SportGrid(
-      callbacks: SportGridCallbacks(
-        onTap: (sport) => tappedSport = sport,
-        onRun: () => runCount++,
+    await tester.pumpWidget(
+      wrap(
+        SportGrid(
+          callbacks: SportGridCallbacks(
+            onTap: (sport) => tappedSport = sport,
+            onRun: () => runCount++,
+          ),
+        ),
       ),
-    )));
+    );
     await tester.pump();
 
     await tester.tap(find.text('Run'));
@@ -96,17 +102,20 @@ void main() {
     expect(runCount, 1);
   });
 
-  testWidgets('tapping Bike dispatches Sport.bike and calls onBike',
-      (tester) async {
+  testWidgets('tapping Bike dispatches Sport.bike and calls onBike', (tester) async {
     Sport? tappedSport;
     var bikeCount = 0;
 
-    await tester.pumpWidget(wrap(SportGrid(
-      callbacks: SportGridCallbacks(
-        onTap: (sport) => tappedSport = sport,
-        onBike: () => bikeCount++,
+    await tester.pumpWidget(
+      wrap(
+        SportGrid(
+          callbacks: SportGridCallbacks(
+            onTap: (sport) => tappedSport = sport,
+            onBike: () => bikeCount++,
+          ),
+        ),
       ),
-    )));
+    );
     await tester.pump();
 
     await tester.tap(find.text('Bike'));
@@ -116,17 +125,20 @@ void main() {
     expect(bikeCount, 1);
   });
 
-  testWidgets('tapping Swim dispatches Sport.swim and calls onSwim',
-      (tester) async {
+  testWidgets('tapping Swim dispatches Sport.swim and calls onSwim', (tester) async {
     Sport? tappedSport;
     var swimCount = 0;
 
-    await tester.pumpWidget(wrap(SportGrid(
-      callbacks: SportGridCallbacks(
-        onTap: (sport) => tappedSport = sport,
-        onSwim: () => swimCount++,
+    await tester.pumpWidget(
+      wrap(
+        SportGrid(
+          callbacks: SportGridCallbacks(
+            onTap: (sport) => tappedSport = sport,
+            onSwim: () => swimCount++,
+          ),
+        ),
       ),
-    )));
+    );
     await tester.pump();
 
     await tester.tap(find.text('Swim'));
@@ -136,8 +148,7 @@ void main() {
     expect(swimCount, 1);
   });
 
-  testWidgets('null callbacks do not throw when a box is tapped',
-      (tester) async {
+  testWidgets('null callbacks do not throw when a box is tapped', (tester) async {
     await tester.pumpWidget(wrap(const SportGrid()));
     await tester.pump();
 

@@ -51,17 +51,13 @@ class SkinBuilder {
         primaryContainer: isDark
             ? skin.colors.primaryColor.withValues(alpha: 0.3)
             : skin.colors.primaryLightColor.withValues(alpha: 0.4),
-        onPrimaryContainer: isDark
-            ? Colors.white
-            : skin.colors.primaryDarkColor,
+        onPrimaryContainer: isDark ? Colors.white : skin.colors.primaryDarkColor,
         secondary: skin.colors.secondaryColor,
         onSecondary: Colors.white,
         secondaryContainer: isDark
             ? skin.colors.secondaryColor.withValues(alpha: 0.3)
             : skin.colors.secondaryColor.withValues(alpha: 0.25),
-        onSecondaryContainer: isDark
-            ? Colors.white
-            : skin.colors.secondaryColor,
+        onSecondaryContainer: isDark ? Colors.white : skin.colors.secondaryColor,
         surface: modeColors.cardBackgroundColor,
         onSurface: modeColors.textPrimaryColor,
         surfaceContainerHighest: modeColors.inputBackgroundColor,
@@ -90,9 +86,7 @@ class SkinBuilder {
         titleTextStyle: AppTextStyles.screenTitle.copyWith(
           color: modeColors.textPrimaryColor,
         ),
-        systemOverlayStyle: isDark
-            ? SystemUiOverlayStyle.light
-            : SystemUiOverlayStyle.dark,
+        systemOverlayStyle: isDark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
         iconTheme: IconThemeData(color: modeColors.textPrimaryColor, size: 24),
       ),
 
@@ -318,9 +312,7 @@ class SkinBuilder {
 
       // Snackbar
       snackBarTheme: SnackBarThemeData(
-        backgroundColor: isDark
-            ? modeColors.cardBackgroundColor
-            : const Color(0xFF323232),
+        backgroundColor: isDark ? modeColors.cardBackgroundColor : const Color(0xFF323232),
         contentTextStyle: TextStyle(
           color: isDark ? modeColors.textPrimaryColor : Colors.white,
         ),
@@ -352,12 +344,10 @@ class SkinBuilder {
       ),
 
       // Text theme
-      textTheme:
-          (isDark ? AppTextStyles.darkTextTheme : AppTextStyles.lightTextTheme)
-              .apply(
-                bodyColor: modeColors.textPrimaryColor,
-                displayColor: modeColors.textPrimaryColor,
-              ),
+      textTheme: (isDark ? AppTextStyles.darkTextTheme : AppTextStyles.lightTextTheme).apply(
+        bodyColor: modeColors.textPrimaryColor,
+        displayColor: modeColors.textPrimaryColor,
+      ),
     );
   }
 }
@@ -432,9 +422,7 @@ class SkinExtension extends ThemeExtension<SkinExtension> {
       // Backgrounds don't lerp, just take the target
       backgrounds: t < 0.5 ? backgrounds : other.backgrounds,
       // Lerp the border radius
-      inputBorderRadius:
-          lerpDouble(inputBorderRadius, other.inputBorderRadius, t) ??
-          inputBorderRadius,
+      inputBorderRadius: lerpDouble(inputBorderRadius, other.inputBorderRadius, t) ?? inputBorderRadius,
     );
   }
 }

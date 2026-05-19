@@ -17,12 +17,10 @@ class UploadTemplateScreen extends ConsumerStatefulWidget {
   const UploadTemplateScreen({super.key, this.preSelectedTemplateId});
 
   @override
-  ConsumerState<UploadTemplateScreen> createState() =>
-      _UploadTemplateScreenState();
+  ConsumerState<UploadTemplateScreen> createState() => _UploadTemplateScreenState();
 }
 
-class _UploadTemplateScreenState
-    extends ConsumerState<UploadTemplateScreen> {
+class _UploadTemplateScreenState extends ConsumerState<UploadTemplateScreen> {
   TrainingCycleTemplate? _selectedTemplate;
   final _displayNameController = TextEditingController();
   final _tagsController = TextEditingController();
@@ -82,11 +80,7 @@ class _UploadTemplateScreenState
       }
       final repo = ref.read(communityRepositoryProvider);
 
-      final tags = _tagsController.text
-          .split(',')
-          .map((t) => t.trim())
-          .where((t) => t.isNotEmpty)
-          .toList();
+      final tags = _tagsController.text.split(',').map((t) => t.trim()).where((t) => t.isNotEmpty).toList();
 
       await repo.publishTemplate(
         template: _selectedTemplate!,
@@ -160,8 +154,7 @@ class _UploadTemplateScreenState
                 templatesAsync.when(
                   data: (templates) {
                     // Pre-select template from route param (once).
-                    if (_selectedTemplate == null &&
-                        widget.preSelectedTemplateId != null) {
+                    if (_selectedTemplate == null && widget.preSelectedTemplateId != null) {
                       final match = templates.where(
                         (t) => t.id == widget.preSelectedTemplateId,
                       );
@@ -188,40 +181,31 @@ class _UploadTemplateScreenState
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 8),
                           child: InkWell(
-                            onTap: () =>
-                                setState(() => _selectedTemplate = t),
+                            onTap: () => setState(() => _selectedTemplate = t),
                             borderRadius: BorderRadius.circular(12),
                             child: Container(
                               padding: const EdgeInsets.all(12),
                               decoration: BoxDecoration(
                                 color: selected
-                                    ? colorScheme.primaryContainer
-                                        .withValues(alpha: 0.4)
+                                    ? colorScheme.primaryContainer.withValues(alpha: 0.4)
                                     : colorScheme.surfaceContainerHighest,
                                 borderRadius: BorderRadius.circular(12),
                                 border: Border.all(
-                                  color: selected
-                                      ? colorScheme.primary
-                                      : Colors.transparent,
+                                  color: selected ? colorScheme.primary : Colors.transparent,
                                   width: 2,
                                 ),
                               ),
                               child: Row(
                                 children: [
                                   Icon(
-                                    selected
-                                        ? Icons.radio_button_checked
-                                        : Icons.radio_button_unchecked,
-                                    color: selected
-                                        ? colorScheme.primary
-                                        : colorScheme.onSurfaceVariant,
+                                    selected ? Icons.radio_button_checked : Icons.radio_button_unchecked,
+                                    color: selected ? colorScheme.primary : colorScheme.onSurfaceVariant,
                                     size: 20,
                                   ),
                                   const SizedBox(width: 12),
                                   Expanded(
                                     child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
                                         Text(
                                           t.name,
@@ -236,8 +220,7 @@ class _UploadTemplateScreenState
                                           '${t.daysPerPeriod} days/period, '
                                           '${t.workouts.length} sessions',
                                           style: TextStyle(
-                                            color:
-                                                colorScheme.onSurfaceVariant,
+                                            color: colorScheme.onSurfaceVariant,
                                             fontSize: 12,
                                           ),
                                         ),
@@ -252,10 +235,8 @@ class _UploadTemplateScreenState
                       }).toList(),
                     );
                   },
-                  loading: () =>
-                      const Center(child: CircularProgressIndicator()),
-                  error: (e, _) =>
-                      Text('Error loading templates: $e'),
+                  loading: () => const Center(child: CircularProgressIndicator()),
+                  error: (e, _) => Text('Error loading templates: $e'),
                 ),
                 const SizedBox(height: 24),
 
@@ -316,9 +297,7 @@ class _UploadTemplateScreenState
               child: SizedBox(
                 width: double.infinity,
                 child: FilledButton.icon(
-                  onPressed: _isUploading || _selectedTemplate == null
-                      ? null
-                      : _publish,
+                  onPressed: _isUploading || _selectedTemplate == null ? null : _publish,
                   icon: const Icon(Icons.upload),
                   label: _isUploading
                       ? const SizedBox(

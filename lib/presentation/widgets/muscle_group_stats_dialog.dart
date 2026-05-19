@@ -28,7 +28,6 @@ class MuscleGroupStatsDialog extends ConsumerWidget {
       insetPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 24),
       child: workoutsAsync.when(
         data: (workouts) {
-
           if (workouts.isEmpty) {
             return Padding(
               padding: const EdgeInsets.all(20.0),
@@ -58,14 +57,12 @@ class MuscleGroupStatsDialog extends ConsumerWidget {
 
               stats.putIfAbsent(group, () => {});
               final currentCount = stats[group]![workout.periodNumber] ?? 0;
-              stats[group]![workout.periodNumber] =
-                  currentCount + exercise.sets.length;
+              stats[group]![workout.periodNumber] = currentCount + exercise.sets.length;
             }
           }
 
           // Sort muscle groups by name or some other criteria if needed
-          final sortedGroups = muscleGroups.toList()
-            ..sort((a, b) => a.displayName.compareTo(b.displayName));
+          final sortedGroups = muscleGroups.toList()..sort((a, b) => a.displayName.compareTo(b.displayName));
 
           return Padding(
             padding: const EdgeInsets.all(20.0),
@@ -130,9 +127,7 @@ class MuscleGroupStatsDialog extends ConsumerWidget {
                             0,
                             (sum, count) => sum + count,
                           );
-                          final avgSets = periods.isEmpty
-                              ? 0
-                              : (totalSets / periods.length).round();
+                          final avgSets = periods.isEmpty ? 0 : (totalSets / periods.length).round();
                           avgSetsMap[group] = avgSets;
                         }
 
@@ -147,9 +142,7 @@ class MuscleGroupStatsDialog extends ConsumerWidget {
                             final avgSets = avgSetsMap[group] ?? 0;
 
                             // Calculate diameter proportional to sets (max = 16)
-                            final diameter = maxAvgSets > 0
-                                ? (avgSets / maxAvgSets) * 16.0
-                                : 0.0;
+                            final diameter = maxAvgSets > 0 ? (avgSets / maxAvgSets) * 16.0 : 0.0;
 
                             return Padding(
                               padding: const EdgeInsets.symmetric(
@@ -161,8 +154,7 @@ class MuscleGroupStatsDialog extends ConsumerWidget {
                                   Expanded(
                                     flex: 2,
                                     child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
                                         Row(
                                           children: [
@@ -214,8 +206,7 @@ class MuscleGroupStatsDialog extends ConsumerWidget {
                                         margin: const EdgeInsets.symmetric(
                                           horizontal: 2,
                                         ),
-                                        height:
-                                            40, // Fixed height for the bar container
+                                        height: 40, // Fixed height for the bar container
                                         decoration: BoxDecoration(
                                           color: cellBackgroundColor,
                                           borderRadius: BorderRadius.circular(

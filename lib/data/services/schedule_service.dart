@@ -89,11 +89,8 @@ class ScheduleService {
     // Create snapshot for undo
     final snapshot = ScheduleSnapshot(
       cycleStartDate: cycle.startDate,
-      workoutSnapshots: workouts
-          .map((w) => WorkoutSnapshot.fromWorkout(w))
-          .toList(),
-      description:
-          'Shift cycle ${days > 0 ? 'forward' : 'backward'} ${days.abs()} day${days.abs() == 1 ? '' : 's'}',
+      workoutSnapshots: workouts.map((w) => WorkoutSnapshot.fromWorkout(w)).toList(),
+      description: 'Shift cycle ${days > 0 ? 'forward' : 'backward'} ${days.abs()} day${days.abs() == 1 ? '' : 's'}',
     );
 
     // Update cycle start date
@@ -134,15 +131,12 @@ class ScheduleService {
     // Create snapshot for undo (including scheduledDates)
     final snapshot = ScheduleSnapshot(
       cycleStartDate: cycle.startDate,
-      workoutSnapshots: workouts
-          .map((w) => WorkoutSnapshot.fromWorkout(w))
-          .toList(),
+      workoutSnapshots: workouts.map((w) => WorkoutSnapshot.fromWorkout(w)).toList(),
       description: 'Inserted day before P${fromPeriod}D$fromDay',
     );
 
     // Convert period/day to absolute day number (0-indexed from cycle start)
-    int toAbsoluteDayIndex(int period, int day) =>
-        (period - 1) * cycle.daysPerPeriod + (day - 1);
+    int toAbsoluteDayIndex(int period, int day) => (period - 1) * cycle.daysPerPeriod + (day - 1);
 
     final fromAbsoluteDayIndex = toAbsoluteDayIndex(fromPeriod, fromDay);
 
@@ -212,9 +206,7 @@ class ScheduleService {
     // Create snapshot for undo
     final snapshot = ScheduleSnapshot(
       cycleStartDate: cycle.startDate,
-      workoutSnapshots: workouts
-          .map((w) => WorkoutSnapshot.fromWorkout(w))
-          .toList(),
+      workoutSnapshots: workouts.map((w) => WorkoutSnapshot.fromWorkout(w)).toList(),
       description: 'Removed rest day',
     );
 
@@ -224,8 +216,7 @@ class ScheduleService {
         return DateHelpers.stripTime(w.scheduledDate!);
       }
       // Calculate default date from period/day
-      final absoluteDayIndex =
-          (w.periodNumber - 1) * cycle.daysPerPeriod + (w.dayNumber - 1);
+      final absoluteDayIndex = (w.periodNumber - 1) * cycle.daysPerPeriod + (w.dayNumber - 1);
       return DateHelpers.addDays(cycleStart, absoluteDayIndex);
     }
 
@@ -268,11 +259,8 @@ class ScheduleService {
     // Create snapshot for undo
     final snapshot = ScheduleSnapshot(
       cycleStartDate: cycle.startDate,
-      workoutSnapshots: workouts
-          .map((w) => WorkoutSnapshot.fromWorkout(w))
-          .toList(),
-      description:
-          'Move workout from P${sourcePeriod}D$sourceDay to P${targetPeriod}D$targetDay',
+      workoutSnapshots: workouts.map((w) => WorkoutSnapshot.fromWorkout(w)).toList(),
+      description: 'Move workout from P${sourcePeriod}D$sourceDay to P${targetPeriod}D$targetDay',
     );
 
     // Get source workouts (all workouts on the source day)
@@ -345,8 +333,7 @@ class ScheduleService {
     if (shift > 0) {
       // Moving forward: shift workouts between source+1 and target backward
       for (final workout in workouts) {
-        final workoutIndex =
-            (workout.periodNumber - 1) * daysPerPeriod + workout.dayNumber;
+        final workoutIndex = (workout.periodNumber - 1) * daysPerPeriod + workout.dayNumber;
         if (workoutIndex > sourceIndex && workoutIndex <= targetIndex) {
           workoutsToShift.add(workout);
         }
@@ -354,8 +341,7 @@ class ScheduleService {
 
       // Shift these workouts backward by 1 day
       for (final workout in workoutsToShift) {
-        final currentIndex =
-            (workout.periodNumber - 1) * daysPerPeriod + workout.dayNumber;
+        final currentIndex = (workout.periodNumber - 1) * daysPerPeriod + workout.dayNumber;
         final newIndex = currentIndex - 1;
         final newPeriod = (newIndex - 1) ~/ daysPerPeriod + 1;
         final newDay = ((newIndex - 1) % daysPerPeriod) + 1;
@@ -369,8 +355,7 @@ class ScheduleService {
     } else {
       // Moving backward: shift workouts between target and source-1 forward
       for (final workout in workouts) {
-        final workoutIndex =
-            (workout.periodNumber - 1) * daysPerPeriod + workout.dayNumber;
+        final workoutIndex = (workout.periodNumber - 1) * daysPerPeriod + workout.dayNumber;
         if (workoutIndex >= targetIndex && workoutIndex < sourceIndex) {
           workoutsToShift.add(workout);
         }
@@ -378,8 +363,7 @@ class ScheduleService {
 
       // Shift these workouts forward by 1 day
       for (final workout in workoutsToShift) {
-        final currentIndex =
-            (workout.periodNumber - 1) * daysPerPeriod + workout.dayNumber;
+        final currentIndex = (workout.periodNumber - 1) * daysPerPeriod + workout.dayNumber;
         final newIndex = currentIndex + 1;
         final newPeriod = (newIndex - 1) ~/ daysPerPeriod + 1;
         final newDay = ((newIndex - 1) % daysPerPeriod) + 1;
@@ -473,9 +457,7 @@ class ScheduleService {
     // Create snapshot for undo
     final snapshot = ScheduleSnapshot(
       cycleStartDate: cycle.startDate,
-      workoutSnapshots: workouts
-          .map((w) => WorkoutSnapshot.fromWorkout(w))
-          .toList(),
+      workoutSnapshots: workouts.map((w) => WorkoutSnapshot.fromWorkout(w)).toList(),
       description: 'Move exercise to P${targetPeriod}D$targetDay',
     );
 
@@ -513,10 +495,7 @@ class ScheduleService {
 
     // Find or create target workout
     var targetWorkout = workouts.cast<Workout?>().firstWhere(
-      (w) =>
-          w!.periodNumber == targetPeriod &&
-          w.dayNumber == targetDay &&
-          w.label == exercise.muscleGroup.displayName,
+      (w) => w!.periodNumber == targetPeriod && w.dayNumber == targetDay && w.label == exercise.muscleGroup.displayName,
       orElse: () => null,
     );
 
@@ -525,9 +504,7 @@ class ScheduleService {
       final existingOnDay = workouts.where(
         (w) => w.periodNumber == targetPeriod && w.dayNumber == targetDay,
       );
-      final dayName = existingOnDay.isNotEmpty
-          ? existingOnDay.first.dayName
-          : null;
+      final dayName = existingOnDay.isNotEmpty ? existingOnDay.first.dayName : null;
 
       // Generate ID upfront since create() returns void
       final newWorkoutId = _uuid.v4();
@@ -606,11 +583,8 @@ class ScheduleService {
     // Create snapshot for undo
     final snapshot = ScheduleSnapshot(
       cycleStartDate: cycle.startDate,
-      workoutSnapshots: workouts
-          .map((w) => WorkoutSnapshot.fromWorkout(w))
-          .toList(),
-      description:
-          'Move exercise to ${DateHelpers.shortDate.format(targetDate)}',
+      workoutSnapshots: workouts.map((w) => WorkoutSnapshot.fromWorkout(w)).toList(),
+      description: 'Move exercise to ${DateHelpers.shortDate.format(targetDate)}',
     );
 
     // Find source workout
@@ -650,8 +624,7 @@ class ScheduleService {
       if (w.scheduledDate != null) {
         return DateHelpers.stripTime(w.scheduledDate!);
       }
-      final absoluteDayIndex =
-          (w.periodNumber - 1) * cycle.daysPerPeriod + (w.dayNumber - 1);
+      final absoluteDayIndex = (w.periodNumber - 1) * cycle.daysPerPeriod + (w.dayNumber - 1);
       return DateHelpers.addDays(cycleStart, absoluteDayIndex);
     }
 
@@ -762,10 +735,7 @@ class ScheduleService {
       }
     }
 
-    if (oldIndex < 0 ||
-        oldIndex >= allExercises.length ||
-        newIndex < 0 ||
-        newIndex >= allExercises.length) {
+    if (oldIndex < 0 || oldIndex >= allExercises.length || newIndex < 0 || newIndex >= allExercises.length) {
       return;
     }
 
@@ -820,8 +790,7 @@ class ScheduleService {
       if (w.scheduledDate != null) {
         return DateHelpers.stripTime(w.scheduledDate!);
       }
-      final absoluteDayIndex =
-          (w.periodNumber - 1) * cycle.daysPerPeriod + (w.dayNumber - 1);
+      final absoluteDayIndex = (w.periodNumber - 1) * cycle.daysPerPeriod + (w.dayNumber - 1);
       return DateHelpers.addDays(cycleStart, absoluteDayIndex);
     }
 
@@ -838,10 +807,7 @@ class ScheduleService {
       }
     }
 
-    if (oldIndex < 0 ||
-        oldIndex >= allExercises.length ||
-        newIndex < 0 ||
-        newIndex >= allExercises.length) {
+    if (oldIndex < 0 || oldIndex >= allExercises.length || newIndex < 0 || newIndex >= allExercises.length) {
       return;
     }
 
@@ -886,8 +852,7 @@ class ScheduleService {
     }
 
     // Restore cycle start date if it was changed
-    if (snapshot.cycleStartDate != null &&
-        cycle.startDate != snapshot.cycleStartDate) {
+    if (snapshot.cycleStartDate != null && cycle.startDate != snapshot.cycleStartDate) {
       final updatedCycle = cycle.copyWith(startDate: snapshot.cycleStartDate);
       await _cycleRepository.update(updatedCycle);
     }
@@ -904,9 +869,7 @@ class ScheduleService {
 
         if (needsUpdate) {
           // Use clearScheduledDate when restoring to null
-          final shouldClearScheduledDate =
-              workoutSnapshot.scheduledDate == null &&
-              workout.scheduledDate != null;
+          final shouldClearScheduledDate = workoutSnapshot.scheduledDate == null && workout.scheduledDate != null;
 
           final updated = workout.copyWith(
             periodNumber: workoutSnapshot.periodNumber,

@@ -150,11 +150,7 @@ class _UploadSkinScreenState extends ConsumerState<UploadSkinScreen> {
       }
       final repo = ref.read(communityRepositoryProvider);
 
-      final tags = _tagsController.text
-          .split(',')
-          .map((t) => t.trim())
-          .where((t) => t.isNotEmpty)
-          .toList();
+      final tags = _tagsController.text.split(',').map((t) => t.trim()).where((t) => t.isNotEmpty).toList();
 
       final images = await _collectImages(_selectedSkin!);
 
@@ -267,40 +263,31 @@ class _UploadSkinScreenState extends ConsumerState<UploadSkinScreen> {
                     return Padding(
                       padding: const EdgeInsets.only(bottom: 8),
                       child: InkWell(
-                        onTap: () =>
-                            setState(() => _selectedSkin = skin),
+                        onTap: () => setState(() => _selectedSkin = skin),
                         borderRadius: BorderRadius.circular(12),
                         child: Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
                             color: selected
-                                ? colorScheme.primaryContainer
-                                    .withValues(alpha: 0.4)
+                                ? colorScheme.primaryContainer.withValues(alpha: 0.4)
                                 : colorScheme.surfaceContainerHighest,
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
-                              color: selected
-                                  ? colorScheme.primary
-                                  : Colors.transparent,
+                              color: selected ? colorScheme.primary : Colors.transparent,
                               width: 2,
                             ),
                           ),
                           child: Row(
                             children: [
                               Icon(
-                                selected
-                                    ? Icons.radio_button_checked
-                                    : Icons.radio_button_unchecked,
-                                color: selected
-                                    ? colorScheme.primary
-                                    : colorScheme.onSurfaceVariant,
+                                selected ? Icons.radio_button_checked : Icons.radio_button_unchecked,
+                                color: selected ? colorScheme.primary : colorScheme.onSurfaceVariant,
                                 size: 20,
                               ),
                               const SizedBox(width: 12),
                               Expanded(
                                 child: Column(
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
                                       skin.name,
@@ -316,8 +303,7 @@ class _UploadSkinScreenState extends ConsumerState<UploadSkinScreen> {
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
                                         style: TextStyle(
-                                          color:
-                                              colorScheme.onSurfaceVariant,
+                                          color: colorScheme.onSurfaceVariant,
                                           fontSize: 12,
                                         ),
                                       ),
@@ -391,9 +377,7 @@ class _UploadSkinScreenState extends ConsumerState<UploadSkinScreen> {
               child: SizedBox(
                 width: double.infinity,
                 child: FilledButton.icon(
-                  onPressed: _isUploading || _selectedSkin == null
-                      ? null
-                      : _publish,
+                  onPressed: _isUploading || _selectedSkin == null ? null : _publish,
                   icon: const Icon(Icons.upload),
                   label: _isUploading
                       ? const SizedBox(

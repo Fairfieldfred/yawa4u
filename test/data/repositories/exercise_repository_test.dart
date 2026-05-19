@@ -87,16 +87,20 @@ void main() {
       const workoutId = 'w1';
       await insertPrerequisites(workoutId);
 
-      await repo.create(TestFixtures.createExercise(
-        id: 'e1',
-        workoutId: workoutId,
-        sets: [],
-      ));
-      await repo.create(TestFixtures.createExercise(
-        id: 'e2',
-        workoutId: workoutId,
-        sets: [],
-      ));
+      await repo.create(
+        TestFixtures.createExercise(
+          id: 'e1',
+          workoutId: workoutId,
+          sets: [],
+        ),
+      );
+      await repo.create(
+        TestFixtures.createExercise(
+          id: 'e2',
+          workoutId: workoutId,
+          sets: [],
+        ),
+      );
 
       final all = await repo.getAll();
       expect(all.length, 2);
@@ -156,11 +160,13 @@ void main() {
       const workoutId = 'w1';
       await insertPrerequisites(workoutId);
 
-      await repo.create(TestFixtures.createExercise(
-        id: 'e1',
-        workoutId: workoutId,
-        sets: [TestFixtures.createExerciseSet(id: 'es1')],
-      ));
+      await repo.create(
+        TestFixtures.createExercise(
+          id: 'e1',
+          workoutId: workoutId,
+          sets: [TestFixtures.createExerciseSet(id: 'es1')],
+        ),
+      );
 
       await repo.delete('e1');
       expect(await repo.getById('e1'), isNull);
@@ -175,33 +181,39 @@ void main() {
       workoutId = 'w1';
       await insertPrerequisites(workoutId);
 
-      await repo.create(TestFixtures.createExercise(
-        id: 'e1',
-        workoutId: workoutId,
-        name: 'Bench Press',
-        muscleGroup: MuscleGroup.chest,
-        equipmentType: EquipmentType.barbell,
-        orderIndex: 0,
-        sets: [],
-      ));
-      await repo.create(TestFixtures.createExercise(
-        id: 'e2',
-        workoutId: workoutId,
-        name: 'Lat Pulldown',
-        muscleGroup: MuscleGroup.back,
-        equipmentType: EquipmentType.cable,
-        orderIndex: 1,
-        sets: [],
-      ));
-      await repo.create(TestFixtures.createExercise(
-        id: 'e3',
-        workoutId: workoutId,
-        name: 'Incline Bench Press',
-        muscleGroup: MuscleGroup.chest,
-        equipmentType: EquipmentType.barbell,
-        orderIndex: 2,
-        sets: [],
-      ));
+      await repo.create(
+        TestFixtures.createExercise(
+          id: 'e1',
+          workoutId: workoutId,
+          name: 'Bench Press',
+          muscleGroup: MuscleGroup.chest,
+          equipmentType: EquipmentType.barbell,
+          orderIndex: 0,
+          sets: [],
+        ),
+      );
+      await repo.create(
+        TestFixtures.createExercise(
+          id: 'e2',
+          workoutId: workoutId,
+          name: 'Lat Pulldown',
+          muscleGroup: MuscleGroup.back,
+          equipmentType: EquipmentType.cable,
+          orderIndex: 1,
+          sets: [],
+        ),
+      );
+      await repo.create(
+        TestFixtures.createExercise(
+          id: 'e3',
+          workoutId: workoutId,
+          name: 'Incline Bench Press',
+          muscleGroup: MuscleGroup.chest,
+          equipmentType: EquipmentType.barbell,
+          orderIndex: 2,
+          sets: [],
+        ),
+      );
     });
 
     test('getByWorkoutId returns exercises sorted by orderIndex', () async {
@@ -256,22 +268,26 @@ void main() {
       const workoutId = 'w1';
       await insertPrerequisites(workoutId);
 
-      await repo.create(TestFixtures.createExercise(
-        id: 'e1',
-        workoutId: workoutId,
-        sets: [
-          TestFixtures.createExerciseSet(id: 'es1', isLogged: true),
-          TestFixtures.createExerciseSet(id: 'es2', isLogged: true),
-        ],
-      ));
-      await repo.create(TestFixtures.createExercise(
-        id: 'e2',
-        workoutId: workoutId,
-        sets: [
-          TestFixtures.createExerciseSet(id: 'es3', isLogged: true),
-          TestFixtures.createExerciseSet(id: 'es4', isLogged: false),
-        ],
-      ));
+      await repo.create(
+        TestFixtures.createExercise(
+          id: 'e1',
+          workoutId: workoutId,
+          sets: [
+            TestFixtures.createExerciseSet(id: 'es1', isLogged: true),
+            TestFixtures.createExerciseSet(id: 'es2', isLogged: true),
+          ],
+        ),
+      );
+      await repo.create(
+        TestFixtures.createExercise(
+          id: 'e2',
+          workoutId: workoutId,
+          sets: [
+            TestFixtures.createExerciseSet(id: 'es3', isLogged: true),
+            TestFixtures.createExerciseSet(id: 'es4', isLogged: false),
+          ],
+        ),
+      );
 
       final completed = await repo.getCompleted();
       expect(completed.length, 1);
@@ -282,13 +298,15 @@ void main() {
       const workoutId = 'w1';
       await insertPrerequisites(workoutId);
 
-      await repo.create(TestFixtures.createExercise(
-        id: 'e1',
-        workoutId: workoutId,
-        sets: [
-          TestFixtures.createExerciseSet(id: 'es1', isLogged: false),
-        ],
-      ));
+      await repo.create(
+        TestFixtures.createExercise(
+          id: 'e1',
+          workoutId: workoutId,
+          sets: [
+            TestFixtures.createExerciseSet(id: 'es1', isLogged: false),
+          ],
+        ),
+      );
 
       final incomplete = await repo.getIncomplete();
       expect(incomplete.length, 1);
@@ -298,20 +316,24 @@ void main() {
       const workoutId = 'w1';
       await insertPrerequisites(workoutId);
 
-      await repo.create(TestFixtures.createExercise(
-        id: 'e1',
-        workoutId: workoutId,
-        sets: [
-          TestFixtures.createExerciseSet(id: 'es1', setType: SetType.myorep),
-        ],
-      ));
-      await repo.create(TestFixtures.createExercise(
-        id: 'e2',
-        workoutId: workoutId,
-        sets: [
-          TestFixtures.createExerciseSet(id: 'es2', setType: SetType.regular),
-        ],
-      ));
+      await repo.create(
+        TestFixtures.createExercise(
+          id: 'e1',
+          workoutId: workoutId,
+          sets: [
+            TestFixtures.createExerciseSet(id: 'es1', setType: SetType.myorep),
+          ],
+        ),
+      );
+      await repo.create(
+        TestFixtures.createExercise(
+          id: 'e2',
+          workoutId: workoutId,
+          sets: [
+            TestFixtures.createExerciseSet(id: 'es2', setType: SetType.regular),
+          ],
+        ),
+      );
 
       final myorep = await repo.getWithMyorepSets();
       expect(myorep.length, 1);
@@ -324,11 +346,13 @@ void main() {
       const workoutId = 'w1';
       await insertPrerequisites(workoutId);
 
-      await repo.create(TestFixtures.createExercise(
-        id: 'e1',
-        workoutId: workoutId,
-        sets: [TestFixtures.createExerciseSet(id: 'es1')],
-      ));
+      await repo.create(
+        TestFixtures.createExercise(
+          id: 'e1',
+          workoutId: workoutId,
+          sets: [TestFixtures.createExerciseSet(id: 'es1')],
+        ),
+      );
 
       await repo.deleteAll();
       expect(await repo.count(), 0);
@@ -338,11 +362,13 @@ void main() {
       const workoutId1 = 'w1';
       await insertPrerequisites(workoutId1);
 
-      await repo.create(TestFixtures.createExercise(
-        id: 'e1',
-        workoutId: workoutId1,
-        sets: [],
-      ));
+      await repo.create(
+        TestFixtures.createExercise(
+          id: 'e1',
+          workoutId: workoutId1,
+          sets: [],
+        ),
+      );
 
       await repo.deleteByWorkoutId(workoutId1);
       expect(await repo.count(), 0);
@@ -352,16 +378,20 @@ void main() {
       const workoutId = 'w1';
       await insertPrerequisites(workoutId);
 
-      await repo.create(TestFixtures.createExercise(
-        id: 'e1',
-        workoutId: workoutId,
-        sets: [],
-      ));
-      await repo.create(TestFixtures.createExercise(
-        id: 'e2',
-        workoutId: workoutId,
-        sets: [],
-      ));
+      await repo.create(
+        TestFixtures.createExercise(
+          id: 'e1',
+          workoutId: workoutId,
+          sets: [],
+        ),
+      );
+      await repo.create(
+        TestFixtures.createExercise(
+          id: 'e2',
+          workoutId: workoutId,
+          sets: [],
+        ),
+      );
 
       expect(await repo.count(), 2);
     });

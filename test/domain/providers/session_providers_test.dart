@@ -17,8 +17,7 @@ void main() {
       final at = DateTime(2026, 4, 22, 14, 37);
       final range = dayRangeContaining(at);
       // Next midnight minus one microsecond.
-      final expected = DateTime(2026, 4, 23, 0, 0, 0, 0)
-          .subtract(const Duration(microseconds: 1));
+      final expected = DateTime(2026, 4, 23, 0, 0, 0, 0).subtract(const Duration(microseconds: 1));
       expect(range.end, expected);
     });
 

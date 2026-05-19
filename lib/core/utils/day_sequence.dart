@@ -6,8 +6,7 @@ class DayPosition {
   const DayPosition(this.period, this.day);
 
   @override
-  bool operator ==(Object other) =>
-      other is DayPosition && other.period == period && other.day == day;
+  bool operator ==(Object other) => other is DayPosition && other.period == period && other.day == day;
 
   @override
   int get hashCode => Object.hash(period, day);

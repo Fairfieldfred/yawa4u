@@ -49,9 +49,7 @@ Future<void> main() async {
   // Create app widget with SharedPreferences override
   Widget createApp() => ProviderScope(
     overrides: [sharedPreferencesProvider.overrideWithValue(sharedPrefs)],
-    child: !kIsWeb || isCanvasKitRenderer()
-        ? BetterFeedback(child: const MyApp())
-        : const MyApp(),
+    child: !kIsWeb || isCanvasKitRenderer() ? BetterFeedback(child: const MyApp()) : const MyApp(),
   );
 
   // Initialize Sentry using the service and run app

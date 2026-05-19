@@ -26,8 +26,7 @@ class RestTimerState {
     this.workoutId,
   });
 
-  double get progress =>
-      totalSeconds > 0 ? remainingSeconds / totalSeconds : 0;
+  double get progress => totalSeconds > 0 ? remainingSeconds / totalSeconds : 0;
 
   String get displayTime {
     final minutes = remainingSeconds ~/ 60;
@@ -155,7 +154,6 @@ class RestTimerNotifier extends Notifier<RestTimerState> {
 }
 
 /// Global rest timer provider.
-final restTimerProvider =
-    NotifierProvider<RestTimerNotifier, RestTimerState>(
+final restTimerProvider = NotifierProvider<RestTimerNotifier, RestTimerState>(
   RestTimerNotifier.new,
 );

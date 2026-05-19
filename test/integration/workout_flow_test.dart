@@ -21,8 +21,7 @@ void main() {
   });
 
   group('Workout Flow - Complete Lifecycle', () {
-    test('create cycle → add workout → add exercises → log sets → complete',
-        () async {
+    test('create cycle → add workout → add exercises → log sets → complete', () async {
       // 1. Create a training cycle
       final cycle = TestDataFactory.createCycle(
         id: 'cycle-1',
@@ -82,8 +81,7 @@ void main() {
       await ctx.exerciseRepo.update(updatedExercise);
 
       // Verify sets are updated
-      final reloadedExercise =
-          await ctx.exerciseRepo.getById(exercise.id);
+      final reloadedExercise = await ctx.exerciseRepo.getById(exercise.id);
       expect(reloadedExercise, isNotNull);
       expect(reloadedExercise!.sets.every((s) => s.isLogged), isTrue);
       expect(reloadedExercise.sets.every((s) => s.weight == 135.0), isTrue);
@@ -136,8 +134,7 @@ void main() {
       await ctx.workoutRepo.markAsCompleted('w1');
       await ctx.workoutRepo.markAsSkipped('w2');
 
-      final stats =
-          await ctx.workoutRepo.getStatsForTrainingCycle('cycle-stats');
+      final stats = await ctx.workoutRepo.getStatsForTrainingCycle('cycle-stats');
       expect(stats['total'], 2);
       expect(stats['completed'], 1);
       expect(stats['skipped'], 1);
@@ -187,8 +184,7 @@ void main() {
       expect(loaded.exercises[0].sets[0].weight, 225.0);
 
       // Also verify via getByTrainingCycleId
-      final cycleWorkouts =
-          await ctx.workoutRepo.getByTrainingCycleId('cycle-hierarchy');
+      final cycleWorkouts = await ctx.workoutRepo.getByTrainingCycleId('cycle-hierarchy');
       expect(cycleWorkouts.length, 1);
       expect(cycleWorkouts[0].exercises[0].sets.length, 2);
     });

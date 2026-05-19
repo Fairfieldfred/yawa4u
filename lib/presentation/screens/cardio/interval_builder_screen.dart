@@ -34,12 +34,10 @@ class IntervalBuilderScreen extends ConsumerStatefulWidget {
   final String sessionId;
 
   @override
-  ConsumerState<IntervalBuilderScreen> createState() =>
-      _IntervalBuilderScreenState();
+  ConsumerState<IntervalBuilderScreen> createState() => _IntervalBuilderScreenState();
 }
 
-class _IntervalBuilderScreenState
-    extends ConsumerState<IntervalBuilderScreen> {
+class _IntervalBuilderScreenState extends ConsumerState<IntervalBuilderScreen> {
   final _uuid = const Uuid();
   CardioSession? _session;
   List<SessionInterval> _intervals = [];
@@ -94,8 +92,7 @@ class _IntervalBuilderScreenState
     // Find insertion index — after the last contiguous child of this
     // parent, or immediately after the parent if no children yet.
     var insertAt = parentIdx + 1;
-    while (insertAt < _intervals.length &&
-        _intervals[insertAt].parentIntervalId == parentId) {
+    while (insertAt < _intervals.length && _intervals[insertAt].parentIntervalId == parentId) {
       insertAt++;
     }
     setState(() {
@@ -281,11 +278,12 @@ class _IntervalBuilderScreenState
                     Expanded(
                       child: Text(
                         session.displayName,
-                        style: Theme.of(
-                          context,
-                        ).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
+                        style:
+                            Theme.of(
+                              context,
+                            ).textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.w600,
+                            ),
                       ),
                     ),
                     Text(
@@ -316,15 +314,13 @@ class _IntervalBuilderScreenState
                             onRemove: () => _removeInterval(i),
                             onMoveUp: () => _moveUp(i),
                             onMoveDown: () => _moveDown(i),
-                            onAddToRepeat:
-                                interval.intent == IntervalIntent.repeatGroup
-                                    ? () => _showAddMenu(
-                                          ctx,
-                                          (intent) =>
-                                              _addToRepeat(interval.id, intent),
-                                          includeRepeatGroup: false,
-                                        )
-                                    : null,
+                            onAddToRepeat: interval.intent == IntervalIntent.repeatGroup
+                                ? () => _showAddMenu(
+                                    ctx,
+                                    (intent) => _addToRepeat(interval.id, intent),
+                                    includeRepeatGroup: false,
+                                  )
+                                : null,
                           );
                         },
                       ),
@@ -333,9 +329,7 @@ class _IntervalBuilderScreenState
           ),
         ),
         floatingActionButton: FloatingActionButton.extended(
-          onPressed: _saving
-              ? null
-              : () => _showAddMenu(context, _addInterval),
+          onPressed: _saving ? null : () => _showAddMenu(context, _addInterval),
           icon: const Icon(Icons.add),
           label: const Text('Add step'),
         ),
@@ -385,9 +379,7 @@ Future<void> _showAddMenu(
             ListTile(
               leading: Icon(_iconForIntent(c)),
               title: Text(c.displayName),
-              subtitle: c == IntervalIntent.repeatGroup
-                  ? const Text('Group several steps and run them N times')
-                  : null,
+              subtitle: c == IntervalIntent.repeatGroup ? const Text('Group several steps and run them N times') : null,
               onTap: () => Navigator.pop(ctx, c),
             ),
           const SizedBox(height: 8),
@@ -470,8 +462,7 @@ class _IntervalEditorRow extends ConsumerStatefulWidget {
   final VoidCallback? onAddToRepeat;
 
   @override
-  ConsumerState<_IntervalEditorRow> createState() =>
-      _IntervalEditorRowState();
+  ConsumerState<_IntervalEditorRow> createState() => _IntervalEditorRowState();
 }
 
 class _IntervalEditorRowState extends ConsumerState<_IntervalEditorRow> {
@@ -546,8 +537,7 @@ class _IntervalEditorRowState extends ConsumerState<_IntervalEditorRow> {
               // for the group itself; those live on the children.
               _RepeatCountField(
                 count: i.repeatCount ?? 4,
-                onChanged: (count) =>
-                    widget.onChanged(i.copyWith(repeatCount: count)),
+                onChanged: (count) => widget.onChanged(i.copyWith(repeatCount: count)),
               ),
               if (widget.onAddToRepeat != null) ...[
                 const SizedBox(height: 8),
@@ -561,37 +551,27 @@ class _IntervalEditorRowState extends ConsumerState<_IntervalEditorRow> {
                 ),
               ],
             ] else ...[
-            _TargetKindPicker(
-              value: i.targetKind,
-              onChanged: (kind) {
-                // Clear whichever target fields are about to become
-                // irrelevant so stale data doesn't linger in the DB.
-                final updated = i.copyWith(
-                  targetKind: kind,
-                  targetDurationSec: kind == IntervalTargetKind.durationSec
-                      ? (i.targetDurationSec ?? 60)
-                      : null,
-                  targetDistanceM: kind == IntervalTargetKind.distanceM
-                      ? (i.targetDistanceM ?? 400)
-                      : null,
-                  targetHrZone: kind == IntervalTargetKind.hrZone
-                      ? (i.targetHrZone ?? 2)
-                      : null,
-                  targetPaceZone: kind == IntervalTargetKind.paceZone
-                      ? (i.targetPaceZone ?? 2)
-                      : null,
-                  targetPowerZone: kind == IntervalTargetKind.powerZone
-                      ? (i.targetPowerZone ?? 2)
-                      : null,
-                );
-                widget.onChanged(updated);
-              },
-            ),
-            const SizedBox(height: 8),
-            _TargetValueField(
-              interval: i,
-              onChanged: widget.onChanged,
-            ),
+              _TargetKindPicker(
+                value: i.targetKind,
+                onChanged: (kind) {
+                  // Clear whichever target fields are about to become
+                  // irrelevant so stale data doesn't linger in the DB.
+                  final updated = i.copyWith(
+                    targetKind: kind,
+                    targetDurationSec: kind == IntervalTargetKind.durationSec ? (i.targetDurationSec ?? 60) : null,
+                    targetDistanceM: kind == IntervalTargetKind.distanceM ? (i.targetDistanceM ?? 400) : null,
+                    targetHrZone: kind == IntervalTargetKind.hrZone ? (i.targetHrZone ?? 2) : null,
+                    targetPaceZone: kind == IntervalTargetKind.paceZone ? (i.targetPaceZone ?? 2) : null,
+                    targetPowerZone: kind == IntervalTargetKind.powerZone ? (i.targetPowerZone ?? 2) : null,
+                  );
+                  widget.onChanged(updated);
+                },
+              ),
+              const SizedBox(height: 8),
+              _TargetValueField(
+                interval: i,
+                onChanged: widget.onChanged,
+              ),
             ],
           ],
         ),
@@ -624,8 +604,7 @@ class _RepeatCountFieldState extends State<_RepeatCountField> {
   @override
   void didUpdateWidget(covariant _RepeatCountField old) {
     super.didUpdateWidget(old);
-    if (old.count != widget.count &&
-        int.tryParse(_controller.text) != widget.count) {
+    if (old.count != widget.count && int.tryParse(_controller.text) != widget.count) {
       _controller.text = '${widget.count}';
     }
   }
@@ -781,13 +760,9 @@ class _TargetValueFieldState extends State<_TargetValueField> {
     final i = widget.interval;
     switch (i.targetKind) {
       case IntervalTargetKind.durationSec:
-        return i.targetDurationSec != null
-            ? CardioConversions.formatDuration(i.targetDurationSec!)
-            : '';
+        return i.targetDurationSec != null ? CardioConversions.formatDuration(i.targetDurationSec!) : '';
       case IntervalTargetKind.distanceM:
-        return i.targetDistanceM != null
-            ? i.targetDistanceM!.toStringAsFixed(0)
-            : '';
+        return i.targetDistanceM != null ? i.targetDistanceM!.toStringAsFixed(0) : '';
       case IntervalTargetKind.hrZone:
         return i.targetHrZone != null ? '${i.targetHrZone}' : '';
       case IntervalTargetKind.paceZone:
@@ -869,13 +844,13 @@ class _TargetValueFieldState extends State<_TargetValueField> {
       keyboardType: isDuration
           ? TextInputType.datetime
           : isFreeform
-              ? TextInputType.text
-              : TextInputType.number,
+          ? TextInputType.text
+          : TextInputType.number,
       inputFormatters: isDuration
           ? [FilteringTextInputFormatter.allow(RegExp(r'[0-9:]'))]
           : isFreeform
-              ? null
-              : [FilteringTextInputFormatter.digitsOnly],
+          ? null
+          : [FilteringTextInputFormatter.digitsOnly],
       decoration: InputDecoration(
         labelText: label,
         border: const OutlineInputBorder(),

@@ -77,9 +77,7 @@ class SetTypeInfoDialog extends StatelessWidget {
             height: 24,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: badge != null
-                  ? colorScheme.primaryContainer
-                  : colorScheme.surfaceContainerHighest,
+              color: badge != null ? colorScheme.primaryContainer : colorScheme.surfaceContainerHighest,
               borderRadius: BorderRadius.circular(6),
             ),
             child: Text(

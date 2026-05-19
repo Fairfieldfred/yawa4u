@@ -150,9 +150,7 @@ class CardioSessionCard extends ConsumerWidget {
     bool isExternal,
   ) {
     final sport = session.sport;
-    final title = session.label?.trim().isNotEmpty == true
-        ? session.label!
-        : sport.displayName;
+    final title = session.label?.trim().isNotEmpty == true ? session.label! : sport.displayName;
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -216,10 +214,12 @@ class CardioSessionCard extends ConsumerWidget {
     if (detail?.plannedDistanceM != null && detail!.plannedDistanceM! > 0) {
       final formatted = session.sport == Sport.swim
           ? CardioConversions.formatSwimDistance(
-              detail.plannedDistanceM!, units,
+              detail.plannedDistanceM!,
+              units,
             )
           : CardioConversions.formatDistance(
-              detail.plannedDistanceM!, units,
+              detail.plannedDistanceM!,
+              units,
             );
       bits.add(formatted);
     }
@@ -261,9 +261,7 @@ class CardioSessionCard extends ConsumerWidget {
           const SizedBox(height: 10),
           _IntervalsRow(
             count: intervalCount,
-            onTap: callbacks.onViewIntervals == null
-                ? null
-                : () => callbacks.onViewIntervals!(session.id),
+            onTap: callbacks.onViewIntervals == null ? null : () => callbacks.onViewIntervals!(session.id),
           ),
         ],
       ],
@@ -286,47 +284,59 @@ class CardioSessionCard extends ConsumerWidget {
     final hero = <_HeroMetricData>[];
     if (detail != null) {
       if (detail.actualDistanceM != null && detail.actualDistanceM! > 0) {
-        hero.add(_HeroMetricData(
-          value: isSwim
-              ? CardioConversions.formatSwimDistance(
-                  detail.actualDistanceM!, units,
-                )
-              : CardioConversions.formatDistance(
-                  detail.actualDistanceM!, units,
-                ),
-          label: 'Distance',
-        ));
+        hero.add(
+          _HeroMetricData(
+            value: isSwim
+                ? CardioConversions.formatSwimDistance(
+                    detail.actualDistanceM!,
+                    units,
+                  )
+                : CardioConversions.formatDistance(
+                    detail.actualDistanceM!,
+                    units,
+                  ),
+            label: 'Distance',
+          ),
+        );
       }
       if (detail.actualDurationSec != null && detail.actualDurationSec! > 0) {
-        hero.add(_HeroMetricData(
-          value: CardioConversions.formatDuration(detail.actualDurationSec!),
-          label: 'Duration',
-        ));
+        hero.add(
+          _HeroMetricData(
+            value: CardioConversions.formatDuration(detail.actualDurationSec!),
+            label: 'Duration',
+          ),
+        );
       }
       if (isSwim) {
         if (detail.swolf != null) {
-          hero.add(_HeroMetricData(
-            value: detail.swolf.toString(),
-            label: 'SWOLF',
-          ));
+          hero.add(
+            _HeroMetricData(
+              value: detail.swolf.toString(),
+              label: 'SWOLF',
+            ),
+          );
         }
       } else {
-        if (detail.averagePaceSecPerMeter != null &&
-            detail.averagePaceSecPerMeter! > 0) {
-          hero.add(_HeroMetricData(
-            value: CardioConversions.formatPace(
-              detail.averagePaceSecPerMeter!, units,
+        if (detail.averagePaceSecPerMeter != null && detail.averagePaceSecPerMeter! > 0) {
+          hero.add(
+            _HeroMetricData(
+              value: CardioConversions.formatPace(
+                detail.averagePaceSecPerMeter!,
+                units,
+              ),
+              label: units.isMetric ? 'Pace' : 'Pace',
             ),
-            label: units.isMetric ? 'Pace' : 'Pace',
-          ));
-        } else if (detail.averageSpeedMps != null &&
-            detail.averageSpeedMps! > 0) {
-          hero.add(_HeroMetricData(
-            value: CardioConversions.formatSpeed(
-              detail.averageSpeedMps!, units,
+          );
+        } else if (detail.averageSpeedMps != null && detail.averageSpeedMps! > 0) {
+          hero.add(
+            _HeroMetricData(
+              value: CardioConversions.formatSpeed(
+                detail.averageSpeedMps!,
+                units,
+              ),
+              label: 'Avg speed',
             ),
-            label: 'Avg speed',
-          ));
+          );
         }
       }
     }
@@ -339,22 +349,27 @@ class CardioSessionCard extends ConsumerWidget {
           sub.add(_SubMetric(label: '', value: '${detail.lapCount} laps'));
         }
         if (detail.poolLengthM != null && detail.poolLengthM! > 0) {
-          sub.add(_SubMetric(
-            label: 'pool',
-            value: CardioConversions.formatSwimDistance(
-              detail.poolLengthM!, units,
+          sub.add(
+            _SubMetric(
+              label: 'pool',
+              value: CardioConversions.formatSwimDistance(
+                detail.poolLengthM!,
+                units,
+              ),
             ),
-          ));
+          );
         }
         if (detail.strokeType != null) {
           sub.add(_SubMetric(label: '', value: detail.strokeType!.displayName));
         }
       } else {
         if (detail.elevationGainM != null && detail.elevationGainM! > 0) {
-          sub.add(_SubMetric(
-            label: '▲',
-            value: '${detail.elevationGainM!.toStringAsFixed(0)} m',
-          ));
+          sub.add(
+            _SubMetric(
+              label: '▲',
+              value: '${detail.elevationGainM!.toStringAsFixed(0)} m',
+            ),
+          );
         }
         if (detail.averageHr != null && detail.averageHr! > 0) {
           sub.add(_SubMetric(label: 'avg', value: '${detail.averageHr} bpm'));
@@ -363,10 +378,12 @@ class CardioSessionCard extends ConsumerWidget {
           sub.add(_SubMetric(label: 'max', value: '${detail.maxHr} bpm'));
         }
         if (detail.averagePowerWatts != null && detail.averagePowerWatts! > 0) {
-          sub.add(_SubMetric(
-            label: 'avg',
-            value: '${detail.averagePowerWatts!.round()} W',
-          ));
+          sub.add(
+            _SubMetric(
+              label: 'avg',
+              value: '${detail.averagePowerWatts!.round()} W',
+            ),
+          );
         }
       }
     }
@@ -478,9 +495,7 @@ class CardioSessionCard extends ConsumerWidget {
     return Row(
       children: [
         FilledButton.icon(
-          onPressed: callbacks.onPrimary == null
-              ? null
-              : () => callbacks.onPrimary!(session.id),
+          onPressed: callbacks.onPrimary == null ? null : () => callbacks.onPrimary!(session.id),
           icon: const Icon(Icons.check_circle_outline, size: 18),
           label: const Text('Log session'),
         ),
@@ -696,18 +711,14 @@ class _OverflowMenu extends StatelessWidget {
               children: [
                 Icon(
                   Icons.swap_horiz,
-                  color: (isCompleted || isExternal)
-                      ? Colors.grey
-                      : onSurface,
+                  color: (isCompleted || isExternal) ? Colors.grey : onSurface,
                   size: 20,
                 ),
                 const SizedBox(width: 12),
                 Text(
                   'Replace',
                   style: TextStyle(
-                    color: (isCompleted || isExternal)
-                        ? Colors.grey
-                        : onSurface,
+                    color: (isCompleted || isExternal) ? Colors.grey : onSurface,
                   ),
                 ),
               ],
@@ -723,18 +734,14 @@ class _OverflowMenu extends StatelessWidget {
               children: [
                 Icon(
                   Icons.fast_forward,
-                  color: (isCompleted || isSkipped || isExternal)
-                      ? Colors.grey
-                      : onSurface,
+                  color: (isCompleted || isSkipped || isExternal) ? Colors.grey : onSurface,
                   size: 20,
                 ),
                 const SizedBox(width: 12),
                 Text(
                   'Skip session',
                   style: TextStyle(
-                    color: (isCompleted || isSkipped || isExternal)
-                        ? Colors.grey
-                        : onSurface,
+                    color: (isCompleted || isSkipped || isExternal) ? Colors.grey : onSurface,
                   ),
                 ),
               ],

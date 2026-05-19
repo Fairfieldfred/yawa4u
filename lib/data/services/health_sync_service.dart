@@ -168,9 +168,7 @@ class HealthSyncService {
         permissions: _readPermissions,
       );
       if (granted == true) return HealthSyncStatus.ready;
-      if (!kIsWeb &&
-          Platform.isIOS &&
-          (_prefs.getBool(_kGrantedKey) ?? false)) {
+      if (!kIsWeb && Platform.isIOS && (_prefs.getBool(_kGrantedKey) ?? false)) {
         return HealthSyncStatus.ready;
       }
       return HealthSyncStatus.notAuthorized;
@@ -325,15 +323,10 @@ class HealthSyncService {
   /// sessions with no exercise list.
   Sport? _mapSport(HealthWorkoutActivityType type) {
     final name = type.name.toUpperCase();
-    if (name.contains('RUNNING') ||
-        name == 'WALKING' ||
-        name == 'HIKING' ||
-        name == 'JOGGING') {
+    if (name.contains('RUNNING') || name == 'WALKING' || name == 'HIKING' || name == 'JOGGING') {
       return Sport.run;
     }
-    if (name.contains('BIKING') ||
-        name.contains('CYCLING') ||
-        name == 'SPINNING') {
+    if (name.contains('BIKING') || name.contains('CYCLING') || name == 'SPINNING') {
       return Sport.bike;
     }
     if (name.contains('SWIMMING') || name == 'SWIM') {
@@ -405,9 +398,7 @@ class HealthSyncService {
       maxHr: maxHr,
     );
 
-    final provider = !kIsWeb && Platform.isIOS
-        ? SessionSource.healthKit
-        : SessionSource.healthConnect;
+    final provider = !kIsWeb && Platform.isIOS ? SessionSource.healthKit : SessionSource.healthConnect;
 
     return CardioSession(
       id: _uuid.v4(),

@@ -19,12 +19,10 @@ class OnboardingSportsScreen extends ConsumerStatefulWidget {
   const OnboardingSportsScreen({super.key});
 
   @override
-  ConsumerState<OnboardingSportsScreen> createState() =>
-      _OnboardingSportsScreenState();
+  ConsumerState<OnboardingSportsScreen> createState() => _OnboardingSportsScreenState();
 }
 
-class _OnboardingSportsScreenState
-    extends ConsumerState<OnboardingSportsScreen> {
+class _OnboardingSportsScreenState extends ConsumerState<OnboardingSportsScreen> {
   final Set<Sport> _selected = {Sport.strength};
   bool _saving = false;
 
@@ -164,9 +162,7 @@ class _SportTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final color = sport.color;
     final border = selected ? color : Colors.transparent;
-    final bg = selected
-        ? color.withValues(alpha: 0.1)
-        : Theme.of(context).colorScheme.surfaceContainerHighest;
+    final bg = selected ? color.withValues(alpha: 0.1) : Theme.of(context).colorScheme.surfaceContainerHighest;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
@@ -211,9 +207,7 @@ class _SportTile extends StatelessWidget {
                       width: 2,
                     ),
                   ),
-                  child: selected
-                      ? const Icon(Icons.check, size: 18, color: Colors.white)
-                      : null,
+                  child: selected ? const Icon(Icons.check, size: 18, color: Colors.white) : null,
                 ),
               ],
             ),

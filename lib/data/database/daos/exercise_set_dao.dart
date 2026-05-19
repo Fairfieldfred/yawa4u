@@ -7,8 +7,7 @@ part 'exercise_set_dao.g.dart';
 
 /// Data Access Object for ExerciseSets table
 @DriftAccessor(tables: [ExerciseSets])
-class ExerciseSetDao extends DatabaseAccessor<AppDatabase>
-    with _$ExerciseSetDaoMixin {
+class ExerciseSetDao extends DatabaseAccessor<AppDatabase> with _$ExerciseSetDaoMixin {
   ExerciseSetDao(super.db);
 
   /// Get all sets

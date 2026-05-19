@@ -90,9 +90,7 @@ class SkinRepository {
 
     try {
       final List<dynamic> jsonList = json.decode(jsonString);
-      final skins = jsonList
-          .map((j) => SkinModel.fromJson(j as Map<String, dynamic>))
-          .toList();
+      final skins = jsonList.map((j) => SkinModel.fromJson(j as Map<String, dynamic>)).toList();
 
       // Debug: Log loaded custom skins and their backgrounds
       for (final skin in skins) {
@@ -205,8 +203,7 @@ class SkinRepository {
     final data = json.decode(jsonString) as Map<String, dynamic>;
 
     // Extract and remove images before parsing skin
-    final imagesBase64 =
-        data.remove('imagesBase64') as Map<String, dynamic>? ?? {};
+    final imagesBase64 = data.remove('imagesBase64') as Map<String, dynamic>? ?? {};
     data.remove('exportVersion');
     data.remove('exportedAt');
 

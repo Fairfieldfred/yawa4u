@@ -19,27 +19,20 @@ class VolumeLineChart extends StatelessWidget {
         child: Text(
           'No volume data yet',
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            color: Theme.of(context)
-                .colorScheme
-                .onSurface
-                .withAlpha((255 * 0.5).round()),
+            color: Theme.of(context).colorScheme.onSurface.withAlpha((255 * 0.5).round()),
           ),
         ),
       );
     }
 
     // Only include data points with volume > 0
-    final dataPoints =
-        volumeProgression.where((p) => p.totalVolume > 0).toList();
+    final dataPoints = volumeProgression.where((p) => p.totalVolume > 0).toList();
     if (dataPoints.isEmpty) {
       return Center(
         child: Text(
           'No volume data yet',
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            color: Theme.of(context)
-                .colorScheme
-                .onSurface
-                .withAlpha((255 * 0.5).round()),
+            color: Theme.of(context).colorScheme.onSurface.withAlpha((255 * 0.5).round()),
           ),
         ),
       );
@@ -76,10 +69,7 @@ class VolumeLineChart extends StatelessWidget {
           drawVerticalLine: false,
           horizontalInterval: maxY > 0 ? maxY / 4 : 1,
           getDrawingHorizontalLine: (value) => FlLine(
-            color: Theme.of(context)
-                .colorScheme
-                .onSurface
-                .withAlpha((255 * 0.1).round()),
+            color: Theme.of(context).colorScheme.onSurface.withAlpha((255 * 0.1).round()),
             strokeWidth: 1,
           ),
         ),
@@ -89,9 +79,7 @@ class VolumeLineChart extends StatelessWidget {
             sideTitles: SideTitles(
               showTitles: true,
               reservedSize: 30,
-              interval: dataPoints.length > 10
-                  ? (dataPoints.length / 5).ceilToDouble()
-                  : 1,
+              interval: dataPoints.length > 10 ? (dataPoints.length / 5).ceilToDouble() : 1,
               getTitlesWidget: (value, meta) {
                 final index = value.toInt();
                 if (index < 0 || index >= dataPoints.length) {
@@ -103,10 +91,7 @@ class VolumeLineChart extends StatelessWidget {
                     dataPoints[index].label,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       fontSize: 9,
-                      color: Theme.of(context)
-                          .colorScheme
-                          .onSurface
-                          .withAlpha((255 * 0.6).round()),
+                      color: Theme.of(context).colorScheme.onSurface.withAlpha((255 * 0.6).round()),
                     ),
                   ),
                 );

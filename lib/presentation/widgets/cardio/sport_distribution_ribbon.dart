@@ -34,8 +34,7 @@ class SportDistributionRibbon extends StatelessWidget {
     if (total == 0) return const SizedBox.shrink();
 
     // Sort entries by Sport.index for stable ordering.
-    final entries = distribution.entries.toList()
-      ..sort((a, b) => a.key.index.compareTo(b.key.index));
+    final entries = distribution.entries.toList()..sort((a, b) => a.key.index.compareTo(b.key.index));
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

@@ -32,8 +32,7 @@ class StatsScreen extends ConsumerStatefulWidget {
   ConsumerState<StatsScreen> createState() => _StatsScreenState();
 }
 
-class _StatsScreenState extends ConsumerState<StatsScreen>
-    with SingleTickerProviderStateMixin {
+class _StatsScreenState extends ConsumerState<StatsScreen> with SingleTickerProviderStateMixin {
   String? _selectedCycleId;
   late TabController _tabController;
 
@@ -59,9 +58,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen>
     final cycleList = allCycles.when(
       data: (list) => list
           .where(
-            (c) =>
-                c.status == TrainingCycleStatus.current ||
-                c.status == TrainingCycleStatus.completed,
+            (c) => c.status == TrainingCycleStatus.current || c.status == TrainingCycleStatus.completed,
           )
           .toList(),
       loading: () => <TrainingCycle>[],
@@ -69,8 +66,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen>
     );
 
     // Default to active cycle
-    final effectiveCycleId =
-        _selectedCycleId ?? currentCycle?.id ?? cycleList.firstOrNull?.id;
+    final effectiveCycleId = _selectedCycleId ?? currentCycle?.id ?? cycleList.firstOrNull?.id;
 
     // Choose lifetime or cycle stats
     final statsAsync = effectiveCycleId != null
@@ -113,8 +109,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen>
                 Expanded(
                   child: statsAsync.when(
                     data: (stats) => _buildStatsContent(context, stats),
-                    loading: () =>
-                        const Center(child: CircularProgressIndicator()),
+                    loading: () => const Center(child: CircularProgressIndicator()),
                     error: (error, stack) {
                       Sentry.captureException(error, stackTrace: stack);
                       return Center(
@@ -215,8 +210,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen>
       );
     }
 
-    final sportsWithData = stats.perSport.keys.toList()
-      ..sort((a, b) => a.index.compareTo(b.index));
+    final sportsWithData = stats.perSport.keys.toList()..sort((a, b) => a.index.compareTo(b.index));
 
     return ResponsiveContent(
       child: ListView(
@@ -303,10 +297,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen>
                 Icon(
                   Icons.monitor_weight_outlined,
                   size: 64,
-                  color: Theme.of(context)
-                      .colorScheme
-                      .primary
-                      .withAlpha((255 * 0.5).round()),
+                  color: Theme.of(context).colorScheme.primary.withAlpha((255 * 0.5).round()),
                 ),
                 const SizedBox(height: 16),
                 Text(
@@ -318,10 +309,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen>
                   'Add body measurements in Settings\nto see your progress here.',
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Theme.of(context)
-                        .colorScheme
-                        .onSurface
-                        .withAlpha((255 * 0.6).round()),
+                    color: Theme.of(context).colorScheme.onSurface.withAlpha((255 * 0.6).round()),
                   ),
                 ),
               ],
@@ -404,10 +392,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen>
     BuildContext context,
     List<dynamic> measurements,
   ) {
-    final withFat = measurements
-        .where((m) => m.bodyFatPercent != null)
-        .take(5)
-        .toList();
+    final withFat = measurements.where((m) => m.bodyFatPercent != null).take(5).toList();
 
     return Container(
       decoration: BoxDecoration(
@@ -463,9 +448,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen>
         dropdownColor: Theme.of(context).cardTheme.color,
         items: [
           ...cycles.map((cycle) {
-            final label = cycle.status == TrainingCycleStatus.current
-                ? '${cycle.name} (Active)'
-                : cycle.name;
+            final label = cycle.status == TrainingCycleStatus.current ? '${cycle.name} (Active)' : cycle.name;
             return DropdownMenuItem<String?>(
               value: cycle.id,
               child: Text(
@@ -485,53 +468,53 @@ class _StatsScreenState extends ConsumerState<StatsScreen>
   Widget _buildStatsContent(BuildContext context, WorkoutStats stats) {
     return ResponsiveContent(
       child: ListView(
-      padding: const EdgeInsets.all(16),
-      children: [
-        // v5 — weekly summary across all sports at the top of Overview.
-        // Auto-collapses to a soft empty state for strength-only users,
-        // so it's never visual clutter.
-        const WeeklySummaryCard(),
-        const SizedBox(height: 12),
+        padding: const EdgeInsets.all(16),
+        children: [
+          // v5 — weekly summary across all sports at the top of Overview.
+          // Auto-collapses to a soft empty state for strength-only users,
+          // so it's never visual clutter.
+          const WeeklySummaryCard(),
+          const SizedBox(height: 12),
 
-        // Summary cards
-        _buildSummaryRow(context, stats),
-        const SizedBox(height: 24),
-
-        // Volume by muscle group
-        _buildSectionHeader(context, 'Volume by Muscle Group'),
-        const SizedBox(height: 8),
-        SizedBox(
-          height: 200,
-          child: VolumeBarChart(setsByMuscleGroup: stats.setsByMuscleGroup),
-        ),
-        const SizedBox(height: 24),
-
-        // Volume progression
-        _buildSectionHeader(context, 'Volume Progression'),
-        const SizedBox(height: 8),
-        SizedBox(
-          height: 200,
-          child: VolumeLineChart(volumeProgression: stats.volumeProgression),
-        ),
-        const SizedBox(height: 24),
-
-        // Top exercises
-        if (stats.exerciseFrequency.isNotEmpty) ...[
-          _buildSectionHeader(context, 'Most Used Exercises'),
-          const SizedBox(height: 8),
-          _buildExerciseFrequencyList(context, stats),
+          // Summary cards
+          _buildSummaryRow(context, stats),
           const SizedBox(height: 24),
-        ],
 
-        // Personal records
-        if (stats.personalRecords.isNotEmpty) ...[
-          _buildSectionHeader(context, 'Personal Records'),
+          // Volume by muscle group
+          _buildSectionHeader(context, 'Volume by Muscle Group'),
           const SizedBox(height: 8),
-          _buildPersonalRecordsList(context, stats),
+          SizedBox(
+            height: 200,
+            child: VolumeBarChart(setsByMuscleGroup: stats.setsByMuscleGroup),
+          ),
           const SizedBox(height: 24),
+
+          // Volume progression
+          _buildSectionHeader(context, 'Volume Progression'),
+          const SizedBox(height: 8),
+          SizedBox(
+            height: 200,
+            child: VolumeLineChart(volumeProgression: stats.volumeProgression),
+          ),
+          const SizedBox(height: 24),
+
+          // Top exercises
+          if (stats.exerciseFrequency.isNotEmpty) ...[
+            _buildSectionHeader(context, 'Most Used Exercises'),
+            const SizedBox(height: 8),
+            _buildExerciseFrequencyList(context, stats),
+            const SizedBox(height: 24),
+          ],
+
+          // Personal records
+          if (stats.personalRecords.isNotEmpty) ...[
+            _buildSectionHeader(context, 'Personal Records'),
+            const SizedBox(height: 8),
+            _buildPersonalRecordsList(context, stats),
+            const SizedBox(height: 24),
+          ],
         ],
-      ],
-    ),
+      ),
     );
   }
 
@@ -599,10 +582,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen>
             Text(
               title,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Theme.of(context)
-                    .colorScheme
-                    .onSurface
-                    .withAlpha((255 * 0.6).round()),
+                color: Theme.of(context).colorScheme.onSurface.withAlpha((255 * 0.6).round()),
               ),
             ),
           ],
@@ -617,10 +597,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen>
       style: Theme.of(context).textTheme.bodySmall?.copyWith(
         fontWeight: FontWeight.w600,
         letterSpacing: 0.5,
-        color: Theme.of(context)
-            .colorScheme
-            .onSurface
-            .withAlpha((255 * 0.6).round()),
+        color: Theme.of(context).colorScheme.onSurface.withAlpha((255 * 0.6).round()),
       ),
     );
   }
@@ -645,10 +622,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen>
                 dense: true,
                 leading: CircleAvatar(
                   radius: 14,
-                  backgroundColor: Theme.of(context)
-                      .colorScheme
-                      .primary
-                      .withAlpha((255 * 0.2).round()),
+                  backgroundColor: Theme.of(context).colorScheme.primary.withAlpha((255 * 0.2).round()),
                   child: Text(
                     '${index + 1}',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -692,9 +666,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen>
           final index = entry.key;
           final recordEntry = entry.value;
           final weight = recordEntry.value;
-          final weightStr = weight == weight.roundToDouble()
-              ? weight.toInt().toString()
-              : weight.toString();
+          final weightStr = weight == weight.roundToDouble() ? weight.toInt().toString() : weight.toString();
           return Column(
             children: [
               ListTile(
@@ -704,13 +676,10 @@ class _StatsScreenState extends ConsumerState<StatsScreen>
                   color: index == 0
                       ? const Color(0xFFFFD700)
                       : index == 1
-                          ? const Color(0xFFC0C0C0)
-                          : index == 2
-                              ? const Color(0xFFCD7F32)
-                              : Theme.of(context)
-                                  .colorScheme
-                                  .onSurface
-                                  .withAlpha((255 * 0.4).round()),
+                      ? const Color(0xFFC0C0C0)
+                      : index == 2
+                      ? const Color(0xFFCD7F32)
+                      : Theme.of(context).colorScheme.onSurface.withAlpha((255 * 0.4).round()),
                   size: 20,
                 ),
                 title: Text(

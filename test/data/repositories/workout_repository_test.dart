@@ -101,16 +101,20 @@ void main() {
       final cycleId = 'cycle-1';
       await insertTrainingCycle(cycleId);
 
-      await repo.create(TestFixtures.createWorkout(
-        id: 'w1',
-        trainingCycleId: cycleId,
-        exercises: [],
-      ));
-      await repo.create(TestFixtures.createWorkout(
-        id: 'w2',
-        trainingCycleId: cycleId,
-        exercises: [],
-      ));
+      await repo.create(
+        TestFixtures.createWorkout(
+          id: 'w1',
+          trainingCycleId: cycleId,
+          exercises: [],
+        ),
+      );
+      await repo.create(
+        TestFixtures.createWorkout(
+          id: 'w2',
+          trainingCycleId: cycleId,
+          exercises: [],
+        ),
+      );
 
       final all = await repo.getAll();
       expect(all.length, 2);
@@ -163,17 +167,19 @@ void main() {
       final cycleId = 'cycle-1';
       await insertTrainingCycle(cycleId);
 
-      await repo.create(TestFixtures.createWorkout(
-        id: 'w1',
-        trainingCycleId: cycleId,
-        exercises: [
-          TestFixtures.createExercise(
-            id: 'e1',
-            workoutId: 'w1',
-            sets: [TestFixtures.createExerciseSet(id: 'es1')],
-          ),
-        ],
-      ));
+      await repo.create(
+        TestFixtures.createWorkout(
+          id: 'w1',
+          trainingCycleId: cycleId,
+          exercises: [
+            TestFixtures.createExercise(
+              id: 'e1',
+              workoutId: 'w1',
+              sets: [TestFixtures.createExerciseSet(id: 'es1')],
+            ),
+          ],
+        ),
+      );
 
       await repo.delete('w1');
       expect(await repo.getById('w1'), isNull);
@@ -188,34 +194,39 @@ void main() {
       cycleId = 'cycle-1';
       await insertTrainingCycle(cycleId);
 
-      await repo.create(TestFixtures.createWorkout(
-        id: 'w1',
-        trainingCycleId: cycleId,
-        periodNumber: 1,
-        dayNumber: 1,
-        status: WorkoutStatus.completed,
-        exercises: [],
-      ));
-      await repo.create(TestFixtures.createWorkout(
-        id: 'w2',
-        trainingCycleId: cycleId,
-        periodNumber: 1,
-        dayNumber: 2,
-        status: WorkoutStatus.incomplete,
-        exercises: [],
-      ));
-      await repo.create(TestFixtures.createWorkout(
-        id: 'w3',
-        trainingCycleId: cycleId,
-        periodNumber: 2,
-        dayNumber: 1,
-        status: WorkoutStatus.skipped,
-        exercises: [],
-      ));
+      await repo.create(
+        TestFixtures.createWorkout(
+          id: 'w1',
+          trainingCycleId: cycleId,
+          periodNumber: 1,
+          dayNumber: 1,
+          status: WorkoutStatus.completed,
+          exercises: [],
+        ),
+      );
+      await repo.create(
+        TestFixtures.createWorkout(
+          id: 'w2',
+          trainingCycleId: cycleId,
+          periodNumber: 1,
+          dayNumber: 2,
+          status: WorkoutStatus.incomplete,
+          exercises: [],
+        ),
+      );
+      await repo.create(
+        TestFixtures.createWorkout(
+          id: 'w3',
+          trainingCycleId: cycleId,
+          periodNumber: 2,
+          dayNumber: 1,
+          status: WorkoutStatus.skipped,
+          exercises: [],
+        ),
+      );
     });
 
-    test('getByTrainingCycleId returns workouts sorted by period and day',
-        () async {
+    test('getByTrainingCycleId returns workouts sorted by period and day', () async {
       final workouts = await repo.getByTrainingCycleId(cycleId);
       expect(workouts.length, 3);
       expect(workouts[0].periodNumber, 1);
@@ -262,12 +273,14 @@ void main() {
       final cycleId = 'cycle-1';
       await insertTrainingCycle(cycleId);
 
-      await repo.create(TestFixtures.createWorkout(
-        id: 'w1',
-        trainingCycleId: cycleId,
-        status: WorkoutStatus.incomplete,
-        exercises: [],
-      ));
+      await repo.create(
+        TestFixtures.createWorkout(
+          id: 'w1',
+          trainingCycleId: cycleId,
+          status: WorkoutStatus.incomplete,
+          exercises: [],
+        ),
+      );
 
       await repo.markAsCompleted('w1');
       final fetched = await repo.getById('w1');
@@ -279,12 +292,14 @@ void main() {
       final cycleId = 'cycle-1';
       await insertTrainingCycle(cycleId);
 
-      await repo.create(TestFixtures.createWorkout(
-        id: 'w1',
-        trainingCycleId: cycleId,
-        status: WorkoutStatus.incomplete,
-        exercises: [],
-      ));
+      await repo.create(
+        TestFixtures.createWorkout(
+          id: 'w1',
+          trainingCycleId: cycleId,
+          status: WorkoutStatus.incomplete,
+          exercises: [],
+        ),
+      );
 
       await repo.markAsSkipped('w1');
       final fetched = await repo.getById('w1');
@@ -295,12 +310,14 @@ void main() {
       final cycleId = 'cycle-1';
       await insertTrainingCycle(cycleId);
 
-      await repo.create(TestFixtures.createWorkout(
-        id: 'w1',
-        trainingCycleId: cycleId,
-        status: WorkoutStatus.completed,
-        exercises: [],
-      ));
+      await repo.create(
+        TestFixtures.createWorkout(
+          id: 'w1',
+          trainingCycleId: cycleId,
+          status: WorkoutStatus.completed,
+          exercises: [],
+        ),
+      );
 
       await repo.resetWorkout('w1');
       final fetched = await repo.getById('w1');
@@ -313,24 +330,30 @@ void main() {
       final cycleId = 'cycle-1';
       await insertTrainingCycle(cycleId);
 
-      await repo.create(TestFixtures.createWorkout(
-        id: 'w1',
-        trainingCycleId: cycleId,
-        status: WorkoutStatus.completed,
-        exercises: [],
-      ));
-      await repo.create(TestFixtures.createWorkout(
-        id: 'w2',
-        trainingCycleId: cycleId,
-        status: WorkoutStatus.incomplete,
-        exercises: [],
-      ));
-      await repo.create(TestFixtures.createWorkout(
-        id: 'w3',
-        trainingCycleId: cycleId,
-        status: WorkoutStatus.skipped,
-        exercises: [],
-      ));
+      await repo.create(
+        TestFixtures.createWorkout(
+          id: 'w1',
+          trainingCycleId: cycleId,
+          status: WorkoutStatus.completed,
+          exercises: [],
+        ),
+      );
+      await repo.create(
+        TestFixtures.createWorkout(
+          id: 'w2',
+          trainingCycleId: cycleId,
+          status: WorkoutStatus.incomplete,
+          exercises: [],
+        ),
+      );
+      await repo.create(
+        TestFixtures.createWorkout(
+          id: 'w3',
+          trainingCycleId: cycleId,
+          status: WorkoutStatus.skipped,
+          exercises: [],
+        ),
+      );
 
       final stats = await repo.getStats();
       expect(stats['total'], 3);
@@ -343,18 +366,22 @@ void main() {
       final cycleId = 'cycle-1';
       await insertTrainingCycle(cycleId);
 
-      await repo.create(TestFixtures.createWorkout(
-        id: 'w1',
-        trainingCycleId: cycleId,
-        status: WorkoutStatus.completed,
-        exercises: [],
-      ));
-      await repo.create(TestFixtures.createWorkout(
-        id: 'w2',
-        trainingCycleId: cycleId,
-        status: WorkoutStatus.incomplete,
-        exercises: [],
-      ));
+      await repo.create(
+        TestFixtures.createWorkout(
+          id: 'w1',
+          trainingCycleId: cycleId,
+          status: WorkoutStatus.completed,
+          exercises: [],
+        ),
+      );
+      await repo.create(
+        TestFixtures.createWorkout(
+          id: 'w2',
+          trainingCycleId: cycleId,
+          status: WorkoutStatus.incomplete,
+          exercises: [],
+        ),
+      );
 
       final stats = await repo.getStatsForTrainingCycle(cycleId);
       expect(stats['total'], 2);
@@ -367,11 +394,13 @@ void main() {
       final cycleId = 'cycle-1';
       await insertTrainingCycle(cycleId);
 
-      await repo.create(TestFixtures.createWorkout(
-        id: 'w1',
-        trainingCycleId: cycleId,
-        exercises: [],
-      ));
+      await repo.create(
+        TestFixtures.createWorkout(
+          id: 'w1',
+          trainingCycleId: cycleId,
+          exercises: [],
+        ),
+      );
       expect(await repo.count(), 1);
     });
 
@@ -379,11 +408,13 @@ void main() {
       final cycleId = 'cycle-1';
       await insertTrainingCycle(cycleId);
 
-      await repo.create(TestFixtures.createWorkout(
-        id: 'w1',
-        trainingCycleId: cycleId,
-        exercises: [],
-      ));
+      await repo.create(
+        TestFixtures.createWorkout(
+          id: 'w1',
+          trainingCycleId: cycleId,
+          exercises: [],
+        ),
+      );
       await repo.clear();
       expect(await repo.count(), 0);
     });
@@ -400,11 +431,13 @@ void main() {
       expect(await stream.first, isEmpty);
 
       // Create a workout and check the stream emits it
-      await repo.create(TestFixtures.createWorkout(
-        id: 'w1',
-        trainingCycleId: cycleId,
-        exercises: [],
-      ));
+      await repo.create(
+        TestFixtures.createWorkout(
+          id: 'w1',
+          trainingCycleId: cycleId,
+          exercises: [],
+        ),
+      );
 
       final workouts = await stream.first;
       expect(workouts.length, 1);
@@ -416,16 +449,20 @@ void main() {
       await insertTrainingCycle(cycleId1);
       await insertTrainingCycle(cycleId2);
 
-      await repo.create(TestFixtures.createWorkout(
-        id: 'w1',
-        trainingCycleId: cycleId1,
-        exercises: [],
-      ));
-      await repo.create(TestFixtures.createWorkout(
-        id: 'w2',
-        trainingCycleId: cycleId2,
-        exercises: [],
-      ));
+      await repo.create(
+        TestFixtures.createWorkout(
+          id: 'w1',
+          trainingCycleId: cycleId1,
+          exercises: [],
+        ),
+      );
+      await repo.create(
+        TestFixtures.createWorkout(
+          id: 'w2',
+          trainingCycleId: cycleId2,
+          exercises: [],
+        ),
+      );
 
       final stream = repo.watchByTrainingCycleId(cycleId1);
       final workouts = await stream.first;
@@ -439,16 +476,20 @@ void main() {
       final cycleId = 'cycle-1';
       await insertTrainingCycle(cycleId);
 
-      await repo.create(TestFixtures.createWorkout(
-        id: 'w1',
-        trainingCycleId: cycleId,
-        exercises: [],
-      ));
-      await repo.create(TestFixtures.createWorkout(
-        id: 'w2',
-        trainingCycleId: cycleId,
-        exercises: [],
-      ));
+      await repo.create(
+        TestFixtures.createWorkout(
+          id: 'w1',
+          trainingCycleId: cycleId,
+          exercises: [],
+        ),
+      );
+      await repo.create(
+        TestFixtures.createWorkout(
+          id: 'w2',
+          trainingCycleId: cycleId,
+          exercises: [],
+        ),
+      );
 
       await repo.deleteByTrainingCycleId(cycleId);
       expect(await repo.count(), 0);

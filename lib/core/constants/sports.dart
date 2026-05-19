@@ -226,8 +226,7 @@ class Sports {
   static const List<Sport> all = Sport.values;
 
   /// All cardio [Sport] values (excludes strength).
-  static List<Sport> get cardio =>
-      Sport.values.where((s) => s.isCardio).toList(growable: false);
+  static List<Sport> get cardio => Sport.values.where((s) => s.isCardio).toList(growable: false);
 
   /// Case-insensitive parser that tolerates common aliases ("running" → run,
   /// "cycling" → bike, "swimming" → swim).

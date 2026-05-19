@@ -7,8 +7,7 @@ part 'exercise_feedback_dao.g.dart';
 
 /// Data Access Object for ExerciseFeedbacks table
 @DriftAccessor(tables: [ExerciseFeedbacks])
-class ExerciseFeedbackDao extends DatabaseAccessor<AppDatabase>
-    with _$ExerciseFeedbackDaoMixin {
+class ExerciseFeedbackDao extends DatabaseAccessor<AppDatabase> with _$ExerciseFeedbackDaoMixin {
   ExerciseFeedbackDao(super.db);
 
   /// Get all feedback entries

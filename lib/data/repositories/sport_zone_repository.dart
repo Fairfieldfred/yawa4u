@@ -15,9 +15,11 @@ class SportZoneRepository {
   }
 
   Stream<List<SportZone>> watchBySport(Sport sport) {
-    return _dao.watchBySport(sport.index).map(
-      (rows) => rows.map(SportZoneMapper.fromRow).toList(),
-    );
+    return _dao
+        .watchBySport(sport.index)
+        .map(
+          (rows) => rows.map(SportZoneMapper.fromRow).toList(),
+        );
   }
 
   Future<List<SportZone>> getAll() async {

@@ -8,8 +8,7 @@ part 'session_cardio_dao.g.dart';
 /// Data Access Object for the [SessionCardio] table. One row per cardio
 /// session (1:1 with [Sessions] keyed by sessionUuid).
 @DriftAccessor(tables: [SessionCardio])
-class SessionCardioDao extends DatabaseAccessor<AppDatabase>
-    with _$SessionCardioDaoMixin {
+class SessionCardioDao extends DatabaseAccessor<AppDatabase> with _$SessionCardioDaoMixin {
   SessionCardioDao(super.db);
 
   Future<SessionCardioData?> getBySessionUuid(String sessionUuid) {

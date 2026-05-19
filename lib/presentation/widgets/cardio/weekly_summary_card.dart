@@ -25,8 +25,7 @@ class WeeklySummaryCard extends ConsumerWidget {
     final strengthSessions = ref.watch(thisWeekStrengthCountProvider);
     final onboarding = ref.watch(onboardingServiceProvider);
 
-    final hasAnything =
-        !bucket.isEmpty || strengthSessions > 0;
+    final hasAnything = !bucket.isEmpty || strengthSessions > 0;
 
     return Card(
       child: Padding(
@@ -64,8 +63,7 @@ class WeeklySummaryCard extends ConsumerWidget {
               if (strengthSessions > 0)
                 _SportLine(
                   sport: Sport.strength,
-                  label:
-                      '$strengthSessions strength session${strengthSessions == 1 ? '' : 's'}',
+                  label: '$strengthSessions strength session${strengthSessions == 1 ? '' : 's'}',
                 ),
               for (final entry in _sortedSportEntries(bucket))
                 _SportLine(
@@ -86,8 +84,7 @@ class WeeklySummaryCard extends ConsumerWidget {
   List<MapEntry<Sport, WeeklySportVolume>> _sortedSportEntries(
     WeeklyVolumeBucket bucket,
   ) {
-    final entries = bucket.perSport.entries.toList()
-      ..sort((a, b) => a.key.index.compareTo(b.key.index));
+    final entries = bucket.perSport.entries.toList()..sort((a, b) => a.key.index.compareTo(b.key.index));
     return entries;
   }
 

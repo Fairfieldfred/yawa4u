@@ -281,8 +281,7 @@ extension ContextExtensions on BuildContext {
   // ========== UTILITY ==========
 
   /// Get safe area height (screen height - status bar - bottom insets)
-  double get safeAreaHeight =>
-      screenHeight - padding.top - padding.bottom - viewInsets.bottom;
+  double get safeAreaHeight => screenHeight - padding.top - padding.bottom - viewInsets.bottom;
 
   /// Get safe area width
   double get safeAreaWidth => screenWidth - padding.left - padding.right;

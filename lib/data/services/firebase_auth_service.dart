@@ -8,8 +8,7 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 /// wants to upload content, they link an email/password credential to their
 /// existing anonymous account (preserving UID and downloaded content).
 class FirebaseAuthService {
-  FirebaseAuthService({FirebaseAuth? auth})
-      : _auth = auth ?? FirebaseAuth.instance;
+  FirebaseAuthService({FirebaseAuth? auth}) : _auth = auth ?? FirebaseAuth.instance;
 
   final FirebaseAuth _auth;
 
@@ -17,8 +16,7 @@ class FirebaseAuthService {
   User? get currentUser => _auth.currentUser;
 
   /// Whether the current user has a verified email linked.
-  bool get isEmailVerified =>
-      _auth.currentUser?.emailVerified == true;
+  bool get isEmailVerified => _auth.currentUser?.emailVerified == true;
 
   /// Whether the current user is signed in (anonymous or otherwise).
   bool get isSignedIn => _auth.currentUser != null;

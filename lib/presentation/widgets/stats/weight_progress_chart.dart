@@ -23,22 +23,16 @@ class WeightProgressChart extends StatelessWidget {
     if (measurements.length < 2) {
       return Center(
         child: Text(
-          measurements.isEmpty
-              ? 'No measurements yet'
-              : 'Need at least 2 measurements to show a chart',
+          measurements.isEmpty ? 'No measurements yet' : 'Need at least 2 measurements to show a chart',
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            color: Theme.of(context)
-                .colorScheme
-                .onSurface
-                .withAlpha((255 * 0.5).round()),
+            color: Theme.of(context).colorScheme.onSurface.withAlpha((255 * 0.5).round()),
           ),
         ),
       );
     }
 
     // Sort by timestamp ascending
-    final sorted = List<UserMeasurement>.from(measurements)
-      ..sort((a, b) => a.timestamp.compareTo(b.timestamp));
+    final sorted = List<UserMeasurement>.from(measurements)..sort((a, b) => a.timestamp.compareTo(b.timestamp));
 
     final primaryColor = Theme.of(context).colorScheme.primary;
     final dateFormat = DateFormat('M/d');
@@ -65,9 +59,7 @@ class WeightProgressChart extends StatelessWidget {
                 final m = sorted[index];
                 final w = weights[index];
                 final unit = useMetric ? 'kg' : 'lbs';
-                final wStr = w == w.roundToDouble()
-                    ? w.toInt().toString()
-                    : w.toStringAsFixed(1);
+                final wStr = w == w.roundToDouble() ? w.toInt().toString() : w.toStringAsFixed(1);
                 return LineTooltipItem(
                   '${dateFormat.format(m.timestamp)}\n$wStr $unit',
                   Theme.of(context).textTheme.bodySmall!.copyWith(
@@ -84,10 +76,7 @@ class WeightProgressChart extends StatelessWidget {
           drawVerticalLine: false,
           horizontalInterval: range > 0 ? range / 4 : 1,
           getDrawingHorizontalLine: (value) => FlLine(
-            color: Theme.of(context)
-                .colorScheme
-                .onSurface
-                .withAlpha((255 * 0.1).round()),
+            color: Theme.of(context).colorScheme.onSurface.withAlpha((255 * 0.1).round()),
             strokeWidth: 1,
           ),
         ),
@@ -97,9 +86,7 @@ class WeightProgressChart extends StatelessWidget {
             sideTitles: SideTitles(
               showTitles: true,
               reservedSize: 30,
-              interval: sorted.length > 10
-                  ? (sorted.length / 5).ceilToDouble()
-                  : 1,
+              interval: sorted.length > 10 ? (sorted.length / 5).ceilToDouble() : 1,
               getTitlesWidget: (value, meta) {
                 final index = value.toInt();
                 if (index < 0 || index >= sorted.length) {
@@ -111,10 +98,7 @@ class WeightProgressChart extends StatelessWidget {
                     dateFormat.format(sorted[index].timestamp),
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       fontSize: 9,
-                      color: Theme.of(context)
-                          .colorScheme
-                          .onSurface
-                          .withAlpha((255 * 0.6).round()),
+                      color: Theme.of(context).colorScheme.onSurface.withAlpha((255 * 0.6).round()),
                     ),
                   ),
                 );

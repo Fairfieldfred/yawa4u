@@ -79,11 +79,9 @@ class _NoteDialogState extends State<NoteDialog> {
     super.dispose();
   }
 
-  String get _title =>
-      widget.customTitle ?? NoteDialog.getTitleForType(widget.noteType);
+  String get _title => widget.customTitle ?? NoteDialog.getTitleForType(widget.noteType);
 
-  String get _hint =>
-      widget.customHint ?? NoteDialog.getHintForType(widget.noteType);
+  String get _hint => widget.customHint ?? NoteDialog.getHintForType(widget.noteType);
 
   bool get _isExerciseNote => widget.noteType == NoteType.exercise;
 
@@ -129,8 +127,7 @@ class _NoteDialogState extends State<NoteDialog> {
               height: 24,
               child: Checkbox(
                 value: _isPinned,
-                onChanged: (value) =>
-                    setState(() => _isPinned = value ?? false),
+                onChanged: (value) => setState(() => _isPinned = value ?? false),
                 materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
               ),
             ),
@@ -146,9 +143,7 @@ class _NoteDialogState extends State<NoteDialog> {
             Text(
               'Pin to Exercise',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: _isPinned
-                    ? Theme.of(context).colorScheme.primary
-                    : Theme.of(context).colorScheme.onSurface,
+                color: _isPinned ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.onSurface,
               ),
             ),
           ],
@@ -247,8 +242,7 @@ class RenameTrainingCycleDialog extends StatefulWidget {
   const RenameTrainingCycleDialog({super.key, required this.initialName});
 
   @override
-  State<RenameTrainingCycleDialog> createState() =>
-      _RenameTrainingCycleDialogState();
+  State<RenameTrainingCycleDialog> createState() => _RenameTrainingCycleDialogState();
 }
 
 class _RenameTrainingCycleDialogState extends State<RenameTrainingCycleDialog> {
@@ -407,9 +401,7 @@ class _RelabelDayDialogState extends State<RelabelDayDialog> {
   @override
   void initState() {
     super.initState();
-    _selectedLabel = _daysOfWeek.contains(widget.initialLabel)
-        ? widget.initialLabel
-        : _daysOfWeek.first;
+    _selectedLabel = _daysOfWeek.contains(widget.initialLabel) ? widget.initialLabel : _daysOfWeek.first;
   }
 
   @override

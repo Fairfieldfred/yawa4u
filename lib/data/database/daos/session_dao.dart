@@ -76,9 +76,7 @@ class SessionDao extends DatabaseAccessor<AppDatabase> with _$SessionDaoMixin {
   Future<List<Session>> getByDateRange(DateTime start, DateTime end) {
     return (select(sessions)
           ..where(
-            (s) =>
-                s.scheduledDate.isBiggerOrEqualValue(start) &
-                s.scheduledDate.isSmallerOrEqualValue(end),
+            (s) => s.scheduledDate.isBiggerOrEqualValue(start) & s.scheduledDate.isSmallerOrEqualValue(end),
           )
           ..orderBy([(s) => OrderingTerm.asc(s.scheduledDate)]))
         .get();
@@ -87,9 +85,7 @@ class SessionDao extends DatabaseAccessor<AppDatabase> with _$SessionDaoMixin {
   Stream<List<Session>> watchByDateRange(DateTime start, DateTime end) {
     return (select(sessions)
           ..where(
-            (s) =>
-                s.scheduledDate.isBiggerOrEqualValue(start) &
-                s.scheduledDate.isSmallerOrEqualValue(end),
+            (s) => s.scheduledDate.isBiggerOrEqualValue(start) & s.scheduledDate.isSmallerOrEqualValue(end),
           )
           ..orderBy([(s) => OrderingTerm.asc(s.scheduledDate)]))
         .watch();

@@ -210,8 +210,7 @@ class SkinShareService {
         // Export skins with their images
         final skinsData = <Map<String, dynamic>>[];
         for (final skin in _skinsToShare!) {
-          final imagesBase64 =
-              await _themeImageService.exportThemeImagesAsBase64(skin.id);
+          final imagesBase64 = await _themeImageService.exportThemeImagesAsBase64(skin.id);
           final skinJson = skin.toJson();
           skinJson['imagesBase64'] = imagesBase64;
           skinsData.add(skinJson);
@@ -224,9 +223,7 @@ class SkinShareService {
       });
 
       // Start server on a random available port
-      final handler = const Pipeline()
-          .addMiddleware(logRequests())
-          .addHandler(router.call);
+      final handler = const Pipeline().addMiddleware(logRequests()).addHandler(router.call);
 
       _server = await shelf_io.serve(handler, InternetAddress.anyIPv4, 0);
       _serverPort = _server!.port;
@@ -269,9 +266,7 @@ class SkinShareService {
       final port = (data['port'] as num).toInt();
       final code = data['code'] as String;
 
-      final response = await http
-          .get(Uri.parse('http://$ip:$port/info'))
-          .timeout(const Duration(seconds: 5));
+      final response = await http.get(Uri.parse('http://$ip:$port/info')).timeout(const Duration(seconds: 5));
 
       if (response.statusCode == 200) {
         final info = jsonDecode(response.body) as Map<String, dynamic>;
@@ -282,9 +277,7 @@ class SkinShareService {
           name: info['deviceName'] as String,
           // skinCount can be int or double depending on platform JSON parsing
           skinCount: (info['skinCount'] as num).toInt(),
-          skinNames: (info['skinNames'] as List<dynamic>)
-              .map((e) => e as String)
-              .toList(),
+          skinNames: (info['skinNames'] as List<dynamic>).map((e) => e as String).toList(),
         );
       }
     } catch (e, stack) {
@@ -315,8 +308,7 @@ class SkinShareService {
             final skinJson = skinData as Map<String, dynamic>;
 
             // Extract and remove images before parsing skin
-            final imagesBase64 =
-                skinJson.remove('imagesBase64') as Map<String, dynamic>? ?? {};
+            final imagesBase64 = skinJson.remove('imagesBase64') as Map<String, dynamic>? ?? {};
 
             final skin = SkinModel.fromJson(skinJson);
 
@@ -333,8 +325,7 @@ class SkinShareService {
             );
 
             // Get the actual image paths
-            final imagePaths =
-                await _themeImageService.getAllThemeImagePaths(newSkin.id);
+            final imagePaths = await _themeImageService.getAllThemeImagePaths(newSkin.id);
 
             // Update skin with image paths
             final updatedSkin = newSkin.copyWith(

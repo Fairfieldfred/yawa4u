@@ -14,8 +14,7 @@ class TemplatePreviewScreen extends ConsumerStatefulWidget {
   const TemplatePreviewScreen({super.key, required this.template});
 
   @override
-  ConsumerState<TemplatePreviewScreen> createState() =>
-      _TemplatePreviewScreenState();
+  ConsumerState<TemplatePreviewScreen> createState() => _TemplatePreviewScreenState();
 }
 
 class _TemplatePreviewScreenState extends ConsumerState<TemplatePreviewScreen> {
@@ -248,8 +247,7 @@ class _TemplatePreviewScreenState extends ConsumerState<TemplatePreviewScreen> {
                   ? Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        if (workout.notes != null &&
-                            workout.notes!.isNotEmpty)
+                        if (workout.notes != null && workout.notes!.isNotEmpty)
                           Text(
                             workout.notes!,
                             style: TextStyle(
@@ -263,8 +261,7 @@ class _TemplatePreviewScreenState extends ConsumerState<TemplatePreviewScreen> {
                   : Column(
                       children: workout.exercises.map((exercise) {
                         final muscleGroup = MuscleGroup.values.firstWhere(
-                          (m) =>
-                              m.name == exercise.muscleGroup.toLowerCase(),
+                          (m) => m.name == exercise.muscleGroup.toLowerCase(),
                           orElse: () => MuscleGroup.chest,
                         );
 
@@ -283,8 +280,7 @@ class _TemplatePreviewScreenState extends ConsumerState<TemplatePreviewScreen> {
                               const SizedBox(width: 12),
                               Expanded(
                                 child: Column(
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
                                       exercise.name,

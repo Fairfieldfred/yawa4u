@@ -94,10 +94,7 @@ class Exercise {
 
   /// Reorder sets
   Exercise reorderSet(int oldIndex, int newIndex) {
-    if (oldIndex < 0 ||
-        oldIndex >= sets.length ||
-        newIndex < 0 ||
-        newIndex >= sets.length) {
+    if (oldIndex < 0 || oldIndex >= sets.length || newIndex < 0 || newIndex >= sets.length) {
       return this;
     }
     final newSets = List<ExerciseSet>.from(sets);
@@ -139,8 +136,7 @@ class Exercise {
       lastPerformed: lastPerformed ?? this.lastPerformed,
       videoUrl: videoUrl ?? this.videoUrl,
       isNotePinned: isNotePinned ?? this.isNotePinned,
-      restSeconds:
-          restSeconds == _sentinel ? this.restSeconds : restSeconds as int?,
+      restSeconds: restSeconds == _sentinel ? this.restSeconds : restSeconds as int?,
     );
   }
 
@@ -148,14 +144,11 @@ class Exercise {
   Map<String, dynamic> toJson() => _$ExerciseToJson(this);
 
   /// Create from JSON for import
-  factory Exercise.fromJson(Map<String, dynamic> json) =>
-      _$ExerciseFromJson(json);
+  factory Exercise.fromJson(Map<String, dynamic> json) => _$ExerciseFromJson(json);
 
   @override
   String toString() {
-    final secondary = secondaryMuscleGroup != null
-        ? '/${secondaryMuscleGroup!.name}'
-        : '';
+    final secondary = secondaryMuscleGroup != null ? '/${secondaryMuscleGroup!.name}' : '';
     return 'Exercise(name: $name, muscleGroup: ${muscleGroup.name}$secondary, sets: ${sets.length})';
   }
 

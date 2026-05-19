@@ -7,8 +7,7 @@ part 'training_cycle_dao.g.dart';
 
 /// Data Access Object for TrainingCycles table
 @DriftAccessor(tables: [TrainingCycles])
-class TrainingCycleDao extends DatabaseAccessor<AppDatabase>
-    with _$TrainingCycleDaoMixin {
+class TrainingCycleDao extends DatabaseAccessor<AppDatabase> with _$TrainingCycleDaoMixin {
   TrainingCycleDao(super.db);
 
   /// Get all training cycles ordered by creation date descending
@@ -105,8 +104,9 @@ class TrainingCycleDao extends DatabaseAccessor<AppDatabase>
 
   /// Deactivate all current training cycles (set status to draft=0)
   Future<int> deactivateAllCurrent() {
-    return (update(trainingCycles)..where((t) => t.status.equals(1)))
-        .write(const TrainingCyclesCompanion(status: Value(0)));
+    return (update(
+      trainingCycles,
+    )..where((t) => t.status.equals(1))).write(const TrainingCyclesCompanion(status: Value(0)));
   }
 
   /// Get count of training cycles

@@ -90,8 +90,7 @@ class SportGrid extends StatelessWidget {
     // Resolve which sports to render. Filter out `other` because the
     // grid has no UI affordance for it (no _onLiftPressed / _onCardioPressed
     // equivalent).
-    final visibleSports =
-        (sports ?? _defaultSports).where((s) => s != Sport.other).toList();
+    final visibleSports = (sports ?? _defaultSports).where((s) => s != Sport.other).toList();
 
     // Defensive fallback — if the caller passes an empty list (or only
     // `Sport.other`), render nothing rather than an empty grid that
@@ -108,9 +107,7 @@ class SportGrid extends StatelessWidget {
     //   2 sports: 1×2            | 1×2
     //   3 sports: 1×3            | 1×3
     //   4 sports: 1×4            | 2×2
-    final crossAxisCount = isExpanded
-        ? (count >= 4 ? 2 : count)
-        : count;
+    final crossAxisCount = isExpanded ? (count >= 4 ? 2 : count) : count;
 
     // Aspect ratios: keep each box ≥ 48 px in both axes (Material
     // touch-target minimum) and visually balanced for the count.
@@ -154,8 +151,7 @@ class SportGrid extends StatelessWidget {
               'Pick a sport to add today\'s session.',
               textAlign: TextAlign.center,
               style: theme.textTheme.bodyMedium?.copyWith(
-                color:
-                    theme.colorScheme.onSurface.withValues(alpha: 0.65),
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.65),
               ),
             ),
             const SizedBox(height: 24),

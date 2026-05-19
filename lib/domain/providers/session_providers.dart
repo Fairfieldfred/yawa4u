@@ -20,25 +20,27 @@ final sessionsProvider = StreamProvider<List<Session>>((ref) {
 /// Sessions for a given training cycle, reactive. Mirrors the existing
 /// [workoutsByTrainingCycleProvider] but returns the polymorphic Session
 /// type — cardio sessions included.
-final sessionsByTrainingCycleProvider = StreamProvider.autoDispose
-    .family<List<Session>, String>((ref, trainingCycleId) {
-      final repo = ref.watch(sessionRepositoryProvider);
-      return repo.watchByTrainingCycleId(trainingCycleId);
-    });
+final sessionsByTrainingCycleProvider = StreamProvider.autoDispose.family<List<Session>, String>((
+  ref,
+  trainingCycleId,
+) {
+  final repo = ref.watch(sessionRepositoryProvider);
+  return repo.watchByTrainingCycleId(trainingCycleId);
+});
 
 /// Sessions filtered by sport (e.g. "all runs in this cycle").
 final sessionsBySportProvider = StreamProvider.autoDispose
     .family<List<Session>, ({String? trainingCycleId, Sport sport})>(
-  (ref, params) {
-    final repo = ref.watch(sessionRepositoryProvider);
-    final stream = params.trainingCycleId == null
-        ? repo.watchBySport(params.sport)
-        : repo
-            .watchByTrainingCycleId(params.trainingCycleId!)
-            .map((list) => list.where((s) => s.sport == params.sport).toList());
-    return stream;
-  },
-);
+      (ref, params) {
+        final repo = ref.watch(sessionRepositoryProvider);
+        final stream = params.trainingCycleId == null
+            ? repo.watchBySport(params.sport)
+            : repo
+                  .watchByTrainingCycleId(params.trainingCycleId!)
+                  .map((list) => list.where((s) => s.sport == params.sport).toList());
+        return stream;
+      },
+    );
 
 /// All cardio sessions (non-strength), reactive. Handy for the Cardio tab
 /// of the stats screen.
@@ -49,10 +51,10 @@ final cardioSessionsProvider = StreamProvider<List<Session>>((ref) {
 
 /// Sessions whose scheduledDate falls within `[start, end]`.
 /// Used by the weekly-volume summary widget.
-final sessionsInDateRangeProvider = StreamProvider.autoDispose.family<
-  List<Session>,
-  ({DateTime start, DateTime end})
->((ref, range) {
+final sessionsInDateRangeProvider = StreamProvider.autoDispose.family<List<Session>, ({DateTime start, DateTime end})>((
+  ref,
+  range,
+) {
   final repo = ref.watch(sessionRepositoryProvider);
   return repo.watchByDateRange(range.start, range.end);
 });
@@ -68,9 +70,7 @@ final sessionsInDateRangeProvider = StreamProvider.autoDispose.family<
 /// boundary behavior without standing up a real DB.
 ({DateTime start, DateTime end}) dayRangeContaining(DateTime at) {
   final start = DateTime(at.year, at.month, at.day);
-  final end = start
-      .add(const Duration(days: 1))
-      .subtract(const Duration(microseconds: 1));
+  final end = start.add(const Duration(days: 1)).subtract(const Duration(microseconds: 1));
   return (start: start, end: end);
 }
 
@@ -110,32 +110,27 @@ final sessionProvider = FutureProvider.autoDispose.family<Session?, String>((
 
 /// Single session by ID with samples loaded. Intended for cardio detail
 /// screens that plot GPS / HR traces. Heavy — don't use from lists.
-final sessionWithSamplesProvider = FutureProvider.autoDispose
-    .family<Session?, String>((ref, id) async {
-      final repo = ref.watch(sessionRepositoryProvider);
-      return repo.getById(id, includeSamples: true);
-    });
+final sessionWithSamplesProvider = FutureProvider.autoDispose.family<Session?, String>((ref, id) async {
+  final repo = ref.watch(sessionRepositoryProvider);
+  return repo.getById(id, includeSamples: true);
+});
 
 // ---------------------------------------------------------------------------
 // Cycle periods (cardio periodization)
 // ---------------------------------------------------------------------------
 
 /// All [CyclePeriod] rows for a cycle, reactive.
-final cyclePeriodsProvider = StreamProvider.autoDispose
-    .family<List<CyclePeriod>, String>((ref, cycleId) {
-      final repo = ref.watch(cyclePeriodRepositoryProvider);
-      return repo.watchByTrainingCycleId(cycleId);
-    });
+final cyclePeriodsProvider = StreamProvider.autoDispose.family<List<CyclePeriod>, String>((ref, cycleId) {
+  final repo = ref.watch(cyclePeriodRepositoryProvider);
+  return repo.watchByTrainingCycleId(cycleId);
+});
 
 // ---------------------------------------------------------------------------
 // Sport zones
 // ---------------------------------------------------------------------------
 
 /// Zones configured for a given sport, reactive.
-final sportZonesProvider = StreamProvider.autoDispose.family<
-  List<SportZone>,
-  Sport
->((ref, sport) {
+final sportZonesProvider = StreamProvider.autoDispose.family<List<SportZone>, Sport>((ref, sport) {
   final repo = ref.watch(sportZoneRepositoryProvider);
   return repo.watchBySport(sport);
 });
@@ -145,11 +140,10 @@ final sportZonesProvider = StreamProvider.autoDispose.family<
 // ---------------------------------------------------------------------------
 
 /// Cardio feedback for a single session, reactive.
-final cardioFeedbackProvider = StreamProvider.autoDispose
-    .family<CardioFeedback?, String>((ref, sessionId) {
-      final repo = ref.watch(cardioFeedbackRepositoryProvider);
-      return repo.watchForSession(sessionId);
-    });
+final cardioFeedbackProvider = StreamProvider.autoDispose.family<CardioFeedback?, String>((ref, sessionId) {
+  final repo = ref.watch(cardioFeedbackRepositoryProvider);
+  return repo.watchForSession(sessionId);
+});
 
 // ---------------------------------------------------------------------------
 // Sport distribution
@@ -160,8 +154,7 @@ final cardioFeedbackProvider = StreamProvider.autoDispose
 /// Derived from [sessionsByTrainingCycleProvider] — folds the full session
 /// list into a `Map<Sport, int>`. Used by [SportDistributionRibbon] on
 /// cycle tiles to show the sport mix at a glance.
-final cycleSessionDistributionProvider = Provider.autoDispose
-    .family<Map<Sport, int>, String>((ref, cycleId) {
+final cycleSessionDistributionProvider = Provider.autoDispose.family<Map<Sport, int>, String>((ref, cycleId) {
   final sessionsAsync = ref.watch(sessionsByTrainingCycleProvider(cycleId));
   final sessions = sessionsAsync.value ?? const <Session>[];
   final counts = <Sport, int>{};

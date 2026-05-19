@@ -107,8 +107,7 @@ class WeeklyVolumeChart extends StatelessWidget {
           gridData: FlGridData(
             show: true,
             drawVerticalLine: false,
-            horizontalInterval:
-                effectiveMax > 0 ? (effectiveMax / 4).ceilToDouble() : 1,
+            horizontalInterval: effectiveMax > 0 ? (effectiveMax / 4).ceilToDouble() : 1,
             getDrawingHorizontalLine: (_) => FlLine(
               color: theme.colorScheme.outline.withValues(alpha: 0.2),
               strokeWidth: 1,
@@ -202,8 +201,18 @@ class WeeklyVolumeChart extends StatelessWidget {
 }
 
 const _months = [
-  'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+  'Jan',
+  'Feb',
+  'Mar',
+  'Apr',
+  'May',
+  'Jun',
+  'Jul',
+  'Aug',
+  'Sep',
+  'Oct',
+  'Nov',
+  'Dec',
 ];
 
 class _Empty extends StatelessWidget {

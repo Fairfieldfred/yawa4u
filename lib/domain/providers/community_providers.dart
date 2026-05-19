@@ -36,8 +36,7 @@ class CommunityTemplateSortNotifier extends Notifier<CommunitySortOrder> {
   void set(CommunitySortOrder order) => state = order;
 }
 
-final communityTemplateSortProvider =
-    NotifierProvider<CommunityTemplateSortNotifier, CommunitySortOrder>(
+final communityTemplateSortProvider = NotifierProvider<CommunityTemplateSortNotifier, CommunitySortOrder>(
   CommunityTemplateSortNotifier.new,
 );
 
@@ -49,23 +48,20 @@ class CommunityTemplateSportFilterNotifier extends Notifier<String?> {
   void set(String? sport) => state = sport;
 }
 
-final communityTemplateSportFilterProvider =
-    NotifierProvider<CommunityTemplateSportFilterNotifier, String?>(
+final communityTemplateSportFilterProvider = NotifierProvider<CommunityTemplateSportFilterNotifier, String?>(
   CommunityTemplateSportFilterNotifier.new,
 );
 
 /// Fetches the first page of community templates.
 ///
 /// Re-fetches when sort order or sport filter changes.
-final communityTemplatesProvider =
-    FutureProvider<CommunityPage<CommunityTemplate>>((ref) async {
+final communityTemplatesProvider = FutureProvider<CommunityPage<CommunityTemplate>>((ref) async {
   final sort = ref.watch(communityTemplateSortProvider);
   final sportFilter = ref.watch(communityTemplateSportFilterProvider);
   final repo = ref.watch(communityRepositoryProvider);
 
   return repo.fetchTemplates(
-    orderBy:
-        sort == CommunitySortOrder.popular ? 'downloadCount' : 'createdAt',
+    orderBy: sort == CommunitySortOrder.popular ? 'downloadCount' : 'createdAt',
     sportFilter: sportFilter,
   );
 });
@@ -78,14 +74,12 @@ class CommunityTemplateSearchQueryNotifier extends Notifier<String> {
   void set(String query) => state = query;
 }
 
-final communityTemplateSearchQueryProvider =
-    NotifierProvider<CommunityTemplateSearchQueryNotifier, String>(
+final communityTemplateSearchQueryProvider = NotifierProvider<CommunityTemplateSearchQueryNotifier, String>(
   CommunityTemplateSearchQueryNotifier.new,
 );
 
 /// Search results for community templates.
-final communityTemplateSearchProvider =
-    FutureProvider<List<CommunityTemplate>>((ref) async {
+final communityTemplateSearchProvider = FutureProvider<List<CommunityTemplate>>((ref) async {
   final query = ref.watch(communityTemplateSearchQueryProvider);
   if (query.trim().length < 2) return [];
   final repo = ref.watch(communityRepositoryProvider);
@@ -102,28 +96,24 @@ class CommunitySkinSortNotifier extends Notifier<CommunitySortOrder> {
   void set(CommunitySortOrder order) => state = order;
 }
 
-final communitySkinSortProvider =
-    NotifierProvider<CommunitySkinSortNotifier, CommunitySortOrder>(
+final communitySkinSortProvider = NotifierProvider<CommunitySkinSortNotifier, CommunitySortOrder>(
   CommunitySkinSortNotifier.new,
 );
 
 /// Fetches the first page of community skins.
-final communitySkinsProvider =
-    FutureProvider<CommunityPage<CommunitySkin>>((ref) async {
+final communitySkinsProvider = FutureProvider<CommunityPage<CommunitySkin>>((ref) async {
   final sort = ref.watch(communitySkinSortProvider);
   final repo = ref.watch(communityRepositoryProvider);
 
   return repo.fetchSkins(
-    orderBy:
-        sort == CommunitySortOrder.popular ? 'downloadCount' : 'createdAt',
+    orderBy: sort == CommunitySortOrder.popular ? 'downloadCount' : 'createdAt',
   );
 });
 
 // ── My uploads ──────────────────────────────────────────────────────
 
 /// Templates uploaded by the current user.
-final myUploadedTemplatesProvider =
-    FutureProvider.autoDispose<List<CommunityTemplate>>((ref) async {
+final myUploadedTemplatesProvider = FutureProvider.autoDispose<List<CommunityTemplate>>((ref) async {
   final user = ref.watch(currentUserProvider);
   if (user == null) return [];
   final repo = ref.watch(communityRepositoryProvider);
@@ -131,8 +121,7 @@ final myUploadedTemplatesProvider =
 });
 
 /// Skins uploaded by the current user.
-final myUploadedSkinsProvider =
-    FutureProvider.autoDispose<List<CommunitySkin>>((ref) async {
+final myUploadedSkinsProvider = FutureProvider.autoDispose<List<CommunitySkin>>((ref) async {
   final user = ref.watch(currentUserProvider);
   if (user == null) return [];
   final repo = ref.watch(communityRepositoryProvider);

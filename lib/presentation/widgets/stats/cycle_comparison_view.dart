@@ -16,8 +16,7 @@ class CycleComparisonView extends ConsumerStatefulWidget {
   const CycleComparisonView({super.key, required this.availableCycles});
 
   @override
-  ConsumerState<CycleComparisonView> createState() =>
-      _CycleComparisonViewState();
+  ConsumerState<CycleComparisonView> createState() => _CycleComparisonViewState();
 }
 
 class _CycleComparisonViewState extends ConsumerState<CycleComparisonView> {
@@ -38,10 +37,7 @@ class _CycleComparisonViewState extends ConsumerState<CycleComparisonView> {
         const SizedBox(height: 16),
 
         // Comparison content
-        if (_cycleAId != null && _cycleBId != null)
-          _buildComparison(context)
-        else
-          _buildSelectPrompt(context),
+        if (_cycleAId != null && _cycleBId != null) _buildComparison(context) else _buildSelectPrompt(context),
       ],
     );
   }
@@ -56,19 +52,13 @@ class _CycleComparisonViewState extends ConsumerState<CycleComparisonView> {
             Icon(
               Icons.compare_arrows,
               size: 48,
-              color: Theme.of(context)
-                  .colorScheme
-                  .onSurface
-                  .withAlpha((255 * 0.4).round()),
+              color: Theme.of(context).colorScheme.onSurface.withAlpha((255 * 0.4).round()),
             ),
             const SizedBox(height: 16),
             Text(
               'Need at least 2 cycles to compare',
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                color: Theme.of(context)
-                    .colorScheme
-                    .onSurface
-                    .withAlpha((255 * 0.6).round()),
+                color: Theme.of(context).colorScheme.onSurface.withAlpha((255 * 0.6).round()),
               ),
               textAlign: TextAlign.center,
             ),
@@ -76,10 +66,7 @@ class _CycleComparisonViewState extends ConsumerState<CycleComparisonView> {
             Text(
               'Complete a training cycle to unlock comparisons.',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Theme.of(context)
-                    .colorScheme
-                    .onSurface
-                    .withAlpha((255 * 0.5).round()),
+                color: Theme.of(context).colorScheme.onSurface.withAlpha((255 * 0.5).round()),
               ),
               textAlign: TextAlign.center,
             ),
@@ -96,10 +83,7 @@ class _CycleComparisonViewState extends ConsumerState<CycleComparisonView> {
         const SizedBox(width: 8),
         Icon(
           Icons.compare_arrows,
-          color: Theme.of(context)
-              .colorScheme
-              .onSurface
-              .withAlpha((255 * 0.4).round()),
+          color: Theme.of(context).colorScheme.onSurface.withAlpha((255 * 0.4).round()),
         ),
         const SizedBox(width: 8),
         Expanded(child: _buildDropdown(context, isA: false)),
@@ -153,10 +137,7 @@ class _CycleComparisonViewState extends ConsumerState<CycleComparisonView> {
         child: Text(
           'Select two cycles to compare',
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            color: Theme.of(context)
-                .colorScheme
-                .onSurface
-                .withAlpha((255 * 0.5).round()),
+            color: Theme.of(context).colorScheme.onSurface.withAlpha((255 * 0.5).round()),
           ),
         ),
       ),
@@ -261,14 +242,9 @@ class _CycleComparisonViewState extends ConsumerState<CycleComparisonView> {
     final deltaColor = isPositive
         ? Colors.green
         : isNegative
-            ? Colors.red
-            : Theme.of(context)
-                .colorScheme
-                .onSurface
-                .withAlpha((255 * 0.5).round());
-    final deltaStr = isPositive
-        ? '+${delta.toInt()}$suffix'
-        : '${delta.toInt()}$suffix';
+        ? Colors.red
+        : Theme.of(context).colorScheme.onSurface.withAlpha((255 * 0.5).round());
+    final deltaStr = isPositive ? '+${delta.toInt()}$suffix' : '${delta.toInt()}$suffix';
 
     return Container(
       padding: const EdgeInsets.all(10),
@@ -281,10 +257,7 @@ class _CycleComparisonViewState extends ConsumerState<CycleComparisonView> {
           Text(
             title,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: Theme.of(context)
-                  .colorScheme
-                  .onSurface
-                  .withAlpha((255 * 0.6).round()),
+              color: Theme.of(context).colorScheme.onSurface.withAlpha((255 * 0.6).round()),
               fontSize: 11,
             ),
           ),
@@ -331,10 +304,7 @@ class _CycleComparisonViewState extends ConsumerState<CycleComparisonView> {
       style: Theme.of(context).textTheme.bodySmall?.copyWith(
         fontWeight: FontWeight.w600,
         letterSpacing: 0.5,
-        color: Theme.of(context)
-            .colorScheme
-            .onSurface
-            .withAlpha((255 * 0.6).round()),
+        color: Theme.of(context).colorScheme.onSurface.withAlpha((255 * 0.6).round()),
       ),
     );
   }
@@ -351,10 +321,8 @@ class _CycleComparisonViewState extends ConsumerState<CycleComparisonView> {
     };
     final sorted = allGroups.toList()
       ..sort((x, y) {
-        final deltaX = (b.setsByMuscleGroup[x] ?? 0) -
-            (a.setsByMuscleGroup[x] ?? 0);
-        final deltaY = (b.setsByMuscleGroup[y] ?? 0) -
-            (a.setsByMuscleGroup[y] ?? 0);
+        final deltaX = (b.setsByMuscleGroup[x] ?? 0) - (a.setsByMuscleGroup[x] ?? 0);
+        final deltaY = (b.setsByMuscleGroup[y] ?? 0) - (a.setsByMuscleGroup[y] ?? 0);
         return deltaY.compareTo(deltaX);
       });
 
@@ -417,17 +385,13 @@ class _CycleComparisonViewState extends ConsumerState<CycleComparisonView> {
                       child: Text(
                         delta > 0 ? '+$delta' : '$delta',
                         textAlign: TextAlign.end,
-                        style:
-                            Theme.of(context).textTheme.bodySmall?.copyWith(
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           fontWeight: FontWeight.w700,
                           color: delta > 0
                               ? Colors.green
                               : delta < 0
-                                  ? Colors.red
-                                  : Theme.of(context)
-                                      .colorScheme
-                                      .onSurface
-                                      .withAlpha((255 * 0.5).round()),
+                              ? Colors.red
+                              : Theme.of(context).colorScheme.onSurface.withAlpha((255 * 0.5).round()),
                         ),
                       ),
                     ),
@@ -442,12 +406,10 @@ class _CycleComparisonViewState extends ConsumerState<CycleComparisonView> {
     );
   }
 
-  String _fmtWeight(double w) =>
-      w == w.roundToDouble() ? w.toInt().toString() : w.toString();
+  String _fmtWeight(double w) => w == w.roundToDouble() ? w.toInt().toString() : w.toString();
 
   bool _hasPROverlap(WorkoutStats a, WorkoutStats b) {
-    return a.personalRecords.keys
-        .any((name) => b.personalRecords.containsKey(name));
+    return a.personalRecords.keys.any((name) => b.personalRecords.containsKey(name));
   }
 
   Widget _buildPRComparison(
@@ -456,9 +418,7 @@ class _CycleComparisonViewState extends ConsumerState<CycleComparisonView> {
     WorkoutStats b,
   ) {
     // Find exercises present in both cycles
-    final commonExercises = a.personalRecords.keys
-        .where((name) => b.personalRecords.containsKey(name))
-        .toList();
+    final commonExercises = a.personalRecords.keys.where((name) => b.personalRecords.containsKey(name)).toList();
 
     // Sort by biggest improvement first
     commonExercises.sort((x, y) {
@@ -496,19 +456,14 @@ class _CycleComparisonViewState extends ConsumerState<CycleComparisonView> {
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
                 trailing: Text(
-                  delta > 0
-                      ? '+${_fmtWeight(delta)}'
-                      : _fmtWeight(delta),
+                  delta > 0 ? '+${_fmtWeight(delta)}' : _fmtWeight(delta),
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     fontWeight: FontWeight.w700,
                     color: delta > 0
                         ? Colors.green
                         : delta < 0
-                            ? Colors.red
-                            : Theme.of(context)
-                                .colorScheme
-                                .onSurface
-                                .withAlpha((255 * 0.5).round()),
+                        ? Colors.red
+                        : Theme.of(context).colorScheme.onSurface.withAlpha((255 * 0.5).round()),
                   ),
                 ),
               ),

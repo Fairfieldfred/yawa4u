@@ -14,18 +14,14 @@ class UserMeasurementRepository {
   /// Watch all measurements (for reactive UI updates)
   Stream<List<UserMeasurement>> watchAll() {
     return _dao.watchAllSorted().map((rows) {
-      return rows
-          .map((row) => UserMeasurementMapper.fromRow(row))
-          .toList();
+      return rows.map((row) => UserMeasurementMapper.fromRow(row)).toList();
     });
   }
 
   /// Get all measurements sorted by date (newest first)
   Future<List<UserMeasurement>> getAll() async {
     final rows = await _dao.getAllSorted();
-    return rows
-        .map((row) => UserMeasurementMapper.fromRow(row))
-        .toList();
+    return rows.map((row) => UserMeasurementMapper.fromRow(row)).toList();
   }
 
   /// Get the most recent measurement
@@ -37,9 +33,7 @@ class UserMeasurementRepository {
   /// Get measurements within a date range (uses DB query)
   Future<List<UserMeasurement>> getInRange(DateTime start, DateTime end) async {
     final rows = await _dao.getByDateRange(start, end);
-    return rows
-        .map((row) => UserMeasurementMapper.fromRow(row))
-        .toList();
+    return rows.map((row) => UserMeasurementMapper.fromRow(row)).toList();
   }
 
   /// Get measurements for the last N days

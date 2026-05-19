@@ -96,17 +96,13 @@ class CustomExerciseDefinition {
       ),
       videoUrl: json['videoUrl'] as String?,
       restSeconds: json['restSeconds'] as int?,
-      createdAt: json['createdAt'] != null
-          ? DateTime.parse(json['createdAt'] as String)
-          : DateTime.now(),
+      createdAt: json['createdAt'] != null ? DateTime.parse(json['createdAt'] as String) : DateTime.now(),
     );
   }
 
   @override
   String toString() {
-    final secondary = secondaryMuscleGroup != null
-        ? '/${secondaryMuscleGroup!.name}'
-        : '';
+    final secondary = secondaryMuscleGroup != null ? '/${secondaryMuscleGroup!.name}' : '';
     return 'CustomExerciseDefinition(id: $id, name: $name, muscleGroup: ${muscleGroup.name}$secondary, equipment: ${equipmentType.name})';
   }
 }

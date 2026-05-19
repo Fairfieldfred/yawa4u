@@ -7,8 +7,7 @@ part 'user_measurement_dao.g.dart';
 
 /// Data Access Object for UserMeasurements table
 @DriftAccessor(tables: [UserMeasurements])
-class UserMeasurementDao extends DatabaseAccessor<AppDatabase>
-    with _$UserMeasurementDaoMixin {
+class UserMeasurementDao extends DatabaseAccessor<AppDatabase> with _$UserMeasurementDaoMixin {
   UserMeasurementDao(super.db);
 
   /// Get all measurements sorted by timestamp descending
@@ -52,9 +51,7 @@ class UserMeasurementDao extends DatabaseAccessor<AppDatabase>
   Future<List<UserMeasurement>> getByDateRange(DateTime start, DateTime end) {
     return (select(userMeasurements)
           ..where(
-            (m) =>
-                m.timestamp.isBiggerOrEqualValue(start) &
-                m.timestamp.isSmallerOrEqualValue(end),
+            (m) => m.timestamp.isBiggerOrEqualValue(start) & m.timestamp.isSmallerOrEqualValue(end),
           )
           ..orderBy([(m) => OrderingTerm.asc(m.timestamp)]))
         .get();
@@ -80,8 +77,7 @@ class UserMeasurementDao extends DatabaseAccessor<AppDatabase>
     String uuid,
     UserMeasurementsCompanion measurement,
   ) {
-    return (update(userMeasurements)..where((m) => m.uuid.equals(uuid)))
-        .write(measurement);
+    return (update(userMeasurements)..where((m) => m.uuid.equals(uuid))).write(measurement);
   }
 
   /// Get count of measurements

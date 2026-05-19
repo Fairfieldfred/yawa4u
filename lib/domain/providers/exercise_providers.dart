@@ -30,18 +30,16 @@ final exercisesProvider = StreamProvider<List<Exercise>>((ref) {
 });
 
 /// Provider for exercises by workout ID (reactive via Stream)
-final exercisesByWorkoutStreamProvider =
-    StreamProvider.autoDispose.family<List<Exercise>, String>((ref, workoutId) {
-      final repository = ref.watch(exerciseRepositoryProvider);
-      return repository.watchByWorkoutId(workoutId);
-    });
+final exercisesByWorkoutStreamProvider = StreamProvider.autoDispose.family<List<Exercise>, String>((ref, workoutId) {
+  final repository = ref.watch(exerciseRepositoryProvider);
+  return repository.watchByWorkoutId(workoutId);
+});
 
 /// Provider for exercises by workout ID
-final exercisesByWorkoutProvider =
-    FutureProvider.autoDispose.family<List<Exercise>, String>((ref, workoutId) async {
-      final repository = ref.watch(exerciseRepositoryProvider);
-      return repository.getByWorkoutId(workoutId);
-    });
+final exercisesByWorkoutProvider = FutureProvider.autoDispose.family<List<Exercise>, String>((ref, workoutId) async {
+  final repository = ref.watch(exerciseRepositoryProvider);
+  return repository.getByWorkoutId(workoutId);
+});
 
 /// Provider for a specific exercise by ID
 final exerciseProvider = Provider.autoDispose.family<Exercise?, String>((ref, id) {
@@ -69,24 +67,22 @@ final exerciseByIdProvider = FutureProvider.autoDispose.family<Exercise?, String
 });
 
 /// Provider for exercises by muscle group
-final exercisesByMuscleGroupProvider =
-    FutureProvider.autoDispose.family<List<Exercise>, MuscleGroup>((
-      ref,
-      muscleGroup,
-    ) async {
-      final repository = ref.watch(exerciseRepositoryProvider);
-      return repository.getByMuscleGroup(muscleGroup);
-    });
+final exercisesByMuscleGroupProvider = FutureProvider.autoDispose.family<List<Exercise>, MuscleGroup>((
+  ref,
+  muscleGroup,
+) async {
+  final repository = ref.watch(exerciseRepositoryProvider);
+  return repository.getByMuscleGroup(muscleGroup);
+});
 
 /// Provider for exercises by equipment type
-final exercisesByEquipmentProvider =
-    FutureProvider.autoDispose.family<List<Exercise>, EquipmentType>((
-      ref,
-      equipmentType,
-    ) async {
-      final repository = ref.watch(exerciseRepositoryProvider);
-      return repository.getByEquipmentType(equipmentType);
-    });
+final exercisesByEquipmentProvider = FutureProvider.autoDispose.family<List<Exercise>, EquipmentType>((
+  ref,
+  equipmentType,
+) async {
+  final repository = ref.watch(exerciseRepositoryProvider);
+  return repository.getByEquipmentType(equipmentType);
+});
 
 /// Provider for searching exercises by name
 final exercisesSearchProvider = FutureProvider.autoDispose.family<List<Exercise>, String>((
@@ -108,32 +104,32 @@ final exerciseDefinitionsProvider = Provider<List<ExerciseDefinition>>((ref) {
 });
 
 /// Provider for exercise definitions by muscle group
-final exerciseDefinitionsByMuscleGroupProvider =
-    Provider.autoDispose.family<List<ExerciseDefinition>, MuscleGroup>((ref, muscleGroup) {
-      final csvService = ref.watch(csvLoaderServiceProvider);
-      return csvService.filterByMuscleGroup(muscleGroup);
-    });
+final exerciseDefinitionsByMuscleGroupProvider = Provider.autoDispose.family<List<ExerciseDefinition>, MuscleGroup>((
+  ref,
+  muscleGroup,
+) {
+  final csvService = ref.watch(csvLoaderServiceProvider);
+  return csvService.filterByMuscleGroup(muscleGroup);
+});
 
 /// Provider for exercise definitions by equipment type
-final exerciseDefinitionsByEquipmentProvider =
-    Provider.autoDispose.family<List<ExerciseDefinition>, EquipmentType>((
-      ref,
-      equipmentType,
-    ) {
-      final csvService = ref.watch(csvLoaderServiceProvider);
-      return csvService.filterByEquipment(equipmentType);
-    });
+final exerciseDefinitionsByEquipmentProvider = Provider.autoDispose.family<List<ExerciseDefinition>, EquipmentType>((
+  ref,
+  equipmentType,
+) {
+  final csvService = ref.watch(csvLoaderServiceProvider);
+  return csvService.filterByEquipment(equipmentType);
+});
 
 /// Provider for searching exercise definitions
-final exerciseDefinitionsSearchProvider =
-    Provider.autoDispose.family<List<ExerciseDefinition>, String>((ref, query) {
-      final csvService = ref.watch(csvLoaderServiceProvider);
-      return csvService.searchByName(query);
-    });
+final exerciseDefinitionsSearchProvider = Provider.autoDispose.family<List<ExerciseDefinition>, String>((ref, query) {
+  final csvService = ref.watch(csvLoaderServiceProvider);
+  return csvService.searchByName(query);
+});
 
 /// Provider for filtered exercise definitions
-final exerciseDefinitionsFilterProvider =
-    Provider.autoDispose.family<
+final exerciseDefinitionsFilterProvider = Provider.autoDispose
+    .family<
       List<ExerciseDefinition>,
       ({
         String? searchQuery,
@@ -150,36 +146,32 @@ final exerciseDefinitionsFilterProvider =
     });
 
 /// Provider for exercise definition by name
-final exerciseDefinitionByNameProvider =
-    Provider.autoDispose.family<ExerciseDefinition?, String>((ref, name) {
-      final csvService = ref.watch(csvLoaderServiceProvider);
-      return csvService.getByName(name);
-    });
+final exerciseDefinitionByNameProvider = Provider.autoDispose.family<ExerciseDefinition?, String>((ref, name) {
+  final csvService = ref.watch(csvLoaderServiceProvider);
+  return csvService.getByName(name);
+});
 
 /// Provider for exercise definitions grouped by muscle group
-final exerciseDefinitionsGroupedByMuscleProvider =
-    Provider<Map<MuscleGroup, List<ExerciseDefinition>>>((ref) {
-      final csvService = ref.watch(csvLoaderServiceProvider);
-      return csvService.groupByMuscleGroup();
-    });
+final exerciseDefinitionsGroupedByMuscleProvider = Provider<Map<MuscleGroup, List<ExerciseDefinition>>>((ref) {
+  final csvService = ref.watch(csvLoaderServiceProvider);
+  return csvService.groupByMuscleGroup();
+});
 
 /// Provider for exercise definitions grouped by equipment
-final exerciseDefinitionsGroupedByEquipmentProvider =
-    Provider<Map<EquipmentType, List<ExerciseDefinition>>>((ref) {
-      final csvService = ref.watch(csvLoaderServiceProvider);
-      return csvService.groupByEquipmentType();
-    });
+final exerciseDefinitionsGroupedByEquipmentProvider = Provider<Map<EquipmentType, List<ExerciseDefinition>>>((ref) {
+  final csvService = ref.watch(csvLoaderServiceProvider);
+  return csvService.groupByEquipmentType();
+});
 
 // =============================================================================
 // Custom Exercise Providers
 // =============================================================================
 
 /// Provider for all custom exercise definitions
-final customExerciseDefinitionsProvider =
-    StreamProvider<List<CustomExerciseDefinition>>((ref) {
-      final repository = ref.watch(customExerciseRepositoryProvider);
-      return repository.watchAll();
-    });
+final customExerciseDefinitionsProvider = StreamProvider<List<CustomExerciseDefinition>>((ref) {
+  final repository = ref.watch(customExerciseRepositoryProvider);
+  return repository.watchAll();
+});
 
 /// Cached inputs/output for [allExerciseDefinitionsProvider] to avoid
 /// re-sorting when the underlying lists have not changed.
@@ -194,9 +186,7 @@ final allExerciseDefinitionsProvider = Provider<List<ExerciseDefinition>>((
 ) {
   // Get CSV exercises
   final csvService = ref.watch(csvLoaderServiceProvider);
-  final csvExercises = csvService.isLoaded
-      ? csvService.exercises
-      : <ExerciseDefinition>[];
+  final csvExercises = csvService.isLoaded ? csvService.exercises : <ExerciseDefinition>[];
 
   // Get custom exercises
   final customExercises = ref.watch(customExerciseDefinitionsProvider);
@@ -253,8 +243,10 @@ final exerciseHistoryServiceProvider = Provider<ExerciseHistoryService>((ref) {
 ///
 /// Looks up the most recent logged performance by exercise name,
 /// excluding the current exercise instance.
-final previousPerformanceProvider = FutureProvider.autoDispose.family<Exercise?,
-    ({String name, String currentId})>((ref, params) async {
+final previousPerformanceProvider = FutureProvider.autoDispose.family<Exercise?, ({String name, String currentId})>((
+  ref,
+  params,
+) async {
   final service = ref.watch(exerciseHistoryServiceProvider);
   return service.getPreviousPerformance(params.name, params.currentId);
 });
@@ -274,19 +266,18 @@ String batchProviderKey(List<({String id, String name})> exercises) {
 ///
 /// Accepts a stable string key (from [batchProviderKey]) instead of
 /// a `List<Exercise>` to avoid rebuild loops from list identity changes.
-final previousPerformanceBatchProvider =
-    FutureProvider.autoDispose.family<Map<String, Exercise?>, String>((
-      ref,
-      key,
-    ) async {
-      if (key.isEmpty) return {};
-      final service = ref.watch(exerciseHistoryServiceProvider);
-      final entries = key.split('\n').map((line) {
-        final tabIndex = line.indexOf('\t');
-        return (
-          id: line.substring(0, tabIndex),
-          name: line.substring(tabIndex + 1),
-        );
-      }).toList();
-      return service.getPreviousPerformanceBatchByKey(entries);
-    });
+final previousPerformanceBatchProvider = FutureProvider.autoDispose.family<Map<String, Exercise?>, String>((
+  ref,
+  key,
+) async {
+  if (key.isEmpty) return {};
+  final service = ref.watch(exerciseHistoryServiceProvider);
+  final entries = key.split('\n').map((line) {
+    final tabIndex = line.indexOf('\t');
+    return (
+      id: line.substring(0, tabIndex),
+      name: line.substring(tabIndex + 1),
+    );
+  }).toList();
+  return service.getPreviousPerformanceBatchByKey(entries);
+});

@@ -10,12 +10,10 @@ class PlanATrainingCycleScreen extends ConsumerStatefulWidget {
   const PlanATrainingCycleScreen({super.key});
 
   @override
-  ConsumerState<PlanATrainingCycleScreen> createState() =>
-      _PlanATrainingCycleScreenState();
+  ConsumerState<PlanATrainingCycleScreen> createState() => _PlanATrainingCycleScreenState();
 }
 
-class _PlanATrainingCycleScreenState
-    extends ConsumerState<PlanATrainingCycleScreen> {
+class _PlanATrainingCycleScreenState extends ConsumerState<PlanATrainingCycleScreen> {
   final int _selectedIndex = 1; // Keep on TrainingCycles tab
 
   void _onItemTapped(int index) {
@@ -75,8 +73,7 @@ class _PlanATrainingCycleScreenState
               icon: Icons.grid_view_outlined,
               iconColor: Colors.blue,
               title: 'Start with a template',
-              subtitle:
-                  'Pick a template that fits your goals and get started ASAP.',
+              subtitle: 'Pick a template that fits your goals and get started ASAP.',
               onTap: () => _handleStartWithTemplate(),
             ),
 
@@ -85,8 +82,7 @@ class _PlanATrainingCycleScreenState
               icon: Icons.note_outlined,
               iconColor: Colors.teal,
               title: 'Start from scratch',
-              subtitle:
-                  'Build your own $cycleTerm from a completely blank slate.',
+              subtitle: 'Build your own $cycleTerm from a completely blank slate.',
               onTap: () => _handleStartFromScratch(),
             ),
           ],
@@ -179,11 +175,10 @@ class _OptionCard extends StatelessWidget {
                         Flexible(
                           child: Text(
                             title,
-                            style: Theme.of(context).textTheme.titleMedium
-                                ?.copyWith(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 18,
-                                ),
+                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 18,
+                            ),
                           ),
                         ),
                       ],

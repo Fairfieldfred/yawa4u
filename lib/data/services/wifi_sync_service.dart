@@ -195,9 +195,7 @@ class WifiSyncService {
       });
 
       // Start server on a random available port
-      final handler = const Pipeline()
-          .addMiddleware(logRequests())
-          .addHandler(router.call);
+      final handler = const Pipeline().addMiddleware(logRequests()).addHandler(router.call);
 
       _server = await shelf_io.serve(handler, InternetAddress.anyIPv4, 0);
       _serverPort = _server!.port;
@@ -231,9 +229,7 @@ class WifiSyncService {
       final port = data['port'] as int;
       final code = data['code'] as String;
 
-      final response = await http
-          .get(Uri.parse('http://$ip:$port/info'))
-          .timeout(const Duration(seconds: 5));
+      final response = await http.get(Uri.parse('http://$ip:$port/info')).timeout(const Duration(seconds: 5));
 
       if (response.statusCode == 200) {
         final info = jsonDecode(response.body) as Map<String, dynamic>;
@@ -277,8 +273,7 @@ class WifiSyncService {
         if (result.success) {
           return SyncResult(
             success: true,
-            message:
-                'Imported ${result.totalImported} items from ${device.name}',
+            message: 'Imported ${result.totalImported} items from ${device.name}',
           );
         } else {
           return SyncResult(

@@ -52,8 +52,7 @@ class _CalendarDropdownState extends ConsumerState<CalendarDropdown> {
   Future<void> _addPeriod() async {
     // Add a new period before the recovery period
     final trainingCycle = widget.trainingCycle;
-    final newPeriodNumber = trainingCycle
-        .periodsTotal; // This will be the new period number (before recovery)
+    final newPeriodNumber = trainingCycle.periodsTotal; // This will be the new period number (before recovery)
 
     // Get all existing workouts
     final repository = ref.read(workoutRepositoryProvider);
@@ -74,17 +73,13 @@ class _CalendarDropdownState extends ConsumerState<CalendarDropdown> {
 
     List<Workout> templateWorkouts = [];
     if (templatePeriod >= 1) {
-      templateWorkouts = allWorkouts
-          .where((w) => w.periodNumber == templatePeriod)
-          .toList();
+      templateWorkouts = allWorkouts.where((w) => w.periodNumber == templatePeriod).toList();
     } else {
       // Fallback: if we are at period 1 (recovery), and we add a period, maybe copy period 1?
       // But period 1 is recovery.
       // Let's just try to find ANY period to copy, or copy the recovery period but reset RIR?
       // For now, let's assume we copy the period before recovery.
-      templateWorkouts = allWorkouts
-          .where((w) => w.periodNumber == trainingCycle.periodsTotal)
-          .toList();
+      templateWorkouts = allWorkouts.where((w) => w.periodNumber == trainingCycle.periodsTotal).toList();
     }
 
     if (templateWorkouts.isEmpty) {
@@ -103,9 +98,7 @@ class _CalendarDropdownState extends ConsumerState<CalendarDropdown> {
 
     // 1. Shift Recovery Period: Update recovery period workouts to be one period later
     // Current recovery period is at `trainingCycle.periodsTotal`. New position will be `trainingCycle.periodsTotal + 1`.
-    final recoveryWorkouts = allWorkouts
-        .where((w) => w.periodNumber == trainingCycle.periodsTotal)
-        .toList();
+    final recoveryWorkouts = allWorkouts.where((w) => w.periodNumber == trainingCycle.periodsTotal).toList();
     for (var workout in recoveryWorkouts) {
       final updatedWorkout = workout.copyWith(
         periodNumber: trainingCycle.periodsTotal + 1,
@@ -130,8 +123,7 @@ class _CalendarDropdownState extends ConsumerState<CalendarDropdown> {
             .map(
               (exercise) => exercise.copyWith(
                 id: const Uuid().v4(),
-                workoutId: const Uuid()
-                    .v4(), // This will be replaced by newWorkout.id but we need to ensure it matches
+                workoutId: const Uuid().v4(), // This will be replaced by newWorkout.id but we need to ensure it matches
                 // Actually, we should set workoutId after we have the newWorkout ID, but copyWith on top level handles it?
                 // No, workout.exercises usually have workoutId.
                 // Let's just generate IDs.
@@ -157,9 +149,7 @@ class _CalendarDropdownState extends ConsumerState<CalendarDropdown> {
       );
 
       // Fix workoutId in exercises
-      final fixedExercises = newWorkout.exercises
-          .map((e) => e.copyWith(workoutId: newWorkout.id))
-          .toList();
+      final fixedExercises = newWorkout.exercises.map((e) => e.copyWith(workoutId: newWorkout.id)).toList();
       final finalWorkout = newWorkout.copyWith(exercises: fixedExercises);
 
       await repository.create(finalWorkout);
@@ -211,18 +201,14 @@ class _CalendarDropdownState extends ConsumerState<CalendarDropdown> {
     );
 
     // 1. Delete Period: Delete all workouts for the period to remove
-    final workoutsToRemove = allWorkouts
-        .where((w) => w.periodNumber == periodToRemove)
-        .toList();
+    final workoutsToRemove = allWorkouts.where((w) => w.periodNumber == periodToRemove).toList();
     for (var workout in workoutsToRemove) {
       await repository.delete(workout.id);
     }
 
     // 2. Shift Recovery Period: Update recovery period workouts to be one period earlier
     // Current recovery is `trainingCycle.periodsTotal`. New position is `periodToRemove` (which is periodsTotal - 1).
-    final recoveryWorkouts = allWorkouts
-        .where((w) => w.periodNumber == trainingCycle.periodsTotal)
-        .toList();
+    final recoveryWorkouts = allWorkouts.where((w) => w.periodNumber == trainingCycle.periodsTotal).toList();
     for (var workout in recoveryWorkouts) {
       final updatedWorkout = workout.copyWith(periodNumber: periodToRemove);
       await repository.update(updatedWorkout);
@@ -247,8 +233,7 @@ class _CalendarDropdownState extends ConsumerState<CalendarDropdown> {
       // If selected period was removed or is now out of bounds, go to previous period
       if (_selectedPeriod >= updatedTrainingCycle.periodsTotal) {
         setState(() {
-          _selectedPeriod = updatedTrainingCycle
-              .periodsTotal; // Go to new last period (recovery)
+          _selectedPeriod = updatedTrainingCycle.periodsTotal; // Go to new last period (recovery)
         });
         widget.onDaySelected(_selectedPeriod, _selectedDay);
       }
@@ -304,9 +289,7 @@ class _CalendarDropdownState extends ConsumerState<CalendarDropdown> {
         color: Theme.of(context).colorScheme.surface,
         boxShadow: [
           BoxShadow(
-            color: isDarkMode
-                ? Colors.black.withValues(alpha: 0.3)
-                : Colors.black.withValues(alpha: 0.1),
+            color: isDarkMode ? Colors.black.withValues(alpha: 0.3) : Colors.black.withValues(alpha: 0.1),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -343,9 +326,7 @@ class _CalendarDropdownState extends ConsumerState<CalendarDropdown> {
                         size: 20,
                       ),
                       tooltip: 'Remove period',
-                      onPressed: widget.trainingCycle.periodsTotal > 1
-                          ? () => _removePeriod()
-                          : null,
+                      onPressed: widget.trainingCycle.periodsTotal > 1 ? () => _removePeriod() : null,
                       style: IconButton.styleFrom(
                         backgroundColor: Theme.of(
                           context,
@@ -429,9 +410,7 @@ class _CalendarDropdownState extends ConsumerState<CalendarDropdown> {
           (w) => w.dayName == firstDayName,
         );
 
-        if (allHaveSameName &&
-            firstDayName != null &&
-            firstDayName.isNotEmpty) {
+        if (allHaveSameName && firstDayName != null && firstDayName.isNotEmpty) {
           // Custom name — still get the date number from the map
           final info = DateHelpers.getDayInfo(dateMap, periodNumber, dayNumber);
           return (
@@ -466,9 +445,7 @@ class _CalendarDropdownState extends ConsumerState<CalendarDropdown> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  isRecovery
-                      ? widget.trainingCycle.recoveryPeriodType.abbreviation
-                      : '$periodNumber',
+                  isRecovery ? widget.trainingCycle.recoveryPeriodType.abbreviation : '$periodNumber',
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.onSurface,
                     fontSize: 18,
@@ -494,20 +471,15 @@ class _CalendarDropdownState extends ConsumerState<CalendarDropdown> {
             final dayInfo = dayInfoList[dayIndex];
             final isCurrentPeriod = periodNumber == widget.currentPeriod;
             final isCurrentDay = dayNumber == widget.currentDay;
-            final isSelected =
-                periodNumber == _selectedPeriod && dayNumber == _selectedDay;
+            final isSelected = periodNumber == _selectedPeriod && dayNumber == _selectedDay;
 
             // Check actual workout completion status from database
             final dayWorkouts = widget.allWorkouts
                 .where(
-                  (w) =>
-                      w.periodNumber == periodNumber &&
-                      w.dayNumber == dayNumber,
+                  (w) => w.periodNumber == periodNumber && w.dayNumber == dayNumber,
                 )
                 .toList();
-            final isCompleted =
-                dayWorkouts.isNotEmpty &&
-                dayWorkouts.every((w) => w.status == WorkoutStatus.completed);
+            final isCompleted = dayWorkouts.isNotEmpty && dayWorkouts.every((w) => w.status == WorkoutStatus.completed);
 
             // Determine background and text colors based on state
             Color backgroundColor;
@@ -529,58 +501,54 @@ class _CalendarDropdownState extends ConsumerState<CalendarDropdown> {
             final statusText = isCompleted
                 ? ', completed'
                 : (isCurrentPeriod && isCurrentDay)
-                    ? ', current'
-                    : '';
+                ? ', current'
+                : '';
 
             return Semantics(
-              label: 'Period $periodNumber '
+              label:
+                  'Period $periodNumber '
                   'Day $dayNumber$statusText',
               selected: isSelected,
               child: GestureDetector(
-              onTap: () {
-                widget.onDaySelected(periodNumber, dayNumber);
-              },
-              child: Container(
-                height: 48,
-                margin: const EdgeInsets.only(bottom: 6),
-                decoration: BoxDecoration(
-                  color: backgroundColor,
-                  borderRadius: BorderRadius.circular(8),
-                  border: isSelected
-                      ? Border.all(color: context.warningColor, width: 2)
-                      : null,
-                ),
-                alignment: Alignment.center,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      dayInfo.dayName,
-                      style: TextStyle(
-                        color: textColor,
-                        fontSize: 12,
-                        fontWeight: isSelected
-                            ? FontWeight.bold
-                            : FontWeight.normal,
-                      ),
-                    ),
-                    if (dayInfo.dayOfMonth > 0)
+                onTap: () {
+                  widget.onDaySelected(periodNumber, dayNumber);
+                },
+                child: Container(
+                  height: 48,
+                  margin: const EdgeInsets.only(bottom: 6),
+                  decoration: BoxDecoration(
+                    color: backgroundColor,
+                    borderRadius: BorderRadius.circular(8),
+                    border: isSelected ? Border.all(color: context.warningColor, width: 2) : null,
+                  ),
+                  alignment: Alignment.center,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
                       Text(
-                        '${dayInfo.dayOfMonth}',
+                        dayInfo.dayName,
                         style: TextStyle(
-                          color: textColor.withValues(alpha: 0.7),
-                          fontSize: 10,
+                          color: textColor,
+                          fontSize: 12,
+                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                         ),
                       ),
-                  ],
+                      if (dayInfo.dayOfMonth > 0)
+                        Text(
+                          '${dayInfo.dayOfMonth}',
+                          style: TextStyle(
+                            color: textColor.withValues(alpha: 0.7),
+                            fontSize: 10,
+                          ),
+                        ),
+                    ],
+                  ),
                 ),
               ),
-            ),
             );
           }),
         ],
       ),
     );
   }
-
 }

@@ -36,13 +36,10 @@ class SportChip extends StatelessWidget {
           decoration: BoxDecoration(
             color: selected
                 ? color.withValues(alpha: 0.15)
-                : theme.colorScheme.surfaceContainerHighest
-                    .withValues(alpha: 0.6),
+                : theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.6),
             borderRadius: BorderRadius.circular(14),
             border: Border.all(
-              color: selected
-                  ? color.withValues(alpha: 0.5)
-                  : theme.colorScheme.outline.withValues(alpha: 0.12),
+              color: selected ? color.withValues(alpha: 0.5) : theme.colorScheme.outline.withValues(alpha: 0.12),
               width: 1.5,
             ),
           ),

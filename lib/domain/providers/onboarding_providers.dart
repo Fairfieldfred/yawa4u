@@ -231,7 +231,6 @@ class SelectedSportsNotifier extends Notifier<List<Sport>> {
 }
 
 /// Provider for the user's chosen sports — survives Settings edits.
-final selectedSportsProvider =
-    NotifierProvider<SelectedSportsNotifier, List<Sport>>(
+final selectedSportsProvider = NotifierProvider<SelectedSportsNotifier, List<Sport>>(
   SelectedSportsNotifier.new,
 );

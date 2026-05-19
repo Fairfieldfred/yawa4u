@@ -12,13 +12,11 @@ class DesktopCalendarDayCell extends StatefulWidget {
   final bool isToday;
   final bool isSelected;
   final ValueChanged<DateTime>? onTap;
-  final void Function(ExerciseDragData data, DateTime targetDate)?
-  onExerciseDropped;
-  final void Function(int oldIndex, int newIndex, DateTime targetDate)?
-  onExerciseReordered;
+  final void Function(ExerciseDragData data, DateTime targetDate)? onExerciseDropped;
+  final void Function(int oldIndex, int newIndex, DateTime targetDate)? onExerciseReordered;
   final String? selectedExerciseId;
   final ValueChanged<String?>? onExerciseSelected;
-  final void Function(int periodNumber, int dayNumber)? onAddExercise;
+  final void Function(int periodNumber, int dayNumber, DateTime date)? onAddExercise;
 
   const DesktopCalendarDayCell({
     super.key,
@@ -79,9 +77,7 @@ class _DesktopCalendarDayCellState extends State<DesktopCalendarDayCell> {
       onWillAcceptWithDetails: (details) {
         // Don't accept drops on the same day/position
         final data = details.data;
-        if (dayData != null &&
-            data.sourcePeriod == dayData.periodNumber &&
-            data.sourceDay == dayData.dayNumber) {
+        if (dayData != null && data.sourcePeriod == dayData.periodNumber && data.sourceDay == dayData.dayNumber) {
           return false;
         }
         return true;
@@ -123,13 +119,10 @@ class _DesktopCalendarDayCellState extends State<DesktopCalendarDayCell> {
                 _buildHeader(context, dayData),
                 // Content: Exercise cards
                 Expanded(
-                  child: hasWorkout
-                      ? _buildExerciseList(context, dayData!)
-                      : _buildEmptyState(context),
+                  child: hasWorkout ? _buildExerciseList(context, dayData!) : _buildEmptyState(context),
                 ),
-                // Add exercise button at bottom
-                if (dayData?.hasWorkout ?? false)
-                  _buildAddExerciseButton(context, dayData!),
+                // Add exercise button at bottom (any day within the cycle)
+                if (dayData?.periodNumber != null) _buildAddExerciseButton(context, dayData!),
               ],
             ),
           ),
@@ -158,12 +151,8 @@ class _DesktopCalendarDayCellState extends State<DesktopCalendarDayCell> {
             '${widget.date.day}',
             style: TextStyle(
               fontSize: 12,
-              fontWeight: (widget.isToday || widget.isSelected)
-                  ? FontWeight.bold
-                  : FontWeight.w500,
-              color: widget.isToday
-                  ? Colors.blue
-                  : Theme.of(context).colorScheme.onSurface,
+              fontWeight: (widget.isToday || widget.isSelected) ? FontWeight.bold : FontWeight.w500,
+              color: widget.isToday ? Colors.blue : Theme.of(context).colorScheme.onSurface,
             ),
           ),
           if (hasWorkout) ...[
@@ -233,8 +222,7 @@ class _DesktopCalendarDayCellState extends State<DesktopCalendarDayCell> {
       },
       itemBuilder: (context, index) {
         final exerciseItem = allExercises[index];
-        final isSelected =
-            widget.selectedExerciseId == exerciseItem.exercise.id;
+        final isSelected = widget.selectedExerciseId == exerciseItem.exercise.id;
 
         return ReorderableDragStartListener(
           key: ValueKey(exerciseItem.exercise.id),
@@ -266,9 +254,7 @@ class _DesktopCalendarDayCellState extends State<DesktopCalendarDayCell> {
       child: Text(
         _isDragOver ? 'Drop here' : '',
         style: Theme.of(context).textTheme.labelSmall?.copyWith(
-          color: _isDragOver
-              ? Colors.green
-              : Theme.of(context).colorScheme.onSurface.withAlpha(100),
+          color: _isDragOver ? Colors.green : Theme.of(context).colorScheme.onSurface.withAlpha(100),
         ),
       ),
     );
@@ -280,10 +266,12 @@ class _DesktopCalendarDayCellState extends State<DesktopCalendarDayCell> {
   ) {
     return GestureDetector(
       onTap: () {
-        if (widget.onAddExercise != null &&
-            dayData.periodNumber != null &&
-            dayData.dayNumber != null) {
-          widget.onAddExercise!(dayData.periodNumber!, dayData.dayNumber!);
+        if (widget.onAddExercise != null && dayData.periodNumber != null && dayData.dayNumber != null) {
+          widget.onAddExercise!(
+            dayData.periodNumber!,
+            dayData.dayNumber!,
+            widget.date,
+          );
         }
       },
       child: Container(

@@ -57,8 +57,7 @@ class ExercisesHomeScreen extends ConsumerStatefulWidget {
   const ExercisesHomeScreen({super.key});
 
   @override
-  ConsumerState<ExercisesHomeScreen> createState() =>
-      _ExercisesHomeScreenState();
+  ConsumerState<ExercisesHomeScreen> createState() => _ExercisesHomeScreenState();
 }
 
 class _ExercisesHomeScreenState extends ConsumerState<ExercisesHomeScreen> {
@@ -112,8 +111,7 @@ class _ExercisesHomeScreenState extends ConsumerState<ExercisesHomeScreen> {
   /// Show menu for training cycle operations (used on empty state)
   void _showCycleMenu(BuildContext context, TrainingCycle trainingCycle) {
     final RenderBox button = context.findRenderObject() as RenderBox;
-    final RenderBox overlay =
-        Navigator.of(context).overlay!.context.findRenderObject() as RenderBox;
+    final RenderBox overlay = Navigator.of(context).overlay!.context.findRenderObject() as RenderBox;
     final Offset buttonPosition = button.localToGlobal(
       Offset.zero,
       ancestor: overlay,
@@ -333,16 +331,13 @@ class _ExercisesHomeScreenState extends ConsumerState<ExercisesHomeScreen> {
       currentTrainingCycle.periodsTotal,
       currentTrainingCycle.daysPerPeriod,
     );
-    final currentPageIndex =
-        findDayIndex(daySequence, displayPeriod, displayDay) ?? 0;
+    final currentPageIndex = findDayIndex(daySequence, displayPeriod, displayDay) ?? 0;
 
     // Initialize or sync day PageController
     if (_dayPageController == null) {
       _dayPageController = PageController(initialPage: currentPageIndex);
       _lastSyncedDayPageIndex = currentPageIndex;
-    } else if (!_isDaySwiping &&
-        _dayPageController!.hasClients &&
-        _lastSyncedDayPageIndex != currentPageIndex) {
+    } else if (!_isDaySwiping && _dayPageController!.hasClients && _lastSyncedDayPageIndex != currentPageIndex) {
       _lastSyncedDayPageIndex = currentPageIndex;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (_dayPageController?.hasClients == true) {
@@ -447,9 +442,7 @@ class _ExercisesHomeScreenState extends ConsumerState<ExercisesHomeScreen> {
           ),
           IconButton(
             icon: Icon(
-              ref.watch(isDarkModeProvider)
-                  ? Icons.light_mode
-                  : Icons.dark_mode,
+              ref.watch(isDarkModeProvider) ? Icons.light_mode : Icons.dark_mode,
             ),
             onPressed: () {
               ref.read(themeModeProvider.notifier).toggleTheme();
@@ -474,10 +467,7 @@ class _ExercisesHomeScreenState extends ConsumerState<ExercisesHomeScreen> {
                   Icon(
                     Icons.fitness_center,
                     size: 80,
-                    color: Theme.of(context)
-                        .colorScheme
-                        .primary
-                        .withValues(alpha: 0.5),
+                    color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.5),
                   ),
                   const SizedBox(height: 16),
                   Text(
@@ -489,12 +479,8 @@ class _ExercisesHomeScreenState extends ConsumerState<ExercisesHomeScreen> {
                     padding: const EdgeInsets.symmetric(horizontal: 32),
                     child: Text(
                       'Add exercises for Period $period, Day $day',
-                      style:
-                          Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Theme.of(context)
-                            .colorScheme
-                            .onSurface
-                            .withValues(alpha: 0.7),
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                       ),
                       textAlign: TextAlign.center,
                     ),
@@ -577,8 +563,7 @@ class _WorkoutSessionView extends ConsumerStatefulWidget {
   }) : super(key: key);
 
   @override
-  ConsumerState<_WorkoutSessionView> createState() =>
-      _WorkoutSessionViewState();
+  ConsumerState<_WorkoutSessionView> createState() => _WorkoutSessionViewState();
 }
 
 class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
@@ -693,21 +678,17 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
     // Use selected period/day — safe even for cardio-only days.
     final displayPeriod = widget.selectedPeriod;
     final displayDay = widget.selectedDay;
-    final dayName = widget.workouts.isNotEmpty
-        ? (widget.workouts.first.dayName ?? '')
-        : '';
+    final dayName = widget.workouts.isNotEmpty ? (widget.workouts.first.dayName ?? '') : '';
 
     // Check if all exercises are completed
     final allExercisesCompleted =
         allExercises.isNotEmpty &&
         allExercises.every(
-          (exercise) =>
-              exercise.sets.every((set) => set.isLogged || set.isSkipped),
+          (exercise) => exercise.sets.every((set) => set.isLogged || set.isSkipped),
         );
 
     // Check if workouts are already marked as finished
-    final workoutsAlreadyFinished = widget.workouts.isNotEmpty &&
-        widget.workouts.every((w) => w.isCompleted);
+    final workoutsAlreadyFinished = widget.workouts.isNotEmpty && widget.workouts.every((w) => w.isCompleted);
 
     // Show finish button only if all exercises done AND workout not already finished
     final showFinishButton = allExercisesCompleted && !workoutsAlreadyFinished;
@@ -752,9 +733,7 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
             // Theme toggle
             IconButton(
               icon: Icon(
-                ref.watch(isDarkModeProvider)
-                    ? Icons.light_mode
-                    : Icons.dark_mode,
+                ref.watch(isDarkModeProvider) ? Icons.light_mode : Icons.dark_mode,
               ),
               onPressed: () {
                 ref.read(themeModeProvider.notifier).toggleTheme();
@@ -765,9 +744,7 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
             IconButton(
               icon: Icon(
                 Icons.history,
-                color: ref.watch(showExerciseHistoryProvider)
-                    ? Theme.of(context).colorScheme.primary
-                    : null,
+                color: ref.watch(showExerciseHistoryProvider) ? Theme.of(context).colorScheme.primary : null,
               ),
               onPressed: _toggleHistory,
               tooltip: 'Toggle history',
@@ -775,8 +752,7 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
             Builder(
               builder: (context) => IconButton(
                 icon: const Icon(Icons.more_vert),
-                onPressed: () =>
-                    _showWorkoutMenu(context, trainingCycle, widget.workouts),
+                onPressed: () => _showWorkoutMenu(context, trainingCycle, widget.workouts),
               ),
             ),
           ],
@@ -806,10 +782,8 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
                             itemBuilder: (context, index) {
                               // Cardio pages come after exercise pages.
                               if (index >= allExercises.length) {
-                                final cardioIdx =
-                                    index - allExercises.length;
-                                final session =
-                                    cardioSessions[cardioIdx];
+                                final cardioIdx = index - allExercises.length;
+                                final session = cardioSessions[cardioIdx];
                                 return _buildCardioPage(
                                   context,
                                   session,
@@ -828,82 +802,83 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
                                 child: SingleChildScrollView(
                                   padding: EdgeInsets.only(
                                     top: 24,
-                                    bottom: showFinishButton
-                                        ? 100
-                                        : 24, // Extra padding for button
+                                    bottom: showFinishButton ? 100 : 24, // Extra padding for button
                                   ),
                                   child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       RepaintBoundary(
                                         child: ExerciseCardWidget(
-                                        key: ValueKey(
-                                          '${exercise.id}_${exercise.sets.length}_${exercise.sets.map((s) => s.id).join(",")}',
+                                          key: ValueKey(
+                                            '${exercise.id}_${exercise.sets.length}_${exercise.sets.map((s) => s.id).join(",")}',
+                                          ),
+                                          exercise: exercise,
+                                          showMuscleGroupBadge: showMuscleGroupBadge,
+                                          targetRir: calculateRIR(
+                                            source.workout.periodNumber,
+                                            widget.trainingCycle.recoveryPeriod,
+                                          ),
+                                          weightUnit: ref.watch(
+                                            weightUnitProvider,
+                                          ),
+                                          useMetric: useMetric,
+                                          showMoveDown: false,
+                                          previousPerformance: batchMap[exercise.id],
+                                          callbacks: ExerciseCardCallbacks(
+                                            onAddNote: (id) => _addNote(
+                                              source.workout.id,
+                                              id,
+                                            ),
+                                            onReplace: (id) => _replaceExercise(
+                                              source.workout.id,
+                                              id,
+                                            ),
+                                            onJointPain: (id) => _logJointPain(
+                                              source.workout.id,
+                                              id,
+                                            ),
+                                            onAddSet: (id) => _addSetToExercise(
+                                              source.workout.id,
+                                              id,
+                                            ),
+                                            onSkipSets: (id) => _skipExerciseSets(
+                                              source.workout.id,
+                                              id,
+                                            ),
+                                            onDelete: (id) => _deleteExercise(
+                                              source.workout.id,
+                                              id,
+                                            ),
+                                            onAddSetBelow: (i) => _addSetBelow(
+                                              source.workout.id,
+                                              exercise.id,
+                                              i,
+                                            ),
+                                            onToggleSetSkip: (i) => _toggleSetSkip(
+                                              source.workout.id,
+                                              exercise.id,
+                                              i,
+                                            ),
+                                            onDeleteSet: (i) => _deleteSet(
+                                              source.workout.id,
+                                              exercise.id,
+                                              i,
+                                            ),
+                                            onUpdateSetType: (i, type) => _updateSetType(
+                                              source.workout.id,
+                                              exercise.id,
+                                              i,
+                                              type,
+                                            ),
+                                            onUpdateSetWeight: (i, setId, v) => _updateSetWeight(setId, v),
+                                            onUpdateSetReps: (i, setId, v) => _updateSetReps(setId, v),
+                                            onToggleSetLog: (i) => _toggleSetLog(
+                                              source.workout.id,
+                                              exercise.id,
+                                              i,
+                                            ),
+                                          ),
                                         ),
-                                        exercise: exercise,
-                                        showMuscleGroupBadge:
-                                            showMuscleGroupBadge,
-                                        targetRir: calculateRIR(
-                                          source.workout.periodNumber,
-                                          widget.trainingCycle.recoveryPeriod,
-                                        ),
-                                        weightUnit: ref.watch(
-                                          weightUnitProvider,
-                                        ),
-                                        useMetric: useMetric,
-                                        showMoveDown: false,
-                                        previousPerformance: batchMap[exercise.id],
-                                        callbacks: ExerciseCardCallbacks(
-                                          onAddNote: (id) => _addNote(
-                                            source.workout.id, id,
-                                          ),
-                                          onReplace: (id) => _replaceExercise(
-                                            source.workout.id, id,
-                                          ),
-                                          onJointPain: (id) => _logJointPain(
-                                            source.workout.id, id,
-                                          ),
-                                          onAddSet: (id) => _addSetToExercise(
-                                            source.workout.id, id,
-                                          ),
-                                          onSkipSets: (id) =>
-                                              _skipExerciseSets(
-                                                source.workout.id, id,
-                                              ),
-                                          onDelete: (id) => _deleteExercise(
-                                            source.workout.id, id,
-                                          ),
-                                          onAddSetBelow: (i) => _addSetBelow(
-                                            source.workout.id, exercise.id, i,
-                                          ),
-                                          onToggleSetSkip: (i) =>
-                                              _toggleSetSkip(
-                                                source.workout.id,
-                                                exercise.id,
-                                                i,
-                                              ),
-                                          onDeleteSet: (i) => _deleteSet(
-                                            source.workout.id, exercise.id, i,
-                                          ),
-                                          onUpdateSetType: (i, type) =>
-                                              _updateSetType(
-                                                source.workout.id,
-                                                exercise.id,
-                                                i,
-                                                type,
-                                              ),
-                                          onUpdateSetWeight:
-                                              (i, setId, v) =>
-                                                  _updateSetWeight(setId, v),
-                                          onUpdateSetReps:
-                                              (i, setId, v) =>
-                                                  _updateSetReps(setId, v),
-                                          onToggleSetLog: (i) => _toggleSetLog(
-                                            source.workout.id, exercise.id, i,
-                                          ),
-                                        ),
-                                      ),
                                       ),
                                       // Swipe indicator
                                       if (totalPages > 1)
@@ -915,10 +890,7 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
                                             child: Icon(
                                               Icons.swap_horiz,
                                               size: 24,
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .onSurface
-                                                  .withValues(alpha: 0.4),
+                                              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
                                             ),
                                           ),
                                         ),
@@ -1181,8 +1153,7 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
     List<Workout> workouts,
   ) {
     final RenderBox button = context.findRenderObject() as RenderBox;
-    final RenderBox overlay =
-        Navigator.of(context).overlay!.context.findRenderObject() as RenderBox;
+    final RenderBox overlay = Navigator.of(context).overlay!.context.findRenderObject() as RenderBox;
     final Offset buttonPosition = button.localToGlobal(
       Offset.zero,
       ancestor: overlay,
@@ -1236,10 +1207,7 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
               workouts.any(
                 (w) => w.exercises.any(
                   (e) => e.sets.any(
-                    (s) =>
-                        s.isLogged ||
-                        (s.weight != null) ||
-                        (s.reps.isNotEmpty && s.reps != '0'),
+                    (s) => s.isLogged || (s.weight != null) || (s.reps.isNotEmpty && s.reps != '0'),
                   ),
                 ),
               ),
@@ -1278,9 +1246,7 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
         children: [
           Icon(
             icon,
-            color: enabled
-                ? Theme.of(context).iconTheme.color
-                : Theme.of(context).disabledColor,
+            color: enabled ? Theme.of(context).iconTheme.color : Theme.of(context).disabledColor,
             size: 20,
           ),
           const SizedBox(width: 12),
@@ -1289,9 +1255,7 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               fontSize: 16,
               fontWeight: FontWeight.w400,
-              color: enabled
-                  ? Theme.of(context).textTheme.bodyMedium?.color
-                  : Theme.of(context).disabledColor,
+              color: enabled ? Theme.of(context).textTheme.bodyMedium?.color : Theme.of(context).disabledColor,
             ),
           ),
         ],
@@ -1366,8 +1330,7 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
 
     final newNote = await showDialog<String>(
       context: context,
-      builder: (context) =>
-          NoteDialog(initialNote: currentNote, noteType: NoteType.workout),
+      builder: (context) => NoteDialog(initialNote: currentNote, noteType: NoteType.workout),
     );
 
     if (newNote != null && newNote != currentNote && mounted) {
@@ -1473,9 +1436,7 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
         notes: result.note.isEmpty ? null : result.note,
         isNotePinned: result.isPinned,
       );
-      final updatedExercises = workout.exercises
-          .map((e) => e.id == exerciseId ? updatedExercise : e)
-          .toList();
+      final updatedExercises = workout.exercises.map((e) => e.id == exerciseId ? updatedExercise : e).toList();
       final updatedWorkout = workout.copyWith(exercises: updatedExercises);
       await repository.update(updatedWorkout);
 
@@ -1608,9 +1569,7 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
     final exercise = workout.exercises[exerciseIndex];
 
     // Only skip unlogged sets
-    final updatedSets = exercise.sets
-        .map((s) => !s.isLogged ? s.copyWith(isSkipped: true) : s)
-        .toList();
+    final updatedSets = exercise.sets.map((s) => !s.isLogged ? s.copyWith(isSkipped: true) : s).toList();
 
     final updatedExercise = exercise.copyWith(sets: updatedSets);
     final updatedWorkout = workout.updateExercise(
@@ -1831,10 +1790,12 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
     _debounceTimers[key]?.cancel();
     _debounceTimers[key] = Timer(const Duration(milliseconds: 300), () async {
       if (!mounted) return;
-      await ref.read(exerciseSetDaoProvider).updateByUuid(
-        setId,
-        ExerciseSetsCompanion(weight: Value(weight)),
-      );
+      await ref
+          .read(exerciseSetDaoProvider)
+          .updateByUuid(
+            setId,
+            ExerciseSetsCompanion(weight: Value(weight)),
+          );
       if (mounted) _invalidateWorkoutProviders();
     });
   }
@@ -1845,10 +1806,12 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
     _debounceTimers[key]?.cancel();
     _debounceTimers[key] = Timer(const Duration(milliseconds: 300), () async {
       if (!mounted) return;
-      await ref.read(exerciseSetDaoProvider).updateByUuid(
-        setId,
-        ExerciseSetsCompanion(reps: Value(value)),
-      );
+      await ref
+          .read(exerciseSetDaoProvider)
+          .updateByUuid(
+            setId,
+            ExerciseSetsCompanion(reps: Value(value)),
+          );
       if (mounted) _invalidateWorkoutProviders();
     });
   }
@@ -1878,8 +1841,7 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
     // Myorep Match: propagate weight/reps to the next set if it's myorepMatch
     if (nowLogging) {
       final nextIndex = setIndex + 1;
-      if (nextIndex < updatedExercise.sets.length &&
-          updatedExercise.sets[nextIndex].setType == SetType.myorepMatch) {
+      if (nextIndex < updatedExercise.sets.length && updatedExercise.sets[nextIndex].setType == SetType.myorepMatch) {
         final nextSet = updatedExercise.sets[nextIndex].copyWith(
           weight: set.weight,
           reps: set.reps,
@@ -1936,10 +1898,7 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
                   child: Icon(
                     Icons.swap_horiz,
                     size: 24,
-                    color: Theme.of(context)
-                        .colorScheme
-                        .onSurface
-                        .withValues(alpha: 0.4),
+                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
                   ),
                 ),
               ),
@@ -1993,9 +1952,7 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
     });
 
     // Exclude the current exercise instance from history
-    final filteredHistory = historyEntries
-        .where((entry) => entry.exercise.id != exercise.id)
-        .toList();
+    final filteredHistory = historyEntries.where((entry) => entry.exercise.id != exercise.id).toList();
 
     if (filteredHistory.isEmpty) {
       return const SizedBox.shrink(); // No history to show
@@ -2080,14 +2037,10 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
 
   Widget _buildHistoryRow(BuildContext context, _HistoryEntry entry) {
     final dateFormat = DateFormat('MMM d, yyyy');
-    final dateStr = entry.completedDate != null
-        ? dateFormat.format(entry.completedDate!)
-        : 'Unknown date';
+    final dateStr = entry.completedDate != null ? dateFormat.format(entry.completedDate!) : 'Unknown date';
 
     final loggedSets = entry.exercise.sets.where((s) => s.isLogged).toList();
-    final isRecovery =
-        entry.trainingCycle != null &&
-        entry.workout.periodNumber == entry.trainingCycle!.recoveryPeriod;
+    final isRecovery = entry.trainingCycle != null && entry.workout.periodNumber == entry.trainingCycle!.recoveryPeriod;
 
     // Group sets by weight and build weight × reps string
     // This properly handles sets with different weights (e.g., "1 lbs x 1, 10 lbs x 1")
@@ -2102,9 +2055,7 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
       final weight = weightEntry.key;
       final sets = weightEntry.value;
 
-      final weightStr = weight != null
-          ? weight.toStringAsFixed(weight % 1 == 0 ? 0 : 1)
-          : 'BW';
+      final weightStr = weight != null ? weight.toStringAsFixed(weight % 1 == 0 ? 0 : 1) : 'BW';
 
       // Collect reps with their badges for this weight group
       final repsWithBadges = sets.map((set) {

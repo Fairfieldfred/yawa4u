@@ -23,16 +23,12 @@ class CardioConversions {
 
   /// Convert meters to the display unit (km or mi).
   static double metersToDisplay(double meters, UnitSystem units) {
-    return units.isMetric
-        ? meters / metersPerKilometer
-        : meters / metersPerMile;
+    return units.isMetric ? meters / metersPerKilometer : meters / metersPerMile;
   }
 
   /// Convert a display-unit distance back to meters.
   static double displayToMeters(double display, UnitSystem units) {
-    return units.isMetric
-        ? display * metersPerKilometer
-        : display * metersPerMile;
+    return units.isMetric ? display * metersPerKilometer : display * metersPerMile;
   }
 
   /// "5.12 km" / "3.18 mi" — 2-decimal precision suits runs and rides.
@@ -108,13 +104,9 @@ class CardioConversions {
     if (swim) {
       // Swim pace is universally reported per-100m (metric) or per-100y
       // (imperial).
-      return units.isMetric
-          ? secPerMeter * 100
-          : secPerMeter * 100 * metersPerYard;
+      return units.isMetric ? secPerMeter * 100 : secPerMeter * 100 * metersPerYard;
     }
-    return units.isMetric
-        ? secPerMeter * metersPerKilometer
-        : secPerMeter * metersPerMile;
+    return units.isMetric ? secPerMeter * metersPerKilometer : secPerMeter * metersPerMile;
   }
 
   /// "4:12 /km" / "6:45 /mi" / "1:42 /100m" (swim).

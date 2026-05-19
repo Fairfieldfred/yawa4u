@@ -80,8 +80,7 @@ class MuscleGroupBadge extends StatelessWidget {
 
     // Build display text with optional secondary muscle group
     final displayText = secondaryMuscleGroup != null
-        ? '${muscleGroup.displayName} / ${secondaryMuscleGroup!.displayName}'
-            .toUpperCase()
+        ? '${muscleGroup.displayName} / ${secondaryMuscleGroup!.displayName}'.toUpperCase()
         : muscleGroup.displayName.toUpperCase();
 
     return Positioned(

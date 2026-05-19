@@ -20,12 +20,10 @@ class CommunityBrowseScreen extends ConsumerStatefulWidget {
   const CommunityBrowseScreen({super.key, this.initialTab = 0});
 
   @override
-  ConsumerState<CommunityBrowseScreen> createState() =>
-      _CommunityBrowseScreenState();
+  ConsumerState<CommunityBrowseScreen> createState() => _CommunityBrowseScreenState();
 }
 
-class _CommunityBrowseScreenState extends ConsumerState<CommunityBrowseScreen>
-    with SingleTickerProviderStateMixin {
+class _CommunityBrowseScreenState extends ConsumerState<CommunityBrowseScreen> with SingleTickerProviderStateMixin {
   late final TabController _tabController;
 
   @override
@@ -144,9 +142,7 @@ class _TemplatesTab extends ConsumerWidget {
                 ],
                 selected: {sort},
                 onSelectionChanged: (selection) {
-                  ref
-                      .read(communityTemplateSortProvider.notifier)
-                      .set(selection.first);
+                  ref.read(communityTemplateSortProvider.notifier).set(selection.first);
                 },
                 style: SegmentedButton.styleFrom(
                   visualDensity: VisualDensity.compact,
@@ -174,8 +170,7 @@ class _TemplatesTab extends ConsumerWidget {
                       Text(
                         'No programs shared yet',
                         style: TextStyle(
-                          color:
-                              colorScheme.onSurface.withValues(alpha: 0.5),
+                          color: colorScheme.onSurface.withValues(alpha: 0.5),
                         ),
                       ),
                       const SizedBox(height: 8),
@@ -183,8 +178,7 @@ class _TemplatesTab extends ConsumerWidget {
                         'Be the first to share a program!',
                         style: TextStyle(
                           fontSize: 13,
-                          color:
-                              colorScheme.onSurface.withValues(alpha: 0.4),
+                          color: colorScheme.onSurface.withValues(alpha: 0.4),
                         ),
                       ),
                     ],
@@ -223,8 +217,7 @@ class _TemplatesTab extends ConsumerWidget {
                   ),
                   const SizedBox(height: 8),
                   FilledButton.tonal(
-                    onPressed: () =>
-                        ref.invalidate(communityTemplatesProvider),
+                    onPressed: () => ref.invalidate(communityTemplatesProvider),
                     child: const Text('Retry'),
                   ),
                 ],
@@ -272,9 +265,7 @@ class _SkinsTab extends ConsumerWidget {
                 ],
                 selected: {sort},
                 onSelectionChanged: (selection) {
-                  ref
-                      .read(communitySkinSortProvider.notifier)
-                      .set(selection.first);
+                  ref.read(communitySkinSortProvider.notifier).set(selection.first);
                 },
                 style: SegmentedButton.styleFrom(
                   visualDensity: VisualDensity.compact,
@@ -302,8 +293,7 @@ class _SkinsTab extends ConsumerWidget {
                       Text(
                         'No themes shared yet',
                         style: TextStyle(
-                          color:
-                              colorScheme.onSurface.withValues(alpha: 0.5),
+                          color: colorScheme.onSurface.withValues(alpha: 0.5),
                         ),
                       ),
                       const SizedBox(height: 8),
@@ -311,8 +301,7 @@ class _SkinsTab extends ConsumerWidget {
                         'Be the first to share a theme!',
                         style: TextStyle(
                           fontSize: 13,
-                          color:
-                              colorScheme.onSurface.withValues(alpha: 0.4),
+                          color: colorScheme.onSurface.withValues(alpha: 0.4),
                         ),
                       ),
                     ],
@@ -406,8 +395,8 @@ class _MyUploadsTab extends ConsumerWidget {
         Text(
           'My Programs',
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+            fontWeight: FontWeight.bold,
+          ),
         ),
         const SizedBox(height: 8),
         templatesAsync.when(
@@ -433,8 +422,7 @@ class _MyUploadsTab extends ConsumerWidget {
               }).toList(),
             );
           },
-          loading: () =>
-              const Center(child: CircularProgressIndicator()),
+          loading: () => const Center(child: CircularProgressIndicator()),
           error: (_, _) => Text(
             'Failed to load your programs',
             style: TextStyle(color: context.errorColor),
@@ -447,8 +435,8 @@ class _MyUploadsTab extends ConsumerWidget {
         Text(
           'My Themes',
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+            fontWeight: FontWeight.bold,
+          ),
         ),
         const SizedBox(height: 8),
         skinsAsync.when(
@@ -474,8 +462,7 @@ class _MyUploadsTab extends ConsumerWidget {
               }).toList(),
             );
           },
-          loading: () =>
-              const Center(child: CircularProgressIndicator()),
+          loading: () => const Center(child: CircularProgressIndicator()),
           error: (_, _) => Text(
             'Failed to load your themes',
             style: TextStyle(color: context.errorColor),
@@ -855,8 +842,7 @@ class _CommunityTemplateCard extends StatelessWidget {
                         vertical: 2,
                       ),
                       decoration: BoxDecoration(
-                        color: colorScheme.primaryContainer
-                            .withValues(alpha: 0.5),
+                        color: colorScheme.primaryContainer.withValues(alpha: 0.5),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(

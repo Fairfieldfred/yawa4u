@@ -23,8 +23,7 @@ class MoreScreen extends ConsumerStatefulWidget {
   ConsumerState<MoreScreen> createState() => _MoreScreenState();
 }
 
-class _MoreScreenState extends ConsumerState<MoreScreen>
-    with SingleTickerProviderStateMixin {
+class _MoreScreenState extends ConsumerState<MoreScreen> with SingleTickerProviderStateMixin {
   String _version = '';
 
   late AnimationController _animationController;
@@ -121,9 +120,7 @@ class _MoreScreenState extends ConsumerState<MoreScreen>
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(isCenter ? 20 : 14),
           border: Border.all(
-            color: isSelected
-                ? Theme.of(context).colorScheme.primary
-                : Colors.transparent,
+            color: isSelected ? Theme.of(context).colorScheme.primary : Colors.transparent,
             width: borderWidth,
           ),
         ),
@@ -146,253 +143,248 @@ class _MoreScreenState extends ConsumerState<MoreScreen>
 
     // Check if using a custom theme with a custom app icon
     final hasCustomAppIcon =
-        !activeSkin.isBuiltIn &&
-        activeSkin.backgrounds?.appIcon != null &&
-        activeSkin.backgrounds!.appIcon!.isNotEmpty;
+        !activeSkin.isBuiltIn && activeSkin.backgrounds?.appIcon != null && activeSkin.backgrounds!.appIcon!.isNotEmpty;
 
     return Scaffold(
       appBar: AppBar(title: const Text('YAWA4U'), centerTitle: true),
       body: ScreenBackground.more(
         child: ResponsiveContent(
-        child: ListView(
-          children: [
-            const SizedBox(height: 32),
-            // App Logo & Info
-            Center(
-              child: Column(
-                children: [
-                  if (hasCustomAppIcon)
-                    // Show only the custom app icon (no selection)
-                    const AppIconWidget(size: 100)
-                  else
-                    // Show selectable icons for built-in themes
-                    AnimatedBuilder(
-                      animation: _animation,
-                      builder: (context, child) {
-                        final orderedIndices = _getOrderedIndices(
-                          selectedIconIndex,
-                        );
-                        return Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            for (int i = 0; i < 3; i++)
-                              _buildSelectableIcon(
-                                orderedIndices[i],
-                                selectedIconIndex,
-                                isCenter: i == 1,
-                              ),
-                          ],
-                        );
+          child: ListView(
+            children: [
+              const SizedBox(height: 32),
+              // App Logo & Info
+              Center(
+                child: Column(
+                  children: [
+                    if (hasCustomAppIcon)
+                      // Show only the custom app icon (no selection)
+                      const AppIconWidget(size: 100)
+                    else
+                      // Show selectable icons for built-in themes
+                      AnimatedBuilder(
+                        animation: _animation,
+                        builder: (context, child) {
+                          final orderedIndices = _getOrderedIndices(
+                            selectedIconIndex,
+                          );
+                          return Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              for (int i = 0; i < 3; i++)
+                                _buildSelectableIcon(
+                                  orderedIndices[i],
+                                  selectedIconIndex,
+                                  isCenter: i == 1,
+                                ),
+                            ],
+                          );
+                        },
+                      ),
+                    const SizedBox(height: 16),
+
+                    const SizedBox(height: 8),
+                    Text(
+                      _version,
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodyMedium?.copyWith(color: Colors.grey),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 32),
+
+              // Theme Mode
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(left: 12, bottom: 8),
+                      child: Text(
+                        'Theme mode',
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                    ),
+                    SegmentedButton<ThemeMode>(
+                      segments: const [
+                        ButtonSegment<ThemeMode>(
+                          value: ThemeMode.system,
+                          label: Text('System'),
+                        ),
+                        ButtonSegment<ThemeMode>(
+                          value: ThemeMode.light,
+                          label: Text('Light'),
+                        ),
+                        ButtonSegment<ThemeMode>(
+                          value: ThemeMode.dark,
+                          label: Text('Dark'),
+                        ),
+                      ],
+                      selected: {themeMode},
+                      onSelectionChanged: (Set<ThemeMode> newSelection) {
+                        ref.read(themeModeProvider.notifier).setThemeMode(newSelection.first);
                       },
-                    ),
-                  const SizedBox(height: 16),
-
-                  const SizedBox(height: 8),
-                  Text(
-                    _version,
-                    style: Theme.of(
-                      context,
-                    ).textTheme.bodyMedium?.copyWith(color: Colors.grey),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 32),
-
-            // Theme Mode
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(left: 12, bottom: 8),
-                    child: Text(
-                      'Theme mode',
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                  ),
-                  SegmentedButton<ThemeMode>(
-                    segments: const [
-                      ButtonSegment<ThemeMode>(
-                        value: ThemeMode.system,
-                        label: Text('System'),
+                      style: ButtonStyle(
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        visualDensity: VisualDensity.compact,
                       ),
-                      ButtonSegment<ThemeMode>(
-                        value: ThemeMode.light,
-                        label: Text('Light'),
-                      ),
-                      ButtonSegment<ThemeMode>(
-                        value: ThemeMode.dark,
-                        label: Text('Dark'),
-                      ),
-                    ],
-                    selected: {themeMode},
-                    onSelectionChanged: (Set<ThemeMode> newSelection) {
-                      ref
-                          .read(themeModeProvider.notifier)
-                          .setThemeMode(newSelection.first);
-                    },
-                    style: ButtonStyle(
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      visualDensity: VisualDensity.compact,
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-            const SizedBox(height: 24),
+              const SizedBox(height: 24),
 
-            // ─── Appearance ──────────────────────────────────────────────
-            const _MoreSectionHeader('Appearance'),
-            ListTile(
-              leading: const Icon(Icons.palette_outlined),
-              title: const Text('Theme'),
-              subtitle: const Text('Choose your app theme'),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () => context.push('/skins'),
-            ),
-
-            // ─── Training ────────────────────────────────────────────────
-            const _MoreSectionHeader('Training'),
-            ListTile(
-              leading: const Icon(Icons.bar_chart_outlined),
-              title: const Text('Statistics'),
-              subtitle: const Text('Volume, records, and progress'),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () => context.push('/stats'),
-            ),
-            ListTile(
-              leading: const Icon(Icons.straighten),
-              title: const Text('Units'),
-              subtitle: const Text('Metric or imperial — per sport'),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () => context.push('/settings/units'),
-            ),
-            ListTile(
-              leading: const Icon(Icons.favorite_outline),
-              title: const Text('Zones'),
-              subtitle: const Text('Heart-rate zones per sport'),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () => context.push('/settings/zones'),
-            ),
-
-            // ─── Integrations & Data ─────────────────────────────────────
-            const _MoreSectionHeader('Integrations & data'),
-            ListTile(
-              leading: const Icon(Icons.integration_instructions_outlined),
-              title: const Text('Integrations'),
-              subtitle: const Text(
-                'Apple Health / Health Connect — includes Peloton',
-              ),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () => context.push('/settings/integrations'),
-            ),
-            ListTile(
-              leading: const Icon(Icons.sync),
-              title: const Text('Sync data'),
-              subtitle: const Text('Sync with another device via WiFi'),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () => context.push('/sync'),
-            ),
-            ListTile(
-              leading: const Icon(Icons.file_copy_outlined),
-              title: const Text('Share template'),
-              subtitle: const Text('Share workout templates via WiFi'),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () => context.push('/template-share'),
-            ),
-            ListTile(
-              leading: const Icon(Icons.share_outlined),
-              title: const Text('Share app'),
-              subtitle: const Text('Share YAWA4U with friends'),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () async {
-                await SharePlus.instance.share(
-                  ShareParams(
-                    text:
-                        'Check out YAWA4U - The best workout tracker! https://testflight.apple.com/join/YVQsRjzD',
-                  ),
-                );
-              },
-            ),
-
-            // ─── Preferences ─────────────────────────────────────────────
-            const _MoreSectionHeader('Preferences'),
-            ListTile(
-              leading: const Icon(Icons.settings_outlined),
-              title: const Text('Settings'),
-              subtitle: const Text('Terminology, equipment, body metrics'),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () => context.push('/settings'),
-            ),
-
-            // ─── Help & feedback ─────────────────────────────────────────
-            const _MoreSectionHeader('Help & feedback'),
-            ListTile(
-              leading: const Icon(Icons.feedback_outlined),
-              title: const Text('Send feedback'),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () {
-                SentryService.instance.showBetterFeedback(context);
-              },
-            ),
-
-            ListTile(
-              leading: const Icon(Icons.language),
-              title: const Text('Language'),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Language selection coming soon'),
-                  ),
-                );
-              },
-            ),
-
-            // ─── About ───────────────────────────────────────────────────
-            const _MoreSectionHeader('About'),
-            ListTile(
-              leading: const Icon(Icons.public),
-              title: const Text('Website'),
-              trailing: const Icon(Icons.open_in_new, size: 18),
-              onTap: () async {
-                final url = Uri.parse(
-                  'https://github.com/Fairfieldfred/yawa4u',
-                );
-                if (await canLaunchUrl(url)) {
-                  await launchUrl(url);
-                }
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.privacy_tip_outlined),
-              title: const Text('Privacy policy'),
-              trailing: const Icon(Icons.open_in_new, size: 18),
-              onTap: () async {
-                final url = Uri.parse(AppConstants.privacyPolicyUrl);
-                if (await canLaunchUrl(url)) {
-                  await launchUrl(url);
-                }
-              },
-            ),
-
-            // Debug-only tools live at the very bottom so they don't
-            // clutter the normal browsing experience.
-            if (kDebugMode) ...[
-              const _MoreSectionHeader('Developer'),
+              // ─── Appearance ──────────────────────────────────────────────
+              const _MoreSectionHeader('Appearance'),
               ListTile(
-                leading: const Icon(Icons.bug_report, color: Colors.orange),
-                title: const Text('Sentry debug'),
-                subtitle: const Text('Test Sentry integration'),
+                leading: const Icon(Icons.palette_outlined),
+                title: const Text('Theme'),
+                subtitle: const Text('Choose your app theme'),
                 trailing: const Icon(Icons.chevron_right),
-                onTap: () => context.push('/sentry-debug'),
+                onTap: () => context.push('/skins'),
               ),
+
+              // ─── Training ────────────────────────────────────────────────
+              const _MoreSectionHeader('Training'),
+              ListTile(
+                leading: const Icon(Icons.bar_chart_outlined),
+                title: const Text('Statistics'),
+                subtitle: const Text('Volume, records, and progress'),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => context.push('/stats'),
+              ),
+              ListTile(
+                leading: const Icon(Icons.straighten),
+                title: const Text('Units'),
+                subtitle: const Text('Metric or imperial — per sport'),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => context.push('/settings/units'),
+              ),
+              ListTile(
+                leading: const Icon(Icons.favorite_outline),
+                title: const Text('Zones'),
+                subtitle: const Text('Heart-rate zones per sport'),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => context.push('/settings/zones'),
+              ),
+
+              // ─── Integrations & Data ─────────────────────────────────────
+              const _MoreSectionHeader('Integrations & data'),
+              ListTile(
+                leading: const Icon(Icons.integration_instructions_outlined),
+                title: const Text('Integrations'),
+                subtitle: const Text(
+                  'Apple Health / Health Connect — includes Peloton',
+                ),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => context.push('/settings/integrations'),
+              ),
+              ListTile(
+                leading: const Icon(Icons.sync),
+                title: const Text('Sync data'),
+                subtitle: const Text('Sync with another device via WiFi'),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => context.push('/sync'),
+              ),
+              ListTile(
+                leading: const Icon(Icons.file_copy_outlined),
+                title: const Text('Share template'),
+                subtitle: const Text('Share workout templates via WiFi'),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => context.push('/template-share'),
+              ),
+              ListTile(
+                leading: const Icon(Icons.share_outlined),
+                title: const Text('Share app'),
+                subtitle: const Text('Share YAWA4U with friends'),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () async {
+                  await SharePlus.instance.share(
+                    ShareParams(
+                      text: 'Check out YAWA4U - The best workout tracker! https://testflight.apple.com/join/YVQsRjzD',
+                    ),
+                  );
+                },
+              ),
+
+              // ─── Preferences ─────────────────────────────────────────────
+              const _MoreSectionHeader('Preferences'),
+              ListTile(
+                leading: const Icon(Icons.settings_outlined),
+                title: const Text('Settings'),
+                subtitle: const Text('Terminology, equipment, body metrics'),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => context.push('/settings'),
+              ),
+
+              // ─── Help & feedback ─────────────────────────────────────────
+              const _MoreSectionHeader('Help & feedback'),
+              ListTile(
+                leading: const Icon(Icons.feedback_outlined),
+                title: const Text('Send feedback'),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () {
+                  SentryService.instance.showBetterFeedback(context);
+                },
+              ),
+
+              ListTile(
+                leading: const Icon(Icons.language),
+                title: const Text('Language'),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Language selection coming soon'),
+                    ),
+                  );
+                },
+              ),
+
+              // ─── About ───────────────────────────────────────────────────
+              const _MoreSectionHeader('About'),
+              ListTile(
+                leading: const Icon(Icons.public),
+                title: const Text('Website'),
+                trailing: const Icon(Icons.open_in_new, size: 18),
+                onTap: () async {
+                  final url = Uri.parse(
+                    'https://github.com/Fairfieldfred/yawa4u',
+                  );
+                  if (await canLaunchUrl(url)) {
+                    await launchUrl(url);
+                  }
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.privacy_tip_outlined),
+                title: const Text('Privacy policy'),
+                trailing: const Icon(Icons.open_in_new, size: 18),
+                onTap: () async {
+                  final url = Uri.parse(AppConstants.privacyPolicyUrl);
+                  if (await canLaunchUrl(url)) {
+                    await launchUrl(url);
+                  }
+                },
+              ),
+
+              // Debug-only tools live at the very bottom so they don't
+              // clutter the normal browsing experience.
+              if (kDebugMode) ...[
+                const _MoreSectionHeader('Developer'),
+                ListTile(
+                  leading: const Icon(Icons.bug_report, color: Colors.orange),
+                  title: const Text('Sentry debug'),
+                  subtitle: const Text('Test Sentry integration'),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => context.push('/sentry-debug'),
+                ),
+              ],
+              const SizedBox(height: 32),
             ],
-            const SizedBox(height: 32),
-          ],
-        ),
+          ),
         ),
       ),
     );

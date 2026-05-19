@@ -30,18 +30,14 @@ class WorkoutListController {
     );
 
     // Get all Period 1 workouts
-    final period1Workouts = allWorkouts
-        .where((w) => w.periodNumber == 1)
-        .toList();
+    final period1Workouts = allWorkouts.where((w) => w.periodNumber == 1).toList();
 
     if (period1Workouts.isEmpty) {
       throw Exception('No workouts found in Period 1');
     }
 
     // Delete existing workouts for the selected period
-    final existingWorkouts = allWorkouts
-        .where((w) => w.periodNumber == selectedPeriod)
-        .toList();
+    final existingWorkouts = allWorkouts.where((w) => w.periodNumber == selectedPeriod).toList();
     for (final workout in existingWorkouts) {
       await repository.delete(workout.id);
     }
@@ -177,7 +173,6 @@ class WorkoutListController {
 }
 
 /// Provider for the WorkoutListController
-final workoutListControllerProvider =
-    Provider.family<WorkoutListController, String>(
-      (ref, trainingCycleId) => WorkoutListController(ref, trainingCycleId),
-    );
+final workoutListControllerProvider = Provider.family<WorkoutListController, String>(
+  (ref, trainingCycleId) => WorkoutListController(ref, trainingCycleId),
+);

@@ -56,13 +56,9 @@ class _SportChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = sport.color;
-    final bg = isSelected
-        ? color.withValues(alpha: 0.18)
-        : Theme.of(context).colorScheme.surfaceContainerHighest;
+    final bg = isSelected ? color.withValues(alpha: 0.18) : Theme.of(context).colorScheme.surfaceContainerHighest;
     final border = isSelected ? color : Colors.transparent;
-    final textColor = isSelected
-        ? color
-        : Theme.of(context).colorScheme.onSurface;
+    final textColor = isSelected ? color : Theme.of(context).colorScheme.onSurface;
 
     return InkWell(
       onTap: onTap,

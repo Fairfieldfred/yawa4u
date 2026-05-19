@@ -48,14 +48,12 @@ class SportSummaryTile extends StatelessWidget {
                   const SizedBox(width: 10),
                   Text(
                     sport.displayName,
-                    style: theme.textTheme.titleMedium
-                        ?.copyWith(fontWeight: FontWeight.w600),
+                    style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
                   ),
                   const Spacer(),
                   Text(
                     '${aggregate.sessions}',
-                    style: theme.textTheme.titleLarge
-                        ?.copyWith(fontWeight: FontWeight.w700, color: color),
+                    style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700, color: color),
                   ),
                   const SizedBox(width: 4),
                   Text(
@@ -98,7 +96,8 @@ class SportSummaryTile extends StatelessWidget {
                   if (aggregate.bestDistanceM > 0)
                     _Stat(
                       icon: Icons.emoji_events_outlined,
-                      label: 'Best ${sport == Sport.swim ? CardioConversions.formatSwimDistance(aggregate.bestDistanceM, units) : CardioConversions.formatDistance(aggregate.bestDistanceM, units)}',
+                      label:
+                          'Best ${sport == Sport.swim ? CardioConversions.formatSwimDistance(aggregate.bestDistanceM, units) : CardioConversions.formatDistance(aggregate.bestDistanceM, units)}',
                     ),
                 ],
               ),

@@ -219,9 +219,7 @@ class BackgroundScaffold extends ConsumerWidget {
       floatingActionButtonLocation: floatingActionButtonLocation,
       bottomNavigationBar: bottomNavigationBar,
       drawer: drawer,
-      body: body != null
-          ? ScreenBackground(screenType: screenType, child: body!)
-          : null,
+      body: body != null ? ScreenBackground(screenType: screenType, child: body!) : null,
     );
   }
 

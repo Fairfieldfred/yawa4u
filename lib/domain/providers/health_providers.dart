@@ -28,8 +28,7 @@ final healthSyncStatusProvider = FutureProvider.autoDispose<HealthSyncStatus>((
 
 /// Provider for [StravaIntegrationService]. Shares the same deps pattern
 /// as the Health service.
-final stravaIntegrationServiceProvider =
-    Provider<StravaIntegrationService>((ref) {
+final stravaIntegrationServiceProvider = Provider<StravaIntegrationService>((ref) {
   return StravaIntegrationService(
     sessionRepository: ref.watch(sessionRepositoryProvider),
     prefs: ref.watch(sharedPreferencesProvider),
@@ -37,7 +36,6 @@ final stravaIntegrationServiceProvider =
   );
 });
 
-final stravaSyncStatusProvider =
-    FutureProvider.autoDispose<StravaSyncStatus>((ref) {
+final stravaSyncStatusProvider = FutureProvider.autoDispose<StravaSyncStatus>((ref) {
   return ref.watch(stravaIntegrationServiceProvider).currentStatus();
 });

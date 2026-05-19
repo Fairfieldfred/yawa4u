@@ -52,9 +52,7 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
           // Theme toggle
           IconButton(
             icon: Icon(
-              ref.watch(isDarkModeProvider)
-                  ? Icons.light_mode
-                  : Icons.dark_mode,
+              ref.watch(isDarkModeProvider) ? Icons.light_mode : Icons.dark_mode,
             ),
             onPressed: () {
               ref.read(themeModeProvider.notifier).toggleTheme();
@@ -82,72 +80,65 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
             }
 
             // Separate trainingCycles by status
-            final draftTrainingCycles = trainingCycles
-                .where((m) => m.status == TrainingCycleStatus.draft)
-                .toList();
-            final currentTrainingCycles = trainingCycles
-                .where((m) => m.status == TrainingCycleStatus.current)
-                .toList();
+            final draftTrainingCycles = trainingCycles.where((m) => m.status == TrainingCycleStatus.draft).toList();
+            final currentTrainingCycles = trainingCycles.where((m) => m.status == TrainingCycleStatus.current).toList();
             final completedTrainingCycles = trainingCycles
                 .where((m) => m.status == TrainingCycleStatus.completed)
                 .toList();
 
             return ResponsiveContent(
               child: ListView(
-              padding: const EdgeInsets.only(top: 20),
-              children: [
-                // v5 — compact "This week" recap. Auto-collapses to a
-                // gentle empty state when nothing's logged, so it stays
-                // out of the way for strength-only users.
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                  child: WeeklySummaryCard(),
-                ),
+                padding: const EdgeInsets.only(top: 20),
+                children: [
+                  // v5 — compact "This week" recap. Auto-collapses to a
+                  // gentle empty state when nothing's logged, so it stays
+                  // out of the way for strength-only users.
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                    child: WeeklySummaryCard(),
+                  ),
 
-                // Draft TrainingCycles Section
-                if (draftTrainingCycles.isNotEmpty) ...[
-                  _buildSectionHeader(context, 'Draft $cycleTerm'),
-                  const SizedBox(height: 12),
-                  ...draftTrainingCycles.map(
-                    (trainingCycle) => _buildTrainingCycleCard(
-                      context,
-                      trainingCycle,
-                      isDraft: true,
+                  // Draft TrainingCycles Section
+                  if (draftTrainingCycles.isNotEmpty) ...[
+                    _buildSectionHeader(context, 'Draft $cycleTerm'),
+                    const SizedBox(height: 12),
+                    ...draftTrainingCycles.map(
+                      (trainingCycle) => _buildTrainingCycleCard(
+                        context,
+                        trainingCycle,
+                        isDraft: true,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 24),
-                ],
+                    const SizedBox(height: 24),
+                  ],
 
-                // Current TrainingCycle Section
-                if (currentTrainingCycles.isNotEmpty) ...[
-                  _buildSectionHeader(context, 'Current $cycleTerm'),
-                  const SizedBox(height: 12),
-                  ...currentTrainingCycles.map(
-                    (trainingCycle) => _buildTrainingCycleCard(
-                      context,
-                      trainingCycle,
-                      isCurrent: true,
+                  // Current TrainingCycle Section
+                  if (currentTrainingCycles.isNotEmpty) ...[
+                    _buildSectionHeader(context, 'Current $cycleTerm'),
+                    const SizedBox(height: 12),
+                    ...currentTrainingCycles.map(
+                      (trainingCycle) => _buildTrainingCycleCard(
+                        context,
+                        trainingCycle,
+                        isCurrent: true,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 20),
-                ],
+                    const SizedBox(height: 20),
+                  ],
 
-                // Completed TrainingCycles Section
-                if (completedTrainingCycles.isNotEmpty) ...[
-                  _buildSectionHeader(
-                    context,
-                    completedTrainingCycles.length == 1
-                        ? 'Completed $cycleTerm'
-                        : 'Completed $cycleTermPlural',
-                  ),
-                  const SizedBox(height: 12),
-                  ...completedTrainingCycles.map(
-                    (trainingCycle) =>
-                        _buildTrainingCycleCard(context, trainingCycle),
-                  ),
+                  // Completed TrainingCycles Section
+                  if (completedTrainingCycles.isNotEmpty) ...[
+                    _buildSectionHeader(
+                      context,
+                      completedTrainingCycles.length == 1 ? 'Completed $cycleTerm' : 'Completed $cycleTermPlural',
+                    ),
+                    const SizedBox(height: 12),
+                    ...completedTrainingCycles.map(
+                      (trainingCycle) => _buildTrainingCycleCard(context, trainingCycle),
+                    ),
+                  ],
                 ],
-              ],
-            ),
+              ),
             );
           },
           loading: () => const Center(child: CircularProgressIndicator()),
@@ -195,9 +186,7 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
       final isRecoveryPeriod = period == trainingCycle.recoveryPeriod;
       if (isRecoveryPeriod) continue;
 
-      final periodWorkouts = workouts
-          .where((w) => w.periodNumber == period)
-          .toList();
+      final periodWorkouts = workouts.where((w) => w.periodNumber == period).toList();
 
       // Check EVERY day in this period
       for (int day = 1; day <= trainingCycle.daysPerPeriod; day++) {
@@ -279,18 +268,15 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
                           ),
                           child: Text(
                             'CURRENT',
-                            style: Theme.of(context).textTheme.labelSmall
-                                ?.copyWith(
-                                  color: Theme.of(
-                                    context,
-                                  ).colorScheme.onPrimary,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onPrimary,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         )
-                      else if (trainingCycle.status ==
-                              TrainingCycleStatus.completed &&
-                          trainingCycle.endDate != null)
+                      else if (trainingCycle.status == TrainingCycleStatus.completed && trainingCycle.endDate != null)
                         Row(
                           children: [
                             Container(
@@ -320,8 +306,7 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
                       const SizedBox(width: 8),
                       PopupMenuButton<String>(
                         icon: const Icon(Icons.more_vert),
-                        onSelected: (value) =>
-                            _handleMenuAction(value, trainingCycle),
+                        onSelected: (value) => _handleMenuAction(value, trainingCycle),
                         itemBuilder: (context) => [
                           const PopupMenuItem(
                             value: 'note',
@@ -406,9 +391,7 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
                                 Text(
                                   'Save as a Template',
                                   style: TextStyle(
-                                    color: canSaveAsTemplate
-                                        ? null
-                                        : Colors.grey,
+                                    color: canSaveAsTemplate ? null : Colors.grey,
                                   ),
                                 ),
                               ],
@@ -427,9 +410,7 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
                                 Text(
                                   'Share (Host QR Code)',
                                   style: TextStyle(
-                                    color: canSaveAsTemplate
-                                        ? null
-                                        : Colors.grey,
+                                    color: canSaveAsTemplate ? null : Colors.grey,
                                   ),
                                 ),
                               ],
@@ -604,8 +585,7 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
       case 'summary':
         await showDialog(
           context: context,
-          builder: (context) =>
-              CycleSummaryDialog(trainingCycle: trainingCycle),
+          builder: (context) => CycleSummaryDialog(trainingCycle: trainingCycle),
         );
         break;
       case 'restart':
@@ -657,8 +637,7 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
       if (confirmed != true || !mounted) return;
     } else {
       // Existing current cycle(s) — offer replace vs stack.
-      final activeNames =
-          currentCycles.map((c) => c.name).join(', ');
+      final activeNames = currentCycles.map((c) => c.name).join(', ');
       final result = await showDialog<String>(
         context: context,
         builder: (context) => AlertDialog(
@@ -983,8 +962,7 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
     final result = await showDialog<({String name, String description})>(
       context: context,
       barrierDismissible: false,
-      builder: (context) =>
-          _SaveTemplateDialog(initialName: trainingCycle.name),
+      builder: (context) => _SaveTemplateDialog(initialName: trainingCycle.name),
     );
 
     if (result != null && mounted) {
@@ -1107,8 +1085,7 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
     final newName = await showDialog<String>(
       context: context,
       barrierDismissible: false,
-      builder: (context) =>
-          _RenameTrainingCycleDialog(initialName: trainingCycle.name),
+      builder: (context) => _RenameTrainingCycleDialog(initialName: trainingCycle.name),
     );
 
     if (newName != null && newName != trainingCycle.name && mounted) {
@@ -1227,12 +1204,10 @@ class _RenameTrainingCycleDialog extends StatefulWidget {
   const _RenameTrainingCycleDialog({required this.initialName});
 
   @override
-  State<_RenameTrainingCycleDialog> createState() =>
-      _RenameTrainingCycleDialogState();
+  State<_RenameTrainingCycleDialog> createState() => _RenameTrainingCycleDialogState();
 }
 
-class _RenameTrainingCycleDialogState
-    extends State<_RenameTrainingCycleDialog> {
+class _RenameTrainingCycleDialogState extends State<_RenameTrainingCycleDialog> {
   late final TextEditingController nameController;
 
   @override
@@ -1420,11 +1395,12 @@ class _SaveTemplateDialogState extends State<_SaveTemplateDialog> {
                   const SizedBox(width: 40),
                   Text(
                     'Save as Template',
-                    style: Theme.of(
-                      context,
-                    ).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style:
+                        Theme.of(
+                          context,
+                        ).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
                   ),
                   IconButton(
                     icon: const Icon(Icons.close),
@@ -1437,11 +1413,12 @@ class _SaveTemplateDialogState extends State<_SaveTemplateDialog> {
               const SizedBox(height: 16),
               Text(
                 'Template Name',
-                style: Theme.of(
-                  context,
-                ).textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
+                style:
+                    Theme.of(
+                      context,
+                    ).textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
               ),
               const SizedBox(height: 8),
               TextField(
@@ -1463,11 +1440,12 @@ class _SaveTemplateDialogState extends State<_SaveTemplateDialog> {
               const SizedBox(height: 16),
               Text(
                 'Description',
-                style: Theme.of(
-                  context,
-                ).textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
+                style:
+                    Theme.of(
+                      context,
+                    ).textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
               ),
               const SizedBox(height: 8),
               TextField(

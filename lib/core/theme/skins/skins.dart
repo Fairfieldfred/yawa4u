@@ -23,30 +23,25 @@ extension SkinContext on BuildContext {
   }
 
   /// Get success color from skin, with fallback.
-  Color get successColor =>
-      skinColors?.success ?? Theme.of(this).colorScheme.primary;
+  Color get successColor => skinColors?.success ?? Theme.of(this).colorScheme.primary;
 
   /// Get warning color from skin, with fallback.
   Color get warningColor => skinColors?.warning ?? Colors.orange;
 
   /// Get info color from skin, with fallback.
-  Color get infoColor =>
-      skinColors?.info ?? Theme.of(this).colorScheme.secondary;
+  Color get infoColor => skinColors?.info ?? Theme.of(this).colorScheme.secondary;
 
   /// Get error/danger color from theme (for destructive actions, errors).
   Color get errorColor => Theme.of(this).colorScheme.error;
 
   /// Get current workout indicator color.
-  Color get workoutCurrentColor =>
-      skinColors?.workoutCurrent ?? Theme.of(this).colorScheme.primary;
+  Color get workoutCurrentColor => skinColors?.workoutCurrent ?? Theme.of(this).colorScheme.primary;
 
   /// Get completed workout color.
-  Color get workoutCompletedColor =>
-      skinColors?.workoutCompleted ?? successColor;
+  Color get workoutCompletedColor => skinColors?.workoutCompleted ?? successColor;
 
   /// Get skipped workout color.
-  Color get workoutSkippedColor =>
-      skinColors?.workoutSkipped ?? Theme.of(this).disabledColor;
+  Color get workoutSkippedColor => skinColors?.workoutSkipped ?? Theme.of(this).disabledColor;
 
   /// Get deload week color.
   Color get workoutDeloadColor => skinColors?.workoutDeload ?? warningColor;
@@ -74,17 +69,14 @@ extension SkinContext on BuildContext {
   /// surface in both light and dark modes. Replaces ad-hoc `withValues
   /// (alpha: 0.5)` scattered through the codebase — those are often too
   /// low-contrast in bright environments.
-  Color get textSecondary =>
-      Theme.of(this).colorScheme.onSurface.withValues(alpha: 0.75);
+  Color get textSecondary => Theme.of(this).colorScheme.onSurface.withValues(alpha: 0.75);
 
   /// Tertiary on-surface text color. Reserve for genuinely de-emphasised
   /// metadata (timestamps, parenthetical context). Still above AA for
   /// large text (14pt+); avoid for body paragraphs.
-  Color get textTertiary =>
-      Theme.of(this).colorScheme.onSurface.withValues(alpha: 0.55);
+  Color get textTertiary => Theme.of(this).colorScheme.onSurface.withValues(alpha: 0.55);
 
   /// Disabled / near-invisible text. Use sparingly — only for decorative
   /// elements where illegibility is acceptable.
-  Color get textDisabled =>
-      Theme.of(this).colorScheme.onSurface.withValues(alpha: 0.38);
+  Color get textDisabled => Theme.of(this).colorScheme.onSurface.withValues(alpha: 0.38);
 }

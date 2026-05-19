@@ -220,8 +220,7 @@ class Validators {
       (v) => required(v, fieldName: 'Bodyweight'),
       (v) => isNumber(v, fieldName: 'Bodyweight'),
       (v) => isPositive(v, fieldName: 'Bodyweight'),
-      (v) =>
-          numberRange(v, 20, 500, fieldName: 'Bodyweight'), // Reasonable range
+      (v) => numberRange(v, 20, 500, fieldName: 'Bodyweight'), // Reasonable range
     ]);
   }
 

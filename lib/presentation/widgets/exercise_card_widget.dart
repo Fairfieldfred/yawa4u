@@ -35,10 +35,8 @@ class ExerciseCardCallbacks {
   final void Function(int setIndex) onToggleSetSkip;
   final void Function(int setIndex) onDeleteSet;
   final void Function(int setIndex, SetType setType) onUpdateSetType;
-  final void Function(int setIndex, String setId, String value)
-      onUpdateSetWeight;
-  final void Function(int setIndex, String setId, String value)
-      onUpdateSetReps;
+  final void Function(int setIndex, String setId, String value) onUpdateSetWeight;
+  final void Function(int setIndex, String setId, String value) onUpdateSetReps;
   final void Function(int setIndex) onToggleSetLog;
 
   const ExerciseCardCallbacks({
@@ -103,8 +101,7 @@ class ExerciseCardWidget extends ConsumerWidget {
     );
 
     return asyncPrev.when(
-      data: (prevExercise) =>
-          _buildPreviousPerformanceContent(context, ref, prevExercise),
+      data: (prevExercise) => _buildPreviousPerformanceContent(context, ref, prevExercise),
       loading: () => const SizedBox.shrink(),
       error: (_, _) => const SizedBox.shrink(),
     );
@@ -124,8 +121,7 @@ class ExerciseCardWidget extends ConsumerWidget {
 
     // Find the date from the workout, fall back to lastPerformed
     final date = prevExercise.lastPerformed;
-    final dateStr =
-        date != null ? ' - ${service.formatRelativeDate(date)}' : '';
+    final dateStr = date != null ? ' - ${service.formatRelativeDate(date)}' : '';
 
     // Check for weight increase suggestion
     final hitAllReps = service.didHitAllReps(prevExercise);
@@ -134,8 +130,7 @@ class ExerciseCardWidget extends ConsumerWidget {
     );
     String? suggestionText;
     if (hitAllReps && increment != null) {
-      final loggedSets =
-          prevExercise.sets.where((s) => s.isLogged).toList();
+      final loggedSets = prevExercise.sets.where((s) => s.isLogged).toList();
       if (loggedSets.isNotEmpty && loggedSets.first.weight != null) {
         final suggested = loggedSets.first.weight! + increment;
         final display = formatWeightForDisplay(
@@ -155,10 +150,7 @@ class ExerciseCardWidget extends ConsumerWidget {
             'Last: $summary$dateStr',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
               fontSize: 11,
-              color: Theme.of(context)
-                  .colorScheme
-                  .onSurface
-                  .withAlpha((255 * 0.5).round()),
+              color: Theme.of(context).colorScheme.onSurface.withAlpha((255 * 0.5).round()),
             ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
@@ -182,9 +174,7 @@ class ExerciseCardWidget extends ConsumerWidget {
   /// Uses a targeted DB query instead of loading every workout.
   Future<String?> _findPinnedNoteForExercise(WidgetRef ref) async {
     // First check if current exercise has a pinned note
-    if (exercise.isNotePinned &&
-        exercise.notes != null &&
-        exercise.notes!.isNotEmpty) {
+    if (exercise.isNotePinned && exercise.notes != null && exercise.notes!.isNotEmpty) {
       return exercise.notes;
     }
 
@@ -209,193 +199,171 @@ class ExerciseCardWidget extends ConsumerWidget {
         return MouseRegion(
           cursor: SystemMouseCursors.basic,
           child: Stack(
-          clipBehavior: Clip.none,
-          children: [
-            // Exercise card
-            Container(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: Theme.of(context).cardTheme.color,
-                borderRadius: BorderRadius.circular(0),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+            clipBehavior: Clip.none,
+            children: [
+              // Exercise card
+              Container(
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: Theme.of(context).cardTheme.color,
+                  borderRadius: BorderRadius.circular(0),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  exercise.name,
+                                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                    fontSize: 17,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  equipmentType.displayName.toUpperCase(),
+                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w500,
+                                    letterSpacing: 0.3,
+                                  ),
+                                ),
+                                _buildPreviousPerformance(context, ref),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          // Info button
+                          IconButton(
+                            icon: Container(
+                              width: 24,
+                              height: 24,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: Theme.of(context).colorScheme.outline,
+                                  width: 2,
+                                ),
+                              ),
+                              child: Center(
+                                child: Text(
+                                  'i',
+                                  style: TextStyle(
+                                    color: Theme.of(
+                                      context,
+                                    ).textTheme.bodySmall?.color,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                    fontStyle: FontStyle.italic,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            tooltip: 'Exercise info',
+                            onPressed: () => showExerciseInfoDialog(context, exercise),
+                            padding: EdgeInsets.zero,
+                            constraints: const BoxConstraints(
+                              minWidth: 24,
+                              minHeight: 24,
+                            ),
+                          ),
+                          const SizedBox(width: 0),
+                          // Overflow menu button
+                          Semantics(
+                            label:
+                                'Exercise options for '
+                                '${exercise.name}',
+                            child: _buildExerciseOverflowMenu(context),
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 8),
+
+                      // Column headers
+                      if (exercise.sets.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 4),
+                          child: Row(
                             children: [
-                              Text(
-                                exercise.name,
-                                style: Theme.of(context).textTheme.titleMedium
-                                    ?.copyWith(
-                                      fontSize: 17,
-                                      fontWeight: FontWeight.w600,
-                                    ),
+                              const SizedBox(
+                                width: 24,
+                              ), // Spacer for overflow menu alignment
+                              Expanded(
+                                child: Text(
+                                  'WEIGHT',
+                                  style: TextStyle(
+                                    color: Theme.of(context).brightness == Brightness.light
+                                        ? Theme.of(context).textTheme.bodySmall?.color?.withValues(alpha: 0.7)
+                                        : Colors.white,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
                               ),
-                              const SizedBox(height: 4),
-                              Text(
-                                equipmentType.displayName.toUpperCase(),
-                                style: Theme.of(context).textTheme.bodySmall
-                                    ?.copyWith(
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w500,
-                                      letterSpacing: 0.3,
-                                    ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  'REPS',
+                                  style: TextStyle(
+                                    color: Theme.of(context).brightness == Brightness.light
+                                        ? Theme.of(context).textTheme.bodySmall?.color?.withValues(alpha: 0.7)
+                                        : Colors.white,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
                               ),
-                              _buildPreviousPerformance(context, ref),
+                              const SizedBox(width: 32),
+                              SizedBox(
+                                width: 40,
+                                child: Text(
+                                  'LOG',
+                                  style: TextStyle(
+                                    color: Theme.of(context).brightness == Brightness.light
+                                        ? Theme.of(context).textTheme.bodySmall?.color?.withValues(alpha: 0.7)
+                                        : Colors.white,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
                             ],
                           ),
                         ),
-                        const SizedBox(width: 8),
-                        // Info button
-                        IconButton(
-                          icon: Container(
-                            width: 24,
-                            height: 24,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: Theme.of(context).colorScheme.outline,
-                                width: 2,
-                              ),
-                            ),
-                            child: Center(
-                              child: Text(
-                                'i',
-                                style: TextStyle(
-                                  color: Theme.of(
-                                    context,
-                                  ).textTheme.bodySmall?.color,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                  fontStyle: FontStyle.italic,
-                                ),
-                              ),
-                            ),
-                          ),
-                          tooltip: 'Exercise info',
-                          onPressed: () =>
-                              showExerciseInfoDialog(context, exercise),
-                          padding: EdgeInsets.zero,
-                          constraints: const BoxConstraints(
-                            minWidth: 24,
-                            minHeight: 24,
-                          ),
-                        ),
-                        const SizedBox(width: 0),
-                        // Overflow menu button
-                        Semantics(
-                          label: 'Exercise options for '
-                              '${exercise.name}',
-                          child:
-                              _buildExerciseOverflowMenu(context),
-                        ),
-                      ],
-                    ),
 
-                    const SizedBox(height: 8),
+                      // Sets list
+                      ...List.generate(exercise.sets.length, (index) {
+                        final set = exercise.sets[index];
+                        return _buildSetRow(context, set, index);
+                      }),
 
-                    // Column headers
-                    if (exercise.sets.isNotEmpty)
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 4),
-                        child: Row(
-                          children: [
-                            const SizedBox(
-                              width: 24,
-                            ), // Spacer for overflow menu alignment
-                            Expanded(
-                              child: Text(
-                                'WEIGHT',
-                                style: TextStyle(
-                                  color:
-                                      Theme.of(context).brightness ==
-                                          Brightness.light
-                                      ? Theme.of(context)
-                                            .textTheme
-                                            .bodySmall
-                                            ?.color
-                                            ?.withValues(alpha: 0.7)
-                                      : Colors.white,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                'REPS',
-                                style: TextStyle(
-                                  color:
-                                      Theme.of(context).brightness ==
-                                          Brightness.light
-                                      ? Theme.of(context)
-                                            .textTheme
-                                            .bodySmall
-                                            ?.color
-                                            ?.withValues(alpha: 0.7)
-                                      : Colors.white,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                            ),
-                            const SizedBox(width: 32),
-                            SizedBox(
-                              width: 40,
-                              child: Text(
-                                'LOG',
-                                style: TextStyle(
-                                  color:
-                                      Theme.of(context).brightness ==
-                                          Brightness.light
-                                      ? Theme.of(context)
-                                            .textTheme
-                                            .bodySmall
-                                            ?.color
-                                            ?.withValues(alpha: 0.7)
-                                      : Colors.white,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-
-                    // Sets list
-                    ...List.generate(exercise.sets.length, (index) {
-                      final set = exercise.sets[index];
-                      return _buildSetRow(context, set, index);
-                    }),
-
-                    // Pinned note display (at bottom of card)
-                    // Shows pinned notes from any exercise with the same name
-                    if (pinnedNote != null)
-                      _buildPinnedNote(context, pinnedNote),
-                  ],
+                      // Pinned note display (at bottom of card)
+                      // Shows pinned notes from any exercise with the same name
+                      if (pinnedNote != null) _buildPinnedNote(context, pinnedNote),
+                    ],
+                  ),
                 ),
               ),
-            ),
 
-            // Muscle group badge - overlays the card
-            if (showMuscleGroupBadge)
-              MuscleGroupBadge.compact(
-                muscleGroup: muscleGroup,
-                secondaryMuscleGroup: exercise.secondaryMuscleGroup,
-              ),
-          ],
-        ),
+              // Muscle group badge - overlays the card
+              if (showMuscleGroupBadge)
+                MuscleGroupBadge.compact(
+                  muscleGroup: muscleGroup,
+                  secondaryMuscleGroup: exercise.secondaryMuscleGroup,
+                ),
+            ],
+          ),
         );
       },
     );
@@ -586,18 +554,14 @@ class ExerciseCardWidget extends ConsumerWidget {
             children: [
               Icon(
                 Icons.healing,
-                color: exercise.sets.any((s) => s.isLogged)
-                    ? onSurfaceColor
-                    : Colors.grey,
+                color: exercise.sets.any((s) => s.isLogged) ? onSurfaceColor : Colors.grey,
                 size: 20,
               ),
               const SizedBox(width: 12),
               Text(
                 'Joint pain',
                 style: TextStyle(
-                  color: exercise.sets.any((s) => s.isLogged)
-                      ? onSurfaceColor
-                      : Colors.grey,
+                  color: exercise.sets.any((s) => s.isLogged) ? onSurfaceColor : Colors.grey,
                 ),
               ),
             ],
@@ -613,9 +577,7 @@ class ExerciseCardWidget extends ConsumerWidget {
                 Icon(Icons.timer, color: onSurfaceColor, size: 20),
                 const SizedBox(width: 12),
                 Text(
-                  exercise.restSeconds != null
-                      ? 'Rest: ${exercise.restSeconds}s'
-                      : 'Set rest timer',
+                  exercise.restSeconds != null ? 'Rest: ${exercise.restSeconds}s' : 'Set rest timer',
                   style: TextStyle(color: onSurfaceColor),
                 ),
               ],
@@ -655,18 +617,14 @@ class ExerciseCardWidget extends ConsumerWidget {
               children: [
                 Icon(
                   Icons.delete_outline,
-                  color: exercise.sets.any((s) => s.isLogged)
-                      ? Colors.grey
-                      : context.errorColor,
+                  color: exercise.sets.any((s) => s.isLogged) ? Colors.grey : context.errorColor,
                   size: 20,
                 ),
                 const SizedBox(width: 12),
                 Text(
                   'Delete exercise',
                   style: TextStyle(
-                    color: exercise.sets.any((s) => s.isLogged)
-                        ? Colors.grey
-                        : context.errorColor,
+                    color: exercise.sets.any((s) => s.isLogged) ? Colors.grey : context.errorColor,
                   ),
                 ),
               ],
@@ -683,8 +641,7 @@ class ExerciseCardWidget extends ConsumerWidget {
     // Myorep Match sets include weight/reps in the key so the field
     // rebuilds when _toggleSetLog propagates values from the set above.
     // Regular sets use a stable key to avoid focus loss during typing.
-    final isMyorepMatch =
-        set.setType == SetType.myorepMatch && index > 0;
+    final isMyorepMatch = set.setType == SetType.myorepMatch && index > 0;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 6),
@@ -729,9 +686,7 @@ class ExerciseCardWidget extends ConsumerWidget {
                     decoration: InputDecoration(
                       filled: false,
                       hintText: weightUnit,
-                      hintStyle: Theme.of(context)
-                          .inputDecorationTheme
-                          .hintStyle,
+                      hintStyle: Theme.of(context).inputDecorationTheme.hintStyle,
                       border: InputBorder.none,
                       enabledBorder: InputBorder.none,
                       focusedBorder: OutlineInputBorder(
@@ -793,103 +748,100 @@ class ExerciseCardWidget extends ConsumerWidget {
               label: 'Reps for set ${index + 1}',
               textField: true,
               child: Stack(
-              children: [
-                Container(
-                  height: 30,
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).inputDecorationTheme.fillColor,
-                    borderRadius: BorderRadius.circular(
-                      context.inputBorderRadius,
+                children: [
+                  Container(
+                    height: 30,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).inputDecorationTheme.fillColor,
+                      borderRadius: BorderRadius.circular(
+                        context.inputBorderRadius,
+                      ),
+                      border: Border.all(color: Theme.of(context).dividerColor),
                     ),
-                    border: Border.all(color: Theme.of(context).dividerColor),
-                  ),
-                  child: Center(
-                    child: TextFormField(
-                      key: ValueKey(
-                        isMyorepMatch
-                            ? 'reps_${set.id}_${set.setType.name}_${set.reps}'
-                            : 'reps_${set.id}_${set.setType.name}',
-                      ),
-                      initialValue: set.reps,
-                      style: Theme.of(context).textTheme.bodyMedium,
-                      textAlign: TextAlign.center,
-                      keyboardType: TextInputType.number,
-                      keyboardAppearance: Brightness.light,
-                      decoration: InputDecoration(
-                        filled: false,
-                        hintText: targetRir != null ? '$targetRir RIR' : 'RIR',
-                        hintStyle: Theme.of(
-                          context,
-                        ).inputDecorationTheme.hintStyle,
-                        border: InputBorder.none,
-                        enabledBorder: InputBorder.none,
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(
-                            context.inputBorderRadius,
-                          ),
-                          borderSide: BorderSide(
-                            color: Theme.of(context).colorScheme.primary,
-                            width: 2,
-                          ),
+                    child: Center(
+                      child: TextFormField(
+                        key: ValueKey(
+                          isMyorepMatch
+                              ? 'reps_${set.id}_${set.setType.name}_${set.reps}'
+                              : 'reps_${set.id}_${set.setType.name}',
                         ),
-                        errorBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(
-                            context.inputBorderRadius,
+                        initialValue: set.reps,
+                        style: Theme.of(context).textTheme.bodyMedium,
+                        textAlign: TextAlign.center,
+                        keyboardType: TextInputType.number,
+                        keyboardAppearance: Brightness.light,
+                        decoration: InputDecoration(
+                          filled: false,
+                          hintText: targetRir != null ? '$targetRir RIR' : 'RIR',
+                          hintStyle: Theme.of(
+                            context,
+                          ).inputDecorationTheme.hintStyle,
+                          border: InputBorder.none,
+                          enabledBorder: InputBorder.none,
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(
+                              context.inputBorderRadius,
+                            ),
+                            borderSide: BorderSide(
+                              color: Theme.of(context).colorScheme.primary,
+                              width: 2,
+                            ),
                           ),
-                          borderSide: BorderSide(
-                            color: Theme.of(context).colorScheme.error,
-                            width: 1,
+                          errorBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(
+                              context.inputBorderRadius,
+                            ),
+                            borderSide: BorderSide(
+                              color: Theme.of(context).colorScheme.error,
+                              width: 1,
+                            ),
                           ),
+                          focusedErrorBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(
+                              context.inputBorderRadius,
+                            ),
+                            borderSide: BorderSide(
+                              color: Theme.of(context).colorScheme.error,
+                              width: 2,
+                            ),
+                          ),
+                          contentPadding: const EdgeInsets.only(bottom: 12),
                         ),
-                        focusedErrorBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(
-                            context.inputBorderRadius,
-                          ),
-                          borderSide: BorderSide(
-                            color: Theme.of(context).colorScheme.error,
-                            width: 2,
-                          ),
-                        ),
-                        contentPadding: const EdgeInsets.only(bottom: 12),
+                        onChanged: (value) {
+                          callbacks.onUpdateSetReps(index, set.id, value);
+                        },
                       ),
-                      onChanged: (value) {
-                        callbacks.onUpdateSetReps(index, set.id, value);
-                      },
-                    ),
-                  ),
-                ),
-                // Badge for non-regular set types
-                if (_getSetTypeBadge(set.setType) != null)
-                  Positioned(
-                    top: 2,
-                    right: 4,
-                    child: Semantics(
-                      label: '${set.setType.displayName} set',
-                      child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 4,
-                        vertical: 2,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.grey.withValues(alpha: 0.6),
-                        borderRadius: BorderRadius.circular(3),
-                      ),
-                      child: Text(
-                        _getSetTypeBadge(set.setType)!,
-                        style: TextStyle(
-                          color:
-                              Theme.of(context).brightness == Brightness.light
-                              ? Colors.black
-                              : Colors.white,
-                          fontSize: 9,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
                     ),
                   ),
-              ],
-            ),
+                  // Badge for non-regular set types
+                  if (_getSetTypeBadge(set.setType) != null)
+                    Positioned(
+                      top: 2,
+                      right: 4,
+                      child: Semantics(
+                        label: '${set.setType.displayName} set',
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 4,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.grey.withValues(alpha: 0.6),
+                            borderRadius: BorderRadius.circular(3),
+                          ),
+                          child: Text(
+                            _getSetTypeBadge(set.setType)!,
+                            style: TextStyle(
+                              color: Theme.of(context).brightness == Brightness.light ? Colors.black : Colors.white,
+                              fontSize: 9,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
             ),
           ),
           const SizedBox(width: 48),
@@ -922,12 +874,8 @@ class ExerciseCardWidget extends ConsumerWidget {
                   ),
                 ),
                 child: InkWell(
-                  onTap: isLoggable
-                      ? () => callbacks.onToggleSetLog(index)
-                      : null,
-                  child: set.isLogged
-                      ? Icon(Icons.check, color: context.successColor)
-                      : null,
+                  onTap: isLoggable ? () => callbacks.onToggleSetLog(index) : null,
+                  child: set.isLogged ? Icon(Icons.check, color: context.successColor) : null,
                 ),
               ),
             ),
@@ -1094,12 +1042,8 @@ class ExerciseCardWidget extends ConsumerWidget {
           child: Row(
             children: [
               Icon(
-                set.setType == SetType.regular
-                    ? Icons.radio_button_checked
-                    : Icons.radio_button_unchecked,
-                color: set.setType == SetType.regular
-                    ? context.selectedIndicatorColor
-                    : Colors.grey,
+                set.setType == SetType.regular ? Icons.radio_button_checked : Icons.radio_button_unchecked,
+                color: set.setType == SetType.regular ? context.selectedIndicatorColor : Colors.grey,
                 size: 20,
               ),
               const SizedBox(width: 12),
@@ -1119,12 +1063,8 @@ class ExerciseCardWidget extends ConsumerWidget {
           child: Row(
             children: [
               Icon(
-                set.setType == SetType.myorep
-                    ? Icons.radio_button_checked
-                    : Icons.radio_button_unchecked,
-                color: set.setType == SetType.myorep
-                    ? context.selectedIndicatorColor
-                    : Colors.grey,
+                set.setType == SetType.myorep ? Icons.radio_button_checked : Icons.radio_button_unchecked,
+                color: set.setType == SetType.myorep ? context.selectedIndicatorColor : Colors.grey,
                 size: 20,
               ),
               const SizedBox(width: 12),
@@ -1145,12 +1085,8 @@ class ExerciseCardWidget extends ConsumerWidget {
             child: Row(
               children: [
                 Icon(
-                  set.setType == SetType.myorepMatch
-                      ? Icons.radio_button_checked
-                      : Icons.radio_button_unchecked,
-                  color: set.setType == SetType.myorepMatch
-                      ? context.selectedIndicatorColor
-                      : Colors.grey,
+                  set.setType == SetType.myorepMatch ? Icons.radio_button_checked : Icons.radio_button_unchecked,
+                  color: set.setType == SetType.myorepMatch ? context.selectedIndicatorColor : Colors.grey,
                   size: 20,
                 ),
                 const SizedBox(width: 12),
@@ -1170,12 +1106,8 @@ class ExerciseCardWidget extends ConsumerWidget {
           child: Row(
             children: [
               Icon(
-                set.setType == SetType.maxReps
-                    ? Icons.radio_button_checked
-                    : Icons.radio_button_unchecked,
-                color: set.setType == SetType.maxReps
-                    ? context.selectedIndicatorColor
-                    : Colors.grey,
+                set.setType == SetType.maxReps ? Icons.radio_button_checked : Icons.radio_button_unchecked,
+                color: set.setType == SetType.maxReps ? context.selectedIndicatorColor : Colors.grey,
                 size: 20,
               ),
               const SizedBox(width: 12),
@@ -1195,12 +1127,8 @@ class ExerciseCardWidget extends ConsumerWidget {
           child: Row(
             children: [
               Icon(
-                set.setType == SetType.endWithPartials
-                    ? Icons.radio_button_checked
-                    : Icons.radio_button_unchecked,
-                color: set.setType == SetType.endWithPartials
-                    ? context.selectedIndicatorColor
-                    : Colors.grey,
+                set.setType == SetType.endWithPartials ? Icons.radio_button_checked : Icons.radio_button_unchecked,
+                color: set.setType == SetType.endWithPartials ? context.selectedIndicatorColor : Colors.grey,
                 size: 20,
               ),
               const SizedBox(width: 12),
@@ -1221,12 +1149,8 @@ class ExerciseCardWidget extends ConsumerWidget {
             child: Row(
               children: [
                 Icon(
-                  set.setType == SetType.dropSet
-                      ? Icons.radio_button_checked
-                      : Icons.radio_button_unchecked,
-                  color: set.setType == SetType.dropSet
-                      ? context.selectedIndicatorColor
-                      : Colors.grey,
+                  set.setType == SetType.dropSet ? Icons.radio_button_checked : Icons.radio_button_unchecked,
+                  color: set.setType == SetType.dropSet ? context.selectedIndicatorColor : Colors.grey,
                   size: 20,
                 ),
                 const SizedBox(width: 12),

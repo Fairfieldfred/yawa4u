@@ -61,8 +61,7 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
       _isServerRunning = success;
       _connectionInfo = syncService.connectionInfo;
       if (!success) {
-        _errorMessage =
-            'Could not start sync server. Make sure you are connected to WiFi.';
+        _errorMessage = 'Could not start sync server. Make sure you are connected to WiFi.';
       }
     });
   }
@@ -126,8 +125,7 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
       _isLoading = false;
       _connectedDevice = device;
       if (device == null) {
-        _errorMessage =
-            'Could not connect to device. Make sure both devices are on the same WiFi network.';
+        _errorMessage = 'Could not connect to device. Make sure both devices are on the same WiFi network.';
       }
     });
   }
@@ -154,12 +152,9 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            result.message ??
-                (result.success ? 'Sync complete!' : 'Sync failed'),
+            result.message ?? (result.success ? 'Sync complete!' : 'Sync failed'),
           ),
-          backgroundColor: result.success
-              ? context.successColor
-              : context.errorColor,
+          backgroundColor: result.success ? context.successColor : context.errorColor,
         ),
       );
 
@@ -191,12 +186,9 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            result.message ??
-                (result.success ? 'Sync complete!' : 'Sync failed'),
+            result.message ?? (result.success ? 'Sync complete!' : 'Sync failed'),
           ),
-          backgroundColor: result.success
-              ? context.successColor
-              : context.errorColor,
+          backgroundColor: result.success ? context.successColor : context.errorColor,
         ),
       );
 
@@ -209,8 +201,7 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
   @override
   Widget build(BuildContext context) {
     final backupService = ref.watch(dataBackupServiceProvider);
-    final isDesktop =
-        Platform.isMacOS || Platform.isWindows || Platform.isLinux;
+    final isDesktop = Platform.isMacOS || Platform.isWindows || Platform.isLinux;
 
     return Scaffold(
       appBar: AppBar(title: const Text('Sync Data'), centerTitle: true),
@@ -243,8 +234,7 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
                           const SizedBox(height: 8),
                           Text(
                             '${snapshot.error}',
-                            style: Theme.of(context).textTheme.bodySmall
-                                ?.copyWith(color: Colors.grey),
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey),
                             textAlign: TextAlign.center,
                           ),
                         ],

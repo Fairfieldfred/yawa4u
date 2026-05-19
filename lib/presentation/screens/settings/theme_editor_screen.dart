@@ -391,16 +391,12 @@ class _ThemeEditorScreenState extends ConsumerState<ThemeEditorScreen> {
 
   Color _darkenColor(Color color, [double amount = 0.1]) {
     final hsl = HSLColor.fromColor(color);
-    return hsl
-        .withLightness((hsl.lightness - amount).clamp(0.0, 1.0))
-        .toColor();
+    return hsl.withLightness((hsl.lightness - amount).clamp(0.0, 1.0)).toColor();
   }
 
   Color _lightenColor(Color color, [double amount = 0.1]) {
     final hsl = HSLColor.fromColor(color);
-    return hsl
-        .withLightness((hsl.lightness + amount).clamp(0.0, 1.0))
-        .toColor();
+    return hsl.withLightness((hsl.lightness + amount).clamp(0.0, 1.0)).toColor();
   }
 
   @override
@@ -469,9 +465,7 @@ class _ThemeEditorScreenState extends ConsumerState<ThemeEditorScreen> {
                 Container(
                   width: 32,
                   height: 2,
-                  color: isCompleted
-                      ? Theme.of(context).colorScheme.primary
-                      : Theme.of(context).colorScheme.outline,
+                  color: isCompleted ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.outline,
                 ),
               Container(
                 width: 32,
@@ -482,9 +476,7 @@ class _ThemeEditorScreenState extends ConsumerState<ThemeEditorScreen> {
                       ? Theme.of(context).colorScheme.primary
                       : Theme.of(context).colorScheme.surfaceContainerHighest,
                   border: Border.all(
-                    color: isActive
-                        ? Theme.of(context).colorScheme.primary
-                        : Theme.of(context).colorScheme.outline,
+                    color: isActive ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.outline,
                   ),
                 ),
                 child: Center(
@@ -634,9 +626,7 @@ class _ThemeEditorScreenState extends ConsumerState<ThemeEditorScreen> {
           Center(
             child: GestureDetector(
               onTap: () => _pickImage('app_icon'),
-              onLongPress: _appIconImagePath != null
-                  ? () => _removeImage('app_icon')
-                  : null,
+              onLongPress: _appIconImagePath != null ? () => _removeImage('app_icon') : null,
               child: Container(
                 width: 150,
                 height: 150,
@@ -668,12 +658,11 @@ class _ThemeEditorScreenState extends ConsumerState<ThemeEditorScreen> {
                           const SizedBox(height: 8),
                           Text(
                             'Tap to add',
-                            style: Theme.of(context).textTheme.bodySmall
-                                ?.copyWith(
-                                  color: Theme.of(
-                                    context,
-                                  ).colorScheme.onSurfaceVariant,
-                                ),
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurfaceVariant,
+                            ),
                           ),
                         ],
                       ),
@@ -793,11 +782,8 @@ class _ThemeEditorScreenState extends ConsumerState<ThemeEditorScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              _nameController.text.isEmpty
-                                  ? 'Theme Name'
-                                  : _nameController.text,
-                              style: Theme.of(context).textTheme.titleMedium
-                                  ?.copyWith(color: _primaryColor),
+                              _nameController.text.isEmpty ? 'Theme Name' : _nameController.text,
+                              style: Theme.of(context).textTheme.titleMedium?.copyWith(color: _primaryColor),
                             ),
                             Text(
                               'Custom Theme',
@@ -901,9 +887,7 @@ class _ThemeEditorScreenState extends ConsumerState<ThemeEditorScreen> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        imagePath != null
-                            ? 'Tap to change, hold to remove'
-                            : 'Tap to add image',
+                        imagePath != null ? 'Tap to change, hold to remove' : 'Tap to add image',
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
@@ -991,9 +975,7 @@ class _ThemeEditorScreenState extends ConsumerState<ThemeEditorScreen> {
                         )
                       : null,
                 ),
-                child: isSelected
-                    ? const Icon(Icons.check, color: Colors.white, size: 20)
-                    : null,
+                child: isSelected ? const Icon(Icons.check, color: Colors.white, size: 20) : null,
               ),
             );
           }).toList(),

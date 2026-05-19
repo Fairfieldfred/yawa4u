@@ -102,8 +102,7 @@ class CalendarEditSheet extends ConsumerWidget {
               context,
               icon: Icons.remove_circle_outline,
               label: 'Remove Rest Day',
-              description:
-                  'Remove this rest day and shift all future workouts backward',
+              description: 'Remove this rest day and shift all future workouts backward',
               onPressed: () {
                 Navigator.of(context).pop();
                 onRemoveRestDay!(selectedDate!);
@@ -113,15 +112,12 @@ class CalendarEditSheet extends ConsumerWidget {
           ],
 
           // Insert day option (only available when we have period/day info)
-          if (selectedPeriod != null &&
-              selectedDay != null &&
-              onInsertDayBefore != null) ...[
+          if (selectedPeriod != null && selectedDay != null && onInsertDayBefore != null) ...[
             _buildActionButton(
               context,
               icon: Icons.add_circle_outline,
               label: 'Insert Day Before',
-              description:
-                  'Add a rest day here, shifting this and all future workouts forward',
+              description: 'Add a rest day here, shifting this and all future workouts forward',
               onPressed: () {
                 Navigator.of(context).pop();
                 onInsertDayBefore!(selectedPeriod!, selectedDay!);
@@ -211,9 +207,7 @@ class CalendarEditSheet extends ConsumerWidget {
                   context,
                 ).colorScheme.primaryContainer;
 
-                final success = await ref
-                    .read(calendarUndoProvider.notifier)
-                    .undo();
+                final success = await ref.read(calendarUndoProvider.notifier).undo();
                 if (context.mounted) {
                   navigator.pop();
                   if (success) {
@@ -229,9 +223,7 @@ class CalendarEditSheet extends ConsumerWidget {
             : null,
         icon: const Icon(Icons.undo),
         label: Text(
-          canUndo
-              ? 'Undo: ${undoState.snapshot?.description ?? "last change"}'
-              : 'Undo (no recent changes)',
+          canUndo ? 'Undo: ${undoState.snapshot?.description ?? "last change"}' : 'Undo (no recent changes)',
         ),
         style: OutlinedButton.styleFrom(
           foregroundColor: canUndo

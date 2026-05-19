@@ -32,8 +32,7 @@ class SportPickerSheet extends StatelessWidget {
     return showModalBottomSheet<Sport>(
       context: context,
       showDragHandle: true,
-      builder: (context) =>
-          SportPickerSheet(title: title, choices: choices),
+      builder: (context) => SportPickerSheet(title: title, choices: choices),
     );
   }
 

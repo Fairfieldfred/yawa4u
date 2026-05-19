@@ -167,11 +167,13 @@ class ExerciseHistoryService {
     }
 
     // Multiple weights — show each set individually
-    return loggedSets.map((s) {
-      final w = s.weight;
-      if (w == null || w == 0) return 'x ${s.reps}';
-      return '${_formatWeight(w)} x ${s.reps}';
-    }).join(', ');
+    return loggedSets
+        .map((s) {
+          final w = s.weight;
+          if (w == null || w == 0) return 'x ${s.reps}';
+          return '${_formatWeight(w)} x ${s.reps}';
+        })
+        .join(', ');
   }
 
   /// Format the date for display, showing relative text when recent.
@@ -256,11 +258,13 @@ class ExerciseHistoryService {
         if (exercise.name.toLowerCase() != lowerName) continue;
         if (!exercise.sets.any((s) => s.isLogged)) continue;
 
-        entries.add(ExerciseHistoryEntry(
-          exercise: exercise,
-          workout: workout,
-          date: workout.completedDate ?? exercise.lastPerformed,
-        ));
+        entries.add(
+          ExerciseHistoryEntry(
+            exercise: exercise,
+            workout: workout,
+            date: workout.completedDate ?? exercise.lastPerformed,
+          ),
+        );
       }
     }
 
@@ -279,8 +283,7 @@ class ExerciseHistoryService {
   /// Returns true if every logged set has a pure integer reps value
   /// (not a range like "8-12", not RIR like "2 RIR", not empty).
   bool didHitAllReps(Exercise previousExercise) {
-    final loggedSets =
-        previousExercise.sets.where((s) => s.isLogged).toList();
+    final loggedSets = previousExercise.sets.where((s) => s.isLogged).toList();
     if (loggedSets.isEmpty) return false;
 
     for (final set in loggedSets) {
@@ -318,8 +321,7 @@ class ExerciseHistoryService {
   ///
   /// If the user hit all reps last time and the equipment supports
   /// weight progression, returns the increased weight.
-  Future<({double? weight, bool hasSuggestion})>
-      getAutoPopulateWeightWithSuggestion(
+  Future<({double? weight, bool hasSuggestion})> getAutoPopulateWeightWithSuggestion(
     String exerciseName,
     String currentExerciseId,
     int setIndex,
@@ -333,15 +335,12 @@ class ExerciseHistoryService {
       return (weight: null, hasSuggestion: false);
     }
 
-    final previousSets =
-        previous.sets.where((s) => s.isLogged).toList();
+    final previousSets = previous.sets.where((s) => s.isLogged).toList();
     if (previousSets.isEmpty) {
       return (weight: null, hasSuggestion: false);
     }
 
-    final baseWeight = setIndex < previousSets.length
-        ? previousSets[setIndex].weight
-        : previousSets.last.weight;
+    final baseWeight = setIndex < previousSets.length ? previousSets[setIndex].weight : previousSets.last.weight;
 
     if (baseWeight == null) {
       return (weight: null, hasSuggestion: false);

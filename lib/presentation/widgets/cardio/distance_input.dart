@@ -97,9 +97,7 @@ class _DistanceInputState extends State<DistanceInput> {
     }
     double meters;
     if (widget.sport == Sport.swim) {
-      meters = widget.units.isMetric
-          ? parsed
-          : parsed * CardioConversions.metersPerYard;
+      meters = widget.units.isMetric ? parsed : parsed * CardioConversions.metersPerYard;
     } else {
       meters = CardioConversions.displayToMeters(parsed, widget.units);
     }

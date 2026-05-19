@@ -40,7 +40,8 @@ void main() {
     await db.close();
   });
 
-  Future<void> insertTrainingCycle(String uuid, {
+  Future<void> insertTrainingCycle(
+    String uuid, {
     TrainingCycleStatus status = TrainingCycleStatus.draft,
   }) async {
     await db.trainingCycleDao.insertCycle(

@@ -59,8 +59,7 @@ class ExerciseSet {
   Map<String, dynamic> toJson() => _$ExerciseSetToJson(this);
 
   /// Create from JSON for import
-  factory ExerciseSet.fromJson(Map<String, dynamic> json) =>
-      _$ExerciseSetFromJson(json);
+  factory ExerciseSet.fromJson(Map<String, dynamic> json) => _$ExerciseSetFromJson(json);
 
   @override
   String toString() {

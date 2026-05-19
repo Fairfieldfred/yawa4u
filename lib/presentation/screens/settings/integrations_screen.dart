@@ -21,21 +21,17 @@ class IntegrationsScreen extends ConsumerStatefulWidget {
   const IntegrationsScreen({super.key});
 
   @override
-  ConsumerState<IntegrationsScreen> createState() =>
-      _IntegrationsScreenState();
+  ConsumerState<IntegrationsScreen> createState() => _IntegrationsScreenState();
 }
 
-class _IntegrationsScreenState
-    extends ConsumerState<IntegrationsScreen> {
+class _IntegrationsScreenState extends ConsumerState<IntegrationsScreen> {
   HealthSyncResult? _lastResult;
   bool _busy = false;
 
   Future<void> _requestPermissions() async {
     if (_busy) return;
     setState(() => _busy = true);
-    final granted = await ref
-        .read(healthSyncServiceProvider)
-        .requestPermissions();
+    final granted = await ref.read(healthSyncServiceProvider).requestPermissions();
     ref.invalidate(healthSyncStatusProvider);
     if (!mounted) return;
     if (granted) {
@@ -71,18 +67,26 @@ class _IntegrationsScreenState
               'please follow these steps:',
             ),
             SizedBox(height: 16),
-            Text('1. Download and install Health Connect from the '
-                'Google Play Store (Android 14+ has it built in).'),
+            Text(
+              '1. Download and install Health Connect from the '
+              'Google Play Store (Android 14+ has it built in).',
+            ),
             SizedBox(height: 8),
-            Text('2. Open Health Connect and go to '
-                'App permissions.'),
+            Text(
+              '2. Open Health Connect and go to '
+              'App permissions.',
+            ),
             SizedBox(height: 8),
-            Text('3. Find Yawa4u in the list and allow access '
-                'to Exercise sessions, Heart rate, Distance, '
-                'and Active energy burned.'),
+            Text(
+              '3. Find Yawa4u in the list and allow access '
+              'to Exercise sessions, Heart rate, Distance, '
+              'and Active energy burned.',
+            ),
             SizedBox(height: 8),
-            Text('4. Return here and tap "Grant permissions" '
-                'again.'),
+            Text(
+              '4. Return here and tap "Grant permissions" '
+              'again.',
+            ),
           ],
         ),
         actions: [
@@ -180,9 +184,7 @@ class _StravaCardState extends ConsumerState<_StravaCard> {
   Future<void> _connect() async {
     if (_busy) return;
     setState(() => _busy = true);
-    final success = await ref
-        .read(stravaIntegrationServiceProvider)
-        .connect();
+    final success = await ref.read(stravaIntegrationServiceProvider).connect();
     ref.invalidate(stravaSyncStatusProvider);
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
@@ -198,9 +200,7 @@ class _StravaCardState extends ConsumerState<_StravaCard> {
   Future<void> _sync() async {
     if (_busy) return;
     setState(() => _busy = true);
-    final result = await ref
-        .read(stravaIntegrationServiceProvider)
-        .syncNow();
+    final result = await ref.read(stravaIntegrationServiceProvider).syncNow();
     ref.invalidate(sessionsProvider);
     ref.invalidate(stravaSyncStatusProvider);
     if (!mounted) return;
@@ -290,9 +290,9 @@ class _StravaCardState extends ConsumerState<_StravaCard> {
                 child: Text(
                   _lastResult!.isSuccess
                       ? 'Last run: +${_lastResult!.imported} imported · '
-                          '${_lastResult!.skippedDuplicate} already here · '
-                          '${_lastResult!.skippedUnsupportedType} non-cardio skipped'
-                          '${_lastResult!.failed > 0 ? ' · ${_lastResult!.failed} failed' : ''}'
+                            '${_lastResult!.skippedDuplicate} already here · '
+                            '${_lastResult!.skippedUnsupportedType} non-cardio skipped'
+                            '${_lastResult!.failed > 0 ? ' · ${_lastResult!.failed} failed' : ''}'
                       : _lastResult!.error ?? '',
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
@@ -402,8 +402,7 @@ class _StravaStatusBadge extends StatelessWidget {
         height: 18,
         child: CircularProgressIndicator(strokeWidth: 2),
       ),
-      error: (_, _) =>
-          _badge(context, label: 'Error', color: Colors.red),
+      error: (_, _) => _badge(context, label: 'Error', color: Colors.red),
     );
   }
 

@@ -170,18 +170,11 @@ class DataBackupService {
       final trainingCyclesJson = data['trainingCycles'] as List<dynamic>? ?? [];
       final workoutsJson = data['workouts'] as List<dynamic>? ?? [];
       final exercisesJson = data['exercises'] as List<dynamic>? ?? [];
-      final customExercisesJson =
-          data['customExercises'] as List<dynamic>? ?? [];
+      final customExercisesJson = data['customExercises'] as List<dynamic>? ?? [];
 
-      final trainingCycles = trainingCyclesJson
-          .map((m) => TrainingCycle.fromJson(m as Map<String, dynamic>))
-          .toList();
-      final workouts = workoutsJson
-          .map((w) => Workout.fromJson(w as Map<String, dynamic>))
-          .toList();
-      final exercises = exercisesJson
-          .map((e) => Exercise.fromJson(e as Map<String, dynamic>))
-          .toList();
+      final trainingCycles = trainingCyclesJson.map((m) => TrainingCycle.fromJson(m as Map<String, dynamic>)).toList();
+      final workouts = workoutsJson.map((w) => Workout.fromJson(w as Map<String, dynamic>)).toList();
+      final exercises = exercisesJson.map((e) => Exercise.fromJson(e as Map<String, dynamic>)).toList();
       final customExercises = customExercisesJson
           .map(
             (e) => CustomExerciseDefinition.fromJson(e as Map<String, dynamic>),
@@ -192,18 +185,11 @@ class DataBackupService {
       final cardioSessionsJson = data['cardioSessions'] as List<dynamic>? ?? [];
       final cyclePeriodsJson = data['cyclePeriods'] as List<dynamic>? ?? [];
       final sportZonesJson = data['sportZones'] as List<dynamic>? ?? [];
-      final cardioFeedbacksJson =
-          data['cardioFeedbacks'] as List<dynamic>? ?? [];
+      final cardioFeedbacksJson = data['cardioFeedbacks'] as List<dynamic>? ?? [];
 
-      final cardioSessions = cardioSessionsJson
-          .map((s) => CardioSession.fromJson(s as Map<String, dynamic>))
-          .toList();
-      final cyclePeriods = cyclePeriodsJson
-          .map((p) => CyclePeriod.fromJson(p as Map<String, dynamic>))
-          .toList();
-      final sportZones = sportZonesJson
-          .map((z) => SportZone.fromJson(z as Map<String, dynamic>))
-          .toList();
+      final cardioSessions = cardioSessionsJson.map((s) => CardioSession.fromJson(s as Map<String, dynamic>)).toList();
+      final cyclePeriods = cyclePeriodsJson.map((p) => CyclePeriod.fromJson(p as Map<String, dynamic>)).toList();
+      final sportZones = sportZonesJson.map((z) => SportZone.fromJson(z as Map<String, dynamic>)).toList();
 
       // Clear existing data if replacing
       if (replace) {
@@ -216,8 +202,7 @@ class DataBackupService {
 
       // Get existing IDs to check for duplicates
       final existingTrainingCycles = await _trainingCycleRepository.getAll();
-      final existingTrainingCycleIds =
-          existingTrainingCycles.map((tc) => tc.id).toSet();
+      final existingTrainingCycleIds = existingTrainingCycles.map((tc) => tc.id).toSet();
 
       final existingWorkouts = await _workoutRepository.getAll();
       final existingWorkoutIds = existingWorkouts.map((w) => w.id).toSet();
@@ -226,8 +211,7 @@ class DataBackupService {
       final existingExerciseIds = existingExercises.map((e) => e.id).toSet();
 
       final existingCustomExercises = await _customExerciseRepository.getAll();
-      final existingCustomExerciseIds =
-          existingCustomExercises.map((ce) => ce.id).toSet();
+      final existingCustomExerciseIds = existingCustomExercises.map((ce) => ce.id).toSet();
 
       final existingSessions = await _loadAllSessions();
       final existingSessionIds = existingSessions.map((s) => s.id).toSet();
@@ -349,8 +333,7 @@ class DataBackupService {
             final skinJson = Map<String, dynamic>.from(
               themeData as Map<String, dynamic>,
             );
-            final imagesBase64 =
-                skinJson.remove('imagesBase64') as Map<String, dynamic>? ?? {};
+            final imagesBase64 = skinJson.remove('imagesBase64') as Map<String, dynamic>? ?? {};
 
             // Parse the skin model
             final skin = SkinModel.fromJson(skinJson);
@@ -370,8 +353,7 @@ class DataBackupService {
             );
 
             // Get the actual paths for the imported images
-            final importedPaths = await _themeImageService
-                .getAllThemeImagePaths(skin.id);
+            final importedPaths = await _themeImageService.getAllThemeImagePaths(skin.id);
 
             // Update skin with new image paths
             final updatedSkin = skin.copyWith(
@@ -497,10 +479,5 @@ class DataStats {
     this.cardioSessionCount = 0,
   });
 
-  int get total =>
-      trainingCycleCount +
-      workoutCount +
-      exerciseCount +
-      customExerciseCount +
-      cardioSessionCount;
+  int get total => trainingCycleCount + workoutCount + exerciseCount + customExerciseCount + cardioSessionCount;
 }

@@ -67,8 +67,7 @@ class SkinSelectionScreen extends ConsumerWidget {
                     children: [
                       Text(
                         'Choose a Theme',
-                        style: Theme.of(context).textTheme.titleMedium
-                            ?.copyWith(fontWeight: FontWeight.bold),
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                       ),
                       FilledButton.icon(
                         onPressed: () => context.push('/theme-editor'),
@@ -111,9 +110,7 @@ class SkinSelectionScreen extends ConsumerWidget {
                       skin: skin,
                       isSelected: isSelected,
                       onTap: () {
-                        ref
-                            .read(skinProvider.notifier)
-                            .setActiveSkin(skin.id);
+                        ref.read(skinProvider.notifier).setActiveSkin(skin.id);
                       },
                     ),
                   );
@@ -151,8 +148,7 @@ class SkinSelectionScreen extends ConsumerWidget {
         showDialog(
           context: context,
           barrierDismissible: false,
-          builder: (context) =>
-              const Center(child: CircularProgressIndicator()),
+          builder: (context) => const Center(child: CircularProgressIndicator()),
         );
       }
 
@@ -294,9 +290,7 @@ class _SkinCard extends ConsumerWidget {
 
     return GestureDetector(
       onTap: onTap,
-      onLongPress: isCustomSkin
-          ? () => _showCustomSkinOptions(context, ref)
-          : null,
+      onLongPress: isCustomSkin ? () => _showCustomSkinOptions(context, ref) : null,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         decoration: BoxDecoration(
@@ -475,9 +469,7 @@ class _SkinCard extends ConsumerWidget {
                   ),
                 );
                 if (confirm == true) {
-                  await ref
-                      .read(skinProvider.notifier)
-                      .deleteCustomSkin(skin.id);
+                  await ref.read(skinProvider.notifier).deleteCustomSkin(skin.id);
                 }
               },
             ),
@@ -529,8 +521,7 @@ class _ColorSwatchPreview extends StatelessWidget {
                   child: Container(
                     height: 4,
                     decoration: BoxDecoration(
-                      color: modeColors.textPrimaryColor
-                          .withValues(alpha: 0.2),
+                      color: modeColors.textPrimaryColor.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -563,8 +554,7 @@ class _ColorSwatchPreview extends StatelessWidget {
                     height: 2,
                     width: double.infinity,
                     decoration: BoxDecoration(
-                      color: modeColors.textSecondaryColor
-                          .withValues(alpha: 0.5),
+                      color: modeColors.textSecondaryColor.withValues(alpha: 0.5),
                       borderRadius: BorderRadius.circular(1),
                     ),
                   ),

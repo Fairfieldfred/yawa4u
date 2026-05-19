@@ -75,9 +75,11 @@ class SessionRepository {
   /// on each emit; upstream consumers typically filter by sport before
   /// rendering.
   Stream<List<Session>> watchByTrainingCycleId(String trainingCycleId) {
-    return _sessionDao.watchByTrainingCycleUuid(trainingCycleId).asyncMap(
-      _hydrateMany,
-    );
+    return _sessionDao
+        .watchByTrainingCycleUuid(trainingCycleId)
+        .asyncMap(
+          _hydrateMany,
+        );
   }
 
   Stream<List<Session>> watchAll() {
@@ -98,9 +100,7 @@ class SessionRepository {
   /// Cardio sessions inside `[start, end]` — both-inclusive — used by the
   /// weekly-volume widgets.
   Stream<List<Session>> watchByDateRange(DateTime start, DateTime end) {
-    return _sessionDao
-        .watchByDateRange(start, end)
-        .asyncMap(_hydrateMany);
+    return _sessionDao.watchByDateRange(start, end).asyncMap(_hydrateMany);
   }
 
   /// Is there already a session with this external identifier?
@@ -157,9 +157,7 @@ class SessionRepository {
   }) async {
     final sessionUuid = row.uuid as String;
     final cardioRow = await _cardioDao.getBySessionUuid(sessionUuid);
-    final detail = cardioRow != null
-        ? CardioDetailMapper.fromRow(cardioRow)
-        : null;
+    final detail = cardioRow != null ? CardioDetailMapper.fromRow(cardioRow) : null;
 
     final intervalRows = await _intervalDao.getBySessionUuid(sessionUuid);
     final intervals = intervalRows.map(SessionIntervalMapper.fromRow).toList();
@@ -266,9 +264,7 @@ class SessionRepository {
     DateTime? endTimeIfMissing,
   }) {
     final sport = Sport.values[row.sport as int];
-    final base = sport == Sport.strength
-        ? SessionMapper.strengthFromRow(row)
-        : SessionMapper.cardioFromRow(row);
+    final base = sport == Sport.strength ? SessionMapper.strengthFromRow(row) : SessionMapper.cardioFromRow(row);
     if (base is StrengthSession) {
       return base.copyWith(
         status: status,
@@ -343,8 +339,7 @@ class SessionRepository {
   }) async {
     // Query even on create — the initial list is empty so the cost is
     // negligible and the single code path keeps this method readable.
-    final existingExercises =
-        await _exerciseDao.getByWorkoutUuid(session.id);
+    final existingExercises = await _exerciseDao.getByWorkoutUuid(session.id);
     final existingExerciseIds = existingExercises.map((e) => e.uuid).toSet();
     final newExerciseIds = session.exercises.map((e) => e.id).toSet();
 
@@ -374,8 +369,7 @@ class SessionRepository {
       }
 
       // Reconcile sets.
-      final existingSets =
-          await _exerciseSetDao.getByExerciseUuid(exercise.id);
+      final existingSets = await _exerciseSetDao.getByExerciseUuid(exercise.id);
       final existingSetIds = existingSets.map((s) => s.uuid).toSet();
       final newSetIds = exercise.sets.map((s) => s.id).toSet();
       if (isUpdate) {

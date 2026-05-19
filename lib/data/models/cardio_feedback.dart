@@ -63,17 +63,14 @@ class CardioFeedback {
     'ownerUuid': ownerUuid,
   };
 
-  factory CardioFeedback.fromJson(Map<String, dynamic> json) =>
-      CardioFeedback(
-        rpe: json['rpe'] as int?,
-        breathing: json['breathing'] as int?,
-        giComfort: json['giComfort'] as int?,
-        weather: json['weather'] as String?,
-        notes: json['notes'] as String?,
-        timestamp: json['timestamp'] != null
-            ? DateTime.parse(json['timestamp'] as String)
-            : null,
-        creatorUuid: json['creatorUuid'] as String?,
-        ownerUuid: json['ownerUuid'] as String?,
-      );
+  factory CardioFeedback.fromJson(Map<String, dynamic> json) => CardioFeedback(
+    rpe: json['rpe'] as int?,
+    breathing: json['breathing'] as int?,
+    giComfort: json['giComfort'] as int?,
+    weather: json['weather'] as String?,
+    notes: json['notes'] as String?,
+    timestamp: json['timestamp'] != null ? DateTime.parse(json['timestamp'] as String) : null,
+    creatorUuid: json['creatorUuid'] as String?,
+    ownerUuid: json['ownerUuid'] as String?,
+  );
 }

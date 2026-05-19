@@ -44,8 +44,7 @@ class AppRoutes {
   // UX review P1 #6: user-facing path uses "sessions"; legacy
   // "/workouts" still resolves via a redirect route for backward compat.
   static const String workoutList = '/trainingCycles/:trainingCycleId/sessions';
-  static const String completedTrainingCycleView =
-      '/trainingCycles/:trainingCycleId/view';
+  static const String completedTrainingCycleView = '/trainingCycles/:trainingCycleId/view';
   static const String stats = '/stats';
   // v5 — multi-sport cardio
   static const String cardioSessionNew = '/cardio-session/new';
@@ -60,9 +59,7 @@ final routerProvider = Provider<GoRouter>((ref) {
     debugLogDiagnostics: true,
     redirect: (context, state) {
       // Read onboarding status fresh each time redirect is called
-      final isOnboardingComplete = ref
-          .read(onboardingServiceProvider)
-          .isOnboardingComplete;
+      final isOnboardingComplete = ref.read(onboardingServiceProvider).isOnboardingComplete;
 
       // If onboarding is not complete, redirect to onboarding
       // unless already on onboarding screens
@@ -168,8 +165,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       // still takes `workoutId:` — a schema-level rename is a larger
       // pass for another day.
       GoRoute(
-        path:
-            '/trainingCycles/:trainingCycleId/sessions/:workoutId/choose-exercise',
+        path: '/trainingCycles/:trainingCycleId/sessions/:workoutId/choose-exercise',
         name: 'add-exercise',
         builder: (context, state) {
           final trainingCycleId = state.pathParameters['trainingCycleId']!;
@@ -198,8 +194,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       // Back-compat redirect for the legacy "/workouts/.../choose-exercise"
       // path. Preserves the query string (muscleGroup).
       GoRoute(
-        path:
-            '/trainingCycles/:trainingCycleId/workouts/:workoutId/choose-exercise',
+        path: '/trainingCycles/:trainingCycleId/workouts/:workoutId/choose-exercise',
         redirect: (context, state) {
           final tc = state.pathParameters['trainingCycleId']!;
           final wid = state.pathParameters['workoutId']!;
@@ -317,9 +312,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         name: 'cardio-session-new',
         builder: (context, state) {
           final params = state.uri.queryParameters;
-          final sport = params['sport'] != null
-              ? Sports.parse(params['sport']!)
-              : Sport.run;
+          final sport = params['sport'] != null ? Sports.parse(params['sport']!) : Sport.run;
           return CardioSessionScreen(
             sport: sport,
             trainingCycleId: params['trainingCycleId'],
@@ -355,7 +348,8 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/community',
         name: 'community',
         builder: (context, state) {
-          final tab = int.tryParse(
+          final tab =
+              int.tryParse(
                 state.uri.queryParameters['tab'] ?? '',
               ) ??
               0;

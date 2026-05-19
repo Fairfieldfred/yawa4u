@@ -23,10 +23,9 @@ final availableTemplatesProvider = FutureProvider<List<TrainingCycleTemplate>>((
 
 /// Provider for currently selected template
 /// Provider for currently selected template
-final selectedTemplateProvider =
-    NotifierProvider<SelectedTemplateNotifier, TrainingCycleTemplate?>(
-      SelectedTemplateNotifier.new,
-    );
+final selectedTemplateProvider = NotifierProvider<SelectedTemplateNotifier, TrainingCycleTemplate?>(
+  SelectedTemplateNotifier.new,
+);
 
 class SelectedTemplateNotifier extends Notifier<TrainingCycleTemplate?> {
   @override

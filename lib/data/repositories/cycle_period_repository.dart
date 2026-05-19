@@ -20,9 +20,11 @@ class CyclePeriodRepository {
   }
 
   Stream<List<CyclePeriod>> watchByTrainingCycleId(String trainingCycleId) {
-    return _dao.watchByTrainingCycleUuid(trainingCycleId).map(
-      (rows) => rows.map(CyclePeriodMapper.fromRow).toList(),
-    );
+    return _dao
+        .watchByTrainingCycleUuid(trainingCycleId)
+        .map(
+          (rows) => rows.map(CyclePeriodMapper.fromRow).toList(),
+        );
   }
 
   Future<CyclePeriod?> getByCycleAndPeriod(

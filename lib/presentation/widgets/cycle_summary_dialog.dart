@@ -37,15 +37,9 @@ class CycleSummaryDialog extends ConsumerWidget {
             return a.dayNumber.compareTo(b.dayNumber);
           });
 
-          final completedCount = workouts
-              .where((w) => w.status == WorkoutStatus.completed)
-              .length;
-          final skippedCount = workouts
-              .where((w) => w.status == WorkoutStatus.skipped)
-              .length;
-          final incompleteCount = workouts
-              .where((w) => w.status == WorkoutStatus.incomplete)
-              .length;
+          final completedCount = workouts.where((w) => w.status == WorkoutStatus.completed).length;
+          final skippedCount = workouts.where((w) => w.status == WorkoutStatus.skipped).length;
+          final incompleteCount = workouts.where((w) => w.status == WorkoutStatus.incomplete).length;
 
           return Padding(
             padding: const EdgeInsets.all(20.0),
@@ -148,8 +142,7 @@ class CycleSummaryDialog extends ConsumerWidget {
                   onTap: () {
                     showDialog(
                       context: context,
-                      builder: (context) =>
-                          MuscleGroupStatsDialog(trainingCycle: trainingCycle),
+                      builder: (context) => MuscleGroupStatsDialog(trainingCycle: trainingCycle),
                     );
                   },
                 ),

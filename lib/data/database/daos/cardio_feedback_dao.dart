@@ -9,8 +9,7 @@ part 'cardio_feedback_dao.g.dart';
 /// [ExerciseFeedbackDao] but with cardio-specific fields: RPE, breathing,
 /// GI comfort, weather.
 @DriftAccessor(tables: [CardioFeedback])
-class CardioFeedbackDao extends DatabaseAccessor<AppDatabase>
-    with _$CardioFeedbackDaoMixin {
+class CardioFeedbackDao extends DatabaseAccessor<AppDatabase> with _$CardioFeedbackDaoMixin {
   CardioFeedbackDao(super.db);
 
   Future<CardioFeedbackData?> getBySessionUuid(String sessionUuid) {

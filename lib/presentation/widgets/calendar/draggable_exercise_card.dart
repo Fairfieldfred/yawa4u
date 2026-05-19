@@ -76,14 +76,10 @@ class DraggableExerciseCard extends StatelessWidget {
       width: isDragging ? (compact ? 120 : 180) : null,
       padding: EdgeInsets.all(compact ? 3 : 8),
       decoration: BoxDecoration(
-        color: isSelected
-            ? Theme.of(context).colorScheme.primaryContainer
-            : Theme.of(context).colorScheme.surface,
+        color: isSelected ? Theme.of(context).colorScheme.primaryContainer : Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(6),
         border: Border.all(
-          color: isSelected
-              ? Theme.of(context).colorScheme.primary
-              : muscleGroupColor.withAlpha(150),
+          color: isSelected ? Theme.of(context).colorScheme.primary : muscleGroupColor.withAlpha(150),
           width: isSelected ? 2 : 1,
         ),
         boxShadow: isDragging

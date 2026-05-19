@@ -50,8 +50,7 @@ class AppIconWidget extends ConsumerWidget {
               width: iconSize,
               height: iconSize,
               fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) =>
-                  _buildDefaultIcon(context, ref, iconSize),
+              errorBuilder: (context, error, stackTrace) => _buildDefaultIcon(context, ref, iconSize),
             ),
           ),
         );
@@ -74,8 +73,7 @@ class AppIconWidget extends ConsumerWidget {
                 width: iconSize,
                 height: iconSize,
                 fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) =>
-                    _buildDefaultIcon(context, ref, iconSize),
+                errorBuilder: (context, error, stackTrace) => _buildDefaultIcon(context, ref, iconSize),
               );
             },
           ),
@@ -100,9 +98,7 @@ class AppIconWidget extends ConsumerWidget {
   ) {
     final appIconIndex = ref.watch(userProfileProvider).appIconIndex;
     final brightness = Theme.of(context).brightness;
-    final iconPaths = brightness == Brightness.dark
-        ? _darkIconPaths
-        : _lightIconPaths;
+    final iconPaths = brightness == Brightness.dark ? _darkIconPaths : _lightIconPaths;
 
     // Ensure index is within bounds
     final validIndex = appIconIndex.clamp(0, iconPaths.length - 1);

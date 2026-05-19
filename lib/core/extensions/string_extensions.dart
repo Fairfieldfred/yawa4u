@@ -80,8 +80,7 @@ extension StringExtensions on String {
   int toIntOr(int defaultValue) => int.tryParse(this) ?? defaultValue;
 
   /// Try to parse as double, return default value if invalid
-  double toDoubleOr(double defaultValue) =>
-      double.tryParse(this) ?? defaultValue;
+  double toDoubleOr(double defaultValue) => double.tryParse(this) ?? defaultValue;
 
   // ========== TRUNCATION ==========
 
@@ -194,10 +193,7 @@ extension StringExtensions on String {
     if (words.length == 1) {
       return words[0].isNotEmpty ? words[0][0].toUpperCase() : '';
     }
-    return words
-        .take(2)
-        .map((word) => word.isNotEmpty ? word[0].toUpperCase() : '')
-        .join('');
+    return words.take(2).map((word) => word.isNotEmpty ? word[0].toUpperCase() : '').join('');
   }
 
   /// Count occurrences of a substring
@@ -224,8 +220,7 @@ extension StringExtensions on String {
   String get snakeToCamel {
     final parts = split('_');
     if (parts.length == 1) return this;
-    return parts.first +
-        parts.skip(1).map((part) => part.capitalize).join('');
+    return parts.first + parts.skip(1).map((part) => part.capitalize).join('');
   }
 
   /// Convert camelCase to snake_case

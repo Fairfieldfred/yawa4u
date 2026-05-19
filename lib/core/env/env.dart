@@ -5,8 +5,7 @@ class Env {
   static String get sentryDsn => const String.fromEnvironment('SENTRY_DSN');
 
   /// Whether a Sentry DSN has been configured.
-  static bool get hasSentryDsn =>
-      sentryDsn.isNotEmpty && sentryDsn != 'YOUR_SENTRY_DSN_HERE';
+  static bool get hasSentryDsn => sentryDsn.isNotEmpty && sentryDsn != 'YOUR_SENTRY_DSN_HERE';
 
   // static String get mixpanelProjectToken =>
   //     const String.fromEnvironment('MIXPANEL_PROJECT_TOKEN');

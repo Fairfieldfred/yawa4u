@@ -19,10 +19,9 @@ class TemplateShareStatusNotifier extends Notifier<TemplateShareStatus> {
   }
 }
 
-final templateShareStatusProvider =
-    NotifierProvider<TemplateShareStatusNotifier, TemplateShareStatus>(
-      () => TemplateShareStatusNotifier(),
-    );
+final templateShareStatusProvider = NotifierProvider<TemplateShareStatusNotifier, TemplateShareStatus>(
+  () => TemplateShareStatusNotifier(),
+);
 
 /// Notifier for connected device info during template sharing
 class TemplateShareDeviceNotifier extends Notifier<TemplateShareDeviceInfo?> {
@@ -38,7 +37,6 @@ class TemplateShareDeviceNotifier extends Notifier<TemplateShareDeviceInfo?> {
   }
 }
 
-final templateShareDeviceProvider =
-    NotifierProvider<TemplateShareDeviceNotifier, TemplateShareDeviceInfo?>(
-      () => TemplateShareDeviceNotifier(),
-    );
+final templateShareDeviceProvider = NotifierProvider<TemplateShareDeviceNotifier, TemplateShareDeviceInfo?>(
+  () => TemplateShareDeviceNotifier(),
+);

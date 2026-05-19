@@ -205,8 +205,7 @@ class TemplateShareService {
           jsonEncode({
             'deviceName': deviceName,
             'templateCount': _templatesToShare?.length ?? 0,
-            'templateNames':
-                _templatesToShare?.map((t) => t.name).toList() ?? [],
+            'templateNames': _templatesToShare?.map((t) => t.name).toList() ?? [],
           }),
           headers: {'Content-Type': 'application/json'},
         );
@@ -227,9 +226,7 @@ class TemplateShareService {
           );
         }
 
-        final templatesJson = _templatesToShare!
-            .map((t) => t.toJson())
-            .toList();
+        final templatesJson = _templatesToShare!.map((t) => t.toJson()).toList();
         return Response.ok(
           jsonEncode({'templates': templatesJson}),
           headers: {'Content-Type': 'application/json'},
@@ -237,9 +234,7 @@ class TemplateShareService {
       });
 
       // Start server on a random available port
-      final handler = const Pipeline()
-          .addMiddleware(logRequests())
-          .addHandler(router.call);
+      final handler = const Pipeline().addMiddleware(logRequests()).addHandler(router.call);
 
       _server = await shelf_io.serve(handler, InternetAddress.anyIPv4, 0);
       _serverPort = _server!.port;
@@ -283,9 +278,7 @@ class TemplateShareService {
       final port = data['port'] as int;
       final code = data['code'] as String;
 
-      final response = await http
-          .get(Uri.parse('http://$ip:$port/info'))
-          .timeout(const Duration(seconds: 5));
+      final response = await http.get(Uri.parse('http://$ip:$port/info')).timeout(const Duration(seconds: 5));
 
       if (response.statusCode == 200) {
         final info = jsonDecode(response.body) as Map<String, dynamic>;
@@ -295,9 +288,7 @@ class TemplateShareService {
           code: code,
           name: info['deviceName'] as String,
           templateCount: info['templateCount'] as int,
-          templateNames: (info['templateNames'] as List<dynamic>)
-              .map((e) => e as String)
-              .toList(),
+          templateNames: (info['templateNames'] as List<dynamic>).map((e) => e as String).toList(),
         );
       }
     } catch (e, stack) {

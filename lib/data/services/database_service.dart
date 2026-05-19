@@ -132,15 +132,11 @@ class DatabaseService {
     if (_database == null) return {};
 
     try {
-      final trainingCycleCount =
-          await _database!.trainingCycleDao.countRows();
-      final strengthSessionCount =
-          await _database!.sessionDao.countBySport(0); // Sport.strength.index
+      final trainingCycleCount = await _database!.trainingCycleDao.countRows();
+      final strengthSessionCount = await _database!.sessionDao.countBySport(0); // Sport.strength.index
       final exerciseCount = await _database!.exerciseDao.countRows();
-      final customExerciseCount =
-          await _database!.customExerciseDao.countRows();
-      final userMeasurementCount =
-          await _database!.userMeasurementDao.countRows();
+      final customExerciseCount = await _database!.customExerciseDao.countRows();
+      final userMeasurementCount = await _database!.userMeasurementDao.countRows();
 
       return {
         'trainingCycles': trainingCycleCount,

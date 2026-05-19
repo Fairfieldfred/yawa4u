@@ -18,9 +18,11 @@ class CardioFeedbackRepository {
   }
 
   Stream<CardioFeedback?> watchForSession(String sessionId) {
-    return _dao.watchBySessionUuid(sessionId).map(
-      (row) => row != null ? CardioFeedbackMapper.fromRow(row) : null,
-    );
+    return _dao
+        .watchBySessionUuid(sessionId)
+        .map(
+          (row) => row != null ? CardioFeedbackMapper.fromRow(row) : null,
+        );
   }
 
   Future<void> save(String sessionId, CardioFeedback feedback) async {

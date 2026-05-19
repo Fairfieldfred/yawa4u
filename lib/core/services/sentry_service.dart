@@ -175,9 +175,7 @@ class SentryService {
 
     try {
       // First capture a message event to associate feedback with
-      final eventId =
-          associatedEventId ??
-          await Sentry.captureMessage('User Feedback', level: SentryLevel.info);
+      final eventId = associatedEventId ?? await Sentry.captureMessage('User Feedback', level: SentryLevel.info);
 
       _debugPrint('   Event ID for feedback: $eventId');
 

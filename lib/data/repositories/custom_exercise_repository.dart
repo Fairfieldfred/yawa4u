@@ -11,17 +11,16 @@ class CustomExerciseRepository {
   /// Watch all custom exercises (for reactive UI updates)
   Stream<List<CustomExerciseDefinition>> watchAll() {
     return _dao.watchAllSorted().map(
-      (rows) => rows.map((row) => CustomExerciseMapper.fromRow(row)).toList()
-        ..sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase())),
+      (rows) =>
+          rows.map((row) => CustomExerciseMapper.fromRow(row)).toList()
+            ..sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase())),
     );
   }
 
   /// Get all custom exercises
   Future<List<CustomExerciseDefinition>> getAll() async {
     final rows = await _dao.getAllSorted();
-    final exercises = rows
-        .map((row) => CustomExerciseMapper.fromRow(row))
-        .toList();
+    final exercises = rows.map((row) => CustomExerciseMapper.fromRow(row)).toList();
     exercises.sort(
       (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()),
     );

@@ -8,8 +8,7 @@ import '../../core/constants/muscle_groups.dart';
 import '../../core/constants/sports.dart';
 
 /// Type converter for TrainingCycleStatus enum
-class TrainingCycleStatusConverter
-    extends TypeConverter<TrainingCycleStatus, int> {
+class TrainingCycleStatusConverter extends TypeConverter<TrainingCycleStatus, int> {
   const TrainingCycleStatusConverter();
 
   @override
@@ -99,8 +98,7 @@ class GenderConverter extends TypeConverter<Gender, int> {
 }
 
 /// Type converter for RecoveryPeriodType enum
-class RecoveryPeriodTypeConverter
-    extends TypeConverter<RecoveryPeriodType, int> {
+class RecoveryPeriodTypeConverter extends TypeConverter<RecoveryPeriodType, int> {
   const RecoveryPeriodTypeConverter();
 
   @override
@@ -192,8 +190,7 @@ class StringIntMapConverter extends TypeConverter<Map<String, int>, String> {
 }
 
 /// Type converter for Map<String, Soreness> stored as JSON (by index)
-class MuscleGroupSorenessMapConverter
-    extends TypeConverter<Map<String, Soreness>, String> {
+class MuscleGroupSorenessMapConverter extends TypeConverter<Map<String, Soreness>, String> {
   const MuscleGroupSorenessMapConverter();
 
   @override
@@ -249,8 +246,7 @@ class IntervalIntentConverter extends TypeConverter<IntervalIntent, int> {
 }
 
 /// Type converter for IntervalTargetKind enum.
-class IntervalTargetKindConverter
-    extends TypeConverter<IntervalTargetKind, int> {
+class IntervalTargetKindConverter extends TypeConverter<IntervalTargetKind, int> {
   const IntervalTargetKindConverter();
 
   @override

@@ -37,15 +37,11 @@ Workout _toLegacyWorkout(StrengthSession s) {
 }
 
 List<Workout> _strengthWorkouts(List<Session> sessions) {
-  return sessions
-      .whereType<StrengthSession>()
-      .map(_toLegacyWorkout)
-      .toList();
+  return sessions.whereType<StrengthSession>().map(_toLegacyWorkout).toList();
 }
 
 /// Stats for a specific training cycle.
-final cycleStatsProvider =
-    FutureProvider.autoDispose.family<WorkoutStats, String>((ref, cycleId) async {
+final cycleStatsProvider = FutureProvider.autoDispose.family<WorkoutStats, String>((ref, cycleId) async {
   final repo = ref.watch(sessionRepositoryProvider);
   final sessions = await repo.watchByTrainingCycleId(cycleId).first;
   return WorkoutStats.fromWorkouts(_strengthWorkouts(sessions));
@@ -59,8 +55,7 @@ final lifetimeStatsProvider = FutureProvider<WorkoutStats>((ref) async {
 });
 
 /// All workouts for a specific training cycle (async, non-stream).
-final cycleWorkoutsProvider =
-    FutureProvider.autoDispose.family<List<Workout>, String>((ref, cycleId) async {
+final cycleWorkoutsProvider = FutureProvider.autoDispose.family<List<Workout>, String>((ref, cycleId) async {
   final repo = ref.watch(sessionRepositoryProvider);
   final sessions = await repo.watchByTrainingCycleId(cycleId).first;
   return _strengthWorkouts(sessions);
@@ -84,8 +79,7 @@ final cardioStatsProvider = Provider<CardioStats>((ref) {
 });
 
 /// Cardio stats for a specific training cycle (reactive).
-final cardioStatsForCycleProvider =
-    Provider.autoDispose.family<CardioStats, String>((ref, cycleId) {
+final cardioStatsForCycleProvider = Provider.autoDispose.family<CardioStats, String>((ref, cycleId) {
   final async = ref.watch(sessionsByTrainingCycleProvider(cycleId));
   return async.when(
     data: CardioStats.fromSessions,
@@ -95,8 +89,7 @@ final cardioStatsForCycleProvider =
 });
 
 /// Cardio stats scoped to a single sport (lifetime).
-final cardioStatsBySportProvider =
-    Provider.autoDispose.family<CardioStats, Sport>((ref, sport) {
+final cardioStatsBySportProvider = Provider.autoDispose.family<CardioStats, Sport>((ref, sport) {
   final async = ref.watch(sessionsProvider);
   return async.when(
     data: (sessions) => CardioStats.fromSessions(
@@ -109,8 +102,7 @@ final cardioStatsBySportProvider =
 
 /// The last N calendar weeks of cardio, padded with empty weeks so
 /// charts can render a continuous X-axis. Default is 12 weeks.
-final recentCardioWeeksProvider =
-    Provider.autoDispose.family<List<WeeklyVolumeBucket>, int>((ref, weeks) {
+final recentCardioWeeksProvider = Provider.autoDispose.family<List<WeeklyVolumeBucket>, int>((ref, weeks) {
   final stats = ref.watch(cardioStatsProvider);
   return stats.recentWeeks(weeks);
 });
@@ -132,17 +124,12 @@ final thisWeekStrengthCountProvider = Provider<int>((ref) {
     data: (sessions) {
       final start = CardioStats.startOfWeekPublic(DateTime.now());
       final end = start.add(const Duration(days: 7));
-      return sessions
-          .where((s) => s.sport == Sport.strength)
-          .where(
-            (s) {
-              final anchor = s.scheduledDate ?? s.completedDate ?? s.startTime;
-              return anchor != null &&
-                  anchor.isAfter(start.subtract(const Duration(seconds: 1))) &&
-                  anchor.isBefore(end);
-            },
-          )
-          .length;
+      return sessions.where((s) => s.sport == Sport.strength).where(
+        (s) {
+          final anchor = s.scheduledDate ?? s.completedDate ?? s.startTime;
+          return anchor != null && anchor.isAfter(start.subtract(const Duration(seconds: 1))) && anchor.isBefore(end);
+        },
+      ).length;
     },
     loading: () => 0,
     error: (_, _) => 0,

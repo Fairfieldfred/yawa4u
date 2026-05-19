@@ -107,8 +107,7 @@ class ThemeImageService {
   /// When persisting to database, use [toRelativePath] to convert for storage.
   Future<String?> saveThemeImage({
     required String themeId,
-    required String
-    imageType, // workout, cycles, exercises, more, default, app_icon
+    required String imageType, // workout, cycles, exercises, more, default, app_icon
     required String sourcePath,
   }) async {
     try {
@@ -283,9 +282,7 @@ class ThemeImageService {
 
   /// Check if two colors are similar (within threshold).
   bool _colorsAreSimilar(Color a, Color b, {double threshold = 0.12}) {
-    return (a.r - b.r).abs() < threshold &&
-        (a.g - b.g).abs() < threshold &&
-        (a.b - b.b).abs() < threshold;
+    return (a.r - b.r).abs() < threshold && (a.g - b.g).abs() < threshold && (a.b - b.b).abs() < threshold;
   }
 
   /// Convert an image file to Base64 string for export.

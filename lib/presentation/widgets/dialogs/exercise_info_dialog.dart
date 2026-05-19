@@ -18,15 +18,13 @@ import '../../../data/models/workout.dart';
 import '../../../domain/providers/database_providers.dart';
 
 /// Check if running on desktop platform
-bool get _isDesktop =>
-    Platform.isMacOS || Platform.isWindows || Platform.isLinux;
+bool get _isDesktop => Platform.isMacOS || Platform.isWindows || Platform.isLinux;
 
 /// Hardcoded YouTube video URLs for exercises
 /// Add video URLs here - supports full URLs or just video IDs
 const Map<String, String> _exerciseVideos = {
   // Chest
-  'Bench Press':
-      'https://www.youtube.com/watch?v=fGm-ef-4PVk', // TODO: Add YouTube URL
+  'Bench Press': 'https://www.youtube.com/watch?v=fGm-ef-4PVk', // TODO: Add YouTube URL
   'Bench Press (Incline)': 'https://www.youtube.com/watch?v=fGm-ef-4PVk',
   'Incline Dumbbell Press': 'https://www.youtube.com/watch?v=p2t9daxLpB8',
   'Dumbbell Bench Press': '',
@@ -89,8 +87,7 @@ class _ExerciseInfoDialogState extends ConsumerState<ExerciseInfoDialog> {
 
   void _initializeYoutubeController() {
     // Try exercise.videoUrl first, then fall back to hardcoded map
-    _videoUrl =
-        widget.exercise.videoUrl ?? _exerciseVideos[widget.exercise.name];
+    _videoUrl = widget.exercise.videoUrl ?? _exerciseVideos[widget.exercise.name];
     final videoId = _extractVideoId(_videoUrl);
     if (videoId != null) {
       _youtubeController = YoutubePlayerController(
@@ -154,9 +151,7 @@ class _ExerciseInfoDialogState extends ConsumerState<ExerciseInfoDialog> {
             _buildHeader(context),
             _buildTabSelector(context),
             Flexible(
-              child: _showDetail
-                  ? _buildDetailTab(context)
-                  : _buildHistoryTab(context),
+              child: _showDetail ? _buildDetailTab(context) : _buildHistoryTab(context),
             ),
           ],
         ),
@@ -237,9 +232,7 @@ class _ExerciseInfoDialogState extends ConsumerState<ExerciseInfoDialog> {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12),
         decoration: BoxDecoration(
-          color: isSelected
-              ? Theme.of(context).colorScheme.primary
-              : Colors.transparent,
+          color: isSelected ? Theme.of(context).colorScheme.primary : Colors.transparent,
           borderRadius: BorderRadius.circular(8),
         ),
         child: Center(
@@ -247,9 +240,7 @@ class _ExerciseInfoDialogState extends ConsumerState<ExerciseInfoDialog> {
             label,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               fontWeight: FontWeight.w600,
-              color: isSelected
-                  ? Theme.of(context).colorScheme.onPrimary
-                  : Theme.of(context).colorScheme.onSurface,
+              color: isSelected ? Theme.of(context).colorScheme.onPrimary : Theme.of(context).colorScheme.onSurface,
             ),
           ),
         ),
@@ -382,18 +373,14 @@ class _ExerciseInfoDialogState extends ConsumerState<ExerciseInfoDialog> {
               borderRadius: BorderRadius.circular(12),
             ),
             child: Text(
-              widget.exercise.notes?.isNotEmpty == true
-                  ? widget.exercise.notes!
-                  : 'No notes added yet.',
+              widget.exercise.notes?.isNotEmpty == true ? widget.exercise.notes! : 'No notes added yet.',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: widget.exercise.notes?.isNotEmpty == true
                     ? Theme.of(context).colorScheme.onSurface
                     : Theme.of(
                         context,
                       ).colorScheme.onSurface.withAlpha((255 * 0.6).round()),
-                fontStyle: widget.exercise.notes?.isNotEmpty == true
-                    ? FontStyle.normal
-                    : FontStyle.italic,
+                fontStyle: widget.exercise.notes?.isNotEmpty == true ? FontStyle.normal : FontStyle.italic,
               ),
             ),
           ),
@@ -430,8 +417,7 @@ class _ExerciseInfoDialogState extends ConsumerState<ExerciseInfoDialog> {
 
         for (final workout in allWorkouts) {
           for (final exercise in workout.exercises) {
-            if (exercise.name.toLowerCase() ==
-                widget.exercise.name.toLowerCase()) {
+            if (exercise.name.toLowerCase() == widget.exercise.name.toLowerCase()) {
               // Only include exercises with at least one logged set
               if (exercise.sets.any((s) => s.isLogged)) {
                 final trainingCycle = trainingCycleMap[workout.trainingCycleId];
@@ -440,8 +426,7 @@ class _ExerciseInfoDialogState extends ConsumerState<ExerciseInfoDialog> {
                     exercise: exercise,
                     workout: workout,
                     trainingCycle: trainingCycle,
-                    completedDate:
-                        workout.completedDate ?? exercise.lastPerformed,
+                    completedDate: workout.completedDate ?? exercise.lastPerformed,
                   ),
                 );
               }
@@ -458,9 +443,7 @@ class _ExerciseInfoDialogState extends ConsumerState<ExerciseInfoDialog> {
         });
 
         // Exclude the current exercise instance from history
-        final filteredHistory = historyEntries
-            .where((entry) => entry.exercise.id != widget.exercise.id)
-            .toList();
+        final filteredHistory = historyEntries.where((entry) => entry.exercise.id != widget.exercise.id).toList();
 
         if (filteredHistory.isEmpty) {
           return Center(
@@ -505,9 +488,7 @@ class _ExerciseInfoDialogState extends ConsumerState<ExerciseInfoDialog> {
         final Map<String, List<_HistoryEntry>> groupedByTrainingCycle = {};
         for (final entry in filteredHistory) {
           final trainingCycleId = entry.trainingCycle?.id ?? 'unknown';
-          groupedByTrainingCycle
-              .putIfAbsent(trainingCycleId, () => [])
-              .add(entry);
+          groupedByTrainingCycle.putIfAbsent(trainingCycleId, () => []).add(entry);
         }
 
         // Build list with trainingCycle headers
@@ -552,8 +533,7 @@ class _ExerciseInfoDialogState extends ConsumerState<ExerciseInfoDialog> {
     // Extract max weight per entry
     final spots = <FlSpot>[];
     for (var i = 0; i < chronological.length; i++) {
-      final loggedSets =
-          chronological[i].exercise.sets.where((s) => s.isLogged);
+      final loggedSets = chronological[i].exercise.sets.where((s) => s.isLogged);
       if (loggedSets.isEmpty) continue;
       final maxWeight = loggedSets.fold<double>(
         0,
@@ -564,12 +544,16 @@ class _ExerciseInfoDialogState extends ConsumerState<ExerciseInfoDialog> {
 
     if (spots.length < 2) return const SizedBox.shrink();
 
-    final minY = spots.map((s) => s.y).reduce(
-      (a, b) => a < b ? a : b,
-    );
-    final maxY = spots.map((s) => s.y).reduce(
-      (a, b) => a > b ? a : b,
-    );
+    final minY = spots
+        .map((s) => s.y)
+        .reduce(
+          (a, b) => a < b ? a : b,
+        );
+    final maxY = spots
+        .map((s) => s.y)
+        .reduce(
+          (a, b) => a > b ? a : b,
+        );
     // Add padding so line doesn't touch edges
     final yPadding = maxY == minY ? 10.0 : (maxY - minY) * 0.15;
 
@@ -583,10 +567,7 @@ class _ExerciseInfoDialogState extends ConsumerState<ExerciseInfoDialog> {
           Text(
             'WEIGHT PROGRESSION',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: Theme.of(context)
-                  .colorScheme
-                  .onSurface
-                  .withAlpha((255 * 0.6).round()),
+              color: Theme.of(context).colorScheme.onSurface.withAlpha((255 * 0.6).round()),
               fontWeight: FontWeight.w600,
               letterSpacing: 0.5,
             ),
@@ -628,8 +609,7 @@ class _ExerciseInfoDialogState extends ConsumerState<ExerciseInfoDialog> {
                     barWidth: 2.5,
                     dotData: FlDotData(
                       show: spots.length <= 15,
-                      getDotPainter: (spot, _, _, _) =>
-                          FlDotCirclePainter(
+                      getDotPainter: (spot, _, _, _) => FlDotCirclePainter(
                         radius: 3,
                         color: primaryColor,
                         strokeWidth: 0,
@@ -674,14 +654,10 @@ class _ExerciseInfoDialogState extends ConsumerState<ExerciseInfoDialog> {
 
   Widget _buildHistoryRow(BuildContext context, _HistoryEntry entry) {
     final dateFormat = DateFormat('MMM d, yyyy');
-    final dateStr = entry.completedDate != null
-        ? dateFormat.format(entry.completedDate!)
-        : 'Unknown date';
+    final dateStr = entry.completedDate != null ? dateFormat.format(entry.completedDate!) : 'Unknown date';
 
     final loggedSets = entry.exercise.sets.where((s) => s.isLogged).toList();
-    final isRecovery =
-        entry.trainingCycle != null &&
-        entry.workout.periodNumber == entry.trainingCycle!.recoveryPeriod;
+    final isRecovery = entry.trainingCycle != null && entry.workout.periodNumber == entry.trainingCycle!.recoveryPeriod;
 
     // Group sets by weight and build weight × reps string
     // This properly handles sets with different weights (e.g., "1 lbs x 1, 10 lbs x 1")
@@ -696,9 +672,7 @@ class _ExerciseInfoDialogState extends ConsumerState<ExerciseInfoDialog> {
       final weight = weightEntry.key;
       final sets = weightEntry.value;
 
-      final weightStr = weight != null
-          ? weight.toStringAsFixed(weight % 1 == 0 ? 0 : 1)
-          : 'BW';
+      final weightStr = weight != null ? weight.toStringAsFixed(weight % 1 == 0 ? 0 : 1) : 'BW';
 
       // Collect reps with their badges for this weight group
       final repsWithBadges = sets.map((set) {
@@ -842,8 +816,7 @@ class _ExerciseInfoDialogState extends ConsumerState<ExerciseInfoDialog> {
 
   Future<void> _openYouTube() async {
     // Try exercise.videoUrl first, then fall back to hardcoded map
-    final url =
-        widget.exercise.videoUrl ?? _exerciseVideos[widget.exercise.name];
+    final url = widget.exercise.videoUrl ?? _exerciseVideos[widget.exercise.name];
     if (url == null || url.isEmpty) return;
 
     final uri = Uri.parse(url);

@@ -66,10 +66,7 @@ class CardioDetail {
   /// True if there are any actual / recorded values (as opposed to only
   /// planned). A good proxy for "was this session performed".
   bool get hasActuals =>
-      actualDistanceM != null ||
-      actualDurationSec != null ||
-      averageHr != null ||
-      averagePowerWatts != null;
+      actualDistanceM != null || actualDurationSec != null || averageHr != null || averagePowerWatts != null;
 
   CardioDetail copyWith({
     double? plannedDistanceM,
@@ -105,8 +102,7 @@ class CardioDetail {
       averagePowerWatts: averagePowerWatts ?? this.averagePowerWatts,
       normalizedPowerWatts: normalizedPowerWatts ?? this.normalizedPowerWatts,
       averageSpeedMps: averageSpeedMps ?? this.averageSpeedMps,
-      averagePaceSecPerMeter:
-          averagePaceSecPerMeter ?? this.averagePaceSecPerMeter,
+      averagePaceSecPerMeter: averagePaceSecPerMeter ?? this.averagePaceSecPerMeter,
       poolLengthM: poolLengthM ?? this.poolLengthM,
       strokeType: strokeType ?? this.strokeType,
       lapCount: lapCount ?? this.lapCount,
@@ -150,11 +146,9 @@ class CardioDetail {
       maxHr: json['maxHr'] as int?,
       averageCadence: (json['averageCadence'] as num?)?.toDouble(),
       averagePowerWatts: (json['averagePowerWatts'] as num?)?.toDouble(),
-      normalizedPowerWatts:
-          (json['normalizedPowerWatts'] as num?)?.toDouble(),
+      normalizedPowerWatts: (json['normalizedPowerWatts'] as num?)?.toDouble(),
       averageSpeedMps: (json['averageSpeedMps'] as num?)?.toDouble(),
-      averagePaceSecPerMeter:
-          (json['averagePaceSecPerMeter'] as num?)?.toDouble(),
+      averagePaceSecPerMeter: (json['averagePaceSecPerMeter'] as num?)?.toDouble(),
       poolLengthM: (json['poolLengthM'] as num?)?.toDouble(),
       strokeType: json['strokeType'] != null
           ? StrokeType.values.firstWhere(

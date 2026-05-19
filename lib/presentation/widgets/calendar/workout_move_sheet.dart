@@ -236,9 +236,7 @@ class _WorkoutMoveSheetState extends ConsumerState<WorkoutMoveSheet> {
                   context,
                 ).colorScheme.primaryContainer;
 
-                final success = await ref
-                    .read(calendarUndoProvider.notifier)
-                    .undo();
+                final success = await ref.read(calendarUndoProvider.notifier).undo();
                 if (mounted) {
                   navigator.pop();
                   if (success) {
@@ -254,9 +252,7 @@ class _WorkoutMoveSheetState extends ConsumerState<WorkoutMoveSheet> {
             : null,
         icon: const Icon(Icons.undo),
         label: Text(
-          canUndo
-              ? 'Undo: ${undoState.snapshot?.description ?? "last change"}'
-              : 'Undo Move (no recent changes)',
+          canUndo ? 'Undo: ${undoState.snapshot?.description ?? "last change"}' : 'Undo Move (no recent changes)',
         ),
         style: OutlinedButton.styleFrom(
           foregroundColor: canUndo
@@ -269,8 +265,7 @@ class _WorkoutMoveSheetState extends ConsumerState<WorkoutMoveSheet> {
 
   bool _canMove() {
     // Can't move to the same position
-    return _targetPeriod != widget.sourcePeriod ||
-        _targetDay != widget.sourceDay;
+    return _targetPeriod != widget.sourcePeriod || _targetDay != widget.sourceDay;
   }
 
   Widget _buildDropdown(
@@ -330,17 +325,13 @@ class _WorkoutMoveSheetState extends ConsumerState<WorkoutMoveSheet> {
             width: isSelected ? 2 : 1,
           ),
           borderRadius: BorderRadius.circular(8),
-          color: isSelected
-              ? Theme.of(context).colorScheme.primary.withAlpha(26)
-              : null,
+          color: isSelected ? Theme.of(context).colorScheme.primary.withAlpha(26) : null,
         ),
         margin: const EdgeInsets.only(bottom: 8),
         child: Row(
           children: [
             Icon(
-              isSelected
-                  ? Icons.radio_button_checked
-                  : Icons.radio_button_unchecked,
+              isSelected ? Icons.radio_button_checked : Icons.radio_button_unchecked,
               color: isSelected
                   ? Theme.of(context).colorScheme.primary
                   : Theme.of(context).colorScheme.onSurface.withAlpha(153),

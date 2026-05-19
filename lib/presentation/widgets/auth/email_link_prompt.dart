@@ -216,9 +216,7 @@ class _EmailLinkSheetState extends ConsumerState<_EmailLinkSheet> {
         top: 24,
         bottom: MediaQuery.of(context).viewInsets.bottom + 24,
       ),
-      child: _awaitingVerification
-          ? _buildVerificationView(colorScheme)
-          : _buildLinkForm(colorScheme),
+      child: _awaitingVerification ? _buildVerificationView(colorScheme) : _buildLinkForm(colorScheme),
     );
   }
 
@@ -232,6 +230,142 @@ class _EmailLinkSheetState extends ConsumerState<_EmailLinkSheet> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            // Handle
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: colorScheme.onSurface.withValues(alpha: 0.3),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            Icon(
+              _isSignInMode ? Icons.login : Icons.verified_user_outlined,
+              size: 48,
+              color: colorScheme.primary,
+            ),
+            const SizedBox(height: 16),
+
+            Text(
+              _isSignInMode ? 'Sign In' : 'Verify to Upload',
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              _isSignInMode
+                  ? 'Sign in with the email and password you used on '
+                        'your other device.'
+                  : 'Link an email to your account to share content with the '
+                        'community. Your anonymous data is preserved.',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: colorScheme.onSurfaceVariant,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 24),
+
+            TextFormField(
+              controller: _emailController,
+              decoration: const InputDecoration(
+                labelText: 'Email',
+                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.email_outlined),
+              ),
+              keyboardType: TextInputType.emailAddress,
+              textInputAction: TextInputAction.next,
+              validator: (value) {
+                if (value == null || value.trim().isEmpty) {
+                  return 'Enter your email';
+                }
+                if (!value.contains('@') || !value.contains('.')) {
+                  return 'Enter a valid email';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 16),
+
+            TextFormField(
+              controller: _passwordController,
+              decoration: const InputDecoration(
+                labelText: 'Password',
+                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.lock_outlined),
+              ),
+              obscureText: true,
+              textInputAction: TextInputAction.done,
+              validator: (value) {
+                if (value == null || value.length < 6) {
+                  return 'Password must be at least 6 characters';
+                }
+                return null;
+              },
+              onFieldSubmitted: (_) => onSubmit(),
+            ),
+            const SizedBox(height: 8),
+
+            if (_error != null) ...[
+              Text(
+                _error!,
+                style: TextStyle(color: context.errorColor, fontSize: 13),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8),
+            ],
+
+            const SizedBox(height: 8),
+            FilledButton(
+              onPressed: _isLoading ? null : onSubmit,
+              style: FilledButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: _isLoading
+                  ? const SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
+                    )
+                  : Text(_isSignInMode ? 'SIGN IN' : 'LINK EMAIL & VERIFY'),
+            ),
+            const SizedBox(height: 8),
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  _isSignInMode = !_isSignInMode;
+                  _error = null;
+                });
+              },
+              child: Text(_isSignInMode ? 'CREATE NEW ACCOUNT' : 'SIGN IN WITH EXISTING ACCOUNT'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('CANCEL'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildVerificationView(ColorScheme colorScheme) {
+    return SingleChildScrollView(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
           // Handle
           Center(
             child: Container(
@@ -245,73 +379,26 @@ class _EmailLinkSheetState extends ConsumerState<_EmailLinkSheet> {
           ),
           const SizedBox(height: 20),
 
-          Icon(
-            _isSignInMode ? Icons.login : Icons.verified_user_outlined,
-            size: 48,
-            color: colorScheme.primary,
-          ),
+          Icon(Icons.mark_email_unread_outlined, size: 48, color: colorScheme.primary),
           const SizedBox(height: 16),
 
           Text(
-            _isSignInMode ? 'Sign In' : 'Verify to Upload',
+            'Check Your Inbox',
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+              fontWeight: FontWeight.bold,
+            ),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 8),
           Text(
-            _isSignInMode
-                ? 'Sign in with the email and password you used on '
-                    'your other device.'
-                : 'Link an email to your account to share content with the '
-                    'community. Your anonymous data is preserved.',
+            'We sent a verification email. Open the link in the email, then '
+            'come back here and tap the button below.',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: colorScheme.onSurfaceVariant,
-                ),
+              color: colorScheme.onSurfaceVariant,
+            ),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 24),
-
-          TextFormField(
-            controller: _emailController,
-            decoration: const InputDecoration(
-              labelText: 'Email',
-              border: OutlineInputBorder(),
-              prefixIcon: Icon(Icons.email_outlined),
-            ),
-            keyboardType: TextInputType.emailAddress,
-            textInputAction: TextInputAction.next,
-            validator: (value) {
-              if (value == null || value.trim().isEmpty) {
-                return 'Enter your email';
-              }
-              if (!value.contains('@') || !value.contains('.')) {
-                return 'Enter a valid email';
-              }
-              return null;
-            },
-          ),
-          const SizedBox(height: 16),
-
-          TextFormField(
-            controller: _passwordController,
-            decoration: const InputDecoration(
-              labelText: 'Password',
-              border: OutlineInputBorder(),
-              prefixIcon: Icon(Icons.lock_outlined),
-            ),
-            obscureText: true,
-            textInputAction: TextInputAction.done,
-            validator: (value) {
-              if (value == null || value.length < 6) {
-                return 'Password must be at least 6 characters';
-              }
-              return null;
-            },
-            onFieldSubmitted: (_) => onSubmit(),
-          ),
-          const SizedBox(height: 8),
 
           if (_error != null) ...[
             Text(
@@ -319,12 +406,11 @@ class _EmailLinkSheetState extends ConsumerState<_EmailLinkSheet> {
               style: TextStyle(color: context.errorColor, fontSize: 13),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 12),
           ],
 
-          const SizedBox(height: 8),
           FilledButton(
-            onPressed: _isLoading ? null : onSubmit,
+            onPressed: _isLoading ? null : _checkVerification,
             style: FilledButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: 16),
               shape: RoundedRectangleBorder(
@@ -340,110 +426,18 @@ class _EmailLinkSheetState extends ConsumerState<_EmailLinkSheet> {
                       color: Colors.white,
                     ),
                   )
-                : Text(_isSignInMode
-                    ? 'SIGN IN'
-                    : 'LINK EMAIL & VERIFY'),
+                : const Text("I'VE VERIFIED MY EMAIL"),
           ),
           const SizedBox(height: 8),
           TextButton(
-            onPressed: () {
-              setState(() {
-                _isSignInMode = !_isSignInMode;
-                _error = null;
-              });
-            },
-            child: Text(_isSignInMode
-                ? 'CREATE NEW ACCOUNT'
-                : 'SIGN IN WITH EXISTING ACCOUNT'),
+            onPressed: _resendEmail,
+            child: const Text('RESEND VERIFICATION EMAIL'),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
             child: const Text('CANCEL'),
           ),
         ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildVerificationView(ColorScheme colorScheme) {
-    return SingleChildScrollView(
-      child: Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        // Handle
-        Center(
-          child: Container(
-            width: 40,
-            height: 4,
-            decoration: BoxDecoration(
-              color: colorScheme.onSurface.withValues(alpha: 0.3),
-              borderRadius: BorderRadius.circular(2),
-            ),
-          ),
-        ),
-        const SizedBox(height: 20),
-
-        Icon(Icons.mark_email_unread_outlined, size: 48, color: colorScheme.primary),
-        const SizedBox(height: 16),
-
-        Text(
-          'Check Your Inbox',
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: 8),
-        Text(
-          'We sent a verification email. Open the link in the email, then '
-          'come back here and tap the button below.',
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: colorScheme.onSurfaceVariant,
-              ),
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: 24),
-
-        if (_error != null) ...[
-          Text(
-            _error!,
-            style: TextStyle(color: context.errorColor, fontSize: 13),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 12),
-        ],
-
-        FilledButton(
-          onPressed: _isLoading ? null : _checkVerification,
-          style: FilledButton.styleFrom(
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-          ),
-          child: _isLoading
-              ? const SizedBox(
-                  height: 20,
-                  width: 20,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    color: Colors.white,
-                  ),
-                )
-              : const Text("I'VE VERIFIED MY EMAIL"),
-        ),
-        const SizedBox(height: 8),
-        TextButton(
-          onPressed: _resendEmail,
-          child: const Text('RESEND VERIFICATION EMAIL'),
-        ),
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(false),
-          child: const Text('CANCEL'),
-        ),
-      ],
       ),
     );
   }

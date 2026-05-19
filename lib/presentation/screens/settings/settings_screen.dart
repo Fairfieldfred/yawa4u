@@ -18,7 +18,8 @@ enum TrainingCycleTerm {
   ),
   module('Module', 'A modular training unit that can be stacked'),
   phase('Phase', 'A training phase within your overall program'),
-  wave('Wave', 'A wave of progressive training intensity');
+  wave('Wave', 'A wave of progressive training intensity')
+  ;
 
   const TrainingCycleTerm(this.displayName, this.description);
 
@@ -273,8 +274,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         title: const Text('Settings'),
         centerTitle: true,
         actions: [
-          if (_hasChanges)
-            TextButton(onPressed: _saveSettings, child: const Text('Save')),
+          if (_hasChanges) TextButton(onPressed: _saveSettings, child: const Text('Save')),
         ],
       ),
       body: ListView(
@@ -405,9 +405,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
                 // Weight input
                 TextFormField(
-                  controller: _useMetric
-                      ? _weightKgController
-                      : _weightLbsController,
+                  controller: _useMetric ? _weightKgController : _weightLbsController,
                   decoration: InputDecoration(
                     labelText: 'Weight',
                     suffixText: _useMetric ? 'kg' : 'lbs',
@@ -484,23 +482,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           Icon(
                             Icons.open_in_new,
                             size: 12,
-                            color: Theme.of(context)
-                                .colorScheme
-                                .onSurface
-                                .withValues(alpha: 0.4),
+                            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
                           ),
                           const SizedBox(width: 4),
                           Text(
                             'BMI categories based on WHO guidelines',
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodySmall
-                                ?.copyWith(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .onSurface
-                                      .withValues(alpha: 0.4),
-                                ),
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
+                            ),
                           ),
                         ],
                       ),
@@ -542,26 +531,19 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             children: [
                               Text(
                                 'DEXA Scan Results',
-                                style: Theme.of(context).textTheme.titleSmall
-                                    ?.copyWith(fontWeight: FontWeight.w600),
+                                style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
                               ),
                               Text(
                                 'Optional - for bodybuilders',
-                                style: Theme.of(context).textTheme.bodySmall
-                                    ?.copyWith(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .onSurface
-                                          .withValues(alpha: 0.6),
-                                    ),
+                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                                ),
                               ),
                             ],
                           ),
                         ),
                         Icon(
-                          _showDexaFields
-                              ? Icons.expand_less
-                              : Icons.expand_more,
+                          _showDexaFields ? Icons.expand_less : Icons.expand_more,
                           color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ],
@@ -681,9 +663,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                               ).colorScheme.surfaceContainerHighest,
                               borderRadius: BorderRadius.circular(8),
                               border: Border.all(
-                                color: isSelected
-                                    ? Theme.of(context).colorScheme.primary
-                                    : Colors.transparent,
+                                color: isSelected ? Theme.of(context).colorScheme.primary : Colors.transparent,
                                 width: 2,
                               ),
                             ),
@@ -696,8 +676,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                 const SizedBox(width: 8),
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         term.displayName,
@@ -711,10 +690,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                         term.description,
                                         style: TextStyle(
                                           fontSize: 13,
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .onSurface
-                                              .withValues(alpha: 0.7),
+                                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                                         ),
                                       ),
                                     ],
@@ -785,37 +761,31 @@ class _SportsSection extends ConsumerWidget {
         Text(
           'Sports I train',
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+            fontWeight: FontWeight.bold,
+          ),
         ),
         const SizedBox(height: 4),
         Text(
           'Pick the sports you want to log. The Workout tab\'s '
           '"Add session" grid only shows these.',
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color:
-                    Theme.of(context).colorScheme.onSurface.withValues(
-                          alpha: 0.7,
-                        ),
-              ),
+            color: Theme.of(context).colorScheme.onSurface.withValues(
+              alpha: 0.7,
+            ),
+          ),
         ),
         const SizedBox(height: 12),
         for (final sport in _choices)
           _SportToggleTile(
             sport: sport,
             selected: selectedSet.contains(sport),
-            isLastSelected:
-                selectedSet.contains(sport) && selectedSet.length == 1,
+            isLastSelected: selectedSet.contains(sport) && selectedSet.length == 1,
             onToggle: () async {
               final next = selectedSet.contains(sport)
                   // Deselect — but never go below 1 sport.
-                  ? (selectedSet.length == 1
-                      ? selectedSet
-                      : (selectedSet..remove(sport)))
+                  ? (selectedSet.length == 1 ? selectedSet : (selectedSet..remove(sport)))
                   : (selectedSet..add(sport));
-              await ref
-                  .read(selectedSportsProvider.notifier)
-                  .setSports(next.toList());
+              await ref.read(selectedSportsProvider.notifier).setSports(next.toList());
             },
           ),
       ],
@@ -840,9 +810,7 @@ class _SportToggleTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final color = sport.color;
     final border = selected ? color : Colors.transparent;
-    final bg = selected
-        ? color.withValues(alpha: 0.1)
-        : Theme.of(context).colorScheme.surfaceContainerHighest;
+    final bg = selected ? color.withValues(alpha: 0.1) : Theme.of(context).colorScheme.surfaceContainerHighest;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
@@ -853,8 +821,7 @@ class _SportToggleTile extends StatelessWidget {
           onTap: isLastSelected ? null : onToggle,
           borderRadius: BorderRadius.circular(14),
           child: Container(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(14),
               border: Border.all(color: border, width: 2),
@@ -870,19 +837,15 @@ class _SportToggleTile extends StatelessWidget {
                       Text(
                         sport.displayName,
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                              fontWeight: FontWeight.w600,
-                            ),
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                       if (isLastSelected)
                         Text(
                           'At least one sport is required.',
-                          style:
-                              Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onSurface
-                                        .withValues(alpha: 0.6),
-                                  ),
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                          ),
                         ),
                     ],
                   ),
@@ -895,12 +858,7 @@ class _SportToggleTile extends StatelessWidget {
                     shape: BoxShape.circle,
                     color: selected ? color : Colors.transparent,
                     border: Border.all(
-                      color: selected
-                          ? color
-                          : Theme.of(context)
-                              .colorScheme
-                              .outline
-                              .withValues(alpha: 0.5),
+                      color: selected ? color : Theme.of(context).colorScheme.outline.withValues(alpha: 0.5),
                       width: 2,
                     ),
                   ),

@@ -96,6 +96,5 @@ class EquipmentTypes {
   }
 
   /// Get equipment types that require bodyweight tracking
-  static List<EquipmentType> get bodyweightLoadable =>
-      all.where((t) => t.isBodyweightLoadable).toList();
+  static List<EquipmentType> get bodyweightLoadable => all.where((t) => t.isBodyweightLoadable).toList();
 }

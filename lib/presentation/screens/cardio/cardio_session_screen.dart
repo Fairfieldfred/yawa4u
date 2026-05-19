@@ -71,8 +71,7 @@ class CardioSessionScreen extends ConsumerStatefulWidget {
   final bool planned;
 
   @override
-  ConsumerState<CardioSessionScreen> createState() =>
-      _CardioSessionScreenState();
+  ConsumerState<CardioSessionScreen> createState() => _CardioSessionScreenState();
 }
 
 class _CardioSessionScreenState extends ConsumerState<CardioSessionScreen> {
@@ -110,10 +109,8 @@ class _CardioSessionScreenState extends ConsumerState<CardioSessionScreen> {
       _scheduledDate = loaded.scheduledDate ?? DateTime.now();
       // Prefill from actuals; fall back to planned values so
       // opening a planned session shows the targets the user set.
-      _distanceMeters = loaded.detail?.actualDistanceM ??
-          loaded.detail?.plannedDistanceM;
-      _durationSeconds = loaded.detail?.actualDurationSec ??
-          loaded.detail?.plannedDurationSec;
+      _distanceMeters = loaded.detail?.actualDistanceM ?? loaded.detail?.plannedDistanceM;
+      _durationSeconds = loaded.detail?.actualDurationSec ?? loaded.detail?.plannedDurationSec;
       _averageHr = loaded.detail?.averageHr;
       _rpe = loaded.detail?.perceivedExertion;
       _notesController.text = loaded.notes ?? '';
@@ -216,9 +213,7 @@ class _CardioSessionScreenState extends ConsumerState<CardioSessionScreen> {
             perceivedExertion: _rpe,
           );
 
-    final trimmedNotes = _notesController.text.trim().isEmpty
-        ? null
-        : _notesController.text.trim();
+    final trimmedNotes = _notesController.text.trim().isEmpty ? null : _notesController.text.trim();
 
     try {
       if (_existing == null) {
@@ -226,12 +221,8 @@ class _CardioSessionScreenState extends ConsumerState<CardioSessionScreen> {
           id: _uuid.v4(),
           trainingCycleId: widget.trainingCycleId,
           sport: _sport,
-          source: isPlanning
-              ? SessionSource.userPlanned
-              : SessionSource.userLogged,
-          status: isPlanning
-              ? WorkoutStatus.incomplete
-              : WorkoutStatus.completed,
+          source: isPlanning ? SessionSource.userPlanned : SessionSource.userLogged,
+          status: isPlanning ? WorkoutStatus.incomplete : WorkoutStatus.completed,
           scheduledDate: _scheduledDate,
           completedDate: isPlanning ? null : DateTime.now(),
           notes: trimmedNotes,
@@ -246,12 +237,8 @@ class _CardioSessionScreenState extends ConsumerState<CardioSessionScreen> {
           notes: trimmedNotes,
           detail: detail,
           // Completing a planned session promotes to completed.
-          status: _existing!.status == WorkoutStatus.incomplete
-              ? WorkoutStatus.completed
-              : _existing!.status,
-          completedDate: _existing!.status == WorkoutStatus.incomplete
-              ? DateTime.now()
-              : _existing!.completedDate,
+          status: _existing!.status == WorkoutStatus.incomplete ? WorkoutStatus.completed : _existing!.status,
+          completedDate: _existing!.status == WorkoutStatus.incomplete ? DateTime.now() : _existing!.completedDate,
         );
         await repo.updateCardio(updated);
       }
@@ -268,9 +255,7 @@ class _CardioSessionScreenState extends ConsumerState<CardioSessionScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            _existing == null
-                ? (isPlanning ? 'Session planned' : 'Session logged')
-                : 'Session updated',
+            _existing == null ? (isPlanning ? 'Session planned' : 'Session logged') : 'Session updated',
           ),
         ),
       );
@@ -300,9 +285,7 @@ class _CardioSessionScreenState extends ConsumerState<CardioSessionScreen> {
     final sportName = _sport.displayName.toLowerCase();
     final String title;
     if (_existing != null) {
-      title = _existing!.status == WorkoutStatus.incomplete
-          ? 'Log $sportName'
-          : 'Edit $sportName';
+      title = _existing!.status == WorkoutStatus.incomplete ? 'Log $sportName' : 'Edit $sportName';
     } else {
       title = widget.planned ? 'Plan $sportName' : 'Log $sportName';
     }
@@ -413,9 +396,7 @@ class _CardioSessionScreenState extends ConsumerState<CardioSessionScreen> {
               label: Text(
                 _existing == null
                     ? (widget.planned ? 'Plan session' : 'Save session')
-                    : (_existing!.status == WorkoutStatus.incomplete
-                        ? 'Log session'
-                        : 'Update session'),
+                    : (_existing!.status == WorkoutStatus.incomplete ? 'Log session' : 'Update session'),
               ),
               style: FilledButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 14),
@@ -440,8 +421,18 @@ class _CardioSessionScreenState extends ConsumerState<CardioSessionScreen> {
   String _dateLabel() {
     final d = _scheduledDate;
     final months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
     ];
     return '${months[d.month - 1]} ${d.day}, ${d.year}';
   }
@@ -532,9 +523,7 @@ class _PaceReadout extends StatelessWidget {
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                sport == Sport.bike
-                    ? 'Avg speed $speed'
-                    : 'Pace $pace  •  Avg speed $speed',
+                sport == Sport.bike ? 'Avg speed $speed' : 'Pace $pace  •  Avg speed $speed',
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
             ),

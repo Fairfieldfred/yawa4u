@@ -12,8 +12,7 @@ part 'session_sample_dao.g.dart';
 /// stream; the repository layer gates sample loading behind an explicit
 /// opt-in for this reason.
 @DriftAccessor(tables: [SessionSamples])
-class SessionSampleDao extends DatabaseAccessor<AppDatabase>
-    with _$SessionSampleDaoMixin {
+class SessionSampleDao extends DatabaseAccessor<AppDatabase> with _$SessionSampleDaoMixin {
   SessionSampleDao(super.db);
 
   Future<List<SessionSample>> getBySessionUuid(String sessionUuid) {

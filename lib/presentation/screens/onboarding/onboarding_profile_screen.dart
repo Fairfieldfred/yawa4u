@@ -12,13 +12,10 @@ class OnboardingProfileScreen extends ConsumerStatefulWidget {
   const OnboardingProfileScreen({super.key});
 
   @override
-  ConsumerState<OnboardingProfileScreen> createState() =>
-      _OnboardingProfileScreenState();
+  ConsumerState<OnboardingProfileScreen> createState() => _OnboardingProfileScreenState();
 }
 
-class _OnboardingProfileScreenState
-    extends ConsumerState<OnboardingProfileScreen>
-    with SingleTickerProviderStateMixin {
+class _OnboardingProfileScreenState extends ConsumerState<OnboardingProfileScreen> with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   final _heightFeetController = TextEditingController();
   final _heightInchesController = TextEditingController();
@@ -126,8 +123,7 @@ class _OnboardingProfileScreenState
 
   // BMI categories with their ranges (in descending order)
   // Colors are computed at runtime to support theming
-  List<({String label, double minBmi, double? maxBmi, Color color})>
-  _getBmiCategories(BuildContext context) => [
+  List<({String label, double minBmi, double? maxBmi, Color color})> _getBmiCategories(BuildContext context) => [
     (label: 'Obese', minBmi: 30, maxBmi: null, color: context.errorColor),
     (label: 'Overweight', minBmi: 25, maxBmi: 30, color: context.warningColor),
     (label: 'Normal', minBmi: 18.5, maxBmi: 25, color: context.successColor),
@@ -173,9 +169,7 @@ class _OnboardingProfileScreenState
     // onboarding surface stays visually quiet by default.
     final color = _getBmiColor(context, _bmi!);
     final category = _getBmiCategories(context).firstWhere(
-      (cat) =>
-          _bmi! >= cat.minBmi &&
-          (cat.maxBmi == null || _bmi! < cat.maxBmi!),
+      (cat) => _bmi! >= cat.minBmi && (cat.maxBmi == null || _bmi! < cat.maxBmi!),
     );
 
     return AnimatedContainer(
@@ -264,17 +258,11 @@ class _OnboardingProfileScreenState
                           cat.maxBmi == null
                               ? '${cat.minBmi.toInt()}+'
                               : cat.minBmi == 0
-                                  ? '< ${cat.maxBmi!.toStringAsFixed(1)}'
-                                  : '${cat.minBmi.toStringAsFixed(1)}–${cat.maxBmi!.toInt()}',
-                          style: Theme.of(sheetContext)
-                              .textTheme
-                              .bodyMedium
-                              ?.copyWith(
-                                color: Theme.of(sheetContext)
-                                    .colorScheme
-                                    .onSurface
-                                    .withValues(alpha: 0.7),
-                              ),
+                              ? '< ${cat.maxBmi!.toStringAsFixed(1)}'
+                              : '${cat.minBmi.toStringAsFixed(1)}–${cat.maxBmi!.toInt()}',
+                          style: Theme.of(sheetContext).textTheme.bodyMedium?.copyWith(
+                            color: Theme.of(sheetContext).colorScheme.onSurface.withValues(alpha: 0.7),
+                          ),
                         ),
                       ],
                     ),
@@ -295,12 +283,9 @@ class _OnboardingProfileScreenState
                       const SizedBox(width: 6),
                       Text(
                         'Based on WHO / CDC guidelines',
-                        style: Theme.of(sheetContext)
-                            .textTheme
-                            .bodySmall
-                            ?.copyWith(
-                              color: Theme.of(sheetContext).colorScheme.primary,
-                            ),
+                        style: Theme.of(sheetContext).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(sheetContext).colorScheme.primary,
+                        ),
                       ),
                     ],
                   ),
@@ -352,9 +337,7 @@ class _OnboardingProfileScreenState
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(isCenter ? 20 : 14),
           border: Border.all(
-            color: isSelected
-                ? Theme.of(context).colorScheme.primary
-                : Colors.transparent,
+            color: isSelected ? Theme.of(context).colorScheme.primary : Colors.transparent,
             width: borderWidth,
           ),
         ),
@@ -392,9 +375,7 @@ class _OnboardingProfileScreenState
       }
 
       // Save to provider (updates state with useMetric)
-      ref
-          .read(userProfileProvider.notifier)
-          .updateProfile(heightCm, weightKg, _useMetric);
+      ref.read(userProfileProvider.notifier).updateProfile(heightCm, weightKg, _useMetric);
 
       // Save height/weight/DEXA to both SharedPreferences and database
       await ref
@@ -407,9 +388,7 @@ class _OnboardingProfileScreenState
           );
 
       // Save the selected app icon
-      ref
-          .read(userProfileProvider.notifier)
-          .updateAppIconIndex(_selectedIconIndex);
+      ref.read(userProfileProvider.notifier).updateAppIconIndex(_selectedIconIndex);
 
       if (mounted) {
         context.push('/onboarding/equipment');
@@ -439,8 +418,7 @@ class _OnboardingProfileScreenState
                     const SizedBox(height: 16),
                     Text(
                       'Let\'s get to know you',
-                      style: Theme.of(context).textTheme.headlineSmall
-                          ?.copyWith(fontWeight: FontWeight.bold),
+                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 8),
                     Text(
@@ -566,9 +544,7 @@ class _OnboardingProfileScreenState
                               validator: (value) {
                                 if (value != null && value.isNotEmpty) {
                                   final inches = int.tryParse(value);
-                                  if (inches == null ||
-                                      inches < 0 ||
-                                      inches > 11) {
+                                  if (inches == null || inches < 0 || inches > 11) {
                                     return 'Invalid';
                                   }
                                 }
@@ -587,9 +563,7 @@ class _OnboardingProfileScreenState
                     ),
                     const SizedBox(height: 8),
                     TextFormField(
-                      controller: _useMetric
-                          ? _weightKgController
-                          : _weightController,
+                      controller: _useMetric ? _weightKgController : _weightController,
                       keyboardType: const TextInputType.numberWithOptions(
                         decimal: true,
                       ),
@@ -675,28 +649,21 @@ class _OnboardingProfileScreenState
                                 children: [
                                   Text(
                                     'DEXA Scan Results',
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .titleSmall
-                                        ?.copyWith(fontWeight: FontWeight.w600),
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
                                   ),
                                   Text(
                                     'Optional - for bodybuilders',
-                                    style: Theme.of(context).textTheme.bodySmall
-                                        ?.copyWith(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .onSurface
-                                              .withValues(alpha: 0.6),
-                                        ),
+                                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                                    ),
                                   ),
                                 ],
                               ),
                             ),
                             Icon(
-                              _showDexaFields
-                                  ? Icons.expand_less
-                                  : Icons.expand_more,
+                              _showDexaFields ? Icons.expand_less : Icons.expand_more,
                               color: Theme.of(context).colorScheme.onSurface,
                             ),
                           ],
@@ -712,10 +679,9 @@ class _OnboardingProfileScreenState
                           Expanded(
                             child: TextFormField(
                               controller: _bodyFatController,
-                              keyboardType:
-                                  const TextInputType.numberWithOptions(
-                                    decimal: true,
-                                  ),
+                              keyboardType: const TextInputType.numberWithOptions(
+                                decimal: true,
+                              ),
                               inputFormatters: [
                                 FilteringTextInputFormatter.allow(
                                   RegExp(r'^\d+\.?\d{0,1}'),
@@ -741,10 +707,9 @@ class _OnboardingProfileScreenState
                           Expanded(
                             child: TextFormField(
                               controller: _leanMassController,
-                              keyboardType:
-                                  const TextInputType.numberWithOptions(
-                                    decimal: true,
-                                  ),
+                              keyboardType: const TextInputType.numberWithOptions(
+                                decimal: true,
+                              ),
                               inputFormatters: [
                                 FilteringTextInputFormatter.allow(
                                   RegExp(r'^\d+\.?\d{0,1}'),

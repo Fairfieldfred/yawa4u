@@ -66,9 +66,7 @@ class ExerciseDefinition {
     }
 
     // Parse optional rest seconds (4th column)
-    final restSeconds = row.length > 3 && row[3].trim().isNotEmpty
-        ? int.tryParse(row[3].trim())
-        : null;
+    final restSeconds = row.length > 3 && row[3].trim().isNotEmpty ? int.tryParse(row[3].trim()) : null;
 
     return ExerciseDefinition(
       name: name,
@@ -148,9 +146,7 @@ class ExerciseDefinition {
 
   @override
   String toString() {
-    final secondary = secondaryMuscleGroup != null
-        ? ', secondary: ${secondaryMuscleGroup!.name}'
-        : '';
+    final secondary = secondaryMuscleGroup != null ? ', secondary: ${secondaryMuscleGroup!.name}' : '';
     return 'ExerciseDefinition(name: $name, muscleGroup: ${muscleGroup.name}$secondary, equipment: ${equipmentType.name})';
   }
 

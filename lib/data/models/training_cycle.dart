@@ -34,8 +34,7 @@ class TrainingCycle {
   final Sport? primarySport;
 
   /// Recovery period type with default fallback for existing records
-  RecoveryPeriodType get recoveryPeriodType =>
-      _recoveryPeriodType ?? RecoveryPeriodType.deload;
+  RecoveryPeriodType get recoveryPeriodType => _recoveryPeriodType ?? RecoveryPeriodType.deload;
 
   TrainingCycle({
     required this.id,
@@ -86,9 +85,7 @@ class TrainingCycle {
   /// Get progress percentage (0.0 to 1.0)
   double getProgress() {
     if (workouts.isEmpty) return 0.0;
-    final completedWorkouts = workouts
-        .where((w) => w.status == WorkoutStatus.completed)
-        .length;
+    final completedWorkouts = workouts.where((w) => w.status == WorkoutStatus.completed).length;
     return completedWorkouts / workouts.length;
   }
 
@@ -192,13 +189,10 @@ class TrainingCycle {
       startDate: startDate ?? this.startDate,
       endDate: endDate ?? this.endDate,
       workouts: workouts ?? this.workouts,
-      muscleGroupPriorities:
-          muscleGroupPriorities ?? this.muscleGroupPriorities,
+      muscleGroupPriorities: muscleGroupPriorities ?? this.muscleGroupPriorities,
       templateName: templateName ?? this.templateName,
       notes: notes ?? this.notes,
-      primarySport: clearPrimarySport
-          ? null
-          : (primarySport ?? this.primarySport),
+      primarySport: clearPrimarySport ? null : (primarySport ?? this.primarySport),
     );
   }
 
@@ -249,26 +243,15 @@ class TrainingCycle {
             )
           : null,
       createdDate: DateTime.parse(json['createdDate'] as String),
-      startDate: json['startDate'] != null
-          ? DateTime.parse(json['startDate'] as String)
-          : null,
-      endDate: json['endDate'] != null
-          ? DateTime.parse(json['endDate'] as String)
-          : null,
-      workouts:
-          (json['workouts'] as List?)
-              ?.map((w) => Workout.fromJson(w as Map<String, dynamic>))
-              .toList() ??
-          [],
-      muscleGroupPriorities:
-          (json['muscleGroupPriorities'] as Map<String, dynamic>?)?.map(
-            (key, value) => MapEntry(key, value as int),
-          ),
+      startDate: json['startDate'] != null ? DateTime.parse(json['startDate'] as String) : null,
+      endDate: json['endDate'] != null ? DateTime.parse(json['endDate'] as String) : null,
+      workouts: (json['workouts'] as List?)?.map((w) => Workout.fromJson(w as Map<String, dynamic>)).toList() ?? [],
+      muscleGroupPriorities: (json['muscleGroupPriorities'] as Map<String, dynamic>?)?.map(
+        (key, value) => MapEntry(key, value as int),
+      ),
       templateName: json['templateName'] as String?,
       notes: json['notes'] as String?,
-      primarySport: json['primarySport'] != null
-          ? Sports.parse(json['primarySport'] as String)
-          : null,
+      primarySport: json['primarySport'] != null ? Sports.parse(json['primarySport'] as String) : null,
     );
   }
 

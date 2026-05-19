@@ -133,8 +133,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
   // Controller Access
   // ---------------------------------------------------------------------------
 
-  WorkoutHomeController get _controller =>
-      ref.read(workoutHomeControllerProvider.notifier);
+  WorkoutHomeController get _controller => ref.read(workoutHomeControllerProvider.notifier);
 
   WorkoutHomeState get _homeState => ref.watch(workoutHomeControllerProvider);
 
@@ -178,10 +177,12 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     _debounceTimers[key]?.cancel();
     _debounceTimers[key] = Timer(const Duration(milliseconds: 300), () async {
       if (!mounted) return;
-      await ref.read(exerciseSetDaoProvider).updateByUuid(
-        setId,
-        ExerciseSetsCompanion(weight: Value(weight)),
-      );
+      await ref
+          .read(exerciseSetDaoProvider)
+          .updateByUuid(
+            setId,
+            ExerciseSetsCompanion(weight: Value(weight)),
+          );
     });
   }
 
@@ -195,22 +196,20 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     _debounceTimers[key]?.cancel();
     _debounceTimers[key] = Timer(const Duration(milliseconds: 300), () async {
       if (!mounted) return;
-      await ref.read(exerciseSetDaoProvider).updateByUuid(
-        setId,
-        ExerciseSetsCompanion(reps: Value(value)),
-      );
+      await ref
+          .read(exerciseSetDaoProvider)
+          .updateByUuid(
+            setId,
+            ExerciseSetsCompanion(reps: Value(value)),
+          );
     });
   }
 
   /// Check if a set is loggable using local overrides + original data.
   bool _isSetLoggable(String setId) {
     final original = _findOriginalSet(setId);
-    final weight = _localWeights.containsKey(setId)
-        ? _localWeights[setId]
-        : original?.weight;
-    final reps = _localReps.containsKey(setId)
-        ? _localReps[setId]!
-        : (original?.reps ?? '');
+    final weight = _localWeights.containsKey(setId) ? _localWeights[setId] : original?.weight;
+    final reps = _localReps.containsKey(setId) ? _localReps[setId]! : (original?.reps ?? '');
     return weight != null && reps.isNotEmpty;
   }
 
@@ -278,8 +277,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     // Myorep Match: propagate weight/reps to the next set if it's myorepMatch
     if (nowLogging) {
       final nextIndex = setIndex + 1;
-      if (nextIndex < updatedExercise.sets.length &&
-          updatedExercise.sets[nextIndex].setType == SetType.myorepMatch) {
+      if (nextIndex < updatedExercise.sets.length && updatedExercise.sets[nextIndex].setType == SetType.myorepMatch) {
         final nextSet = updatedExercise.sets[nextIndex].copyWith(
           weight: set.weight,
           reps: set.reps,
@@ -303,12 +301,14 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
 
     // Start rest timer when a set is logged
     if (nowLogging) {
-      ref.read(restTimerProvider.notifier).start(
-        set.setType,
-        exerciseRestSeconds: exercise.restSeconds,
-        exerciseId: exercise.id,
-        workoutId: exercise.workoutId,
-      );
+      ref
+          .read(restTimerProvider.notifier)
+          .start(
+            set.setType,
+            exerciseRestSeconds: exercise.restSeconds,
+            exerciseId: exercise.id,
+            workoutId: exercise.workoutId,
+          );
     }
   }
 
@@ -453,8 +453,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
           duration: const Duration(seconds: 6),
           action: SnackBarAction(
             label: 'Undo',
-            onPressed: () =>
-                _restoreSet(workoutId, exerciseId, setIndex, removedSet),
+            onPressed: () => _restoreSet(workoutId, exerciseId, setIndex, removedSet),
           ),
         ),
       );
@@ -556,9 +555,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
         notes: result.note.isEmpty ? null : result.note,
         isNotePinned: result.isPinned,
       );
-      final updatedExercises = workout.exercises
-          .map((e) => e.id == exerciseId ? updatedExercise : e)
-          .toList();
+      final updatedExercises = workout.exercises.map((e) => e.id == exerciseId ? updatedExercise : e).toList();
       final updatedWorkout = workout.copyWith(exercises: updatedExercises);
       await repository.update(updatedWorkout);
       _invalidateWorkoutProviders();
@@ -910,9 +907,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     final exercise = workout.exercises[exerciseIndex];
 
     // Only skip unlogged sets
-    final updatedSets = (exercise.sets)
-        .map((s) => !s.isLogged ? s.copyWith(isSkipped: true) : s)
-        .toList();
+    final updatedSets = (exercise.sets).map((s) => !s.isLogged ? s.copyWith(isSkipped: true) : s).toList();
 
     final updatedExercise = exercise.copyWith(sets: updatedSets);
     final updatedWorkout = workout.updateExercise(
@@ -944,8 +939,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     // Snapshot so Undo can put it back exactly where it was.
     final removedExercise = workout.exercises[originalIndex];
 
-    final updatedExercises = List<Exercise>.from(workout.exercises)
-      ..removeAt(originalIndex);
+    final updatedExercises = List<Exercise>.from(workout.exercises)..removeAt(originalIndex);
 
     final updatedWorkout = workout.copyWith(exercises: updatedExercises);
     await repository.update(updatedWorkout);
@@ -1061,9 +1055,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     _invalidateWorkoutProviders();
 
     if (!mounted) return;
-    final label = session.label?.trim().isNotEmpty == true
-        ? session.label!
-        : session.sport.displayName;
+    final label = session.label?.trim().isNotEmpty == true ? session.label! : session.sport.displayName;
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(
@@ -1247,8 +1239,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
   /// Compute (period, day) for a given cycle based on its own start date.
   (int, int) _currentDayForCycle(TrainingCycle cycle) {
     if (cycle.startDate == null) return (1, 1);
-    final daysSinceStart =
-        DateTime.now().difference(cycle.startDate!).inDays;
+    final daysSinceStart = DateTime.now().difference(cycle.startDate!).inDays;
     final period = (daysSinceStart ~/ cycle.daysPerPeriod) + 1;
     final day = (daysSinceStart % cycle.daysPerPeriod) + 1;
     return (
@@ -1260,16 +1251,13 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
   @override
   Widget build(BuildContext context) {
     final currentCycles = ref.watch(currentTrainingCyclesProvider);
-    final currentTrainingCycle =
-        currentCycles.isEmpty ? null : currentCycles.first;
+    final currentTrainingCycle = currentCycles.isEmpty ? null : currentCycles.first;
 
     // If there's a current trainingCycle, show today's workout
-    if (currentTrainingCycle != null &&
-        currentTrainingCycle.startDate != null) {
+    if (currentTrainingCycle != null && currentTrainingCycle.startDate != null) {
       // Clear cache when the set of active cycles changes.
       final cycleIds = currentCycles.map((c) => c.id).toSet();
-      if (_cachedCycleIds.length != cycleIds.length ||
-          !_cachedCycleIds.containsAll(cycleIds)) {
+      if (_cachedCycleIds.length != cycleIds.length || !_cachedCycleIds.containsAll(cycleIds)) {
         _cachedCycleIds = cycleIds;
         _cachedWorkoutsPerCycle.clear();
         _localWeights.clear();
@@ -1295,10 +1283,8 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
       }
 
       // Primary cycle drives period/day selection and AppBar.
-      final allWorkouts =
-          _cachedWorkoutsPerCycle[currentTrainingCycle.id] ?? [];
-      if (allWorkouts.isEmpty &&
-          !_cachedWorkoutsPerCycle.containsKey(currentTrainingCycle.id)) {
+      final allWorkouts = _cachedWorkoutsPerCycle[currentTrainingCycle.id] ?? [];
+      if (allWorkouts.isEmpty && !_cachedWorkoutsPerCycle.containsKey(currentTrainingCycle.id)) {
         // First load — no cached data yet
         return _buildEmptyState(context, currentTrainingCycle.name, '');
       }
@@ -1332,11 +1318,8 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
           // All workouts complete, fall back to current period/day
           displayPeriod = currentPeriod;
           displayDay = (() {
-            final daysSinceStart = DateTime.now()
-                .difference(currentTrainingCycle.startDate!)
-                .inDays;
-            final daysSincePeriodStart =
-                daysSinceStart % currentTrainingCycle.daysPerPeriod;
+            final daysSinceStart = DateTime.now().difference(currentTrainingCycle.startDate!).inDays;
+            final daysSincePeriodStart = daysSinceStart % currentTrainingCycle.daysPerPeriod;
             return (daysSincePeriodStart + 1).clamp(
               1,
               currentTrainingCycle.daysPerPeriod,
@@ -1357,9 +1340,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
       // from the PRIMARY cycle.
       final todaysWorkouts = allWorkouts
           .where(
-            (w) =>
-                w.periodNumber == displayPeriod &&
-                w.dayNumber == displayDay,
+            (w) => w.periodNumber == displayPeriod && w.dayNumber == displayDay,
           )
           .toList();
 
@@ -1369,14 +1350,11 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
       final secondaryCycleCardio = <TrainingCycle, List<CardioSession>>{};
       for (final cycle in currentCycles.skip(1)) {
         final (secPeriod, secDay) = _currentDayForCycle(cycle);
-        final secWorkouts =
-            (_cachedWorkoutsPerCycle[cycle.id] ?? <Workout>[])
-                .where(
-                  (w) =>
-                      w.periodNumber == secPeriod &&
-                      w.dayNumber == secDay,
-                )
-                .toList();
+        final secWorkouts = (_cachedWorkoutsPerCycle[cycle.id] ?? <Workout>[])
+            .where(
+              (w) => w.periodNumber == secPeriod && w.dayNumber == secDay,
+            )
+            .toList();
         secondaryCycleWorkouts[cycle] = secWorkouts;
 
         final secSessionsAsync = ref.watch(
@@ -1399,9 +1377,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
       final cycleCardioForDay = cycleSessions
           .whereType<CardioSession>()
           .where(
-            (s) =>
-                s.periodNumber == displayPeriod &&
-                s.dayNumber == displayDay,
+            (s) => s.periodNumber == displayPeriod && s.dayNumber == displayDay,
           )
           .toList();
 
@@ -1412,25 +1388,18 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
       final now = DateTime.now();
       final daysSinceStart = currentTrainingCycle.startDate == null
           ? null
-          : now
-              .difference(currentTrainingCycle.startDate!)
-              .inDays;
-      final todayPeriod = daysSinceStart == null
-          ? null
-          : (daysSinceStart ~/ currentTrainingCycle.daysPerPeriod) + 1;
-      final todayDay = daysSinceStart == null
-          ? null
-          : (daysSinceStart % currentTrainingCycle.daysPerPeriod) + 1;
-      final isViewingToday =
-          todayPeriod == displayPeriod && todayDay == displayDay;
+          : now.difference(currentTrainingCycle.startDate!).inDays;
+      final todayPeriod = daysSinceStart == null ? null : (daysSinceStart ~/ currentTrainingCycle.daysPerPeriod) + 1;
+      final todayDay = daysSinceStart == null ? null : (daysSinceStart % currentTrainingCycle.daysPerPeriod) + 1;
+      final isViewingToday = todayPeriod == displayPeriod && todayDay == displayDay;
 
       final todaysSessionsAsync = ref.watch(todaysSessionsProvider);
       final adHocImportsToday = !isViewingToday
           ? const <CardioSession>[]
           : (todaysSessionsAsync.value ?? const <Session>[])
-              .whereType<CardioSession>()
-              .where((s) => s.trainingCycleId == null)
-              .toList();
+                .whereType<CardioSession>()
+                .where((s) => s.trainingCycleId == null)
+                .toList();
 
       final dayCardioSessions = [
         ...cycleCardioForDay,
@@ -1446,7 +1415,8 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
 
       // Whether to show the "FINISH WORKOUT" button: all strength workouts
       // across all stacked cycles are fully logged.
-      final showFinishButton = allDayWorkouts.isNotEmpty &&
+      final showFinishButton =
+          allDayWorkouts.isNotEmpty &&
           !allDayWorkouts.every((w) => w.isCompleted) &&
           allDayWorkouts.every((w) => _isWorkoutComplete(w));
 
@@ -1471,8 +1441,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
         ...dayCardioSessions,
         ...secondaryCycleCardio.values.expand((c) => c),
       ];
-      final hasAnySessions =
-          allDayWorkouts.isNotEmpty || allDayCardio.isNotEmpty;
+      final hasAnySessions = allDayWorkouts.isNotEmpty || allDayCardio.isNotEmpty;
 
       return GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),
@@ -1529,9 +1498,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
               ),
               IconButton(
                 icon: Icon(
-                  ref.watch(isDarkModeProvider)
-                      ? Icons.light_mode
-                      : Icons.dark_mode,
+                  ref.watch(isDarkModeProvider) ? Icons.light_mode : Icons.dark_mode,
                 ),
                 onPressed: () {
                   ref.read(themeModeProvider.notifier).toggleTheme();
@@ -1583,16 +1550,13 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                                 primaryDay: displayDay,
                                 primaryWorkouts: todaysWorkouts,
                                 primaryCardio: dayCardioSessions,
-                                secondaryCycleWorkouts:
-                                    secondaryCycleWorkouts,
-                                secondaryCycleCardio:
-                                    secondaryCycleCardio,
+                                secondaryCycleWorkouts: secondaryCycleWorkouts,
+                                secondaryCycleCardio: secondaryCycleCardio,
                                 sports: selectedSports,
                                 showHeaders: currentCycles.length > 1,
                               ),
                             ),
-                            if (showFinishButton)
-                              _buildFinishWorkoutBar(allDayWorkouts),
+                            if (showFinishButton) _buildFinishWorkoutBar(allDayWorkouts),
                           ],
                         ),
                 ),
@@ -1685,22 +1649,26 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
 
     // --- Primary cycle section ---
     if (primaryWorkouts.isNotEmpty || primaryCardio.isNotEmpty) {
-      slivers.add(SliverToBoxAdapter(
-        child: _CycleSectionHeader(
-          cycleName: primaryCycle.name,
-          period: primaryPeriod,
-          day: primaryDay,
+      slivers.add(
+        SliverToBoxAdapter(
+          child: _CycleSectionHeader(
+            cycleName: primaryCycle.name,
+            period: primaryPeriod,
+            day: primaryDay,
+          ),
         ),
-      ));
-      slivers.addAll(_buildSessionSlivers(
-        context: context,
-        trainingCycle: primaryCycle,
-        displayPeriod: primaryPeriod,
-        displayDay: primaryDay,
-        dayStrengthWorkouts: primaryWorkouts,
-        dayCardioSessions: primaryCardio,
-        sports: sports,
-      ));
+      );
+      slivers.addAll(
+        _buildSessionSlivers(
+          context: context,
+          trainingCycle: primaryCycle,
+          displayPeriod: primaryPeriod,
+          displayDay: primaryDay,
+          dayStrengthWorkouts: primaryWorkouts,
+          dayCardioSessions: primaryCardio,
+          sports: sports,
+        ),
+      );
     }
 
     // --- Secondary cycle sections ---
@@ -1712,22 +1680,26 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
 
       final (secPeriod, secDay) = _currentDayForCycle(cycle);
       slivers.add(const SliverToBoxAdapter(child: SizedBox(height: 24)));
-      slivers.add(SliverToBoxAdapter(
-        child: _CycleSectionHeader(
-          cycleName: cycle.name,
-          period: secPeriod,
-          day: secDay,
+      slivers.add(
+        SliverToBoxAdapter(
+          child: _CycleSectionHeader(
+            cycleName: cycle.name,
+            period: secPeriod,
+            day: secDay,
+          ),
         ),
-      ));
-      slivers.addAll(_buildSessionSlivers(
-        context: context,
-        trainingCycle: cycle,
-        displayPeriod: secPeriod,
-        displayDay: secDay,
-        dayStrengthWorkouts: workouts,
-        dayCardioSessions: cardio,
-        sports: sports,
-      ));
+      );
+      slivers.addAll(
+        _buildSessionSlivers(
+          context: context,
+          trainingCycle: cycle,
+          displayPeriod: secPeriod,
+          displayDay: secDay,
+          dayStrengthWorkouts: workouts,
+          dayCardioSessions: cardio,
+          sports: sports,
+        ),
+      );
     }
 
     slivers.add(const SliverToBoxAdapter(child: SizedBox(height: 88)));
@@ -1736,8 +1708,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
       onNotification: (notification) {
         final direction = notification.direction;
         if (direction != _lastScrollDirection &&
-            (direction == ScrollDirection.forward ||
-                direction == ScrollDirection.reverse)) {
+            (direction == ScrollDirection.forward || direction == ScrollDirection.reverse)) {
           FocusScope.of(context).unfocus();
         }
         _lastScrollDirection = direction;
@@ -1785,8 +1756,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
       onNotification: (notification) {
         final direction = notification.direction;
         if (direction != _lastScrollDirection &&
-            (direction == ScrollDirection.forward ||
-                direction == ScrollDirection.reverse)) {
+            (direction == ScrollDirection.forward || direction == ScrollDirection.reverse)) {
           FocusScope.of(context).unfocus();
         }
         _lastScrollDirection = direction;
@@ -1819,20 +1789,17 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     // Classify strength block (as a single sort unit) by its aggregate
     // state — mirrors the bucket logic in sortByPerformedOrder.
     final hasStrength = allExercises.isNotEmpty;
-    final strengthAllCompleted = hasStrength &&
-        dayStrengthWorkouts.every((w) => w.isCompleted);
-    final strengthAnyInProgress = hasStrength &&
+    final strengthAllCompleted = hasStrength && dayStrengthWorkouts.every((w) => w.isCompleted);
+    final strengthAnyInProgress =
+        hasStrength &&
         !strengthAllCompleted &&
         dayStrengthWorkouts.any(
           (w) => w.exercises.any((e) => e.sets.any((s) => s.isLogged)),
         );
-    final strengthBucket = strengthAllCompleted
-        ? 0
-        : (strengthAnyInProgress ? 1 : 2);
+    final strengthBucket = strengthAllCompleted ? 0 : (strengthAnyInProgress ? 1 : 2);
 
     // Sort cardio sessions using the shared helper.
-    final sortedCardio =
-        sortByPerformedOrder(dayCardioSessions).cast<CardioSession>();
+    final sortedCardio = sortByPerformedOrder(dayCardioSessions).cast<CardioSession>();
 
     // Merge into render items by bucket. Within each bucket the cardio
     // cards appear in performed order; strength (as a single block of
@@ -1843,12 +1810,8 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     final strengthSlot = _RenderSlot.strengthBlock();
 
     for (final session in sortedCardio) {
-      final bucket = session.isCompleted
-          ? 0
-          : (session.startTime != null ? 1 : 2);
-      if (hasStrength &&
-          !strengthInserted &&
-          strengthBucket <= bucket) {
+      final bucket = session.isCompleted ? 0 : (session.startTime != null ? 1 : 2);
+      if (hasStrength && !strengthInserted && strengthBucket <= bucket) {
         renderOrder.add(strengthSlot);
         strengthInserted = true;
       }
@@ -1861,10 +1824,8 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     // Apply manual slot order if the user has reordered via move up/down.
     if (_manualSlotOrder != null) {
       final byId = {for (final s in renderOrder) s.slotId: s};
-      final validIds =
-          _manualSlotOrder!.where(byId.containsKey).toList();
-      final newIds =
-          byId.keys.where((id) => !validIds.contains(id)).toList();
+      final validIds = _manualSlotOrder!.where(byId.containsKey).toList();
+      final newIds = byId.keys.where((id) => !validIds.contains(id)).toList();
       validIds.addAll(newIds);
       renderOrder = validIds.map((id) => byId[id]!).toList();
     }
@@ -1881,8 +1842,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
       previousPerformanceBatchProvider(batchKey),
     );
     final batchMap = batchAsync.value ?? <String, Exercise?>{};
-    final periodRir =
-        calculateRIR(displayPeriod, trainingCycle.recoveryPeriod);
+    final periodRir = calculateRIR(displayPeriod, trainingCycle.recoveryPeriod);
     final useMetric = ref.watch(useMetricProvider);
     final weightUnit = ref.watch(weightUnitProvider);
 
@@ -1890,8 +1850,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     final slivers = <Widget>[
       SliverToBoxAdapter(
         child: RestTimerWidget(
-          onTap: (exerciseId, workoutId) =>
-              _setRestTimer(workoutId, exerciseId),
+          onTap: (exerciseId, workoutId) => _setRestTimer(workoutId, exerciseId),
         ),
       ),
       const SliverToBoxAdapter(child: SizedBox(height: 16)),
@@ -1909,9 +1868,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
             delegate: SliverChildBuilderDelegate(
               (context, index) {
                 final exercise = allExercises[index];
-                final showMuscleGroupBadge = index == 0 ||
-                    allExercises[index - 1].muscleGroup !=
-                        exercise.muscleGroup;
+                final showMuscleGroupBadge = index == 0 || allExercises[index - 1].muscleGroup != exercise.muscleGroup;
                 final mergedExercise = _applyLocalEdits(exercise);
                 final card = RepaintBoundary(
                   child: ExerciseCardWidget(
@@ -1929,24 +1886,15 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                     isLastExercise: index == allExercises.length - 1,
                     previousPerformance: batchMap[exercise.id],
                     callbacks: ExerciseCardCallbacks(
-                      onAddNote: (id) =>
-                          _addNote(exercise.workoutId, id),
-                      onMoveUp: (id) =>
-                          _moveExerciseUp(exercise.workoutId, id),
-                      onMoveDown: (id) =>
-                          _moveExerciseDown(exercise.workoutId, id),
-                      onReplace: (id) =>
-                          _replaceExercise(exercise.workoutId, id),
-                      onJointPain: (id) =>
-                          _logJointPain(exercise.workoutId, id),
-                      onRestTimer: (id) =>
-                          _setRestTimer(exercise.workoutId, id),
-                      onAddSet: (id) =>
-                          _addSetToExercise(exercise.workoutId, id),
-                      onSkipSets: (id) =>
-                          _skipExerciseSets(exercise.workoutId, id),
-                      onDelete: (id) =>
-                          _deleteExercise(exercise.workoutId, id),
+                      onAddNote: (id) => _addNote(exercise.workoutId, id),
+                      onMoveUp: (id) => _moveExerciseUp(exercise.workoutId, id),
+                      onMoveDown: (id) => _moveExerciseDown(exercise.workoutId, id),
+                      onReplace: (id) => _replaceExercise(exercise.workoutId, id),
+                      onJointPain: (id) => _logJointPain(exercise.workoutId, id),
+                      onRestTimer: (id) => _setRestTimer(exercise.workoutId, id),
+                      onAddSet: (id) => _addSetToExercise(exercise.workoutId, id),
+                      onSkipSets: (id) => _skipExerciseSets(exercise.workoutId, id),
+                      onDelete: (id) => _deleteExercise(exercise.workoutId, id),
                       onAddSetBelow: (i) => _addSetBelow(
                         exercise.workoutId,
                         exercise.id,
@@ -1968,10 +1916,8 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                         i,
                         type,
                       ),
-                      onUpdateSetWeight: (i, setId, v) =>
-                          _updateSetWeight(setId, v),
-                      onUpdateSetReps: (i, setId, v) =>
-                          _updateSetReps(setId, v),
+                      onUpdateSetWeight: (i, setId, v) => _updateSetWeight(setId, v),
+                      onUpdateSetReps: (i, setId, v) => _updateSetReps(setId, v),
                       onToggleSetLog: (i) => _toggleSetLog(
                         exercise.workoutId,
                         exercise.id,
@@ -2030,8 +1976,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                 onReplace: (id) => _replaceCardioSession(session),
                 onSkip: (id) => _skipCardioSession(id),
                 onDelete: (id) => _deleteCardioSession(id),
-                onViewIntervals: (id) =>
-                    context.push('/cardio-session/$id/intervals'),
+                onViewIntervals: (id) => context.push('/cardio-session/$id/intervals'),
               ),
             ),
           ),
@@ -2076,10 +2021,8 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
           callbacks: SportGridCallbacks(
             onLift: () => _onLiftPressed(cycleId, period, day),
             onRun: () => _onCardioPressed(Sport.run, cycleId, period, day),
-            onBike: () =>
-                _onCardioPressed(Sport.bike, cycleId, period, day),
-            onSwim: () =>
-                _onCardioPressed(Sport.swim, cycleId, period, day),
+            onBike: () => _onCardioPressed(Sport.bike, cycleId, period, day),
+            onSwim: () => _onCardioPressed(Sport.swim, cycleId, period, day),
           ),
         ),
       ),
@@ -2097,8 +2040,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
         color: Theme.of(context).colorScheme.surface,
         border: Border(
           top: BorderSide(
-            color:
-                Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
+            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
           ),
         ),
       ),
@@ -2121,10 +2063,10 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
             child: Text(
               'FINISH WORKOUT',
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: 0.5,
-                    color: Colors.white,
-                  ),
+                fontWeight: FontWeight.w600,
+                letterSpacing: 0.5,
+                color: Colors.white,
+              ),
             ),
           ),
         ),
@@ -2144,9 +2086,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
   ) async {
     final workoutRepo = ref.read(workoutRepositoryProvider);
     final existing = await workoutRepo.getByTrainingCycleId(cycleId);
-    final dayWorkouts = existing
-        .where((w) => w.periodNumber == period && w.dayNumber == day)
-        .toList();
+    final dayWorkouts = existing.where((w) => w.periodNumber == period && w.dayNumber == day).toList();
 
     String workoutId;
     if (dayWorkouts.isNotEmpty) {
@@ -2262,8 +2202,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     List<Sport> sports,
   ) {
     final RenderBox button = context.findRenderObject() as RenderBox;
-    final RenderBox overlay =
-        Navigator.of(context).overlay!.context.findRenderObject() as RenderBox;
+    final RenderBox overlay = Navigator.of(context).overlay!.context.findRenderObject() as RenderBox;
     final Offset buttonPosition = button.localToGlobal(
       Offset.zero,
       ancestor: overlay,
@@ -2349,10 +2288,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
               workouts.any(
                 (w) => w.exercises.any(
                   (e) => e.sets.any(
-                    (s) =>
-                        s.isLogged ||
-                        (s.weight != null) ||
-                        (s.reps.isNotEmpty && s.reps != '0'),
+                    (s) => s.isLogged || (s.weight != null) || (s.reps.isNotEmpty && s.reps != '0'),
                   ),
                 ),
               ),
@@ -2397,9 +2333,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
         children: [
           Icon(
             icon,
-            color: enabled
-                ? (color ?? Theme.of(context).iconTheme.color)
-                : Theme.of(context).disabledColor,
+            color: enabled ? (color ?? Theme.of(context).iconTheme.color) : Theme.of(context).disabledColor,
             size: 20,
           ),
           const SizedBox(width: 12),
@@ -2473,8 +2407,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     final newName = await showDialog<String>(
       context: context,
       barrierDismissible: false,
-      builder: (context) =>
-          RenameTrainingCycleDialog(initialName: trainingCycle.name),
+      builder: (context) => RenameTrainingCycleDialog(initialName: trainingCycle.name),
     );
 
     if (newName != null && newName != trainingCycle.name && mounted) {
@@ -2629,9 +2562,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
           final allWorkouts = ref.read(
             workoutsByTrainingCycleListProvider(workout.trainingCycleId),
           );
-          final workoutsToUpdate = allWorkouts
-              .where((w) => w.dayNumber == workout.dayNumber)
-              .toList();
+          final workoutsToUpdate = allWorkouts.where((w) => w.dayNumber == workout.dayNumber).toList();
 
           debugPrint(
             'Updating ${workoutsToUpdate.length} workouts (apply to all)',
@@ -2659,9 +2590,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
           // The workouts list passed in contains ALL workouts for this day across all periods
           // We need to filter to only the current period
           final currentPeriodNumber = workouts.first.periodNumber;
-          final currentPeriodWorkouts = workouts
-              .where((w) => w.periodNumber == currentPeriodNumber)
-              .toList();
+          final currentPeriodWorkouts = workouts.where((w) => w.periodNumber == currentPeriodNumber).toList();
 
           debugPrint(
             'Updating ${currentPeriodWorkouts.length} workouts (current period only)',
@@ -2683,9 +2612,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
           // Show ALL workouts grouped by period
           debugPrint('All workouts in trainingCycle after update:');
           for (int period = 1; period <= 5; period++) {
-            final periodWorkouts = allWorkoutsAfter
-                .where((w) => w.periodNumber == period)
-                .toList();
+            final periodWorkouts = allWorkoutsAfter.where((w) => w.periodNumber == period).toList();
             if (periodWorkouts.isNotEmpty) {
               debugPrint('  Period $period:');
               for (var w in periodWorkouts) {

@@ -10,8 +10,7 @@ import '../../core/constants/app_constants.dart';
 class AnalyticsService {
   final FirebaseAnalytics _analytics;
 
-  AnalyticsService({FirebaseAnalytics? analytics})
-    : _analytics = analytics ?? FirebaseAnalytics.instance;
+  AnalyticsService({FirebaseAnalytics? analytics}) : _analytics = analytics ?? FirebaseAnalytics.instance;
 
   /// Get the FirebaseAnalytics instance for direct access if needed
   FirebaseAnalytics get instance => _analytics;
@@ -85,8 +84,7 @@ class AnalyticsService {
           'periods': periods,
           'workouts_completed': workoutsCompleted,
           'total_workouts': totalWorkouts,
-          'completion_rate': (workoutsCompleted / totalWorkouts * 100)
-              .toStringAsFixed(1),
+          'completion_rate': (workoutsCompleted / totalWorkouts * 100).toStringAsFixed(1),
         },
       );
     } catch (e, stackTrace) {
@@ -339,9 +337,7 @@ class AnalyticsService {
   }) async {
     try {
       await _analytics.logEvent(
-        name: granted
-            ? AppConstants.eventHealthPermissionsGranted
-            : AppConstants.eventHealthPermissionsDenied,
+        name: granted ? AppConstants.eventHealthPermissionsGranted : AppConstants.eventHealthPermissionsDenied,
         parameters: {'provider': provider},
       );
     } catch (e, stackTrace) {

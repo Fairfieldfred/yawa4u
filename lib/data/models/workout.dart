@@ -104,10 +104,7 @@ class Workout {
 
   /// Reorder exercises
   Workout reorderExercise(int oldIndex, int newIndex) {
-    if (oldIndex < 0 ||
-        oldIndex >= exercises.length ||
-        newIndex < 0 ||
-        newIndex >= exercises.length) {
+    if (oldIndex < 0 || oldIndex >= exercises.length || newIndex < 0 || newIndex >= exercises.length) {
       return this;
     }
     final newExercises = List<Exercise>.from(exercises);
@@ -164,9 +161,7 @@ class Workout {
       dayName: dayName ?? this.dayName,
       label: label ?? this.label,
       status: status ?? this.status,
-      scheduledDate: clearScheduledDate
-          ? null
-          : (scheduledDate ?? this.scheduledDate),
+      scheduledDate: clearScheduledDate ? null : (scheduledDate ?? this.scheduledDate),
       completedDate: completedDate ?? this.completedDate,
       startTime: startTime ?? this.startTime,
       endTime: endTime ?? this.endTime,
@@ -207,23 +202,11 @@ class Workout {
         (e) => e.name == json['status'],
         orElse: () => WorkoutStatus.incomplete,
       ),
-      scheduledDate: json['scheduledDate'] != null
-          ? DateTime.parse(json['scheduledDate'] as String)
-          : null,
-      completedDate: json['completedDate'] != null
-          ? DateTime.parse(json['completedDate'] as String)
-          : null,
-      startTime: json['startTime'] != null
-          ? DateTime.parse(json['startTime'] as String)
-          : null,
-      endTime: json['endTime'] != null
-          ? DateTime.parse(json['endTime'] as String)
-          : null,
-      exercises:
-          (json['exercises'] as List?)
-              ?.map((e) => Exercise.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          [],
+      scheduledDate: json['scheduledDate'] != null ? DateTime.parse(json['scheduledDate'] as String) : null,
+      completedDate: json['completedDate'] != null ? DateTime.parse(json['completedDate'] as String) : null,
+      startTime: json['startTime'] != null ? DateTime.parse(json['startTime'] as String) : null,
+      endTime: json['endTime'] != null ? DateTime.parse(json['endTime'] as String) : null,
+      exercises: (json['exercises'] as List?)?.map((e) => Exercise.fromJson(e as Map<String, dynamic>)).toList() ?? [],
       notes: json['notes'] as String?,
     );
   }

@@ -17,9 +17,7 @@ class CustomExerciseMapper {
       id: row.uuid,
       name: row.name,
       muscleGroup: MuscleGroup.values[row.muscleGroup],
-      secondaryMuscleGroup: row.secondaryMuscleGroup != null
-          ? MuscleGroup.values[row.secondaryMuscleGroup!]
-          : null,
+      secondaryMuscleGroup: row.secondaryMuscleGroup != null ? MuscleGroup.values[row.secondaryMuscleGroup!] : null,
       equipmentType: EquipmentType.values[row.equipmentType],
       videoUrl: row.videoUrl,
       restSeconds: row.restSeconds,

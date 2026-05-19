@@ -69,9 +69,7 @@ class CsvLoaderService {
     if (query.isEmpty) return exercises;
 
     final lowerQuery = query.toLowerCase();
-    return exercises
-        .where((e) => e.name.toLowerCase().contains(lowerQuery))
-        .toList();
+    return exercises.where((e) => e.name.toLowerCase().contains(lowerQuery)).toList();
   }
 
   /// Filter exercises by muscle group
@@ -99,9 +97,7 @@ class CsvLoaderService {
     // Apply search filter
     if (searchQuery != null && searchQuery.isNotEmpty) {
       final lowerQuery = searchQuery.toLowerCase();
-      result = result
-          .where((e) => e.name.toLowerCase().contains(lowerQuery))
-          .toList();
+      result = result.where((e) => e.name.toLowerCase().contains(lowerQuery)).toList();
     }
 
     // Apply muscle group filter

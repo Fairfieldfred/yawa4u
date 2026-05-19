@@ -42,9 +42,7 @@ class ExerciseRepository {
 
   /// Watch exercises for a specific workout
   Stream<List<Exercise>> watchByWorkoutId(String workoutId) {
-    return _exerciseDao
-        .watchByWorkoutUuid(workoutId)
-        .asyncMap(_mapRowsToExercises);
+    return _exerciseDao.watchByWorkoutUuid(workoutId).asyncMap(_mapRowsToExercises);
   }
 
   /// Get all exercises

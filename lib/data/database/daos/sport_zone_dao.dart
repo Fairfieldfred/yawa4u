@@ -11,8 +11,7 @@ part 'sport_zone_dao.g.dart';
 /// heart rate, pace, or power. [SportZones.unit] describes what min/max are
 /// measured in (e.g. "bpm", "sec_per_km", "watts").
 @DriftAccessor(tables: [SportZones])
-class SportZoneDao extends DatabaseAccessor<AppDatabase>
-    with _$SportZoneDaoMixin {
+class SportZoneDao extends DatabaseAccessor<AppDatabase> with _$SportZoneDaoMixin {
   SportZoneDao(super.db);
 
   Future<List<SportZone>> getAll() => select(sportZones).get();

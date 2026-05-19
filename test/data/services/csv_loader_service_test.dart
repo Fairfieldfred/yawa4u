@@ -136,9 +136,7 @@ void main() {
           );
           expect(
             results.every(
-              (e) =>
-                  e.muscleGroup == MuscleGroup.chest &&
-                  e.equipmentType == EquipmentType.barbell,
+              (e) => e.muscleGroup == MuscleGroup.chest && e.equipmentType == EquipmentType.barbell,
             ),
             isTrue,
           );
@@ -211,17 +209,13 @@ void main() {
 
       group('compound muscle groups', () {
         test('exercises with secondary muscle groups exist', () {
-          final withSecondary = service.exercises
-              .where((e) => e.secondaryMuscleGroup != null)
-              .toList();
-          expect(withSecondary, isNotEmpty,
-              reason: 'CSV should contain compound muscle group exercises');
+          final withSecondary = service.exercises.where((e) => e.secondaryMuscleGroup != null).toList();
+          expect(withSecondary, isNotEmpty, reason: 'CSV should contain compound muscle group exercises');
         });
 
         test('kettlebell exercises exist', () {
           final kettlebell = service.filterByEquipment(EquipmentType.kettlebell);
-          expect(kettlebell, isNotEmpty,
-              reason: 'CSV should contain kettlebell exercises');
+          expect(kettlebell, isNotEmpty, reason: 'CSV should contain kettlebell exercises');
         });
       });
     });

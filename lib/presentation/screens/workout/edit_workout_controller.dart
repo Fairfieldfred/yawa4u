@@ -40,18 +40,14 @@ class EditWorkoutController {
     );
 
     // Get all Period 1 workouts
-    final period1Workouts = allWorkouts
-        .where((w) => w.periodNumber == 1)
-        .toList();
+    final period1Workouts = allWorkouts.where((w) => w.periodNumber == 1).toList();
 
     if (period1Workouts.isEmpty) {
       throw Exception('No workouts found in Period 1');
     }
 
     // Delete existing workouts for the selected period
-    final existingWorkouts = allWorkouts
-        .where((w) => w.periodNumber == selectedPeriod)
-        .toList();
+    final existingWorkouts = allWorkouts.where((w) => w.periodNumber == selectedPeriod).toList();
     for (final workout in existingWorkouts) {
       await repository.delete(workout.id);
     }
@@ -193,9 +189,7 @@ class EditWorkoutController {
     final workout = await repository.getById(workoutId);
     if (workout == null) return;
 
-    final updatedExercises = workout.exercises
-        .where((e) => e.id != exerciseId)
-        .toList();
+    final updatedExercises = workout.exercises.where((e) => e.id != exerciseId).toList();
     final updatedWorkout = workout.copyWith(exercises: updatedExercises);
 
     await repository.update(updatedWorkout);
@@ -515,13 +509,10 @@ class EditWorkoutController {
 
     final newPeriodsTotal = trainingCycle.periodsTotal + 1;
     final oldRecoveryPeriod = trainingCycle.recoveryPeriod;
-    final newRecoveryPeriod =
-        newPeriodsTotal; // Recovery is always the last period
+    final newRecoveryPeriod = newPeriodsTotal; // Recovery is always the last period
 
     // First, update all workouts that are in the recovery period to be in the new recovery period
-    final recoveryWorkouts = allWorkouts
-        .where((w) => w.periodNumber == oldRecoveryPeriod)
-        .toList();
+    final recoveryWorkouts = allWorkouts.where((w) => w.periodNumber == oldRecoveryPeriod).toList();
     for (final workout in recoveryWorkouts) {
       final updatedWorkout = Workout(
         id: workout.id,
@@ -564,9 +555,7 @@ class EditWorkoutController {
 
     if (removeRecovery) {
       // Remove the recovery period - delete recovery workouts, keep everything else
-      final recoveryWorkouts = allWorkouts
-          .where((w) => w.periodNumber == oldRecoveryPeriod)
-          .toList();
+      final recoveryWorkouts = allWorkouts.where((w) => w.periodNumber == oldRecoveryPeriod).toList();
       for (final workout in recoveryWorkouts) {
         await workoutRepo.delete(workout.id);
       }
@@ -581,17 +570,13 @@ class EditWorkoutController {
     } else {
       // Remove the last non-recovery period - delete those workouts,
       // then move recovery workouts down by 1 period
-      final lastPeriodWorkouts = allWorkouts
-          .where((w) => w.periodNumber == lastNonRecoveryPeriod)
-          .toList();
+      final lastPeriodWorkouts = allWorkouts.where((w) => w.periodNumber == lastNonRecoveryPeriod).toList();
       for (final workout in lastPeriodWorkouts) {
         await workoutRepo.delete(workout.id);
       }
 
       // Move recovery workouts to the previous period number
-      final recoveryWorkouts = allWorkouts
-          .where((w) => w.periodNumber == oldRecoveryPeriod)
-          .toList();
+      final recoveryWorkouts = allWorkouts.where((w) => w.periodNumber == oldRecoveryPeriod).toList();
       for (final workout in recoveryWorkouts) {
         final updatedWorkout = Workout(
           id: workout.id,
@@ -648,9 +633,7 @@ class EditWorkoutController {
     final dayToRemove = trainingCycle.daysPerPeriod;
 
     // Delete all workouts for this day across all periods
-    final workoutsToDelete = allWorkouts
-        .where((w) => w.dayNumber == dayToRemove)
-        .toList();
+    final workoutsToDelete = allWorkouts.where((w) => w.dayNumber == dayToRemove).toList();
     for (final workout in workoutsToDelete) {
       await workoutRepo.delete(workout.id);
     }
@@ -677,7 +660,6 @@ class EditWorkoutController {
 }
 
 /// Provider for the EditWorkoutController
-final editWorkoutControllerProvider =
-    Provider.family<EditWorkoutController, String>(
-      (ref, trainingCycleId) => EditWorkoutController(ref, trainingCycleId),
-    );
+final editWorkoutControllerProvider = Provider.family<EditWorkoutController, String>(
+  (ref, trainingCycleId) => EditWorkoutController(ref, trainingCycleId),
+);

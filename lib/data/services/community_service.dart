@@ -13,19 +13,17 @@ class CommunityService {
   CommunityService({
     FirebaseFirestore? firestore,
     FirebaseStorage? storage,
-  })  : _firestore = firestore ?? FirebaseFirestore.instance,
-        _storage = storage ?? FirebaseStorage.instance;
+  }) : _firestore = firestore ?? FirebaseFirestore.instance,
+       _storage = storage ?? FirebaseStorage.instance;
 
   final FirebaseFirestore _firestore;
   final FirebaseStorage _storage;
 
   // ── Collections ──────────────────────────────────────────────────────
 
-  CollectionReference<Map<String, dynamic>> get _templatesCol =>
-      _firestore.collection('community_templates');
+  CollectionReference<Map<String, dynamic>> get _templatesCol => _firestore.collection('community_templates');
 
-  CollectionReference<Map<String, dynamic>> get _skinsCol =>
-      _firestore.collection('community_skins');
+  CollectionReference<Map<String, dynamic>> get _skinsCol => _firestore.collection('community_skins');
 
   // ── Template reads ───────────────────────────────────────────────────
 
@@ -207,8 +205,7 @@ class CommunityService {
   ///
   /// Rethrows errors so the calling provider surfaces them in the UI
   /// instead of silently returning an empty list.
-  Future<List<QueryDocumentSnapshot<Map<String, dynamic>>>>
-      fetchMyTemplates(String uid) async {
+  Future<List<QueryDocumentSnapshot<Map<String, dynamic>>>> fetchMyTemplates(String uid) async {
     try {
       final snapshot = await _templatesCol
           .where('authorUid', isEqualTo: uid)
@@ -225,13 +222,9 @@ class CommunityService {
   /// Fetches skins published by a specific user.
   ///
   /// Rethrows errors so the calling provider surfaces them in the UI.
-  Future<List<QueryDocumentSnapshot<Map<String, dynamic>>>>
-      fetchMySkins(String uid) async {
+  Future<List<QueryDocumentSnapshot<Map<String, dynamic>>>> fetchMySkins(String uid) async {
     try {
-      final snapshot = await _skinsCol
-          .where('authorUid', isEqualTo: uid)
-          .orderBy('createdAt', descending: true)
-          .get();
+      final snapshot = await _skinsCol.where('authorUid', isEqualTo: uid).orderBy('createdAt', descending: true).get();
       return snapshot.docs;
     } catch (e, stack) {
       debugPrint('CommunityService.fetchMySkins error: $e');

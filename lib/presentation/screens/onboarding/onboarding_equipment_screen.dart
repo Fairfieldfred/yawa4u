@@ -20,7 +20,8 @@ enum EquipmentOption {
   lapPool('Lap Pool', Icons.pool),
   crossfitGym('Crossfit Gym', Icons.sports),
   pullUpBar('Pull-up Bar', Icons.accessibility_new),
-  suspensionTrainer('Suspension Trainer (TRX)', Icons.swap_vert);
+  suspensionTrainer('Suspension Trainer (TRX)', Icons.swap_vert)
+  ;
 
   const EquipmentOption(this.displayName, this.icon);
 
@@ -33,12 +34,10 @@ class OnboardingEquipmentScreen extends ConsumerStatefulWidget {
   const OnboardingEquipmentScreen({super.key});
 
   @override
-  ConsumerState<OnboardingEquipmentScreen> createState() =>
-      _OnboardingEquipmentScreenState();
+  ConsumerState<OnboardingEquipmentScreen> createState() => _OnboardingEquipmentScreenState();
 }
 
-class _OnboardingEquipmentScreenState
-    extends ConsumerState<OnboardingEquipmentScreen> {
+class _OnboardingEquipmentScreenState extends ConsumerState<OnboardingEquipmentScreen> {
   final Set<EquipmentOption> _selectedEquipment = {};
 
   void _toggleEquipment(EquipmentOption equipment) {
@@ -120,9 +119,7 @@ class _OnboardingEquipmentScreenState
                         ).colorScheme.surfaceContainerHighest,
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: isSelected
-                              ? Theme.of(context).colorScheme.primary
-                              : Colors.transparent,
+                          color: isSelected ? Theme.of(context).colorScheme.primary : Colors.transparent,
                           width: 2,
                         ),
                       ),
@@ -162,9 +159,7 @@ class _OnboardingEquipmentScreenState
                               equipment.displayName,
                               style: TextStyle(
                                 color: Theme.of(context).colorScheme.onSurface,
-                                fontWeight: isSelected
-                                    ? FontWeight.bold
-                                    : FontWeight.normal,
+                                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                                 fontSize: 13,
                               ),
                               maxLines: 2,
@@ -198,9 +193,7 @@ class _OnboardingEquipmentScreenState
                   TextButton(
                     onPressed: () {
                       // Skip equipment selection
-                      ref
-                          .read(userProfileProvider.notifier)
-                          .updateEquipment([]);
+                      ref.read(userProfileProvider.notifier).updateEquipment([]);
                       context.push('/onboarding/sports');
                     },
                     child: const Text('Skip for now'),

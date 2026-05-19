@@ -28,13 +28,13 @@ class CardioStats {
 
   /// Empty stats — handy placeholder while data loads.
   const CardioStats.empty()
-      : totalSessions = 0,
-        totalDurationSec = 0,
-        totalDistanceM = 0,
-        completedSessions = 0,
-        skippedSessions = 0,
-        perSport = const {},
-        weeklyBuckets = const [];
+    : totalSessions = 0,
+      totalDurationSec = 0,
+      totalDistanceM = 0,
+      completedSessions = 0,
+      skippedSessions = 0,
+      perSport = const {},
+      weeklyBuckets = const [];
 
   bool get isEmpty => totalSessions == 0;
 
@@ -83,8 +83,7 @@ class CardioStats {
       }
     }
 
-    final weekly = weekMap.values.map((b) => b.build()).toList()
-      ..sort((a, b) => a.weekStart.compareTo(b.weekStart));
+    final weekly = weekMap.values.map((b) => b.build()).toList()..sort((a, b) => a.weekStart.compareTo(b.weekStart));
 
     final perSport = <Sport, SportAggregate>{
       for (final e in perSportAgg.entries) e.key: e.value.build(),
@@ -108,8 +107,7 @@ class CardioStats {
     if (n <= 0) return const [];
     final today = DateTime.now();
     final thisWeek = _startOfWeek(today);
-    final startWeek =
-        thisWeek.subtract(Duration(days: 7 * (n - 1)));
+    final startWeek = thisWeek.subtract(Duration(days: 7 * (n - 1)));
     final byStart = {for (final b in weeklyBuckets) b.weekStart: b};
 
     final out = <WeeklyVolumeBucket>[];
@@ -209,16 +207,13 @@ class WeeklyVolumeBucket {
   WeeklyVolumeBucket.empty(this.weekStart) : perSport = const {};
 
   /// Total duration across all sports for this week.
-  int get totalDurationSec =>
-      perSport.values.fold(0, (sum, v) => sum + v.durationSec);
+  int get totalDurationSec => perSport.values.fold(0, (sum, v) => sum + v.durationSec);
 
   /// Total distance across all sports for this week.
-  double get totalDistanceM =>
-      perSport.values.fold(0, (sum, v) => sum + v.distanceM);
+  double get totalDistanceM => perSport.values.fold(0, (sum, v) => sum + v.distanceM);
 
   /// Total session count across all sports for this week.
-  int get totalSessions =>
-      perSport.values.fold(0, (sum, v) => sum + v.sessions);
+  int get totalSessions => perSport.values.fold(0, (sum, v) => sum + v.sessions);
 
   bool get isEmpty => totalSessions == 0;
 }

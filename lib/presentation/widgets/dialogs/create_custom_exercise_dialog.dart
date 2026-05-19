@@ -13,12 +13,10 @@ class CreateCustomExerciseDialog extends ConsumerStatefulWidget {
   const CreateCustomExerciseDialog({super.key});
 
   @override
-  ConsumerState<CreateCustomExerciseDialog> createState() =>
-      _CreateCustomExerciseDialogState();
+  ConsumerState<CreateCustomExerciseDialog> createState() => _CreateCustomExerciseDialogState();
 }
 
-class _CreateCustomExerciseDialogState
-    extends ConsumerState<CreateCustomExerciseDialog> {
+class _CreateCustomExerciseDialogState extends ConsumerState<CreateCustomExerciseDialog> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   MuscleGroup _selectedMuscleGroup = MuscleGroup.chest;
@@ -124,154 +122,161 @@ class _CreateCustomExerciseDialogState
               ),
               const SizedBox(height: 24),
 
-              // Exercise name field
-              TextFormField(
-                controller: _nameController,
-                decoration: InputDecoration(
-                  labelText: 'Exercise Name',
-                  hintText: 'e.g., Cable Chest Fly',
-                  prefixIcon: const Icon(Icons.fitness_center),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
+              // Scrollable form fields
+              Flexible(
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // Exercise name field
+                      TextFormField(
+                        controller: _nameController,
+                        decoration: InputDecoration(
+                          labelText: 'Exercise Name',
+                          hintText: 'e.g., Cable Chest Fly',
+                          prefixIcon: const Icon(Icons.fitness_center),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        textCapitalization: TextCapitalization.words,
+                        autofocus: true,
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return 'Please enter an exercise name';
+                          }
+                          if (value.trim().length < 3) {
+                            return 'Name must be at least 3 characters';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Muscle group dropdown
+                      DropdownButtonFormField<MuscleGroup>(
+                        initialValue: _selectedMuscleGroup,
+                        decoration: InputDecoration(
+                          labelText: 'Muscle Group',
+                          prefixIcon: const Icon(Icons.accessibility_new),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        items: MuscleGroup.values.map((group) {
+                          return DropdownMenuItem(
+                            value: group,
+                            child: Text(group.displayName),
+                          );
+                        }).toList(),
+                        onChanged: (value) {
+                          if (value != null) {
+                            setState(() => _selectedMuscleGroup = value);
+                          }
+                        },
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Secondary muscle group dropdown (optional)
+                      DropdownButtonFormField<MuscleGroup?>(
+                        initialValue: _selectedSecondaryMuscleGroup,
+                        decoration: InputDecoration(
+                          labelText: 'Secondary Muscle Group (Optional)',
+                          prefixIcon: const Icon(Icons.accessibility_new_outlined),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        items: [
+                          const DropdownMenuItem<MuscleGroup?>(
+                            value: null,
+                            child: Text('None'),
+                          ),
+                          ...MuscleGroup.values.where((group) => group != _selectedMuscleGroup).map((group) {
+                            return DropdownMenuItem<MuscleGroup?>(
+                              value: group,
+                              child: Text(group.displayName),
+                            );
+                          }),
+                        ],
+                        onChanged: (value) {
+                          setState(() => _selectedSecondaryMuscleGroup = value);
+                        },
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Equipment type dropdown
+                      DropdownButtonFormField<EquipmentType>(
+                        initialValue: _selectedEquipmentType,
+                        decoration: InputDecoration(
+                          labelText: 'Equipment Type',
+                          prefixIcon: const Icon(Icons.sports_gymnastics),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        items: EquipmentType.values.map((type) {
+                          return DropdownMenuItem(
+                            value: type,
+                            child: Text(type.displayName),
+                          );
+                        }).toList(),
+                        onChanged: (value) {
+                          if (value != null) {
+                            setState(() => _selectedEquipmentType = value);
+                          }
+                        },
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Rest timer (optional)
+                      TextFormField(
+                        controller: _restSecondsController,
+                        decoration: InputDecoration(
+                          labelText: 'Rest Timer (Optional)',
+                          hintText: 'e.g., 90',
+                          suffixText: 'seconds',
+                          prefixIcon: const Icon(Icons.timer),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        keyboardType: TextInputType.number,
+                        validator: (value) {
+                          if (value != null && value.trim().isNotEmpty) {
+                            final parsed = int.tryParse(value.trim());
+                            if (parsed == null || parsed < 0 || parsed > 600) {
+                              return 'Enter a value between 0 and 600';
+                            }
+                          }
+                          return null;
+                        },
+                      ),
+
+                      // Error message
+                      if (_errorMessage != null)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 16),
+                          child: Text(
+                            _errorMessage!,
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.error,
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
                 ),
-                textCapitalization: TextCapitalization.words,
-                autofocus: true,
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'Please enter an exercise name';
-                  }
-                  if (value.trim().length < 3) {
-                    return 'Name must be at least 3 characters';
-                  }
-                  return null;
-                },
               ),
               const SizedBox(height: 16),
 
-              // Muscle group dropdown
-              DropdownButtonFormField<MuscleGroup>(
-                initialValue: _selectedMuscleGroup,
-                decoration: InputDecoration(
-                  labelText: 'Muscle Group',
-                  prefixIcon: const Icon(Icons.accessibility_new),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                items: MuscleGroup.values.map((group) {
-                  return DropdownMenuItem(
-                    value: group,
-                    child: Text(group.displayName),
-                  );
-                }).toList(),
-                onChanged: (value) {
-                  if (value != null) {
-                    setState(() => _selectedMuscleGroup = value);
-                  }
-                },
-              ),
-              const SizedBox(height: 16),
-
-              // Secondary muscle group dropdown (optional)
-              DropdownButtonFormField<MuscleGroup?>(
-                initialValue: _selectedSecondaryMuscleGroup,
-                decoration: InputDecoration(
-                  labelText: 'Secondary Muscle Group (Optional)',
-                  prefixIcon: const Icon(Icons.accessibility_new_outlined),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                items: [
-                  const DropdownMenuItem<MuscleGroup?>(
-                    value: null,
-                    child: Text('None'),
-                  ),
-                  ...MuscleGroup.values
-                      .where((group) => group != _selectedMuscleGroup)
-                      .map((group) {
-                    return DropdownMenuItem<MuscleGroup?>(
-                      value: group,
-                      child: Text(group.displayName),
-                    );
-                  }),
-                ],
-                onChanged: (value) {
-                  setState(() => _selectedSecondaryMuscleGroup = value);
-                },
-              ),
-              const SizedBox(height: 16),
-
-              // Equipment type dropdown
-              DropdownButtonFormField<EquipmentType>(
-                initialValue: _selectedEquipmentType,
-                decoration: InputDecoration(
-                  labelText: 'Equipment Type',
-                  prefixIcon: const Icon(Icons.sports_gymnastics),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                items: EquipmentType.values.map((type) {
-                  return DropdownMenuItem(
-                    value: type,
-                    child: Text(type.displayName),
-                  );
-                }).toList(),
-                onChanged: (value) {
-                  if (value != null) {
-                    setState(() => _selectedEquipmentType = value);
-                  }
-                },
-              ),
-              const SizedBox(height: 16),
-
-              // Rest timer (optional)
-              TextFormField(
-                controller: _restSecondsController,
-                decoration: InputDecoration(
-                  labelText: 'Rest Timer (Optional)',
-                  hintText: 'e.g., 90',
-                  suffixText: 'seconds',
-                  prefixIcon: const Icon(Icons.timer),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                keyboardType: TextInputType.number,
-                validator: (value) {
-                  if (value != null && value.trim().isNotEmpty) {
-                    final parsed = int.tryParse(value.trim());
-                    if (parsed == null || parsed < 0 || parsed > 600) {
-                      return 'Enter a value between 0 and 600';
-                    }
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-
-              // Error message
-              if (_errorMessage != null)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 16),
-                  child: Text(
-                    _errorMessage!,
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.error,
-                    ),
-                  ),
-                ),
-
-              // Action buttons
+              // Action buttons (fixed at bottom)
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   TextButton(
-                    onPressed: _isSubmitting
-                        ? null
-                        : () => Navigator.of(context).pop(),
+                    onPressed: _isSubmitting ? null : () => Navigator.of(context).pop(),
                     child: const Text('Cancel'),
                   ),
                   const SizedBox(width: 12),

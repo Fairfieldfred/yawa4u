@@ -21,7 +21,8 @@ enum EquipmentOption {
   lapPool('Lap Pool', Icons.pool),
   crossfitGym('Crossfit Gym', Icons.sports),
   pullUpBar('Pull-up Bar', Icons.accessibility_new),
-  suspensionTrainer('Suspension Trainer (TRX)', Icons.swap_vert);
+  suspensionTrainer('Suspension Trainer (TRX)', Icons.swap_vert)
+  ;
 
   const EquipmentOption(this.displayName, this.icon);
 
@@ -105,12 +106,10 @@ class AvailableEquipmentFilter extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<AvailableEquipmentFilter> createState() =>
-      _AvailableEquipmentFilterState();
+  ConsumerState<AvailableEquipmentFilter> createState() => _AvailableEquipmentFilterState();
 }
 
-class _AvailableEquipmentFilterState
-    extends ConsumerState<AvailableEquipmentFilter> {
+class _AvailableEquipmentFilterState extends ConsumerState<AvailableEquipmentFilter> {
   late Set<String> _selectedEquipment;
   late bool _equipmentFilterEnabled;
 
@@ -175,9 +174,7 @@ class _AvailableEquipmentFilterState
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(12),
-        border: _equipmentFilterEnabled
-            ? Border.all(color: Theme.of(context).colorScheme.primary, width: 2)
-            : null,
+        border: _equipmentFilterEnabled ? Border.all(color: Theme.of(context).colorScheme.primary, width: 2) : null,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -307,9 +304,7 @@ class _AvailableEquipmentFilterState
               color: Theme.of(context).colorScheme.surfaceContainerHighest,
               borderRadius: BorderRadius.circular(8),
               border: Border.all(
-                color: isSelected
-                    ? Theme.of(context).colorScheme.primary
-                    : Colors.transparent,
+                color: isSelected ? Theme.of(context).colorScheme.primary : Colors.transparent,
                 width: 2,
               ),
             ),
@@ -322,9 +317,7 @@ class _AvailableEquipmentFilterState
                   height: 20,
                   decoration: BoxDecoration(
                     border: Border.all(
-                      color: isSelected
-                          ? context.selectedIndicatorColor
-                          : Theme.of(context).colorScheme.outline,
+                      color: isSelected ? context.selectedIndicatorColor : Theme.of(context).colorScheme.outline,
                       width: 2,
                     ),
                     borderRadius: BorderRadius.circular(4),
@@ -349,9 +342,7 @@ class _AvailableEquipmentFilterState
                     equipment.displayName,
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.onSurface,
-                      fontWeight: isSelected
-                          ? FontWeight.bold
-                          : FontWeight.normal,
+                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                       fontSize: 13,
                     ),
                     maxLines: 2,

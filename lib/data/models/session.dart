@@ -129,8 +129,7 @@ class StrengthSession extends Session {
 
   int get completedExercises => exercises.where((e) => e.isCompleted).length;
 
-  double get completionPercentage =>
-      exercises.isEmpty ? 0.0 : completedExercises / totalExercises;
+  double get completionPercentage => exercises.isEmpty ? 0.0 : completedExercises / totalExercises;
 
   StrengthSession copyWith({
     String? id,
@@ -155,18 +154,14 @@ class StrengthSession extends Session {
   }) {
     return StrengthSession(
       id: id ?? this.id,
-      trainingCycleId: clearTrainingCycleId
-          ? null
-          : (trainingCycleId ?? this.trainingCycleId),
+      trainingCycleId: clearTrainingCycleId ? null : (trainingCycleId ?? this.trainingCycleId),
       source: source ?? this.source,
       status: status ?? this.status,
       periodNumber: periodNumber ?? this.periodNumber,
       dayNumber: dayNumber ?? this.dayNumber,
       dayName: dayName ?? this.dayName,
       label: label ?? this.label,
-      scheduledDate: clearScheduledDate
-          ? null
-          : (scheduledDate ?? this.scheduledDate),
+      scheduledDate: clearScheduledDate ? null : (scheduledDate ?? this.scheduledDate),
       completedDate: completedDate ?? this.completedDate,
       startTime: startTime ?? this.startTime,
       endTime: endTime ?? this.endTime,
@@ -217,27 +212,16 @@ class StrengthSession extends Session {
       dayNumber: json['dayNumber'] as int?,
       dayName: json['dayName'] as String?,
       label: json['label'] as String?,
-      scheduledDate: json['scheduledDate'] != null
-          ? DateTime.parse(json['scheduledDate'] as String)
-          : null,
-      completedDate: json['completedDate'] != null
-          ? DateTime.parse(json['completedDate'] as String)
-          : null,
-      startTime: json['startTime'] != null
-          ? DateTime.parse(json['startTime'] as String)
-          : null,
-      endTime: json['endTime'] != null
-          ? DateTime.parse(json['endTime'] as String)
-          : null,
+      scheduledDate: json['scheduledDate'] != null ? DateTime.parse(json['scheduledDate'] as String) : null,
+      completedDate: json['completedDate'] != null ? DateTime.parse(json['completedDate'] as String) : null,
+      startTime: json['startTime'] != null ? DateTime.parse(json['startTime'] as String) : null,
+      endTime: json['endTime'] != null ? DateTime.parse(json['endTime'] as String) : null,
       notes: json['notes'] as String?,
       externalId: json['externalId'] as String?,
       creatorUuid: json['creatorUuid'] as String?,
       ownerUuid: json['ownerUuid'] as String?,
       exercises:
-          (json['exercises'] as List?)
-              ?.map((e) => Exercise.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          const [],
+          (json['exercises'] as List?)?.map((e) => Exercise.fromJson(e as Map<String, dynamic>)).toList() ?? const [],
     );
   }
 }
@@ -305,9 +289,7 @@ class CardioSession extends Session {
   }) {
     return CardioSession(
       id: id ?? this.id,
-      trainingCycleId: clearTrainingCycleId
-          ? null
-          : (trainingCycleId ?? this.trainingCycleId),
+      trainingCycleId: clearTrainingCycleId ? null : (trainingCycleId ?? this.trainingCycleId),
       sport: sport ?? this.sport,
       source: source ?? this.source,
       status: status ?? this.status,
@@ -315,9 +297,7 @@ class CardioSession extends Session {
       dayNumber: dayNumber ?? this.dayNumber,
       dayName: dayName ?? this.dayName,
       label: label ?? this.label,
-      scheduledDate: clearScheduledDate
-          ? null
-          : (scheduledDate ?? this.scheduledDate),
+      scheduledDate: clearScheduledDate ? null : (scheduledDate ?? this.scheduledDate),
       completedDate: completedDate ?? this.completedDate,
       startTime: startTime ?? this.startTime,
       endTime: endTime ?? this.endTime,
@@ -378,29 +358,17 @@ class CardioSession extends Session {
       dayNumber: json['dayNumber'] as int?,
       dayName: json['dayName'] as String?,
       label: json['label'] as String?,
-      scheduledDate: json['scheduledDate'] != null
-          ? DateTime.parse(json['scheduledDate'] as String)
-          : null,
-      completedDate: json['completedDate'] != null
-          ? DateTime.parse(json['completedDate'] as String)
-          : null,
-      startTime: json['startTime'] != null
-          ? DateTime.parse(json['startTime'] as String)
-          : null,
-      endTime: json['endTime'] != null
-          ? DateTime.parse(json['endTime'] as String)
-          : null,
+      scheduledDate: json['scheduledDate'] != null ? DateTime.parse(json['scheduledDate'] as String) : null,
+      completedDate: json['completedDate'] != null ? DateTime.parse(json['completedDate'] as String) : null,
+      startTime: json['startTime'] != null ? DateTime.parse(json['startTime'] as String) : null,
+      endTime: json['endTime'] != null ? DateTime.parse(json['endTime'] as String) : null,
       notes: json['notes'] as String?,
       externalId: json['externalId'] as String?,
       creatorUuid: json['creatorUuid'] as String?,
       ownerUuid: json['ownerUuid'] as String?,
-      detail: json['detail'] != null
-          ? CardioDetail.fromJson(json['detail'] as Map<String, dynamic>)
-          : null,
+      detail: json['detail'] != null ? CardioDetail.fromJson(json['detail'] as Map<String, dynamic>) : null,
       intervals:
-          (json['intervals'] as List?)
-              ?.map((i) => SessionInterval.fromJson(i as Map<String, dynamic>))
-              .toList() ??
+          (json['intervals'] as List?)?.map((i) => SessionInterval.fromJson(i as Map<String, dynamic>)).toList() ??
           const [],
     );
   }

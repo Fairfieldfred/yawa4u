@@ -10,8 +10,7 @@ part 'cycle_period_dao.g.dart';
 /// One row per (trainingCycle, periodNumber). Holds the cardio
 /// [TrainingPhase] per period and the natural home for future coach notes.
 @DriftAccessor(tables: [CyclePeriods])
-class CyclePeriodDao extends DatabaseAccessor<AppDatabase>
-    with _$CyclePeriodDaoMixin {
+class CyclePeriodDao extends DatabaseAccessor<AppDatabase> with _$CyclePeriodDaoMixin {
   CyclePeriodDao(super.db);
 
   Future<List<CyclePeriod>> getAll() => select(cyclePeriods).get();
@@ -41,9 +40,7 @@ class CyclePeriodDao extends DatabaseAccessor<AppDatabase>
     int periodNumber,
   ) {
     return (select(cyclePeriods)..where(
-          (p) =>
-              p.trainingCycleUuid.equals(trainingCycleUuid) &
-              p.periodNumber.equals(periodNumber),
+          (p) => p.trainingCycleUuid.equals(trainingCycleUuid) & p.periodNumber.equals(periodNumber),
         ))
         .getSingleOrNull();
   }

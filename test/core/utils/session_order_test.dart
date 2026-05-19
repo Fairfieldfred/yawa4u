@@ -153,8 +153,7 @@ void main() {
           scheduledDate: DateTime(2026, 4, 22),
         );
 
-        final result =
-            sortByPerformedOrder([pureplanned, inProgressStrength]);
+        final result = sortByPerformedOrder([pureplanned, inProgressStrength]);
 
         expect(result.map((s) => s.id).toList(), [
           'lifting_now',

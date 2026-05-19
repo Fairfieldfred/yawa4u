@@ -51,11 +51,11 @@ class StravaSyncResult {
   });
 
   StravaSyncResult.errorOnly({required this.error})
-      : imported = 0,
-        skippedDuplicate = 0,
-        skippedUnsupportedType = 0,
-        failed = 0,
-        syncedAt = DateTime.now();
+    : imported = 0,
+      skippedDuplicate = 0,
+      skippedUnsupportedType = 0,
+      failed = 0,
+      syncedAt = DateTime.now();
 
   bool get isSuccess => error == null;
 }
@@ -91,10 +91,10 @@ class StravaIntegrationService {
     required SharedPreferences prefs,
     required AnalyticsService analytics,
     http.Client? httpClient,
-  })  : _sessionRepository = sessionRepository,
-        _prefs = prefs,
-        _analytics = analytics,
-        _httpClient = httpClient ?? http.Client();
+  }) : _sessionRepository = sessionRepository,
+       _prefs = prefs,
+       _analytics = analytics,
+       _httpClient = httpClient ?? http.Client();
 
   static const String clientId = String.fromEnvironment('STRAVA_CLIENT_ID');
   static const String clientSecret = String.fromEnvironment(
@@ -159,13 +159,15 @@ class StravaIntegrationService {
   Future<bool> connect() async {
     if (!isConfigured) return false;
 
-    final uri = Uri.parse(_authBase).replace(queryParameters: {
-      'client_id': clientId,
-      'redirect_uri': redirectUri,
-      'response_type': 'code',
-      'approval_prompt': 'auto',
-      'scope': _scope,
-    });
+    final uri = Uri.parse(_authBase).replace(
+      queryParameters: {
+        'client_id': clientId,
+        'redirect_uri': redirectUri,
+        'response_type': 'code',
+        'approval_prompt': 'auto',
+        'scope': _scope,
+      },
+    );
 
     try {
       final result = await FlutterWebAuth2.authenticate(
@@ -177,9 +179,7 @@ class StravaIntegrationService {
 
       final exchanged = await _exchangeCodeForToken(code);
       await _analytics.instance.logEvent(
-        name: exchanged
-            ? 'strava_connected'
-            : 'strava_connect_failed',
+        name: exchanged ? 'strava_connected' : 'strava_connect_failed',
       );
       return exchanged;
     } catch (e, stack) {
@@ -311,8 +311,7 @@ class StravaIntegrationService {
           continue;
         }
         final externalId = 'strava-$activityId';
-        final existing =
-            await _sessionRepository.getByExternalId(externalId);
+        final existing = await _sessionRepository.getByExternalId(externalId);
         if (existing != null) {
           duplicates++;
           continue;
@@ -455,9 +454,7 @@ class StravaIntegrationService {
       elevationGainM: elevationGainM,
     );
 
-    final endTime = startTime != null && movingSec != null
-        ? startTime.add(Duration(seconds: movingSec))
-        : null;
+    final endTime = startTime != null && movingSec != null ? startTime.add(Duration(seconds: movingSec)) : null;
 
     return CardioSession(
       id: _uuid.v4(),

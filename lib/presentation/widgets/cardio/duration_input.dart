@@ -36,9 +36,7 @@ class _DurationInputState extends State<DurationInput> {
   void initState() {
     super.initState();
     _controller = TextEditingController(
-      text: widget.initialSeconds != null
-          ? CardioConversions.formatDuration(widget.initialSeconds!)
-          : '',
+      text: widget.initialSeconds != null ? CardioConversions.formatDuration(widget.initialSeconds!) : '',
     );
   }
 

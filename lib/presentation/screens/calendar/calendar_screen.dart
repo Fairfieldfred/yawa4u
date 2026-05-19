@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../../core/theme/skins/skins.dart';
 import '../../../core/utils/date_helpers.dart';
@@ -10,6 +11,8 @@ import '../../../domain/controllers/workout_home_controller.dart';
 import '../../../core/constants/enums.dart';
 import '../../../core/constants/sports.dart';
 import '../../../data/models/session.dart';
+import '../../../data/models/workout.dart';
+import '../../../domain/providers/database_providers.dart';
 import '../../../domain/providers/calendar_providers.dart';
 import '../../../domain/providers/navigation_providers.dart';
 import '../../../domain/providers/session_providers.dart';
@@ -70,9 +73,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
             // Theme toggle
             IconButton(
               icon: Icon(
-                ref.watch(isDarkModeProvider)
-                    ? Icons.light_mode
-                    : Icons.dark_mode,
+                ref.watch(isDarkModeProvider) ? Icons.light_mode : Icons.dark_mode,
               ),
               tooltip: 'Toggle theme',
               onPressed: () {
@@ -224,8 +225,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
       focusedDay: _focusedDay,
       rowHeight: rowHeight,
       selectedDayPredicate: (day) {
-        return _selectedDay != null &&
-            DateHelpers.isSameDay(day, _selectedDay!);
+        return _selectedDay != null && DateHelpers.isSameDay(day, _selectedDay!);
       },
       calendarFormat: _calendarFormat,
       onFormatChanged: (format) {
@@ -368,9 +368,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
 
     // Use desktop drag-drop cell for expanded views on all platforms
     // This provides a consistent experience with exercise list and drag-drop
-    final useDesktopCell =
-        (calendarFormat == CalendarFormat.week ||
-        calendarFormat == CalendarFormat.twoWeeks);
+    final useDesktopCell = (calendarFormat == CalendarFormat.week || calendarFormat == CalendarFormat.twoWeeks);
 
     if (useDesktopCell) {
       return _buildDesktopDayCell(
@@ -437,9 +435,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                     style: TextStyle(
                       color: textColor,
                       fontSize: 16,
-                      fontWeight: (isToday || isSelected)
-                          ? FontWeight.bold
-                          : FontWeight.normal,
+                      fontWeight: (isToday || isSelected) ? FontWeight.bold : FontWeight.normal,
                     ),
                   ),
                   if (dayData?.hasWorkout ?? false)
@@ -463,8 +459,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
               ),
             ),
             // Bottom section: Muscle group color bars (month view only)
-            if (calendarFormat == CalendarFormat.month &&
-                (dayData?.hasWorkout ?? false))
+            if (calendarFormat == CalendarFormat.month && (dayData?.hasWorkout ?? false))
               Padding(
                 padding: const EdgeInsets.only(left: 4, right: 4, bottom: 4),
                 child: _buildMuscleGroupBars(
@@ -474,8 +469,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                 ),
               ),
             // Expanded section: Muscle group display (2 weeks and week view)
-            if ((calendarFormat == CalendarFormat.twoWeeks ||
-                    calendarFormat == CalendarFormat.week) &&
+            if ((calendarFormat == CalendarFormat.twoWeeks || calendarFormat == CalendarFormat.week) &&
                 (dayData?.hasWorkout ?? false))
               Expanded(
                 flex: calendarFormat == CalendarFormat.week ? 4 : 2,
@@ -617,19 +611,30 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
           }
         }
       },
-      onAddExercise: (periodNumber, dayNumber) {
-        _showAddExerciseModal(context, currentCycle, periodNumber, dayNumber);
+      onAddExercise: (periodNumber, dayNumber, date) {
+        _showAddExerciseModal(
+          context,
+          currentCycle,
+          periodNumber,
+          dayNumber,
+          date,
+        );
       },
     );
   }
 
-  /// Shows a modal dialog to add an exercise to a specific day
-  void _showAddExerciseModal(
+  /// Shows a modal dialog to add an exercise to a specific day.
+  ///
+  /// If the day has no workouts yet (rest day), a blank workout is
+  /// created first so that AddExerciseScreen has a target to attach
+  /// exercises to.
+  Future<void> _showAddExerciseModal(
     BuildContext context,
     dynamic trainingCycle,
     int periodNumber,
     int dayNumber,
-  ) {
+    DateTime date,
+  ) async {
     if (trainingCycle == null) return;
 
     // Find a workout for this day to get the workoutId
@@ -642,18 +647,29 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
         )
         .toList();
 
-    if (dayWorkouts.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('No session scheduled for this day'),
-          backgroundColor: Colors.orange,
-        ),
+    String workoutId;
+
+    if (dayWorkouts.isNotEmpty) {
+      workoutId = dayWorkouts.first.id;
+    } else {
+      // Rest day — create a new blank workout so we have a target
+      final repository = ref.read(workoutRepositoryProvider);
+      final newId = const Uuid().v4();
+      final newWorkout = Workout(
+        id: newId,
+        trainingCycleId: trainingCycle.id,
+        periodNumber: periodNumber,
+        dayNumber: dayNumber,
+        status: WorkoutStatus.incomplete,
+        scheduledDate: DateHelpers.stripTime(date),
+        exercises: [],
       );
-      return;
+      await repository.create(newWorkout);
+      ref.invalidate(trainingCyclesProvider);
+      workoutId = newId;
     }
 
-    // Use the first workout's ID (exercises will be added to appropriate muscle group workout)
-    final workoutId = dayWorkouts.first.id;
+    if (!mounted) return;
 
     showDialog(
       context: context,
@@ -682,8 +698,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     if (muscleGroupSets.isEmpty) return const SizedBox.shrink();
 
     // Take up to 4 muscle groups, sorted by set count descending
-    final sortedEntries = muscleGroupSets.entries.toList()
-      ..sort((a, b) => b.value.compareTo(a.value));
+    final sortedEntries = muscleGroupSets.entries.toList()..sort((a, b) => b.value.compareTo(a.value));
     final groups = sortedEntries.take(4).toList();
 
     // Calculate total sets for proportional widths
@@ -773,8 +788,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     if (muscleGroupSets.isEmpty) return const SizedBox.shrink();
 
     // Sort by set count descending
-    final sortedEntries = muscleGroupSets.entries.toList()
-      ..sort((a, b) => b.value.compareTo(a.value));
+    final sortedEntries = muscleGroupSets.entries.toList()..sort((a, b) => b.value.compareTo(a.value));
 
     // Find max sets for scaling
     final maxSets = sortedEntries.first.value;
@@ -793,8 +807,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
           children: sortedEntries.map((entry) {
             // Scale diameter proportionally to sets (min to max range)
             final ratio = maxSets > 0 ? entry.value / maxSets : 0.0;
-            final diameter =
-                minDiameter + (ratio * (maxDiameter - minDiameter));
+            final diameter = minDiameter + (ratio * (maxDiameter - minDiameter));
 
             // Build tooltip message with exercise names
             final exercises = muscleGroupExercises?[entry.key] ?? [];
@@ -841,8 +854,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     if (muscleGroupSets.isEmpty) return const SizedBox.shrink();
 
     // Sort by set count descending
-    final sortedEntries = muscleGroupSets.entries.toList()
-      ..sort((a, b) => b.value.compareTo(a.value));
+    final sortedEntries = muscleGroupSets.entries.toList()..sort((a, b) => b.value.compareTo(a.value));
 
     final isWeekView = calendarFormat == CalendarFormat.week;
     final textStyle = Theme.of(context).textTheme;
@@ -966,8 +978,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
             ],
           ),
           const SizedBox(height: 8),
-          if (dayData?.hasWorkout ?? false)
-            _buildWorkoutSummary(context, dayData!, trainingCycle),
+          if (dayData?.hasWorkout ?? false) _buildWorkoutSummary(context, dayData!, trainingCycle),
           if (dayData?.hasCardio ?? false) ...[
             if (dayData!.hasWorkout) const SizedBox(height: 12),
             _buildCardioSummary(context, dayData),
@@ -1274,9 +1285,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
       selectedDay: dayData.dayNumber, // Can be null for rest days
       isRestDay: isRestDay,
       selectedDate: dayData.date,
-      onInsertDayBefore: dayData.hasWorkout
-          ? (period, day) => _insertDayBefore(period, day)
-          : null,
+      onInsertDayBefore: dayData.hasWorkout ? (period, day) => _insertDayBefore(period, day) : null,
       onRemoveRestDay: isRestDay ? (date) => _removeRestDay(date) : null,
     );
   }
@@ -1285,9 +1294,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     if (!dayData.hasWorkout) return;
 
     // Update workout home controller to select this day
-    ref
-        .read(workoutHomeControllerProvider.notifier)
-        .selectDay(dayData.periodNumber!, dayData.dayNumber!);
+    ref.read(workoutHomeControllerProvider.notifier).selectDay(dayData.periodNumber!, dayData.dayNumber!);
 
     // Switch to workout tab
     ref.read(homeTabIndexProvider.notifier).setTab(HomeTab.workout);

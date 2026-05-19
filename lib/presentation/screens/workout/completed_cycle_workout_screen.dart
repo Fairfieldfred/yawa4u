@@ -30,12 +30,10 @@ class CompletedCycleWorkoutScreen extends ConsumerStatefulWidget {
   const CompletedCycleWorkoutScreen({super.key, required this.trainingCycleId});
 
   @override
-  ConsumerState<CompletedCycleWorkoutScreen> createState() =>
-      _CompletedCycleWorkoutScreenState();
+  ConsumerState<CompletedCycleWorkoutScreen> createState() => _CompletedCycleWorkoutScreenState();
 }
 
-class _CompletedCycleWorkoutScreenState
-    extends ConsumerState<CompletedCycleWorkoutScreen> {
+class _CompletedCycleWorkoutScreenState extends ConsumerState<CompletedCycleWorkoutScreen> {
   int? _selectedPeriod;
   int? _selectedDay;
   bool _showWeekSelector = false;
@@ -65,9 +63,7 @@ class _CompletedCycleWorkoutScreenState
     if (exercise is! Exercise) return null;
 
     // First check if current exercise has a pinned note
-    if (exercise.isNotePinned &&
-        exercise.notes != null &&
-        exercise.notes!.isNotEmpty) {
+    if (exercise.isNotePinned && exercise.notes != null && exercise.notes!.isNotEmpty) {
       return exercise.notes;
     }
 
@@ -108,9 +104,7 @@ class _CompletedCycleWorkoutScreenState
 
     return trainingCyclesAsync.when(
       data: (trainingCycles) {
-        final trainingCycle = trainingCycles
-            .where((m) => m.id == widget.trainingCycleId)
-            .firstOrNull;
+        final trainingCycle = trainingCycles.where((m) => m.id == widget.trainingCycleId).firstOrNull;
 
         if (trainingCycle == null) {
           return Scaffold(
@@ -137,8 +131,7 @@ class _CompletedCycleWorkoutScreenState
 
         final todaysWorkouts = allWorkouts
             .where(
-              (w) =>
-                  w.periodNumber == displayPeriod && w.dayNumber == displayDay,
+              (w) => w.periodNumber == displayPeriod && w.dayNumber == displayDay,
             )
             .toList();
 
@@ -282,9 +275,7 @@ class _CompletedCycleWorkoutScreenState
             // Theme toggle
             IconButton(
               icon: Icon(
-                ref.watch(isDarkModeProvider)
-                    ? Icons.light_mode
-                    : Icons.dark_mode,
+                ref.watch(isDarkModeProvider) ? Icons.light_mode : Icons.dark_mode,
               ),
               onPressed: () {
                 ref.read(themeModeProvider.notifier).toggleTheme();
@@ -311,13 +302,11 @@ class _CompletedCycleWorkoutScreenState
                     padding: const EdgeInsets.only(bottom: 80, top: 24),
                     itemCount: allExercises.length,
                     separatorBuilder: (context, index) {
-                      final currentMuscleGroup =
-                          allExercises[index].muscleGroup;
+                      final currentMuscleGroup = allExercises[index].muscleGroup;
                       final nextMuscleGroup = index + 1 < allExercises.length
                           ? allExercises[index + 1].muscleGroup
                           : null;
-                      final isSameMuscleGroup =
-                          currentMuscleGroup == nextMuscleGroup;
+                      final isSameMuscleGroup = currentMuscleGroup == nextMuscleGroup;
 
                       return isSameMuscleGroup
                           ? Container(height: 1, color: const Color(0xFF3A3A3C))
@@ -326,9 +315,7 @@ class _CompletedCycleWorkoutScreenState
                     itemBuilder: (context, index) {
                       final exercise = allExercises[index];
                       final showMuscleGroupBadge =
-                          index == 0 ||
-                          allExercises[index - 1].muscleGroup !=
-                              exercise.muscleGroup;
+                          index == 0 || allExercises[index - 1].muscleGroup != exercise.muscleGroup;
 
                       final weekRir = calculateRIR(
                         displayPeriod,
@@ -387,225 +374,165 @@ class _CompletedCycleWorkoutScreenState
         final pinnedNote = snapshot.data;
 
         return Stack(
-      clipBehavior: Clip.none,
-      children: [
-        Container(
-          width: double.infinity,
-          decoration: BoxDecoration(
-            color: Theme.of(context).cardTheme.color,
-            borderRadius: BorderRadius.circular(0),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
+          clipBehavior: Clip.none,
+          children: [
+            Container(
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: Theme.of(context).cardTheme.color,
+                borderRadius: BorderRadius.circular(0),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            exercise.name,
-                            style: Theme.of(context).textTheme.titleMedium
-                                ?.copyWith(
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                exercise.name,
+                                style: Theme.of(context).textTheme.titleMedium?.copyWith(
                                   fontSize: 17,
                                   fontWeight: FontWeight.w600,
                                 ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            equipmentType?.displayName.toUpperCase() ??
-                                'UNKNOWN',
-                            style: Theme.of(context).textTheme.bodySmall
-                                ?.copyWith(
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                equipmentType?.displayName.toUpperCase() ?? 'UNKNOWN',
+                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                   fontSize: 13,
                                   fontWeight: FontWeight.w500,
                                   letterSpacing: 0.3,
                                 ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    // Info button (read-only, still useful)
-                    IconButton(
-                      icon: Container(
-                        width: 24,
-                        height: 24,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: const Color(0xFF8E8E93),
-                            width: 2,
+                              ),
+                            ],
                           ),
                         ),
-                        child: Center(
-                          child: Text(
-                            'i',
-                            style: TextStyle(
-                              color: Theme.of(
-                                context,
-                              ).textTheme.bodySmall?.color,
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                              fontStyle: FontStyle.italic,
-                            ),
-                          ),
-                        ),
-                      ),
-                      onPressed: () =>
-                          showExerciseInfoDialog(context, exercise as Exercise),
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(
-                        minWidth: 24,
-                        minHeight: 24,
-                      ),
-                    ),
-                  ],
-                ),
-
-                const SizedBox(height: 16),
-
-                // Column headers
-                if (exercise.sets.isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
-                    child: Row(
-                      children: [
-                        const SizedBox(width: 24),
-                        Expanded(
-                          child: Text(
-                            'WEIGHT',
-                            style: TextStyle(
-                              color:
-                                  Theme.of(context).brightness ==
-                                      Brightness.light
-                                  ? Theme.of(context).textTheme.bodySmall?.color
-                                        ?.withValues(alpha: 0.7)
-                                  : Colors.white,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: Text(
-                            'REPS',
-                            style: TextStyle(
-                              color:
-                                  Theme.of(context).brightness ==
-                                      Brightness.light
-                                  ? Theme.of(context).textTheme.bodySmall?.color
-                                        ?.withValues(alpha: 0.7)
-                                  : Colors.white,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        SizedBox(
-                          width: 40,
-                          child: Text(
-                            'LOG',
-                            style: TextStyle(
-                              color:
-                                  Theme.of(context).brightness ==
-                                      Brightness.light
-                                  ? Theme.of(context).textTheme.bodySmall?.color
-                                        ?.withValues(alpha: 0.7)
-                                  : Colors.white,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                // Sets list (read-only)
-                ...List.generate(exercise.sets.length, (index) {
-                  final set = exercise.sets[index] as ExerciseSet;
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
-                    child: Row(
-                      children: [
-                        // Set number indicator (instead of menu)
-                        SizedBox(
-                          width: 24,
-                          child: Text(
-                            '${index + 1}',
-                            style: TextStyle(
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.onSurface.withValues(alpha: 0.5),
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-
-                        // Weight Display (read-only)
-                        Expanded(
-                          child: Container(
-                            height: 40,
+                        const SizedBox(width: 8),
+                        // Info button (read-only, still useful)
+                        IconButton(
+                          icon: Container(
+                            width: 24,
+                            height: 24,
                             decoration: BoxDecoration(
-                              color: Theme.of(context)
-                                  .inputDecorationTheme
-                                  .fillColor
-                                  ?.withValues(alpha: 0.5),
-                              borderRadius: BorderRadius.circular(4),
+                              shape: BoxShape.circle,
                               border: Border.all(
-                                color: Theme.of(
-                                  context,
-                                ).dividerColor.withValues(alpha: 0.5),
+                                color: const Color(0xFF8E8E93),
+                                width: 2,
                               ),
                             ),
                             child: Center(
                               child: Text(
-                                set.weight != null
-                                    ? formatWeightForDisplay(
-                                        set.weight,
-                                        ref.watch(useMetricProvider),
-                                      )
-                                    : '-',
-                                style: Theme.of(context).textTheme.bodyMedium
-                                    ?.copyWith(
-                                      color: set.weight != null
-                                          ? Theme.of(
-                                              context,
-                                            ).colorScheme.onSurface
-                                          : Theme.of(context)
-                                                .colorScheme
-                                                .onSurface
-                                                .withValues(alpha: 0.4),
-                                    ),
-                                textAlign: TextAlign.center,
+                                'i',
+                                style: TextStyle(
+                                  color: Theme.of(
+                                    context,
+                                  ).textTheme.bodySmall?.color,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  fontStyle: FontStyle.italic,
+                                ),
                               ),
                             ),
                           ),
+                          onPressed: () => showExerciseInfoDialog(context, exercise as Exercise),
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(
+                            minWidth: 24,
+                            minHeight: 24,
+                          ),
                         ),
-                        const SizedBox(width: 16),
+                      ],
+                    ),
 
-                        // Reps Display (read-only)
-                        Expanded(
-                          child: Stack(
-                            children: [
-                              Container(
+                    const SizedBox(height: 16),
+
+                    // Column headers
+                    if (exercise.sets.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: Row(
+                          children: [
+                            const SizedBox(width: 24),
+                            Expanded(
+                              child: Text(
+                                'WEIGHT',
+                                style: TextStyle(
+                                  color: Theme.of(context).brightness == Brightness.light
+                                      ? Theme.of(context).textTheme.bodySmall?.color?.withValues(alpha: 0.7)
+                                      : Colors.white,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Text(
+                                'REPS',
+                                style: TextStyle(
+                                  color: Theme.of(context).brightness == Brightness.light
+                                      ? Theme.of(context).textTheme.bodySmall?.color?.withValues(alpha: 0.7)
+                                      : Colors.white,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            SizedBox(
+                              width: 40,
+                              child: Text(
+                                'LOG',
+                                style: TextStyle(
+                                  color: Theme.of(context).brightness == Brightness.light
+                                      ? Theme.of(context).textTheme.bodySmall?.color?.withValues(alpha: 0.7)
+                                      : Colors.white,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                    // Sets list (read-only)
+                    ...List.generate(exercise.sets.length, (index) {
+                      final set = exercise.sets[index] as ExerciseSet;
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: Row(
+                          children: [
+                            // Set number indicator (instead of menu)
+                            SizedBox(
+                              width: 24,
+                              child: Text(
+                                '${index + 1}',
+                                style: TextStyle(
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurface.withValues(alpha: 0.5),
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+
+                            // Weight Display (read-only)
+                            Expanded(
+                              child: Container(
                                 height: 40,
                                 decoration: BoxDecoration(
-                                  color: Theme.of(context)
-                                      .inputDecorationTheme
-                                      .fillColor
-                                      ?.withValues(alpha: 0.5),
+                                  color: Theme.of(context).inputDecorationTheme.fillColor?.withValues(alpha: 0.5),
                                   borderRadius: BorderRadius.circular(4),
                                   border: Border.all(
                                     color: Theme.of(
@@ -615,152 +542,178 @@ class _CompletedCycleWorkoutScreenState
                                 ),
                                 child: Center(
                                   child: Text(
-                                    set.reps.isNotEmpty ? set.reps : '-',
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodyMedium
-                                        ?.copyWith(
-                                          color: set.reps.isNotEmpty
-                                              ? Theme.of(
-                                                  context,
-                                                ).colorScheme.onSurface
-                                              : Theme.of(context)
-                                                    .colorScheme
-                                                    .onSurface
-                                                    .withValues(alpha: 0.4),
-                                        ),
+                                    set.weight != null
+                                        ? formatWeightForDisplay(
+                                            set.weight,
+                                            ref.watch(useMetricProvider),
+                                          )
+                                        : '-',
+                                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                      color: set.weight != null
+                                          ? Theme.of(
+                                              context,
+                                            ).colorScheme.onSurface
+                                          : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
+                                    ),
                                     textAlign: TextAlign.center,
                                   ),
                                 ),
                               ),
-                              // Badge for non-regular set types
-                              if (_getSetTypeBadge(set.setType) != null)
-                                Positioned(
-                                  top: 2,
-                                  right: 4,
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 4,
-                                      vertical: 2,
-                                    ),
+                            ),
+                            const SizedBox(width: 16),
+
+                            // Reps Display (read-only)
+                            Expanded(
+                              child: Stack(
+                                children: [
+                                  Container(
+                                    height: 40,
                                     decoration: BoxDecoration(
-                                      color: Colors.grey.withValues(alpha: 0.6),
-                                      borderRadius: BorderRadius.circular(3),
+                                      color: Theme.of(context).inputDecorationTheme.fillColor?.withValues(alpha: 0.5),
+                                      borderRadius: BorderRadius.circular(4),
+                                      border: Border.all(
+                                        color: Theme.of(
+                                          context,
+                                        ).dividerColor.withValues(alpha: 0.5),
+                                      ),
                                     ),
-                                    child: Text(
-                                      _getSetTypeBadge(set.setType)!,
-                                      style: TextStyle(
-                                        color:
-                                            Theme.of(context).brightness ==
-                                                Brightness.light
-                                            ? Colors.black
-                                            : Colors.white,
-                                        fontSize: 9,
-                                        fontWeight: FontWeight.bold,
+                                    child: Center(
+                                      child: Text(
+                                        set.reps.isNotEmpty ? set.reps : '-',
+                                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                          color: set.reps.isNotEmpty
+                                              ? Theme.of(
+                                                  context,
+                                                ).colorScheme.onSurface
+                                              : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
+                                        ),
+                                        textAlign: TextAlign.center,
                                       ),
                                     ),
                                   ),
-                                ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-
-                        // Log Status Display (read-only)
-                        SizedBox(
-                          width: 40,
-                          height: 40,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: set.isLogged
-                                  ? context.successColor.withValues(alpha: 0.2)
-                                  : (set.isSkipped
-                                        ? context.warningColor.withValues(
-                                            alpha: 0.2,
-                                          )
-                                        : Colors.grey.withValues(alpha: 0.1)),
-                              borderRadius: BorderRadius.circular(4),
-                              border: Border.all(
-                                color: set.isLogged
-                                    ? context.successColor
-                                    : (set.isSkipped
-                                          ? context.warningColor
-                                          : Theme.of(context).dividerColor
-                                                .withValues(alpha: 0.3)),
-                                width: set.isLogged || set.isSkipped ? 2 : 1,
+                                  // Badge for non-regular set types
+                                  if (_getSetTypeBadge(set.setType) != null)
+                                    Positioned(
+                                      top: 2,
+                                      right: 4,
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 4,
+                                          vertical: 2,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: Colors.grey.withValues(alpha: 0.6),
+                                          borderRadius: BorderRadius.circular(3),
+                                        ),
+                                        child: Text(
+                                          _getSetTypeBadge(set.setType)!,
+                                          style: TextStyle(
+                                            color: Theme.of(context).brightness == Brightness.light
+                                                ? Colors.black
+                                                : Colors.white,
+                                            fontSize: 9,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                ],
                               ),
                             ),
-                            child: set.isLogged
-                                ? Icon(
-                                    Icons.check,
-                                    color: context.successColor,
-                                    size: 20,
-                                  )
-                                : (set.isSkipped
-                                      ? Icon(
-                                          Icons.fast_forward,
-                                          color: context.warningColor,
-                                          size: 16,
-                                        )
-                                      : null),
+                            const SizedBox(width: 16),
+
+                            // Log Status Display (read-only)
+                            SizedBox(
+                              width: 40,
+                              height: 40,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: set.isLogged
+                                      ? context.successColor.withValues(alpha: 0.2)
+                                      : (set.isSkipped
+                                            ? context.warningColor.withValues(
+                                                alpha: 0.2,
+                                              )
+                                            : Colors.grey.withValues(alpha: 0.1)),
+                                  borderRadius: BorderRadius.circular(4),
+                                  border: Border.all(
+                                    color: set.isLogged
+                                        ? context.successColor
+                                        : (set.isSkipped
+                                              ? context.warningColor
+                                              : Theme.of(context).dividerColor.withValues(alpha: 0.3)),
+                                    width: set.isLogged || set.isSkipped ? 2 : 1,
+                                  ),
+                                ),
+                                child: set.isLogged
+                                    ? Icon(
+                                        Icons.check,
+                                        color: context.successColor,
+                                        size: 20,
+                                      )
+                                    : (set.isSkipped
+                                          ? Icon(
+                                              Icons.fast_forward,
+                                              color: context.warningColor,
+                                              size: 16,
+                                            )
+                                          : null),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }),
+
+                    // Pinned note display (read-only, at bottom of card)
+                    // Shows pinned notes from any exercise with the same name
+                    if (pinnedNote != null)
+                      Container(
+                        margin: const EdgeInsets.only(top: 8),
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.primaryContainer.withAlpha(51),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.primary.withAlpha(77),
+                            width: 1,
                           ),
                         ),
-                      ],
-                    ),
-                  );
-                }),
-
-                // Pinned note display (read-only, at bottom of card)
-                // Shows pinned notes from any exercise with the same name
-                if (pinnedNote != null)
-                  Container(
-                    margin: const EdgeInsets.only(top: 8),
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.primaryContainer.withAlpha(51),
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.primary.withAlpha(77),
-                        width: 1,
-                      ),
-                    ),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Icon(
-                          Icons.push_pin,
-                          size: 16,
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            pinnedNote,
-                            style: Theme.of(context).textTheme.bodySmall
-                                ?.copyWith(
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Icon(
+                              Icons.push_pin,
+                              size: 16,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                pinnedNote,
+                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                   color: Theme.of(
                                     context,
                                   ).colorScheme.onSurface,
                                   fontStyle: FontStyle.italic,
                                 ),
-                          ),
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                  ),
-              ],
+                      ),
+                  ],
+                ),
+              ),
             ),
-          ),
-        ),
 
-        // Muscle group badge
-        if (showMuscleGroupBadge)
-          MuscleGroupBadge.compact(muscleGroup: muscleGroup),
-      ],
+            // Muscle group badge
+            if (showMuscleGroupBadge) MuscleGroupBadge.compact(muscleGroup: muscleGroup),
+          ],
         );
       },
     );
@@ -801,8 +754,7 @@ class _ReadOnlyCalendarDropdown extends StatefulWidget {
   });
 
   @override
-  State<_ReadOnlyCalendarDropdown> createState() =>
-      _ReadOnlyCalendarDropdownState();
+  State<_ReadOnlyCalendarDropdown> createState() => _ReadOnlyCalendarDropdownState();
 }
 
 class _ReadOnlyCalendarDropdownState extends State<_ReadOnlyCalendarDropdown> {
@@ -856,9 +808,7 @@ class _ReadOnlyCalendarDropdownState extends State<_ReadOnlyCalendarDropdown> {
         color: Theme.of(context).colorScheme.surface,
         boxShadow: [
           BoxShadow(
-            color: isDarkMode
-                ? Colors.black.withValues(alpha: 0.3)
-                : Colors.black.withValues(alpha: 0.1),
+            color: isDarkMode ? Colors.black.withValues(alpha: 0.3) : Colors.black.withValues(alpha: 0.1),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -958,9 +908,7 @@ class _ReadOnlyCalendarDropdownState extends State<_ReadOnlyCalendarDropdown> {
           (w) => w.dayName == firstDayName,
         );
 
-        if (allHaveSameName &&
-            firstDayName != null &&
-            firstDayName.isNotEmpty) {
+        if (allHaveSameName && firstDayName != null && firstDayName.isNotEmpty) {
           final info = DateHelpers.getDayInfo(dateMap, periodNumber, dayNumber);
           return (
             dayName: firstDayName.substring(0, 3).toUpperCase(),
@@ -1018,20 +966,15 @@ class _ReadOnlyCalendarDropdownState extends State<_ReadOnlyCalendarDropdown> {
           ...List.generate(dayInfoList.length, (dayIndex) {
             final dayNumber = dayIndex + 1;
             final dayInfo = dayInfoList[dayIndex];
-            final isSelected =
-                periodNumber == _selectedPeriod && dayNumber == _selectedDay;
+            final isSelected = periodNumber == _selectedPeriod && dayNumber == _selectedDay;
 
             // All days are completed in a completed trainingCycle
             final dayWorkouts = widget.allWorkouts
                 .where(
-                  (w) =>
-                      w.periodNumber == periodNumber &&
-                      w.dayNumber == dayNumber,
+                  (w) => w.periodNumber == periodNumber && w.dayNumber == dayNumber,
                 )
                 .toList();
-            final isCompleted =
-                dayWorkouts.isNotEmpty &&
-                dayWorkouts.every((w) => w.status == WorkoutStatus.completed);
+            final isCompleted = dayWorkouts.isNotEmpty && dayWorkouts.every((w) => w.status == WorkoutStatus.completed);
 
             Color backgroundColor;
             Color textColor;
@@ -1060,9 +1003,7 @@ class _ReadOnlyCalendarDropdownState extends State<_ReadOnlyCalendarDropdown> {
                 decoration: BoxDecoration(
                   color: backgroundColor,
                   borderRadius: BorderRadius.circular(8),
-                  border: isSelected
-                      ? Border.all(color: context.warningColor, width: 2)
-                      : null,
+                  border: isSelected ? Border.all(color: context.warningColor, width: 2) : null,
                 ),
                 alignment: Alignment.center,
                 child: Column(
@@ -1073,9 +1014,7 @@ class _ReadOnlyCalendarDropdownState extends State<_ReadOnlyCalendarDropdown> {
                       style: TextStyle(
                         color: textColor,
                         fontSize: 12,
-                        fontWeight: isSelected
-                            ? FontWeight.bold
-                            : FontWeight.normal,
+                        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                       ),
                     ),
                     if (dayInfo.dayOfMonth > 0)
@@ -1095,5 +1034,4 @@ class _ReadOnlyCalendarDropdownState extends State<_ReadOnlyCalendarDropdown> {
       ),
     );
   }
-
 }

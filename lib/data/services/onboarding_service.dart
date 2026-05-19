@@ -8,8 +8,7 @@ import '../../core/constants/sports.dart';
 /// Service to manage onboarding state and user preferences
 class OnboardingService {
   static const String _keyOnboardingComplete = 'onboarding_complete';
-  static const String _keyFirstTrainingCycleCreated =
-      'has_created_first_trainingCycle';
+  static const String _keyFirstTrainingCycleCreated = 'has_created_first_trainingCycle';
   static const String _keyHeightCm = 'user_height_cm';
   static const String _keyWeightKg = 'user_weight_kg';
   static const String _keyUseMetric = 'user_use_metric';
@@ -71,12 +70,9 @@ class OnboardingService {
   double? get weightKg => _prefs.getDouble(_keyWeightKg);
   bool get useMetric => _prefs.getBool(_keyUseMetric) ?? false;
   List<String> get equipment => _prefs.getStringList(_keyEquipment) ?? [];
-  bool get equipmentFilterEnabled =>
-      _prefs.getBool(_keyEquipmentFilterEnabled) ?? false;
-  String get trainingCycleTerm =>
-      _prefs.getString(_keyTrainingCycleTerm) ?? 'trainingCycle';
-  int get appIconIndex =>
-      _prefs.getInt(_keyAppIconIndex) ?? 1; // Default to center icon
+  bool get equipmentFilterEnabled => _prefs.getBool(_keyEquipmentFilterEnabled) ?? false;
+  String get trainingCycleTerm => _prefs.getString(_keyTrainingCycleTerm) ?? 'trainingCycle';
+  int get appIconIndex => _prefs.getInt(_keyAppIconIndex) ?? 1; // Default to center icon
   double? get bodyFatPercent => _prefs.getDouble(_keyBodyFatPercent);
   double? get leanMassKg => _prefs.getDouble(_keyLeanMassKg);
 
@@ -172,12 +168,8 @@ class OnboardingService {
       final decoded = jsonDecode(raw) as Map<String, dynamic>;
       final out = <Sport, UnitSystem>{};
       decoded.forEach((sportName, unitName) {
-        final sport = Sport.values
-            .where((s) => s.name == sportName)
-            .firstOrNull;
-        final unit = UnitSystem.values
-            .where((u) => u.name == unitName)
-            .firstOrNull;
+        final sport = Sport.values.where((s) => s.name == sportName).firstOrNull;
+        final unit = UnitSystem.values.where((u) => u.name == unitName).firstOrNull;
         if (sport != null && unit != null) out[sport] = unit;
       });
       return out;

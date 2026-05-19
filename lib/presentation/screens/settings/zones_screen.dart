@@ -25,8 +25,7 @@ class ZonesScreen extends ConsumerStatefulWidget {
   ConsumerState<ZonesScreen> createState() => _ZonesScreenState();
 }
 
-class _ZonesScreenState extends ConsumerState<ZonesScreen>
-    with SingleTickerProviderStateMixin {
+class _ZonesScreenState extends ConsumerState<ZonesScreen> with SingleTickerProviderStateMixin {
   static const _sports = [Sport.run, Sport.bike, Sport.swim];
 
   late final TabController _tabController;
@@ -105,8 +104,7 @@ class _SportZonesTabState extends ConsumerState<_SportZonesTab> {
     return AbsorbPointer(
       absorbing: _saving,
       child: streamAsync.when(
-        loading: () =>
-            const Center(child: CircularProgressIndicator()),
+        loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => Center(child: Text('Error loading zones: $e')),
         data: (zones) {
           if (zones.isEmpty) {
@@ -165,10 +163,7 @@ class _SportZonesTabState extends ConsumerState<_SportZonesTab> {
 /// Stream provider for the zones of a single sport. Kept file-private because
 /// it's specific to this screen's rendering (the general-purpose
 /// sportZonesProvider lives in session_providers.dart).
-final _zoneStreamProvider = StreamProvider.autoDispose.family<
-  List<SportZone>,
-  Sport
->((ref, sport) {
+final _zoneStreamProvider = StreamProvider.autoDispose.family<List<SportZone>, Sport>((ref, sport) {
   final repo = ref.watch(sportZoneRepositoryProvider);
   return repo.watchBySport(sport);
 });

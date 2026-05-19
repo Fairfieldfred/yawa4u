@@ -30,12 +30,10 @@ class TrainingCycleCreateScreen extends ConsumerStatefulWidget {
   const TrainingCycleCreateScreen({super.key});
 
   @override
-  ConsumerState<TrainingCycleCreateScreen> createState() =>
-      _TrainingCycleCreateScreenState();
+  ConsumerState<TrainingCycleCreateScreen> createState() => _TrainingCycleCreateScreenState();
 }
 
-class _TrainingCycleCreateScreenState
-    extends ConsumerState<TrainingCycleCreateScreen> {
+class _TrainingCycleCreateScreenState extends ConsumerState<TrainingCycleCreateScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _uuid = const Uuid();
@@ -120,8 +118,7 @@ class _TrainingCycleCreateScreenState
         recoveryPeriod: _hasDeload ? _recoveryPeriod : null,
         recoveryPeriodType: _recoveryPeriodType,
         status: TrainingCycleStatus.draft,
-        gender:
-            Gender.male, // Default value - will be set from onboarding later
+        gender: Gender.male, // Default value - will be set from onboarding later
         createdDate: DateTime.now(),
         workouts: _generateWorkouts(),
         muscleGroupPriorities: {},
@@ -203,9 +200,7 @@ class _TrainingCycleCreateScreenState
             dayNumber: day,
             dayName: templateWorkout?.dayName,
             status: WorkoutStatus.incomplete,
-            exercises: templateWorkout != null
-                ? _convertTemplateExercises(templateWorkout.exercises)
-                : [],
+            exercises: templateWorkout != null ? _convertTemplateExercises(templateWorkout.exercises) : [],
           ),
         );
       }
@@ -225,11 +220,8 @@ class _TrainingCycleCreateScreenState
         id: exerciseId,
         workoutId: '', // Will be set when workout is saved
         name: template.name,
-        muscleGroup:
-            MuscleGroups.parse(template.muscleGroup) ?? MuscleGroup.chest,
-        equipmentType:
-            EquipmentTypes.parse(template.equipmentType) ??
-            EquipmentType.barbell,
+        muscleGroup: MuscleGroups.parse(template.muscleGroup) ?? MuscleGroup.chest,
+        equipmentType: EquipmentTypes.parse(template.equipmentType) ?? EquipmentType.barbell,
         sets: _generateSetsFromTemplate(template),
         orderIndex: index,
         notes: template.notes,
@@ -459,9 +451,7 @@ class _TrainingCycleCreateScreenState
                 setState(() {
                   _periodsTotal = value.toInt();
                   // Adjust recovery period if needed
-                  if (_hasDeload &&
-                      _recoveryPeriod != null &&
-                      _recoveryPeriod! > _periodsTotal) {
+                  if (_hasDeload && _recoveryPeriod != null && _recoveryPeriod! > _periodsTotal) {
                     _recoveryPeriod = _periodsTotal;
                   }
                 });
@@ -691,42 +681,41 @@ class _TrainingCycleCreateScreenState
                   style: TextStyle(color: Theme.of(context).colorScheme.error),
                 );
               },
-              data: (templates) =>
-                  DropdownButtonFormField<TrainingCycleTemplate?>(
-                    isExpanded: true,
-                    initialValue: _selectedTemplate,
-                    decoration: const InputDecoration(
-                      labelText: 'Choose a Template',
-                      border: OutlineInputBorder(),
-                      prefixIcon: Icon(Icons.library_books),
-                    ),
-                    items: [
-                      const DropdownMenuItem<TrainingCycleTemplate?>(
-                        value: null,
-                        child: Text('None (Custom)'),
-                      ),
-                      ...templates.map(
-                        (template) => DropdownMenuItem<TrainingCycleTemplate?>(
-                          value: template,
-                          child: Text(template.name),
-                        ),
-                      ),
-                    ],
-                    onChanged: (template) {
-                      setState(() {
-                        _selectedTemplate = template;
-                        // Optionally update form values from template
-                        if (template != null) {
-                          _periodsTotal = template.periodsTotal;
-                          _daysPerPeriod = template.daysPerPeriod;
-                          if (template.recoveryPeriod != null) {
-                            _hasDeload = true;
-                            _recoveryPeriod = template.recoveryPeriod;
-                          }
-                        }
-                      });
-                    },
+              data: (templates) => DropdownButtonFormField<TrainingCycleTemplate?>(
+                isExpanded: true,
+                initialValue: _selectedTemplate,
+                decoration: const InputDecoration(
+                  labelText: 'Choose a Template',
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.library_books),
+                ),
+                items: [
+                  const DropdownMenuItem<TrainingCycleTemplate?>(
+                    value: null,
+                    child: Text('None (Custom)'),
                   ),
+                  ...templates.map(
+                    (template) => DropdownMenuItem<TrainingCycleTemplate?>(
+                      value: template,
+                      child: Text(template.name),
+                    ),
+                  ),
+                ],
+                onChanged: (template) {
+                  setState(() {
+                    _selectedTemplate = template;
+                    // Optionally update form values from template
+                    if (template != null) {
+                      _periodsTotal = template.periodsTotal;
+                      _daysPerPeriod = template.daysPerPeriod;
+                      if (template.recoveryPeriod != null) {
+                        _hasDeload = true;
+                        _recoveryPeriod = template.recoveryPeriod;
+                      }
+                    }
+                  });
+                },
+              ),
             ),
             const SizedBox(height: 8),
             Text(
@@ -759,8 +748,7 @@ class _MixedChip extends StatelessWidget {
     final bg = isSelected
         ? theme.colorScheme.onSurface.withValues(alpha: 0.12)
         : theme.colorScheme.surfaceContainerHighest;
-    final border =
-        isSelected ? theme.colorScheme.onSurface : Colors.transparent;
+    final border = isSelected ? theme.colorScheme.onSurface : Colors.transparent;
     final textColor = theme.colorScheme.onSurface;
 
     return InkWell(

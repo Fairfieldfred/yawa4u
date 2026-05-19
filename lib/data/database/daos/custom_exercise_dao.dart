@@ -7,8 +7,7 @@ part 'custom_exercise_dao.g.dart';
 
 /// Data Access Object for CustomExerciseDefinitions table
 @DriftAccessor(tables: [CustomExerciseDefinitions])
-class CustomExerciseDao extends DatabaseAccessor<AppDatabase>
-    with _$CustomExerciseDaoMixin {
+class CustomExerciseDao extends DatabaseAccessor<AppDatabase> with _$CustomExerciseDaoMixin {
   CustomExerciseDao(super.db);
 
   /// Get all custom exercises sorted by name
@@ -67,16 +66,13 @@ class CustomExerciseDao extends DatabaseAccessor<AppDatabase>
     String uuid,
     CustomExerciseDefinitionsCompanion exercise,
   ) {
-    return (update(customExerciseDefinitions)
-          ..where((c) => c.uuid.equals(uuid)))
-        .write(exercise);
+    return (update(customExerciseDefinitions)..where((c) => c.uuid.equals(uuid))).write(exercise);
   }
 
   /// Get count of custom exercises
   Future<int> countRows() async {
     final countExp = customExerciseDefinitions.id.count();
-    final query = selectOnly(customExerciseDefinitions)
-      ..addColumns([countExp]);
+    final query = selectOnly(customExerciseDefinitions)..addColumns([countExp]);
     final result = await query.getSingle();
     return result.read(countExp)!;
   }

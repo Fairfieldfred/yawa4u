@@ -17,8 +17,7 @@ void main() {
   });
 
   group('Training Cycle Flow - Complete Lifecycle', () {
-    test('create → activate → add workouts → complete workouts → end cycle',
-        () async {
+    test('create → activate → add workouts → complete workouts → end cycle', () async {
       // 1. Create a new training cycle
       final cycle = TestDataFactory.createCycle(
         id: 'tc-1',
@@ -219,32 +218,38 @@ void main() {
       await ctx.cycleRepo.create(cycle);
 
       // Day 1: two muscle groups (Chest + Triceps)
-      await ctx.workoutRepo.create(TestDataFactory.createWorkout(
-        id: 'g-w1',
-        trainingCycleId: 'tc-group',
-        periodNumber: 1,
-        dayNumber: 1,
-        dayName: 'Push Day',
-        label: 'Chest',
-      ));
-      await ctx.workoutRepo.create(TestDataFactory.createWorkout(
-        id: 'g-w2',
-        trainingCycleId: 'tc-group',
-        periodNumber: 1,
-        dayNumber: 1,
-        dayName: 'Push Day',
-        label: 'Triceps',
-      ));
+      await ctx.workoutRepo.create(
+        TestDataFactory.createWorkout(
+          id: 'g-w1',
+          trainingCycleId: 'tc-group',
+          periodNumber: 1,
+          dayNumber: 1,
+          dayName: 'Push Day',
+          label: 'Chest',
+        ),
+      );
+      await ctx.workoutRepo.create(
+        TestDataFactory.createWorkout(
+          id: 'g-w2',
+          trainingCycleId: 'tc-group',
+          periodNumber: 1,
+          dayNumber: 1,
+          dayName: 'Push Day',
+          label: 'Triceps',
+        ),
+      );
 
       // Day 2: one muscle group
-      await ctx.workoutRepo.create(TestDataFactory.createWorkout(
-        id: 'g-w3',
-        trainingCycleId: 'tc-group',
-        periodNumber: 1,
-        dayNumber: 2,
-        dayName: 'Pull Day',
-        label: 'Back',
-      ));
+      await ctx.workoutRepo.create(
+        TestDataFactory.createWorkout(
+          id: 'g-w3',
+          trainingCycleId: 'tc-group',
+          periodNumber: 1,
+          dayNumber: 2,
+          dayName: 'Pull Day',
+          label: 'Back',
+        ),
+      );
 
       final day1Workouts = await ctx.workoutRepo.getByPeriodAndDay(
         'tc-group',

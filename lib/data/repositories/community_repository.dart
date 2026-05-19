@@ -19,10 +19,10 @@ class CommunityRepository {
     required TemplateRepository templateRepository,
     required SkinRepository skinRepository,
     required ThemeImageService themeImageService,
-  })  : _community = communityService,
-        _templateRepo = templateRepository,
-        _skinRepo = skinRepository,
-        _themeImageService = themeImageService;
+  }) : _community = communityService,
+       _templateRepo = templateRepository,
+       _skinRepo = skinRepository,
+       _themeImageService = themeImageService;
 
   final CommunityService _community;
   final TemplateRepository _templateRepo;
@@ -52,10 +52,7 @@ class CommunityRepository {
         template: TrainingCycleTemplate.fromJson(data),
         authorDisplayName: data['authorDisplayName'] as String? ?? 'Unknown',
         downloadCount: data['downloadCount'] as int? ?? 0,
-        tags: (data['tags'] as List<dynamic>?)
-                ?.map((t) => t as String)
-                .toList() ??
-            const [],
+        tags: (data['tags'] as List<dynamic>?)?.map((t) => t as String).toList() ?? const [],
         createdAt: (data['createdAt'] as Timestamp?)?.toDate(),
       );
     }).toList();
@@ -77,10 +74,7 @@ class CommunityRepository {
         template: TrainingCycleTemplate.fromJson(data),
         authorDisplayName: data['authorDisplayName'] as String? ?? 'Unknown',
         downloadCount: data['downloadCount'] as int? ?? 0,
-        tags: (data['tags'] as List<dynamic>?)
-                ?.map((t) => t as String)
-                .toList() ??
-            const [],
+        tags: (data['tags'] as List<dynamic>?)?.map((t) => t as String).toList() ?? const [],
         createdAt: (data['createdAt'] as Timestamp?)?.toDate(),
       );
     }).toList();
@@ -126,16 +120,11 @@ class CommunityRepository {
         name: data['name'] as String? ?? 'Untitled',
         description: data['description'] as String? ?? '',
         skin: skin,
-        imageRefs: (data['imageRefs'] as Map<String, dynamic>?)
-                ?.map((k, v) => MapEntry(k, v as String)) ??
-            const {},
+        imageRefs: (data['imageRefs'] as Map<String, dynamic>?)?.map((k, v) => MapEntry(k, v as String)) ?? const {},
         thumbnailUrl: data['thumbnailUrl'] as String?,
         authorDisplayName: data['authorDisplayName'] as String? ?? 'Unknown',
         downloadCount: data['downloadCount'] as int? ?? 0,
-        tags: (data['tags'] as List<dynamic>?)
-                ?.map((t) => t as String)
-                .toList() ??
-            const [],
+        tags: (data['tags'] as List<dynamic>?)?.map((t) => t as String).toList() ?? const [],
         createdAt: (data['createdAt'] as Timestamp?)?.toDate(),
       );
     }).toList();
@@ -151,8 +140,7 @@ class CommunityRepository {
   Future<void> downloadSkin(CommunitySkin communitySkin) async {
     if (communitySkin.skin == null) return;
 
-    final newId =
-        'community_${DateTime.now().millisecondsSinceEpoch}';
+    final newId = 'community_${DateTime.now().millisecondsSinceEpoch}';
     final localSkin = communitySkin.skin!.copyWith(
       id: newId,
       isBuiltIn: false,
@@ -177,16 +165,14 @@ class CommunityRepository {
 
     // Get actual local file paths and convert to relative paths for storage.
     // Relative paths survive iOS container ID changes across app updates.
-    final imagePaths =
-        await _themeImageService.getAllThemeImagePaths(newId);
+    final imagePaths = await _themeImageService.getAllThemeImagePaths(newId);
     final updatedSkin = localSkin.copyWith(
       backgrounds: SkinBackgrounds(
         workout: _themeImageService.toRelativePath(imagePaths['workout']),
         cycles: _themeImageService.toRelativePath(imagePaths['cycles']),
         exercises: _themeImageService.toRelativePath(imagePaths['exercises']),
         more: _themeImageService.toRelativePath(imagePaths['more']),
-        defaultBackground:
-            _themeImageService.toRelativePath(imagePaths['default']),
+        defaultBackground: _themeImageService.toRelativePath(imagePaths['default']),
         appIcon: _themeImageService.toRelativePath(imagePaths['app_icon']),
       ),
     );
@@ -210,10 +196,7 @@ class CommunityRepository {
         template: TrainingCycleTemplate.fromJson(data),
         authorDisplayName: data['authorDisplayName'] as String? ?? 'Unknown',
         downloadCount: data['downloadCount'] as int? ?? 0,
-        tags: (data['tags'] as List<dynamic>?)
-                ?.map((t) => t as String)
-                .toList() ??
-            const [],
+        tags: (data['tags'] as List<dynamic>?)?.map((t) => t as String).toList() ?? const [],
         createdAt: (data['createdAt'] as Timestamp?)?.toDate(),
       );
     }).toList();
@@ -239,16 +222,11 @@ class CommunityRepository {
         name: data['name'] as String? ?? 'Untitled',
         description: data['description'] as String? ?? '',
         skin: skin,
-        imageRefs: (data['imageRefs'] as Map<String, dynamic>?)
-                ?.map((k, v) => MapEntry(k, v as String)) ??
-            const {},
+        imageRefs: (data['imageRefs'] as Map<String, dynamic>?)?.map((k, v) => MapEntry(k, v as String)) ?? const {},
         thumbnailUrl: data['thumbnailUrl'] as String?,
         authorDisplayName: data['authorDisplayName'] as String? ?? 'Unknown',
         downloadCount: data['downloadCount'] as int? ?? 0,
-        tags: (data['tags'] as List<dynamic>?)
-                ?.map((t) => t as String)
-                .toList() ??
-            const [],
+        tags: (data['tags'] as List<dynamic>?)?.map((t) => t as String).toList() ?? const [],
         createdAt: (data['createdAt'] as Timestamp?)?.toDate(),
       );
     }).toList();

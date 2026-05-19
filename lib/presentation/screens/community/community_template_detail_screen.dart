@@ -18,12 +18,10 @@ class CommunityTemplateDetailScreen extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<CommunityTemplateDetailScreen> createState() =>
-      _CommunityTemplateDetailScreenState();
+  ConsumerState<CommunityTemplateDetailScreen> createState() => _CommunityTemplateDetailScreenState();
 }
 
-class _CommunityTemplateDetailScreenState
-    extends ConsumerState<CommunityTemplateDetailScreen> {
+class _CommunityTemplateDetailScreenState extends ConsumerState<CommunityTemplateDetailScreen> {
   bool _isDownloading = false;
   bool _downloaded = false;
 
@@ -136,8 +134,7 @@ class _CommunityTemplateDetailScreenState
                       return Chip(
                         label: Text(tag),
                         visualDensity: VisualDensity.compact,
-                        materialTapTargetSize:
-                            MaterialTapTargetSize.shrinkWrap,
+                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       );
                     }).toList(),
                   ),
@@ -174,11 +171,8 @@ class _CommunityTemplateDetailScreenState
               child: SizedBox(
                 width: double.infinity,
                 child: FilledButton.icon(
-                  onPressed:
-                      _isDownloading || _downloaded ? null : _download,
-                  icon: _downloaded
-                      ? const Icon(Icons.check)
-                      : const Icon(Icons.download),
+                  onPressed: _isDownloading || _downloaded ? null : _download,
+                  icon: _downloaded ? const Icon(Icons.check) : const Icon(Icons.download),
                   label: _isDownloading
                       ? const SizedBox(
                           height: 20,
@@ -310,8 +304,7 @@ class _CommunityTemplateDetailScreenState
                   ? Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        if (workout.notes != null &&
-                            workout.notes!.isNotEmpty)
+                        if (workout.notes != null && workout.notes!.isNotEmpty)
                           Text(
                             workout.notes!,
                             style: TextStyle(
@@ -325,9 +318,7 @@ class _CommunityTemplateDetailScreenState
                   : Column(
                       children: workout.exercises.map((exercise) {
                         final muscleGroup = MuscleGroup.values.firstWhere(
-                          (m) =>
-                              m.name ==
-                              exercise.muscleGroup.toLowerCase(),
+                          (m) => m.name == exercise.muscleGroup.toLowerCase(),
                           orElse: () => MuscleGroup.chest,
                         );
 
@@ -346,8 +337,7 @@ class _CommunityTemplateDetailScreenState
                               const SizedBox(width: 12),
                               Expanded(
                                 child: Column(
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
                                       exercise.name,
@@ -360,8 +350,7 @@ class _CommunityTemplateDetailScreenState
                                     Text(
                                       '${exercise.sets} sets × ${exercise.reps}',
                                       style: TextStyle(
-                                        color:
-                                            colorScheme.onSurfaceVariant,
+                                        color: colorScheme.onSurfaceVariant,
                                         fontSize: 13,
                                       ),
                                     ),

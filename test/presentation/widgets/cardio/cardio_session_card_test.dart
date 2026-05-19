@@ -39,76 +39,75 @@ void main() {
   }
 
   CardioSession plannedRun() => CardioSession(
-        id: 'planned-1',
-        trainingCycleId: 'cycle-1',
-        source: SessionSource.userPlanned,
-        status: WorkoutStatus.incomplete,
-        sport: Sport.run,
-        label: 'Tempo run',
-        scheduledDate: DateTime(2026, 4, 22, 7),
-        detail: const CardioDetail(
-          plannedDistanceM: 5000,
-          plannedDurationSec: 1800,
-        ),
-      );
+    id: 'planned-1',
+    trainingCycleId: 'cycle-1',
+    source: SessionSource.userPlanned,
+    status: WorkoutStatus.incomplete,
+    sport: Sport.run,
+    label: 'Tempo run',
+    scheduledDate: DateTime(2026, 4, 22, 7),
+    detail: const CardioDetail(
+      plannedDistanceM: 5000,
+      plannedDurationSec: 1800,
+    ),
+  );
 
   CardioSession completedRunFromStrava() => CardioSession(
-        id: 'completed-1',
-        trainingCycleId: null,
-        source: SessionSource.strava,
-        status: WorkoutStatus.completed,
-        sport: Sport.run,
-        label: 'Morning loop',
-        completedDate: DateTime(2026, 4, 22, 7, 30),
-        externalId: 'strava-12345',
-        detail: const CardioDetail(
-          actualDistanceM: 5200,
-          actualDurationSec: 1874,
-          averagePaceSecPerMeter: 0.36,
-          averageHr: 155,
-          maxHr: 172,
-          elevationGainM: 45,
-        ),
-      );
+    id: 'completed-1',
+    trainingCycleId: null,
+    source: SessionSource.strava,
+    status: WorkoutStatus.completed,
+    sport: Sport.run,
+    label: 'Morning loop',
+    completedDate: DateTime(2026, 4, 22, 7, 30),
+    externalId: 'strava-12345',
+    detail: const CardioDetail(
+      actualDistanceM: 5200,
+      actualDurationSec: 1874,
+      averagePaceSecPerMeter: 0.36,
+      averageHr: 155,
+      maxHr: 172,
+      elevationGainM: 45,
+    ),
+  );
 
   CardioSession completedSwimUserLogged() => CardioSession(
-        id: 'swim-1',
-        trainingCycleId: 'cycle-1',
-        source: SessionSource.userLogged,
-        status: WorkoutStatus.completed,
-        sport: Sport.swim,
-        label: 'Technique day',
-        completedDate: DateTime(2026, 4, 22, 18),
-        detail: const CardioDetail(
-          actualDistanceM: 1200,
-          actualDurationSec: 1710,
-          swolf: 32,
-          lapCount: 30,
-          poolLengthM: 25,
-          strokeType: StrokeType.freestyle,
-        ),
-      );
+    id: 'swim-1',
+    trainingCycleId: 'cycle-1',
+    source: SessionSource.userLogged,
+    status: WorkoutStatus.completed,
+    sport: Sport.swim,
+    label: 'Technique day',
+    completedDate: DateTime(2026, 4, 22, 18),
+    detail: const CardioDetail(
+      actualDistanceM: 1200,
+      actualDurationSec: 1710,
+      swolf: 32,
+      lapCount: 30,
+      poolLengthM: 25,
+      strokeType: StrokeType.freestyle,
+    ),
+  );
 
   CardioSession skippedRun() => CardioSession(
-        id: 'skipped-1',
-        trainingCycleId: 'cycle-1',
-        source: SessionSource.userPlanned,
-        status: WorkoutStatus.skipped,
-        sport: Sport.run,
-        label: 'Easy jog',
-        scheduledDate: DateTime(2026, 4, 22, 7),
-        detail: const CardioDetail(
-          plannedDistanceM: 3000,
-          plannedDurationSec: 1200,
-        ),
-      );
+    id: 'skipped-1',
+    trainingCycleId: 'cycle-1',
+    source: SessionSource.userPlanned,
+    status: WorkoutStatus.skipped,
+    sport: Sport.run,
+    label: 'Easy jog',
+    scheduledDate: DateTime(2026, 4, 22, 7),
+    detail: const CardioDetail(
+      plannedDistanceM: 3000,
+      plannedDurationSec: 1200,
+    ),
+  );
 
   // ---------------------------------------------------------------------------
   // Render paths
   // ---------------------------------------------------------------------------
 
-  testWidgets('planned run renders target + Log session primary button',
-      (tester) async {
+  testWidgets('planned run renders target + Log session primary button', (tester) async {
     await tester.pumpWidget(wrap(CardioSessionCard(session: plannedRun())));
     await tester.pump();
 
@@ -125,8 +124,7 @@ void main() {
     expect(find.text('Completed'), findsNothing);
   });
 
-  testWidgets('completed Strava run shows source pill + completion status',
-      (tester) async {
+  testWidgets('completed Strava run shows source pill + completion status', (tester) async {
     await tester.pumpWidget(
       wrap(CardioSessionCard(session: completedRunFromStrava())),
     );
@@ -145,8 +143,7 @@ void main() {
     expect(find.text('Log session'), findsNothing);
   });
 
-  testWidgets('completed swim shows pool / SWOLF / stroke metrics',
-      (tester) async {
+  testWidgets('completed swim shows pool / SWOLF / stroke metrics', (tester) async {
     await tester.pumpWidget(
       wrap(CardioSessionCard(session: completedSwimUserLogged())),
     );
@@ -183,15 +180,18 @@ void main() {
   // Footer callback invocations
   // ---------------------------------------------------------------------------
 
-  testWidgets('primary button invokes onPrimary with session id',
-      (tester) async {
+  testWidgets('primary button invokes onPrimary with session id', (tester) async {
     String? captured;
-    await tester.pumpWidget(wrap(CardioSessionCard(
-      session: plannedRun(),
-      callbacks: CardioSessionCardCallbacks(
-        onPrimary: (id) => captured = id,
+    await tester.pumpWidget(
+      wrap(
+        CardioSessionCard(
+          session: plannedRun(),
+          callbacks: CardioSessionCardCallbacks(
+            onPrimary: (id) => captured = id,
+          ),
+        ),
       ),
-    )));
+    );
     await tester.pump();
 
     await tester.tap(find.text('Log session'));
@@ -199,15 +199,18 @@ void main() {
     expect(captured, 'planned-1');
   });
 
-  testWidgets('Add feedback button invokes onAddFeedback with session id',
-      (tester) async {
+  testWidgets('Add feedback button invokes onAddFeedback with session id', (tester) async {
     String? captured;
-    await tester.pumpWidget(wrap(CardioSessionCard(
-      session: completedRunFromStrava(),
-      callbacks: CardioSessionCardCallbacks(
-        onAddFeedback: (id) => captured = id,
+    await tester.pumpWidget(
+      wrap(
+        CardioSessionCard(
+          session: completedRunFromStrava(),
+          callbacks: CardioSessionCardCallbacks(
+            onAddFeedback: (id) => captured = id,
+          ),
+        ),
       ),
-    )));
+    );
     await tester.pump();
 
     await tester.tap(find.text('Add feedback'));
@@ -215,14 +218,17 @@ void main() {
     expect(captured, 'completed-1');
   });
 
-  testWidgets('planned footer has no Notes button (moved to overflow)',
-      (tester) async {
-    await tester.pumpWidget(wrap(CardioSessionCard(
-      session: plannedRun(),
-      callbacks: CardioSessionCardCallbacks(
-        onAddNote: (_) {},
+  testWidgets('planned footer has no Notes button (moved to overflow)', (tester) async {
+    await tester.pumpWidget(
+      wrap(
+        CardioSessionCard(
+          session: plannedRun(),
+          callbacks: CardioSessionCardCallbacks(
+            onAddNote: (_) {},
+          ),
+        ),
       ),
-    )));
+    );
     await tester.pump();
 
     // Notes button should NOT appear in the footer.
@@ -234,22 +240,24 @@ void main() {
   // Overflow menu visibility
   // ---------------------------------------------------------------------------
 
-  testWidgets('overflow menu is hidden when no menu callbacks are provided',
-      (tester) async {
+  testWidgets('overflow menu is hidden when no menu callbacks are provided', (tester) async {
     await tester.pumpWidget(wrap(CardioSessionCard(session: plannedRun())));
     await tester.pump();
     // With zero callbacks, the PopupMenuButton should not render.
     expect(find.byIcon(Icons.more_vert), findsNothing);
   });
 
-  testWidgets('overflow menu renders when at least one menu callback is set',
-      (tester) async {
-    await tester.pumpWidget(wrap(CardioSessionCard(
-      session: plannedRun(),
-      callbacks: CardioSessionCardCallbacks(
-        onDelete: (_) {},
+  testWidgets('overflow menu renders when at least one menu callback is set', (tester) async {
+    await tester.pumpWidget(
+      wrap(
+        CardioSessionCard(
+          session: plannedRun(),
+          callbacks: CardioSessionCardCallbacks(
+            onDelete: (_) {},
+          ),
+        ),
       ),
-    )));
+    );
     await tester.pump();
     expect(find.byIcon(Icons.more_vert), findsOneWidget);
   });
@@ -258,21 +266,24 @@ void main() {
   // Overflow menu items
   // ---------------------------------------------------------------------------
 
-  testWidgets('overflow menu shows all items for a planned session',
-      (tester) async {
-    await tester.pumpWidget(wrap(CardioSessionCard(
-      session: plannedRun(),
-      isFirstInDayList: false,
-      isLastInDayList: false,
-      callbacks: CardioSessionCardCallbacks(
-        onAddNote: (_) {},
-        onMoveUp: (_) {},
-        onMoveDown: (_) {},
-        onReplace: (_) {},
-        onSkip: (_) {},
-        onDelete: (_) {},
+  testWidgets('overflow menu shows all items for a planned session', (tester) async {
+    await tester.pumpWidget(
+      wrap(
+        CardioSessionCard(
+          session: plannedRun(),
+          isFirstInDayList: false,
+          isLastInDayList: false,
+          callbacks: CardioSessionCardCallbacks(
+            onAddNote: (_) {},
+            onMoveUp: (_) {},
+            onMoveDown: (_) {},
+            onReplace: (_) {},
+            onSkip: (_) {},
+            onDelete: (_) {},
+          ),
+        ),
       ),
-    )));
+    );
     await tester.pump();
 
     // Open the menu.
@@ -290,15 +301,19 @@ void main() {
 
   testWidgets('move up disabled when isFirstInDayList', (tester) async {
     String? captured;
-    await tester.pumpWidget(wrap(CardioSessionCard(
-      session: plannedRun(),
-      isFirstInDayList: true,
-      isLastInDayList: false,
-      callbacks: CardioSessionCardCallbacks(
-        onMoveUp: (id) => captured = id,
-        onMoveDown: (_) {},
+    await tester.pumpWidget(
+      wrap(
+        CardioSessionCard(
+          session: plannedRun(),
+          isFirstInDayList: true,
+          isLastInDayList: false,
+          callbacks: CardioSessionCardCallbacks(
+            onMoveUp: (id) => captured = id,
+            onMoveDown: (_) {},
+          ),
+        ),
       ),
-    )));
+    );
     await tester.pump();
 
     await tester.tap(find.byIcon(Icons.more_vert));
@@ -312,15 +327,19 @@ void main() {
 
   testWidgets('move down disabled when isLastInDayList', (tester) async {
     String? captured;
-    await tester.pumpWidget(wrap(CardioSessionCard(
-      session: plannedRun(),
-      isFirstInDayList: false,
-      isLastInDayList: true,
-      callbacks: CardioSessionCardCallbacks(
-        onMoveUp: (_) {},
-        onMoveDown: (id) => captured = id,
+    await tester.pumpWidget(
+      wrap(
+        CardioSessionCard(
+          session: plannedRun(),
+          isFirstInDayList: false,
+          isLastInDayList: true,
+          callbacks: CardioSessionCardCallbacks(
+            onMoveUp: (_) {},
+            onMoveDown: (id) => captured = id,
+          ),
+        ),
       ),
-    )));
+    );
     await tester.pump();
 
     await tester.tap(find.byIcon(Icons.more_vert));
@@ -332,16 +351,19 @@ void main() {
     expect(captured, isNull);
   });
 
-  testWidgets('skip and replace disabled for completed external session',
-      (tester) async {
-    await tester.pumpWidget(wrap(CardioSessionCard(
-      session: completedRunFromStrava(),
-      callbacks: CardioSessionCardCallbacks(
-        onReplace: (_) {},
-        onSkip: (_) {},
-        onDelete: (_) {},
+  testWidgets('skip and replace disabled for completed external session', (tester) async {
+    await tester.pumpWidget(
+      wrap(
+        CardioSessionCard(
+          session: completedRunFromStrava(),
+          callbacks: CardioSessionCardCallbacks(
+            onReplace: (_) {},
+            onSkip: (_) {},
+            onDelete: (_) {},
+          ),
+        ),
       ),
-    )));
+    );
     await tester.pump();
 
     await tester.tap(find.byIcon(Icons.more_vert));
@@ -365,12 +387,16 @@ void main() {
 
   testWidgets('delete callback invoked from overflow menu', (tester) async {
     String? captured;
-    await tester.pumpWidget(wrap(CardioSessionCard(
-      session: plannedRun(),
-      callbacks: CardioSessionCardCallbacks(
-        onDelete: (id) => captured = id,
+    await tester.pumpWidget(
+      wrap(
+        CardioSessionCard(
+          session: plannedRun(),
+          callbacks: CardioSessionCardCallbacks(
+            onDelete: (id) => captured = id,
+          ),
+        ),
       ),
-    )));
+    );
     await tester.pump();
 
     await tester.tap(find.byIcon(Icons.more_vert));
@@ -383,12 +409,16 @@ void main() {
 
   testWidgets('notes callback invoked from overflow menu', (tester) async {
     String? captured;
-    await tester.pumpWidget(wrap(CardioSessionCard(
-      session: plannedRun(),
-      callbacks: CardioSessionCardCallbacks(
-        onAddNote: (id) => captured = id,
+    await tester.pumpWidget(
+      wrap(
+        CardioSessionCard(
+          session: plannedRun(),
+          callbacks: CardioSessionCardCallbacks(
+            onAddNote: (id) => captured = id,
+          ),
+        ),
       ),
-    )));
+    );
     await tester.pump();
 
     await tester.tap(find.byIcon(Icons.more_vert));
@@ -401,12 +431,16 @@ void main() {
 
   testWidgets('skip callback invoked for planned session', (tester) async {
     String? captured;
-    await tester.pumpWidget(wrap(CardioSessionCard(
-      session: plannedRun(),
-      callbacks: CardioSessionCardCallbacks(
-        onSkip: (id) => captured = id,
+    await tester.pumpWidget(
+      wrap(
+        CardioSessionCard(
+          session: plannedRun(),
+          callbacks: CardioSessionCardCallbacks(
+            onSkip: (id) => captured = id,
+          ),
+        ),
       ),
-    )));
+    );
     await tester.pump();
 
     await tester.tap(find.byIcon(Icons.more_vert));
@@ -419,12 +453,16 @@ void main() {
 
   testWidgets('replace callback invoked for planned session', (tester) async {
     String? captured;
-    await tester.pumpWidget(wrap(CardioSessionCard(
-      session: plannedRun(),
-      callbacks: CardioSessionCardCallbacks(
-        onReplace: (id) => captured = id,
+    await tester.pumpWidget(
+      wrap(
+        CardioSessionCard(
+          session: plannedRun(),
+          callbacks: CardioSessionCardCallbacks(
+            onReplace: (id) => captured = id,
+          ),
+        ),
       ),
-    )));
+    );
     await tester.pump();
 
     await tester.tap(find.byIcon(Icons.more_vert));

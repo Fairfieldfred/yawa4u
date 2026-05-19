@@ -83,15 +83,17 @@ void main() {
 
       // Create exercises: A(0), B(1), C(2)
       for (var i = 0; i < 3; i++) {
-        await ctx.exerciseRepo.create(TestDataFactory.createExercise(
-          id: 'reorder-$i',
-          workoutId: workoutId,
-          name: 'Exercise ${String.fromCharCode(65 + i)}',
-          orderIndex: i,
-          sets: [
-            TestDataFactory.createSet(id: 'rs-$i', setNumber: 1),
-          ],
-        ));
+        await ctx.exerciseRepo.create(
+          TestDataFactory.createExercise(
+            id: 'reorder-$i',
+            workoutId: workoutId,
+            name: 'Exercise ${String.fromCharCode(65 + i)}',
+            orderIndex: i,
+            sets: [
+              TestDataFactory.createSet(id: 'rs-$i', setNumber: 1),
+            ],
+          ),
+        );
       }
 
       // Move A (index 0) to position 2: new order B(0), C(1), A(2)
@@ -101,33 +103,39 @@ void main() {
       final exerciseC = exercises[2];
 
       // Update order indices
-      await ctx.exerciseRepo.update(Exercise(
-        id: exerciseB.id,
-        workoutId: workoutId,
-        name: exerciseB.name,
-        muscleGroup: exerciseB.muscleGroup,
-        equipmentType: exerciseB.equipmentType,
-        orderIndex: 0,
-        sets: exerciseB.sets,
-      ));
-      await ctx.exerciseRepo.update(Exercise(
-        id: exerciseC.id,
-        workoutId: workoutId,
-        name: exerciseC.name,
-        muscleGroup: exerciseC.muscleGroup,
-        equipmentType: exerciseC.equipmentType,
-        orderIndex: 1,
-        sets: exerciseC.sets,
-      ));
-      await ctx.exerciseRepo.update(Exercise(
-        id: exerciseA.id,
-        workoutId: workoutId,
-        name: exerciseA.name,
-        muscleGroup: exerciseA.muscleGroup,
-        equipmentType: exerciseA.equipmentType,
-        orderIndex: 2,
-        sets: exerciseA.sets,
-      ));
+      await ctx.exerciseRepo.update(
+        Exercise(
+          id: exerciseB.id,
+          workoutId: workoutId,
+          name: exerciseB.name,
+          muscleGroup: exerciseB.muscleGroup,
+          equipmentType: exerciseB.equipmentType,
+          orderIndex: 0,
+          sets: exerciseB.sets,
+        ),
+      );
+      await ctx.exerciseRepo.update(
+        Exercise(
+          id: exerciseC.id,
+          workoutId: workoutId,
+          name: exerciseC.name,
+          muscleGroup: exerciseC.muscleGroup,
+          equipmentType: exerciseC.equipmentType,
+          orderIndex: 1,
+          sets: exerciseC.sets,
+        ),
+      );
+      await ctx.exerciseRepo.update(
+        Exercise(
+          id: exerciseA.id,
+          workoutId: workoutId,
+          name: exerciseA.name,
+          muscleGroup: exerciseA.muscleGroup,
+          equipmentType: exerciseA.equipmentType,
+          orderIndex: 2,
+          sets: exerciseA.sets,
+        ),
+      );
 
       exercises = await ctx.exerciseRepo.getByWorkoutId(workoutId);
       expect(exercises[0].name, 'Exercise B');
@@ -139,45 +147,53 @@ void main() {
       final workoutId = await seedWorkout();
 
       for (var i = 0; i < 3; i++) {
-        await ctx.exerciseRepo.create(TestDataFactory.createExercise(
-          id: 'up-$i',
-          workoutId: workoutId,
-          name: 'Exercise ${String.fromCharCode(65 + i)}',
-          orderIndex: i,
-          sets: [TestDataFactory.createSet(id: 'us-$i', setNumber: 1)],
-        ));
+        await ctx.exerciseRepo.create(
+          TestDataFactory.createExercise(
+            id: 'up-$i',
+            workoutId: workoutId,
+            name: 'Exercise ${String.fromCharCode(65 + i)}',
+            orderIndex: i,
+            sets: [TestDataFactory.createSet(id: 'us-$i', setNumber: 1)],
+          ),
+        );
       }
 
       // Move C (index 2) to position 0: new order C(0), A(1), B(2)
       var exercises = await ctx.exerciseRepo.getByWorkoutId(workoutId);
 
-      await ctx.exerciseRepo.update(Exercise(
-        id: exercises[2].id,
-        workoutId: workoutId,
-        name: exercises[2].name,
-        muscleGroup: exercises[2].muscleGroup,
-        equipmentType: exercises[2].equipmentType,
-        orderIndex: 0,
-        sets: exercises[2].sets,
-      ));
-      await ctx.exerciseRepo.update(Exercise(
-        id: exercises[0].id,
-        workoutId: workoutId,
-        name: exercises[0].name,
-        muscleGroup: exercises[0].muscleGroup,
-        equipmentType: exercises[0].equipmentType,
-        orderIndex: 1,
-        sets: exercises[0].sets,
-      ));
-      await ctx.exerciseRepo.update(Exercise(
-        id: exercises[1].id,
-        workoutId: workoutId,
-        name: exercises[1].name,
-        muscleGroup: exercises[1].muscleGroup,
-        equipmentType: exercises[1].equipmentType,
-        orderIndex: 2,
-        sets: exercises[1].sets,
-      ));
+      await ctx.exerciseRepo.update(
+        Exercise(
+          id: exercises[2].id,
+          workoutId: workoutId,
+          name: exercises[2].name,
+          muscleGroup: exercises[2].muscleGroup,
+          equipmentType: exercises[2].equipmentType,
+          orderIndex: 0,
+          sets: exercises[2].sets,
+        ),
+      );
+      await ctx.exerciseRepo.update(
+        Exercise(
+          id: exercises[0].id,
+          workoutId: workoutId,
+          name: exercises[0].name,
+          muscleGroup: exercises[0].muscleGroup,
+          equipmentType: exercises[0].equipmentType,
+          orderIndex: 1,
+          sets: exercises[0].sets,
+        ),
+      );
+      await ctx.exerciseRepo.update(
+        Exercise(
+          id: exercises[1].id,
+          workoutId: workoutId,
+          name: exercises[1].name,
+          muscleGroup: exercises[1].muscleGroup,
+          equipmentType: exercises[1].equipmentType,
+          orderIndex: 2,
+          sets: exercises[1].sets,
+        ),
+      );
 
       exercises = await ctx.exerciseRepo.getByWorkoutId(workoutId);
       expect(exercises[0].name, 'Exercise C');
@@ -189,36 +205,40 @@ void main() {
       final workoutId = await seedWorkout();
 
       // Create an exercise
-      await ctx.exerciseRepo.create(TestDataFactory.createExercise(
-        id: 'replace-1',
-        workoutId: workoutId,
-        name: 'Flat Bench Press',
-        muscleGroup: MuscleGroup.chest,
-        equipmentType: EquipmentType.barbell,
-        orderIndex: 0,
-        sets: [
-          TestDataFactory.createSet(id: 'rset-1', setNumber: 1, weight: 135.0),
-          TestDataFactory.createSet(id: 'rset-2', setNumber: 2, weight: 135.0),
-        ],
-      ));
+      await ctx.exerciseRepo.create(
+        TestDataFactory.createExercise(
+          id: 'replace-1',
+          workoutId: workoutId,
+          name: 'Flat Bench Press',
+          muscleGroup: MuscleGroup.chest,
+          equipmentType: EquipmentType.barbell,
+          orderIndex: 0,
+          sets: [
+            TestDataFactory.createSet(id: 'rset-1', setNumber: 1, weight: 135.0),
+            TestDataFactory.createSet(id: 'rset-2', setNumber: 2, weight: 135.0),
+          ],
+        ),
+      );
 
       // Delete the old exercise
       await ctx.exerciseRepo.delete('replace-1');
 
       // Add a replacement exercise at the same position
-      await ctx.exerciseRepo.create(TestDataFactory.createExercise(
-        id: 'replace-2',
-        workoutId: workoutId,
-        name: 'Dumbbell Bench Press',
-        muscleGroup: MuscleGroup.chest,
-        equipmentType: EquipmentType.dumbbell,
-        orderIndex: 0,
-        sets: [
-          TestDataFactory.createSet(id: 'rset-3', setNumber: 1, weight: 50.0),
-          TestDataFactory.createSet(id: 'rset-4', setNumber: 2, weight: 50.0),
-          TestDataFactory.createSet(id: 'rset-5', setNumber: 3, weight: 50.0),
-        ],
-      ));
+      await ctx.exerciseRepo.create(
+        TestDataFactory.createExercise(
+          id: 'replace-2',
+          workoutId: workoutId,
+          name: 'Dumbbell Bench Press',
+          muscleGroup: MuscleGroup.chest,
+          equipmentType: EquipmentType.dumbbell,
+          orderIndex: 0,
+          sets: [
+            TestDataFactory.createSet(id: 'rset-3', setNumber: 1, weight: 50.0),
+            TestDataFactory.createSet(id: 'rset-4', setNumber: 2, weight: 50.0),
+            TestDataFactory.createSet(id: 'rset-5', setNumber: 3, weight: 50.0),
+          ],
+        ),
+      );
 
       final exercises = await ctx.exerciseRepo.getByWorkoutId(workoutId);
       expect(exercises.length, 1);
@@ -237,13 +257,15 @@ void main() {
 
       // Create A(0), B(1), C(2)
       for (var i = 0; i < 3; i++) {
-        await ctx.exerciseRepo.create(TestDataFactory.createExercise(
-          id: 'del-$i',
-          workoutId: workoutId,
-          name: 'Exercise ${String.fromCharCode(65 + i)}',
-          orderIndex: i,
-          sets: [TestDataFactory.createSet(id: 'ds-$i', setNumber: 1)],
-        ));
+        await ctx.exerciseRepo.create(
+          TestDataFactory.createExercise(
+            id: 'del-$i',
+            workoutId: workoutId,
+            name: 'Exercise ${String.fromCharCode(65 + i)}',
+            orderIndex: i,
+            sets: [TestDataFactory.createSet(id: 'ds-$i', setNumber: 1)],
+          ),
+        );
       }
 
       // Delete B (middle)
@@ -262,17 +284,19 @@ void main() {
     test('deleting exercise cascades to its sets', () async {
       final workoutId = await seedWorkout();
 
-      await ctx.exerciseRepo.create(TestDataFactory.createExercise(
-        id: 'cascade-1',
-        workoutId: workoutId,
-        name: 'Heavy Squat',
-        orderIndex: 0,
-        sets: [
-          TestDataFactory.createSet(id: 'cs-1', setNumber: 1),
-          TestDataFactory.createSet(id: 'cs-2', setNumber: 2),
-          TestDataFactory.createSet(id: 'cs-3', setNumber: 3),
-        ],
-      ));
+      await ctx.exerciseRepo.create(
+        TestDataFactory.createExercise(
+          id: 'cascade-1',
+          workoutId: workoutId,
+          name: 'Heavy Squat',
+          orderIndex: 0,
+          sets: [
+            TestDataFactory.createSet(id: 'cs-1', setNumber: 1),
+            TestDataFactory.createSet(id: 'cs-2', setNumber: 2),
+            TestDataFactory.createSet(id: 'cs-3', setNumber: 3),
+          ],
+        ),
+      );
 
       // Verify sets exist
       var exercise = await ctx.exerciseRepo.getById('cascade-1');
@@ -293,43 +317,47 @@ void main() {
     test('filter exercises by muscle group and equipment type', () async {
       final workoutId = await seedWorkout();
 
-      await ctx.exerciseRepo.create(TestDataFactory.createExercise(
-        id: 'f1',
-        workoutId: workoutId,
-        name: 'Barbell Squat',
-        muscleGroup: MuscleGroup.quads,
-        equipmentType: EquipmentType.barbell,
-        orderIndex: 0,
-        sets: [TestDataFactory.createSet(id: 'fs1', setNumber: 1)],
-      ));
-      await ctx.exerciseRepo.create(TestDataFactory.createExercise(
-        id: 'f2',
-        workoutId: workoutId,
-        name: 'Leg Press',
-        muscleGroup: MuscleGroup.quads,
-        equipmentType: EquipmentType.machine,
-        orderIndex: 1,
-        sets: [TestDataFactory.createSet(id: 'fs2', setNumber: 1)],
-      ));
-      await ctx.exerciseRepo.create(TestDataFactory.createExercise(
-        id: 'f3',
-        workoutId: workoutId,
-        name: 'Barbell Curl',
-        muscleGroup: MuscleGroup.biceps,
-        equipmentType: EquipmentType.barbell,
-        orderIndex: 2,
-        sets: [TestDataFactory.createSet(id: 'fs3', setNumber: 1)],
-      ));
+      await ctx.exerciseRepo.create(
+        TestDataFactory.createExercise(
+          id: 'f1',
+          workoutId: workoutId,
+          name: 'Barbell Squat',
+          muscleGroup: MuscleGroup.quads,
+          equipmentType: EquipmentType.barbell,
+          orderIndex: 0,
+          sets: [TestDataFactory.createSet(id: 'fs1', setNumber: 1)],
+        ),
+      );
+      await ctx.exerciseRepo.create(
+        TestDataFactory.createExercise(
+          id: 'f2',
+          workoutId: workoutId,
+          name: 'Leg Press',
+          muscleGroup: MuscleGroup.quads,
+          equipmentType: EquipmentType.machine,
+          orderIndex: 1,
+          sets: [TestDataFactory.createSet(id: 'fs2', setNumber: 1)],
+        ),
+      );
+      await ctx.exerciseRepo.create(
+        TestDataFactory.createExercise(
+          id: 'f3',
+          workoutId: workoutId,
+          name: 'Barbell Curl',
+          muscleGroup: MuscleGroup.biceps,
+          equipmentType: EquipmentType.barbell,
+          orderIndex: 2,
+          sets: [TestDataFactory.createSet(id: 'fs3', setNumber: 1)],
+        ),
+      );
 
       final quads = await ctx.exerciseRepo.getByMuscleGroup(MuscleGroup.quads);
       expect(quads.length, 2);
 
-      final barbells =
-          await ctx.exerciseRepo.getByEquipmentType(EquipmentType.barbell);
+      final barbells = await ctx.exerciseRepo.getByEquipmentType(EquipmentType.barbell);
       expect(barbells.length, 2);
 
-      final machines =
-          await ctx.exerciseRepo.getByEquipmentType(EquipmentType.machine);
+      final machines = await ctx.exerciseRepo.getByEquipmentType(EquipmentType.machine);
       expect(machines.length, 1);
       expect(machines[0].name, 'Leg Press');
     });
@@ -338,34 +366,38 @@ void main() {
       final workoutId = await seedWorkout();
 
       // Create with 2 sets
-      await ctx.exerciseRepo.create(TestDataFactory.createExercise(
-        id: 'set-mgmt',
-        workoutId: workoutId,
-        name: 'Deadlift',
-        orderIndex: 0,
-        sets: [
-          TestDataFactory.createSet(id: 'sm-1', setNumber: 1, weight: 315.0),
-          TestDataFactory.createSet(id: 'sm-2', setNumber: 2, weight: 315.0),
-        ],
-      ));
+      await ctx.exerciseRepo.create(
+        TestDataFactory.createExercise(
+          id: 'set-mgmt',
+          workoutId: workoutId,
+          name: 'Deadlift',
+          orderIndex: 0,
+          sets: [
+            TestDataFactory.createSet(id: 'sm-1', setNumber: 1, weight: 315.0),
+            TestDataFactory.createSet(id: 'sm-2', setNumber: 2, weight: 315.0),
+          ],
+        ),
+      );
 
       var exercise = await ctx.exerciseRepo.getById('set-mgmt');
       expect(exercise!.sets.length, 2);
 
       // Update: remove set 2, add set 3 and set 4
-      await ctx.exerciseRepo.update(Exercise(
-        id: 'set-mgmt',
-        workoutId: workoutId,
-        name: 'Deadlift',
-        muscleGroup: exercise.muscleGroup,
-        equipmentType: exercise.equipmentType,
-        orderIndex: 0,
-        sets: [
-          exercise.sets[0], // keep set 1
-          TestDataFactory.createSet(id: 'sm-3', setNumber: 2, weight: 335.0),
-          TestDataFactory.createSet(id: 'sm-4', setNumber: 3, weight: 355.0),
-        ],
-      ));
+      await ctx.exerciseRepo.update(
+        Exercise(
+          id: 'set-mgmt',
+          workoutId: workoutId,
+          name: 'Deadlift',
+          muscleGroup: exercise.muscleGroup,
+          equipmentType: exercise.equipmentType,
+          orderIndex: 0,
+          sets: [
+            exercise.sets[0], // keep set 1
+            TestDataFactory.createSet(id: 'sm-3', setNumber: 2, weight: 335.0),
+            TestDataFactory.createSet(id: 'sm-4', setNumber: 3, weight: 355.0),
+          ],
+        ),
+      );
 
       exercise = await ctx.exerciseRepo.getById('set-mgmt');
       expect(exercise!.sets.length, 3);
@@ -377,27 +409,33 @@ void main() {
     test('search exercises by name', () async {
       final workoutId = await seedWorkout();
 
-      await ctx.exerciseRepo.create(TestDataFactory.createExercise(
-        id: 'search-1',
-        workoutId: workoutId,
-        name: 'Barbell Bench Press',
-        orderIndex: 0,
-        sets: [TestDataFactory.createSet(id: 'ss1', setNumber: 1)],
-      ));
-      await ctx.exerciseRepo.create(TestDataFactory.createExercise(
-        id: 'search-2',
-        workoutId: workoutId,
-        name: 'Dumbbell Bench Press',
-        orderIndex: 1,
-        sets: [TestDataFactory.createSet(id: 'ss2', setNumber: 1)],
-      ));
-      await ctx.exerciseRepo.create(TestDataFactory.createExercise(
-        id: 'search-3',
-        workoutId: workoutId,
-        name: 'Squat',
-        orderIndex: 2,
-        sets: [TestDataFactory.createSet(id: 'ss3', setNumber: 1)],
-      ));
+      await ctx.exerciseRepo.create(
+        TestDataFactory.createExercise(
+          id: 'search-1',
+          workoutId: workoutId,
+          name: 'Barbell Bench Press',
+          orderIndex: 0,
+          sets: [TestDataFactory.createSet(id: 'ss1', setNumber: 1)],
+        ),
+      );
+      await ctx.exerciseRepo.create(
+        TestDataFactory.createExercise(
+          id: 'search-2',
+          workoutId: workoutId,
+          name: 'Dumbbell Bench Press',
+          orderIndex: 1,
+          sets: [TestDataFactory.createSet(id: 'ss2', setNumber: 1)],
+        ),
+      );
+      await ctx.exerciseRepo.create(
+        TestDataFactory.createExercise(
+          id: 'search-3',
+          workoutId: workoutId,
+          name: 'Squat',
+          orderIndex: 2,
+          sets: [TestDataFactory.createSet(id: 'ss3', setNumber: 1)],
+        ),
+      );
 
       final results = await ctx.exerciseRepo.searchByName('bench');
       expect(results.length, 2);

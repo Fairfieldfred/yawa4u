@@ -40,8 +40,7 @@ class SkinModel {
     this.backgrounds,
   });
 
-  factory SkinModel.fromJson(Map<String, dynamic> json) =>
-      _$SkinModelFromJson(json);
+  factory SkinModel.fromJson(Map<String, dynamic> json) => _$SkinModelFromJson(json);
 
   Map<String, dynamic> toJson() => _$SkinModelToJson(this);
 
@@ -103,8 +102,7 @@ class SkinColors {
     required this.info,
   });
 
-  factory SkinColors.fromJson(Map<String, dynamic> json) =>
-      _$SkinColorsFromJson(json);
+  factory SkinColors.fromJson(Map<String, dynamic> json) => _$SkinColorsFromJson(json);
 
   Map<String, dynamic> toJson() => _$SkinColorsToJson(this);
 
@@ -148,8 +146,7 @@ class SkinModeColors {
     required this.textDisabled,
   });
 
-  factory SkinModeColors.fromJson(Map<String, dynamic> json) =>
-      _$SkinModeColorsFromJson(json);
+  factory SkinModeColors.fromJson(Map<String, dynamic> json) => _$SkinModeColorsFromJson(json);
 
   Map<String, dynamic> toJson() => _$SkinModeColorsToJson(this);
 
@@ -177,8 +174,7 @@ class SkinMuscleGroupColors {
     required this.coreAndAccessories,
   });
 
-  factory SkinMuscleGroupColors.fromJson(Map<String, dynamic> json) =>
-      _$SkinMuscleGroupColorsFromJson(json);
+  factory SkinMuscleGroupColors.fromJson(Map<String, dynamic> json) => _$SkinMuscleGroupColorsFromJson(json);
 
   Map<String, dynamic> toJson() => _$SkinMuscleGroupColorsToJson(this);
 
@@ -203,8 +199,7 @@ class SkinWorkoutStatusColors {
     required this.deload,
   });
 
-  factory SkinWorkoutStatusColors.fromJson(Map<String, dynamic> json) =>
-      _$SkinWorkoutStatusColorsFromJson(json);
+  factory SkinWorkoutStatusColors.fromJson(Map<String, dynamic> json) => _$SkinWorkoutStatusColorsFromJson(json);
 
   Map<String, dynamic> toJson() => _$SkinWorkoutStatusColorsToJson(this);
 
@@ -231,8 +226,7 @@ class SkinComponents {
     this.buttonElevation = 2,
   });
 
-  factory SkinComponents.fromJson(Map<String, dynamic> json) =>
-      _$SkinComponentsFromJson(json);
+  factory SkinComponents.fromJson(Map<String, dynamic> json) => _$SkinComponentsFromJson(json);
 
   Map<String, dynamic> toJson() => _$SkinComponentsToJson(this);
 }
@@ -276,8 +270,7 @@ class SkinBackgrounds {
     this.darkOverlayOpacity = 0.75,
   });
 
-  factory SkinBackgrounds.fromJson(Map<String, dynamic> json) =>
-      _$SkinBackgroundsFromJson(json);
+  factory SkinBackgrounds.fromJson(Map<String, dynamic> json) => _$SkinBackgroundsFromJson(json);
 
   Map<String, dynamic> toJson() => _$SkinBackgroundsToJson(this);
 }

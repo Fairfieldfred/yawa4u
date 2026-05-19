@@ -48,12 +48,10 @@ class WorkoutStats {
         if (loggedSets.isEmpty) continue;
 
         // Sets per muscle group
-        setsByGroup[exercise.muscleGroup] =
-            (setsByGroup[exercise.muscleGroup] ?? 0) + loggedSets.length;
+        setsByGroup[exercise.muscleGroup] = (setsByGroup[exercise.muscleGroup] ?? 0) + loggedSets.length;
         if (exercise.secondaryMuscleGroup != null) {
           setsByGroup[exercise.secondaryMuscleGroup!] =
-              (setsByGroup[exercise.secondaryMuscleGroup!] ?? 0) +
-                  loggedSets.length;
+              (setsByGroup[exercise.secondaryMuscleGroup!] ?? 0) + loggedSets.length;
         }
 
         totalSetCount += loggedSets.length;
@@ -123,15 +121,13 @@ class WorkoutStats {
 
   /// Top N most frequent exercises, sorted by count descending.
   List<MapEntry<String, int>> topExercises([int n = 10]) {
-    final sorted = exerciseFrequency.entries.toList()
-      ..sort((a, b) => b.value.compareTo(a.value));
+    final sorted = exerciseFrequency.entries.toList()..sort((a, b) => b.value.compareTo(a.value));
     return sorted.take(n).toList();
   }
 
   /// Top N personal records, sorted by weight descending.
   List<MapEntry<String, double>> topRecords([int n = 10]) {
-    final sorted = personalRecords.entries.toList()
-      ..sort((a, b) => b.value.compareTo(a.value));
+    final sorted = personalRecords.entries.toList()..sort((a, b) => b.value.compareTo(a.value));
     return sorted.take(n).toList();
   }
 

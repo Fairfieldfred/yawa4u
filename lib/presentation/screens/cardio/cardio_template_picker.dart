@@ -70,8 +70,7 @@ class CardioTemplatePicker extends ConsumerWidget {
           const SizedBox(height: 16),
           Expanded(
             child: async.when(
-              loading: () =>
-                  const Center(child: CircularProgressIndicator()),
+              loading: () => const Center(child: CircularProgressIndicator()),
               error: (e, _) => Center(
                 child: Text(
                   'Could not load the library. $e',
@@ -126,8 +125,7 @@ class _TemplateCard extends StatelessWidget {
                   Expanded(
                     child: Text(
                       template.name,
-                      style: Theme.of(context).textTheme.titleMedium
-                          ?.copyWith(fontWeight: FontWeight.w600),
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
                     ),
                   ),
                   _Pill(

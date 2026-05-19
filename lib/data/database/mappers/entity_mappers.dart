@@ -22,10 +22,8 @@ class TrainingCycleMapper {
     List<model.Workout> workouts = const [],
   }) {
     Map<String, int>? priorities;
-    if (row.muscleGroupPriorities != null &&
-        row.muscleGroupPriorities!.isNotEmpty) {
-      final decoded =
-          jsonDecode(row.muscleGroupPriorities!) as Map<String, dynamic>;
+    if (row.muscleGroupPriorities != null && row.muscleGroupPriorities!.isNotEmpty) {
+      final decoded = jsonDecode(row.muscleGroupPriorities!) as Map<String, dynamic>;
       priorities = decoded.map((key, value) => MapEntry(key, value as int));
     }
 
@@ -44,12 +42,8 @@ class TrainingCycleMapper {
       muscleGroupPriorities: priorities,
       templateName: row.templateName,
       notes: row.notes,
-      recoveryPeriodType: row.recoveryPeriodType != null
-          ? RecoveryPeriodType.values[row.recoveryPeriodType!]
-          : null,
-      primarySport: row.primarySport != null
-          ? Sport.values[row.primarySport!]
-          : null,
+      recoveryPeriodType: row.recoveryPeriodType != null ? RecoveryPeriodType.values[row.recoveryPeriodType!] : null,
+      primarySport: row.primarySport != null ? Sport.values[row.primarySport!] : null,
     );
   }
 
@@ -67,9 +61,7 @@ class TrainingCycleMapper {
       startDate: Value(cycle.startDate),
       endDate: Value(cycle.endDate),
       muscleGroupPriorities: Value(
-        cycle.muscleGroupPriorities != null
-            ? jsonEncode(cycle.muscleGroupPriorities)
-            : null,
+        cycle.muscleGroupPriorities != null ? jsonEncode(cycle.muscleGroupPriorities) : null,
       ),
       templateName: Value(cycle.templateName),
       notes: Value(cycle.notes),
@@ -99,9 +91,7 @@ class ExerciseMapper {
       workoutId: row.workoutUuid,
       name: row.name,
       muscleGroup: MuscleGroup.values[row.muscleGroup],
-      secondaryMuscleGroup: row.secondaryMuscleGroup != null
-          ? MuscleGroup.values[row.secondaryMuscleGroup!]
-          : null,
+      secondaryMuscleGroup: row.secondaryMuscleGroup != null ? MuscleGroup.values[row.secondaryMuscleGroup!] : null,
       equipmentType: EquipmentType.values[row.equipmentType],
       sets: sets,
       orderIndex: row.orderIndex,
@@ -175,20 +165,16 @@ class ExerciseFeedbackMapper {
   /// Convert a Drift ExerciseFeedback row to the domain model
   static model.ExerciseFeedback fromRow(ExerciseFeedback row) {
     Map<String, Soreness>? muscleGroupSoreness;
-    if (row.muscleGroupSoreness != null &&
-        row.muscleGroupSoreness!.isNotEmpty) {
-      final decoded =
-          jsonDecode(row.muscleGroupSoreness!) as Map<String, dynamic>;
+    if (row.muscleGroupSoreness != null && row.muscleGroupSoreness!.isNotEmpty) {
+      final decoded = jsonDecode(row.muscleGroupSoreness!) as Map<String, dynamic>;
       muscleGroupSoreness = decoded.map(
         (key, value) => MapEntry(key, Soreness.values[value as int]),
       );
     }
 
     return model.ExerciseFeedback(
-      jointPain:
-          row.jointPain != null ? JointPain.values[row.jointPain!] : null,
-      musclePump:
-          row.musclePump != null ? MusclePump.values[row.musclePump!] : null,
+      jointPain: row.jointPain != null ? JointPain.values[row.jointPain!] : null,
+      musclePump: row.musclePump != null ? MusclePump.values[row.musclePump!] : null,
       workload: row.workload != null ? Workload.values[row.workload!] : null,
       soreness: row.soreness != null ? Soreness.values[row.soreness!] : null,
       muscleGroupSoreness: muscleGroupSoreness,
@@ -210,8 +196,7 @@ class ExerciseFeedbackMapper {
       muscleGroupSoreness: Value(
         feedback.muscleGroupSoreness != null
             ? jsonEncode(
-                feedback.muscleGroupSoreness!
-                    .map((key, v) => MapEntry(key, v.index)),
+                feedback.muscleGroupSoreness!.map((key, v) => MapEntry(key, v.index)),
               )
             : null,
       ),

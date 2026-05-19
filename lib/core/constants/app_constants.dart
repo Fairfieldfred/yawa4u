@@ -22,8 +22,7 @@ class AppConstants {
 
   // Set Type Definitions (from UI screenshots)
   static const String setTypeDialogTitle = 'Set types';
-  static const String setTypeDialogDescription =
-      'Keep track of how you performed your sets by specifying a type:';
+  static const String setTypeDialogDescription = 'Keep track of how you performed your sets by specifying a type:';
 
   static const String regularSetDefinition =
       'Regular: perform sets normally by hitting rep target or week over week RIR target';
@@ -41,11 +40,9 @@ class AppConstants {
   static const String sorenessTitle = 'SORENESS';
 
   // Feedback Questions
-  static String jointPainQuestion(String exerciseName) =>
-      'How did your joints feel during $exerciseName?';
+  static String jointPainQuestion(String exerciseName) => 'How did your joints feel during $exerciseName?';
 
-  static String musclePumpQuestion(String muscleGroup) =>
-      'How much of a pump did you get today in your $muscleGroup?';
+  static String musclePumpQuestion(String muscleGroup) => 'How much of a pump did you get today in your $muscleGroup?';
 
   static String workloadQuestion(String muscleGroup) =>
       'How would you rate the difficulty of the work you did for your $muscleGroup?';
@@ -56,11 +53,9 @@ class AppConstants {
   // UI Text
   static const String draftBannerText = 'CONTINUE EDITING DRAFT TRAINING CYCLE';
   static const String noExercisesTitle = 'No exercises';
-  static const String noExercisesMessage =
-      'Your custom exercises will appear here.';
+  static const String noExercisesMessage = 'Your custom exercises will appear here.';
   static const String noPinnedNotesTitle = 'No pinned notes';
-  static const String noPinnedNotesMessage =
-      'Your pinned exercise notes will appear here.';
+  static const String noPinnedNotesMessage = 'Your pinned exercise notes will appear here.';
 
   // Day Names
   static const List<String> dayNames = [
@@ -99,8 +94,7 @@ class AppConstants {
   static const String menuLeaveReview = 'Leave a review';
 
   // Links
-  static const String privacyPolicyUrl =
-      'https://www.blairhouseapps.com/yawa4u/privacy_policy.html';
+  static const String privacyPolicyUrl = 'https://www.blairhouseapps.com/yawa4u/privacy_policy.html';
   static const String termsOfServiceUrl = 'https://example.com/terms';
   static const String helpUrl = 'https://example.com/help';
 
@@ -128,8 +122,7 @@ class AppConstants {
   static const String eventMyorepSetCreated = 'myorep_set_created';
   static const String eventCalendarOpened = 'calendar_opened';
   static const String eventExerciseFiltersApplied = 'exercise_filters_applied';
-  static const String eventMusclePrioritiesUpdated =
-      'muscle_priorities_updated';
+  static const String eventMusclePrioritiesUpdated = 'muscle_priorities_updated';
   static const String eventFeedbackLogged = 'feedback_logged';
   static const String eventMyorepSetUsed = 'myorep_set_used';
   static const String eventFilterUsed = 'filter_used';
@@ -138,10 +131,8 @@ class AppConstants {
   static const String eventHealthSyncStarted = 'health_sync_started';
   static const String eventHealthSyncCompleted = 'health_sync_completed';
   static const String eventHealthSyncFailed = 'health_sync_failed';
-  static const String eventHealthPermissionsGranted =
-      'health_permissions_granted';
-  static const String eventHealthPermissionsDenied =
-      'health_permissions_denied';
+  static const String eventHealthPermissionsGranted = 'health_permissions_granted';
+  static const String eventHealthPermissionsDenied = 'health_permissions_denied';
 
   // RIR (Reps In Reserve) Patterns
   static final RegExp rirPattern = RegExp(r'^\d+\s*RIR$', caseSensitive: false);

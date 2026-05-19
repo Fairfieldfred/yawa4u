@@ -21,10 +21,9 @@ class SkinShareStatusNotifier extends Notifier<SkinShareStatus> {
   }
 }
 
-final skinShareStatusProvider =
-    NotifierProvider<SkinShareStatusNotifier, SkinShareStatus>(
-      () => SkinShareStatusNotifier(),
-    );
+final skinShareStatusProvider = NotifierProvider<SkinShareStatusNotifier, SkinShareStatus>(
+  () => SkinShareStatusNotifier(),
+);
 
 /// Notifier for connected device info during skin sharing
 class SkinShareDeviceNotifier extends Notifier<SkinShareDeviceInfo?> {
@@ -40,7 +39,6 @@ class SkinShareDeviceNotifier extends Notifier<SkinShareDeviceInfo?> {
   }
 }
 
-final skinShareDeviceProvider =
-    NotifierProvider<SkinShareDeviceNotifier, SkinShareDeviceInfo?>(
-      () => SkinShareDeviceNotifier(),
-    );
+final skinShareDeviceProvider = NotifierProvider<SkinShareDeviceNotifier, SkinShareDeviceInfo?>(
+  () => SkinShareDeviceNotifier(),
+);

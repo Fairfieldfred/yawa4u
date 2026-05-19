@@ -129,21 +129,15 @@ class _AddSessionSheetState extends State<_AddSessionSheet> {
     super.initState();
     _currentSport = Sport.strength;
 
-    _visibleSports = (widget.selectedSports ?? const [])
-        .where((s) => s != Sport.other)
-        .toList();
+    _visibleSports = (widget.selectedSports ?? const []).where((s) => s != Sport.other).toList();
 
     // Show the picker only when there are multiple sports to choose from.
     _showSportPicker =
-        _visibleSports.length > 1 ||
-        (_visibleSports.length == 1 &&
-            _visibleSports.first != Sport.strength);
+        _visibleSports.length > 1 || (_visibleSports.length == 1 && _visibleSports.first != Sport.strength);
   }
 
   UnitSystem _units() {
-    return widget.ref
-        .read(onboardingServiceProvider)
-        .unitsFor(_currentSport);
+    return widget.ref.read(onboardingServiceProvider).unitsFor(_currentSport);
   }
 
   @override
@@ -159,24 +153,20 @@ class _AddSessionSheetState extends State<_AddSessionSheet> {
       }
     }
 
-    final allMuscleGroups = MuscleGroup.values.toList()
-      ..sort((a, b) => a.displayName.compareTo(b.displayName));
+    final allMuscleGroups = MuscleGroup.values.toList()..sort((a, b) => a.displayName.compareTo(b.displayName));
 
     final isCardio = _currentSport != Sport.strength;
 
     // Dynamic title based on mode.
     final title = _showSportPicker
-        ? (isCardio
-            ? 'Plan ${_currentSport.displayName}'
-            : 'Add Session')
+        ? (isCardio ? 'Plan ${_currentSport.displayName}' : 'Add Session')
         : 'Select Muscle Group';
 
     return Container(
       height: MediaQuery.of(context).size.height * 0.8,
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
-        borderRadius:
-            const BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: SafeArea(
         child: Column(
@@ -198,10 +188,8 @@ class _AddSessionSheetState extends State<_AddSessionSheet> {
                       if (i > 0) const SizedBox(width: 12),
                       SportChip(
                         sport: _visibleSports[i],
-                        selected:
-                            _visibleSports[i] == _currentSport,
-                        onTap: () =>
-                            _onSportTapped(_visibleSports[i]),
+                        selected: _visibleSports[i] == _currentSport,
+                        onTap: () => _onSportTapped(_visibleSports[i]),
                       ),
                     ],
                   ],
@@ -219,8 +207,7 @@ class _AddSessionSheetState extends State<_AddSessionSheet> {
                       itemCount: allMuscleGroups.length,
                       itemBuilder: (listContext, index) {
                         final muscleGroup = allMuscleGroups[index];
-                        final existingWorkout =
-                            muscleGroupWorkouts[muscleGroup];
+                        final existingWorkout = muscleGroupWorkouts[muscleGroup];
 
                         return ListTile(
                           title: Text(muscleGroup.displayName),
@@ -315,16 +302,12 @@ class _AddSessionSheetState extends State<_AddSessionSheet> {
       template,
       sessionId: const Uuid().v4(),
       newIntervalId: () => const Uuid().v4(),
-      trainingCycleId: widget.trainingCycleId.isEmpty
-          ? null
-          : widget.trainingCycleId,
+      trainingCycleId: widget.trainingCycleId.isEmpty ? null : widget.trainingCycleId,
       periodNumber: widget.periodNumber,
       dayNumber: widget.dayNumber,
     );
 
-    await widget.ref
-        .read(sessionRepositoryProvider)
-        .createCardio(session);
+    await widget.ref.read(sessionRepositoryProvider).createCardio(session);
     widget.ref.invalidate(sessionsProvider);
     if (widget.trainingCycleId.isNotEmpty) {
       widget.ref.invalidate(
@@ -333,8 +316,7 @@ class _AddSessionSheetState extends State<_AddSessionSheet> {
     }
 
     if (!parentCtx.mounted) return;
-    GoRouter.of(parentCtx)
-        .push('/cardio-session/${session.id}/intervals');
+    GoRouter.of(parentCtx).push('/cardio-session/${session.id}/intervals');
   }
 
   Future<void> _saveCardioSession() async {
@@ -347,9 +329,7 @@ class _AddSessionSheetState extends State<_AddSessionSheet> {
 
       final session = CardioSession(
         id: const Uuid().v4(),
-        trainingCycleId: widget.trainingCycleId.isEmpty
-            ? null
-            : widget.trainingCycleId,
+        trainingCycleId: widget.trainingCycleId.isEmpty ? null : widget.trainingCycleId,
         sport: _currentSport,
         source: SessionSource.userPlanned,
         status: WorkoutStatus.incomplete,
@@ -359,9 +339,7 @@ class _AddSessionSheetState extends State<_AddSessionSheet> {
         detail: detail,
       );
 
-      await widget.ref
-          .read(sessionRepositoryProvider)
-          .createCardio(session);
+      await widget.ref.read(sessionRepositoryProvider).createCardio(session);
       widget.ref.invalidate(sessionsProvider);
       if (widget.trainingCycleId.isNotEmpty) {
         widget.ref.invalidate(
@@ -421,9 +399,7 @@ class _AddSessionSheetState extends State<_AddSessionSheet> {
         exercises: [],
       );
 
-      await widget.ref
-          .read(workoutRepositoryProvider)
-          .create(newWorkout);
+      await widget.ref.read(workoutRepositoryProvider).create(newWorkout);
 
       if (!parentCtx.mounted) return;
       Navigator.of(parentCtx).push(

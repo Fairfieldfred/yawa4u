@@ -121,9 +121,7 @@ class CardioDetailMapper {
       averageSpeedMps: row.averageSpeedMps,
       averagePaceSecPerMeter: row.averagePaceSecPerMeter,
       poolLengthM: row.poolLengthM,
-      strokeType: row.strokeType != null
-          ? StrokeType.values[row.strokeType!]
-          : null,
+      strokeType: row.strokeType != null ? StrokeType.values[row.strokeType!] : null,
       lapCount: row.lapCount,
       swolf: row.swolf,
       perceivedExertion: row.perceivedExertion,
@@ -208,8 +206,7 @@ class SessionIntervalMapper {
       actualDurationSec: Value(interval.actualDurationSec),
       actualDistanceM: Value(interval.actualDistanceM),
       actualAverageHr: Value(interval.actualAverageHr),
-      actualAveragePaceSecPerMeter:
-          Value(interval.actualAveragePaceSecPerMeter),
+      actualAveragePaceSecPerMeter: Value(interval.actualAveragePaceSecPerMeter),
       actualAveragePowerWatts: Value(interval.actualAveragePowerWatts),
       repeatCount: Value(interval.repeatCount),
       parentIntervalUuid: Value(interval.parentIntervalId),

@@ -14,7 +14,8 @@ enum TrainingCycleTerm {
   ),
   module('Module', 'A modular training unit that can be stacked'),
   phase('Phase', 'A training phase within your overall program'),
-  wave('Wave', 'A wave of progressive training intensity');
+  wave('Wave', 'A wave of progressive training intensity')
+  ;
 
   const TrainingCycleTerm(this.displayName, this.description);
 
@@ -27,19 +28,15 @@ class OnboardingTerminologyScreen extends ConsumerStatefulWidget {
   const OnboardingTerminologyScreen({super.key});
 
   @override
-  ConsumerState<OnboardingTerminologyScreen> createState() =>
-      _OnboardingTerminologyScreenState();
+  ConsumerState<OnboardingTerminologyScreen> createState() => _OnboardingTerminologyScreenState();
 }
 
-class _OnboardingTerminologyScreenState
-    extends ConsumerState<OnboardingTerminologyScreen> {
+class _OnboardingTerminologyScreenState extends ConsumerState<OnboardingTerminologyScreen> {
   TrainingCycleTerm _selectedTerm = TrainingCycleTerm.mesocycle;
 
   Future<void> _completeOnboarding() async {
     // Save terminology preference
-    ref
-        .read(userProfileProvider.notifier)
-        .updateTrainingCycleTerm(_selectedTerm.name);
+    ref.read(userProfileProvider.notifier).updateTrainingCycleTerm(_selectedTerm.name);
 
     // Mark onboarding as complete
     await ref.read(userProfileProvider.notifier).completeOnboarding();
@@ -121,9 +118,7 @@ class _OnboardingTerminologyScreenState
                             ).colorScheme.surfaceContainerHighest,
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
-                              color: isSelected
-                                  ? Theme.of(context).colorScheme.primary
-                                  : Colors.transparent,
+                              color: isSelected ? Theme.of(context).colorScheme.primary : Colors.transparent,
                               width: 2,
                             ),
                           ),
@@ -153,10 +148,7 @@ class _OnboardingTerminologyScreenState
                                       term.description,
                                       style: TextStyle(
                                         fontSize: 13,
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .onSurface
-                                            .withValues(alpha: 0.7),
+                                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                                       ),
                                     ),
                                   ],

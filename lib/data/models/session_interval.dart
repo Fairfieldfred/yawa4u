@@ -66,8 +66,7 @@ class SessionInterval {
 
   bool get isRepeatGroup => intent == IntervalIntent.repeatGroup;
 
-  bool get isCompleted =>
-      actualDurationSec != null || actualDistanceM != null;
+  bool get isCompleted => actualDurationSec != null || actualDistanceM != null;
 
   SessionInterval copyWith({
     String? id,
@@ -109,10 +108,8 @@ class SessionInterval {
       actualDurationSec: actualDurationSec ?? this.actualDurationSec,
       actualDistanceM: actualDistanceM ?? this.actualDistanceM,
       actualAverageHr: actualAverageHr ?? this.actualAverageHr,
-      actualAveragePaceSecPerMeter:
-          actualAveragePaceSecPerMeter ?? this.actualAveragePaceSecPerMeter,
-      actualAveragePowerWatts:
-          actualAveragePowerWatts ?? this.actualAveragePowerWatts,
+      actualAveragePaceSecPerMeter: actualAveragePaceSecPerMeter ?? this.actualAveragePaceSecPerMeter,
+      actualAveragePowerWatts: actualAveragePowerWatts ?? this.actualAveragePowerWatts,
       repeatCount: repeatCount ?? this.repeatCount,
       parentIntervalId: parentIntervalId ?? this.parentIntervalId,
       notes: notes ?? this.notes,
@@ -167,10 +164,8 @@ class SessionInterval {
       actualDurationSec: json['actualDurationSec'] as int?,
       actualDistanceM: (json['actualDistanceM'] as num?)?.toDouble(),
       actualAverageHr: json['actualAverageHr'] as int?,
-      actualAveragePaceSecPerMeter:
-          (json['actualAveragePaceSecPerMeter'] as num?)?.toDouble(),
-      actualAveragePowerWatts:
-          (json['actualAveragePowerWatts'] as num?)?.toDouble(),
+      actualAveragePaceSecPerMeter: (json['actualAveragePaceSecPerMeter'] as num?)?.toDouble(),
+      actualAveragePowerWatts: (json['actualAveragePowerWatts'] as num?)?.toDouble(),
       repeatCount: json['repeatCount'] as int?,
       parentIntervalId: json['parentIntervalId'] as String?,
       notes: json['notes'] as String?,

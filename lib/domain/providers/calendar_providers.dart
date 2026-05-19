@@ -102,8 +102,7 @@ DateTime _getWorkoutScheduledDate(
     return DateHelpers.stripTime(workout.scheduledDate!);
   }
   // Calculate default date from period/day
-  final absoluteDayIndex =
-      (workout.periodNumber - 1) * daysPerPeriod + (workout.dayNumber - 1);
+  final absoluteDayIndex = (workout.periodNumber - 1) * daysPerPeriod + (workout.dayNumber - 1);
   return DateHelpers.addDays(cycleStart, absoluteDayIndex);
 }
 
@@ -179,11 +178,7 @@ List<CalendarDayData> buildCalendarData({
   final lastOfMonth = DateTime(month.year, month.month + 1, 0);
 
   // Iterate through each day of the month
-  for (
-    var day = firstOfMonth;
-    !day.isAfter(lastOfMonth);
-    day = DateHelpers.addDays(day, 1)
-  ) {
+  for (var day = firstOfMonth; !day.isAfter(lastOfMonth); day = DateHelpers.addDays(day, 1)) {
     final strippedDay = DateHelpers.stripTime(day);
 
     // Check if this day is within the training cycle range
@@ -221,8 +216,7 @@ List<CalendarDayData> buildCalendarData({
       for (final exercise in workout.exercises) {
         final groupName = exercise.muscleGroup.displayName;
         muscleGroups.add(groupName);
-        muscleGroupSets[groupName] =
-            (muscleGroupSets[groupName] ?? 0) + exercise.sets.length;
+        muscleGroupSets[groupName] = (muscleGroupSets[groupName] ?? 0) + exercise.sets.length;
         // Track exercise names with set counts
         final exercises = muscleGroupExercises[groupName] ?? [];
         exercises.add('${exercise.name} (${exercise.sets.length} sets)');
@@ -250,14 +244,13 @@ List<CalendarDayData> buildCalendarData({
     final dayCardio = cardioByDate[strippedDay] ?? const <CardioSession>[];
 
     // Determine completion status across both strength and cardio.
-    final strengthDone = dayWorkouts.isEmpty ||
-        dayWorkouts.every((w) => w.status == WorkoutStatus.completed);
-    final cardioDone = dayCardio.isEmpty ||
-        dayCardio.every((s) => s.status == WorkoutStatus.completed);
+    final strengthDone = dayWorkouts.isEmpty || dayWorkouts.every((w) => w.status == WorkoutStatus.completed);
+    final cardioDone = dayCardio.isEmpty || dayCardio.every((s) => s.status == WorkoutStatus.completed);
     final hasSessions = dayWorkouts.isNotEmpty || dayCardio.isNotEmpty;
 
     final isCompleted = hasSessions && strengthDone && cardioDone;
-    final isPartiallyCompleted = hasSessions &&
+    final isPartiallyCompleted =
+        hasSessions &&
         !isCompleted &&
         (dayWorkouts.any((w) => w.status == WorkoutStatus.completed) ||
             dayCardio.any((s) => s.status == WorkoutStatus.completed));
@@ -398,10 +391,9 @@ class CalendarUndoNotifier extends Notifier<CalendarUndoState> {
 }
 
 /// Provider for undo state
-final calendarUndoProvider =
-    NotifierProvider<CalendarUndoNotifier, CalendarUndoState>(() {
-      return CalendarUndoNotifier();
-    });
+final calendarUndoProvider = NotifierProvider<CalendarUndoNotifier, CalendarUndoState>(() {
+  return CalendarUndoNotifier();
+});
 
 /// State for calendar screen
 class CalendarScreenState {
@@ -417,9 +409,7 @@ class CalendarScreenState {
   }) {
     return CalendarScreenState(
       focusedMonth: focusedMonth ?? this.focusedMonth,
-      selectedDate: clearSelectedDate
-          ? null
-          : (selectedDate ?? this.selectedDate),
+      selectedDate: clearSelectedDate ? null : (selectedDate ?? this.selectedDate),
     );
   }
 }
@@ -471,7 +461,6 @@ class CalendarScreenNotifier extends Notifier<CalendarScreenState> {
 }
 
 /// Provider for calendar screen state
-final calendarScreenProvider =
-    NotifierProvider<CalendarScreenNotifier, CalendarScreenState>(() {
-      return CalendarScreenNotifier();
-    });
+final calendarScreenProvider = NotifierProvider<CalendarScreenNotifier, CalendarScreenState>(() {
+  return CalendarScreenNotifier();
+});

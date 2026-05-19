@@ -59,7 +59,6 @@ class ConnectedDeviceNotifier extends Notifier<DeviceInfo?> {
   }
 }
 
-final connectedDeviceProvider =
-    NotifierProvider<ConnectedDeviceNotifier, DeviceInfo?>(
-      () => ConnectedDeviceNotifier(),
-    );
+final connectedDeviceProvider = NotifierProvider<ConnectedDeviceNotifier, DeviceInfo?>(
+  () => ConnectedDeviceNotifier(),
+);

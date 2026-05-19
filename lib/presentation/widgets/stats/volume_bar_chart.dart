@@ -18,18 +18,14 @@ class VolumeBarChart extends StatelessWidget {
         child: Text(
           'No data yet',
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            color: Theme.of(context)
-                .colorScheme
-                .onSurface
-                .withAlpha((255 * 0.5).round()),
+            color: Theme.of(context).colorScheme.onSurface.withAlpha((255 * 0.5).round()),
           ),
         ),
       );
     }
 
     // Sort by count descending
-    final sorted = setsByMuscleGroup.entries.toList()
-      ..sort((a, b) => b.value.compareTo(a.value));
+    final sorted = setsByMuscleGroup.entries.toList()..sort((a, b) => b.value.compareTo(a.value));
 
     final maxValue = sorted.first.value.toDouble();
 
@@ -64,18 +60,14 @@ class VolumeBarChart extends StatelessWidget {
                 }
                 final name = sorted[index].key.displayName;
                 // Abbreviate long names
-                final label =
-                    name.length > 5 ? '${name.substring(0, 4)}.' : name;
+                final label = name.length > 5 ? '${name.substring(0, 4)}.' : name;
                 return SideTitleWidget(
                   meta: meta,
                   child: Text(
                     label,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       fontSize: 10,
-                      color: Theme.of(context)
-                          .colorScheme
-                          .onSurface
-                          .withAlpha((255 * 0.7).round()),
+                      color: Theme.of(context).colorScheme.onSurface.withAlpha((255 * 0.7).round()),
                     ),
                   ),
                 );

@@ -16,12 +16,9 @@ final trainingCyclesProvider = StreamProvider<List<TrainingCycle>>((ref) {
 final currentTrainingCyclesProvider = Provider<List<TrainingCycle>>((ref) {
   final trainingCycles = ref.watch(trainingCyclesProvider);
   return trainingCycles.when(
-    data: (list) => list
-        .where((m) => m.status == TrainingCycleStatus.current)
-        .toList()
+    data: (list) => list.where((m) => m.status == TrainingCycleStatus.current).toList()
       ..sort(
-        (a, b) => (a.startDate ?? a.createdDate)
-            .compareTo(b.startDate ?? b.createdDate),
+        (a, b) => (a.startDate ?? a.createdDate).compareTo(b.startDate ?? b.createdDate),
       ),
     loading: () => [],
     error: (_, _) => [],
@@ -40,8 +37,7 @@ final currentTrainingCycleProvider = Provider<TrainingCycle?>((ref) {
 final draftTrainingCyclesProvider = Provider<List<TrainingCycle>>((ref) {
   final trainingCycles = ref.watch(trainingCyclesProvider);
   return trainingCycles.when(
-    data: (list) =>
-        list.where((m) => m.status == TrainingCycleStatus.draft).toList(),
+    data: (list) => list.where((m) => m.status == TrainingCycleStatus.draft).toList(),
     loading: () => [],
     error: (_, _) => [],
   );
@@ -51,8 +47,7 @@ final draftTrainingCyclesProvider = Provider<List<TrainingCycle>>((ref) {
 final completedTrainingCyclesProvider = Provider<List<TrainingCycle>>((ref) {
   final trainingCycles = ref.watch(trainingCyclesProvider);
   return trainingCycles.when(
-    data: (list) =>
-        list.where((m) => m.status == TrainingCycleStatus.completed).toList(),
+    data: (list) => list.where((m) => m.status == TrainingCycleStatus.completed).toList(),
     loading: () => [],
     error: (_, _) => [],
   );
@@ -87,12 +82,8 @@ final trainingCycleStatsProvider = Provider<Map<String, dynamic>>((ref) {
   );
   return {
     'total': cycles.length,
-    'active': cycles
-        .where((c) => c.status == TrainingCycleStatus.current)
-        .length,
+    'active': cycles.where((c) => c.status == TrainingCycleStatus.current).length,
     'draft': cycles.where((c) => c.status == TrainingCycleStatus.draft).length,
-    'completed': cycles
-        .where((c) => c.status == TrainingCycleStatus.completed)
-        .length,
+    'completed': cycles.where((c) => c.status == TrainingCycleStatus.completed).length,
   };
 });

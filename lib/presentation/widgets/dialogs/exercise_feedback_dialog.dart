@@ -32,8 +32,7 @@ class ExerciseFeedbackDialog extends StatefulWidget {
   }
 
   @override
-  State<ExerciseFeedbackDialog> createState() =>
-      _ExerciseFeedbackDialogState();
+  State<ExerciseFeedbackDialog> createState() => _ExerciseFeedbackDialogState();
 }
 
 class _ExerciseFeedbackDialogState extends State<ExerciseFeedbackDialog> {

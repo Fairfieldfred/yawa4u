@@ -9,8 +9,7 @@ part 'session_interval_dao.g.dart';
 /// of a structured cardio workout — warmup, work, recovery, cooldown, rest,
 /// or a repeat-group header.
 @DriftAccessor(tables: [SessionIntervals])
-class SessionIntervalDao extends DatabaseAccessor<AppDatabase>
-    with _$SessionIntervalDaoMixin {
+class SessionIntervalDao extends DatabaseAccessor<AppDatabase> with _$SessionIntervalDaoMixin {
   SessionIntervalDao(super.db);
 
   Future<List<SessionInterval>> getBySessionUuid(String sessionUuid) {

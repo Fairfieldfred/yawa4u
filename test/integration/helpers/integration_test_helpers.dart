@@ -4,13 +4,7 @@ import 'package:yawa4u/core/constants/enums.dart';
 import 'package:yawa4u/core/constants/equipment_types.dart';
 import 'package:yawa4u/core/constants/muscle_groups.dart';
 import 'package:yawa4u/data/database/database.dart'
-    hide
-        TrainingCycle,
-        Exercise,
-        ExerciseSet,
-        ExerciseFeedback,
-        CustomExerciseDefinition,
-        UserMeasurement;
+    hide TrainingCycle, Exercise, ExerciseSet, ExerciseFeedback, CustomExerciseDefinition, UserMeasurement;
 import 'package:yawa4u/data/models/custom_exercise_definition.dart';
 import 'package:yawa4u/data/models/exercise.dart';
 import 'package:yawa4u/data/models/exercise_set.dart';

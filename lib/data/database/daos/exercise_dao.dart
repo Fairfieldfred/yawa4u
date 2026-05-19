@@ -7,8 +7,7 @@ part 'exercise_dao.g.dart';
 
 /// Data Access Object for Exercises table
 @DriftAccessor(tables: [Exercises])
-class ExerciseDao extends DatabaseAccessor<AppDatabase>
-    with _$ExerciseDaoMixin {
+class ExerciseDao extends DatabaseAccessor<AppDatabase> with _$ExerciseDaoMixin {
   ExerciseDao(super.db);
 
   /// Get all exercises
@@ -119,24 +118,19 @@ class ExerciseDao extends DatabaseAccessor<AppDatabase>
 
   /// Get exercises by muscle group index
   Future<List<Exercise>> getByMuscleGroup(int muscleGroupIndex) {
-    return (select(exercises)
-          ..where((e) => e.muscleGroup.equals(muscleGroupIndex)))
-        .get();
+    return (select(exercises)..where((e) => e.muscleGroup.equals(muscleGroupIndex))).get();
   }
 
   /// Get exercises by equipment type index
   Future<List<Exercise>> getByEquipmentType(int equipmentTypeIndex) {
-    return (select(exercises)
-          ..where((e) => e.equipmentType.equals(equipmentTypeIndex)))
-        .get();
+    return (select(exercises)..where((e) => e.equipmentType.equals(equipmentTypeIndex))).get();
   }
 
   /// Search exercises by name (case-insensitive partial match)
   Future<List<Exercise>> searchByName(String query) {
-    return (select(exercises)
-          ..where(
-            (e) => e.name.collate(Collate.noCase).like('%$query%'),
-          ))
+    return (select(exercises)..where(
+          (e) => e.name.collate(Collate.noCase).like('%$query%'),
+        ))
         .get();
   }
 

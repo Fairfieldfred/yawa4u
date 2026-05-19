@@ -70,9 +70,7 @@ class _SentryDebugScreenState extends State<SentryDebugScreen> {
     final isEmpty = id.toString() == SentryId.empty().toString();
 
     _appendLog(
-      isEmpty
-          ? '❌ Failed - empty ID returned (DSN likely missing)'
-          : '✅ Test message sent! ID: $id',
+      isEmpty ? '❌ Failed - empty ID returned (DSN likely missing)' : '✅ Test message sent! ID: $id',
     );
 
     setState(() => _isLoading = false);
@@ -90,9 +88,7 @@ class _SentryDebugScreenState extends State<SentryDebugScreen> {
       final isEmpty = id.toString() == SentryId.empty().toString();
 
       _appendLog(
-        isEmpty
-            ? '❌ Failed - empty ID returned (DSN likely missing)'
-            : '✅ Test exception sent! ID: $id',
+        isEmpty ? '❌ Failed - empty ID returned (DSN likely missing)' : '✅ Test exception sent! ID: $id',
       );
     } catch (e) {
       _appendLog('❌ Error sending exception: $e');

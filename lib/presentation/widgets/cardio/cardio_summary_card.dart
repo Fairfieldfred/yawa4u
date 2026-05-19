@@ -48,8 +48,7 @@ class CardioSummaryCard extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  if (session.isCompleted)
-                    Icon(Icons.check_circle, color: theme.colorScheme.primary),
+                  if (session.isCompleted) Icon(Icons.check_circle, color: theme.colorScheme.primary),
                 ],
               ),
               const SizedBox(height: 10),

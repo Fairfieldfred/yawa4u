@@ -64,9 +64,7 @@ class _SkinShareScreenState extends ConsumerState<SkinShareScreen> {
   Future<void> _autoStartServerIfReady(List<SkinModel> skins) async {
     if (_autoStartTriggered || !widget.autoStart) return;
 
-    final selectedSkins = skins
-        .where((s) => _selectedSkinIds.contains(s.id))
-        .toList();
+    final selectedSkins = skins.where((s) => _selectedSkinIds.contains(s.id)).toList();
     if (selectedSkins.isNotEmpty) {
       _autoStartTriggered = true;
       _startServer(selectedSkins);
@@ -97,8 +95,7 @@ class _SkinShareScreenState extends ConsumerState<SkinShareScreen> {
       _isServerRunning = success;
       _connectionInfo = shareService.connectionInfo;
       if (!success) {
-        _errorMessage =
-            'Could not start share server. Make sure you are connected to WiFi.';
+        _errorMessage = 'Could not start share server. Make sure you are connected to WiFi.';
       }
     });
   }
@@ -200,14 +197,9 @@ class _SkinShareScreenState extends ConsumerState<SkinShareScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            result.message ??
-                (result.success
-                    ? 'Themes received!'
-                    : 'Failed to receive themes'),
+            result.message ?? (result.success ? 'Themes received!' : 'Failed to receive themes'),
           ),
-          backgroundColor: result.success
-              ? Theme.of(context).colorScheme.primary
-              : Theme.of(context).colorScheme.error,
+          backgroundColor: result.success ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.error,
         ),
       );
 
@@ -228,9 +220,7 @@ class _SkinShareScreenState extends ConsumerState<SkinShareScreen> {
   Widget build(BuildContext context) {
     final skinState = ref.watch(skinProvider);
     // Get only custom (non-built-in) skins for sharing
-    final customSkins = skinState.availableSkins
-        .where((s) => !s.isBuiltIn)
-        .toList();
+    final customSkins = skinState.availableSkins.where((s) => !s.isBuiltIn).toList();
 
     return Scaffold(
       appBar: AppBar(title: const Text('Share Themes'), centerTitle: true),
@@ -295,10 +285,7 @@ class _SkinShareScreenState extends ConsumerState<SkinShareScreen> {
                 icon: const Icon(Icons.qr_code_scanner),
                 label: const Text('Scan QR Code to Receive Themes'),
                 style: OutlinedButton.styleFrom(
-                  foregroundColor:
-                      Theme.of(context).brightness == Brightness.dark
-                      ? Colors.white
-                      : null,
+                  foregroundColor: Theme.of(context).brightness == Brightness.dark ? Colors.white : null,
                 ),
               ),
             ],
@@ -359,9 +346,7 @@ class _SkinShareScreenState extends ConsumerState<SkinShareScreen> {
             icon: const Icon(Icons.qr_code_scanner),
             label: const Text('Scan QR Code to Receive Themes'),
             style: OutlinedButton.styleFrom(
-              foregroundColor: Theme.of(context).brightness == Brightness.dark
-                  ? Colors.white
-                  : null,
+              foregroundColor: Theme.of(context).brightness == Brightness.dark ? Colors.white : null,
               padding: const EdgeInsets.symmetric(vertical: 12),
               minimumSize: const Size(double.infinity, 48),
             ),
@@ -392,9 +377,7 @@ class _SkinShareScreenState extends ConsumerState<SkinShareScreen> {
                   });
                 },
                 child: Text(
-                  _selectedSkinIds.length == skins.length
-                      ? 'Deselect All'
-                      : 'Select All',
+                  _selectedSkinIds.length == skins.length ? 'Deselect All' : 'Select All',
                 ),
               ),
             ],
@@ -426,9 +409,7 @@ class _SkinShareScreenState extends ConsumerState<SkinShareScreen> {
                   onPressed: _selectedSkinIds.isEmpty || _isLoading
                       ? null
                       : () {
-                          final selectedSkins = skins
-                              .where((s) => _selectedSkinIds.contains(s.id))
-                              .toList();
+                          final selectedSkins = skins.where((s) => _selectedSkinIds.contains(s.id)).toList();
                           _startServer(selectedSkins);
                         },
                   icon: _isLoading
@@ -439,9 +420,7 @@ class _SkinShareScreenState extends ConsumerState<SkinShareScreen> {
                         )
                       : const Icon(Icons.qr_code),
                   label: Text(
-                    _selectedSkinIds.isEmpty
-                        ? 'Select Themes to Share'
-                        : 'Share via QR Code',
+                    _selectedSkinIds.isEmpty ? 'Select Themes to Share' : 'Share via QR Code',
                   ),
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
@@ -477,9 +456,7 @@ class _SkinShareScreenState extends ConsumerState<SkinShareScreen> {
     final isSelected = _selectedSkinIds.contains(skin.id);
 
     return Card(
-      color: isSelected
-          ? colorScheme.primaryContainer
-          : colorScheme.surfaceContainerHighest,
+      color: isSelected ? colorScheme.primaryContainer : colorScheme.surfaceContainerHighest,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: InkWell(
         onTap: () {
@@ -536,9 +513,7 @@ class _SkinShareScreenState extends ConsumerState<SkinShareScreen> {
                     Text(
                       skin.name,
                       style: TextStyle(
-                        color: isSelected
-                            ? colorScheme.onPrimaryContainer
-                            : colorScheme.onSurface,
+                        color: isSelected ? colorScheme.onPrimaryContainer : colorScheme.onSurface,
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                       ),

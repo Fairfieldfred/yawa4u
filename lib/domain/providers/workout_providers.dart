@@ -45,11 +45,13 @@ final workoutsProvider = StreamProvider<List<Workout>>((ref) {
 });
 
 /// Provider for workouts by trainingCycle ID (reactive via Stream)
-final workoutsByTrainingCycleProvider =
-    StreamProvider.autoDispose.family<List<Workout>, String>((ref, trainingCycleId) {
-      final repository = ref.watch(workoutRepositoryProvider);
-      return repository.watchByTrainingCycleId(trainingCycleId);
-    });
+final workoutsByTrainingCycleProvider = StreamProvider.autoDispose.family<List<Workout>, String>((
+  ref,
+  trainingCycleId,
+) {
+  final repository = ref.watch(workoutRepositoryProvider);
+  return repository.watchByTrainingCycleId(trainingCycleId);
+});
 
 /// Provider for workouts by trainingCycle ID (synchronous accessor for
 /// convenience). Returns empty list while loading or on error.
@@ -58,27 +60,20 @@ final workoutsByTrainingCycleProvider =
 /// and filters to [StrengthSession]. Behavior is identical to the
 /// pre-migration version because every strength write now mirrors
 /// into the sessions table.
-final workoutsByTrainingCycleListProvider =
-    Provider.autoDispose.family<List<Workout>, String>((ref, trainingCycleId) {
-      final sessionsAsync = ref.watch(
-        sessionsByTrainingCycleProvider(trainingCycleId),
-      );
-      return sessionsAsync.when(
-        data: (list) => list
-            .whereType<StrengthSession>()
-            .map(_sessionToLegacyWorkout)
-            .toList(),
-        loading: () => [],
-        error: (_, _) => [],
-      );
-    });
+final workoutsByTrainingCycleListProvider = Provider.autoDispose.family<List<Workout>, String>((ref, trainingCycleId) {
+  final sessionsAsync = ref.watch(
+    sessionsByTrainingCycleProvider(trainingCycleId),
+  );
+  return sessionsAsync.when(
+    data: (list) => list.whereType<StrengthSession>().map(_sessionToLegacyWorkout).toList(),
+    loading: () => [],
+    error: (_, _) => [],
+  );
+});
 
 /// Provider for workouts by period (async)
-final workoutsByPeriodProvider =
-    FutureProvider.autoDispose.family<
-      List<Workout>,
-      ({String trainingCycleId, int periodNumber})
-    >((ref, params) async {
+final workoutsByPeriodProvider = FutureProvider.autoDispose
+    .family<List<Workout>, ({String trainingCycleId, int periodNumber})>((ref, params) async {
       final repository = ref.watch(workoutRepositoryProvider);
       return repository.getByPeriod(
         params.trainingCycleId,
@@ -106,8 +101,7 @@ final workoutProvider = Provider.autoDispose.family<Workout?, String>((ref, id) 
 final completedWorkoutsProvider = Provider<List<Workout>>((ref) {
   final workouts = ref.watch(workoutsProvider);
   return workouts.when(
-    data: (list) =>
-        list.where((w) => w.status == WorkoutStatus.completed).toList(),
+    data: (list) => list.where((w) => w.status == WorkoutStatus.completed).toList(),
     loading: () => [],
     error: (_, _) => [],
   );
@@ -132,14 +126,13 @@ final workoutStatsProvider = FutureProvider<Map<String, dynamic>>((ref) async {
 });
 
 /// Provider for workout statistics by trainingCycle (async)
-final workoutStatsForTrainingCycleProvider =
-    FutureProvider.autoDispose.family<Map<String, dynamic>, String>((
-      ref,
-      trainingCycleId,
-    ) async {
-      final repository = ref.watch(workoutRepositoryProvider);
-      return repository.getStatsForTrainingCycle(trainingCycleId);
-    });
+final workoutStatsForTrainingCycleProvider = FutureProvider.autoDispose.family<Map<String, dynamic>, String>((
+  ref,
+  trainingCycleId,
+) async {
+  final repository = ref.watch(workoutRepositoryProvider);
+  return repository.getStatsForTrainingCycle(trainingCycleId);
+});
 
 /// Notifier for show exercise history preference (persists across navigation)
 class ShowExerciseHistoryNotifier extends Notifier<bool> {
@@ -151,7 +144,6 @@ class ShowExerciseHistoryNotifier extends Notifier<bool> {
   }
 }
 
-final showExerciseHistoryProvider =
-    NotifierProvider<ShowExerciseHistoryNotifier, bool>(
-      ShowExerciseHistoryNotifier.new,
-    );
+final showExerciseHistoryProvider = NotifierProvider<ShowExerciseHistoryNotifier, bool>(
+  ShowExerciseHistoryNotifier.new,
+);

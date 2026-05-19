@@ -19,8 +19,7 @@ import '../app_database.dart';
 /// local-user UUID is persisted on every user-owned row so the app can read
 /// it back later by querying any of them.
 class AppDatabaseV5Backfill {
-  AppDatabaseV5Backfill(this._db, {String? localUserUuid})
-    : _localUserUuid = localUserUuid ?? const Uuid().v4();
+  AppDatabaseV5Backfill(this._db, {String? localUserUuid}) : _localUserUuid = localUserUuid ?? const Uuid().v4();
 
   final AppDatabase _db;
   final String _localUserUuid;
@@ -108,9 +107,11 @@ class AppDatabaseV5Backfill {
   /// — strength-only cycles don't use it; endurance plans will set it when
   /// the UI gains a phase picker in Phase 3.
   Future<void> _generateCyclePeriods() async {
-    final cycles = await _db.customSelect(
-      'SELECT uuid, periods_total FROM training_cycles',
-    ).get();
+    final cycles = await _db
+        .customSelect(
+          'SELECT uuid, periods_total FROM training_cycles',
+        )
+        .get();
 
     for (final row in cycles) {
       final cycleUuid = row.read<String>('uuid');

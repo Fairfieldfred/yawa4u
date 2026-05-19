@@ -33,9 +33,7 @@ class TrainingCycleTemplate {
       daysPerPeriod: json['daysPerPeriod'] as int,
       recoveryPeriod: json['recoveryPeriod'] as int?,
       primarySport: json['primarySport'] as String?,
-      workouts: (json['workouts'] as List)
-          .map((w) => WorkoutTemplate.fromJson(w as Map<String, dynamic>))
-          .toList(),
+      workouts: (json['workouts'] as List).map((w) => WorkoutTemplate.fromJson(w as Map<String, dynamic>)).toList(),
     );
   }
 
@@ -91,9 +89,8 @@ class WorkoutTemplate {
       sport: (json['sport'] as String?) ?? 'strength',
       cardioTemplateId: json['cardioTemplateId'] as String?,
       notes: json['notes'] as String?,
-      exercises: (json['exercises'] as List?)
-              ?.map((e) => ExerciseTemplate.fromJson(e as Map<String, dynamic>))
-              .toList() ??
+      exercises:
+          (json['exercises'] as List?)?.map((e) => ExerciseTemplate.fromJson(e as Map<String, dynamic>)).toList() ??
           const [],
     );
   }
