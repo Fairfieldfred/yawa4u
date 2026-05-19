@@ -186,6 +186,91 @@ class DateHelpers {
     return (days ~/ daysPerPeriod) + 1;
   }
 
+  // ========== SCHEDULE-AWARE DAY MAPPING ==========
+
+  /// Day-of-week names indexed by `DateTime.weekday % 7` (0=Sun, 6=Sat).
+  static const dayOfWeekNames = [
+    'SUN',
+    'MON',
+    'TUE',
+    'WED',
+    'THU',
+    'FRI',
+    'SAT',
+  ];
+
+  /// Build a mapping from (periodNumber, dayNumber) to effective calendar
+  /// date, respecting any schedule shifts (e.g. inserted rest days).
+  ///
+  /// [scheduledDates] provides override dates for slots whose
+  /// `scheduledDate` has been set by the ScheduleService. Slots not
+  /// present in the map fall back to the contiguous formula from
+  /// [cycleStart].
+  static Map<(int, int), DateTime> buildPeriodDayDateMap({
+    required DateTime cycleStart,
+    required int daysPerPeriod,
+    required int periodsTotal,
+    Map<(int, int), DateTime> scheduledDates = const {},
+  }) {
+    final map = <(int, int), DateTime>{};
+    final stripped = stripTime(cycleStart);
+
+    // Use explicit scheduledDates first (from shifted workouts)
+    map.addAll(scheduledDates);
+
+    // Fill remaining slots with the contiguous formula
+    for (var p = 1; p <= periodsTotal; p++) {
+      for (var d = 1; d <= daysPerPeriod; d++) {
+        final key = (p, d);
+        if (!map.containsKey(key)) {
+          final offset = (p - 1) * daysPerPeriod + (d - 1);
+          map[key] = addDays(stripped, offset);
+        }
+      }
+    }
+
+    return map;
+  }
+
+  /// Extract a `scheduledDates` map suitable for [buildPeriodDayDateMap]
+  /// from a list of items that have period, day, and optional scheduled
+  /// date. Each item is represented as a record.
+  static Map<(int, int), DateTime> extractScheduledDates(
+    Iterable<({int periodNumber, int dayNumber, DateTime? scheduledDate})>
+        items,
+  ) {
+    final map = <(int, int), DateTime>{};
+    for (final item in items) {
+      if (item.scheduledDate != null) {
+        map.putIfAbsent(
+          (item.periodNumber, item.dayNumber),
+          () => stripTime(item.scheduledDate!),
+        );
+      }
+    }
+    return map;
+  }
+
+  /// Get day-of-week name and day-of-month for a (period, day) slot.
+  ///
+  /// Returns `dayOfMonth: 0` when no date is found (sentinel — callers
+  /// should hide the number in the UI).
+  static ({String dayName, int dayOfMonth}) getDayInfo(
+    Map<(int, int), DateTime> dateMap,
+    int period,
+    int day,
+  ) {
+    final date = dateMap[(period, day)];
+    if (date != null) {
+      return (
+        dayName: dayOfWeekNames[date.weekday % 7],
+        dayOfMonth: date.day,
+      );
+    }
+    // Ultimate fallback
+    return (dayName: dayOfWeekNames[day % 7], dayOfMonth: 0);
+  }
+
   // ========== RELATIVE DATE STRINGS ==========
 
   /// Get a relative date string (e.g., "Today", "Yesterday", "2 days ago")

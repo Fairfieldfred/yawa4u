@@ -4,6 +4,7 @@ import 'package:uuid/uuid.dart';
 
 import '../../core/constants/enums.dart';
 import '../../core/theme/skins/skins.dart';
+import '../../core/utils/date_helpers.dart';
 import '../../data/models/training_cycle.dart';
 import '../../data/models/workout.dart';
 import '../../domain/controllers/workout_home_controller.dart';
@@ -256,8 +257,24 @@ class _CalendarDropdownState extends ConsumerState<CalendarDropdown> {
 
   @override
   Widget build(BuildContext context) {
-    // Calculate day names based on trainingCycle start date
-    // Note: Day names are now calculated per-period inside _buildPeriodColumn
+    // Build the date map once, respecting any schedule shifts
+    // (e.g. inserted rest days) via workout.scheduledDate.
+    final dateMap = widget.trainingCycle.startDate != null
+        ? DateHelpers.buildPeriodDayDateMap(
+            cycleStart: widget.trainingCycle.startDate!,
+            daysPerPeriod: widget.trainingCycle.daysPerPeriod,
+            periodsTotal: widget.trainingCycle.periodsTotal,
+            scheduledDates: DateHelpers.extractScheduledDates(
+              widget.allWorkouts.map(
+                (w) => (
+                  periodNumber: w.periodNumber,
+                  dayNumber: w.dayNumber,
+                  scheduledDate: w.scheduledDate,
+                ),
+              ),
+            ),
+          )
+        : <(int, int), DateTime>{};
 
     // Calculate dynamic height based on number of workout days
     // Header height: 60, Period header: 60, Day button: 48, Day margin: 6
@@ -375,6 +392,7 @@ class _CalendarDropdownState extends ConsumerState<CalendarDropdown> {
                       child: _buildPeriodColumn(
                         periodNumber,
                         widget.trainingCycle.recoveryPeriod == periodNumber,
+                        dateMap,
                       ),
                     );
                   }),
@@ -387,15 +405,18 @@ class _CalendarDropdownState extends ConsumerState<CalendarDropdown> {
     );
   }
 
-  Widget _buildPeriodColumn(int periodNumber, bool isRecovery) {
-    // Calculate day names specific to THIS period
-    final defaultDayNames = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
-    final periodDayNames = List.generate(widget.trainingCycle.daysPerPeriod, (
+  Widget _buildPeriodColumn(
+    int periodNumber,
+    bool isRecovery,
+    Map<(int, int), DateTime> dateMap,
+  ) {
+    // Build day info (name + date number) for each day in this period
+    final dayInfoList = List.generate(widget.trainingCycle.daysPerPeriod, (
       index,
     ) {
       final dayNumber = index + 1;
 
-      // Check if there's a custom label for this day in THIS SPECIFIC period
+      // Priority 1: custom dayName from workouts
       final periodDayWorkouts = widget.allWorkouts
           .where(
             (w) => w.dayNumber == dayNumber && w.periodNumber == periodNumber,
@@ -403,38 +424,33 @@ class _CalendarDropdownState extends ConsumerState<CalendarDropdown> {
           .toList();
 
       if (periodDayWorkouts.isNotEmpty) {
-        // Check if all workouts for this day in this period have the same custom dayName
         final firstDayName = periodDayWorkouts.first.dayName;
         final allHaveSameName = periodDayWorkouts.every(
           (w) => w.dayName == firstDayName,
         );
 
-        // Use custom dayName if all workouts in this period have the same non-null custom name
         if (allHaveSameName &&
             firstDayName != null &&
             firstDayName.isNotEmpty) {
-          return firstDayName.substring(0, 3).toUpperCase();
+          // Custom name — still get the date number from the map
+          final info = DateHelpers.getDayInfo(dateMap, periodNumber, dayNumber);
+          return (
+            dayName: firstDayName.substring(0, 3).toUpperCase(),
+            dayOfMonth: info.dayOfMonth,
+          );
         }
       }
 
-      // Otherwise, calculate based on trainingCycle start date
-      if (widget.trainingCycle.startDate != null) {
-        // Get the day of week when trainingCycle started (0 = Sunday, 6 = Saturday)
-        final startDayOfWeek = widget.trainingCycle.startDate!.weekday % 7;
-
-        // Calculate which actual day this workout falls on
-        final daysElapsed =
-            ((periodNumber - 1) * widget.trainingCycle.daysPerPeriod) +
-            (dayNumber - 1);
-
-        // Calculate actual day of week
-        final actualDayOfWeek = (startDayOfWeek + daysElapsed) % 7;
-
-        return defaultDayNames[actualDayOfWeek];
+      // Priority 2: use schedule-aware date map
+      if (dateMap.isNotEmpty) {
+        return DateHelpers.getDayInfo(dateMap, periodNumber, dayNumber);
       }
 
-      // Fallback to default
-      return defaultDayNames[index % defaultDayNames.length];
+      // Priority 3: fallback
+      return (
+        dayName: DateHelpers.dayOfWeekNames[index % 7],
+        dayOfMonth: 0,
+      );
     });
 
     return Container(
@@ -472,9 +488,10 @@ class _CalendarDropdownState extends ConsumerState<CalendarDropdown> {
             ),
           ),
 
-          // Day buttons - limit to available workout days only
-          ...List.generate(periodDayNames.length, (dayIndex) {
+          // Day buttons
+          ...List.generate(dayInfoList.length, (dayIndex) {
             final dayNumber = dayIndex + 1;
+            final dayInfo = dayInfoList[dayIndex];
             final isCurrentPeriod = periodNumber == widget.currentPeriod;
             final isCurrentDay = dayNumber == widget.currentDay;
             final isSelected =
@@ -534,15 +551,28 @@ class _CalendarDropdownState extends ConsumerState<CalendarDropdown> {
                       : null,
                 ),
                 alignment: Alignment.center,
-                child: Text(
-                  periodDayNames[dayIndex],
-                  style: TextStyle(
-                    color: textColor,
-                    fontSize: 13,
-                    fontWeight: isSelected
-                        ? FontWeight.bold
-                        : FontWeight.normal,
-                  ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      dayInfo.dayName,
+                      style: TextStyle(
+                        color: textColor,
+                        fontSize: 12,
+                        fontWeight: isSelected
+                            ? FontWeight.bold
+                            : FontWeight.normal,
+                      ),
+                    ),
+                    if (dayInfo.dayOfMonth > 0)
+                      Text(
+                        '${dayInfo.dayOfMonth}',
+                        style: TextStyle(
+                          color: textColor.withValues(alpha: 0.7),
+                          fontSize: 10,
+                        ),
+                      ),
+                  ],
                 ),
               ),
             ),

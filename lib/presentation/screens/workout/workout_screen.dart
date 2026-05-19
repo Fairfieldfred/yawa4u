@@ -1462,6 +1462,8 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
         daysPerPeriod: currentTrainingCycle.daysPerPeriod,
         displayPeriod: displayPeriod,
         displayDay: displayDay,
+        allCycleWorkouts: allWorkouts,
+        periodsTotal: currentTrainingCycle.periodsTotal,
       );
 
       // Determine if all stacked cycles have any content today.

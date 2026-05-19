@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../core/constants/enums.dart';
+import '../../core/utils/date_helpers.dart';
 import '../../data/models/exercise.dart';
 import '../../data/models/exercise_set.dart';
 import '../../data/models/training_cycle.dart';
@@ -783,28 +784,53 @@ String? getSetTypeBadge(SetType setType) {
 }
 
 /// Calculate day name based on trainingCycle start date.
+///
+/// When [allCycleWorkouts] and [periodsTotal] are provided, respects
+/// schedule shifts (inserted rest days) by using each workout's
+/// `scheduledDate` to determine the actual day of the week.
 String calculateDayName({
   required List<Workout> workouts,
   required DateTime? startDate,
   required int daysPerPeriod,
   required int displayPeriod,
   required int displayDay,
+  List<Workout>? allCycleWorkouts,
+  int periodsTotal = 0,
 }) {
-  const defaultDayNames = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
-
+  // Priority 1: custom dayName set on the workout
   if (workouts.isNotEmpty && workouts.first.dayName != null) {
     return workouts.first.dayName!.substring(0, 3).toUpperCase();
   }
 
+  // Priority 2: schedule-aware lookup via date map
+  if (startDate != null && allCycleWorkouts != null && periodsTotal > 0) {
+    final dateMap = DateHelpers.buildPeriodDayDateMap(
+      cycleStart: startDate,
+      daysPerPeriod: daysPerPeriod,
+      periodsTotal: periodsTotal,
+      scheduledDates: DateHelpers.extractScheduledDates(
+        allCycleWorkouts.map(
+          (w) => (
+            periodNumber: w.periodNumber,
+            dayNumber: w.dayNumber,
+            scheduledDate: w.scheduledDate,
+          ),
+        ),
+      ),
+    );
+    return DateHelpers.getDayInfo(dateMap, displayPeriod, displayDay).dayName;
+  }
+
+  // Priority 3: contiguous formula (legacy fallback)
   if (startDate != null) {
     final startDayOfWeek = startDate.weekday % 7;
     final daysElapsed =
         ((displayPeriod - 1) * daysPerPeriod) + (displayDay - 1);
     final actualDayOfWeek = (startDayOfWeek + daysElapsed) % 7;
-    return defaultDayNames[actualDayOfWeek];
+    return DateHelpers.dayOfWeekNames[actualDayOfWeek];
   }
 
-  return displayDay >= 1 && displayDay <= defaultDayNames.length
-      ? defaultDayNames[displayDay - 1]
+  return displayDay >= 1 && displayDay <= DateHelpers.dayOfWeekNames.length
+      ? DateHelpers.dayOfWeekNames[displayDay - 1]
       : 'DAY $displayDay';
 }
