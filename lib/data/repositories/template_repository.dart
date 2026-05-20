@@ -262,21 +262,16 @@ class TemplateRepository {
     String name,
     String description,
   ) {
-    // Get workouts from period 1 only (template structure)
-    final period1Workouts = trainingCycle.workouts.where(
-      (w) => w.periodNumber == 1,
-    );
-
     debugPrint('Converting trainingCycle "${trainingCycle.name}" to template');
     debugPrint(
       'Total workouts in trainingCycle: ${trainingCycle.workouts.length}',
     );
-    debugPrint('Period 1 workouts: ${period1Workouts.length}');
 
     final workoutTemplates = <WorkoutTemplate>[];
-    for (final workout in period1Workouts) {
+    for (final workout in trainingCycle.workouts) {
       debugPrint(
-        'Processing workout: Day ${workout.dayNumber}, ${workout.exercises.length} exercises',
+        'Processing workout: P${workout.periodNumber}D${workout.dayNumber}, '
+        '${workout.exercises.length} exercises',
       );
       final exerciseTemplates = workout.exercises.map((exercise) {
         return ExerciseTemplate(

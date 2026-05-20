@@ -68,10 +68,10 @@ class _ExercisesHomeScreenState extends ConsumerState<ExercisesHomeScreen> {
   bool _isDaySwiping = false;
   int? _lastSyncedDayPageIndex;
 
-  /// Cached workouts to keep UI stable during provider refresh.
-  String? _cachedCycleId;
-  List<Workout>? _cachedWorkouts;
-  List<Session>? _cachedSessions;
+  /// Cached workouts per cycle to keep UI stable during provider refresh.
+  String? _cachedPrimaryCycleId;
+  final Map<String, List<Workout>> _cachedWorkoutsPerCycle = {};
+  final Map<String, List<Session>> _cachedSessionsPerCycle = {};
 
   @override
   void dispose() {
@@ -218,7 +218,8 @@ class _ExercisesHomeScreenState extends ConsumerState<ExercisesHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final currentTrainingCycle = ref.watch(currentTrainingCycleProvider);
+    final currentCycles = ref.watch(currentTrainingCyclesProvider);
+    final currentTrainingCycle = currentCycles.isEmpty ? null : currentCycles.first;
 
     if (currentTrainingCycle == null) {
       return Scaffold(
@@ -260,60 +261,85 @@ class _ExercisesHomeScreenState extends ConsumerState<ExercisesHomeScreen> {
       );
     }
 
-    // Clear cache when switching cycles
-    if (currentTrainingCycle.id != _cachedCycleId) {
-      _cachedCycleId = currentTrainingCycle.id;
-      _cachedWorkouts = null;
-      _cachedSessions = null;
+    // Clear cache when switching primary cycle
+    if (currentTrainingCycle.id != _cachedPrimaryCycleId) {
+      _cachedPrimaryCycleId = currentTrainingCycle.id;
+      _cachedWorkoutsPerCycle.clear();
+      _cachedSessionsPerCycle.clear();
     }
+
+    // Prune stale entries for cycles that were unstacked / removed
+    final activeCycleIds = currentCycles.map((c) => c.id).toSet();
+    _cachedWorkoutsPerCycle.removeWhere(
+      (id, _) => !activeCycleIds.contains(id),
+    );
+    _cachedSessionsPerCycle.removeWhere(
+      (id, _) => !activeCycleIds.contains(id),
+    );
 
     // Use cached data during provider refresh to keep the UI stable
     // (prevents text field focus loss when providers are invalidated).
-    final cycleWorkoutsAsync = ref.watch(
-      workoutsByTrainingCycleProvider(currentTrainingCycle.id),
-    );
-    if (cycleWorkoutsAsync.hasValue) {
-      _cachedWorkouts = cycleWorkoutsAsync.value;
+    // Load workouts and sessions for ALL active (stacked) cycles.
+    for (final cycle in currentCycles) {
+      final cycleWorkoutsAsync = ref.watch(
+        workoutsByTrainingCycleProvider(cycle.id),
+      );
+      if (cycleWorkoutsAsync.hasValue) {
+        _cachedWorkoutsPerCycle[cycle.id] =
+            cycleWorkoutsAsync.value ?? [];
+      }
+
+      final cycleSessionsAsync = ref.watch(
+        sessionsByTrainingCycleProvider(cycle.id),
+      );
+      if (cycleSessionsAsync.hasValue) {
+        _cachedSessionsPerCycle[cycle.id] =
+            cycleSessionsAsync.value ?? [];
+      }
     }
 
-    // Also load all sessions for the cycle so we can extract cardio per day.
-    final cycleSessionsAsync = ref.watch(
-      sessionsByTrainingCycleProvider(currentTrainingCycle.id),
-    );
-    if (cycleSessionsAsync.hasValue) {
-      _cachedSessions = cycleSessionsAsync.value;
-    }
-
-    if (_cachedWorkouts == null) {
+    if (!_cachedWorkoutsPerCycle.containsKey(currentTrainingCycle.id)) {
       // First load — no cached data yet
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
-    // Get workouts for the current trainingCycle
-    final allWorkouts = _cachedWorkouts!;
+    // Primary cycle workouts only (for CalendarDropdown navigation)
+    final primaryWorkouts =
+        _cachedWorkoutsPerCycle[currentTrainingCycle.id]!;
 
-    // Group cardio sessions by (period, day) key so they can be passed
-    // to each day's _WorkoutSessionView alongside strength exercises.
-    final Map<String, List<CardioSession>> cardioByDay = {};
-    for (final session in _cachedSessions ?? const <Session>[]) {
-      if (session is! CardioSession) continue;
-      if (session.periodNumber == null || session.dayNumber == null) continue;
-      final key = '${session.periodNumber}-${session.dayNumber}';
-      cardioByDay.putIfAbsent(key, () => []).add(session);
-    }
-
-    // Find the first incomplete workout day (not just workout/muscle group)
-    // Group by (periodNumber, dayNumber) to find unique days
+    // Group workouts from ALL stacked cycles by (period, day)
     final Map<String, List<Workout>> workoutsByDay = {};
-    for (var workout in allWorkouts) {
-      final key = '${workout.periodNumber}-${workout.dayNumber}';
-      workoutsByDay.putIfAbsent(key, () => []).add(workout);
+    for (final workouts in _cachedWorkoutsPerCycle.values) {
+      for (final workout in workouts) {
+        final key = '${workout.periodNumber}-${workout.dayNumber}';
+        workoutsByDay.putIfAbsent(key, () => []).add(workout);
+      }
     }
 
-    // Find first day with any incomplete workout (for "current" marker)
+    // Group cardio sessions from ALL stacked cycles by (period, day)
+    final Map<String, List<CardioSession>> cardioByDay = {};
+    for (final sessions in _cachedSessionsPerCycle.values) {
+      for (final session in sessions) {
+        if (session is! CardioSession) continue;
+        if (session.periodNumber == null || session.dayNumber == null) {
+          continue;
+        }
+        final key = '${session.periodNumber}-${session.dayNumber}';
+        cardioByDay.putIfAbsent(key, () => []).add(session);
+      }
+    }
+
+    // Find first incomplete day using primary cycle workouts only.
+    // Secondary cycle progress shouldn't affect navigation position.
+    final Map<String, List<Workout>> primaryWorkoutsByDay = {};
+    for (final workout in primaryWorkouts) {
+      final key = '${workout.periodNumber}-${workout.dayNumber}';
+      primaryWorkoutsByDay.putIfAbsent(key, () => []).add(workout);
+    }
+
     int currentPeriod = 1;
     int currentDay = 1;
-    for (var entry in workoutsByDay.entries) {
+    for (var entry in primaryWorkoutsByDay.entries) {
       if (entry.value.any((w) => w.status == WorkoutStatus.incomplete)) {
         final parts = entry.key.split('-');
         currentPeriod = int.parse(parts[0]);
@@ -374,7 +400,7 @@ class _ExercisesHomeScreenState extends ConsumerState<ExercisesHomeScreen> {
             pos.day,
             currentPeriod: currentPeriod,
             currentDay: currentDay,
-            allWorkouts: allWorkouts,
+            allWorkouts: primaryWorkouts,
           );
         }
 
@@ -383,7 +409,8 @@ class _ExercisesHomeScreenState extends ConsumerState<ExercisesHomeScreen> {
           workouts: workoutsByDay[key] ?? const [],
           cardioSessions: dayCardio,
           trainingCycle: currentTrainingCycle,
-          allWorkouts: allWorkouts,
+          allWorkouts: primaryWorkouts,
+          allCycleIds: currentCycles.map((c) => c.id).toList(),
           currentPeriod: currentPeriod,
           currentDay: currentDay,
           selectedPeriod: pos.period,
@@ -543,6 +570,7 @@ class _WorkoutSessionView extends ConsumerStatefulWidget {
   final List<CardioSession> cardioSessions;
   final TrainingCycle trainingCycle;
   final List<Workout> allWorkouts;
+  final List<String> allCycleIds;
   final int currentPeriod;
   final int currentDay;
   final int selectedPeriod;
@@ -555,6 +583,7 @@ class _WorkoutSessionView extends ConsumerStatefulWidget {
     this.cardioSessions = const [],
     required this.trainingCycle,
     required this.allWorkouts,
+    this.allCycleIds = const [],
     required this.currentPeriod,
     required this.currentDay,
     required this.selectedPeriod,
@@ -595,10 +624,13 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
   /// Only invalidates cycle-specific providers — the global
   /// workoutsProvider is left alone to avoid re-fetching every workout.
   void _invalidateWorkoutProviders() {
-    ref.invalidate(
-      workoutsByTrainingCycleListProvider(widget.trainingCycle.id),
-    );
-    ref.invalidate(workoutsByTrainingCycleProvider(widget.trainingCycle.id));
+    final cycleIds = widget.allCycleIds.isNotEmpty
+        ? widget.allCycleIds
+        : [widget.trainingCycle.id];
+    for (final cycleId in cycleIds) {
+      ref.invalidate(workoutsByTrainingCycleListProvider(cycleId));
+      ref.invalidate(workoutsByTrainingCycleProvider(cycleId));
+    }
   }
 
   /// Build exercise list and source mapping from workouts
@@ -1114,7 +1146,7 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
     // There are more workouts - invalidate the provider to trigger rebuild
     // But first check if still mounted
     if (!mounted) return;
-    ref.invalidate(workoutsByTrainingCycleProvider(currentTrainingCycle.id));
+    _invalidateWorkoutProviders();
   }
 
   Future<void> _showCycleCompletedDialog(

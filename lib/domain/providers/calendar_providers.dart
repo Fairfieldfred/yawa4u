@@ -91,19 +91,20 @@ class CalendarDayData {
   bool get hasAnySession => hasWorkout || hasCardio;
 }
 
-/// Get the effective scheduled date for a workout
-/// Uses scheduledDate if set, otherwise calculates from period/day
-DateTime _getWorkoutScheduledDate(
+/// Get the effective scheduled date for a workout.
+/// Delegates to [DateHelpers.getEffectiveWorkoutDate].
+DateTime getWorkoutScheduledDate(
   Workout workout,
   DateTime cycleStart,
   int daysPerPeriod,
 ) {
-  if (workout.scheduledDate != null) {
-    return DateHelpers.stripTime(workout.scheduledDate!);
-  }
-  // Calculate default date from period/day
-  final absoluteDayIndex = (workout.periodNumber - 1) * daysPerPeriod + (workout.dayNumber - 1);
-  return DateHelpers.addDays(cycleStart, absoluteDayIndex);
+  return DateHelpers.getEffectiveWorkoutDate(
+    cycleStart: cycleStart,
+    daysPerPeriod: daysPerPeriod,
+    periodNumber: workout.periodNumber,
+    dayNumber: workout.dayNumber,
+    scheduledDate: workout.scheduledDate,
+  );
 }
 
 /// Build calendar data for a month given a training cycle.
@@ -141,7 +142,7 @@ List<CalendarDayData> buildCalendarData({
 
   // Extend cycleEnd if any workout is scheduled beyond it
   for (final workout in allWorkouts) {
-    final workoutDate = _getWorkoutScheduledDate(
+    final workoutDate = getWorkoutScheduledDate(
       workout,
       cycleStart,
       cycle.daysPerPeriod,
@@ -154,7 +155,7 @@ List<CalendarDayData> buildCalendarData({
   // Build a map of calendar date -> list of workouts for that date
   final workoutsByDate = <DateTime, List<Workout>>{};
   for (final workout in allWorkouts) {
-    final date = _getWorkoutScheduledDate(
+    final date = getWorkoutScheduledDate(
       workout,
       cycleStart,
       cycle.daysPerPeriod,

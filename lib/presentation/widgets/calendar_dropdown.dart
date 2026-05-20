@@ -261,6 +261,18 @@ class _CalendarDropdownState extends ConsumerState<CalendarDropdown> {
           )
         : <(int, int), DateTime>{};
 
+    // Compute the actual number of days per period (may exceed
+    // daysPerPeriod when blank-day workouts have been inserted).
+    final maxDayByPeriod = DateHelpers.maxDayPerPeriod(
+      widget.allWorkouts.map(
+        (w) => (periodNumber: w.periodNumber, dayNumber: w.dayNumber),
+      ),
+    );
+    int maxDaysInAnyPeriod = widget.trainingCycle.daysPerPeriod;
+    for (final v in maxDayByPeriod.values) {
+      if (v > maxDaysInAnyPeriod) maxDaysInAnyPeriod = v;
+    }
+
     // Calculate dynamic height based on number of workout days
     // Header height: 60, Period header: 60, Day button: 48, Day margin: 6
     // Total per day: 54 (48 + 6 margin)
@@ -273,7 +285,7 @@ class _CalendarDropdownState extends ConsumerState<CalendarDropdown> {
     final calculatedHeight =
         headerHeight +
         periodHeaderHeight +
-        (widget.trainingCycle.daysPerPeriod * (dayButtonHeight + dayMargin)) +
+        (maxDaysInAnyPeriod * (dayButtonHeight + dayMargin)) +
         bottomPadding;
 
     // Get available screen height and limit the dropdown height
@@ -369,11 +381,17 @@ class _CalendarDropdownState extends ConsumerState<CalendarDropdown> {
                     periodIndex,
                   ) {
                     final periodNumber = periodIndex + 1;
+                    final daysForPeriod = (maxDayByPeriod[periodNumber] ?? 0)
+                        .clamp(
+                          widget.trainingCycle.daysPerPeriod,
+                          maxDaysInAnyPeriod,
+                        );
                     return Expanded(
                       child: _buildPeriodColumn(
                         periodNumber,
                         widget.trainingCycle.recoveryPeriod == periodNumber,
                         dateMap,
+                        daysForPeriod,
                       ),
                     );
                   }),
@@ -390,9 +408,10 @@ class _CalendarDropdownState extends ConsumerState<CalendarDropdown> {
     int periodNumber,
     bool isRecovery,
     Map<(int, int), DateTime> dateMap,
+    int daysForThisPeriod,
   ) {
     // Build day info (name + date number) for each day in this period
-    final dayInfoList = List.generate(widget.trainingCycle.daysPerPeriod, (
+    final dayInfoList = List.generate(daysForThisPeriod, (
       index,
     ) {
       final dayNumber = index + 1;

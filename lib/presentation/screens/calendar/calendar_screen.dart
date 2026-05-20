@@ -625,9 +625,10 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
 
   /// Shows a modal dialog to add an exercise to a specific day.
   ///
-  /// If the day has no workouts yet (rest day), a blank workout is
-  /// created first so that AddExerciseScreen has a target to attach
-  /// exercises to.
+  /// Uses date-aware matching to avoid collisions with schedule-shifted
+  /// workouts. When no workout exists on the target calendar [date],
+  /// a blank workout is created with the correct period and a unique
+  /// dayNumber (existing days in the period are renumbered to make room).
   Future<void> _showAddExerciseModal(
     BuildContext context,
     dynamic trainingCycle,
@@ -635,33 +636,106 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     int dayNumber,
     DateTime date,
   ) async {
-    if (trainingCycle == null) return;
+    if (trainingCycle == null || trainingCycle.startDate == null) return;
 
-    // Find a workout for this day to get the workoutId
-    final workoutsAsync = ref.read(
+    final strippedDate = DateHelpers.stripTime(date);
+    final cycleStart = DateHelpers.stripTime(trainingCycle.startDate!);
+    final int daysPerPeriod = trainingCycle.daysPerPeriod;
+
+    final allWorkouts = ref.read(
       workoutsByTrainingCycleListProvider(trainingCycle.id),
     );
-    final dayWorkouts = workoutsAsync
-        .where(
-          (w) => w.periodNumber == periodNumber && w.dayNumber == dayNumber,
-        )
-        .toList();
+
+    // Match workouts by effective date (not just period/day) to avoid
+    // collisions with schedule-shifted workouts.
+    final matchByDate = allWorkouts.where((w) {
+      final wDate = DateHelpers.getEffectiveWorkoutDate(
+        cycleStart: cycleStart,
+        daysPerPeriod: daysPerPeriod,
+        periodNumber: w.periodNumber,
+        dayNumber: w.dayNumber,
+        scheduledDate: w.scheduledDate,
+      );
+      return DateHelpers.isSameDay(wDate, strippedDate);
+    }).toList();
 
     String workoutId;
 
-    if (dayWorkouts.isNotEmpty) {
-      workoutId = dayWorkouts.first.id;
+    if (matchByDate.isNotEmpty) {
+      // A workout already exists on this calendar date.
+      workoutId = matchByDate.first.id;
     } else {
-      // Rest day — create a new blank workout so we have a target
+      // Blank day — determine the correct period and create a workout.
+      final effectivePeriod = _determinePeriodForDate(
+        allWorkouts,
+        cycleStart,
+        daysPerPeriod,
+        strippedDate,
+      );
+
+      // Get all workouts in this period, sorted by effective date.
+      final periodWorkouts = allWorkouts
+          .where((w) => w.periodNumber == effectivePeriod)
+          .toList()
+        ..sort((a, b) {
+          final aDate = DateHelpers.getEffectiveWorkoutDate(
+            cycleStart: cycleStart,
+            daysPerPeriod: daysPerPeriod,
+            periodNumber: a.periodNumber,
+            dayNumber: a.dayNumber,
+            scheduledDate: a.scheduledDate,
+          );
+          final bDate = DateHelpers.getEffectiveWorkoutDate(
+            cycleStart: cycleStart,
+            daysPerPeriod: daysPerPeriod,
+            periodNumber: b.periodNumber,
+            dayNumber: b.dayNumber,
+            scheduledDate: b.scheduledDate,
+          );
+          return aDate.compareTo(bDate);
+        });
+
+      // Find the insertion dayNumber. Walk through existing workouts
+      // in chronological order — the new day goes right after the last
+      // workout whose date is before or on the target date.
+      int insertionDayNumber = 1;
+      for (final w in periodWorkouts) {
+        final wDate = DateHelpers.getEffectiveWorkoutDate(
+          cycleStart: cycleStart,
+          daysPerPeriod: daysPerPeriod,
+          periodNumber: w.periodNumber,
+          dayNumber: w.dayNumber,
+          scheduledDate: w.scheduledDate,
+        );
+        if (!wDate.isAfter(strippedDate)) {
+          insertionDayNumber = w.dayNumber + 1;
+        }
+      }
+
+      // Renumber: shift existing workouts at or after the insertion
+      // point forward by 1 (process in descending order to avoid
+      // temporary dayNumber collisions).
       final repository = ref.read(workoutRepositoryProvider);
+      final toShift = periodWorkouts
+          .where((w) => w.dayNumber >= insertionDayNumber)
+          .toList()
+        ..sort((a, b) => b.dayNumber.compareTo(a.dayNumber));
+
+      for (final w in toShift) {
+        await repository.update(
+          w.copyWith(dayNumber: w.dayNumber + 1),
+        );
+      }
+
+      // Create the new blank workout.
       final newId = const Uuid().v4();
       final newWorkout = Workout(
         id: newId,
         trainingCycleId: trainingCycle.id,
-        periodNumber: periodNumber,
-        dayNumber: dayNumber,
+        periodNumber: effectivePeriod,
+        dayNumber: insertionDayNumber,
         status: WorkoutStatus.incomplete,
-        scheduledDate: DateHelpers.stripTime(date),
+        scheduledDate: strippedDate,
         exercises: [],
       );
       await repository.create(newWorkout);
@@ -688,6 +762,59 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
         ),
       ),
     );
+  }
+
+  /// Determine which period a blank-day [targetDate] belongs to by
+  /// examining the nearest preceding workout by effective date.
+  int _determinePeriodForDate(
+    List<Workout> allWorkouts,
+    DateTime cycleStart,
+    int daysPerPeriod,
+    DateTime targetDate,
+  ) {
+    Workout? nearest;
+    DateTime? nearestDate;
+
+    for (final w in allWorkouts) {
+      final wDate = DateHelpers.getEffectiveWorkoutDate(
+        cycleStart: cycleStart,
+        daysPerPeriod: daysPerPeriod,
+        periodNumber: w.periodNumber,
+        dayNumber: w.dayNumber,
+        scheduledDate: w.scheduledDate,
+      );
+      if (!wDate.isAfter(targetDate)) {
+        if (nearestDate == null || wDate.isAfter(nearestDate)) {
+          nearest = w;
+          nearestDate = wDate;
+        }
+      }
+    }
+    if (nearest != null) return nearest.periodNumber;
+
+    // No preceding workout — try the next one after targetDate.
+    Workout? nextWorkout;
+    DateTime? nextDate;
+    for (final w in allWorkouts) {
+      final wDate = DateHelpers.getEffectiveWorkoutDate(
+        cycleStart: cycleStart,
+        daysPerPeriod: daysPerPeriod,
+        periodNumber: w.periodNumber,
+        dayNumber: w.dayNumber,
+        scheduledDate: w.scheduledDate,
+      );
+      if (wDate.isAfter(targetDate)) {
+        if (nextDate == null || wDate.isBefore(nextDate)) {
+          nextWorkout = w;
+          nextDate = wDate;
+        }
+      }
+    }
+    if (nextWorkout != null) return nextWorkout.periodNumber;
+
+    // Absolute fallback: use the contiguous formula.
+    final daysFromStart = DateHelpers.daysBetween(cycleStart, targetDate);
+    return (daysFromStart ~/ daysPerPeriod) + 1;
   }
 
   Widget _buildMuscleGroupBars(

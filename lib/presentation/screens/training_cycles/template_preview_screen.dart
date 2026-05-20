@@ -94,19 +94,8 @@ class _TemplatePreviewScreenState extends ConsumerState<TemplatePreviewScreen> {
                 _buildInfoSection(),
                 const SizedBox(height: 24),
 
-                // Sessions
-                Text(
-                  'Sessions',
-                  style: TextStyle(
-                    color: colorScheme.onSurface,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                ...widget.template.workouts.map(
-                  (workout) => _buildWorkoutCard(workout),
-                ),
+                // Sessions grouped by period
+                ..._buildPeriodSections(colorScheme),
               ],
             ),
           ),
@@ -156,6 +145,43 @@ class _TemplatePreviewScreenState extends ConsumerState<TemplatePreviewScreen> {
         ],
       ),
     );
+  }
+
+  /// Build workout cards grouped by period number.
+  List<Widget> _buildPeriodSections(ColorScheme colorScheme) {
+    // Group workouts by period
+    final byPeriod = <int, List<WorkoutTemplate>>{};
+    for (final w in widget.template.workouts) {
+      byPeriod.putIfAbsent(w.periodNumber, () => []).add(w);
+    }
+
+    final sortedPeriods = byPeriod.keys.toList()..sort();
+    final widgets = <Widget>[];
+
+    for (final period in sortedPeriods) {
+      final isRecovery = widget.template.recoveryPeriod == period;
+      final periodLabel = isRecovery ? 'Period $period (Recovery)' : 'Period $period';
+
+      widgets.add(
+        Padding(
+          padding: EdgeInsets.only(top: widgets.isEmpty ? 0 : 16, bottom: 8),
+          child: Text(
+            periodLabel,
+            style: TextStyle(
+              color: colorScheme.onSurface,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+      );
+
+      for (final workout in byPeriod[period]!) {
+        widgets.add(_buildWorkoutCard(workout));
+      }
+    }
+
+    return widgets;
   }
 
   Widget _buildInfoSection() {

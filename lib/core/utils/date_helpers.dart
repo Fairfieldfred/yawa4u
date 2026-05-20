@@ -268,6 +268,41 @@ class DateHelpers {
     return (dayName: dayOfWeekNames[day % 7], dayOfMonth: 0);
   }
 
+  /// Get the effective calendar date for a workout slot.
+  ///
+  /// Uses [scheduledDate] when non-null (schedule-shifted workouts),
+  /// otherwise calculates from the contiguous formula.
+  static DateTime getEffectiveWorkoutDate({
+    required DateTime cycleStart,
+    required int daysPerPeriod,
+    required int periodNumber,
+    required int dayNumber,
+    DateTime? scheduledDate,
+  }) {
+    if (scheduledDate != null) return stripTime(scheduledDate);
+    final absoluteDayIndex =
+        (periodNumber - 1) * daysPerPeriod + (dayNumber - 1);
+    return addDays(stripTime(cycleStart), absoluteDayIndex);
+  }
+
+  /// Compute the maximum [dayNumber] observed in each period.
+  ///
+  /// Returns a map of periodNumber → max dayNumber. Used by
+  /// CalendarDropdown to show variable day counts per period when
+  /// blank-day workouts have been inserted.
+  static Map<int, int> maxDayPerPeriod(
+    Iterable<({int periodNumber, int dayNumber})> items,
+  ) {
+    final result = <int, int>{};
+    for (final item in items) {
+      final current = result[item.periodNumber] ?? 0;
+      if (item.dayNumber > current) {
+        result[item.periodNumber] = item.dayNumber;
+      }
+    }
+    return result;
+  }
+
   // ========== RELATIVE DATE STRINGS ==========
 
   /// Get a relative date string (e.g., "Today", "Yesterday", "2 days ago")

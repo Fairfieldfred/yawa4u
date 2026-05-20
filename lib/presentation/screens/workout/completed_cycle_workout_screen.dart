@@ -788,6 +788,18 @@ class _ReadOnlyCalendarDropdownState extends State<_ReadOnlyCalendarDropdown> {
           )
         : <(int, int), DateTime>{};
 
+    // Compute actual day count per period (may exceed daysPerPeriod
+    // when blank-day workouts have been inserted).
+    final maxDayByPeriod = DateHelpers.maxDayPerPeriod(
+      widget.allWorkouts.map(
+        (w) => (periodNumber: w.periodNumber, dayNumber: w.dayNumber),
+      ),
+    );
+    int maxDaysInAnyPeriod = widget.trainingCycle.daysPerPeriod;
+    for (final v in maxDayByPeriod.values) {
+      if (v > maxDaysInAnyPeriod) maxDaysInAnyPeriod = v;
+    }
+
     final headerHeight = 60.0;
     final weekHeaderHeight = 60.0;
     final dayButtonHeight = 48.0;
@@ -797,7 +809,7 @@ class _ReadOnlyCalendarDropdownState extends State<_ReadOnlyCalendarDropdown> {
     final calculatedHeight =
         headerHeight +
         weekHeaderHeight +
-        (widget.trainingCycle.daysPerPeriod * (dayButtonHeight + dayMargin)) +
+        (maxDaysInAnyPeriod * (dayButtonHeight + dayMargin)) +
         bottomPadding;
 
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
@@ -868,11 +880,17 @@ class _ReadOnlyCalendarDropdownState extends State<_ReadOnlyCalendarDropdown> {
                   weekIndex,
                 ) {
                   final periodNumber = weekIndex + 1;
+                  final daysForPeriod = (maxDayByPeriod[periodNumber] ?? 0)
+                      .clamp(
+                        widget.trainingCycle.daysPerPeriod,
+                        maxDaysInAnyPeriod,
+                      );
                   return Expanded(
                     child: _buildWeekColumn(
                       periodNumber,
                       widget.trainingCycle.recoveryPeriod == periodNumber,
                       dateMap,
+                      daysForPeriod,
                     ),
                   );
                 }),
@@ -888,9 +906,10 @@ class _ReadOnlyCalendarDropdownState extends State<_ReadOnlyCalendarDropdown> {
     int periodNumber,
     bool isDeload,
     Map<(int, int), DateTime> dateMap,
+    int daysForThisPeriod,
   ) {
     // Build day info (name + date number) for each day in this period
-    final dayInfoList = List.generate(widget.trainingCycle.daysPerPeriod, (
+    final dayInfoList = List.generate(daysForThisPeriod, (
       index,
     ) {
       final dayNumber = index + 1;
