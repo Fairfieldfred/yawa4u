@@ -369,6 +369,28 @@ class TemplateRepository {
         continue;
       }
 
+      // Cardio day without a cardioTemplateId — create a bare-bones
+      // CardioSession with just the name and notes from the template.
+      if (workoutTemplate.isCardio) {
+        final sport = Sports.parse(workoutTemplate.sport) ?? Sport.other;
+        cardioSessions.add(
+          CardioSession(
+            id: _uuid.v4(),
+            trainingCycleId: trainingCycleId,
+            sport: sport,
+            source: SessionSource.userPlanned,
+            status: WorkoutStatus.incomplete,
+            periodNumber: workoutTemplate.periodNumber,
+            dayNumber: workoutTemplate.dayNumber,
+            dayName: workoutTemplate.dayName,
+            label: workoutTemplate.dayName,
+            notes: workoutTemplate.notes,
+            intervals: const [],
+          ),
+        );
+        continue;
+      }
+
       // Strength path (existing logic).
       final exercisesByMuscleGroup = <MuscleGroup, List<Exercise>>{};
 

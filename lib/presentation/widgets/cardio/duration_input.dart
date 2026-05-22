@@ -46,6 +46,19 @@ class _DurationInputState extends State<DurationInput> {
     super.dispose();
   }
 
+  void _insertColon() {
+    final text = _controller.text;
+    final selection = _controller.selection;
+    final start = selection.baseOffset.clamp(0, text.length);
+    final end = selection.extentOffset.clamp(0, text.length);
+    final newText = text.replaceRange(start, end, ':');
+    _controller.value = TextEditingValue(
+      text: newText,
+      selection: TextSelection.collapsed(offset: start + 1),
+    );
+    _onChanged(newText);
+  }
+
   void _onChanged(String text) {
     final trimmed = text.trim();
     if (trimmed.isEmpty) {
@@ -78,6 +91,20 @@ class _DurationInputState extends State<DurationInput> {
         border: const OutlineInputBorder(),
         prefixIcon: const Icon(Icons.timer_outlined),
         errorText: _errorText,
+        suffixIcon: widget.enabled
+            ? IconButton(
+                icon: Text(
+                  ':',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                ),
+                tooltip: 'Insert colon',
+                onPressed: _insertColon,
+              )
+            : null,
       ),
       onChanged: _onChanged,
     );

@@ -1,0 +1,522 @@
+{
+  "id": "arms_-add_on",
+  "name": "Arms - Add on",
+  "description": "Exported from app: Arms -Add on",
+  "periodsTotal": 4,
+  "daysPerPeriod": 4,
+  "recoveryPeriod": 4,
+  "workouts": [
+    {
+      "periodNumber": 1,
+      "dayNumber": 1,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Barbell Skullcrusher",
+          "muscleGroup": "triceps",
+          "equipmentType": "barbell",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 1,
+      "dayNumber": 1,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Dumbbell Curl (Alternating)",
+          "muscleGroup": "biceps",
+          "equipmentType": "dumbbell",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 1,
+      "dayNumber": 2,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Dumbbell Curl (Alternating)",
+          "muscleGroup": "biceps",
+          "equipmentType": "dumbbell",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 1,
+      "dayNumber": 2,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Cable Overhead triceps Extension",
+          "muscleGroup": "triceps",
+          "equipmentType": "cable",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 1,
+      "dayNumber": 3,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Dip (Triceps-Focused)",
+          "muscleGroup": "triceps",
+          "equipmentType": "bodyweightOnly",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 1,
+      "dayNumber": 3,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Cable Curl",
+          "muscleGroup": "biceps",
+          "equipmentType": "cable",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 1,
+      "dayNumber": 4,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Dumbbell Curl (2-Arm)",
+          "muscleGroup": "biceps",
+          "equipmentType": "dumbbell",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 1,
+      "dayNumber": 4,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Cable Overhead triceps Extension",
+          "muscleGroup": "triceps",
+          "equipmentType": "cable",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 2,
+      "dayNumber": 1,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Barbell Skullcrusher",
+          "muscleGroup": "triceps",
+          "equipmentType": "barbell",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 2,
+      "dayNumber": 1,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Dumbbell Curl (Alternating)",
+          "muscleGroup": "biceps",
+          "equipmentType": "dumbbell",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 2,
+      "dayNumber": 2,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Dumbbell Curl (Alternating)",
+          "muscleGroup": "biceps",
+          "equipmentType": "dumbbell",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 2,
+      "dayNumber": 2,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Cable Overhead triceps Extension",
+          "muscleGroup": "triceps",
+          "equipmentType": "cable",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 2,
+      "dayNumber": 3,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Dip (Triceps-Focused)",
+          "muscleGroup": "triceps",
+          "equipmentType": "bodyweightOnly",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 2,
+      "dayNumber": 3,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Cable Curl",
+          "muscleGroup": "biceps",
+          "equipmentType": "cable",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 2,
+      "dayNumber": 4,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Dumbbell Curl (2-Arm)",
+          "muscleGroup": "biceps",
+          "equipmentType": "dumbbell",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 2,
+      "dayNumber": 4,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Cable Overhead triceps Extension",
+          "muscleGroup": "triceps",
+          "equipmentType": "cable",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 3,
+      "dayNumber": 1,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Barbell Skullcrusher",
+          "muscleGroup": "triceps",
+          "equipmentType": "barbell",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 3,
+      "dayNumber": 1,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Dumbbell Curl (Alternating)",
+          "muscleGroup": "biceps",
+          "equipmentType": "dumbbell",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 3,
+      "dayNumber": 2,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Dumbbell Curl (Alternating)",
+          "muscleGroup": "biceps",
+          "equipmentType": "dumbbell",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 3,
+      "dayNumber": 2,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Cable Overhead triceps Extension",
+          "muscleGroup": "triceps",
+          "equipmentType": "cable",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 3,
+      "dayNumber": 3,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Dip (Triceps-Focused)",
+          "muscleGroup": "triceps",
+          "equipmentType": "bodyweightOnly",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 3,
+      "dayNumber": 3,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Cable Curl",
+          "muscleGroup": "biceps",
+          "equipmentType": "cable",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 3,
+      "dayNumber": 4,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Dumbbell Curl (2-Arm)",
+          "muscleGroup": "biceps",
+          "equipmentType": "dumbbell",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 3,
+      "dayNumber": 4,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Cable Overhead triceps Extension",
+          "muscleGroup": "triceps",
+          "equipmentType": "cable",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 4,
+      "dayNumber": 1,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Barbell Skullcrusher",
+          "muscleGroup": "triceps",
+          "equipmentType": "barbell",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 4,
+      "dayNumber": 1,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Dumbbell Curl (Alternating)",
+          "muscleGroup": "biceps",
+          "equipmentType": "dumbbell",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 4,
+      "dayNumber": 2,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Dumbbell Curl (Alternating)",
+          "muscleGroup": "biceps",
+          "equipmentType": "dumbbell",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 4,
+      "dayNumber": 2,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Cable Overhead triceps Extension",
+          "muscleGroup": "triceps",
+          "equipmentType": "cable",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 4,
+      "dayNumber": 3,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Dip (Triceps-Focused)",
+          "muscleGroup": "triceps",
+          "equipmentType": "bodyweightOnly",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 4,
+      "dayNumber": 3,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Cable Curl",
+          "muscleGroup": "biceps",
+          "equipmentType": "cable",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 4,
+      "dayNumber": 4,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Dumbbell Curl (2-Arm)",
+          "muscleGroup": "biceps",
+          "equipmentType": "dumbbell",
+          "sets": 3,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 4,
+      "dayNumber": 4,
+      "dayName": null,
+      "sport": "strength",
+      "exercises": [
+        {
+          "name": "Cable Overhead triceps Extension",
+          "muscleGroup": "triceps",
+          "equipmentType": "cable",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    }
+  ]
+}

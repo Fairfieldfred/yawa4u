@@ -14,6 +14,7 @@ import '../../../core/utils/session_defaults.dart';
 import '../../../core/utils/user_errors.dart';
 import '../../../data/models/exercise.dart';
 import '../../../data/models/exercise_set.dart';
+import '../../../data/models/session.dart';
 import '../../../data/models/training_cycle.dart';
 import '../../../data/models/training_cycle_template.dart';
 import '../../../data/models/workout.dart';
@@ -129,6 +130,33 @@ class _TrainingCycleCreateScreenState extends ConsumerState<TrainingCycleCreateS
       // Save to database
       await repository.create(trainingCycle);
 
+      // Create CardioSessions for any cardio entries in the template.
+      if (_selectedTemplate != null) {
+        final sessionRepo = ref.read(sessionRepositoryProvider);
+        for (final wt in _selectedTemplate!.workouts) {
+          if (!wt.isCardio) continue;
+          if (wt.periodNumber > _periodsTotal) continue;
+          if (wt.dayNumber > _daysPerPeriod) continue;
+
+          final sport = Sports.parse(wt.sport) ?? Sport.run;
+          await sessionRepo.createCardio(
+            CardioSession(
+              id: _uuid.v4(),
+              trainingCycleId: trainingCycle.id,
+              sport: sport,
+              source: SessionSource.userPlanned,
+              status: WorkoutStatus.incomplete,
+              periodNumber: wt.periodNumber,
+              dayNumber: wt.dayNumber,
+              dayName: wt.dayName,
+              label: wt.dayName,
+              notes: wt.notes,
+              intervals: const [],
+            ),
+          );
+        }
+      }
+
       // Invalidate provider to ensure fresh data is loaded
       ref.invalidate(trainingCyclesProvider);
 
@@ -192,6 +220,10 @@ class _TrainingCycleCreateScreenState extends ConsumerState<TrainingCycleCreateS
               .firstOrNull;
         }
 
+        // Skip cardio days — CardioSessions are created separately
+        // in _createCardioSessions().
+        if (templateWorkout != null && templateWorkout.isCardio) continue;
+
         workouts.add(
           Workout(
             id: _uuid.v4(),
@@ -253,116 +285,118 @@ class _TrainingCycleCreateScreenState extends ConsumerState<TrainingCycleCreateS
           onPressed: () => context.pop(),
         ),
       ),
-      body: Form(
-        key: _formKey,
-        child: ListView(
-          padding: const EdgeInsets.all(16.0),
-          children: [
-            // Header
-            Text(
-              'New $cycleTerm',
-              style: Theme.of(
-                context,
-              ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'A $cycleTerm is a multi-period training program with progressive overload, often followed by a recovery period to allow your body to rest and adapt.',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Theme.of(
+      body: SafeArea(
+        child: Form(
+          key: _formKey,
+          child: ListView(
+            padding: const EdgeInsets.all(16.0),
+            children: [
+              // Header
+              Text(
+                'New $cycleTerm',
+                style: Theme.of(
                   context,
-                ).colorScheme.onSurface.withValues(alpha: 0.7),
+                ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
               ),
-            ),
-            const SizedBox(height: 24),
-
-            // Name field
-            TextFormField(
-              controller: _nameController,
-              decoration: InputDecoration(
-                labelText: '$cycleTerm Name',
-                hintText: 'e.g., Spring 2025 Hypertrophy',
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.fitness_center),
+              const SizedBox(height: 8),
+              Text(
+                'A $cycleTerm is a multi-period training program with progressive overload, often followed by a recovery period to allow your body to rest and adapt.',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.7),
+                ),
               ),
-              textCapitalization: TextCapitalization.words,
-              validator: (value) {
-                if (value == null || value.trim().isEmpty) {
-                  return 'Please enter a name';
-                }
-                if (value.trim().length < 3) {
-                  return 'Name must be at least 3 characters';
-                }
-                return null;
-              },
-            ),
-            const SizedBox(height: 24),
+              const SizedBox(height: 24),
 
-            // v5 — Primary sport picker (optional, UI hint only)
-            _buildSectionHeader('Primary sport (optional)'),
-            const SizedBox(height: 4),
-            Text(
-              'Hints which sport the cycle is built around. Does not '
-              'restrict what sessions you can add — every cycle can mix '
-              'any sports.',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Theme.of(
-                  context,
-                ).colorScheme.onSurface.withValues(alpha: 0.65),
+              // Name field
+              TextFormField(
+                controller: _nameController,
+                decoration: InputDecoration(
+                  labelText: '$cycleTerm Name',
+                  hintText: 'e.g., Spring 2025 Hypertrophy',
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.fitness_center),
+                ),
+                textCapitalization: TextCapitalization.words,
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return 'Please enter a name';
+                  }
+                  if (value.trim().length < 3) {
+                    return 'Name must be at least 3 characters';
+                  }
+                  return null;
+                },
               ),
-            ),
-            const SizedBox(height: 12),
-            _buildPrimarySportRow(),
-            const SizedBox(height: 24),
+              const SizedBox(height: 24),
 
-            // Periods selector
-            _buildSectionHeader('Duration'),
-            const SizedBox(height: 12),
-            _buildPeriodsSelector(),
-            const SizedBox(height: 24),
-
-            // Days per period selector
-            _buildSectionHeader('Training Frequency'),
-            const SizedBox(height: 12),
-            _buildDaysPerPeriodSelector(),
-            const SizedBox(height: 24),
-
-            // Recovery period
-            _buildSectionHeader('Recovery Period (Optional)'),
-            const SizedBox(height: 12),
-            _buildRecoverySwitch(),
-            if (_hasDeload) ...[
+              // v5 — Primary sport picker (optional, UI hint only)
+              _buildSectionHeader('Primary sport (optional)'),
+              const SizedBox(height: 4),
+              Text(
+                'Hints which sport the cycle is built around. Does not '
+                'restrict what sessions you can add — every cycle can mix '
+                'any sports.',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.65),
+                ),
+              ),
               const SizedBox(height: 12),
-              _buildRecoveryTypeSelector(),
+              _buildPrimarySportRow(),
+              const SizedBox(height: 24),
+
+              // Periods selector
+              _buildSectionHeader('Duration'),
               const SizedBox(height: 12),
-              _buildRecoveryPeriodSelector(),
+              _buildPeriodsSelector(),
+              const SizedBox(height: 24),
+
+              // Days per period selector
+              _buildSectionHeader('Training Frequency'),
+              const SizedBox(height: 12),
+              _buildDaysPerPeriodSelector(),
+              const SizedBox(height: 24),
+
+              // Recovery period
+              _buildSectionHeader('Recovery Period (Optional)'),
+              const SizedBox(height: 12),
+              _buildRecoverySwitch(),
+              if (_hasDeload) ...[
+                const SizedBox(height: 12),
+                _buildRecoveryTypeSelector(),
+                const SizedBox(height: 12),
+                _buildRecoveryPeriodSelector(),
+              ],
+              const SizedBox(height: 24),
+
+              // Template (optional)
+              _buildSectionHeader('Template (Optional)'),
+              const SizedBox(height: 12),
+              _buildTemplateSelector(),
+              const SizedBox(height: 32),
+
+              // Create button
+              FilledButton.icon(
+                onPressed: _isSubmitting ? null : _createTrainingCycle,
+                icon: _isSubmitting
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.check),
+                label: Text(_isSubmitting ? 'Creating...' : 'Create $cycleTerm'),
+                style: FilledButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  textStyle: const TextStyle(fontSize: 16),
+                ),
+              ),
+              const SizedBox(height: 16),
             ],
-            const SizedBox(height: 24),
-
-            // Template (optional)
-            _buildSectionHeader('Template (Optional)'),
-            const SizedBox(height: 12),
-            _buildTemplateSelector(),
-            const SizedBox(height: 32),
-
-            // Create button
-            FilledButton.icon(
-              onPressed: _isSubmitting ? null : _createTrainingCycle,
-              icon: _isSubmitting
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Icon(Icons.check),
-              label: Text(_isSubmitting ? 'Creating...' : 'Create $cycleTerm'),
-              style: FilledButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                textStyle: const TextStyle(fontSize: 16),
-              ),
-            ),
-            const SizedBox(height: 16),
-          ],
+          ),
         ),
       ),
     );

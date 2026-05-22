@@ -11,6 +11,7 @@ import '../../../domain/controllers/workout_home_controller.dart';
 import '../../../core/constants/enums.dart';
 import '../../../core/constants/sports.dart';
 import '../../../data/models/session.dart';
+import '../../../data/models/training_cycle.dart';
 import '../../../data/models/workout.dart';
 import '../../../domain/providers/database_providers.dart';
 import '../../../domain/providers/calendar_providers.dart';
@@ -21,6 +22,7 @@ import '../../../domain/providers/training_cycle_providers.dart';
 import '../../../domain/providers/workout_providers.dart';
 import '../../widgets/app_icon_widget.dart';
 import '../../widgets/cardio/quick_log_action.dart';
+import '../../widgets/calendar/calendar_drag_data.dart';
 import '../../widgets/calendar/calendar_edit_sheet.dart';
 import '../../widgets/calendar/calendar_legend_dialog.dart';
 import '../../widgets/calendar/calendar_sport_dots.dart';
@@ -51,7 +53,8 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final currentTrainingCycle = ref.watch(currentTrainingCycleProvider);
+    final currentCycles = ref.watch(currentTrainingCyclesProvider);
+    final currentTrainingCycle = currentCycles.isEmpty ? null : currentCycles.first;
 
     return ScreenBackground(
       child: Scaffold(
@@ -90,15 +93,16 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
         ),
         body: currentTrainingCycle == null
             ? _buildNoTrainingCycle(context)
-            : _buildCalendarContent(context, currentTrainingCycle),
+            : _buildCalendarContent(context, currentCycles),
       ),
     );
   }
 
-  Widget _buildCalendarContent(BuildContext context, dynamic trainingCycle) {
-    final allWorkouts = ref.watch(
-      workoutsByTrainingCycleListProvider(trainingCycle.id),
-    );
+  Widget _buildCalendarContent(
+    BuildContext context,
+    List<TrainingCycle> allCycles,
+  ) {
+    final primaryCycle = allCycles.first;
 
     // Build calendar data for current month and adjacent months
     // to handle overflow days shown in calendar view
@@ -122,31 +126,58 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     );
     final dateRangeSessions = sessionsAsync.value ?? const <Session>[];
 
-    final calendarData = [
-      ...buildCalendarData(
-        cycle: trainingCycle,
-        allWorkouts: allWorkouts,
-        month: prevMonth,
-        dateRangeSessions: dateRangeSessions,
-      ),
-      ...buildCalendarData(
-        cycle: trainingCycle,
-        allWorkouts: allWorkouts,
-        month: currentMonth,
-        dateRangeSessions: dateRangeSessions,
-      ),
-      ...buildCalendarData(
-        cycle: trainingCycle,
-        allWorkouts: allWorkouts,
-        month: nextMonth,
-        dateRangeSessions: dateRangeSessions,
-      ),
-    ];
+    // Build calendar data for the primary cycle first.
+    final primaryWorkouts = ref.watch(
+      workoutsByTrainingCycleListProvider(primaryCycle.id),
+    );
+    final primarySessionsAsync = ref.watch(
+      sessionsByTrainingCycleProvider(primaryCycle.id),
+    );
+    final primarySessions = primarySessionsAsync.value ?? const <Session>[];
 
-    // Build lookup map for quick access
+    final months = [prevMonth, currentMonth, nextMonth];
     final dataMap = <DateTime, CalendarDayData>{};
-    for (final data in calendarData) {
-      dataMap[DateHelpers.stripTime(data.date)] = data;
+    for (final month in months) {
+      for (final day in buildCalendarData(
+        cycle: primaryCycle,
+        allWorkouts: primaryWorkouts,
+        month: month,
+        dateRangeSessions: dateRangeSessions,
+        cycleSessions: primarySessions,
+      )) {
+        dataMap[DateHelpers.stripTime(day.date)] = day;
+      }
+    }
+
+    // Merge data from secondary stacked cycles so their workouts
+    // and cardio sessions also appear on the calendar.
+    for (final cycle in allCycles.skip(1)) {
+      final secWorkouts = ref.watch(
+        workoutsByTrainingCycleListProvider(cycle.id),
+      );
+      final secSessionsAsync = ref.watch(
+        sessionsByTrainingCycleProvider(cycle.id),
+      );
+      final secSessions = secSessionsAsync.value ?? const <Session>[];
+
+      for (final month in months) {
+        for (final day in buildCalendarData(
+          cycle: cycle,
+          allWorkouts: secWorkouts,
+          month: month,
+          // dateRangeSessions already included in primary — pass
+          // empty to avoid duplicating imports on each day.
+          cycleSessions: secSessions,
+        )) {
+          final key = DateHelpers.stripTime(day.date);
+          final existing = dataMap[key];
+          if (existing != null) {
+            dataMap[key] = _mergeDayData(existing, day);
+          } else {
+            dataMap[key] = day;
+          }
+        }
+      }
     }
 
     final periodColors = ref.watch(periodColorsProvider);
@@ -155,15 +186,77 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _buildCalendar(context, trainingCycle, dataMap, periodColors),
+          _buildCalendar(context, primaryCycle, dataMap, periodColors),
           if (_selectedDay != null)
             _buildSelectedDayInfo(
               context,
-              trainingCycle,
+              primaryCycle,
               dataMap[DateHelpers.stripTime(_selectedDay!)],
             ),
         ],
       ),
+    );
+  }
+
+  /// Merge a secondary cycle's day data into the primary day entry.
+  ///
+  /// Keeps the primary's period/day numbers (for display) and combines
+  /// workouts, cardio sessions, muscle groups, and exercises from both.
+  CalendarDayData _mergeDayData(
+    CalendarDayData primary,
+    CalendarDayData secondary,
+  ) {
+    if (!secondary.hasAnySession) return primary;
+
+    // Deduplicate cardio by ID (dateRangeSessions may overlap).
+    final seenCardioIds = primary.cardioSessions.map((s) => s.id).toSet();
+    final newCardio = secondary.cardioSessions.where((s) => !seenCardioIds.contains(s.id)).toList();
+
+    // Merge muscle group sets by summing.
+    final mergedSets = Map<String, int>.from(primary.muscleGroupSets);
+    for (final entry in secondary.muscleGroupSets.entries) {
+      mergedSets[entry.key] = (mergedSets[entry.key] ?? 0) + entry.value;
+    }
+
+    // Merge muscle group exercises by concatenating.
+    final mergedExercises = Map<String, List<String>>.from(
+      primary.muscleGroupExercises,
+    );
+    for (final entry in secondary.muscleGroupExercises.entries) {
+      mergedExercises[entry.key] = [
+        ...mergedExercises[entry.key] ?? [],
+        ...entry.value,
+      ];
+    }
+
+    final allWorkouts = [...primary.workouts, ...secondary.workouts];
+    final allCardio = [...primary.cardioSessions, ...newCardio];
+    final allExercises = [...primary.exercises, ...secondary.exercises];
+
+    // Recompute completion from merged data.
+    final hasSessions = allWorkouts.isNotEmpty || allCardio.isNotEmpty;
+    final strengthDone = allWorkouts.isEmpty || allWorkouts.every((w) => w.status == WorkoutStatus.completed);
+    final cardioDone = allCardio.isEmpty || allCardio.every((s) => s.status == WorkoutStatus.completed);
+    final isCompleted = hasSessions && strengthDone && cardioDone;
+    final isPartiallyCompleted =
+        hasSessions &&
+        !isCompleted &&
+        (allWorkouts.any((w) => w.status == WorkoutStatus.completed) ||
+            allCardio.any((s) => s.status == WorkoutStatus.completed));
+
+    return CalendarDayData(
+      date: primary.date,
+      periodNumber: primary.periodNumber,
+      dayNumber: primary.dayNumber,
+      workouts: allWorkouts,
+      cardioSessions: allCardio,
+      isRecoveryPeriod: primary.isRecoveryPeriod,
+      isCompleted: isCompleted,
+      isPartiallyCompleted: isPartiallyCompleted,
+      muscleGroups: {...primary.muscleGroups, ...secondary.muscleGroups},
+      muscleGroupSets: mergedSets,
+      muscleGroupExercises: mergedExercises,
+      exercises: allExercises,
     );
   }
 
@@ -544,37 +637,57 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
         if (currentCycle == null) return;
 
         try {
-          final scheduleService = ref.read(scheduleServiceProvider);
-          await scheduleService.moveExerciseToDate(
-            cycleId: currentCycle.id,
-            sourceWorkoutId: dragData.sourceWorkoutId,
-            exerciseId: dragData.exercise.id,
-            targetDate: targetDate,
-          );
+          switch (dragData) {
+            case ExerciseDragData():
+              final scheduleService = ref.read(scheduleServiceProvider);
+              await scheduleService.moveExerciseToDate(
+                cycleId: currentCycle.id,
+                sourceWorkoutId: dragData.sourceWorkoutId,
+                exerciseId: dragData.exercise.id,
+                targetDate: targetDate,
+              );
 
-          // Invalidate providers to refresh calendar data
-          ref.invalidate(trainingCyclesProvider);
+              // Invalidate providers to refresh calendar data
+              ref.invalidate(trainingCyclesProvider);
 
-          // Force UI rebuild
-          if (mounted) {
-            setState(() {});
-          }
+              if (mounted) {
+                setState(() {});
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      'Moved ${dragData.exercise.name} to ${DateHelpers.shortDate.format(targetDate)}',
+                    ),
+                    duration: const Duration(seconds: 2),
+                  ),
+                );
+              }
 
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  'Moved ${dragData.exercise.name} to ${DateHelpers.shortDate.format(targetDate)}',
-                ),
-                duration: const Duration(seconds: 2),
-              ),
-            );
+            case CardioDragData():
+              final updated = dragData.session.copyWith(
+                scheduledDate: targetDate,
+              );
+              await ref.read(sessionRepositoryProvider).updateSession(updated);
+
+              // Invalidate providers to refresh calendar data
+              ref.invalidate(trainingCyclesProvider);
+
+              if (mounted) {
+                setState(() {});
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      'Moved ${dragData.session.label ?? dragData.session.sport.displayName} to ${DateHelpers.shortDate.format(targetDate)}',
+                    ),
+                    duration: const Duration(seconds: 2),
+                  ),
+                );
+              }
           }
         } catch (e) {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text('Failed to move exercise: $e'),
+                content: Text('Failed to move: $e'),
                 backgroundColor: Colors.red,
               ),
             );
@@ -674,9 +787,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
       );
 
       // Get all workouts in this period, sorted by effective date.
-      final periodWorkouts = allWorkouts
-          .where((w) => w.periodNumber == effectivePeriod)
-          .toList()
+      final periodWorkouts = allWorkouts.where((w) => w.periodNumber == effectivePeriod).toList()
         ..sort((a, b) {
           final aDate = DateHelpers.getEffectiveWorkoutDate(
             cycleStart: cycleStart,
@@ -716,9 +827,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
       // point forward by 1 (process in descending order to avoid
       // temporary dayNumber collisions).
       final repository = ref.read(workoutRepositoryProvider);
-      final toShift = periodWorkouts
-          .where((w) => w.dayNumber >= insertionDayNumber)
-          .toList()
+      final toShift = periodWorkouts.where((w) => w.dayNumber >= insertionDayNumber).toList()
         ..sort((a, b) => b.dayNumber.compareTo(a.dayNumber));
 
       for (final w in toShift) {

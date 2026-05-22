@@ -1,0 +1,106 @@
+{
+  "id": "pace_target_program",
+  "name": "Pace Target Program",
+  "description": "A 4-week progressive running program building pace through endurance, intervals, tempo, HIIT, and progression runs. 3 sessions per week on a 7-day cycle.",
+  "periodsTotal": 4,
+  "daysPerPeriod": 7,
+  "primarySport": "run",
+  "workouts": [
+    {
+      "periodNumber": 1,
+      "dayNumber": 1,
+      "dayName": "30 Min Endurance",
+      "sport": "run",
+      "notes": "Zone 2 conversational pace. Keep effort easy — you should be able to hold a full conversation.",
+      "exercises": []
+    },
+    {
+      "periodNumber": 1,
+      "dayNumber": 3,
+      "dayName": "30 Min Intervals",
+      "sport": "run",
+      "notes": "10 min warmup, then 6×2 min at 5K pace with 1 min easy jog recovery, 4 min cooldown.",
+      "exercises": []
+    },
+    {
+      "periodNumber": 1,
+      "dayNumber": 5,
+      "dayName": "45 Min Endurance",
+      "sport": "run",
+      "notes": "Zone 2 easy aerobic run. Build your aerobic base — time on feet matters more than speed.",
+      "exercises": []
+    },
+    {
+      "periodNumber": 2,
+      "dayNumber": 1,
+      "dayName": "30 Min Intervals",
+      "sport": "run",
+      "notes": "10 min warmup, then 6×2 min at 5K pace with 1 min easy jog recovery, 4 min cooldown.",
+      "exercises": []
+    },
+    {
+      "periodNumber": 2,
+      "dayNumber": 3,
+      "dayName": "30 Min Tempo",
+      "sport": "run",
+      "notes": "10 min warmup, 15 min at threshold pace (comfortably hard, ~7/10 effort), 5 min cooldown.",
+      "exercises": []
+    },
+    {
+      "periodNumber": 2,
+      "dayNumber": 5,
+      "dayName": "45 Min Endurance",
+      "sport": "run",
+      "notes": "Zone 2 easy aerobic run. Build your aerobic base — time on feet matters more than speed.",
+      "exercises": []
+    },
+    {
+      "periodNumber": 3,
+      "dayNumber": 1,
+      "dayName": "30 Min HIIT",
+      "sport": "run",
+      "notes": "10 min warmup, then 8×1 min hard (near max effort) with 1 min easy jog recovery, 4 min cooldown.",
+      "exercises": []
+    },
+    {
+      "periodNumber": 3,
+      "dayNumber": 3,
+      "dayName": "30 Min Intervals",
+      "sport": "run",
+      "notes": "10 min warmup, then 6×2 min at 5K pace with 1 min easy jog recovery, 4 min cooldown.",
+      "exercises": []
+    },
+    {
+      "periodNumber": 3,
+      "dayNumber": 5,
+      "dayName": "60 Min Endurance",
+      "sport": "run",
+      "notes": "Long run at Zone 2 conversational pace. The goal is time on feet, not speed.",
+      "exercises": []
+    },
+    {
+      "periodNumber": 4,
+      "dayNumber": 1,
+      "dayName": "30 Min Progression",
+      "sport": "run",
+      "notes": "Start at easy Zone 2 pace and increase speed every 10 minutes: 10 min easy, 10 min moderate, 10 min threshold.",
+      "exercises": []
+    },
+    {
+      "periodNumber": 4,
+      "dayNumber": 3,
+      "dayName": "30 Min Intervals",
+      "sport": "run",
+      "notes": "10 min warmup, then 6×2 min at 5K pace with 1 min easy jog recovery, 4 min cooldown.",
+      "exercises": []
+    },
+    {
+      "periodNumber": 4,
+      "dayNumber": 5,
+      "dayName": "45 Min Endurance",
+      "sport": "run",
+      "notes": "Zone 2 easy aerobic run. Build your aerobic base — time on feet matters more than speed.",
+      "exercises": []
+    }
+  ]
+}

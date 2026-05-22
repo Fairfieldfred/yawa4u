@@ -2,23 +2,11 @@ import 'package:flutter/material.dart';
 
 import '../../../core/constants/muscle_groups.dart';
 import '../../../data/models/exercise.dart';
+import 'calendar_drag_data.dart';
 
-/// Data transferred during drag operations for exercises
-class ExerciseDragData {
-  final Exercise exercise;
-  final String sourceWorkoutId;
-  final int sourcePeriod;
-  final int sourceDay;
-  final int sourceIndex;
-
-  const ExerciseDragData({
-    required this.exercise,
-    required this.sourceWorkoutId,
-    required this.sourcePeriod,
-    required this.sourceDay,
-    required this.sourceIndex,
-  });
-}
+// ExerciseDragData is now defined in calendar_drag_data.dart
+// Re-export so existing imports continue to work.
+export 'calendar_drag_data.dart' show ExerciseDragData, CalendarDragData, CardioDragData;
 
 /// A draggable card representing an exercise with its sets
 class DraggableExerciseCard extends StatelessWidget {
@@ -53,7 +41,7 @@ class DraggableExerciseCard extends StatelessWidget {
       sourceIndex: index,
     );
 
-    return Draggable<ExerciseDragData>(
+    return Draggable<CalendarDragData>(
       data: dragData,
       feedback: Material(
         elevation: 8,

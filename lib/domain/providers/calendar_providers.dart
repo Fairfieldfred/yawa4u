@@ -123,14 +123,22 @@ List<CalendarDayData> buildCalendarData({
   required List<Workout> allWorkouts,
   required DateTime month,
   List<Session> dateRangeSessions = const [],
+  List<Session> cycleSessions = const [],
 }) {
   final result = <CalendarDayData>[];
 
   if (cycle.startDate == null) {
-    return result;
+    // No start date — fall back to createdDate so the calendar still
+    // renders data instead of showing empty.
+    debugPrint(
+      '[Calendar] cycle "${cycle.name}" has no startDate, '
+      'falling back to createdDate ${cycle.createdDate}',
+    );
   }
 
-  final cycleStart = DateHelpers.stripTime(cycle.startDate!);
+  final cycleStart = DateHelpers.stripTime(
+    cycle.startDate ?? cycle.createdDate,
+  );
 
   // Calculate cycle end date, accounting for any inserted rest days
   // Find the latest scheduled date among all workouts
@@ -166,9 +174,33 @@ List<CalendarDayData> buildCalendarData({
   // Group non-strength sessions by date so imports appear alongside
   // cycle-attached workouts on the calendar.
   final cardioByDate = <DateTime, List<CardioSession>>{};
+  final seenCardioIds = <String>{};
   for (final session in dateRangeSessions) {
     if (session is! CardioSession) continue;
     final date = session.scheduledDate ?? session.completedDate;
+    if (date == null) continue;
+    final stripped = DateHelpers.stripTime(date);
+    cardioByDate.putIfAbsent(stripped, () => []).add(session);
+    seenCardioIds.add(session.id);
+  }
+
+  // Cycle-attached cardio sessions without scheduledDate (e.g. from
+  // templates) won't appear in dateRangeSessions. Calculate their
+  // calendar date from periodNumber/dayNumber — same logic strength
+  // workouts use.
+  for (final session in cycleSessions) {
+    if (session is! CardioSession) continue;
+    if (seenCardioIds.contains(session.id)) continue;
+    DateTime? date = session.scheduledDate ?? session.completedDate;
+    if (date == null && session.periodNumber != null && session.dayNumber != null) {
+      date = DateHelpers.getEffectiveWorkoutDate(
+        cycleStart: cycleStart,
+        daysPerPeriod: cycle.daysPerPeriod,
+        periodNumber: session.periodNumber!,
+        dayNumber: session.dayNumber!,
+        scheduledDate: null,
+      );
+    }
     if (date == null) continue;
     final stripped = DateHelpers.stripTime(date);
     cardioByDate.putIfAbsent(stripped, () => []).add(session);
@@ -299,11 +331,19 @@ final calendarDataProvider = Provider.autoDispose.family<List<CalendarDayData>, 
   );
   final dateRangeSessions = sessionsAsync.value ?? const <Session>[];
 
+  // Also watch cycle-attached sessions so cardio without scheduledDate
+  // (e.g. from templates) can be placed on the calendar via period/day.
+  final cycleSessionsAsync = ref.watch(
+    sessionsByTrainingCycleProvider(cycle.id),
+  );
+  final cycleSessions = cycleSessionsAsync.value ?? const <Session>[];
+
   return buildCalendarData(
     cycle: cycle,
     allWorkouts: workouts,
     month: month,
     dateRangeSessions: dateRangeSessions,
+    cycleSessions: cycleSessions,
   );
 });
 

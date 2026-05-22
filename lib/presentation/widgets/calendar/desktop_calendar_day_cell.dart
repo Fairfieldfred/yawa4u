@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../domain/providers/calendar_providers.dart';
 import 'calendar_sport_dots.dart';
+import 'draggable_cardio_card.dart';
 import 'draggable_exercise_card.dart';
 
 /// A calendar day cell optimized for desktop with drag-and-drop support
@@ -12,7 +13,7 @@ class DesktopCalendarDayCell extends StatefulWidget {
   final bool isToday;
   final bool isSelected;
   final ValueChanged<DateTime>? onTap;
-  final void Function(ExerciseDragData data, DateTime targetDate)? onExerciseDropped;
+  final void Function(CalendarDragData data, DateTime targetDate)? onExerciseDropped;
   final void Function(int oldIndex, int newIndex, DateTime targetDate)? onExerciseReordered;
   final String? selectedExerciseId;
   final ValueChanged<String?>? onExerciseSelected;
@@ -43,18 +44,18 @@ class _DesktopCalendarDayCellState extends State<DesktopCalendarDayCell> {
   @override
   Widget build(BuildContext context) {
     final dayData = widget.dayData;
-    final hasWorkout = dayData?.hasWorkout ?? false;
+    final hasAnySession = dayData?.hasAnySession ?? false;
 
-    // Determine background color based on workout state
+    // Determine background color based on session state
     Color backgroundColor = Colors.transparent;
-    if (hasWorkout) {
+    if (hasAnySession) {
       if (dayData!.isCompleted) {
         backgroundColor = Colors.green.withAlpha(30);
       } else if (dayData.isPartiallyCompleted) {
         backgroundColor = Colors.orange.withAlpha(30);
       } else if (dayData.isRecoveryPeriod) {
         backgroundColor = Colors.blue.withAlpha(20);
-      } else {
+      } else if (dayData.periodNumber != null) {
         final periodColor = getPeriodColor(
           widget.periodColors,
           dayData.periodNumber!,
@@ -73,7 +74,7 @@ class _DesktopCalendarDayCellState extends State<DesktopCalendarDayCell> {
       border = Border.all(color: Colors.green, width: 2);
     }
 
-    return DragTarget<ExerciseDragData>(
+    return DragTarget<CalendarDragData>(
       onWillAcceptWithDetails: (details) {
         // Don't accept drops on the same day/position
         final data = details.data;
@@ -117,9 +118,9 @@ class _DesktopCalendarDayCellState extends State<DesktopCalendarDayCell> {
               children: [
                 // Header: Day number and period info
                 _buildHeader(context, dayData),
-                // Content: Exercise cards
+                // Content: Exercise + cardio cards
                 Expanded(
-                  child: hasWorkout ? _buildExerciseList(context, dayData!) : _buildEmptyState(context),
+                  child: hasAnySession ? _buildContentList(context, dayData!) : _buildEmptyState(context),
                 ),
                 // Add exercise button at bottom (any day within the cycle)
                 if (dayData?.periodNumber != null) _buildAddExerciseButton(context, dayData!),
@@ -132,7 +133,7 @@ class _DesktopCalendarDayCellState extends State<DesktopCalendarDayCell> {
   }
 
   Widget _buildHeader(BuildContext context, CalendarDayData? dayData) {
-    final hasWorkout = dayData?.hasWorkout ?? false;
+    final hasAnySession = dayData?.hasAnySession ?? false;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
@@ -155,7 +156,7 @@ class _DesktopCalendarDayCellState extends State<DesktopCalendarDayCell> {
               color: widget.isToday ? Colors.blue : Theme.of(context).colorScheme.onSurface,
             ),
           ),
-          if (hasWorkout) ...[
+          if (hasAnySession) ...[
             Expanded(
               child: Text(
                 'P${dayData!.periodNumber}D${dayData.dayNumber}',
@@ -201,19 +202,26 @@ class _DesktopCalendarDayCellState extends State<DesktopCalendarDayCell> {
     return Icon(icon, size: 14, color: color);
   }
 
-  Widget _buildExerciseList(BuildContext context, CalendarDayData dayData) {
-    // Use the pre-built exercises list from CalendarDayData
-    final allExercises = dayData.exercises;
+  /// Builds a mixed list of exercise and cardio cards.
+  ///
+  /// Exercises appear first (with reorder support via [ReorderableDragStartListener]),
+  /// followed by cardio sessions (draggable cross-day but not reorderable).
+  Widget _buildContentList(BuildContext context, CalendarDayData dayData) {
+    final exercises = dayData.exercises;
+    final cardioSessions = dayData.cardioSessions;
+    final totalCount = exercises.length + cardioSessions.length;
 
-    if (allExercises.isEmpty) {
+    if (totalCount == 0) {
       return _buildEmptyState(context);
     }
 
     return ReorderableListView.builder(
       padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 1),
       buildDefaultDragHandles: false,
-      itemCount: allExercises.length,
+      itemCount: totalCount,
       onReorder: (oldIndex, newIndex) {
+        // Only handle reorder if both indices are within the exercise range
+        if (oldIndex >= exercises.length || newIndex > exercises.length) return;
         if (widget.onExerciseReordered != null) {
           // Adjust for removal
           if (newIndex > oldIndex) newIndex--;
@@ -221,30 +229,48 @@ class _DesktopCalendarDayCellState extends State<DesktopCalendarDayCell> {
         }
       },
       itemBuilder: (context, index) {
-        final exerciseItem = allExercises[index];
-        final isSelected = widget.selectedExerciseId == exerciseItem.exercise.id;
+        if (index < exercises.length) {
+          // Exercise card (with reorder drag handle)
+          final exerciseItem = exercises[index];
+          final isSelected = widget.selectedExerciseId == exerciseItem.exercise.id;
 
-        return ReorderableDragStartListener(
-          key: ValueKey(exerciseItem.exercise.id),
-          index: index,
-          child: Padding(
-            padding: const EdgeInsets.only(bottom: 2),
-            child: DraggableExerciseCard(
-              exercise: exerciseItem.exercise,
-              workoutId: exerciseItem.workoutId,
-              periodNumber: exerciseItem.periodNumber,
-              dayNumber: exerciseItem.dayNumber,
-              index: index,
-              isSelected: isSelected,
-              compact: true,
-              onTap: () {
-                widget.onExerciseSelected?.call(
-                  isSelected ? null : exerciseItem.exercise.id,
-                );
-              },
+          return ReorderableDragStartListener(
+            key: ValueKey(exerciseItem.exercise.id),
+            index: index,
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 2),
+              child: DraggableExerciseCard(
+                exercise: exerciseItem.exercise,
+                workoutId: exerciseItem.workoutId,
+                periodNumber: exerciseItem.periodNumber,
+                dayNumber: exerciseItem.dayNumber,
+                index: index,
+                isSelected: isSelected,
+                compact: true,
+                onTap: () {
+                  widget.onExerciseSelected?.call(
+                    isSelected ? null : exerciseItem.exercise.id,
+                  );
+                },
+              ),
             ),
-          ),
-        );
+          );
+        } else {
+          // Cardio card (draggable cross-day, not reorderable)
+          final cardioIndex = index - exercises.length;
+          final session = cardioSessions[cardioIndex];
+
+          return Padding(
+            key: ValueKey('cardio_${session.id}'),
+            padding: const EdgeInsets.only(bottom: 2),
+            child: DraggableCardioCard(
+              session: session,
+              periodNumber: dayData.periodNumber ?? 0,
+              dayNumber: dayData.dayNumber ?? 0,
+              compact: true,
+            ),
+          );
+        }
       },
     );
   }

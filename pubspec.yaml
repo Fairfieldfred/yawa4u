@@ -145,7 +145,7 @@ flutter_launcher_icons:
   image_path_ios_dark_transparent: "assets/common/yawa4u-icon-mask.png"
   image_path_android: "assets/common/yawa4u-icon-dark.png"
   adaptive_icon_background: "assets/common/yawa4u-icon-dark.png"
-  adaptive_icon_foreground: "assets/common/yawa4u-icon-mask.png"
+  adaptive_icon_foreground: "assets/common/yawa4u-icon.png"
   remove_alpha_ios: true
   web:
     generate: true
@@ -159,4 +159,4 @@ flutter_native_splash:
   android_12:
     color: "#ffffff"
     icon_background_color: "#FFFFFF"
-    image: "assets/common/yawa4u-icon-mask.png"
+    image: "assets/common/yawa4u-icon.png"

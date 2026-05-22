@@ -76,6 +76,7 @@ class CardioSessionScreen extends ConsumerStatefulWidget {
 
 class _CardioSessionScreenState extends ConsumerState<CardioSessionScreen> {
   final _uuid = const Uuid();
+  final _labelController = TextEditingController();
   final _notesController = TextEditingController();
 
   CardioSession? _existing;
@@ -113,6 +114,7 @@ class _CardioSessionScreenState extends ConsumerState<CardioSessionScreen> {
       _durationSeconds = loaded.detail?.actualDurationSec ?? loaded.detail?.plannedDurationSec;
       _averageHr = loaded.detail?.averageHr;
       _rpe = loaded.detail?.perceivedExertion;
+      _labelController.text = loaded.label ?? '';
       _notesController.text = loaded.notes ?? '';
     }
     setState(() => _loading = false);
@@ -120,6 +122,7 @@ class _CardioSessionScreenState extends ConsumerState<CardioSessionScreen> {
 
   @override
   void dispose() {
+    _labelController.dispose();
     _notesController.dispose();
     super.dispose();
   }
@@ -213,6 +216,7 @@ class _CardioSessionScreenState extends ConsumerState<CardioSessionScreen> {
             perceivedExertion: _rpe,
           );
 
+    final trimmedLabel = _labelController.text.trim().isEmpty ? null : _labelController.text.trim();
     final trimmedNotes = _notesController.text.trim().isEmpty ? null : _notesController.text.trim();
 
     try {
@@ -225,6 +229,7 @@ class _CardioSessionScreenState extends ConsumerState<CardioSessionScreen> {
           status: isPlanning ? WorkoutStatus.incomplete : WorkoutStatus.completed,
           scheduledDate: _scheduledDate,
           completedDate: isPlanning ? null : DateTime.now(),
+          label: trimmedLabel,
           notes: trimmedNotes,
           detail: detail,
           periodNumber: widget.periodNumber,
@@ -234,6 +239,7 @@ class _CardioSessionScreenState extends ConsumerState<CardioSessionScreen> {
       } else {
         final updated = _existing!.copyWith(
           scheduledDate: _scheduledDate,
+          label: trimmedLabel,
           notes: trimmedNotes,
           detail: detail,
           // Completing a planned session promotes to completed.
@@ -344,6 +350,18 @@ class _CardioSessionScreenState extends ConsumerState<CardioSessionScreen> {
                 label: const Text('Start from template'),
               ),
             ],
+            const SizedBox(height: 12),
+            TextField(
+              controller: _labelController,
+              enabled: !_isReadOnly,
+              textCapitalization: TextCapitalization.sentences,
+              decoration: const InputDecoration(
+                labelText: 'Session name',
+                hintText: 'e.g., 30 min Tempo',
+                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.label_outline),
+              ),
+            ),
             const SizedBox(height: 16),
             DistanceInput(
               key: ValueKey('distance-${_sport.name}-${units.name}'),

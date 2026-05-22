@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
-
 import '../../../core/constants/muscle_groups.dart';
 import '../../../data/models/training_cycle_template.dart';
 import '../../../domain/providers/database_providers.dart';
@@ -48,9 +46,10 @@ class _TemplatePreviewScreenState extends ConsumerState<TemplatePreviewScreen> {
       }
 
       if (mounted) {
-        // Set tab to TrainingCycles (index 1) to show the draft
+        // Set tab to TrainingCycles to show the newly created draft
         ref.read(homeTabIndexProvider.notifier).setTab(HomeTab.trainingCycles);
-        context.go('/');
+        // Pop all Navigator.push() routes back to the GoRouter-managed home
+        Navigator.of(context).popUntil((route) => route.isFirst);
       }
     } catch (e) {
       if (mounted) {
