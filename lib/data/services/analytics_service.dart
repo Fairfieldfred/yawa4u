@@ -48,7 +48,7 @@ class AnalyticsService {
           'periods': periods,
           'days_per_period': daysPerPeriod,
           'gender': gender,
-          if (templateName != null) 'template': templateName,
+          'template': ?templateName,
         },
       );
     } catch (e, stackTrace) {

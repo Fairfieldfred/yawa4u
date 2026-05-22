@@ -647,11 +647,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                 targetDate: targetDate,
               );
 
-              // Invalidate providers to refresh calendar data
-              ref.invalidate(trainingCyclesProvider);
-
               if (mounted) {
-                setState(() {});
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(
@@ -663,16 +659,14 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
               }
 
             case CardioDragData():
-              final updated = dragData.session.copyWith(
-                scheduledDate: targetDate,
+              final scheduleService = ref.read(scheduleServiceProvider);
+              await scheduleService.moveCardioToDate(
+                cycleId: currentCycle.id,
+                session: dragData.session,
+                targetDate: targetDate,
               );
-              await ref.read(sessionRepositoryProvider).updateSession(updated);
-
-              // Invalidate providers to refresh calendar data
-              ref.invalidate(trainingCyclesProvider);
 
               if (mounted) {
-                setState(() {});
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(
@@ -705,14 +699,6 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
             oldIndex: oldIndex,
             newIndex: newIndex,
           );
-
-          // Invalidate providers to refresh calendar data
-          ref.invalidate(trainingCyclesProvider);
-
-          // Force UI rebuild
-          if (mounted) {
-            setState(() {});
-          }
         } catch (e) {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -848,7 +834,6 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
         exercises: [],
       );
       await repository.create(newWorkout);
-      ref.invalidate(trainingCyclesProvider);
       workoutId = newId;
     }
 
@@ -1459,12 +1444,13 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
       // Store snapshot for undo
       ref.read(calendarUndoProvider.notifier).setSnapshot(cycle.id, snapshot);
 
-      // Invalidate provider to force refresh from repository
-      ref.invalidate(trainingCyclesProvider);
-
-      // Force UI rebuild
       if (mounted) {
-        setState(() {});
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Rest day inserted before P${period}D$day'),
+            duration: const Duration(seconds: 2),
+          ),
+        );
       }
     } catch (e) {
       if (mounted) {
@@ -1492,12 +1478,13 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
       // Store snapshot for undo
       ref.read(calendarUndoProvider.notifier).setSnapshot(cycle.id, snapshot);
 
-      // Invalidate provider to force refresh from repository
-      ref.invalidate(trainingCyclesProvider);
-
-      // Force UI rebuild
       if (mounted) {
-        setState(() {});
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Rest day removed on ${DateHelpers.shortDate.format(restDayDate)}'),
+            duration: const Duration(seconds: 2),
+          ),
+        );
       }
     } catch (e) {
       if (mounted) {

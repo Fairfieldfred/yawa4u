@@ -19,6 +19,7 @@ final scheduleServiceProvider = Provider<ScheduleService>((ref) {
   return ScheduleService(
     cycleRepository: ref.watch(trainingCycleRepositoryProvider),
     workoutRepository: ref.watch(workoutRepositoryProvider),
+    sessionRepository: ref.watch(sessionRepositoryProvider),
   );
 });
 

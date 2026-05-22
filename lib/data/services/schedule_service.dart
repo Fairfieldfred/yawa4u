@@ -4,7 +4,9 @@ import '../../core/constants/enums.dart';
 import '../../core/constants/muscle_groups.dart';
 import '../../core/utils/date_helpers.dart';
 import '../models/exercise.dart';
+import '../models/session.dart';
 import '../models/workout.dart';
+import '../repositories/session_repository.dart';
 import '../repositories/training_cycle_repository.dart';
 import '../repositories/workout_repository.dart';
 
@@ -65,12 +67,15 @@ class WorkoutSnapshot {
 class ScheduleService {
   final TrainingCycleRepository _cycleRepository;
   final WorkoutRepository _workoutRepository;
+  final SessionRepository _sessionRepository;
 
   ScheduleService({
     required TrainingCycleRepository cycleRepository,
     required WorkoutRepository workoutRepository,
+    required SessionRepository sessionRepository,
   }) : _cycleRepository = cycleRepository,
-       _workoutRepository = workoutRepository;
+       _workoutRepository = workoutRepository,
+       _sessionRepository = sessionRepository;
 
   /// Shift the entire training cycle start date by the given number of days.
   /// Positive values shift forward, negative values shift backward.
@@ -839,6 +844,38 @@ class ScheduleService {
       );
       await _workoutRepository.update(updatedWorkout);
     }
+  }
+
+  /// Move a cardio session to a different calendar date.
+  ///
+  /// Updates `scheduledDate`, `periodNumber`, and `dayNumber` so the session
+  /// is fully consistent with the target date — mirroring the approach used
+  /// by [moveExerciseToDate] for strength exercises.
+  Future<void> moveCardioToDate({
+    required String cycleId,
+    required CardioSession session,
+    required DateTime targetDate,
+  }) async {
+    final cycle = await _cycleRepository.getById(cycleId);
+    if (cycle == null) throw Exception('Training cycle not found');
+
+    final cycleStart = DateHelpers.stripTime(
+      cycle.startDate ?? cycle.createdDate,
+    );
+    final strippedTarget = DateHelpers.stripTime(targetDate);
+    final daysFromStart = DateHelpers.daysBetween(
+      cycleStart,
+      strippedTarget,
+    );
+    final targetPeriod = (daysFromStart ~/ cycle.daysPerPeriod) + 1;
+    final targetDay = (daysFromStart % cycle.daysPerPeriod) + 1;
+
+    final updated = session.copyWith(
+      scheduledDate: strippedTarget,
+      periodNumber: targetPeriod,
+      dayNumber: targetDay,
+    );
+    await _sessionRepository.updateSession(updated);
   }
 
   /// Restore a schedule from a snapshot (undo operation)

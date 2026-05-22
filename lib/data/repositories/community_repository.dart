@@ -326,7 +326,7 @@ class CommunityRepository {
       // Update Firestore doc with image refs.
       await _community.updateSkin(docId, {
         'imageRefs': imageRefs,
-        if (thumbnailUrl != null) 'thumbnailUrl': thumbnailUrl,
+        'thumbnailUrl': ?thumbnailUrl,
       });
     }
 

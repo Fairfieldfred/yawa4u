@@ -9,6 +9,12 @@
 # packages, and plugins designed to encourage good coding practices.
 include: package:flutter_lints/flutter.yaml
 
+analyzer:
+  exclude:
+    - build/**
+    - '**/*.g.dart'
+    - '**/*.freezed.dart'
+
 formatter:
   page_width: 120
   trailing_commas: preserve
