@@ -10,10 +10,14 @@ import 'package:yawa4u/data/models/exercise.dart';
 import 'package:yawa4u/data/models/exercise_set.dart';
 import 'package:yawa4u/data/models/training_cycle.dart';
 import 'package:yawa4u/data/models/workout.dart';
+import 'package:yawa4u/data/repositories/cardio_feedback_repository.dart';
 import 'package:yawa4u/data/repositories/custom_exercise_repository.dart';
+import 'package:yawa4u/data/repositories/cycle_period_repository.dart';
 import 'package:yawa4u/data/repositories/exercise_repository.dart';
 import 'package:yawa4u/data/repositories/session_repository.dart';
+import 'package:yawa4u/data/repositories/sport_zone_repository.dart';
 import 'package:yawa4u/data/repositories/training_cycle_repository.dart';
+import 'package:yawa4u/data/repositories/user_measurement_repository.dart';
 import 'package:yawa4u/data/repositories/workout_repository.dart';
 import 'package:yawa4u/data/services/exercise_history_service.dart';
 
@@ -23,16 +27,21 @@ import 'package:yawa4u/data/services/exercise_history_service.dart';
 class IntegrationTestContext {
   late AppDatabase db;
   late TrainingCycleRepository cycleRepo;
+  late SessionRepository sessionRepo;
   late WorkoutRepository workoutRepo;
   late ExerciseRepository exerciseRepo;
   late CustomExerciseRepository customExerciseRepo;
+  late CyclePeriodRepository cyclePeriodRepo;
+  late SportZoneRepository sportZoneRepo;
+  late CardioFeedbackRepository cardioFeedbackRepo;
+  late UserMeasurementRepository userMeasurementRepo;
   late ExerciseHistoryService historyService;
 
   Future<void> initialize() async {
     driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
     db = AppDatabase.forTesting(NativeDatabase.memory());
     cycleRepo = TrainingCycleRepository(db.trainingCycleDao);
-    final sessionRepo = SessionRepository(
+    sessionRepo = SessionRepository(
       db.sessionDao,
       db.exerciseDao,
       db.exerciseSetDao,
@@ -44,6 +53,10 @@ class IntegrationTestContext {
     workoutRepo = WorkoutRepository(sessionRepo, db.exerciseDao);
     exerciseRepo = ExerciseRepository(db.exerciseDao, db.exerciseSetDao);
     customExerciseRepo = CustomExerciseRepository(db.customExerciseDao);
+    cyclePeriodRepo = CyclePeriodRepository(db.cyclePeriodDao);
+    sportZoneRepo = SportZoneRepository(db.sportZoneDao);
+    cardioFeedbackRepo = CardioFeedbackRepository(db.cardioFeedbackDao);
+    userMeasurementRepo = UserMeasurementRepository(db.userMeasurementDao);
     historyService = ExerciseHistoryService(workoutRepo);
   }
 

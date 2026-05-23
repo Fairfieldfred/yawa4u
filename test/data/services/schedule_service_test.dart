@@ -31,7 +31,7 @@ void main() {
     workoutRepo = WorkoutRepository(sessionRepo, db.exerciseDao);
     service = ScheduleService(
       cycleRepository: cycleRepo,
-      workoutRepository: workoutRepo,
+      workoutRepository: workoutRepo, sessionRepository: sessionRepo,
     );
   });
 
