@@ -220,6 +220,7 @@ class CyclePeriod {
 | `CustomExerciseRepository` | `custom_exercise_definitions` | User-created exercise definitions. |
 | `UserMeasurementRepository` | `user_measurements` | Body measurements, BMI history. |
 | `TemplateRepository` | in-memory | Training cycle + cardio session templates. |
+| `CommunityRepository` | Firestore (`community_templates`, `community_skins`) | Firestore-backed community library. Browse, download, upload templates and skins. Delegates I/O to `CommunityService`. |
 
 ---
 
@@ -251,6 +252,9 @@ class CyclePeriod {
 
 | Provider | Purpose |
 |---|---|
+| `cycleStatsProvider(cycleId)` | Strength cycle statistics (per-cycle). |
+| `lifetimeStatsProvider` | Lifetime strength aggregate. |
+| `cycleWorkoutsProvider(cycleId)` | Workouts list for a cycle (used by stats). |
 | `cardioStatsProvider` | Lifetime cardio aggregate. |
 | `cardioStatsForCycleProvider(cycleId)` | Cycle-scoped cardio stats. |
 | `cardioStatsBySportProvider(sport)` | Single-sport lifetime stats. |
@@ -272,7 +276,8 @@ class CyclePeriod {
 | Provider | Type | Purpose |
 |---|---|---|
 | `trainingCyclesProvider` | `StreamProvider` | All training cycles. |
-| `currentTrainingCycleProvider` | `Provider` | Active (current status) cycle. |
+| `currentTrainingCyclesProvider` | `Provider` | All active (current status) cycles — supports stacking. |
+| `currentTrainingCycleProvider` | `Provider` | Primary active cycle (first from `currentTrainingCyclesProvider`). |
 | `draftTrainingCyclesProvider` | `Provider` | Draft cycles. |
 | `completedTrainingCyclesProvider` | `Provider` | Completed cycles. |
 | `trainingCycleProvider(id)` | `Provider.family` | Single cycle by ID. |
@@ -292,6 +297,8 @@ Backed by the `WorkoutRepository` facade (which funnels through `SessionReposito
 | `completedWorkoutsProvider` | `Provider` | Completed workouts. |
 | `todayWorkoutsProvider` | `FutureProvider` | Today's workouts. |
 | `upcomingWorkoutsProvider` | `FutureProvider` | Upcoming workouts. |
+| `workoutStatsProvider` | `Provider` | Lifetime workout statistics. |
+| `workoutStatsForTrainingCycleProvider(cycleId)` | `Provider.family` | Per-cycle workout statistics. |
 | `showExerciseHistoryProvider` | `NotifierProvider` | Toggle exercise history display. |
 
 ### Exercise providers (`exercise_providers.dart`)
@@ -329,6 +336,9 @@ Backed by the `WorkoutRepository` facade (which funnels through `SessionReposito
 | `measurement_providers.dart` | User body measurement tracking. |
 | `rest_timer_provider.dart` | Rest timer between sets management. |
 | `use_case_providers.dart` | Use case dependency providers (finish/skip/reset workout, add set, start/end cycle). |
+| `auth_providers.dart` | Firebase auth state — `firebaseAuthServiceProvider`, `authStateProvider`, `currentUserProvider`, `isEmailVerifiedProvider`, `canUploadProvider`. |
+| `community_providers.dart` | Community library browsing/upload — sort, filter, pagination for templates and skins. |
+| `database_providers.dart` | Database and repository dependency injection providers. |
 
 ---
 
@@ -340,7 +350,7 @@ Backed by the `WorkoutRepository` facade (which funnels through `SessionReposito
 |---|---|
 | `Sport` | strength, run, bike, swim, other |
 | `SessionSource` | userPlanned, userLogged, healthKit, healthConnect, peloton, strava, garmin, imported |
-| `StrokeType` | freestyle, backstroke, breaststroke, butterfly, mixed |
+| `StrokeType` | freestyle, backstroke, breaststroke, butterfly, mixed, drill |
 | `IntervalIntent` | warmup, work, recovery, cooldown, rest, repeatGroup |
 | `IntervalTargetKind` | durationSec, distanceM, hrZone, paceZone, powerZone, freeform |
 | `ZoneMetric` | hr, pace, power |
@@ -644,6 +654,8 @@ Stored in Drift via `CustomExerciseDefinition`. Converts to `ExerciseDefinition`
 | `TemplateShareService` | `data/services/` | Share training templates between devices |
 | `ThemeImageService` | `data/services/` | Theme image management for custom skins |
 | `WifiSyncService` | `data/services/` | Device-to-device sync over local network |
+| `CommunityService` | `data/services/` | Low-level Firestore + Storage I/O for community templates and skins |
+| `FirebaseAuthService` | `data/services/` | Firebase Auth wrapper — anonymous sign-in at app init, email link-up for uploads |
 
 ---
 
