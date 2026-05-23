@@ -55,9 +55,11 @@ class CalendarEditSheet extends ConsumerWidget {
     final undoState = ref.watch(calendarUndoProvider);
     final canUndo = undoState.hasRecentSnapshot;
 
+    final bottomPadding = MediaQuery.of(context).viewPadding.bottom;
+
     return Padding(
       padding: EdgeInsets.only(
-        bottom: MediaQuery.of(context).viewInsets.bottom,
+        bottom: MediaQuery.of(context).viewInsets.bottom + bottomPadding,
         left: 16,
         right: 16,
         top: 16,

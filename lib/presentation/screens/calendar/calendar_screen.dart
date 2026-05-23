@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../../core/extensions/context_extensions.dart';
 import '../../../core/theme/skins/skins.dart';
 import '../../../core/utils/date_helpers.dart';
 import '../../../domain/controllers/workout_home_controller.dart';
@@ -27,6 +28,7 @@ import '../../widgets/calendar/calendar_edit_sheet.dart';
 import '../../widgets/calendar/calendar_legend_dialog.dart';
 import '../../widgets/calendar/calendar_sport_dots.dart';
 import '../../widgets/calendar/desktop_calendar_day_cell.dart';
+import '../../widgets/calendar/mobile_five_day_calendar.dart';
 import '../../widgets/screen_background.dart';
 import '../workout/add_exercise_screen.dart';
 
@@ -182,6 +184,31 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
 
     final periodColors = ref.watch(periodColorsProvider);
 
+    // Mobile layout: Column with Expanded calendar + fixed info panel.
+    // The PageView inside MobileFiveDayCalendar needs bounded height,
+    // so we cannot wrap it in SingleChildScrollView.
+    if (context.isPhone) {
+      return Column(
+        children: [
+          Expanded(
+            child: _buildCalendar(
+              context,
+              primaryCycle,
+              dataMap,
+              periodColors,
+            ),
+          ),
+          if (_selectedDay != null)
+            _buildSelectedDayInfo(
+              context,
+              primaryCycle,
+              dataMap[DateHelpers.stripTime(_selectedDay!)],
+            ),
+        ],
+      );
+    }
+
+    // Desktop layout: scrollable column with intrinsic-height calendar.
     return SingleChildScrollView(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -299,6 +326,16 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     Map<DateTime, CalendarDayData> dataMap,
     Map<int, Color> periodColors,
   ) {
+    // Mobile: 5-day horizontally scrollable view
+    if (context.isPhone) {
+      return _buildMobileFiveDayCalendar(
+        context,
+        dataMap,
+        periodColors,
+      );
+    }
+
+    // Desktop: existing TableCalendar with Month/2-Week/Week toggle
     // Calculate row height based on calendar format and screen size
     final screenHeight = MediaQuery.of(context).size.height;
     final double rowHeight;
@@ -444,6 +481,136 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
           return _buildOutsideDayCell(context, day);
         },
       ),
+    );
+  }
+
+  /// Builds the mobile 5-day horizontally scrollable calendar view.
+  ///
+  /// Reuses [DesktopCalendarDayCell] inside each page to preserve
+  /// drag-drop, reorder, add-exercise, and long-press functionality.
+  Widget _buildMobileFiveDayCalendar(
+    BuildContext context,
+    Map<DateTime, CalendarDayData> dataMap,
+    Map<int, Color> periodColors,
+  ) {
+    final currentCycle = ref.watch(currentTrainingCycleProvider);
+
+    return MobileFiveDayCalendar(
+      selectedDay: _selectedDay,
+      focusedDay: _focusedDay,
+      dataMap: dataMap,
+      periodColors: periodColors,
+      onDaySelected: (selectedDay) {
+        setState(() {
+          _selectedDay = selectedDay;
+          _focusedDay = selectedDay;
+        });
+      },
+      onDayLongPressed: (day) {
+        final dayData = dataMap[DateHelpers.stripTime(day)];
+        if (dayData != null) {
+          _showEditSheet(context, dayData);
+        }
+      },
+      onFocusedDayChanged: (day) {
+        setState(() {
+          _focusedDay = day;
+        });
+      },
+      selectedExerciseId: _selectedExerciseId,
+      onExerciseSelected: (exerciseId) {
+        setState(() {
+          _selectedExerciseId = exerciseId;
+        });
+      },
+      onExerciseDropped: (dragData, targetDate) async {
+        if (currentCycle == null) return;
+
+        try {
+          switch (dragData) {
+            case ExerciseDragData():
+              final scheduleService = ref.read(scheduleServiceProvider);
+              await scheduleService.moveExerciseToDate(
+                cycleId: currentCycle.id,
+                sourceWorkoutId: dragData.sourceWorkoutId,
+                exerciseId: dragData.exercise.id,
+                targetDate: targetDate,
+              );
+
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      'Moved ${dragData.exercise.name} to '
+                      '${DateHelpers.shortDate.format(targetDate)}',
+                    ),
+                    duration: const Duration(seconds: 2),
+                  ),
+                );
+              }
+
+            case CardioDragData():
+              final scheduleService = ref.read(scheduleServiceProvider);
+              await scheduleService.moveCardioToDate(
+                cycleId: currentCycle.id,
+                session: dragData.session,
+                targetDate: targetDate,
+              );
+
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      'Moved ${dragData.session.label ?? dragData.session.sport.displayName} to '
+                      '${DateHelpers.shortDate.format(targetDate)}',
+                    ),
+                    duration: const Duration(seconds: 2),
+                  ),
+                );
+              }
+          }
+        } catch (e) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Failed to move: $e'),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+        }
+      },
+      onExerciseReordered: (oldIndex, newIndex, targetDate) async {
+        if (currentCycle == null) return;
+
+        try {
+          final scheduleService = ref.read(scheduleServiceProvider);
+          await scheduleService.reorderExerciseWithinDayByDate(
+            cycleId: currentCycle.id,
+            targetDate: targetDate,
+            oldIndex: oldIndex,
+            newIndex: newIndex,
+          );
+        } catch (e) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Failed to reorder exercise: $e'),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+        }
+      },
+      onAddExercise: (periodNumber, dayNumber, date) {
+        _showAddExerciseModal(
+          context,
+          currentCycle,
+          periodNumber,
+          dayNumber,
+          date,
+        );
+      },
     );
   }
 

@@ -18,6 +18,7 @@ class DesktopCalendarDayCell extends StatefulWidget {
   final String? selectedExerciseId;
   final ValueChanged<String?>? onExerciseSelected;
   final void Function(int periodNumber, int dayNumber, DateTime date)? onAddExercise;
+  final VoidCallback? onLongPress;
 
   const DesktopCalendarDayCell({
     super.key,
@@ -32,6 +33,7 @@ class DesktopCalendarDayCell extends StatefulWidget {
     this.selectedExerciseId,
     this.onExerciseSelected,
     this.onAddExercise,
+    this.onLongPress,
   });
 
   @override
@@ -107,6 +109,7 @@ class _DesktopCalendarDayCellState extends State<DesktopCalendarDayCell> {
       builder: (context, candidateData, rejectedData) {
         return GestureDetector(
           onTap: () => widget.onTap?.call(widget.date),
+          onLongPress: widget.onLongPress,
           child: Container(
             decoration: BoxDecoration(
               color: _isDragOver ? Colors.green.withAlpha(40) : backgroundColor,
