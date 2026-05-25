@@ -127,7 +127,7 @@ class _IntegrationsScreenState extends ConsumerState<IntegrationsScreen> {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text('Next sync will look back 30 days.'),
+        content: Text('Next sync will look back 3 months.'),
       ),
     );
     setState(() {});

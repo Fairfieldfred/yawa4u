@@ -101,7 +101,7 @@ class HealthSyncService {
   // trustworthy to read on iOS. Android's Health Connect exposes live
   // status, so the flag is iOS-only by design.
   static const String _kGrantedKey = 'health_permissions_granted';
-  static const Duration _initialLookback = Duration(days: 30);
+  static const Duration _initialLookback = Duration(days: 90);
 
   /// Data types we request read access to. Kept narrow — anything we
   /// don't plan to consume in v1 is omitted to reduce the scope of the

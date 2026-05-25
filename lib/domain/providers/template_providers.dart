@@ -13,12 +13,20 @@ final templateRepositoryProvider = Provider<TemplateRepository>((ref) {
   return repo;
 });
 
-/// Provider for list of available templates
+/// Provider for list of available templates (built-in + saved)
 final availableTemplatesProvider = FutureProvider<List<TrainingCycleTemplate>>((
   ref,
 ) async {
   final repository = ref.watch(templateRepositoryProvider);
   return await repository.getAllTemplates();
+});
+
+/// Provider for user-saved templates only (excludes built-in)
+final savedTemplatesProvider = FutureProvider<List<TrainingCycleTemplate>>((
+  ref,
+) async {
+  final repository = ref.watch(templateRepositoryProvider);
+  return await repository.loadSavedTemplates();
 });
 
 /// Provider for currently selected template

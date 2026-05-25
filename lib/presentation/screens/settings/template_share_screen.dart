@@ -190,7 +190,8 @@ class _TemplateShareScreenState extends ConsumerState<TemplateShareScreen> {
     });
 
     if (mounted) {
-      // Refresh the template list
+      // Refresh the template lists
+      ref.invalidate(savedTemplatesProvider);
       ref.invalidate(availableTemplatesProvider);
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -210,7 +211,7 @@ class _TemplateShareScreenState extends ConsumerState<TemplateShareScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final templatesAsync = ref.watch(availableTemplatesProvider);
+    final templatesAsync = ref.watch(savedTemplatesProvider);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Share Templates'), centerTitle: true),
@@ -246,26 +247,48 @@ class _TemplateShareScreenState extends ConsumerState<TemplateShareScreen> {
 
   Widget _buildSelectionView(List<TrainingCycleTemplate> templates) {
     if (templates.isEmpty) {
-      return Center(
+      return Padding(
+        padding: const EdgeInsets.all(24),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            const Spacer(),
             Icon(
-              Icons.folder_open,
+              Icons.bookmark_border,
               size: 64,
-              color: Theme.of(
-                context,
-              ).colorScheme.onSurface.withValues(alpha: 0.5),
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
             ),
             const SizedBox(height: 16),
             Text(
-              'No templates available',
-              style: TextStyle(
-                color: Theme.of(
-                  context,
-                ).colorScheme.onSurface.withValues(alpha: 0.5),
+              'No Saved Templates',
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.bold,
               ),
             ),
+            const SizedBox(height: 8),
+            Text(
+              'Save a Training Cycle as a template first, '
+              'then you can share it here.\n\n'
+              'To save a template, go to a Training Cycle '
+              'and use the "Save as Template" option.',
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+              ),
+            ),
+            const SizedBox(height: 24),
+            // Still allow receiving templates via QR scan
+            OutlinedButton.icon(
+              onPressed: _startScanning,
+              icon: const Icon(Icons.qr_code_scanner),
+              label: const Text(
+                'Scan QR Code to Receive Templates',
+              ),
+              style: OutlinedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                minimumSize: const Size(double.infinity, 48),
+              ),
+            ),
+            const Spacer(),
           ],
         ),
       );
