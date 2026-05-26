@@ -27,6 +27,7 @@ import '../../widgets/dialogs/add_exercise_dialog.dart';
 import '../../widgets/dialogs/exercise_info_dialog.dart';
 import '../../widgets/dialogs/workout_dialogs.dart';
 import '../../widgets/muscle_group_badge.dart';
+import '../../widgets/skeleton_loader.dart';
 import '../cardio/sport_picker_sheet.dart';
 import 'add_exercise_screen.dart';
 import 'edit_workout_controller.dart';
@@ -162,7 +163,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
           ),
         );
       },
-      loading: () => const Scaffold(body: Center(child: CircularProgressIndicator())),
+      loading: () => const Scaffold(body: SkeletonCardList()),
       error: (error, stack) {
         Sentry.captureException(error, stackTrace: stack);
         return Scaffold(body: Center(child: Text('Error: $error')));

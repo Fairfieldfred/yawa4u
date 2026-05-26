@@ -21,6 +21,7 @@ import '../../../domain/providers/training_cycle_providers.dart';
 import '../../../domain/providers/workout_providers.dart';
 import '../../widgets/dialogs/exercise_info_dialog.dart';
 import '../../widgets/muscle_group_badge.dart';
+import '../../widgets/skeleton_loader.dart';
 
 /// Read-only view of a completed trainingCycle's workouts
 /// Used for reviewing prior trainingCycle data and structure
@@ -151,9 +152,8 @@ class _CompletedCycleWorkoutScreenState extends ConsumerState<CompletedCycleWork
             icon: const Icon(Icons.arrow_back),
             onPressed: () => context.pop(),
           ),
-          title: const Text('Loading...'),
         ),
-        body: const Center(child: CircularProgressIndicator()),
+        body: const SkeletonCardList(),
       ),
       error: (error, stack) {
         Sentry.captureException(error, stackTrace: stack);
@@ -807,10 +807,7 @@ class _ReadOnlyCalendarDropdownState extends State<_ReadOnlyCalendarDropdown> {
     final bottomPadding = 12.0;
 
     final calculatedHeight =
-        headerHeight +
-        weekHeaderHeight +
-        (maxDaysInAnyPeriod * (dayButtonHeight + dayMargin)) +
-        bottomPadding;
+        headerHeight + weekHeaderHeight + (maxDaysInAnyPeriod * (dayButtonHeight + dayMargin)) + bottomPadding;
 
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
@@ -880,11 +877,10 @@ class _ReadOnlyCalendarDropdownState extends State<_ReadOnlyCalendarDropdown> {
                   weekIndex,
                 ) {
                   final periodNumber = weekIndex + 1;
-                  final daysForPeriod = (maxDayByPeriod[periodNumber] ?? 0)
-                      .clamp(
-                        widget.trainingCycle.daysPerPeriod,
-                        maxDaysInAnyPeriod,
-                      );
+                  final daysForPeriod = (maxDayByPeriod[periodNumber] ?? 0).clamp(
+                    widget.trainingCycle.daysPerPeriod,
+                    maxDaysInAnyPeriod,
+                  );
                   return Expanded(
                     child: _buildWeekColumn(
                       periodNumber,

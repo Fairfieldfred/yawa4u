@@ -7,6 +7,7 @@ import '../../../data/repositories/community_repository.dart';
 import '../../../domain/providers/auth_providers.dart';
 import '../../../domain/providers/community_providers.dart';
 import 'community_skin_detail_screen.dart';
+import '../../widgets/skeleton_loader.dart';
 import 'community_template_detail_screen.dart';
 
 /// Tabbed browse screen for the community library.
@@ -204,7 +205,7 @@ class _TemplatesTab extends ConsumerWidget {
                 },
               );
             },
-            loading: () => const Center(child: CircularProgressIndicator()),
+            loading: () => const SkeletonCardList(itemCount: 3),
             error: (error, _) => Center(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -327,7 +328,7 @@ class _SkinsTab extends ConsumerWidget {
                 },
               );
             },
-            loading: () => const Center(child: CircularProgressIndicator()),
+            loading: () => const SkeletonCardList(itemCount: 3),
             error: (error, _) => Center(
               child: Column(
                 mainAxisSize: MainAxisSize.min,

@@ -10,6 +10,7 @@ import '../../../data/models/training_cycle_template.dart';
 import '../../../data/services/template_share_service.dart';
 import '../../../domain/providers/template_providers.dart';
 import '../../../domain/providers/template_share_providers.dart';
+import '../../widgets/skeleton_loader.dart';
 
 /// Screen for sharing templates via WiFi with QR code
 class TemplateShareScreen extends ConsumerStatefulWidget {
@@ -231,7 +232,7 @@ class _TemplateShareScreenState extends ConsumerState<TemplateShareScreen> {
                 }
                 return _buildSelectionView(templates);
               },
-              loading: () => const Center(child: CircularProgressIndicator()),
+              loading: () => const SkeletonCardList(itemCount: 3),
               error: (error, stack) {
                 Sentry.captureException(error, stackTrace: stack);
                 return Center(

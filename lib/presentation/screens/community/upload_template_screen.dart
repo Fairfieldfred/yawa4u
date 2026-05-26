@@ -7,6 +7,7 @@ import '../../../domain/providers/auth_providers.dart';
 import '../../../domain/providers/community_providers.dart';
 import '../../../domain/providers/template_providers.dart';
 import '../../widgets/auth/email_link_prompt.dart';
+import '../../widgets/skeleton_loader.dart';
 
 /// Screen for selecting a local template and publishing it to the
 /// community library.
@@ -235,7 +236,7 @@ class _UploadTemplateScreenState extends ConsumerState<UploadTemplateScreen> {
                       }).toList(),
                     );
                   },
-                  loading: () => const Center(child: CircularProgressIndicator()),
+                  loading: () => const SkeletonCardList(itemCount: 2),
                   error: (e, _) => Text('Error loading templates: $e'),
                 ),
                 const SizedBox(height: 24),

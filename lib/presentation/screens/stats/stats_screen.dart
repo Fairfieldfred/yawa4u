@@ -12,6 +12,8 @@ import '../../../domain/providers/onboarding_providers.dart';
 import '../../../domain/providers/stats_providers.dart';
 import '../../../domain/providers/training_cycle_providers.dart';
 import '../../widgets/cardio/quick_log_action.dart';
+import '../../widgets/empty_state_widget.dart';
+import '../../widgets/skeleton_loader.dart';
 import '../../widgets/cardio/weekly_summary_card.dart';
 import '../../widgets/responsive_content.dart';
 import '../../widgets/screen_background.dart';
@@ -109,7 +111,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen> with SingleTickerProv
                 Expanded(
                   child: statsAsync.when(
                     data: (stats) => _buildStatsContent(context, stats),
-                    loading: () => const Center(child: CircularProgressIndicator()),
+                    loading: () => const SkeletonStats(),
                     error: (error, stack) {
                       Sentry.captureException(error, stackTrace: stack);
                       return Center(
@@ -175,38 +177,13 @@ class _StatsScreenState extends ConsumerState<StatsScreen> with SingleTickerProv
     final onboarding = ref.watch(onboardingServiceProvider);
 
     if (stats.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.directions_run,
-              size: 64,
-              color: Theme.of(
-                context,
-              ).colorScheme.primary.withValues(alpha: 0.5),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'No cardio logged yet',
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            const SizedBox(height: 8),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Text(
-                'Log a run, bike, or swim from the More tab — stats will '
-                'show up here once you have a session or two on record.',
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.onSurface.withValues(alpha: 0.6),
-                ),
-              ),
-            ),
-          ],
-        ),
+      return const EmptyStateWidget(
+        icon: Icons.directions_run,
+        iconSize: 64,
+        title: 'No cardio logged yet',
+        subtitle:
+            'Log a run, bike, or swim from the More tab — stats will '
+            'show up here once you have a session or two on record.',
       );
     }
 
@@ -290,30 +267,11 @@ class _StatsScreenState extends ConsumerState<StatsScreen> with SingleTickerProv
     return measurementsAsync.when(
       data: (measurements) {
         if (measurements.isEmpty) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.monitor_weight_outlined,
-                  size: 64,
-                  color: Theme.of(context).colorScheme.primary.withAlpha((255 * 0.5).round()),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'No Measurements Yet',
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Add body measurements in Settings\nto see your progress here.',
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurface.withAlpha((255 * 0.6).round()),
-                  ),
-                ),
-              ],
-            ),
+          return const EmptyStateWidget(
+            icon: Icons.monitor_weight_outlined,
+            iconSize: 64,
+            title: 'No Measurements Yet',
+            subtitle: 'Add body measurements in Settings\nto see your progress here.',
           );
         }
 

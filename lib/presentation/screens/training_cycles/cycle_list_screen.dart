@@ -13,6 +13,8 @@ import '../../../domain/providers/database_providers.dart';
 import '../../../domain/providers/navigation_providers.dart';
 import '../../../domain/providers/onboarding_providers.dart';
 import '../../../domain/providers/template_providers.dart';
+import '../../widgets/empty_state_widget.dart';
+import '../../widgets/skeleton_loader.dart';
 import '../../../domain/providers/theme_provider.dart';
 import '../../../domain/providers/session_providers.dart';
 import '../../../domain/providers/training_cycle_providers.dart';
@@ -141,7 +143,7 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
               ),
             );
           },
-          loading: () => const Center(child: CircularProgressIndicator()),
+          loading: () => const SkeletonCardList(),
           error: (error, stack) {
             Sentry.captureException(error, stackTrace: stack);
             return Center(
@@ -522,48 +524,25 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
   }
 
   Widget _buildEmptyState(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.calendar_month,
-            size: 80,
-            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.5),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'No TrainingCycles',
-            style: Theme.of(context).textTheme.headlineSmall,
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Create your first trainingCycle to get started',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Theme.of(
-                context,
-              ).colorScheme.onSurface.withValues(alpha: 0.7),
+    return EmptyStateWidget(
+      icon: Icons.calendar_month,
+      title: 'No TrainingCycles',
+      subtitle: 'Create your first trainingCycle to get started',
+      primaryAction: EmptyStateAction(
+        label: 'Create New',
+        icon: Icons.add,
+        onPressed: () => context.push('/plan-trainingCycle'),
+      ),
+      secondaryAction: EmptyStateAction(
+        label: 'Start from Template',
+        icon: Icons.copy,
+        onPressed: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => const TemplateSelectionScreen(),
             ),
-          ),
-          const SizedBox(height: 24),
-          FilledButton.icon(
-            onPressed: () => context.push('/plan-trainingCycle'),
-            icon: const Icon(Icons.add),
-            label: const Text('Create New'),
-          ),
-          const SizedBox(height: 12),
-          OutlinedButton.icon(
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => const TemplateSelectionScreen(),
-                ),
-              );
-            },
-            icon: const Icon(Icons.copy),
-            label: const Text('Start from Template'),
-          ),
-        ],
+          );
+        },
       ),
     );
   }

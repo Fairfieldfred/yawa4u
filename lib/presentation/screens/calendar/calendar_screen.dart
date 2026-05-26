@@ -6,6 +6,7 @@ import 'package:table_calendar/table_calendar.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../core/extensions/context_extensions.dart';
+import '../../widgets/empty_state_widget.dart';
 import '../../../core/theme/skins/skins.dart';
 import '../../../core/utils/date_helpers.dart';
 import '../../../domain/controllers/workout_home_controller.dart';
@@ -288,35 +289,12 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
   }
 
   Widget _buildNoTrainingCycle(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.calendar_month,
-              size: 80,
-              color: Theme.of(context).colorScheme.onSurface.withAlpha(77),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'No active training cycle',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                color: Theme.of(context).colorScheme.onSurface.withAlpha(179),
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Start a training cycle to see your workouts on the calendar',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Theme.of(context).colorScheme.onSurface.withAlpha(128),
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      ),
+    return EmptyStateWidget(
+      icon: Icons.calendar_month,
+      iconSize: 80,
+      iconColor: Theme.of(context).colorScheme.onSurface.withAlpha(77),
+      title: 'No active training cycle',
+      subtitle: 'Start a training cycle to see your workouts on the calendar',
     );
   }
 

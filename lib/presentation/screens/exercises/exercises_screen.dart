@@ -20,6 +20,7 @@ import '../../../data/repositories/training_cycle_repository.dart';
 import '../../../domain/controllers/workout_home_controller.dart';
 import '../../../domain/providers/database_providers.dart';
 import '../../../domain/providers/exercise_providers.dart';
+import '../../widgets/empty_state_widget.dart';
 import '../../../domain/providers/onboarding_providers.dart';
 import '../../../domain/providers/session_providers.dart';
 import '../../../domain/providers/theme_provider.dart';
@@ -225,37 +226,11 @@ class _ExercisesHomeScreenState extends ConsumerState<ExercisesHomeScreen> {
       return Scaffold(
         appBar: AppBar(title: const Text('Exercises')),
         body: ScreenBackground.exercises(
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.fitness_center,
-                  size: 80,
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.primary.withValues(alpha: 0.5),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'No Active TrainingCycle',
-                  style: Theme.of(context).textTheme.headlineSmall,
-                ),
-                const SizedBox(height: 8),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 32),
-                  child: Text(
-                    'Create and start a trainingCycle to begin',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.onSurface.withValues(alpha: 0.7),
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              ],
-            ),
+          child: const EmptyStateWidget(
+            icon: Icons.fitness_center,
+            iconSize: 80,
+            title: 'No Active TrainingCycle',
+            subtitle: 'Create and start a trainingCycle to begin',
           ),
         ),
       );
@@ -285,16 +260,14 @@ class _ExercisesHomeScreenState extends ConsumerState<ExercisesHomeScreen> {
         workoutsByTrainingCycleProvider(cycle.id),
       );
       if (cycleWorkoutsAsync.hasValue) {
-        _cachedWorkoutsPerCycle[cycle.id] =
-            cycleWorkoutsAsync.value ?? [];
+        _cachedWorkoutsPerCycle[cycle.id] = cycleWorkoutsAsync.value ?? [];
       }
 
       final cycleSessionsAsync = ref.watch(
         sessionsByTrainingCycleProvider(cycle.id),
       );
       if (cycleSessionsAsync.hasValue) {
-        _cachedSessionsPerCycle[cycle.id] =
-            cycleSessionsAsync.value ?? [];
+        _cachedSessionsPerCycle[cycle.id] = cycleSessionsAsync.value ?? [];
       }
     }
 
@@ -304,8 +277,7 @@ class _ExercisesHomeScreenState extends ConsumerState<ExercisesHomeScreen> {
     }
 
     // Primary cycle workouts only (for CalendarDropdown navigation)
-    final primaryWorkouts =
-        _cachedWorkoutsPerCycle[currentTrainingCycle.id]!;
+    final primaryWorkouts = _cachedWorkoutsPerCycle[currentTrainingCycle.id]!;
 
     // Group workouts from ALL stacked cycles by (period, day)
     final Map<String, List<Workout>> workoutsByDay = {};
@@ -487,42 +459,19 @@ class _ExercisesHomeScreenState extends ConsumerState<ExercisesHomeScreen> {
       body: ScreenBackground.exercises(
         child: Stack(
           children: [
-            Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.fitness_center,
-                    size: 80,
-                    color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.5),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'No exercises scheduled',
-                    style: Theme.of(context).textTheme.headlineSmall,
-                  ),
-                  const SizedBox(height: 8),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 32),
-                    child: Text(
-                      'Add exercises for Period $period, Day $day',
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  FilledButton.icon(
-                    onPressed: () => _addExerciseForDay(
-                      trainingCycle.id,
-                      period,
-                      day,
-                    ),
-                    icon: const Icon(Icons.add),
-                    label: const Text('Add Exercise'),
-                  ),
-                ],
+            EmptyStateWidget(
+              icon: Icons.fitness_center,
+              iconSize: 80,
+              title: 'No exercises scheduled',
+              subtitle: 'Add exercises for Period $period, Day $day',
+              primaryAction: EmptyStateAction(
+                label: 'Add Exercise',
+                icon: Icons.add,
+                onPressed: () => _addExerciseForDay(
+                  trainingCycle.id,
+                  period,
+                  day,
+                ),
               ),
             ),
             // Period selector overlay
@@ -624,9 +573,7 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
   /// Only invalidates cycle-specific providers — the global
   /// workoutsProvider is left alone to avoid re-fetching every workout.
   void _invalidateWorkoutProviders() {
-    final cycleIds = widget.allCycleIds.isNotEmpty
-        ? widget.allCycleIds
-        : [widget.trainingCycle.id];
+    final cycleIds = widget.allCycleIds.isNotEmpty ? widget.allCycleIds : [widget.trainingCycle.id];
     for (final cycleId in cycleIds) {
       ref.invalidate(workoutsByTrainingCycleListProvider(cycleId));
       ref.invalidate(workoutsByTrainingCycleProvider(cycleId));
@@ -1034,36 +981,15 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
     BuildContext context,
     List<Workout> workouts,
   ) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.fitness_center,
-            size: 80,
-            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.5),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'No exercises scheduled',
-            style: Theme.of(context).textTheme.headlineSmall,
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Add exercises for this day',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Theme.of(
-                context,
-              ).colorScheme.onSurface.withValues(alpha: 0.7),
-            ),
-          ),
-          const SizedBox(height: 24),
-          FilledButton.icon(
-            onPressed: () => _addExerciseToWorkout(workouts),
-            icon: const Icon(Icons.add),
-            label: const Text('Add Exercise'),
-          ),
-        ],
+    return EmptyStateWidget(
+      icon: Icons.fitness_center,
+      iconSize: 80,
+      title: 'No exercises scheduled',
+      subtitle: 'Add exercises for this day',
+      primaryAction: EmptyStateAction(
+        label: 'Add Exercise',
+        icon: Icons.add,
+        onPressed: () => _addExerciseToWorkout(workouts),
       ),
     );
   }

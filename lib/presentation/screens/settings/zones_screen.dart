@@ -7,6 +7,8 @@ import '../../../core/constants/sports.dart';
 import '../../../data/models/sport_zone.dart';
 import '../../../domain/providers/database_providers.dart';
 import '../../widgets/cardio/sport_badge.dart';
+import '../../widgets/empty_state_widget.dart';
+import '../../widgets/skeleton_loader.dart';
 
 /// Settings → Zones screen.
 ///
@@ -104,7 +106,7 @@ class _SportZonesTabState extends ConsumerState<_SportZonesTab> {
     return AbsorbPointer(
       absorbing: _saving,
       child: streamAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const SkeletonZoneList(),
         error: (e, _) => Center(child: Text('Error loading zones: $e')),
         data: (zones) {
           if (zones.isEmpty) {
@@ -269,41 +271,19 @@ class _EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              sport.icon,
-              size: 64,
-              color: sport.color.withValues(alpha: 0.6),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'No zones set for ${sport.displayName}',
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Start from the conventional five-zone split and tweak the '
-              'numbers to your tested thresholds.',
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Theme.of(
-                  context,
-                ).colorScheme.onSurface.withValues(alpha: 0.7),
-              ),
-            ),
-            const SizedBox(height: 20),
-            FilledButton.icon(
-              onPressed: onSeed,
-              icon: const Icon(Icons.add),
-              label: const Text('Seed default zones'),
-            ),
-          ],
-        ),
+    return EmptyStateWidget(
+      icon: sport.icon,
+      iconSize: 64,
+      iconColor: sport.color.withValues(alpha: 0.6),
+      title: 'No zones set for ${sport.displayName}',
+      subtitle:
+          'Start from the conventional five-zone split and tweak the '
+          'numbers to your tested thresholds.',
+      padding: const EdgeInsets.all(24),
+      primaryAction: EmptyStateAction(
+        label: 'Seed default zones',
+        icon: Icons.add,
+        onPressed: onSeed,
       ),
     );
   }

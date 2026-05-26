@@ -7,6 +7,7 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 import '../../../core/theme/skins/skins.dart';
 import '../../../data/models/training_cycle_template.dart';
 import '../../../domain/providers/template_providers.dart';
+import '../../widgets/skeleton_loader.dart';
 import 'template_preview_screen.dart';
 
 class TemplateSelectionScreen extends ConsumerStatefulWidget {
@@ -52,7 +53,7 @@ class _TemplateSelectionScreenState extends ConsumerState<TemplateSelectionScree
             },
           );
         },
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const SkeletonCardList(),
         error: (error, stack) {
           Sentry.captureException(error, stackTrace: stack);
           return Center(

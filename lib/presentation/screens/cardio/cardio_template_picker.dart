@@ -6,6 +6,7 @@ import '../../../core/utils/cardio_conversions.dart';
 import '../../../data/models/cardio_session_template.dart';
 import '../../../domain/providers/cardio_library_providers.dart';
 import '../../widgets/cardio/sport_badge.dart';
+import '../../widgets/skeleton_loader.dart';
 
 /// Modal sheet that lists bundled cardio session templates filtered by
 /// sport. Returns the selected template (or null on dismiss).
@@ -70,7 +71,7 @@ class CardioTemplatePicker extends ConsumerWidget {
           const SizedBox(height: 16),
           Expanded(
             child: async.when(
-              loading: () => const Center(child: CircularProgressIndicator()),
+              loading: () => const SkeletonCardList(itemCount: 3),
               error: (e, _) => Center(
                 child: Text(
                   'Could not load the library. $e',
