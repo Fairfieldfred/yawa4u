@@ -2,6 +2,7 @@ import 'package:feedback_sentry/feedback_sentry.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -22,6 +23,12 @@ import 'presentation/navigation/app_router.dart';
 Future<void> main() async {
   // Use SentryWidgetsFlutterBinding for better Sentry integration
   SentryWidgetsFlutterBinding.ensureInitialized();
+
+  // Lock orientation to portrait only
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
 
   // Debug: Print environment status
   if (kDebugMode) {
