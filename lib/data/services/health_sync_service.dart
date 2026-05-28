@@ -39,6 +39,19 @@ class HealthSyncResult {
   final int skippedDuplicate;
   final int skippedUnsupportedType;
   final int failed;
+
+  /// Total health data points returned by the health store before any
+  /// filtering. Useful for diagnosing "connected but nothing imported"
+  /// issues — a zero here means the health store isn't returning data
+  /// for this app at all (permissions or source-app config problem).
+  final int totalPoints;
+
+  /// Sessions inferred from raw data streams (DISTANCE_DELTA + HR)
+  /// rather than from WORKOUT / ExerciseSessionRecord entries. This
+  /// happens on Android when a third-party app (e.g. Peloton) writes
+  /// distance and HR but not exercise session records to Health Connect.
+  final int inferred;
+
   final String? error;
   final DateTime syncedAt;
 
@@ -47,6 +60,8 @@ class HealthSyncResult {
     required this.skippedDuplicate,
     required this.skippedUnsupportedType,
     required this.failed,
+    required this.totalPoints,
+    this.inferred = 0,
     required this.syncedAt,
     this.error,
   });
@@ -59,6 +74,8 @@ class HealthSyncResult {
       skippedDuplicate = 0,
       skippedUnsupportedType = 0,
       failed = 0,
+      totalPoints = 0,
+      inferred = 0,
       syncedAt = DateTime.now();
 
   bool get isSuccess => error == null;
@@ -232,6 +249,13 @@ class HealthSyncService {
         );
       }
 
+      // On Android, log SDK status for diagnostics. A status other than
+      // sdkAvailable typically means Health Connect is missing or outdated.
+      if (!kIsWeb && Platform.isAndroid) {
+        final sdkStatus = await _health.getHealthConnectSdkStatus();
+        _log.info('Health Connect SDK status: ${sdkStatus?.name ?? 'null'}');
+      }
+
       final now = DateTime.now();
       final lastSyncMillis = _prefs.getInt(_kLastSyncKey);
       final since = lastSyncMillis != null
@@ -244,10 +268,37 @@ class HealthSyncService {
         endTime: now,
       );
 
+      _log.info(
+        'Health sync: ${points.length} data point(s) returned '
+        'from ${since.toIso8601String()} to ${now.toIso8601String()}',
+      );
+
+      // Log a breakdown of activity types and sources for diagnostics.
+      // This is critical for debugging "connected but nothing imported"
+      // issues — e.g. Peloton workouts arriving as an unmapped type.
+      if (points.isNotEmpty) {
+        final typeCounts = <String, int>{};
+        final sourceCounts = <String, int>{};
+        for (final p in points) {
+          final v = p.value;
+          if (v is WorkoutHealthValue) {
+            final typeName = v.workoutActivityType.name;
+            typeCounts[typeName] = (typeCounts[typeName] ?? 0) + 1;
+          }
+          final src = p.sourceName;
+          if (src.isNotEmpty) {
+            sourceCounts[src] = (sourceCounts[src] ?? 0) + 1;
+          }
+        }
+        _log.info('Health sync activity types: $typeCounts');
+        _log.info('Health sync sources: $sourceCounts');
+      }
+
       var imported = 0;
       var duplicates = 0;
       var unsupported = 0;
       var failed = 0;
+      var inferred = 0;
 
       for (final p in points) {
         final value = p.value;
@@ -255,6 +306,10 @@ class HealthSyncService {
 
         final sport = _mapSport(value.workoutActivityType);
         if (sport == null) {
+          _log.fine(
+            'Skipping unsupported type: ${value.workoutActivityType.name} '
+            'from ${p.sourceName}',
+          );
           unsupported++;
           continue;
         }
@@ -284,11 +339,52 @@ class HealthSyncService {
         }
       }
 
+      // ── Android supplement: infer sessions from raw data streams ──
+      //
+      // Some third-party apps (notably Peloton) write distance and HR
+      // data to Health Connect but DO NOT write ExerciseSessionRecord
+      // entries. Always attempt stream inference on Android so we catch
+      // these apps regardless of whether other sources contributed
+      // WORKOUT records. Deduplication via getByExternalId prevents
+      // double-imports when an app writes both record types.
+      if (!kIsWeb && Platform.isAndroid) {
+        _log.info(
+          'Android stream inference: checking for data-stream-only '
+          'apps (e.g. Peloton).',
+        );
+        try {
+          final inferredSessions = await _inferSessionsFromStreams(
+            since: since,
+            until: now,
+          );
+          for (final session in inferredSessions) {
+            try {
+              await _sessionRepository.createCardio(session);
+              inferred++;
+            } catch (e, stack) {
+              Sentry.captureException(e, stackTrace: stack);
+              failed++;
+            }
+          }
+          if (inferredSessions.isEmpty) {
+            _log.info('Stream inference produced 0 sessions.');
+          } else {
+            _log.info(
+              'Stream inference: ${inferredSessions.length} candidate(s), '
+              '$inferred imported, $failed failed.',
+            );
+          }
+        } catch (e, stack) {
+          _log.warning('Stream inference failed: $e', e, stack);
+          Sentry.captureException(e, stackTrace: stack);
+        }
+      }
+
       await _prefs.setInt(_kLastSyncKey, now.millisecondsSinceEpoch);
 
       await _analytics.logHealthSyncCompleted(
         provider: providerName,
-        imported: imported,
+        imported: imported + inferred,
         duplicates: duplicates,
         unsupported: unsupported,
         failed: failed,
@@ -299,6 +395,8 @@ class HealthSyncService {
         skippedDuplicate: duplicates,
         skippedUnsupportedType: unsupported,
         failed: failed,
+        totalPoints: points.length,
+        inferred: inferred,
         syncedAt: now,
       );
     } catch (e, stack) {
@@ -318,20 +416,51 @@ class HealthSyncService {
   /// BIKING_SPINNING) and we'd rather classify them broadly than fail
   /// to compile when the plugin adds one we didn't list.
   ///
-  /// Strength / weight-training activities intentionally return null —
-  /// the user logs strength in-app; importing them would create phantom
-  /// sessions with no exercise list.
+  /// Strength / weight-training / mind-body activities intentionally
+  /// return null — the user logs strength in-app, and yoga / meditation
+  /// / stretching aren't training sessions YAWA tracks.
   Sport? _mapSport(HealthWorkoutActivityType type) {
     final name = type.name.toUpperCase();
-    if (name.contains('RUNNING') || name == 'WALKING' || name == 'HIKING' || name == 'JOGGING') {
+
+    // Run — includes treadmill variants from Health Connect.
+    // Use contains('WALKING') to catch WALKING, WALKING_TREADMILL, etc.
+    if (name.contains('RUNNING') || name.contains('WALKING') || name == 'HIKING' || name == 'JOGGING') {
       return Sport.run;
     }
-    if (name.contains('BIKING') || name.contains('CYCLING') || name == 'SPINNING') {
+
+    // Bike — includes stationary / spinning variants. ELLIPTICAL is
+    // close enough to cycling for cardio-tracking purposes.
+    if (name.contains('BIKING') || name.contains('CYCLING') || name == 'SPINNING' || name == 'ELLIPTICAL') {
       return Sport.bike;
     }
+
+    // Swim.
     if (name.contains('SWIMMING') || name == 'SWIM') {
       return Sport.swim;
     }
+
+    // Cardio activities that don't map to run / bike / swim but are
+    // still valid training sessions the user would expect to see.
+    // Peloton bootcamps, HIIT classes, rowing, etc. commonly arrive
+    // under these types from Health Connect.
+    if (name == 'HIGH_INTENSITY_INTERVAL_TRAINING' ||
+        name == 'ROWING' ||
+        name == 'ROWING_MACHINE' ||
+        name == 'STAIR_CLIMBING' ||
+        name == 'STAIR_CLIMBING_MACHINE' ||
+        name == 'CARDIO_DANCE' ||
+        name == 'JUMP_ROPE' ||
+        name == 'SKATING' ||
+        name == 'CROSS_COUNTRY_SKIING' ||
+        name == 'DOWNHILL_SKIING' ||
+        name == 'SKIING' ||
+        name == 'SNOWBOARDING' ||
+        name == 'SURFING' ||
+        name == 'SAILING' ||
+        name == 'OTHER') {
+      return Sport.other;
+    }
+
     return null;
   }
 
@@ -424,5 +553,222 @@ class HealthSyncService {
   /// Reset the cursor so the next sync looks back over [_initialLookback].
   Future<void> resetCursor() async {
     await _prefs.remove(_kLastSyncKey);
+  }
+
+  /// On Android, some third-party apps (notably Peloton) write individual
+  /// data streams (distance, HR, calories) to Health Connect but do NOT
+  /// write `ExerciseSessionRecord` entries. This method clusters
+  /// `DISTANCE_DELTA` records into sessions and enriches each with HR
+  /// data from the same time window.
+  ///
+  /// Returns a list of ready-to-persist [CardioSession]s. Callers must
+  /// still call [SessionRepository.createCardio] for each. Duplicates
+  /// are filtered here via [SessionRepository.getByExternalId].
+  Future<List<CardioSession>> _inferSessionsFromStreams({
+    required DateTime since,
+    required DateTime until,
+  }) async {
+    final distancePoints = await _health.getHealthDataFromTypes(
+      types: const [HealthDataType.DISTANCE_DELTA],
+      startTime: since,
+      endTime: until,
+    );
+
+    if (distancePoints.isEmpty) return [];
+
+    _log.info(
+      'Stream inference: ${distancePoints.length} DISTANCE_DELTA '
+      'point(s) to cluster.',
+    );
+
+    // Sort by start time for clustering.
+    final sorted = List<HealthDataPoint>.from(distancePoints)..sort((a, b) => a.dateFrom.compareTo(b.dateFrom));
+
+    // Cluster into sessions: a gap of > 30 minutes between consecutive
+    // distance points signals a new session. This threshold accommodates
+    // brief rest periods within a workout while splitting truly separate
+    // activities.
+    const gapThreshold = Duration(minutes: 30);
+    final clusters = <List<HealthDataPoint>>[];
+    var current = <HealthDataPoint>[sorted.first];
+
+    for (var i = 1; i < sorted.length; i++) {
+      final gap = sorted[i].dateFrom.difference(current.last.dateTo);
+      if (gap > gapThreshold) {
+        clusters.add(current);
+        current = <HealthDataPoint>[sorted[i]];
+      } else {
+        current.add(sorted[i]);
+      }
+    }
+    clusters.add(current);
+
+    _log.info('Stream inference: ${clusters.length} cluster(s) formed.');
+
+    final sessions = <CardioSession>[];
+    for (final cluster in clusters) {
+      final rangeStart = cluster.first.dateFrom;
+      final rangeEnd = cluster.last.dateTo;
+      final durationSec = rangeEnd.difference(rangeStart).inSeconds;
+
+      // Skip clusters shorter than 1 minute — likely noise.
+      if (durationSec < 60) continue;
+
+      // Sum distance from all points in the cluster.
+      var totalDistanceM = 0.0;
+      for (final p in cluster) {
+        final v = p.value;
+        if (v is NumericHealthValue) {
+          totalDistanceM += v.numericValue.toDouble();
+        }
+      }
+
+      // Build a stable external ID from source + time range so
+      // re-syncs don't create duplicates.
+      final sources = <String>{};
+      for (final p in cluster) {
+        if (p.sourceName.isNotEmpty) sources.add(p.sourceName);
+      }
+      final externalId =
+          'health_inferred|'
+          '${sources.join(',')}|'
+          '${rangeStart.millisecondsSinceEpoch}|'
+          '${rangeEnd.millisecondsSinceEpoch}';
+
+      // Dedupe check.
+      final existing = await _sessionRepository.getByExternalId(externalId);
+      if (existing != null) continue;
+
+      // Aggregate HR for this time window.
+      int? avgHr;
+      int? maxHr;
+      try {
+        final hrPoints = await _health.getHealthDataFromTypes(
+          types: const [HealthDataType.HEART_RATE],
+          startTime: rangeStart,
+          endTime: rangeEnd,
+        );
+        final beats = <int>[];
+        for (final hp in hrPoints) {
+          final v = hp.value;
+          if (v is NumericHealthValue) {
+            final b = v.numericValue.toInt();
+            if (b > 0) beats.add(b);
+          }
+        }
+        if (beats.isNotEmpty) {
+          beats.sort();
+          avgHr = beats.reduce((a, b) => a + b) ~/ beats.length;
+          maxHr = beats.last;
+        }
+      } catch (_) {
+        // HR is a bonus — don't fail the import on a sub-query error.
+      }
+
+      final sport = _inferSportFromSpeed(totalDistanceM, durationSec);
+      final sourceLabel = sources.isNotEmpty ? sources.join(', ') : 'Health Connect';
+
+      final detail = CardioDetail(
+        actualDurationSec: durationSec > 0 ? durationSec : null,
+        actualDistanceM: totalDistanceM > 0 ? totalDistanceM : null,
+        averageHr: avgHr,
+        maxHr: maxHr,
+      );
+
+      sessions.add(
+        CardioSession(
+          id: _uuid.v4(),
+          trainingCycleId: null,
+          sport: sport,
+          source: SessionSource.healthConnect,
+          status: WorkoutStatus.completed,
+          scheduledDate: rangeStart,
+          completedDate: rangeEnd,
+          startTime: rangeStart,
+          endTime: rangeEnd,
+          externalId: externalId,
+          detail: detail,
+          label: 'Imported from $sourceLabel',
+        ),
+      );
+    }
+
+    return sessions;
+  }
+
+  /// Rough sport classification from average speed. Used only by the
+  /// stream-inference fallback where no explicit activity type exists.
+  Sport _inferSportFromSpeed(double distanceM, int durationSec) {
+    if (durationSec <= 0 || distanceM <= 0) return Sport.other;
+    final speedKmh = (distanceM / 1000) / (durationSec / 3600);
+    // > 15 km/h → likely cycling / Peloton ride
+    if (speedKmh > 15) return Sport.bike;
+    // 3–15 km/h → run or walk
+    if (speedKmh >= 3) return Sport.run;
+    // < 3 km/h → too slow for locomotion, classify as other
+    return Sport.other;
+  }
+
+  /// Run a connectivity diagnostic against the health store. Returns a
+  /// human-readable report showing SDK status, per-type data availability,
+  /// and any errors encountered. Designed to surface on the Integrations
+  /// screen when the user taps "Run diagnostics" so we can tell whether
+  /// the health store is actually returning data.
+  Future<String> runDiagnostics() async {
+    final buf = StringBuffer();
+    try {
+      await _ensureConfigured();
+      buf.writeln('Platform: ${Platform.isAndroid ? 'Android' : 'iOS'}');
+
+      // Health Connect SDK status (Android only).
+      if (!kIsWeb && Platform.isAndroid) {
+        final sdkStatus = await _health.getHealthConnectSdkStatus();
+        buf.writeln('HC SDK status: ${sdkStatus?.name ?? 'null'}');
+      }
+
+      // Permission status.
+      final hasPerms = await _health.hasPermissions(
+        _readTypes,
+        permissions: _readPermissions,
+      );
+      buf.writeln('hasPermissions: $hasPerms');
+
+      // Probe each data type individually over the last 7 days.
+      final now = DateTime.now();
+      final since = now.subtract(const Duration(days: 7));
+      buf.writeln(
+        'Query window: ${since.toIso8601String()} → '
+        '${now.toIso8601String()}',
+      );
+
+      for (final type in _readTypes) {
+        try {
+          final points = await _health.getHealthDataFromTypes(
+            types: [type],
+            startTime: since,
+            endTime: now,
+          );
+          // For WORKOUT, also log source names to verify third-party data.
+          if (type == HealthDataType.WORKOUT && points.isNotEmpty) {
+            final sources = <String>{};
+            for (final p in points) {
+              if (p.sourceName.isNotEmpty) sources.add(p.sourceName);
+            }
+            buf.writeln(
+              '  ${type.name}: ${points.length} point(s) '
+              'sources=$sources',
+            );
+          } else {
+            buf.writeln('  ${type.name}: ${points.length} point(s)');
+          }
+        } catch (e) {
+          buf.writeln('  ${type.name}: ERROR $e');
+        }
+      }
+    } catch (e) {
+      buf.writeln('Diagnostics failed: $e');
+    }
+    _log.info('Health diagnostics:\n$buf');
+    return buf.toString();
   }
 }

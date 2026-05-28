@@ -112,9 +112,11 @@ class _IntegrationsScreenState extends ConsumerState<IntegrationsScreen> {
       _busy = false;
     });
     final text = result.isSuccess
-        ? 'Imported ${result.imported} · '
-              '${result.skippedDuplicate} duplicate · '
-              '${result.skippedUnsupportedType} unsupported'
+        ? 'Found ${result.totalPoints} records · '
+              '+${result.imported} imported'
+              '${result.inferred > 0 ? ' · ${result.inferred} inferred from data streams' : ''}'
+              ' · ${result.skippedDuplicate} duplicate'
+              ' · ${result.skippedUnsupportedType} unsupported'
         : 'Sync failed: ${result.error}';
     ScaffoldMessenger.of(
       context,
@@ -131,6 +133,37 @@ class _IntegrationsScreenState extends ConsumerState<IntegrationsScreen> {
       ),
     );
     setState(() {});
+  }
+
+  Future<void> _runDiagnostics() async {
+    if (_busy) return;
+    setState(() => _busy = true);
+    final report = await ref.read(healthSyncServiceProvider).runDiagnostics();
+    if (!mounted) return;
+    setState(() => _busy = false);
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        title: const Text('Health Diagnostics'),
+        content: SingleChildScrollView(
+          child: SelectableText(
+            report,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              fontFamily: 'monospace',
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('CLOSE'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -153,6 +186,7 @@ class _IntegrationsScreenState extends ConsumerState<IntegrationsScreen> {
             onRequestPermissions: _requestPermissions,
             onSync: _sync,
             onResetCursor: _resetCursor,
+            onRunDiagnostics: _runDiagnostics,
           ),
           const SizedBox(height: 16),
           _PelotonNote(providerName: service.providerName),
@@ -439,6 +473,7 @@ class _HealthCard extends StatelessWidget {
     required this.onRequestPermissions,
     required this.onSync,
     required this.onResetCursor,
+    required this.onRunDiagnostics,
   });
 
   final String providerName;
@@ -450,6 +485,7 @@ class _HealthCard extends StatelessWidget {
   final VoidCallback onRequestPermissions;
   final VoidCallback onSync;
   final VoidCallback onResetCursor;
+  final VoidCallback onRunDiagnostics;
 
   @override
   Widget build(BuildContext context) {
@@ -510,6 +546,7 @@ class _HealthCard extends StatelessWidget {
                 onRequestPermissions: onRequestPermissions,
                 onSync: onSync,
                 onResetCursor: onResetCursor,
+                onRunDiagnostics: onRunDiagnostics,
                 showResetCursor: lastSyncAt != null,
               ),
           ],
@@ -599,9 +636,11 @@ class _ResultLine extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(top: 4),
       child: Text(
-        'Last run: +${result.imported} imported · '
-        '${result.skippedDuplicate} already here · '
-        '${result.skippedUnsupportedType} non-cardio skipped'
+        'Last run: ${result.totalPoints} found · '
+        '+${result.imported} imported'
+        '${result.inferred > 0 ? ' · ${result.inferred} inferred' : ''}'
+        ' · ${result.skippedDuplicate} already here'
+        ' · ${result.skippedUnsupportedType} non-cardio skipped'
         '${result.failed > 0 ? ' · ${result.failed} failed' : ''}',
         style: Theme.of(context).textTheme.bodySmall,
       ),
@@ -616,6 +655,7 @@ class _Actions extends StatelessWidget {
     required this.onRequestPermissions,
     required this.onSync,
     required this.onResetCursor,
+    required this.onRunDiagnostics,
     required this.showResetCursor,
   });
 
@@ -624,6 +664,7 @@ class _Actions extends StatelessWidget {
   final VoidCallback onRequestPermissions;
   final VoidCallback onSync;
   final VoidCallback onResetCursor;
+  final VoidCallback onRunDiagnostics;
   final bool showResetCursor;
 
   @override
@@ -656,6 +697,12 @@ class _Actions extends StatelessWidget {
             onPressed: busy ? null : onResetCursor,
             icon: const Icon(Icons.restart_alt),
             label: const Text('Reset cursor'),
+          ),
+        if (isReady)
+          OutlinedButton.icon(
+            onPressed: busy ? null : onRunDiagnostics,
+            icon: const Icon(Icons.bug_report_outlined),
+            label: const Text('Diagnostics'),
           ),
       ],
     );

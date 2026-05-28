@@ -70,12 +70,6 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
           title: const Text('Calendar'),
           actions: [
             const QuickLogAction(),
-            // Today button
-            IconButton(
-              icon: const Icon(Icons.today),
-              tooltip: 'Go to today',
-              onPressed: _goToToday,
-            ),
             // Theme toggle
             IconButton(
               icon: Icon(
@@ -1565,13 +1559,6 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
         style: TextStyle(color: color, fontSize: 10, fontWeight: FontWeight.w500),
       ),
     );
-  }
-
-  void _goToToday() {
-    setState(() {
-      _focusedDay = DateTime.now();
-      _selectedDay = DateTime.now();
-    });
   }
 
   Future<void> _insertDayBefore(int period, int day) async {

@@ -215,9 +215,17 @@ List<CalendarDayData> buildCalendarData({
   for (var day = firstOfMonth; !day.isAfter(lastOfMonth); day = DateHelpers.addDays(day, 1)) {
     final strippedDay = DateHelpers.stripTime(day);
 
-    // Check if this day is within the training cycle range
+    // Check if this day is within the training cycle range.
+    // Even outside the cycle range, attach any imported cardio sessions
+    // so they render as cards rather than just sport dots.
     if (strippedDay.isBefore(cycleStart) || strippedDay.isAfter(cycleEnd)) {
-      result.add(CalendarDayData(date: strippedDay));
+      final dayCardio = cardioByDate[strippedDay] ?? const <CardioSession>[];
+      result.add(
+        CalendarDayData(
+          date: strippedDay,
+          cardioSessions: dayCardio,
+        ),
+      );
       continue;
     }
 

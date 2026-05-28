@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(dart run:*)"
+      "Bash(dart run:*)",
+      "Read(//Users/fred/.pub-cache/hosted/pub.dev/health-13.1.4/lib/src/**)"
     ]
   }
 }
