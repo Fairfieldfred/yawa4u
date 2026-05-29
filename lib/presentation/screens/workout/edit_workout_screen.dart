@@ -1913,7 +1913,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
     // Get the workout containing this exercise from the repository
     final repository = ref.read(workoutRepositoryProvider);
     final workout = await repository.getById(exercise.workoutId);
-    if (workout == null) return;
+    if (workout == null || !mounted) return;
 
     final currentNote = exercise.notes;
 

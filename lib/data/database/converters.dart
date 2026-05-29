@@ -172,7 +172,7 @@ class SorenessConverter extends TypeConverter<Soreness, int> {
   }
 }
 
-/// Type converter for Map<String, int> stored as JSON
+/// Type converter for `Map<String, int>` stored as JSON
 class StringIntMapConverter extends TypeConverter<Map<String, int>, String> {
   const StringIntMapConverter();
 
@@ -189,7 +189,7 @@ class StringIntMapConverter extends TypeConverter<Map<String, int>, String> {
   }
 }
 
-/// Type converter for Map<String, Soreness> stored as JSON (by index)
+/// Type converter for `Map<String, Soreness>` stored as JSON (by index)
 class MuscleGroupSorenessMapConverter extends TypeConverter<Map<String, Soreness>, String> {
   const MuscleGroupSorenessMapConverter();
 

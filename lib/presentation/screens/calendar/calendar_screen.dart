@@ -509,7 +509,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                 targetDate: targetDate,
               );
 
-              if (mounted) {
+              if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(
@@ -529,7 +529,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                 targetDate: targetDate,
               );
 
-              if (mounted) {
+              if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(
@@ -542,7 +542,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
               }
           }
         } catch (e) {
-          if (mounted) {
+          if (context.mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text('Failed to move: $e'),
@@ -564,7 +564,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
             newIndex: newIndex,
           );
         } catch (e) {
-          if (mounted) {
+          if (context.mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text('Failed to reorder exercise: $e'),
@@ -786,7 +786,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                 targetDate: targetDate,
               );
 
-              if (mounted) {
+              if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(
@@ -805,7 +805,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                 targetDate: targetDate,
               );
 
-              if (mounted) {
+              if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(
@@ -817,7 +817,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
               }
           }
         } catch (e) {
-          if (mounted) {
+          if (context.mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text('Failed to move: $e'),
@@ -839,7 +839,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
             newIndex: newIndex,
           );
         } catch (e) {
-          if (mounted) {
+          if (context.mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text('Failed to reorder exercise: $e'),
@@ -976,7 +976,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
       workoutId = newId;
     }
 
-    if (!mounted) return;
+    if (!context.mounted) return;
 
     showDialog(
       context: context,

@@ -1,12 +1,8 @@
-import 'dart:io';
-
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/skins/skins.dart';
-import '../../../data/services/theme_image_service.dart';
 
 /// Screen for selecting and previewing app skins/themes.
 class SkinSelectionScreen extends ConsumerWidget {
@@ -119,87 +115,6 @@ class SkinSelectionScreen extends ConsumerWidget {
               ],
             ),
     );
-  }
-
-  Future<void> _importTheme(BuildContext context, WidgetRef ref) async {
-    try {
-      final result = await FilePicker.platform.pickFiles(
-        type: FileType.any,
-        allowMultiple: false,
-      );
-
-      if (result == null || result.files.isEmpty) return;
-
-      final file = result.files.first;
-      if (file.path == null) return;
-
-      // Check file extension
-      if (!file.path!.endsWith('.yawa-theme')) {
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Please select a .yawa-theme file')),
-          );
-        }
-        return;
-      }
-
-      // Show loading indicator
-      if (context.mounted) {
-        showDialog(
-          context: context,
-          barrierDismissible: false,
-          builder: (context) => const Center(child: CircularProgressIndicator()),
-        );
-      }
-
-      // Read and parse the file
-      final fileContent = await File(file.path!).readAsString();
-      final skinRepository = ref.read(skinRepositoryProvider);
-      final themeImageService = ref.read(themeImageServiceProvider);
-
-      final parsed = await skinRepository.parseThemeFile(fileContent);
-
-      // Import images
-      await themeImageService.importThemeImagesFromBase64(
-        themeId: parsed.skin.id,
-        base64Map: parsed.imagesBase64,
-      );
-
-      // Get the actual image paths
-      final imagePaths = await themeImageService.getAllThemeImagePaths(
-        parsed.skin.id,
-      );
-
-      // Update skin with image paths
-      final updatedSkin = parsed.skin.copyWith(
-        backgrounds: SkinBackgrounds(
-          workout: imagePaths['workout'],
-          cycles: imagePaths['cycles'],
-          exercises: imagePaths['exercises'],
-          more: imagePaths['more'],
-          defaultBackground: imagePaths['default'],
-          appIcon: imagePaths['app_icon'],
-        ),
-      );
-
-      // Save the skin
-      await ref.read(skinProvider.notifier).saveCustomSkin(updatedSkin);
-
-      // Close loading dialog and show success
-      if (context.mounted) {
-        Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Theme "${updatedSkin.name}" imported!')),
-        );
-      }
-    } catch (e) {
-      if (context.mounted) {
-        Navigator.pop(context); // Close loading dialog if open
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Error importing theme: $e')));
-      }
-    }
   }
 }
 

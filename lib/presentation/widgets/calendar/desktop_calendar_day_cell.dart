@@ -222,12 +222,10 @@ class _DesktopCalendarDayCellState extends State<DesktopCalendarDayCell> {
       padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 1),
       buildDefaultDragHandles: false,
       itemCount: totalCount,
-      onReorder: (oldIndex, newIndex) {
+      onReorderItem: (oldIndex, newIndex) {
         // Only handle reorder if both indices are within the exercise range
-        if (oldIndex >= exercises.length || newIndex > exercises.length) return;
+        if (oldIndex >= exercises.length || newIndex >= exercises.length) return;
         if (widget.onExerciseReordered != null) {
-          // Adjust for removal
-          if (newIndex > oldIndex) newIndex--;
           widget.onExerciseReordered!(oldIndex, newIndex, widget.date);
         }
       },

@@ -146,11 +146,10 @@ class _IntervalBuilderScreenState extends ConsumerState<IntervalBuilderScreen> {
     });
   }
 
-  /// Handler for [ReorderableListView.onReorder]. Material's callback
-  /// quirk: newIndex is post-removal, so we decrement when moving down.
+  /// Handler for [ReorderableListView.onReorderItem]. The newIndex is
+  /// already adjusted for the removed item at oldIndex.
   void _reorder(int oldIndex, int newIndex) {
     setState(() {
-      if (newIndex > oldIndex) newIndex -= 1;
       final item = _intervals.removeAt(oldIndex);
       _intervals.insert(newIndex, item);
       _reindex();
@@ -299,7 +298,7 @@ class _IntervalBuilderScreenState extends ConsumerState<IntervalBuilderScreen> {
                     : ReorderableListView.builder(
                         padding: const EdgeInsets.fromLTRB(12, 8, 12, 88),
                         itemCount: _intervals.length,
-                        onReorder: _reorder,
+                        onReorderItem: _reorder,
                         buildDefaultDragHandles: false,
                         itemBuilder: (ctx, i) {
                           final interval = _intervals[i];

@@ -537,7 +537,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
   Future<void> _addNote(String workoutId, String exerciseId) async {
     final repository = ref.read(workoutRepositoryProvider);
     final workout = await repository.getById(workoutId);
-    if (workout == null) return;
+    if (workout == null || !mounted) return;
 
     final exercise = workout.exercises.firstWhere((e) => e.id == exerciseId);
 

@@ -107,7 +107,7 @@ class SentryService {
         stackTrace: stackTrace,
         withScope: message != null
             ? (scope) {
-                scope.setExtra('custom_message', message);
+                scope.setContexts('custom', {'message': message});
               }
             : null,
       );
