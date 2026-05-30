@@ -64,3 +64,4 @@ SETUP.md
 /android/gradle/key.properties
 sentry.properties
 .vscode/launch.json
+.agents/skills
