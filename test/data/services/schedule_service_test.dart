@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart' hide isNull, isNotNull;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:yawa4u/core/constants/sports.dart';
 import 'package:yawa4u/data/database/database.dart';
 import 'package:yawa4u/data/repositories/session_repository.dart';
 import 'package:yawa4u/data/repositories/training_cycle_repository.dart';
@@ -13,13 +14,14 @@ void main() {
   late AppDatabase db;
   late TrainingCycleRepository cycleRepo;
   late WorkoutRepository workoutRepo;
+  late SessionRepository sessionRepo;
   late ScheduleService service;
 
   setUp(() {
     driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
     db = AppDatabase.forTesting(NativeDatabase.memory());
     cycleRepo = TrainingCycleRepository(db.trainingCycleDao);
-    final sessionRepo = SessionRepository(
+    sessionRepo = SessionRepository(
       db.sessionDao,
       db.exerciseDao,
       db.exerciseSetDao,
@@ -31,7 +33,8 @@ void main() {
     workoutRepo = WorkoutRepository(sessionRepo, db.exerciseDao);
     service = ScheduleService(
       cycleRepository: cycleRepo,
-      workoutRepository: workoutRepo, sessionRepository: sessionRepo,
+      workoutRepository: workoutRepo,
+      sessionRepository: sessionRepo,
     );
   });
 
@@ -345,6 +348,268 @@ void main() {
       expect(snapshot.periodNumber, 2);
       expect(snapshot.dayNumber, 3);
       expect(snapshot.scheduledDate, DateTime(2024, 3, 5));
+    });
+  });
+
+  group('removeRestDay', () {
+    test('shifts workouts after rest day backward by one day', () async {
+      final startDate = DateTime(2024, 3, 1);
+      await insertCycle(startDate: startDate, daysPerPeriod: 4);
+
+      await insertWorkout(
+        id: 'w1',
+        period: 1,
+        day: 1,
+        scheduledDate: DateTime(2024, 3, 1),
+      );
+      await insertWorkout(
+        id: 'w2',
+        period: 1,
+        day: 2,
+        scheduledDate: DateTime(2024, 3, 3), // gap on Mar 2
+      );
+      await insertWorkout(
+        id: 'w3',
+        period: 1,
+        day: 3,
+        scheduledDate: DateTime(2024, 3, 4),
+      );
+
+      // Remove the rest day on March 2 — w2 and w3 should shift back
+      await service.removeRestDay(
+        cycleId: 'cycle-1',
+        restDayDate: DateTime(2024, 3, 2),
+      );
+
+      final w1 = await workoutRepo.getById('w1');
+      final w2 = await workoutRepo.getById('w2');
+      final w3 = await workoutRepo.getById('w3');
+
+      // w1 is on or before the rest day — unchanged
+      expect(w1!.scheduledDate, DateTime(2024, 3, 1));
+      // w2 and w3 shift backward by 1
+      expect(w2!.scheduledDate, DateTime(2024, 3, 2));
+      expect(w3!.scheduledDate, DateTime(2024, 3, 3));
+    });
+
+    test('leaves earlier workouts untouched', () async {
+      final startDate = DateTime(2024, 3, 1);
+      await insertCycle(startDate: startDate, daysPerPeriod: 4);
+
+      await insertWorkout(
+        id: 'w1',
+        period: 1,
+        day: 1,
+        scheduledDate: DateTime(2024, 3, 1),
+      );
+      await insertWorkout(
+        id: 'w2',
+        period: 1,
+        day: 2,
+        scheduledDate: DateTime(2024, 3, 2),
+      );
+
+      // Remove a rest day on March 5 — no workouts are after it
+      await service.removeRestDay(
+        cycleId: 'cycle-1',
+        restDayDate: DateTime(2024, 3, 5),
+      );
+
+      final w1 = await workoutRepo.getById('w1');
+      final w2 = await workoutRepo.getById('w2');
+
+      expect(w1!.scheduledDate, DateTime(2024, 3, 1));
+      expect(w2!.scheduledDate, DateTime(2024, 3, 2));
+    });
+
+    test('returns snapshot for undo', () async {
+      await insertCycle(startDate: DateTime(2024, 3, 1), daysPerPeriod: 3);
+      await insertWorkout(
+        id: 'w1',
+        period: 1,
+        day: 1,
+        scheduledDate: DateTime(2024, 3, 1),
+      );
+
+      final snapshot = await service.removeRestDay(
+        cycleId: 'cycle-1',
+        restDayDate: DateTime(2024, 3, 2),
+      );
+
+      expect(snapshot.cycleStartDate, DateTime(2024, 3, 1));
+      expect(snapshot.workoutSnapshots.length, 1);
+      expect(snapshot.description, 'Removed rest day');
+    });
+  });
+
+  group('moveCardioToDate', () {
+    test('updates session date, period, and day', () async {
+      final startDate = DateTime(2024, 3, 1);
+      await insertCycle(startDate: startDate, daysPerPeriod: 5);
+
+      final cardio = TestFixtures.createCardioSession(
+        id: 'cardio-1',
+        trainingCycleId: 'cycle-1',
+        sport: Sport.run,
+        periodNumber: 1,
+        dayNumber: 1,
+        scheduledDate: DateTime(2024, 3, 1),
+      );
+      await sessionRepo.createCardio(cardio);
+
+      // Move to March 8 → period 2, day 3 (0-indexed: day 7 from start)
+      // daysFromStart=7, period=(7~/5)+1=2, day=(7%5)+1=3
+      await service.moveCardioToDate(
+        cycleId: 'cycle-1',
+        session: cardio,
+        targetDate: DateTime(2024, 3, 8),
+      );
+
+      final updated = await sessionRepo.getById('cardio-1');
+      expect(updated, isNotNull);
+      expect(updated!.scheduledDate, DateTime(2024, 3, 8));
+      expect(updated.periodNumber, 2);
+      expect(updated.dayNumber, 3);
+    });
+
+    test('falls back to createdDate when cycle has no startDate', () async {
+      // Insert cycle without start date — moveCardioToDate uses
+      // cycle.startDate ?? cycle.createdDate as the anchor.
+      await insertCycle(startDate: null, daysPerPeriod: 5);
+
+      // We need to fetch the cycle to get its createdDate
+      final cycle = await cycleRepo.getById('cycle-1');
+      final createdDate = cycle!.createdDate;
+
+      final cardio = TestFixtures.createCardioSession(
+        id: 'cardio-2',
+        trainingCycleId: 'cycle-1',
+        sport: Sport.bike,
+        periodNumber: 1,
+        dayNumber: 1,
+      );
+      await sessionRepo.createCardio(cardio);
+
+      // Target 10 days after createdDate
+      final target = DateTime(
+        createdDate.year,
+        createdDate.month,
+        createdDate.day + 10,
+      );
+
+      await service.moveCardioToDate(
+        cycleId: 'cycle-1',
+        session: cardio,
+        targetDate: target,
+      );
+
+      final updated = await sessionRepo.getById('cardio-2');
+      expect(updated, isNotNull);
+      // period = (10 ~/ 5) + 1 = 3, day = (10 % 5) + 1 = 1
+      expect(updated!.periodNumber, 3);
+      expect(updated.dayNumber, 1);
+    });
+  });
+
+  group('reorderExerciseWithinDay', () {
+    test('reorders exercises across workouts on the same day', () async {
+      await insertCycle(startDate: DateTime(2024, 3, 1), daysPerPeriod: 5);
+
+      // Create two workouts on day 1 with exercises
+      final w1 = TestFixtures.createWorkout(
+        id: 'w1',
+        trainingCycleId: 'cycle-1',
+        periodNumber: 1,
+        dayNumber: 1,
+        exercises: [
+          TestFixtures.createExercise(
+            id: 'e1',
+            workoutId: 'w1',
+            name: 'Bench Press',
+            orderIndex: 0,
+          ),
+          TestFixtures.createExercise(
+            id: 'e2',
+            workoutId: 'w1',
+            name: 'Incline Press',
+            orderIndex: 1,
+          ),
+        ],
+      );
+      await workoutRepo.create(w1);
+
+      final w2 = TestFixtures.createWorkout(
+        id: 'w2',
+        trainingCycleId: 'cycle-1',
+        periodNumber: 1,
+        dayNumber: 1,
+        label: 'Triceps',
+        exercises: [
+          TestFixtures.createExercise(
+            id: 'e3',
+            workoutId: 'w2',
+            name: 'Tricep Pushdown',
+            orderIndex: 0,
+          ),
+        ],
+      );
+      await workoutRepo.create(w2);
+
+      // Flat list: [e1(0), e2(1), e3(2)]
+      // Move e3 (index 2) to index 0 → [e3(0), e1(1), e2(2)]
+      await service.reorderExerciseWithinDay(
+        cycleId: 'cycle-1',
+        periodNumber: 1,
+        dayNumber: 1,
+        oldIndex: 2,
+        newIndex: 0,
+      );
+
+      final updatedW1 = await workoutRepo.getById('w1');
+      final updatedW2 = await workoutRepo.getById('w2');
+
+      // e1 should now be at orderIndex 1, e2 at 2 (within w1)
+      final e1 = updatedW1!.exercises.firstWhere((e) => e.id == 'e1');
+      final e2 = updatedW1.exercises.firstWhere((e) => e.id == 'e2');
+      expect(e1.orderIndex, 1);
+      expect(e2.orderIndex, 2);
+
+      // e3 stays in w2 but gets orderIndex 0
+      final e3 = updatedW2!.exercises.firstWhere((e) => e.id == 'e3');
+      expect(e3.orderIndex, 0);
+    });
+
+    test('no-op when indices are out of bounds', () async {
+      await insertCycle(startDate: DateTime(2024, 3, 1), daysPerPeriod: 5);
+
+      final w1 = TestFixtures.createWorkout(
+        id: 'w1',
+        trainingCycleId: 'cycle-1',
+        periodNumber: 1,
+        dayNumber: 1,
+        exercises: [
+          TestFixtures.createExercise(
+            id: 'e1',
+            workoutId: 'w1',
+            name: 'Squat',
+            orderIndex: 0,
+          ),
+        ],
+      );
+      await workoutRepo.create(w1);
+
+      // Out-of-bounds oldIndex — should return without error
+      await service.reorderExerciseWithinDay(
+        cycleId: 'cycle-1',
+        periodNumber: 1,
+        dayNumber: 1,
+        oldIndex: 5,
+        newIndex: 0,
+      );
+
+      final updated = await workoutRepo.getById('w1');
+      final e1 = updated!.exercises.firstWhere((e) => e.id == 'e1');
+      expect(e1.orderIndex, 0); // unchanged
     });
   });
 }

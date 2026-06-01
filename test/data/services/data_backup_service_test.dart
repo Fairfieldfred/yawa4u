@@ -4,8 +4,10 @@ import 'package:drift/drift.dart' hide isNull, isNotNull;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:yawa4u/core/constants/enums.dart';
 import 'package:yawa4u/core/constants/sports.dart';
 import 'package:yawa4u/core/theme/skins/skin_repository.dart';
+import 'package:yawa4u/data/models/session.dart';
 import 'package:yawa4u/data/database/database.dart';
 import 'package:yawa4u/data/repositories/cardio_feedback_repository.dart';
 import 'package:yawa4u/data/repositories/custom_exercise_repository.dart';
@@ -306,6 +308,378 @@ void main() {
     });
   });
 
+  group('Export - exercises', () {
+    test('exports exercises with their sets', () async {
+      final cycle = TestFixtures.createTrainingCycle(id: 'cycle-ex');
+      await cycleRepo.create(cycle);
+
+      final workout = TestFixtures.createWorkout(
+        id: 'w-ex',
+        trainingCycleId: 'cycle-ex',
+        exercises: [
+          TestFixtures.createExercise(
+            id: 'e-1',
+            workoutId: 'w-ex',
+            name: 'Bench Press',
+            sets: [
+              TestFixtures.createExerciseSet(
+                id: 'set-1',
+                setNumber: 1,
+                weight: 100,
+                reps: '8',
+              ),
+              TestFixtures.createExerciseSet(
+                id: 'set-2',
+                setNumber: 2,
+                weight: 105,
+                reps: '6',
+              ),
+            ],
+          ),
+        ],
+      );
+      await workoutRepo.create(workout);
+
+      final json = await backupService.exportToJson(includeThemes: false);
+      final data = jsonDecode(json) as Map<String, dynamic>;
+
+      expect(data['workouts'], hasLength(1));
+      expect(data['exercises'], hasLength(1));
+
+      final exerciseData = data['exercises'][0] as Map<String, dynamic>;
+      expect(exerciseData['name'], 'Bench Press');
+      final sets = exerciseData['sets'] as List;
+      expect(sets, hasLength(2));
+    });
+
+    test('exports custom exercise definitions', () async {
+      await customExerciseRepo.add(
+        TestFixtures.createCustomExerciseDefinition(
+          id: 'ce-1',
+          name: 'Custom Pull',
+        ),
+      );
+
+      final json = await backupService.exportToJson(includeThemes: false);
+      final data = jsonDecode(json) as Map<String, dynamic>;
+
+      expect(data['customExercises'], hasLength(1));
+      final ce = data['customExercises'][0] as Map<String, dynamic>;
+      expect(ce['name'], 'Custom Pull');
+    });
+  });
+
+  group('Export - multi-sport', () {
+    test('exports cycle periods with phase', () async {
+      final cycle = TestFixtures.createTrainingCycle(id: 'cycle-cp');
+      await cycleRepo.create(cycle);
+
+      await cyclePeriodRepo.create(
+        TestFixtures.createCyclePeriod(
+          id: 'cp-1',
+          trainingCycleId: 'cycle-cp',
+          periodNumber: 1,
+          phase: TrainingPhase.base,
+        ),
+      );
+
+      final json = await backupService.exportToJson(includeThemes: false);
+      final data = jsonDecode(json) as Map<String, dynamic>;
+
+      expect(data['cyclePeriods'], hasLength(1));
+    });
+
+    test('exports cardio feedback linked to session', () async {
+      final session = TestFixtures.createCardioSession(
+        id: 'cs-fb',
+        sport: Sport.run,
+      );
+      await sessionRepo.createCardio(session);
+
+      await cardioFeedbackRepo.save(
+        'cs-fb',
+        TestFixtures.createCardioFeedback(rpe: 7, breathing: 4),
+      );
+
+      final json = await backupService.exportToJson(includeThemes: false);
+      final data = jsonDecode(json) as Map<String, dynamic>;
+
+      expect(data['cardioFeedbacks'], hasLength(1));
+      final fb = data['cardioFeedbacks'][0] as Map<String, dynamic>;
+      expect(fb['sessionId'], 'cs-fb');
+      expect(fb['rpe'], 7);
+    });
+  });
+
+  group('Import - exercises', () {
+    test('workout import brings in exercises with sets', () async {
+      final cycle = TestFixtures.createTrainingCycle(id: 'imp-cycle');
+
+      final workout = TestFixtures.createWorkout(
+        id: 'imp-w',
+        trainingCycleId: 'imp-cycle',
+        exercises: [
+          TestFixtures.createExercise(
+            id: 'imp-e',
+            workoutId: 'imp-w',
+            sets: [
+              TestFixtures.createExerciseSet(id: 'imp-s1', weight: 80),
+            ],
+          ),
+        ],
+      );
+
+      // Only include exercises in the workouts array — not in the
+      // standalone exercises array — to avoid duplicate-key errors.
+      final exportJson = jsonEncode({
+        'version': 4,
+        'trainingCycles': [cycle.toJson()],
+        'workouts': [workout.toJson()],
+        'exercises': [],
+        'customExercises': [],
+        'cardioSessions': [],
+        'cyclePeriods': [],
+        'sportZones': [],
+        'cardioFeedbacks': [],
+      });
+
+      final result = await backupService.importFromJson(
+        exportJson,
+        replace: true,
+        importThemes: false,
+      );
+
+      expect(result.success, isTrue);
+      expect(result.workoutsImported, equals(1));
+
+      // Verify exercises were created as part of the workout
+      final loaded = await workoutRepo.getById('imp-w');
+      expect(loaded, isNotNull);
+      expect(loaded!.exercises, hasLength(1));
+      expect(loaded.exercises.first.sets, hasLength(1));
+      expect(loaded.exercises.first.sets.first.weight, 80);
+    });
+
+    test('imports custom exercise definitions', () async {
+      final ce = TestFixtures.createCustomExerciseDefinition(
+        id: 'imp-ce',
+        name: 'Imported Custom',
+      );
+
+      final exportJson = jsonEncode({
+        'version': 4,
+        'trainingCycles': [],
+        'workouts': [],
+        'exercises': [],
+        'customExercises': [ce.toJson()],
+        'cardioSessions': [],
+        'cyclePeriods': [],
+        'sportZones': [],
+        'cardioFeedbacks': [],
+      });
+
+      final result = await backupService.importFromJson(
+        exportJson,
+        importThemes: false,
+      );
+
+      expect(result.success, isTrue);
+      expect(result.customExercisesImported, equals(1));
+
+      final loaded = await customExerciseRepo.getById('imp-ce');
+      expect(loaded, isNotNull);
+      expect(loaded!.name, 'Imported Custom');
+    });
+  });
+
+  group('Import - multi-sport', () {
+    test('imports cycle periods', () async {
+      final cycle = TestFixtures.createTrainingCycle(id: 'cp-cycle');
+      await cycleRepo.create(cycle);
+
+      final period = TestFixtures.createCyclePeriod(
+        id: 'cp-imp',
+        trainingCycleId: 'cp-cycle',
+        periodNumber: 1,
+        phase: TrainingPhase.build,
+      );
+
+      final exportJson = jsonEncode({
+        'version': 4,
+        'trainingCycles': [],
+        'workouts': [],
+        'exercises': [],
+        'customExercises': [],
+        'cardioSessions': [],
+        'cyclePeriods': [period.toJson()],
+        'sportZones': [],
+        'cardioFeedbacks': [],
+      });
+
+      final result = await backupService.importFromJson(
+        exportJson,
+        importThemes: false,
+      );
+
+      expect(result.success, isTrue);
+      expect(result.cyclePeriodsImported, equals(1));
+    });
+
+    test('imports cardio feedback', () async {
+      final session = TestFixtures.createCardioSession(
+        id: 'cs-imp-fb',
+        sport: Sport.bike,
+      );
+      await sessionRepo.createCardio(session);
+
+      final exportJson = jsonEncode({
+        'version': 4,
+        'trainingCycles': [],
+        'workouts': [],
+        'exercises': [],
+        'customExercises': [],
+        'cardioSessions': [],
+        'cyclePeriods': [],
+        'sportZones': [],
+        'cardioFeedbacks': [
+          {
+            'sessionId': 'cs-imp-fb',
+            'rpe': 8,
+            'breathing': 3,
+          },
+        ],
+      });
+
+      final result = await backupService.importFromJson(
+        exportJson,
+        importThemes: false,
+      );
+
+      expect(result.success, isTrue);
+      expect(result.cardioFeedbacksImported, equals(1));
+
+      final loaded = await cardioFeedbackRepo.getForSession('cs-imp-fb');
+      expect(loaded, isNotNull);
+      expect(loaded!.rpe, 8);
+    });
+
+    test('imports sport zones with replace semantics', () async {
+      // Seed an existing zone
+      await sportZoneRepo.create(
+        TestFixtures.createSportZone(
+          id: 'old-z1',
+          sport: Sport.run,
+          zoneNumber: 1,
+          minValue: 100,
+          maxValue: 120,
+        ),
+      );
+
+      final newZone = TestFixtures.createSportZone(
+        id: 'new-z1',
+        sport: Sport.run,
+        zoneNumber: 1,
+        minValue: 110,
+        maxValue: 130,
+      );
+
+      final exportJson = jsonEncode({
+        'version': 4,
+        'trainingCycles': [],
+        'workouts': [],
+        'exercises': [],
+        'customExercises': [],
+        'cardioSessions': [],
+        'cyclePeriods': [],
+        'sportZones': [newZone.toJson()],
+        'cardioFeedbacks': [],
+      });
+
+      final result = await backupService.importFromJson(
+        exportJson,
+        replace: true,
+        importThemes: false,
+      );
+
+      expect(result.success, isTrue);
+      expect(result.sportZonesImported, equals(1));
+    });
+
+    test('cardio session with detail round-trips', () async {
+      final session = TestFixtures.createCardioSession(
+        id: 'cs-rt',
+        sport: Sport.swim,
+        detail: TestFixtures.createCardioDetail(
+          actualDistanceM: 2000,
+          actualDurationSec: 2400,
+          poolLengthM: 25,
+          strokeType: StrokeType.freestyle,
+        ),
+        intervals: [
+          TestFixtures.createSessionInterval(
+            id: 'int-1',
+            sessionId: 'cs-rt',
+            orderIndex: 0,
+            intent: IntervalIntent.warmup,
+            targetDurationSec: 300,
+          ),
+        ],
+      );
+      await sessionRepo.createCardio(session);
+
+      // Export
+      final json = await backupService.exportToJson(includeThemes: false);
+      final data = jsonDecode(json) as Map<String, dynamic>;
+      expect(data['cardioSessions'], hasLength(1));
+
+      // Wipe and re-import
+      await sessionRepo.delete('cs-rt');
+
+      final result = await backupService.importFromJson(
+        json,
+        replace: true,
+        importThemes: false,
+      );
+
+      expect(result.success, isTrue);
+      expect(result.cardioSessionsImported, equals(1));
+
+      // Verify restored
+      final loaded = await sessionRepo.getById('cs-rt');
+      expect(loaded, isNotNull);
+      expect(loaded, isA<CardioSession>());
+      final cardio = loaded as CardioSession;
+      expect(cardio.detail?.actualDistanceM, 2000);
+    });
+  });
+
+  group('Import - error handling', () {
+    test('corrupted JSON returns error result', () async {
+      final result = await backupService.importFromJson(
+        'not valid json {{{',
+        importThemes: false,
+      );
+
+      expect(result.success, isFalse);
+      expect(result.error, contains('Failed to parse backup'));
+    });
+
+    test('missing lists default to empty', () async {
+      // Minimal valid v4 with no list keys
+      final minimalJson = jsonEncode({
+        'version': 4,
+      });
+
+      final result = await backupService.importFromJson(
+        minimalJson,
+        importThemes: false,
+      );
+
+      expect(result.success, isTrue);
+      expect(result.totalImported, equals(0));
+    });
+  });
+
   group('Round-trip', () {
     test('export then import on fresh DB produces equivalent data', () async {
       // Populate with data
@@ -340,6 +714,128 @@ void main() {
 
       final ce = await customExerciseRepo.getById('rt-ce');
       expect(ce, isNotNull);
+    });
+
+    test('full strength chain round-trips via manual JSON', () async {
+      // Build import JSON manually to avoid the duplicate-exercise issue
+      // that occurs when exportToJson writes exercises in both the
+      // "workouts" and "exercises" arrays.
+      final cycle = TestFixtures.createTrainingCycle(id: 'rt-str');
+      final workout = TestFixtures.createWorkout(
+        id: 'rt-w',
+        trainingCycleId: 'rt-str',
+        exercises: [
+          TestFixtures.createExercise(
+            id: 'rt-e',
+            workoutId: 'rt-w',
+            sets: [
+              TestFixtures.createExerciseSet(
+                id: 'rt-s',
+                weight: 100,
+                reps: '10',
+              ),
+            ],
+          ),
+        ],
+      );
+      final ce = TestFixtures.createCustomExerciseDefinition(
+        id: 'rt-ce2',
+        name: 'RT Custom',
+      );
+
+      final importJson = jsonEncode({
+        'version': 4,
+        'trainingCycles': [cycle.toJson()],
+        'workouts': [workout.toJson()],
+        'exercises': [], // exercises come via workouts
+        'customExercises': [ce.toJson()],
+        'cardioSessions': [],
+        'cyclePeriods': [],
+        'sportZones': [],
+        'cardioFeedbacks': [],
+      });
+
+      final result = await backupService.importFromJson(
+        importJson,
+        replace: true,
+        importThemes: false,
+      );
+
+      expect(result.success, isTrue);
+      expect(result.trainingCyclesImported, equals(1));
+      expect(result.workoutsImported, equals(1));
+      expect(result.customExercisesImported, equals(1));
+
+      // Verify data integrity
+      final loadedCycle = await cycleRepo.getById('rt-str');
+      expect(loadedCycle, isNotNull);
+
+      final loadedWorkout = await workoutRepo.getById('rt-w');
+      expect(loadedWorkout, isNotNull);
+      expect(loadedWorkout!.exercises, hasLength(1));
+      expect(loadedWorkout.exercises.first.sets.first.weight, 100);
+
+      final loadedCe = await customExerciseRepo.getById('rt-ce2');
+      expect(loadedCe, isNotNull);
+      expect(loadedCe!.name, 'RT Custom');
+    });
+
+    test('full multi-sport chain round-trips', () async {
+      final cycle = TestFixtures.createTrainingCycle(id: 'rt-ms');
+      await cycleRepo.create(cycle);
+
+      await cyclePeriodRepo.create(
+        TestFixtures.createCyclePeriod(
+          id: 'rt-cp',
+          trainingCycleId: 'rt-ms',
+          periodNumber: 1,
+          phase: TrainingPhase.peak,
+        ),
+      );
+
+      final cardio = TestFixtures.createCardioSession(
+        id: 'rt-cs',
+        trainingCycleId: 'rt-ms',
+        sport: Sport.bike,
+        detail: TestFixtures.createCardioDetail(actualDistanceM: 40000),
+      );
+      await sessionRepo.createCardio(cardio);
+
+      await cardioFeedbackRepo.save(
+        'rt-cs',
+        TestFixtures.createCardioFeedback(rpe: 6),
+      );
+
+      await sportZoneRepo.create(
+        TestFixtures.createSportZone(
+          id: 'rt-z',
+          sport: Sport.bike,
+          zoneNumber: 2,
+          minValue: 130,
+          maxValue: 155,
+        ),
+      );
+
+      // Export
+      final json = await backupService.exportToJson(includeThemes: false);
+
+      // Wipe
+      await cycleRepo.deleteAll();
+      await sessionRepo.delete('rt-cs');
+
+      // Re-import
+      final result = await backupService.importFromJson(
+        json,
+        replace: true,
+        importThemes: false,
+      );
+
+      expect(result.success, isTrue);
+      expect(result.trainingCyclesImported, equals(1));
+      expect(result.cardioSessionsImported, equals(1));
+      expect(result.cyclePeriodsImported, equals(1));
+      expect(result.cardioFeedbacksImported, equals(1));
+      expect(result.sportZonesImported, equals(1));
     });
   });
 }
