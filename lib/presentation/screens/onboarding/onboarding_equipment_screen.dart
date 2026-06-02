@@ -40,6 +40,25 @@ class OnboardingEquipmentScreen extends ConsumerStatefulWidget {
 class _OnboardingEquipmentScreenState extends ConsumerState<OnboardingEquipmentScreen> {
   final Set<EquipmentOption> _selectedEquipment = {};
 
+  String _localizedName(AppLocalizations l10n, EquipmentOption e) {
+    return switch (e) {
+      EquipmentOption.dumbbells => l10n.equipmentDumbbells,
+      EquipmentOption.homeGymRack => l10n.equipmentHomeGymRack,
+      EquipmentOption.functionalTrainer => l10n.equipmentFunctionalTrainer,
+      EquipmentOption.gymMachines => l10n.equipmentGymMachines,
+      EquipmentOption.barbells => l10n.equipmentBarbells,
+      EquipmentOption.kettlebells => l10n.equipmentKettlebells,
+      EquipmentOption.resistanceBands => l10n.equipmentResistanceBands,
+      EquipmentOption.treadmill => l10n.equipmentTreadmill,
+      EquipmentOption.exerciseBike => l10n.equipmentExerciseBike,
+      EquipmentOption.rowingMachine => l10n.equipmentRowingMachine,
+      EquipmentOption.lapPool => l10n.equipmentLapPool,
+      EquipmentOption.crossfitGym => l10n.equipmentCrossfitGym,
+      EquipmentOption.pullUpBar => l10n.equipmentPullUpBar,
+      EquipmentOption.suspensionTrainer => l10n.equipmentSuspensionTrainer,
+    };
+  }
+
   void _toggleEquipment(EquipmentOption equipment) {
     setState(() {
       if (_selectedEquipment.contains(equipment)) {
@@ -60,9 +79,10 @@ class _OnboardingEquipmentScreenState extends ConsumerState<OnboardingEquipmentS
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Your equipment'),
+        title: Text(l10n.onboardingEquipmentTitle),
         centerTitle: true,
         bottom: const _OnboardingProgress(step: 2, total: 4),
       ),
@@ -76,14 +96,14 @@ class _OnboardingEquipmentScreenState extends ConsumerState<OnboardingEquipmentS
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'What equipment do you have access to?',
+                    l10n.onboardingEquipmentHeadline,
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Select all that apply. This helps us suggest appropriate exercises.',
+                    l10n.onboardingEquipmentSubtitle,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: Theme.of(
                         context,
@@ -156,7 +176,7 @@ class _OnboardingEquipmentScreenState extends ConsumerState<OnboardingEquipmentS
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text(
-                              equipment.displayName,
+                              _localizedName(l10n, equipment),
                               style: TextStyle(
                                 color: Theme.of(context).colorScheme.onSurface,
                                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
@@ -183,9 +203,9 @@ class _OnboardingEquipmentScreenState extends ConsumerState<OnboardingEquipmentS
                     width: double.infinity,
                     child: FilledButton(
                       onPressed: _continue,
-                      child: const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 16),
-                        child: Text('Continue'),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        child: Text(l10n.continueButton),
                       ),
                     ),
                   ),
@@ -196,7 +216,7 @@ class _OnboardingEquipmentScreenState extends ConsumerState<OnboardingEquipmentS
                       ref.read(userProfileProvider.notifier).updateEquipment([]);
                       context.push('/onboarding/sports');
                     },
-                    child: const Text('Skip for now'),
+                    child: Text(l10n.onboardingEquipmentSkip),
                   ),
                 ],
               ),

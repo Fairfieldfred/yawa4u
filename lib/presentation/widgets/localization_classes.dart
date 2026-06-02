@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../domain/providers/locale_provider.dart';
+import '../../l10n/app_localizations.dart';
 
 /// Displays a list of tappable language options.
 ///
@@ -13,9 +14,10 @@ class LocaleSelector extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final locales = [
-      (null, 'System', 'locale_system'),
-      (const Locale('en'), 'English', 'locale_en'),
+      (null, l10n.localeSystem, 'locale_system'),
+      (const Locale('en'), l10n.localeEnglish, 'locale_en'),
     ];
 
     return Column(

@@ -6,6 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/theme/skins/skins.dart';
 import '../../../domain/providers/onboarding_providers.dart';
+import '../../../l10n/app_localizations.dart';
 
 /// First onboarding screen - collects user's height and weight
 class OnboardingProfileScreen extends ConsumerStatefulWidget {
@@ -123,14 +124,18 @@ class _OnboardingProfileScreenState extends ConsumerState<OnboardingProfileScree
 
   // BMI categories with their ranges (in descending order)
   // Colors are computed at runtime to support theming
-  List<({String label, double minBmi, double? maxBmi, Color color})> _getBmiCategories(BuildContext context) => [
-    (label: 'Obese', minBmi: 30, maxBmi: null, color: context.errorColor),
-    (label: 'Overweight', minBmi: 25, maxBmi: 30, color: context.warningColor),
-    (label: 'Normal', minBmi: 18.5, maxBmi: 25, color: context.successColor),
-    (label: 'Underweight', minBmi: 0, maxBmi: 18.5, color: Colors.blue),
-  ];
+  List<({String label, double minBmi, double? maxBmi, Color color})> _getBmiCategories(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return [
+      (label: l10n.bmiCategoryObese, minBmi: 30, maxBmi: null, color: context.errorColor),
+      (label: l10n.bmiCategoryOverweight, minBmi: 25, maxBmi: 30, color: context.warningColor),
+      (label: l10n.bmiCategoryNormal, minBmi: 18.5, maxBmi: 25, color: context.successColor),
+      (label: l10n.bmiCategoryUnderweight, minBmi: 0, maxBmi: 18.5, color: Colors.blue),
+    ];
+  }
 
   Widget _buildBmiIndicator() {
+    final l10n = AppLocalizations.of(context)!;
     if (_bmi == null) {
       return Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
@@ -150,7 +155,7 @@ class _OnboardingProfileScreenState extends ConsumerState<OnboardingProfileScree
             const SizedBox(width: 10),
             Expanded(
               child: Text(
-                'Enter height and weight to see BMI',
+                l10n.bmiPlaceholder,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: Theme.of(
                     context,
@@ -188,7 +193,7 @@ class _OnboardingProfileScreenState extends ConsumerState<OnboardingProfileScree
           ),
           const SizedBox(width: 10),
           Text(
-            'BMI ${_bmi!.toStringAsFixed(1)}',
+            l10n.bmiValue(_bmi!.toStringAsFixed(1)),
             style: Theme.of(context).textTheme.bodyLarge?.copyWith(
               fontWeight: FontWeight.w600,
               color: color,
@@ -210,7 +215,7 @@ class _OnboardingProfileScreenState extends ConsumerState<OnboardingProfileScree
           IconButton(
             icon: const Icon(Icons.info_outline, size: 18),
             visualDensity: VisualDensity.compact,
-            tooltip: 'About BMI categories',
+            tooltip: l10n.aboutBmiCategories,
             onPressed: () => _showBmiDetails(context),
           ),
         ],
@@ -235,7 +240,7 @@ class _OnboardingProfileScreenState extends ConsumerState<OnboardingProfileScree
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'BMI categories',
+                  AppLocalizations.of(sheetContext)!.bmiCategoriesTitle,
                   style: Theme.of(sheetContext).textTheme.titleMedium,
                 ),
                 const SizedBox(height: 12),
@@ -282,7 +287,7 @@ class _OnboardingProfileScreenState extends ConsumerState<OnboardingProfileScree
                       ),
                       const SizedBox(width: 6),
                       Text(
-                        'Based on WHO / CDC guidelines',
+                        AppLocalizations.of(sheetContext)!.bmiGuidelines,
                         style: Theme.of(sheetContext).textTheme.bodySmall?.copyWith(
                           color: Theme.of(sheetContext).colorScheme.primary,
                         ),
@@ -398,11 +403,12 @@ class _OnboardingProfileScreenState extends ConsumerState<OnboardingProfileScree
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('About you'),
+          title: Text(l10n.onboardingProfileTitle),
           centerTitle: true,
           bottom: const _OnboardingProgress(step: 1, total: 4),
         ),
@@ -417,13 +423,12 @@ class _OnboardingProfileScreenState extends ConsumerState<OnboardingProfileScree
                   children: [
                     const SizedBox(height: 16),
                     Text(
-                      'Let\'s get to know you',
+                      l10n.onboardingProfileHeadline,
                       style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Height + weight let us track body metrics and show '
-                      'BMI. Icon preference is optional at the bottom.',
+                      l10n.onboardingProfileSubtitle,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: Theme.of(
                           context,
@@ -435,17 +440,17 @@ class _OnboardingProfileScreenState extends ConsumerState<OnboardingProfileScree
                     // Unit toggle
                     Row(
                       children: [
-                        const Text('Units:'),
+                        Text(l10n.unitsLabel),
                         const SizedBox(width: 16),
                         SegmentedButton<bool>(
-                          segments: const [
+                          segments: [
                             ButtonSegment<bool>(
                               value: false,
-                              label: Text('Imperial'),
+                              label: Text(l10n.imperialLabel),
                             ),
                             ButtonSegment<bool>(
                               value: true,
-                              label: Text('Metric'),
+                              label: Text(l10n.metricLabel),
                             ),
                           ],
                           selected: {_useMetric},
@@ -462,7 +467,7 @@ class _OnboardingProfileScreenState extends ConsumerState<OnboardingProfileScree
 
                     // Height input
                     Text(
-                      'Height',
+                      l10n.heightLabel,
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
                     const SizedBox(height: 8),
@@ -473,22 +478,22 @@ class _OnboardingProfileScreenState extends ConsumerState<OnboardingProfileScree
                         inputFormatters: [
                           FilteringTextInputFormatter.digitsOnly,
                         ],
-                        decoration: const InputDecoration(
-                          labelText: 'Centimeters',
-                          labelStyle: TextStyle(
+                        decoration: InputDecoration(
+                          labelText: l10n.centimetersLabel,
+                          labelStyle: const TextStyle(
                             fontSize: 18,
                             color: Colors.grey,
                           ),
-                          suffixText: 'cm',
-                          border: OutlineInputBorder(),
+                          suffixText: l10n.cmSuffix,
+                          border: const OutlineInputBorder(),
                         ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Please enter your height';
+                            return l10n.heightRequiredError;
                           }
                           final cm = int.tryParse(value);
                           if (cm == null || cm < 100 || cm > 250) {
-                            return 'Please enter a valid height (100-250 cm)';
+                            return l10n.heightInvalidCmError;
                           }
                           return null;
                         },
@@ -503,22 +508,22 @@ class _OnboardingProfileScreenState extends ConsumerState<OnboardingProfileScree
                               inputFormatters: [
                                 FilteringTextInputFormatter.digitsOnly,
                               ],
-                              decoration: const InputDecoration(
-                                labelText: 'Feet',
-                                labelStyle: TextStyle(
+                              decoration: InputDecoration(
+                                labelText: l10n.feetLabel,
+                                labelStyle: const TextStyle(
                                   fontSize: 18,
                                   color: Colors.grey,
                                 ),
-                                suffixText: 'ft',
-                                border: OutlineInputBorder(),
+                                suffixText: l10n.ftSuffix,
+                                border: const OutlineInputBorder(),
                               ),
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
-                                  return 'Required';
+                                  return l10n.heightFeetRequiredError;
                                 }
                                 final feet = int.tryParse(value);
                                 if (feet == null || feet < 3 || feet > 8) {
-                                  return 'Invalid';
+                                  return l10n.heightInvalidError;
                                 }
                                 return null;
                               },
@@ -532,20 +537,20 @@ class _OnboardingProfileScreenState extends ConsumerState<OnboardingProfileScree
                               inputFormatters: [
                                 FilteringTextInputFormatter.digitsOnly,
                               ],
-                              decoration: const InputDecoration(
-                                labelText: 'Inches',
-                                labelStyle: TextStyle(
+                              decoration: InputDecoration(
+                                labelText: l10n.inchesLabel,
+                                labelStyle: const TextStyle(
                                   fontSize: 18,
                                   color: Colors.grey,
                                 ),
-                                suffixText: 'in',
-                                border: OutlineInputBorder(),
+                                suffixText: l10n.inSuffix,
+                                border: const OutlineInputBorder(),
                               ),
                               validator: (value) {
                                 if (value != null && value.isNotEmpty) {
                                   final inches = int.tryParse(value);
                                   if (inches == null || inches < 0 || inches > 11) {
-                                    return 'Invalid';
+                                    return l10n.heightInvalidError;
                                   }
                                 }
                                 return null;
@@ -558,7 +563,7 @@ class _OnboardingProfileScreenState extends ConsumerState<OnboardingProfileScree
 
                     // Weight input
                     Text(
-                      'Weight',
+                      l10n.weightLabel,
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
                     const SizedBox(height: 8),
@@ -573,21 +578,21 @@ class _OnboardingProfileScreenState extends ConsumerState<OnboardingProfileScree
                         ),
                       ],
                       decoration: InputDecoration(
-                        labelText: _useMetric ? 'Kilograms' : 'Pounds',
+                        labelText: _useMetric ? l10n.kilogramsLabel : l10n.poundsLabel,
                         labelStyle: const TextStyle(
                           fontSize: 18,
                           color: Colors.grey,
                         ),
-                        suffixText: _useMetric ? 'kg' : 'lbs',
+                        suffixText: _useMetric ? l10n.kgSuffix : l10n.lbsSuffix,
                         border: const OutlineInputBorder(),
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Please enter your weight';
+                          return l10n.weightRequiredError;
                         }
                         final weight = double.tryParse(value);
                         if (weight == null) {
-                          return 'Please enter a valid number';
+                          return l10n.weightInvalidNumberError;
                         }
                         // UX review P1 #8 — tightened ranges catch the
                         // most likely typo (300 instead of 200, extra
@@ -597,11 +602,11 @@ class _OnboardingProfileScreenState extends ConsumerState<OnboardingProfileScree
                         // accept an impossible value from a slip.
                         if (_useMetric) {
                           if (weight < 40 || weight > 180) {
-                            return 'Please enter a valid weight (40-180 kg)';
+                            return l10n.weightInvalidKgError;
                           }
                         } else {
                           if (weight < 80 || weight > 400) {
-                            return 'Please enter a valid weight (80-400 lbs)';
+                            return l10n.weightInvalidLbsError;
                           }
                         }
                         return null;
@@ -648,13 +653,13 @@ class _OnboardingProfileScreenState extends ConsumerState<OnboardingProfileScree
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    'DEXA Scan Results',
+                                    l10n.dexaScanTitle,
                                     style: Theme.of(
                                       context,
                                     ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
                                   ),
                                   Text(
-                                    'Optional - for bodybuilders',
+                                    l10n.dexaSubtitle,
                                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                       color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                                     ),
@@ -687,16 +692,16 @@ class _OnboardingProfileScreenState extends ConsumerState<OnboardingProfileScree
                                   RegExp(r'^\d+\.?\d{0,1}'),
                                 ),
                               ],
-                              decoration: const InputDecoration(
-                                labelText: 'Body Fat',
-                                suffixText: '%',
-                                border: OutlineInputBorder(),
+                              decoration: InputDecoration(
+                                labelText: l10n.bodyFatLabel,
+                                suffixText: l10n.bodyFatSuffix,
+                                border: const OutlineInputBorder(),
                               ),
                               validator: (value) {
                                 if (value != null && value.isNotEmpty) {
                                   final bf = double.tryParse(value);
                                   if (bf == null || bf < 3 || bf > 60) {
-                                    return 'Invalid (3-60%)';
+                                    return l10n.bodyFatInvalidError;
                                   }
                                 }
                                 return null;
@@ -716,15 +721,15 @@ class _OnboardingProfileScreenState extends ConsumerState<OnboardingProfileScree
                                 ),
                               ],
                               decoration: InputDecoration(
-                                labelText: 'Lean Mass',
-                                suffixText: _useMetric ? 'kg' : 'lbs',
+                                labelText: l10n.leanMassLabel,
+                                suffixText: _useMetric ? l10n.kgSuffix : l10n.lbsSuffix,
                                 border: const OutlineInputBorder(),
                               ),
                               validator: (value) {
                                 if (value != null && value.isNotEmpty) {
                                   final lm = double.tryParse(value);
                                   if (lm == null || lm < 20 || lm > 150) {
-                                    return 'Invalid';
+                                    return l10n.heightInvalidError;
                                   }
                                 }
                                 return null;
@@ -740,14 +745,14 @@ class _OnboardingProfileScreenState extends ConsumerState<OnboardingProfileScree
                     // App icon selection — optional, moved below the
                     // core data entry so it doesn't gate onboarding.
                     Text(
-                      'App icon (optional)',
+                      l10n.appIconTitle,
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Three variants — tap one to pick.',
+                      l10n.appIconSubtitle,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: Theme.of(
                           context,
@@ -780,9 +785,9 @@ class _OnboardingProfileScreenState extends ConsumerState<OnboardingProfileScree
                       width: double.infinity,
                       child: FilledButton(
                         onPressed: _continue,
-                        child: const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 16),
-                          child: Text('Continue'),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          child: Text(l10n.continueButton),
                         ),
                       ),
                     ),
