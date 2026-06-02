@@ -5,6 +5,7 @@ import '../../../core/constants/muscle_groups.dart';
 import '../../../data/models/stats_data.dart';
 import '../../../data/models/training_cycle.dart';
 import '../../../domain/providers/stats_providers.dart';
+import '../../../l10n/app_localizations.dart';
 
 /// Cycle comparison tab content for the Stats screen.
 ///
@@ -25,24 +26,28 @@ class _CycleComparisonViewState extends ConsumerState<CycleComparisonView> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     if (widget.availableCycles.length < 2) {
-      return _buildNotEnoughCycles(context);
+      return _buildNotEnoughCycles(context, l10n);
     }
 
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
         // Cycle selectors
-        _buildCycleSelectors(context),
+        _buildCycleSelectors(context, l10n),
         const SizedBox(height: 16),
 
         // Comparison content
-        if (_cycleAId != null && _cycleBId != null) _buildComparison(context) else _buildSelectPrompt(context),
+        if (_cycleAId != null && _cycleBId != null)
+          _buildComparison(context, l10n)
+        else
+          _buildSelectPrompt(context, l10n),
       ],
     );
   }
 
-  Widget _buildNotEnoughCycles(BuildContext context) {
+  Widget _buildNotEnoughCycles(BuildContext context, AppLocalizations l10n) {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
@@ -56,7 +61,7 @@ class _CycleComparisonViewState extends ConsumerState<CycleComparisonView> {
             ),
             const SizedBox(height: 16),
             Text(
-              'Need at least 2 cycles to compare',
+              l10n.cycleComparisonNeedTwoCycles,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 color: Theme.of(context).colorScheme.onSurface.withAlpha((255 * 0.6).round()),
               ),
@@ -64,7 +69,7 @@ class _CycleComparisonViewState extends ConsumerState<CycleComparisonView> {
             ),
             const SizedBox(height: 8),
             Text(
-              'Complete a training cycle to unlock comparisons.',
+              l10n.cycleComparisonUnlockHint,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: Theme.of(context).colorScheme.onSurface.withAlpha((255 * 0.5).round()),
               ),
@@ -76,24 +81,24 @@ class _CycleComparisonViewState extends ConsumerState<CycleComparisonView> {
     );
   }
 
-  Widget _buildCycleSelectors(BuildContext context) {
+  Widget _buildCycleSelectors(BuildContext context, AppLocalizations l10n) {
     return Row(
       children: [
-        Expanded(child: _buildDropdown(context, isA: true)),
+        Expanded(child: _buildDropdown(context, l10n, isA: true)),
         const SizedBox(width: 8),
         Icon(
           Icons.compare_arrows,
           color: Theme.of(context).colorScheme.onSurface.withAlpha((255 * 0.4).round()),
         ),
         const SizedBox(width: 8),
-        Expanded(child: _buildDropdown(context, isA: false)),
+        Expanded(child: _buildDropdown(context, l10n, isA: false)),
       ],
     );
   }
 
-  Widget _buildDropdown(BuildContext context, {required bool isA}) {
+  Widget _buildDropdown(BuildContext context, AppLocalizations l10n, {required bool isA}) {
     final selectedId = isA ? _cycleAId : _cycleBId;
-    final label = isA ? 'Cycle A' : 'Cycle B';
+    final label = isA ? l10n.cycleComparisonCycleA : l10n.cycleComparisonCycleB;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -130,12 +135,12 @@ class _CycleComparisonViewState extends ConsumerState<CycleComparisonView> {
     );
   }
 
-  Widget _buildSelectPrompt(BuildContext context) {
+  Widget _buildSelectPrompt(BuildContext context, AppLocalizations l10n) {
     return Padding(
       padding: const EdgeInsets.only(top: 48),
       child: Center(
         child: Text(
-          'Select two cycles to compare',
+          l10n.cycleComparisonSelectPrompt,
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
             color: Theme.of(context).colorScheme.onSurface.withAlpha((255 * 0.5).round()),
           ),
@@ -144,13 +149,13 @@ class _CycleComparisonViewState extends ConsumerState<CycleComparisonView> {
     );
   }
 
-  Widget _buildComparison(BuildContext context) {
+  Widget _buildComparison(BuildContext context, AppLocalizations l10n) {
     final statsA = ref.watch(cycleStatsProvider(_cycleAId!));
     final statsB = ref.watch(cycleStatsProvider(_cycleBId!));
 
     return statsA.when(
       data: (a) => statsB.when(
-        data: (b) => _buildComparisonCards(context, a, b),
+        data: (b) => _buildComparisonCards(context, l10n, a, b),
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => Center(child: Text('Error: $e')),
       ),
@@ -161,6 +166,7 @@ class _CycleComparisonViewState extends ConsumerState<CycleComparisonView> {
 
   Widget _buildComparisonCards(
     BuildContext context,
+    AppLocalizations l10n,
     WorkoutStats a,
     WorkoutStats b,
   ) {
@@ -168,20 +174,20 @@ class _CycleComparisonViewState extends ConsumerState<CycleComparisonView> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Summary delta cards
-        _buildSummaryComparison(context, a, b),
+        _buildSummaryComparison(context, l10n, a, b),
         const SizedBox(height: 24),
 
         // Muscle group comparison
-        _buildSectionHeader(context, 'Sets by Muscle Group'),
+        _buildSectionHeader(context, l10n.cycleComparisonSetsByMuscle),
         const SizedBox(height: 8),
-        _buildMuscleGroupComparison(context, a, b),
+        _buildMuscleGroupComparison(context, l10n, a, b),
         const SizedBox(height: 24),
 
         // PR comparison
         if (_hasPROverlap(a, b)) ...[
-          _buildSectionHeader(context, 'Personal Record Changes'),
+          _buildSectionHeader(context, l10n.cycleComparisonPRChanges),
           const SizedBox(height: 8),
-          _buildPRComparison(context, a, b),
+          _buildPRComparison(context, l10n, a, b),
           const SizedBox(height: 24),
         ],
       ],
@@ -190,6 +196,7 @@ class _CycleComparisonViewState extends ConsumerState<CycleComparisonView> {
 
   Widget _buildSummaryComparison(
     BuildContext context,
+    AppLocalizations l10n,
     WorkoutStats a,
     WorkoutStats b,
   ) {
@@ -198,7 +205,7 @@ class _CycleComparisonViewState extends ConsumerState<CycleComparisonView> {
         Expanded(
           child: _buildDeltaCard(
             context,
-            'Completion',
+            l10n.cycleComparisonCompletion,
             '${(a.completionRate * 100).toInt()}%',
             '${(b.completionRate * 100).toInt()}%',
             (b.completionRate - a.completionRate) * 100,
@@ -209,7 +216,7 @@ class _CycleComparisonViewState extends ConsumerState<CycleComparisonView> {
         Expanded(
           child: _buildDeltaCard(
             context,
-            'Total Sets',
+            l10n.cycleComparisonTotalSets,
             a.totalSets.toString(),
             b.totalSets.toString(),
             (b.totalSets - a.totalSets).toDouble(),
@@ -219,7 +226,7 @@ class _CycleComparisonViewState extends ConsumerState<CycleComparisonView> {
         Expanded(
           child: _buildDeltaCard(
             context,
-            'Workouts',
+            l10n.cycleComparisonWorkouts,
             '${a.completedWorkouts}',
             '${b.completedWorkouts}',
             (b.completedWorkouts - a.completedWorkouts).toDouble(),
@@ -311,6 +318,7 @@ class _CycleComparisonViewState extends ConsumerState<CycleComparisonView> {
 
   Widget _buildMuscleGroupComparison(
     BuildContext context,
+    AppLocalizations l10n,
     WorkoutStats a,
     WorkoutStats b,
   ) {
@@ -359,7 +367,7 @@ class _CycleComparisonViewState extends ConsumerState<CycleComparisonView> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
-                        group.displayName,
+                        group.localizedName(l10n),
                         style: Theme.of(context).textTheme.bodyMedium,
                       ),
                     ),
@@ -414,6 +422,7 @@ class _CycleComparisonViewState extends ConsumerState<CycleComparisonView> {
 
   Widget _buildPRComparison(
     BuildContext context,
+    AppLocalizations l10n,
     WorkoutStats a,
     WorkoutStats b,
   ) {
@@ -452,7 +461,10 @@ class _CycleComparisonViewState extends ConsumerState<CycleComparisonView> {
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
                 subtitle: Text(
-                  '${_fmtWeight(weightA)} \u2192 ${_fmtWeight(weightB)} lbs',
+                  l10n.cycleComparisonWeightChange(
+                    _fmtWeight(weightA),
+                    _fmtWeight(weightB),
+                  ),
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
                 trailing: Text(

@@ -7,6 +7,7 @@ import '../../../core/utils/cardio_conversions.dart';
 import '../../../data/models/cardio_stats.dart';
 import '../../../domain/providers/onboarding_providers.dart';
 import '../../../domain/providers/stats_providers.dart';
+import '../../../l10n/app_localizations.dart';
 
 /// Compact "This week" summary card.
 ///
@@ -21,6 +22,7 @@ class WeeklySummaryCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final bucket = ref.watch(thisWeekVolumeProvider);
     final strengthSessions = ref.watch(thisWeekStrengthCountProvider);
     final onboarding = ref.watch(onboardingServiceProvider);
@@ -42,7 +44,7 @@ class WeeklySummaryCard extends ConsumerWidget {
                 ),
                 const SizedBox(width: 6),
                 Text(
-                  'This week',
+                  l10n.thisWeekTitle,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
@@ -52,7 +54,7 @@ class WeeklySummaryCard extends ConsumerWidget {
             const SizedBox(height: 10),
             if (!hasAnything)
               Text(
-                'Nothing logged yet — your next session lands here.',
+                l10n.thisWeekEmpty,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: Theme.of(
                     context,
@@ -63,12 +65,13 @@ class WeeklySummaryCard extends ConsumerWidget {
               if (strengthSessions > 0)
                 _SportLine(
                   sport: Sport.strength,
-                  label: '$strengthSessions strength session${strengthSessions == 1 ? '' : 's'}',
+                  label: l10n.thisWeekStrengthSessions(strengthSessions),
                 ),
               for (final entry in _sortedSportEntries(bucket))
                 _SportLine(
                   sport: entry.key,
                   label: _formatLine(
+                    l10n,
                     entry.key,
                     entry.value,
                     onboarding.unitsFor(entry.key),
@@ -89,14 +92,18 @@ class WeeklySummaryCard extends ConsumerWidget {
   }
 
   String _formatLine(
+    AppLocalizations l10n,
     Sport sport,
     WeeklySportVolume volume,
     UnitSystem units,
   ) {
     final parts = <String>[];
     parts.add(
-      '${volume.sessions} ${sport.displayName.toLowerCase()}'
-      '${volume.sessions == 1 ? '' : 's'}',
+      l10n.thisWeekSportLine(
+        volume.sessions,
+        sport.localizedName(l10n).toLowerCase(),
+        volume.sessions == 1 ? '' : 's',
+      ),
     );
     if (volume.distanceM > 0) {
       parts.add(

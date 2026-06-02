@@ -6,6 +6,7 @@ import '../../core/theme/skins/skins.dart';
 import '../../data/models/training_cycle.dart';
 import '../../domain/providers/onboarding_providers.dart';
 import '../../domain/providers/workout_providers.dart';
+import '../../l10n/app_localizations.dart';
 import 'muscle_group_stats_dialog.dart';
 
 class CycleSummaryDialog extends ConsumerWidget {
@@ -23,6 +24,7 @@ class CycleSummaryDialog extends ConsumerWidget {
     final textColor = isDark ? Colors.white : Colors.black87;
     final secondaryTextColor = isDark ? Colors.grey[400] : Colors.grey[600];
     final dividerColor = isDark ? Colors.grey[800] : Colors.grey[300];
+    final l10n = AppLocalizations.of(context)!;
 
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -56,7 +58,7 @@ class CycleSummaryDialog extends ConsumerWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            '${ref.watch(trainingCycleTermProvider)} summary',
+                            l10n.cycleSummaryTitle(ref.watch(trainingCycleTermProvider)),
                             style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
@@ -88,7 +90,7 @@ class CycleSummaryDialog extends ConsumerWidget {
 
                 // Workouts Section
                 Text(
-                  'Workouts',
+                  l10n.cycleSummaryWorkoutsSection,
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
@@ -99,7 +101,7 @@ class CycleSummaryDialog extends ConsumerWidget {
                 _buildStatRow(
                   context,
                   icon: Icons.check_circle_outline,
-                  label: 'Completed',
+                  label: l10n.cycleSummaryCompleted,
                   value: completedCount.toString(),
                   textColor: textColor,
                   iconColor: Colors.white,
@@ -108,7 +110,7 @@ class CycleSummaryDialog extends ConsumerWidget {
                 _buildStatRow(
                   context,
                   icon: Icons.undo, // Using undo/curved arrow for skipped
-                  label: 'Skipped',
+                  label: l10n.cycleSummarySkipped,
                   value: skippedCount.toString(),
                   textColor: textColor,
                   iconColor: Colors.white,
@@ -117,7 +119,7 @@ class CycleSummaryDialog extends ConsumerWidget {
                 _buildStatRow(
                   context,
                   icon: Icons.radio_button_unchecked, // Dashed circle approx
-                  label: 'Incomplete',
+                  label: l10n.cycleSummaryIncomplete,
                   value: incompleteCount.toString(),
                   textColor: textColor,
                   iconColor: Colors.white,
@@ -126,7 +128,7 @@ class CycleSummaryDialog extends ConsumerWidget {
 
                 // Stats Section
                 Text(
-                  'Stats',
+                  l10n.cycleSummaryStatsSection,
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
@@ -136,7 +138,7 @@ class CycleSummaryDialog extends ConsumerWidget {
                 const SizedBox(height: 12),
                 _buildNavigationRow(
                   context,
-                  label: 'Muscle groups',
+                  label: l10n.cycleSummaryMuscleGroups,
                   textColor: textColor,
                   secondaryTextColor: secondaryTextColor,
                   onTap: () {
@@ -147,21 +149,6 @@ class CycleSummaryDialog extends ConsumerWidget {
                   },
                 ),
                 _buildDivider(dividerColor),
-                // _buildNavigationRow(
-                //   context,
-                //   label: 'Exercises',
-                //   textColor: textColor,
-                //   secondaryTextColor: secondaryTextColor,
-                //   onTap: () {
-
-                //     Navigator.of(context).pop();
-                //     ScaffoldMessenger.of(context).showSnackBar(
-                //       const SnackBar(
-                //         content: Text('Exercise stats - Coming soon'),
-                //       ),
-                //     );
-                //   },
-                // ),
                 const SizedBox(height: 24),
 
                 // Footer
@@ -170,7 +157,7 @@ class CycleSummaryDialog extends ConsumerWidget {
                   child: TextButton(
                     onPressed: () => Navigator.of(context).pop(),
                     child: Text(
-                      'CLOSE',
+                      l10n.closeUpper,
                       style: TextStyle(
                         color: textColor,
                         fontWeight: FontWeight.bold,

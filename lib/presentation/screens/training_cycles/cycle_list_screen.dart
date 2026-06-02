@@ -13,6 +13,7 @@ import '../../../domain/providers/database_providers.dart';
 import '../../../domain/providers/navigation_providers.dart';
 import '../../../domain/providers/onboarding_providers.dart';
 import '../../../domain/providers/template_providers.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../widgets/empty_state_widget.dart';
 import '../../widgets/skeleton_loader.dart';
 import '../../../domain/providers/theme_provider.dart';
@@ -40,6 +41,7 @@ class CycleListScreen extends ConsumerStatefulWidget {
 class _CycleListScreenState extends ConsumerState<CycleListScreen> {
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final trainingCyclesAsync = ref.watch(trainingCyclesProvider);
     final cycleTerm = ref.watch(trainingCycleTermProvider);
     final cycleTermPlural = ref.watch(trainingCycleTermPluralProvider);
@@ -59,14 +61,14 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
             onPressed: () {
               ref.read(themeModeProvider.notifier).toggleTheme();
             },
-            tooltip: 'Toggle theme',
+            tooltip: l10n.toggleThemeTooltip,
             visualDensity: VisualDensity.compact,
           ),
           // New trainingCycle button
           TextButton.icon(
             onPressed: () => context.push('/plan-trainingCycle'),
             icon: const Icon(Icons.add),
-            label: const Text('New'),
+            label: Text(l10n.cycleListNewButton),
             style: TextButton.styleFrom(
               foregroundColor: Theme.of(context).colorScheme.primary,
             ),
@@ -102,7 +104,7 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
 
                   // Draft TrainingCycles Section
                   if (draftTrainingCycles.isNotEmpty) ...[
-                    _buildSectionHeader(context, 'Draft $cycleTerm'),
+                    _buildSectionHeader(context, l10n.cycleListDraftSectionHeader(cycleTerm)),
                     const SizedBox(height: 12),
                     ...draftTrainingCycles.map(
                       (trainingCycle) => _buildTrainingCycleCard(
@@ -116,7 +118,7 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
 
                   // Current TrainingCycle Section
                   if (currentTrainingCycles.isNotEmpty) ...[
-                    _buildSectionHeader(context, 'Current $cycleTerm'),
+                    _buildSectionHeader(context, l10n.cycleListCurrentSectionHeader(cycleTerm)),
                     const SizedBox(height: 12),
                     ...currentTrainingCycles.map(
                       (trainingCycle) => _buildTrainingCycleCard(
@@ -132,7 +134,9 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
                   if (completedTrainingCycles.isNotEmpty) ...[
                     _buildSectionHeader(
                       context,
-                      completedTrainingCycles.length == 1 ? 'Completed $cycleTerm' : 'Completed $cycleTermPlural',
+                      l10n.cycleListCompletedSectionHeader(
+                        completedTrainingCycles.length == 1 ? cycleTerm : cycleTermPlural,
+                      ),
                     ),
                     const SizedBox(height: 12),
                     ...completedTrainingCycles.map(
@@ -152,7 +156,7 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
                 children: [
                   Icon(Icons.error_outline, size: 64, color: context.errorColor),
                   const SizedBox(height: 16),
-                  Text('Error loading trainingCycles: $error'),
+                  Text(l10n.cycleListErrorLoading(error)),
                 ],
               ),
             );
@@ -223,6 +227,9 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
     final hasCurrentCycle = ref.watch(currentTrainingCycleProvider) != null;
     final canRestart = isCompleted && !hasCurrentCycle;
 
+    final l10n = AppLocalizations.of(context)!;
+    final cycleTerm = ref.watch(trainingCycleTermProvider);
+
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       child: InkWell(
@@ -269,7 +276,7 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(
-                            'CURRENT',
+                            l10n.cycleListCurrentBadge,
                             style: Theme.of(context).textTheme.labelSmall?.copyWith(
                               color: Theme.of(
                                 context,
@@ -310,13 +317,13 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
                         icon: const Icon(Icons.more_vert),
                         onSelected: (value) => _handleMenuAction(value, trainingCycle),
                         itemBuilder: (context) => [
-                          const PopupMenuItem(
+                          PopupMenuItem(
                             value: 'note',
                             child: Row(
                               children: [
                                 Icon(Icons.note_add_outlined),
                                 SizedBox(width: 12),
-                                Text('Write a new note'),
+                                Text(l10n.cycleListMenuWriteNote),
                               ],
                             ),
                           ),
@@ -326,7 +333,7 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
                               children: [
                                 const Icon(Icons.edit_outlined),
                                 const SizedBox(width: 12),
-                                const Text('Rename'),
+                                Text(l10n.cycleListMenuRename),
                               ],
                             ),
                           ),
@@ -341,7 +348,7 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
                                 ),
                                 const SizedBox(width: 12),
                                 Text(
-                                  'Copy the ${ref.watch(trainingCycleTermProvider)}',
+                                  l10n.cycleListMenuCopy(cycleTerm),
                                   style: TextStyle(
                                     color: isDraft ? Colors.grey : null,
                                   ),
@@ -349,13 +356,13 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
                               ],
                             ),
                           ),
-                          const PopupMenuItem(
+                          PopupMenuItem(
                             value: 'summary',
                             child: Row(
                               children: [
                                 Icon(Icons.summarize_outlined),
                                 SizedBox(width: 12),
-                                Text('Summary'),
+                                Text(l10n.cycleListMenuSummary),
                               ],
                             ),
                           ),
@@ -372,7 +379,7 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
                                   ),
                                   const SizedBox(width: 12),
                                   Text(
-                                    'Restart ${ref.watch(trainingCycleTermProvider)}',
+                                    l10n.cycleListMenuRestart(cycleTerm),
                                     style: TextStyle(
                                       color: canRestart ? null : Colors.grey,
                                     ),
@@ -391,7 +398,7 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
                                 ),
                                 const SizedBox(width: 12),
                                 Text(
-                                  'Save as a Template',
+                                  l10n.cycleListMenuSaveAsTemplate,
                                   style: TextStyle(
                                     color: canSaveAsTemplate ? null : Colors.grey,
                                   ),
@@ -410,7 +417,7 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
                                 ),
                                 const SizedBox(width: 12),
                                 Text(
-                                  'Share (Host QR Code)',
+                                  l10n.cycleListMenuShareQR,
                                   style: TextStyle(
                                     color: canSaveAsTemplate ? null : Colors.grey,
                                   ),
@@ -420,13 +427,13 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
                           ),
                           // Export option (Debug mode only)
                           if (kDebugMode)
-                            const PopupMenuItem(
+                            PopupMenuItem(
                               value: 'export',
                               child: Row(
                                 children: [
                                   Icon(Icons.save_alt),
                                   SizedBox(width: 12),
-                                  Text('Export (Debug)'),
+                                  Text(l10n.cycleListMenuExportDebug),
                                 ],
                               ),
                             ),
@@ -441,7 +448,7 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
                                   ),
                                   const SizedBox(width: 12),
                                   Text(
-                                    'Delete ${ref.watch(trainingCycleTermProvider)}',
+                                    l10n.cycleListMenuDelete(cycleTerm),
                                     style: TextStyle(color: context.errorColor),
                                   ),
                                 ],
@@ -472,7 +479,7 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
                   ),
                   const SizedBox(width: 4),
                   Text(
-                    '${trainingCycle.periodsTotal} periods',
+                    l10n.cycleListPeriodsCount(trainingCycle.periodsTotal),
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: Theme.of(
                         context,
@@ -489,7 +496,7 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
                   ),
                   const SizedBox(width: 4),
                   Text(
-                    '${trainingCycle.daysPerPeriod} days/period',
+                    l10n.cycleListDaysPerPeriod(trainingCycle.daysPerPeriod),
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: Theme.of(
                         context,
@@ -511,7 +518,7 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
                         minimumSize: Size.zero,
                         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       ),
-                      child: const Text('Start'),
+                      child: Text(l10n.cycleListStartButton),
                     ),
                   ],
                 ],
@@ -524,17 +531,18 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
   }
 
   Widget _buildEmptyState(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return EmptyStateWidget(
       icon: Icons.calendar_month,
-      title: 'No TrainingCycles',
-      subtitle: 'Create your first trainingCycle to get started',
+      title: l10n.cycleListEmptyTitle,
+      subtitle: l10n.cycleListEmptySubtitle,
       primaryAction: EmptyStateAction(
-        label: 'Create New',
+        label: l10n.cycleListCreateNew,
         icon: Icons.add,
         onPressed: () => context.push('/plan-trainingCycle'),
       ),
       secondaryAction: EmptyStateAction(
-        label: 'Start from Template',
+        label: l10n.cycleListStartFromTemplate,
         icon: Icons.copy,
         onPressed: () {
           Navigator.of(context).push(
@@ -586,6 +594,7 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
   }
 
   Future<void> _startTrainingCycle(TrainingCycle trainingCycle) async {
+    final l10n = AppLocalizations.of(context)!;
     final cycleTerm = ref.read(trainingCycleTermProvider);
     final currentCycles = ref.read(currentTrainingCyclesProvider);
 
@@ -596,19 +605,18 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
       final confirmed = await showDialog<bool>(
         context: context,
         builder: (context) => AlertDialog(
-          title: Text('Start $cycleTerm'),
+          title: Text(l10n.cycleListStartDialogTitle(cycleTerm)),
           content: Text(
-            'Start "${trainingCycle.name}"? '
-            'This will set it as your current $cycleTerm.',
+            l10n.cycleListStartDialogNoActive(trainingCycle.name, cycleTerm),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, false),
-              child: const Text('Cancel'),
+              child: Text(l10n.cancel),
             ),
             FilledButton(
               onPressed: () => Navigator.pop(context, true),
-              child: const Text('Start'),
+              child: Text(l10n.cycleListStartButton),
             ),
           ],
         ),
@@ -620,23 +628,22 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
       final result = await showDialog<String>(
         context: context,
         builder: (context) => AlertDialog(
-          title: Text('Start $cycleTerm'),
+          title: Text(l10n.cycleListStartDialogTitle(cycleTerm)),
           content: Text(
-            'You have an active $cycleTerm: "$activeNames".\n\n'
-            'How would you like to start "${trainingCycle.name}"?',
+            l10n.cycleListStartDialogHasActive(cycleTerm, activeNames, trainingCycle.name),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, 'cancel'),
-              child: const Text('Cancel'),
+              child: Text(l10n.cancel),
             ),
             OutlinedButton(
               onPressed: () => Navigator.pop(context, 'replace'),
-              child: const Text('Replace current'),
+              child: Text(l10n.cycleListReplaceCurrentButton),
             ),
             FilledButton(
               onPressed: () => Navigator.pop(context, 'stack'),
-              child: const Text('Stack alongside'),
+              child: Text(l10n.cycleListStackAlongsideButton),
             ),
           ],
         ),
@@ -662,7 +669,7 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error: $e'),
+            content: Text(l10n.errorGeneric(e)),
             backgroundColor: context.errorColor,
           ),
         );
@@ -671,6 +678,7 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
   }
 
   Future<void> _writeTrainingCycleNote(TrainingCycle trainingCycle) async {
+    final l10n = AppLocalizations.of(context)!;
     final cycleTerm = ref.read(trainingCycleTermProvider);
     final currentNote = trainingCycle.notes;
 
@@ -679,8 +687,8 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
       builder: (context) => NoteDialog(
         initialNote: currentNote,
         noteType: NoteType.trainingCycle,
-        customTitle: '$cycleTerm Note',
-        customHint: 'Enter note for this $cycleTerm...',
+        customTitle: l10n.cycleListNoteDialogTitle(cycleTerm),
+        customHint: l10n.cycleListNoteDialogHint(cycleTerm),
       ),
     );
 
@@ -695,7 +703,7 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: const Text('Note saved'),
+              content: Text(l10n.noteSaved),
               backgroundColor: context.successColor,
             ),
           );
@@ -704,7 +712,7 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Error saving note: $e'),
+              content: Text(l10n.noteSaveError(e)),
               backgroundColor: context.errorColor,
             ),
           );
@@ -714,6 +722,7 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
   }
 
   Future<void> _copyTrainingCycle(TrainingCycle trainingCycle) async {
+    final l10n = AppLocalizations.of(context)!;
     final cycleTerm = ref.read(trainingCycleTermProvider);
     const uuid = Uuid();
 
@@ -767,7 +776,7 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
       // Create the copied training cycle
       final copiedTrainingCycle = trainingCycle.copyWith(
         id: newTrainingCycleId,
-        name: '${trainingCycle.name} (Copy)',
+        name: l10n.cycleListCopyNameSuffix(trainingCycle.name),
         status: TrainingCycleStatus.draft,
         createdDate: DateTime.now(),
         startDate: null, // Clear start date
@@ -789,7 +798,7 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('$cycleTerm copied as draft!'),
+            content: Text(l10n.cycleListCopiedSnackbar(cycleTerm)),
             backgroundColor: context.successColor,
           ),
         );
@@ -798,7 +807,7 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error copying $cycleTerm: $e'),
+            content: Text(l10n.cycleListErrorCopying(cycleTerm, e)),
             backgroundColor: context.errorColor,
           ),
         );
@@ -808,24 +817,25 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
 
   /// Restart a completed training cycle - copies it and sets as current
   Future<void> _restartTrainingCycle(TrainingCycle trainingCycle) async {
+    final l10n = AppLocalizations.of(context)!;
     final cycleTerm = ref.read(trainingCycleTermProvider);
 
     // Confirm restart
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Restart $cycleTerm'),
+        title: Text(l10n.cycleListRestartDialogTitle(cycleTerm)),
         content: Text(
-          'Restart "${trainingCycle.name}"? This will create a copy and set it as your current $cycleTerm.',
+          l10n.cycleListRestartDialogContent(trainingCycle.name, cycleTerm),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Restart'),
+            child: Text(l10n.cycleListRestartButton),
           ),
         ],
       ),
@@ -916,7 +926,7 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('$cycleTerm restarted!'),
+            content: Text(l10n.cycleListRestartedSnackbar(cycleTerm)),
             backgroundColor: context.successColor,
           ),
         );
@@ -929,7 +939,7 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error restarting $cycleTerm: $e'),
+            content: Text(l10n.cycleListErrorRestarting(cycleTerm, e)),
             backgroundColor: context.errorColor,
           ),
         );
@@ -960,9 +970,10 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
         );
 
         if (mounted) {
+          final l10n = AppLocalizations.of(context)!;
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Template "${result.name}" saved!'),
+              content: Text(l10n.cycleListTemplateSaved(result.name)),
               backgroundColor: context.successColor,
             ),
           );
@@ -972,9 +983,10 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
         }
       } catch (e) {
         if (mounted) {
+          final l10n = AppLocalizations.of(context)!;
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Error saving template: $e'),
+              content: Text(l10n.cycleListErrorSavingTemplate(e)),
               backgroundColor: context.errorColor,
             ),
           );
@@ -988,9 +1000,10 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
     try {
       // Show loading indicator
       if (mounted) {
+        final l10n = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Preparing to share...'),
+          SnackBar(
+            content: Text(l10n.cycleListPreparingShare),
             duration: Duration(seconds: 1),
           ),
         );
@@ -1006,7 +1019,7 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
       final templateId = await repository.saveAsTemplate(
         fullTrainingCycle,
         trainingCycle.name, // Use training cycle name directly
-        'Shared from ${trainingCycle.name}',
+        AppLocalizations.of(context)!.cycleListSharedFromDescription(trainingCycle.name),
       );
 
       // Refresh templates provider and wait for it to complete
@@ -1021,7 +1034,7 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error preparing template for sharing: $e'),
+            content: Text(AppLocalizations.of(context)!.cycleListErrorPreparingShare(e)),
             backgroundColor: context.errorColor,
           ),
         );
@@ -1039,18 +1052,20 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
       final trainingCycleToExport = trainingCycle.copyWith(workouts: workouts);
       await TemplateExporter.exportToClipboard(trainingCycleToExport);
       if (mounted) {
+        final l10n = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('Template JSON copied to clipboard!'),
+            content: Text(l10n.cycleListTemplateExported),
             backgroundColor: context.successColor,
           ),
         );
       }
     } catch (e) {
       if (mounted) {
+        final l10n = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error exporting template: $e'),
+            content: Text(l10n.cycleListErrorExporting(e)),
             backgroundColor: context.errorColor,
           ),
         );
@@ -1074,18 +1089,20 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
         await repository.update(updatedTrainingCycle);
 
         if (mounted) {
+          final l10n = AppLocalizations.of(context)!;
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Renamed to "$newName"'),
+              content: Text(l10n.cycleListRenamedSnackbar(newName)),
               backgroundColor: context.successColor,
             ),
           );
         }
       } catch (e) {
         if (mounted) {
+          final l10n = AppLocalizations.of(context)!;
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Error renaming trainingCycle: $e'),
+              content: Text(l10n.cycleListErrorRenaming(e)),
               backgroundColor: context.errorColor,
             ),
           );
@@ -1095,22 +1112,23 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
   }
 
   Future<void> _deleteTrainingCycle(TrainingCycle trainingCycle) async {
+    final l10n = AppLocalizations.of(context)!;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Draft TrainingCycle'),
+        title: Text(l10n.cycleListDeleteDialogTitle),
         content: Text(
-          'Are you sure you want to delete "${trainingCycle.name}"? This action cannot be undone.',
+          l10n.cycleListDeleteDialogContent(trainingCycle.name),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, true),
             style: FilledButton.styleFrom(backgroundColor: context.errorColor),
-            child: const Text('Delete'),
+            child: Text(l10n.delete),
           ),
         ],
       ),
@@ -1123,14 +1141,14 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('"${trainingCycle.name}" deleted')),
+            SnackBar(content: Text(l10n.cycleListDeletedSnackbar(trainingCycle.name))),
           );
         }
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Error deleting trainingCycle: $e'),
+              content: Text(l10n.cycleListErrorDeleting(e)),
               backgroundColor: context.errorColor,
             ),
           );
@@ -1220,7 +1238,7 @@ class _RenameTrainingCycleDialogState extends State<_RenameTrainingCycleDialog> 
               children: [
                 const SizedBox(width: 40),
                 Text(
-                  'Rename',
+                  AppLocalizations.of(context)!.cycleListRenameDialogTitle,
                   style: Theme.of(
                     context,
                   ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
@@ -1238,7 +1256,7 @@ class _RenameTrainingCycleDialogState extends State<_RenameTrainingCycleDialog> 
               controller: nameController,
               autofocus: true,
               decoration: InputDecoration(
-                hintText: 'TrainingCycle name',
+                hintText: AppLocalizations.of(context)!.cycleListRenameDialogHint,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -1261,7 +1279,7 @@ class _RenameTrainingCycleDialogState extends State<_RenameTrainingCycleDialog> 
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    child: const Text('CANCEL'),
+                    child: Text(AppLocalizations.of(context)!.cancelUpper),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -1279,7 +1297,7 @@ class _RenameTrainingCycleDialogState extends State<_RenameTrainingCycleDialog> 
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    child: const Text('SAVE'),
+                    child: Text(AppLocalizations.of(context)!.saveUpper),
                   ),
                 ),
               ],
@@ -1334,14 +1352,14 @@ class _SaveTemplateDialogState extends State<_SaveTemplateDialog> {
 
     if (trimmedName.isEmpty) {
       setState(() {
-        nameError = 'Please enter a template name';
+        nameError = AppLocalizations.of(context)!.cycleListSaveTemplateNameError;
       });
       isValid = false;
     }
 
     if (trimmedDescription.isEmpty) {
       setState(() {
-        descriptionError = 'Please enter a description';
+        descriptionError = AppLocalizations.of(context)!.cycleListSaveTemplateDescError;
       });
       isValid = false;
     }
@@ -1373,7 +1391,7 @@ class _SaveTemplateDialogState extends State<_SaveTemplateDialog> {
                 children: [
                   const SizedBox(width: 40),
                   Text(
-                    'Save as Template',
+                    AppLocalizations.of(context)!.cycleListSaveTemplateDialogTitle,
                     style:
                         Theme.of(
                           context,
@@ -1391,7 +1409,7 @@ class _SaveTemplateDialogState extends State<_SaveTemplateDialog> {
               ),
               const SizedBox(height: 16),
               Text(
-                'Template Name',
+                AppLocalizations.of(context)!.cycleListSaveTemplateNameLabel,
                 style:
                     Theme.of(
                       context,
@@ -1404,7 +1422,7 @@ class _SaveTemplateDialogState extends State<_SaveTemplateDialog> {
                 controller: nameController,
                 autofocus: true,
                 decoration: InputDecoration(
-                  hintText: 'e.g., "Upper Lower Split"',
+                  hintText: AppLocalizations.of(context)!.cycleListSaveTemplateNameHint,
                   errorText: nameError,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -1418,7 +1436,7 @@ class _SaveTemplateDialogState extends State<_SaveTemplateDialog> {
               ),
               const SizedBox(height: 16),
               Text(
-                'Description',
+                AppLocalizations.of(context)!.cycleListSaveTemplateDescLabel,
                 style:
                     Theme.of(
                       context,
@@ -1431,7 +1449,7 @@ class _SaveTemplateDialogState extends State<_SaveTemplateDialog> {
                 controller: descriptionController,
                 maxLines: 3,
                 decoration: InputDecoration(
-                  hintText: 'e.g., "Great for building strength and size"',
+                  hintText: AppLocalizations.of(context)!.cycleListSaveTemplateDescHint,
                   errorText: descriptionError,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -1455,7 +1473,7 @@ class _SaveTemplateDialogState extends State<_SaveTemplateDialog> {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      child: const Text('CANCEL'),
+                      child: Text(AppLocalizations.of(context)!.cancelUpper),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -1468,7 +1486,7 @@ class _SaveTemplateDialogState extends State<_SaveTemplateDialog> {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      child: const Text('SAVE'),
+                      child: Text(AppLocalizations.of(context)!.saveUpper),
                     ),
                   ),
                 ],

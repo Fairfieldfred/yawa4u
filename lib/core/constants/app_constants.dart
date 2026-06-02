@@ -50,7 +50,8 @@ class AppConstants {
   static String sorenessQuestion(String muscleGroup) =>
       'How sore did you get in your $muscleGroup AFTER training it LAST TIME?';
 
-  // UI Text
+  // UI Text — localized versions available via AppLocalizations.
+  // These constants are retained as fallbacks for non-UI contexts.
   static const String draftBannerText = 'CONTINUE EDITING DRAFT TRAINING CYCLE';
   static const String noExercisesTitle = 'No exercises';
   static const String noExercisesMessage = 'Your custom exercises will appear here.';

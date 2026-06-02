@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/app_localizations.dart';
+
 /// Muscle group categories for exercises
 enum MuscleGroup {
   chest,
@@ -59,6 +61,46 @@ extension MuscleGroupExtension on MuscleGroup {
         return 'Grip';
       case MuscleGroup.obliques:
         return 'Obliques';
+    }
+  }
+
+  /// Localized display name for UI (uses ARB translations)
+  String localizedName(AppLocalizations l10n) {
+    switch (this) {
+      case MuscleGroup.chest:
+        return l10n.muscleGroupChest;
+      case MuscleGroup.triceps:
+        return l10n.muscleGroupTriceps;
+      case MuscleGroup.shoulders:
+        return l10n.muscleGroupShoulders;
+      case MuscleGroup.back:
+        return l10n.muscleGroupBack;
+      case MuscleGroup.biceps:
+        return l10n.muscleGroupBiceps;
+      case MuscleGroup.quads:
+        return l10n.muscleGroupQuads;
+      case MuscleGroup.hamstrings:
+        return l10n.muscleGroupHamstrings;
+      case MuscleGroup.glutes:
+        return l10n.muscleGroupGlutes;
+      case MuscleGroup.calves:
+        return l10n.muscleGroupCalves;
+      case MuscleGroup.traps:
+        return l10n.muscleGroupTraps;
+      case MuscleGroup.forearms:
+        return l10n.muscleGroupForearms;
+      case MuscleGroup.abs:
+        return l10n.muscleGroupAbs;
+      case MuscleGroup.fullBody:
+        return l10n.muscleGroupFullBody;
+      case MuscleGroup.adductors:
+        return l10n.muscleGroupAdductors;
+      case MuscleGroup.core:
+        return l10n.muscleGroupCore;
+      case MuscleGroup.grip:
+        return l10n.muscleGroupGrip;
+      case MuscleGroup.obliques:
+        return l10n.muscleGroupObliques;
     }
   }
 

@@ -5,6 +5,7 @@ import '../../../data/services/health_sync_service.dart';
 import '../../../data/services/strava_integration_service.dart';
 import '../../../domain/providers/health_providers.dart';
 import '../../../domain/providers/session_providers.dart';
+import '../../../l10n/app_localizations.dart';
 
 /// Settings → Integrations.
 ///
@@ -36,7 +37,7 @@ class _IntegrationsScreenState extends ConsumerState<IntegrationsScreen> {
     if (!mounted) return;
     if (granted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Health permissions granted')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.integrationsHealthPermissionsGranted)),
       );
     } else {
       _showHealthConnectGuide();
@@ -47,55 +48,42 @@ class _IntegrationsScreenState extends ConsumerState<IntegrationsScreen> {
   void _showHealthConnectGuide() {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        title: const Row(
-          children: [
-            Icon(Icons.health_and_safety, color: Colors.green),
-            SizedBox(width: 12),
-            Expanded(child: Text('Health Connect Required')),
-          ],
-        ),
-        content: const Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'To sync workouts from Health Connect and Peloton, '
-              'please follow these steps:',
-            ),
-            SizedBox(height: 16),
-            Text(
-              '1. Download and install Health Connect from the '
-              'Google Play Store (Android 14+ has it built in).',
-            ),
-            SizedBox(height: 8),
-            Text(
-              '2. Open Health Connect and go to '
-              'App permissions.',
-            ),
-            SizedBox(height: 8),
-            Text(
-              '3. Find Yawa4u in the list and allow access '
-              'to Exercise sessions, Heart rate, Distance, '
-              'and Active energy burned.',
-            ),
-            SizedBox(height: 8),
-            Text(
-              '4. Return here and tap "Grant permissions" '
-              'again.',
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('GOT IT'),
+      builder: (context) {
+        final l10n = AppLocalizations.of(context)!;
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
           ),
-        ],
-      ),
+          title: Row(
+            children: [
+              const Icon(Icons.health_and_safety, color: Colors.green),
+              const SizedBox(width: 12),
+              Expanded(child: Text(l10n.integrationsHealthConnectRequired)),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(l10n.integrationsHealthConnectIntro),
+              const SizedBox(height: 16),
+              Text(l10n.integrationsHealthConnectStep1),
+              const SizedBox(height: 8),
+              Text(l10n.integrationsHealthConnectStep2),
+              const SizedBox(height: 8),
+              Text(l10n.integrationsHealthConnectStep3),
+              const SizedBox(height: 8),
+              Text(l10n.integrationsHealthConnectStep4),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text(l10n.integrationsGotIt),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -111,13 +99,15 @@ class _IntegrationsScreenState extends ConsumerState<IntegrationsScreen> {
       _lastResult = result;
       _busy = false;
     });
+    final l10n = AppLocalizations.of(context)!;
     final text = result.isSuccess
-        ? 'Found ${result.totalPoints} records · '
-              '+${result.imported} imported'
-              '${result.inferred > 0 ? ' · ${result.inferred} inferred from data streams' : ''}'
-              ' · ${result.skippedDuplicate} duplicate'
-              ' · ${result.skippedUnsupportedType} unsupported'
-        : 'Sync failed: ${result.error}';
+        ? l10n.integrationsHealthSyncSuccess(
+            result.totalPoints,
+            result.imported,
+            result.skippedDuplicate,
+            result.skippedUnsupportedType,
+          )
+        : l10n.integrationsHealthSyncFailed(result.error ?? '');
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text(text)));
@@ -128,8 +118,8 @@ class _IntegrationsScreenState extends ConsumerState<IntegrationsScreen> {
     ref.invalidate(healthSyncStatusProvider);
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Next sync will look back 3 months.'),
+      SnackBar(
+        content: Text(AppLocalizations.of(context)!.integrationsResetCursorMessage),
       ),
     );
     setState(() {});
@@ -147,7 +137,7 @@ class _IntegrationsScreenState extends ConsumerState<IntegrationsScreen> {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
         ),
-        title: const Text('Health Diagnostics'),
+        title: Text(AppLocalizations.of(context)!.integrationsHealthDiagnosticsTitle),
         content: SingleChildScrollView(
           child: SelectableText(
             report,
@@ -159,7 +149,7 @@ class _IntegrationsScreenState extends ConsumerState<IntegrationsScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('CLOSE'),
+            child: Text(AppLocalizations.of(context)!.closeUpper),
           ),
         ],
       ),
@@ -172,7 +162,7 @@ class _IntegrationsScreenState extends ConsumerState<IntegrationsScreen> {
     final statusAsync = ref.watch(healthSyncStatusProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Integrations')),
+      appBar: AppBar(title: Text(AppLocalizations.of(context)!.integrationsTitle)),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -221,10 +211,11 @@ class _StravaCardState extends ConsumerState<_StravaCard> {
     final success = await ref.read(stravaIntegrationServiceProvider).connect();
     ref.invalidate(stravaSyncStatusProvider);
     if (!mounted) return;
+    final l10n = AppLocalizations.of(context)!;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          success ? 'Connected to Strava' : 'Could not connect to Strava',
+          success ? l10n.integrationsStravaConnected : l10n.integrationsStravaConnectFailed,
         ),
       ),
     );
@@ -242,11 +233,14 @@ class _StravaCardState extends ConsumerState<_StravaCard> {
       _lastResult = result;
       _busy = false;
     });
+    final l10nStrava = AppLocalizations.of(context)!;
     final text = result.isSuccess
-        ? 'Imported ${result.imported} · '
-              '${result.skippedDuplicate} duplicate · '
-              '${result.skippedUnsupportedType} unsupported'
-        : 'Sync failed: ${result.error}';
+        ? l10nStrava.integrationsStravaSyncSuccess(
+            result.imported,
+            result.skippedDuplicate,
+            result.skippedUnsupportedType,
+          )
+        : l10nStrava.integrationsStravaSyncFailed(result.error ?? '');
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text(text)));
@@ -265,6 +259,7 @@ class _StravaCardState extends ConsumerState<_StravaCard> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final service = ref.watch(stravaIntegrationServiceProvider);
     final statusAsync = ref.watch(stravaSyncStatusProvider);
 
@@ -283,7 +278,7 @@ class _StravaCardState extends ConsumerState<_StravaCard> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'Strava',
+                    l10n.integrationsStravaTitle,
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.w600,
                     ),
@@ -298,20 +293,18 @@ class _StravaCardState extends ConsumerState<_StravaCard> {
             const SizedBox(height: 8),
             if (!service.isConfigured)
               Text(
-                'Strava requires client credentials at build time. See the '
-                'README or the Bucket 3 hand-off doc for setup steps.',
+                l10n.integrationsStravaUnconfiguredMessage,
                 style: Theme.of(context).textTheme.bodyMedium,
               )
             else
               Text(
-                'Pull activities from Strava — runs, rides, swims import '
-                'with distance, duration, HR, and elevation.',
+                l10n.integrationsStravaDescription,
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
             const SizedBox(height: 12),
             if (service.lastSyncAt != null)
               Text(
-                'Last sync: ${_formatTimestamp(service.lastSyncAt!)}',
+                l10n.integrationsLastSync(_formatTimestamp(service.lastSyncAt!)),
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: Theme.of(
                     context,
@@ -323,10 +316,11 @@ class _StravaCardState extends ConsumerState<_StravaCard> {
                 padding: const EdgeInsets.only(top: 4),
                 child: Text(
                   _lastResult!.isSuccess
-                      ? 'Last run: +${_lastResult!.imported} imported · '
-                            '${_lastResult!.skippedDuplicate} already here · '
-                            '${_lastResult!.skippedUnsupportedType} non-cardio skipped'
-                            '${_lastResult!.failed > 0 ? ' · ${_lastResult!.failed} failed' : ''}'
+                      ? l10n.integrationsStravaSyncSuccess(
+                          _lastResult!.imported,
+                          _lastResult!.skippedDuplicate,
+                          _lastResult!.skippedUnsupportedType,
+                        )
                       : _lastResult!.error ?? '',
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
@@ -352,6 +346,7 @@ class _StravaCardState extends ConsumerState<_StravaCard> {
     StravaSyncStatus status,
     StravaIntegrationService service,
   ) {
+    final l10n = AppLocalizations.of(context)!;
     switch (status) {
       case StravaSyncStatus.unconfigured:
         return const SizedBox.shrink();
@@ -359,7 +354,7 @@ class _StravaCardState extends ConsumerState<_StravaCard> {
         return FilledButton.icon(
           onPressed: _busy ? null : _connect,
           icon: const Icon(Icons.link),
-          label: const Text('Connect to Strava'),
+          label: Text(l10n.integrationsConnectToStrava),
         );
       case StravaSyncStatus.ready:
       case StravaSyncStatus.syncing:
@@ -376,12 +371,12 @@ class _StravaCardState extends ConsumerState<_StravaCard> {
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
                   : const Icon(Icons.sync),
-              label: const Text('Sync now'),
+              label: Text(l10n.integrationsSyncNow),
             ),
             OutlinedButton.icon(
               onPressed: _busy ? null : _disconnect,
               icon: const Icon(Icons.link_off),
-              label: const Text('Disconnect'),
+              label: Text(l10n.integrationsDisconnect),
             ),
           ],
         );
@@ -389,11 +384,12 @@ class _StravaCardState extends ConsumerState<_StravaCard> {
   }
 
   String _formatTimestamp(DateTime dt) {
+    final l10n = AppLocalizations.of(context)!;
     final diff = DateTime.now().difference(dt);
-    if (diff.inMinutes < 1) return 'just now';
-    if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
-    if (diff.inHours < 24) return '${diff.inHours}h ago';
-    if (diff.inDays < 7) return '${diff.inDays}d ago';
+    if (diff.inMinutes < 1) return l10n.integrationsTimeJustNow;
+    if (diff.inMinutes < 60) return l10n.integrationsTimeMinutesAgo(diff.inMinutes);
+    if (diff.inHours < 24) return l10n.integrationsTimeHoursAgo(diff.inHours);
+    if (diff.inDays < 7) return l10n.integrationsTimeDaysAgo(diff.inDays);
     final mm = dt.month.toString().padLeft(2, '0');
     final dd = dt.day.toString().padLeft(2, '0');
     return '$mm/$dd';
@@ -411,22 +407,23 @@ class _StravaStatusBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     if (!isConfigured) {
-      return _badge(context, label: 'Unconfigured', color: Colors.grey);
+      return _badge(context, label: l10n.integrationsStatusUnconfigured, color: Colors.grey);
     }
     return statusAsync.when(
       data: (status) {
         switch (status) {
           case StravaSyncStatus.ready:
-            return _badge(context, label: 'Connected', color: Colors.green);
+            return _badge(context, label: l10n.integrationsStatusConnected, color: Colors.green);
           case StravaSyncStatus.notConnected:
-            return _badge(context, label: 'Not connected', color: Colors.orange);
+            return _badge(context, label: l10n.integrationsStatusNotConnected, color: Colors.orange);
           case StravaSyncStatus.syncing:
-            return _badge(context, label: 'Syncing…', color: Colors.blue);
+            return _badge(context, label: l10n.integrationsStatusSyncing, color: Colors.blue);
           case StravaSyncStatus.unconfigured:
             return _badge(
               context,
-              label: 'Unconfigured',
+              label: l10n.integrationsStatusUnconfigured,
               color: Colors.grey,
             );
         }
@@ -436,7 +433,7 @@ class _StravaStatusBadge extends StatelessWidget {
         height: 18,
         child: CircularProgressIndicator(strokeWidth: 2),
       ),
-      error: (_, _) => _badge(context, label: 'Error', color: Colors.red),
+      error: (_, _) => _badge(context, label: l10n.integrationsStatusError, color: Colors.red),
     );
   }
 
@@ -489,6 +486,7 @@ class _HealthCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -518,17 +516,13 @@ class _HealthCard extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              isSupported
-                  ? 'Pull completed workouts (runs, rides, swims) from '
-                        '$providerName so they join your training history.'
-                  : 'This integration is only available on iOS and Android '
-                        'devices.',
+              isSupported ? l10n.integrationsHealthDescSupported(providerName) : l10n.integrationsHealthDescUnsupported,
               style: Theme.of(context).textTheme.bodyMedium,
             ),
             const SizedBox(height: 12),
             if (lastSyncAt != null)
               Text(
-                'Last sync: ${_formatTimestamp(lastSyncAt!)}',
+                l10n.integrationsLastSync(_formatTimestamp(context, lastSyncAt!)),
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: Theme.of(
                     context,
@@ -555,12 +549,13 @@ class _HealthCard extends StatelessWidget {
     );
   }
 
-  String _formatTimestamp(DateTime dt) {
+  String _formatTimestamp(BuildContext context, DateTime dt) {
+    final l10n = AppLocalizations.of(context)!;
     final diff = DateTime.now().difference(dt);
-    if (diff.inMinutes < 1) return 'just now';
-    if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
-    if (diff.inHours < 24) return '${diff.inHours}h ago';
-    if (diff.inDays < 7) return '${diff.inDays}d ago';
+    if (diff.inMinutes < 1) return l10n.integrationsTimeJustNow;
+    if (diff.inMinutes < 60) return l10n.integrationsTimeMinutesAgo(diff.inMinutes);
+    if (diff.inHours < 24) return l10n.integrationsTimeHoursAgo(diff.inHours);
+    if (diff.inDays < 7) return l10n.integrationsTimeDaysAgo(diff.inDays);
     final mm = dt.month.toString().padLeft(2, '0');
     final dd = dt.day.toString().padLeft(2, '0');
     return '$mm/$dd';
@@ -575,20 +570,21 @@ class _StatusBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     if (!isSupported) {
-      return _badge(context, label: 'Unavailable', color: Colors.grey);
+      return _badge(context, label: l10n.integrationsStatusUnavailable, color: Colors.grey);
     }
     return statusAsync.when(
       data: (status) {
         switch (status) {
           case HealthSyncStatus.ready:
-            return _badge(context, label: 'Connected', color: Colors.green);
+            return _badge(context, label: l10n.integrationsStatusConnected, color: Colors.green);
           case HealthSyncStatus.notAuthorized:
-            return _badge(context, label: 'Not connected', color: Colors.orange);
+            return _badge(context, label: l10n.integrationsStatusNotConnected, color: Colors.orange);
           case HealthSyncStatus.syncing:
-            return _badge(context, label: 'Syncing…', color: Colors.blue);
+            return _badge(context, label: l10n.integrationsStatusSyncing, color: Colors.blue);
           case HealthSyncStatus.unavailable:
-            return _badge(context, label: 'Unavailable', color: Colors.grey);
+            return _badge(context, label: l10n.integrationsStatusUnavailable, color: Colors.grey);
         }
       },
       loading: () => const SizedBox(
@@ -596,7 +592,7 @@ class _StatusBadge extends StatelessWidget {
         height: 18,
         child: CircularProgressIndicator(strokeWidth: 2),
       ),
-      error: (_, _) => _badge(context, label: 'Error', color: Colors.red),
+      error: (_, _) => _badge(context, label: l10n.integrationsStatusError, color: Colors.red),
     );
   }
 
@@ -669,6 +665,7 @@ class _Actions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final isReady = statusAsync.value == HealthSyncStatus.ready;
     return Wrap(
       spacing: 8,
@@ -678,7 +675,7 @@ class _Actions extends StatelessWidget {
           FilledButton.icon(
             onPressed: busy ? null : onRequestPermissions,
             icon: const Icon(Icons.lock_open),
-            label: const Text('Grant permissions'),
+            label: Text(l10n.integrationsGrantPermissions),
           )
         else
           FilledButton.icon(
@@ -690,19 +687,19 @@ class _Actions extends StatelessWidget {
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
                 : const Icon(Icons.sync),
-            label: const Text('Sync now'),
+            label: Text(l10n.integrationsSyncNow),
           ),
         if (showResetCursor)
           OutlinedButton.icon(
             onPressed: busy ? null : onResetCursor,
             icon: const Icon(Icons.restart_alt),
-            label: const Text('Reset cursor'),
+            label: Text(l10n.integrationsResetCursor),
           ),
         if (isReady)
           OutlinedButton.icon(
             onPressed: busy ? null : onRunDiagnostics,
             icon: const Icon(Icons.bug_report_outlined),
-            label: const Text('Diagnostics'),
+            label: Text(l10n.integrationsDiagnostics),
           ),
       ],
     );
@@ -715,20 +712,15 @@ class _PelotonNote extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Card(
       color: Theme.of(
         context,
       ).colorScheme.surfaceContainerHigh.withValues(alpha: 0.6),
       child: ListTile(
         leading: const Icon(Icons.info_outline),
-        title: const Text('Peloton comes through here'),
-        subtitle: Text(
-          'Peloton is paired inside the Peloton app — not $providerName.\n'
-          'Open Peloton → Profile / Settings → look for a $providerName '
-          'toggle and turn it on. Your rides, runs, and treads will then '
-          'flow into the Health card above, and YAWA4U picks them up on '
-          'the next sync. No separate Peloton login needed here.',
-        ),
+        title: Text(l10n.integrationsPelotonTitle),
+        subtitle: Text(l10n.integrationsPelotonDescription(providerName)),
       ),
     );
   }
@@ -737,16 +729,15 @@ class _PelotonNote extends StatelessWidget {
 class _FuturePartnersCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Card(
       color: Theme.of(
         context,
       ).colorScheme.surfaceContainerHigh.withValues(alpha: 0.4),
       child: ListTile(
         leading: const Icon(Icons.hourglass_bottom_outlined),
-        title: const Text('More integrations coming'),
-        subtitle: const Text(
-          'Garmin Connect and Wahoo are on the roadmap.',
-        ),
+        title: Text(l10n.integrationsFutureTitle),
+        subtitle: Text(l10n.integrationsFutureDescription),
       ),
     );
   }

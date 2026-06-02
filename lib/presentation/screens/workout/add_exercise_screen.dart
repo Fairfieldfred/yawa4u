@@ -13,6 +13,7 @@ import '../../../domain/providers/database_providers.dart';
 import '../../../domain/providers/exercise_providers.dart';
 import '../../../domain/providers/onboarding_providers.dart';
 import '../../../domain/providers/workout_providers.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../widgets/available_equipment_filter.dart';
 import '../../widgets/dialogs/create_custom_exercise_dialog.dart';
 
@@ -61,13 +62,15 @@ class _AddExerciseScreenState extends ConsumerState<AddExerciseScreen> {
     final allExercises = ref.watch(allExerciseDefinitionsProvider);
     final filteredExercises = _filterExercises(allExercises);
 
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => GoRouter.of(context).pop(),
         ),
-        title: const Text('Add exercise'),
+        title: Text(l10n.addExerciseTitle),
         actions: [
           IconButton(
             icon: const Icon(Icons.close),
@@ -78,7 +81,7 @@ class _AddExerciseScreenState extends ConsumerState<AddExerciseScreen> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showCreateCustomExerciseDialog(),
         icon: const Icon(Icons.add),
-        label: const Text('Create Custom'),
+        label: Text(l10n.addExerciseCreateCustomButton),
       ),
       body: Column(
         children: [
@@ -86,16 +89,16 @@ class _AddExerciseScreenState extends ConsumerState<AddExerciseScreen> {
           Padding(
             padding: const EdgeInsets.all(16),
             child: Semantics(
-              label: 'Search exercises',
+              label: l10n.addExerciseSearchLabel,
               child: TextField(
                 controller: _searchController,
                 decoration: InputDecoration(
-                  hintText: 'Search',
+                  hintText: l10n.addExerciseSearchHint,
                   prefixIcon: const Icon(Icons.search),
                   suffixIcon: _searchQuery.isNotEmpty
                       ? IconButton(
                           icon: const Icon(Icons.clear),
-                          tooltip: 'Clear search',
+                          tooltip: l10n.addExerciseClearSearchTooltip,
                           onPressed: () {
                             setState(() {
                               _searchController.clear();
@@ -206,7 +209,7 @@ class _AddExerciseScreenState extends ConsumerState<AddExerciseScreen> {
                     child: OutlinedButton.icon(
                       onPressed: () => _showFilterModal(context),
                       icon: const Icon(Icons.filter_list, size: 18),
-                      label: const Text('Filter'),
+                      label: Text(l10n.addExerciseFilterButton),
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(horizontal: 12),
                       ),
@@ -224,7 +227,7 @@ class _AddExerciseScreenState extends ConsumerState<AddExerciseScreen> {
                   OutlinedButton.icon(
                     onPressed: () => _showFilterModal(context),
                     icon: const Icon(Icons.filter_list, size: 18),
-                    label: const Text('Filter'),
+                    label: Text(l10n.addExerciseFilterButton),
                   ),
                 ],
               ),
@@ -367,7 +370,7 @@ class _AddExerciseScreenState extends ConsumerState<AddExerciseScreen> {
         ),
         trailing: FilledButton(
           onPressed: () => _addExerciseToWorkout(exercise),
-          child: const Text('Add'),
+          child: Text(AppLocalizations.of(context)!.addExerciseAddButton),
         ),
         onTap: () => _addExerciseToWorkout(exercise),
       ),
@@ -386,7 +389,7 @@ class _AddExerciseScreenState extends ConsumerState<AddExerciseScreen> {
         return Padding(
           padding: const EdgeInsets.only(top: 4),
           child: Text(
-            'Last performed $dateStr',
+            AppLocalizations.of(context)!.addExerciseLastPerformed(dateStr),
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
               fontSize: 11,
               color: Theme.of(context).colorScheme.onSurface.withAlpha((255 * 0.5).round()),
@@ -411,12 +414,12 @@ class _AddExerciseScreenState extends ConsumerState<AddExerciseScreen> {
           ),
           const SizedBox(height: 16),
           Text(
-            'No exercises found',
+            AppLocalizations.of(context)!.addExerciseNoResults,
             style: Theme.of(context).textTheme.titleLarge,
           ),
           const SizedBox(height: 8),
           Text(
-            'Try adjusting your search or filters',
+            AppLocalizations.of(context)!.addExerciseAdjustFilters,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               color: Theme.of(
                 context,
@@ -456,8 +459,8 @@ class _AddExerciseScreenState extends ConsumerState<AddExerciseScreen> {
     if (workout == null) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Error: Workout not found'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.addExerciseWorkoutNotFound),
             backgroundColor: Colors.red,
           ),
         );
@@ -522,12 +525,13 @@ class _AddExerciseScreenState extends ConsumerState<AddExerciseScreen> {
 
     // Show confirmation and go back
     if (mounted) {
+      final l10n = AppLocalizations.of(context)!;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
             isReplacing
-                ? '${existingExercise?.name ?? "Exercise"} replaced with ${exerciseDef.name}'
-                : '${exerciseDef.name} added',
+                ? l10n.addExerciseReplaced(existingExercise?.name ?? 'Exercise', exerciseDef.name)
+                : l10n.addExerciseAdded(exerciseDef.name),
           ),
           duration: const Duration(seconds: 2),
         ),
@@ -591,9 +595,12 @@ class _FilterModalState extends ConsumerState<_FilterModal> {
                       _tempEquipment.clear();
                     });
                   },
-                  child: const Text('CLEAR ALL'),
+                  child: Text(AppLocalizations.of(context)!.addExerciseFilterClearAll),
                 ),
-                Text('Filter', style: Theme.of(context).textTheme.titleLarge),
+                Text(
+                  AppLocalizations.of(context)!.addExerciseFilterTitle,
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
                 IconButton(
                   icon: const Icon(Icons.close),
                   onPressed: () => Navigator.pop(context),
@@ -613,7 +620,7 @@ class _FilterModalState extends ConsumerState<_FilterModal> {
 
                 // Muscle Group section
                 Text(
-                  'Muscle Group',
+                  AppLocalizations.of(context)!.addExerciseFilterMuscleGroup,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: Theme.of(
@@ -649,14 +656,14 @@ class _FilterModalState extends ConsumerState<_FilterModal> {
 
                 // Equipment Type section (manual filter for this session)
                 Text(
-                  'Filter by Equipment Type',
+                  AppLocalizations.of(context)!.addExerciseFilterEquipmentType,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Temporarily filter to specific equipment types',
+                  AppLocalizations.of(context)!.addExerciseFilterEquipmentTypeDesc,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: Theme.of(
                       context,
@@ -705,7 +712,7 @@ class _FilterModalState extends ConsumerState<_FilterModal> {
                     widget.onApply(_tempMuscleGroup, _tempEquipment);
                     Navigator.pop(context);
                   },
-                  child: const Text('APPLY FILTERS'),
+                  child: Text(AppLocalizations.of(context)!.addExerciseFilterApplyButton),
                 ),
               ),
             ),

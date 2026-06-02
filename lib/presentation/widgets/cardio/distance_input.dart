@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import '../../../core/constants/enums.dart';
 import '../../../core/constants/sports.dart';
 import '../../../core/utils/cardio_conversions.dart';
+import '../../../l10n/app_localizations.dart';
 
 /// A text field that captures distance in the user's chosen display unit
 /// and emits meters to the parent.
@@ -21,7 +22,7 @@ class DistanceInput extends StatefulWidget {
     required this.units,
     required this.onChanged,
     this.sport,
-    this.label = 'Distance',
+    this.label,
     this.enabled = true,
   });
 
@@ -32,7 +33,7 @@ class DistanceInput extends StatefulWidget {
   /// Fires with meters (or null if the user cleared the field).
   final ValueChanged<double?> onChanged;
 
-  final String label;
+  final String? label;
   final bool enabled;
 
   @override
@@ -78,11 +79,11 @@ class _DistanceInputState extends State<DistanceInput> {
     ).toStringAsFixed(2);
   }
 
-  String get _suffix {
+  String _suffix(AppLocalizations l10n) {
     if (widget.sport == Sport.swim) {
-      return widget.units.isMetric ? 'm' : 'yd';
+      return widget.units.isMetric ? l10n.metersSuffix : l10n.yardsSuffix;
     }
-    return widget.units.isMetric ? 'km' : 'mi';
+    return widget.units.isMetric ? l10n.kilometersSuffix : l10n.milesSuffix;
   }
 
   void _onChanged(String text) {
@@ -106,6 +107,7 @@ class _DistanceInputState extends State<DistanceInput> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return TextField(
       controller: _controller,
       enabled: widget.enabled,
@@ -114,10 +116,10 @@ class _DistanceInputState extends State<DistanceInput> {
         FilteringTextInputFormatter.allow(RegExp(r'[0-9.]')),
       ],
       decoration: InputDecoration(
-        labelText: widget.label,
+        labelText: widget.label ?? l10n.distanceLabel,
         border: const OutlineInputBorder(),
         prefixIcon: const Icon(Icons.straighten),
-        suffixText: _suffix,
+        suffixText: _suffix(l10n),
       ),
       onChanged: _onChanged,
     );

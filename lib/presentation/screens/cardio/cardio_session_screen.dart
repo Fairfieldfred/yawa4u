@@ -16,6 +16,7 @@ import '../../../domain/providers/session_providers.dart';
 import '../../widgets/cardio/distance_input.dart';
 import '../../widgets/cardio/duration_input.dart';
 import '../../widgets/cardio/hr_input.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../widgets/cardio/sport_badge.dart';
 import 'cardio_template_picker.dart';
 
@@ -258,10 +259,13 @@ class _CardioSessionScreenState extends ConsumerState<CardioSessionScreen> {
       }
 
       if (!mounted) return;
+      final l10n = AppLocalizations.of(context)!;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            _existing == null ? (isPlanning ? 'Session planned' : 'Session logged') : 'Session updated',
+            _existing == null
+                ? (isPlanning ? l10n.cardioSessionPlanned : l10n.cardioSessionLogged)
+                : l10n.cardioSessionUpdated,
           ),
         ),
       );
@@ -287,13 +291,16 @@ class _CardioSessionScreenState extends ConsumerState<CardioSessionScreen> {
       );
     }
 
+    final l10n = AppLocalizations.of(context)!;
     final units = _units();
-    final sportName = _sport.displayName.toLowerCase();
+    final sportName = _sport.localizedName(l10n).toLowerCase();
     final String title;
     if (_existing != null) {
-      title = _existing!.status == WorkoutStatus.incomplete ? 'Log $sportName' : 'Edit $sportName';
+      title = _existing!.status == WorkoutStatus.incomplete
+          ? l10n.cardioSessionLogTitle(sportName)
+          : l10n.cardioSessionEditTitle(sportName);
     } else {
-      title = widget.planned ? 'Plan $sportName' : 'Log $sportName';
+      title = widget.planned ? l10n.cardioSessionPlanTitle(sportName) : l10n.cardioSessionLogTitle(sportName);
     }
 
     return Scaffold(
@@ -302,7 +309,7 @@ class _CardioSessionScreenState extends ConsumerState<CardioSessionScreen> {
         actions: [
           if (_existing != null)
             IconButton(
-              tooltip: 'Edit intervals',
+              tooltip: l10n.cardioSessionEditIntervalsTooltip,
               icon: const Icon(Icons.timeline),
               onPressed: () {
                 context.push(
@@ -311,9 +318,9 @@ class _CardioSessionScreenState extends ConsumerState<CardioSessionScreen> {
               },
             ),
           if (_isReadOnly)
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 8),
-              child: Chip(label: Text('Imported'), visualDensity: VisualDensity.compact),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: Chip(label: Text(l10n.cardioSessionImportedChip), visualDensity: VisualDensity.compact),
             ),
         ],
       ),
@@ -334,7 +341,7 @@ class _CardioSessionScreenState extends ConsumerState<CardioSessionScreen> {
                 TextButton.icon(
                   onPressed: _isReadOnly ? null : _pickDate,
                   icon: const Icon(Icons.calendar_today, size: 18),
-                  label: const Text('Date'),
+                  label: Text(l10n.cardioSessionDateButton),
                 ),
               ],
             ),
@@ -347,7 +354,7 @@ class _CardioSessionScreenState extends ConsumerState<CardioSessionScreen> {
               OutlinedButton.icon(
                 onPressed: _saving ? null : _pickTemplate,
                 icon: const Icon(Icons.auto_awesome),
-                label: const Text('Start from template'),
+                label: Text(l10n.cardioSessionStartFromTemplate),
               ),
             ],
             const SizedBox(height: 12),
@@ -355,11 +362,11 @@ class _CardioSessionScreenState extends ConsumerState<CardioSessionScreen> {
               controller: _labelController,
               enabled: !_isReadOnly,
               textCapitalization: TextCapitalization.sentences,
-              decoration: const InputDecoration(
-                labelText: 'Session name',
-                hintText: 'e.g., 30 min Tempo',
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.label_outline),
+              decoration: InputDecoration(
+                labelText: l10n.cardioSessionNameLabel,
+                hintText: l10n.cardioSessionNameHint,
+                border: const OutlineInputBorder(),
+                prefixIcon: const Icon(Icons.label_outline),
               ),
             ),
             const SizedBox(height: 16),
@@ -394,11 +401,11 @@ class _CardioSessionScreenState extends ConsumerState<CardioSessionScreen> {
             TextField(
               controller: _notesController,
               maxLines: 3,
-              decoration: const InputDecoration(
-                labelText: 'Notes',
-                hintText: 'Anything worth remembering about this session…',
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.edit_note),
+              decoration: InputDecoration(
+                labelText: l10n.cardioSessionNotesLabel,
+                hintText: l10n.cardioSessionNotesHint,
+                border: const OutlineInputBorder(),
+                prefixIcon: const Icon(Icons.edit_note),
               ),
             ),
             const SizedBox(height: 24),
@@ -413,8 +420,10 @@ class _CardioSessionScreenState extends ConsumerState<CardioSessionScreen> {
                   : const Icon(Icons.check),
               label: Text(
                 _existing == null
-                    ? (widget.planned ? 'Plan session' : 'Save session')
-                    : (_existing!.status == WorkoutStatus.incomplete ? 'Log session' : 'Update session'),
+                    ? (widget.planned ? l10n.cardioSessionPlanButton : l10n.cardioSessionSaveButton)
+                    : (_existing!.status == WorkoutStatus.incomplete
+                          ? l10n.cardioSessionLogButton
+                          : l10n.cardioSessionUpdateButton),
               ),
               style: FilledButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 14),
@@ -465,18 +474,19 @@ class _RpeSlider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           children: [
             Text(
-              'Perceived exertion',
+              l10n.cardioSessionPerceivedExertion,
               style: Theme.of(context).textTheme.bodyLarge,
             ),
             const Spacer(),
             Text(
-              value != null ? 'RPE $value' : 'Not set',
+              value != null ? l10n.cardioSessionRpeValue(value!) : l10n.cardioSessionRpeNotSet,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 fontWeight: FontWeight.w600,
                 color: Theme.of(context).colorScheme.primary,
@@ -489,7 +499,7 @@ class _RpeSlider extends StatelessWidget {
           min: 0,
           max: 10,
           divisions: 10,
-          label: value != null ? 'RPE $value' : 'Not set',
+          label: value != null ? l10n.cardioSessionRpeValue(value!) : l10n.cardioSessionRpeNotSet,
           onChanged: (v) => onChanged(v < 1 ? null : v.toInt()),
         ),
       ],
@@ -517,6 +527,7 @@ class _PaceReadout extends StatelessWidget {
     if (distanceMeters <= 0 || durationSeconds <= 0) {
       return const SizedBox.shrink();
     }
+    final l10n = AppLocalizations.of(context)!;
     final secPerMeter = durationSeconds / distanceMeters;
     final mps = distanceMeters / durationSeconds;
     final pace = CardioConversions.formatPace(
@@ -541,7 +552,7 @@ class _PaceReadout extends StatelessWidget {
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                sport == Sport.bike ? 'Avg speed $speed' : 'Pace $pace  •  Avg speed $speed',
+                sport == Sport.bike ? l10n.cardioSessionAvgSpeed(speed) : l10n.cardioSessionPaceAvgSpeed(pace, speed),
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
             ),

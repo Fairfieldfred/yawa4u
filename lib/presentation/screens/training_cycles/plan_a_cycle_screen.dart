@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../domain/providers/onboarding_providers.dart';
+import '../../../l10n/app_localizations.dart';
 import 'template_selection_screen.dart';
 
 /// Plan a trainingCycle screen - Shows different options for creating a trainingCycle
@@ -25,6 +26,7 @@ class _PlanATrainingCycleScreenState extends ConsumerState<PlanATrainingCycleScr
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final cycleTerm = ref.watch(trainingCycleTermProvider);
 
     return Scaffold(
@@ -41,39 +43,18 @@ class _PlanATrainingCycleScreenState extends ConsumerState<PlanATrainingCycleScr
             }
           },
         ),
-        title: Text('Plan a $cycleTerm'),
+        title: Text(l10n.planCycleTitle(cycleTerm)),
       ),
       body: Padding(
         padding: const EdgeInsets.all(24.0),
         child: ListView(
           children: [
-            // _OptionCard(
-            //   icon: Icons.copy_outlined,
-            //   iconColor: Colors.pink,
-            //   title: 'Copy a trainingCycle',
-            //   subtitle:
-            //       'Ensure long-term progressive overload by keeping your training similar over time.',
-            //   badge: '✨',
-            //   onTap: () {
-            //     // Navigate to copy trainingCycle screen
-            //   },
-            // ),
-            // const SizedBox(height: 16),
-            // _OptionCard(
-            //   icon: Icons.play_arrow,
-            //   iconColor: Colors.purple,
-            //   title: 'Resume plan in progress',
-            //   subtitle: 'Pick up where you left off.',
-            //   onTap: () {
-            //     // Navigate to resume plan screen
-            //   },
-            // ),
             const SizedBox(height: 16),
             _OptionCard(
               icon: Icons.grid_view_outlined,
               iconColor: Colors.blue,
-              title: 'Start with a template',
-              subtitle: 'Pick a template that fits your goals and get started ASAP.',
+              title: l10n.planCycleStartWithTemplate,
+              subtitle: l10n.planCycleStartWithTemplateSubtitle,
               onTap: () => _handleStartWithTemplate(),
             ),
 
@@ -81,8 +62,8 @@ class _PlanATrainingCycleScreenState extends ConsumerState<PlanATrainingCycleScr
             _OptionCard(
               icon: Icons.note_outlined,
               iconColor: Colors.teal,
-              title: 'Start from scratch',
-              subtitle: 'Build your own $cycleTerm from a completely blank slate.',
+              title: l10n.planCycleStartFromScratch,
+              subtitle: l10n.planCycleStartFromScratchSubtitle(cycleTerm),
               onTap: () => _handleStartFromScratch(),
             ),
           ],
@@ -96,20 +77,20 @@ class _PlanATrainingCycleScreenState extends ConsumerState<PlanATrainingCycleScr
         unselectedItemColor: Theme.of(
           context,
         ).colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
-        items: const [
+        items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.play_circle_fill),
-            label: 'Session',
+            icon: const Icon(Icons.play_circle_fill),
+            label: l10n.navSession,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.analytics),
-            label: 'TrainingCycles',
+            icon: const Icon(Icons.analytics),
+            label: l10n.navTrainingCycles,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.fitness_center),
-            label: 'Exercises',
+            icon: const Icon(Icons.fitness_center),
+            label: l10n.navExercises,
           ),
-          BottomNavigationBarItem(icon: Icon(Icons.more_horiz), label: 'More'),
+          BottomNavigationBarItem(icon: const Icon(Icons.more_horiz), label: l10n.navMore),
         ],
       ),
     );

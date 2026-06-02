@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/skins/skins.dart';
 import '../../../domain/providers/onboarding_providers.dart';
+import '../../../l10n/app_localizations.dart';
 
 /// Training cycle terminology options
 enum TrainingCycleTerm {
@@ -14,13 +15,44 @@ enum TrainingCycleTerm {
   ),
   module('Module', 'A modular training unit that can be stacked'),
   phase('Phase', 'A training phase within your overall program'),
-  wave('Wave', 'A wave of progressive training intensity')
-  ;
+  wave('Wave', 'A wave of progressive training intensity');
 
   const TrainingCycleTerm(this.displayName, this.description);
 
   final String displayName;
   final String description;
+
+  /// Localized user-facing name for this terminology option.
+  String localizedName(AppLocalizations l10n) {
+    switch (this) {
+      case TrainingCycleTerm.block:
+        return l10n.trainingCycleTermBlock;
+      case TrainingCycleTerm.mesocycle:
+        return l10n.trainingCycleTermMesocycle;
+      case TrainingCycleTerm.module:
+        return l10n.trainingCycleTermModule;
+      case TrainingCycleTerm.phase:
+        return l10n.trainingCycleTermPhase;
+      case TrainingCycleTerm.wave:
+        return l10n.trainingCycleTermWave;
+    }
+  }
+
+  /// Localized description for this terminology option.
+  String localizedDescription(AppLocalizations l10n) {
+    switch (this) {
+      case TrainingCycleTerm.block:
+        return l10n.trainingCycleTermBlockDesc;
+      case TrainingCycleTerm.mesocycle:
+        return l10n.trainingCycleTermMesocycleDesc;
+      case TrainingCycleTerm.module:
+        return l10n.trainingCycleTermModuleDesc;
+      case TrainingCycleTerm.phase:
+        return l10n.trainingCycleTermPhaseDesc;
+      case TrainingCycleTerm.wave:
+        return l10n.trainingCycleTermWaveDesc;
+    }
+  }
 }
 
 /// Third onboarding screen - collects user's preferred terminology
@@ -49,9 +81,10 @@ class _OnboardingTerminologyScreenState extends ConsumerState<OnboardingTerminol
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Terminology'),
+        title: Text(l10n.onboardingTerminologyTitle),
         centerTitle: true,
         bottom: const _OnboardingProgress(step: 4, total: 4),
       ),
@@ -65,14 +98,14 @@ class _OnboardingTerminologyScreenState extends ConsumerState<OnboardingTerminol
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'What do you call a training cycle?',
+                    l10n.onboardingTerminologyHeadline,
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Choose the term you\'re most comfortable with. We\'ll use this throughout the app.',
+                    l10n.onboardingTerminologySubtitle,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: Theme.of(
                         context,
@@ -134,7 +167,7 @@ class _OnboardingTerminologyScreenState extends ConsumerState<OnboardingTerminol
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      term.displayName,
+                                      term.localizedName(l10n),
                                       style: TextStyle(
                                         fontWeight: FontWeight.bold,
                                         fontSize: 16,
@@ -145,7 +178,7 @@ class _OnboardingTerminologyScreenState extends ConsumerState<OnboardingTerminol
                                     ),
                                     const SizedBox(height: 4),
                                     Text(
-                                      term.description,
+                                      term.localizedDescription(l10n),
                                       style: TextStyle(
                                         fontSize: 13,
                                         color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
@@ -171,9 +204,9 @@ class _OnboardingTerminologyScreenState extends ConsumerState<OnboardingTerminol
                 width: double.infinity,
                 child: FilledButton(
                   onPressed: _completeOnboarding,
-                  child: const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 16),
-                    child: Text('Get Started'),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    child: Text(l10n.getStartedButton),
                   ),
                 ),
               ),

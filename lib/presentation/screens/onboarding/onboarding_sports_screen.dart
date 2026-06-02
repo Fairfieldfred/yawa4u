@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/constants/enums.dart';
 import '../../../core/constants/sports.dart';
 import '../../../domain/providers/onboarding_providers.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../widgets/cardio/sport_badge.dart';
 
 /// Step 3 of onboarding (Profile → Equipment → Sports → Terminology).
@@ -83,9 +84,10 @@ class _OnboardingSportsScreenState extends ConsumerState<OnboardingSportsScreen>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Your sports'),
+        title: Text(l10n.onboardingSportsTitle),
         centerTitle: true,
         bottom: const _OnboardingProgress(step: 3, total: 4),
       ),
@@ -96,14 +98,14 @@ class _OnboardingSportsScreenState extends ConsumerState<OnboardingSportsScreen>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Which sports do you train?',
+                l10n.onboardingSportsHeadline,
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
               ),
               const SizedBox(height: 8),
               Text(
-                'Pick all that apply. You can add more later in Settings.',
+                l10n.onboardingSportsSubtitle,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: Theme.of(
                     context,
@@ -135,7 +137,7 @@ class _OnboardingSportsScreenState extends ConsumerState<OnboardingSportsScreen>
                             width: 20,
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
-                        : const Text('Continue'),
+                        : Text(l10n.continueButton),
                   ),
                 ),
               ),
@@ -160,6 +162,7 @@ class _SportTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final color = sport.color;
     final border = selected ? color : Colors.transparent;
     final bg = selected ? color.withValues(alpha: 0.1) : Theme.of(context).colorScheme.surfaceContainerHighest;
@@ -187,7 +190,7 @@ class _SportTile extends StatelessWidget {
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    _descriptionFor(sport),
+                    _descriptionFor(sport, l10n),
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
                 ),
@@ -217,18 +220,18 @@ class _SportTile extends StatelessWidget {
     );
   }
 
-  String _descriptionFor(Sport sport) {
+  String _descriptionFor(Sport sport, AppLocalizations l10n) {
     switch (sport) {
       case Sport.strength:
-        return 'Lifting, hypertrophy, powerlifting';
+        return l10n.sportDescriptionStrength;
       case Sport.run:
-        return 'Running, treadmill, trail';
+        return l10n.sportDescriptionRun;
       case Sport.bike:
-        return 'Road, trainer, MTB, spin (Peloton)';
+        return l10n.sportDescriptionBike;
       case Sport.swim:
-        return 'Pool or open water';
+        return l10n.sportDescriptionSwim;
       case Sport.other:
-        return 'Other activities';
+        return l10n.sportDescriptionOther;
     }
   }
 }

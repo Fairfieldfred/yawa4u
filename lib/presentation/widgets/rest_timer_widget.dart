@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../domain/providers/rest_timer_provider.dart';
+import '../../l10n/app_localizations.dart';
 
 /// Compact rest timer bar shown during workout.
 /// Displays a countdown with pause, +30s, and skip controls.
@@ -16,6 +17,7 @@ class RestTimerWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final timer = ref.watch(restTimerProvider);
 
     if (!timer.isRunning) return const SizedBox.shrink();
@@ -26,7 +28,7 @@ class RestTimerWidget extends ConsumerWidget {
     final canTap = onTap != null && timer.exerciseId != null && timer.workoutId != null;
 
     return Semantics(
-      label: 'Rest timer: ${timer.displayTime} remaining',
+      label: l10n.restTimerSemantic(timer.displayTime),
       child: GestureDetector(
         onTap: canTap ? () => onTap!(timer.exerciseId!, timer.workoutId!) : null,
         child: Container(
@@ -62,7 +64,7 @@ class RestTimerWidget extends ConsumerWidget {
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    'Rest: ${timer.displayTime}',
+                    l10n.restTimerDisplay(timer.displayTime),
                     style: theme.textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: colorScheme.onPrimaryContainer,
@@ -72,7 +74,7 @@ class RestTimerWidget extends ConsumerWidget {
                   // Pause / Resume
                   _TimerButton(
                     icon: timer.isPaused ? Icons.play_arrow_rounded : Icons.pause_rounded,
-                    tooltip: timer.isPaused ? 'Resume' : 'Pause',
+                    tooltip: timer.isPaused ? l10n.restTimerResume : l10n.restTimerPause,
                     onPressed: () {
                       final notifier = ref.read(restTimerProvider.notifier);
                       timer.isPaused ? notifier.resume() : notifier.pause();
@@ -83,7 +85,7 @@ class RestTimerWidget extends ConsumerWidget {
                   // +30s
                   _TimerButton(
                     icon: Icons.add,
-                    tooltip: 'Add 30 seconds',
+                    tooltip: l10n.restTimerAdd30,
                     onPressed: () {
                       ref.read(restTimerProvider.notifier).addTime();
                     },
@@ -93,7 +95,7 @@ class RestTimerWidget extends ConsumerWidget {
                   // Skip
                   _TimerButton(
                     icon: Icons.skip_next_rounded,
-                    tooltip: 'Skip rest',
+                    tooltip: l10n.restTimerSkip,
                     onPressed: () {
                       ref.read(restTimerProvider.notifier).cancel();
                     },

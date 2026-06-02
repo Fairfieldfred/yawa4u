@@ -16,6 +16,7 @@ import '../../../data/models/exercise_set.dart';
 import '../../../data/models/training_cycle.dart';
 import '../../../data/models/workout.dart';
 import '../../../domain/providers/database_providers.dart';
+import '../../../l10n/app_localizations.dart';
 
 /// Check if running on desktop platform
 bool get _isDesktop => Platform.isMacOS || Platform.isWindows || Platform.isLinux;
@@ -217,8 +218,8 @@ class _ExerciseInfoDialogState extends ConsumerState<ExerciseInfoDialog> {
         padding: const EdgeInsets.all(4),
         child: Row(
           children: [
-            Expanded(child: _buildTabButton(context, 'Detail', true)),
-            Expanded(child: _buildTabButton(context, 'History', false)),
+            Expanded(child: _buildTabButton(context, AppLocalizations.of(context)!.detailTab, true)),
+            Expanded(child: _buildTabButton(context, AppLocalizations.of(context)!.historyTab, false)),
           ],
         ),
       ),
@@ -250,6 +251,7 @@ class _ExerciseInfoDialogState extends ConsumerState<ExerciseInfoDialog> {
 
   Widget _buildDetailTab(BuildContext context) {
     final hasVideo = _videoUrl != null && _videoUrl!.isNotEmpty;
+    final l10n = AppLocalizations.of(context)!;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
@@ -275,7 +277,7 @@ class _ExerciseInfoDialogState extends ConsumerState<ExerciseInfoDialog> {
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    'Video Available',
+                    l10n.videoAvailable,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
@@ -284,7 +286,7 @@ class _ExerciseInfoDialogState extends ConsumerState<ExerciseInfoDialog> {
                   ElevatedButton.icon(
                     onPressed: () => _openYouTube(),
                     icon: const Icon(Icons.open_in_new),
-                    label: const Text('Watch on YouTube'),
+                    label: Text(l10n.watchOnYouTube),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: context.youtubeColor,
                       foregroundColor: Colors.white,
@@ -315,7 +317,7 @@ class _ExerciseInfoDialogState extends ConsumerState<ExerciseInfoDialog> {
               child: OutlinedButton.icon(
                 onPressed: () => _openYouTube(),
                 icon: const Icon(Icons.open_in_new, size: 18),
-                label: const Text('View on YouTube'),
+                label: Text(l10n.viewOnYouTube),
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   shape: RoundedRectangleBorder(
@@ -344,7 +346,7 @@ class _ExerciseInfoDialogState extends ConsumerState<ExerciseInfoDialog> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'No video available',
+                    l10n.noVideoAvailable,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: Theme.of(
                         context,
@@ -359,7 +361,7 @@ class _ExerciseInfoDialogState extends ConsumerState<ExerciseInfoDialog> {
 
           // Exercise Notes
           Text(
-            'Notes',
+            l10n.notesLabel,
             style: Theme.of(
               context,
             ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
@@ -373,7 +375,7 @@ class _ExerciseInfoDialogState extends ConsumerState<ExerciseInfoDialog> {
               borderRadius: BorderRadius.circular(12),
             ),
             child: Text(
-              widget.exercise.notes?.isNotEmpty == true ? widget.exercise.notes! : 'No notes added yet.',
+              widget.exercise.notes?.isNotEmpty == true ? widget.exercise.notes! : l10n.noNotesAdded,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: widget.exercise.notes?.isNotEmpty == true
                     ? Theme.of(context).colorScheme.onSurface
@@ -402,7 +404,7 @@ class _ExerciseInfoDialogState extends ConsumerState<ExerciseInfoDialog> {
 
         if (snapshot.hasError) {
           return Center(
-            child: Text('Error loading history: ${snapshot.error}'),
+            child: Text(AppLocalizations.of(context)!.errorLoadingHistory(snapshot.error!)),
           );
         }
 
@@ -446,6 +448,7 @@ class _ExerciseInfoDialogState extends ConsumerState<ExerciseInfoDialog> {
         final filteredHistory = historyEntries.where((entry) => entry.exercise.id != widget.exercise.id).toList();
 
         if (filteredHistory.isEmpty) {
+          final l10n = AppLocalizations.of(context)!;
           return Center(
             child: Padding(
               padding: const EdgeInsets.all(32),
@@ -461,7 +464,7 @@ class _ExerciseInfoDialogState extends ConsumerState<ExerciseInfoDialog> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'No history yet',
+                    l10n.noHistoryYet,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       color: Theme.of(
                         context,
@@ -470,7 +473,7 @@ class _ExerciseInfoDialogState extends ConsumerState<ExerciseInfoDialog> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Complete sets to build your exercise history.',
+                    l10n.noHistoryDescription,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: Theme.of(
                         context,
@@ -559,13 +562,14 @@ class _ExerciseInfoDialogState extends ConsumerState<ExerciseInfoDialog> {
 
     final primaryColor = Theme.of(context).colorScheme.primary;
 
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'WEIGHT PROGRESSION',
+            l10n.weightProgressionLabel,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
               color: Theme.of(context).colorScheme.onSurface.withAlpha((255 * 0.6).round()),
               fontWeight: FontWeight.w600,
@@ -590,7 +594,7 @@ class _ExerciseInfoDialogState extends ConsumerState<ExerciseInfoDialog> {
                           ? weight.toInt().toString()
                           : weight.toString();
                       return LineTooltipItem(
-                        '$formatted lbs',
+                        '$formatted ${l10n.lbsSuffix}',
                         TextStyle(
                           color: primaryColor,
                           fontWeight: FontWeight.w600,
@@ -634,13 +638,14 @@ class _ExerciseInfoDialogState extends ConsumerState<ExerciseInfoDialog> {
     BuildContext context,
     TrainingCycle? trainingCycle,
   ) {
-    final name = trainingCycle?.name ?? 'Unknown TrainingCycle';
+    final l10n = AppLocalizations.of(context)!;
+    final name = trainingCycle?.name ?? l10n.unknownTrainingCycle;
     final periods = trainingCycle?.periodsTotal ?? 0;
 
     return Padding(
       padding: const EdgeInsets.only(top: 8, bottom: 12),
       child: Text(
-        '$name - $periods PERIODS'.toUpperCase(),
+        l10n.trainingCyclePeriodsHeader(name, periods).toUpperCase(),
         style: Theme.of(context).textTheme.bodySmall?.copyWith(
           color: Theme.of(
             context,
@@ -653,8 +658,9 @@ class _ExerciseInfoDialogState extends ConsumerState<ExerciseInfoDialog> {
   }
 
   Widget _buildHistoryRow(BuildContext context, _HistoryEntry entry) {
+    final l10n = AppLocalizations.of(context)!;
     final dateFormat = DateFormat('MMM d, yyyy');
-    final dateStr = entry.completedDate != null ? dateFormat.format(entry.completedDate!) : 'Unknown date';
+    final dateStr = entry.completedDate != null ? dateFormat.format(entry.completedDate!) : l10n.unknownDate;
 
     final loggedSets = entry.exercise.sets.where((s) => s.isLogged).toList();
     final isRecovery = entry.trainingCycle != null && entry.workout.periodNumber == entry.trainingCycle!.recoveryPeriod;
@@ -672,7 +678,7 @@ class _ExerciseInfoDialogState extends ConsumerState<ExerciseInfoDialog> {
       final weight = weightEntry.key;
       final sets = weightEntry.value;
 
-      final weightStr = weight != null ? weight.toStringAsFixed(weight % 1 == 0 ? 0 : 1) : 'BW';
+      final weightStr = weight != null ? weight.toStringAsFixed(weight % 1 == 0 ? 0 : 1) : l10n.bodyweightAbbrev;
 
       // Collect reps with their badges for this weight group
       final repsWithBadges = sets.map((set) {
@@ -721,7 +727,7 @@ class _ExerciseInfoDialogState extends ConsumerState<ExerciseInfoDialog> {
                 if (isRecovery) ...[
                   const SizedBox(height: 2),
                   Text(
-                    'RECOVERY',
+                    l10n.recoveryLabel,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: Theme.of(
                         context,
@@ -738,25 +744,13 @@ class _ExerciseInfoDialogState extends ConsumerState<ExerciseInfoDialog> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              RichText(
-                text: TextSpan(
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withAlpha((255 * 0.6).round()),
-                  ),
-                  children: [
-                    const TextSpan(text: 'PERIOD '),
-                    TextSpan(
-                      text: '${entry.workout.periodNumber}',
-                      style: const TextStyle(fontWeight: FontWeight.w600),
-                    ),
-                    const TextSpan(text: ' - DAY '),
-                    TextSpan(
-                      text: '${entry.workout.dayNumber}',
-                      style: const TextStyle(fontWeight: FontWeight.w600),
-                    ),
-                  ],
+              Text(
+                l10n.periodDayLabel(entry.workout.periodNumber, entry.workout.dayNumber),
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withAlpha((255 * 0.6).round()),
+                  fontWeight: FontWeight.w600,
                 ),
               ),
               const SizedBox(height: 2),
@@ -780,6 +774,7 @@ class _ExerciseInfoDialogState extends ConsumerState<ExerciseInfoDialog> {
     BuildContext context,
     List<_WeightRepsGroup> groups,
   ) {
+    final l10n = AppLocalizations.of(context)!;
     final List<InlineSpan> spans = [];
 
     for (var i = 0; i < groups.length; i++) {
@@ -795,7 +790,7 @@ class _ExerciseInfoDialogState extends ConsumerState<ExerciseInfoDialog> {
       );
       spans.add(
         TextSpan(
-          text: ' lbs',
+          text: ' ${l10n.lbsSuffix}',
           style: TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w400,

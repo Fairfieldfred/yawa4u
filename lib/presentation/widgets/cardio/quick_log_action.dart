@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/constants/sports.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../screens/cardio/sport_picker_sheet.dart';
 
 /// AppBar action button that opens the sport picker and routes to the
@@ -21,17 +22,19 @@ class QuickLogAction extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return IconButton(
       icon: const Icon(Icons.add_circle_outline),
-      tooltip: 'Log session',
+      tooltip: l10n.quickLogTooltip,
       onPressed: () => _pickAndRoute(context),
     );
   }
 
   Future<void> _pickAndRoute(BuildContext context) async {
+    final l10n = AppLocalizations.of(context)!;
     final sport = await SportPickerSheet.show(
       context,
-      title: 'Log session',
+      title: l10n.quickLogTitle,
       choices: Sports.cardio,
     );
     if (sport == null || !context.mounted) return;

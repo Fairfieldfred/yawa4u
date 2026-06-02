@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../domain/providers/calendar_providers.dart';
+import '../../../l10n/app_localizations.dart';
 
 /// Bottom sheet for editing calendar (insert day, remove rest day, undo)
 class CalendarEditSheet extends ConsumerWidget {
@@ -52,6 +53,7 @@ class CalendarEditSheet extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final undoState = ref.watch(calendarUndoProvider);
     final canUndo = undoState.hasRecentSnapshot;
 
@@ -83,14 +85,14 @@ class CalendarEditSheet extends ConsumerWidget {
 
           // Title
           Text(
-            'Edit Calendar',
+            l10n.editCalendarTitle,
             style: Theme.of(
               context,
             ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
           Text(
-            isRestDay ? 'Rest Day' : 'Period $selectedPeriod, Day $selectedDay',
+            isRestDay ? l10n.editCalendarRestDay : l10n.editCalendarPeriodDay(selectedPeriod!, selectedDay!),
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               color: Theme.of(context).colorScheme.onSurface.withAlpha(179),
             ),
@@ -103,8 +105,8 @@ class CalendarEditSheet extends ConsumerWidget {
             _buildActionButton(
               context,
               icon: Icons.remove_circle_outline,
-              label: 'Remove Rest Day',
-              description: 'Remove this rest day and shift all future workouts backward',
+              label: l10n.removeRestDayLabel,
+              description: l10n.removeRestDayDesc,
               onPressed: () {
                 Navigator.of(context).pop();
                 onRemoveRestDay!(selectedDate!);
@@ -118,8 +120,8 @@ class CalendarEditSheet extends ConsumerWidget {
             _buildActionButton(
               context,
               icon: Icons.add_circle_outline,
-              label: 'Insert Day Before',
-              description: 'Add a rest day here, shifting this and all future workouts forward',
+              label: l10n.insertDayBeforeLabel,
+              description: l10n.insertDayBeforeDesc,
               onPressed: () {
                 Navigator.of(context).pop();
                 onInsertDayBefore!(selectedPeriod!, selectedDay!);
@@ -137,7 +139,7 @@ class CalendarEditSheet extends ConsumerWidget {
             width: double.infinity,
             child: OutlinedButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Close'),
+              child: Text(l10n.close),
             ),
           ),
           const SizedBox(height: 16),
@@ -198,6 +200,7 @@ class CalendarEditSheet extends ConsumerWidget {
     CalendarUndoState undoState,
     bool canUndo,
   ) {
+    final l10n = AppLocalizations.of(context)!;
     return SizedBox(
       width: double.infinity,
       child: OutlinedButton.icon(
@@ -215,7 +218,7 @@ class CalendarEditSheet extends ConsumerWidget {
                   if (success) {
                     messenger.showSnackBar(
                       SnackBar(
-                        content: const Text('Change undone'),
+                        content: Text(l10n.changeUndoneSnackbar),
                         backgroundColor: primaryContainer,
                       ),
                     );
@@ -225,7 +228,11 @@ class CalendarEditSheet extends ConsumerWidget {
             : null,
         icon: const Icon(Icons.undo),
         label: Text(
-          canUndo ? 'Undo: ${undoState.snapshot?.description ?? "last change"}' : 'Undo (no recent changes)',
+          canUndo
+              ? (undoState.snapshot?.description != null
+                    ? l10n.undoWithDescription(undoState.snapshot!.description)
+                    : l10n.undoLastChange)
+              : l10n.undoNoRecentChanges,
         ),
         style: OutlinedButton.styleFrom(
           foregroundColor: canUndo

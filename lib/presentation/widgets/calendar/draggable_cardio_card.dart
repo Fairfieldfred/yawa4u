@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../core/constants/enums.dart';
 import '../../../core/constants/sports.dart';
 import '../../../data/models/session.dart';
+import '../../../l10n/app_localizations.dart';
 import 'calendar_drag_data.dart';
 
 /// A draggable card representing a cardio session on the calendar.
@@ -29,6 +30,7 @@ class DraggableCardioCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final dragData = CardioDragData(
       session: session,
       sourcePeriod: periodNumber,
@@ -40,19 +42,19 @@ class DraggableCardioCard extends StatelessWidget {
       feedback: Material(
         elevation: 8,
         borderRadius: BorderRadius.circular(8),
-        child: _buildCard(context, isDragging: true),
+        child: _buildCard(context, l10n, isDragging: true),
       ),
       childWhenDragging: Opacity(
         opacity: 0.3,
-        child: _buildCard(context),
+        child: _buildCard(context, l10n),
       ),
-      child: GestureDetector(onTap: onTap, child: _buildCard(context)),
+      child: GestureDetector(onTap: onTap, child: _buildCard(context, l10n)),
     );
   }
 
-  Widget _buildCard(BuildContext context, {bool isDragging = false}) {
+  Widget _buildCard(BuildContext context, AppLocalizations l10n, {bool isDragging = false}) {
     final sportColor = session.sport.color;
-    final label = session.label ?? session.sport.displayName;
+    final label = session.label ?? session.sport.localizedName(l10n);
     final isComplete = session.status == WorkoutStatus.completed;
 
     return Container(
@@ -105,7 +107,7 @@ class DraggableCardioCard extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                     Text(
-                      session.sport.displayName,
+                      session.sport.localizedName(l10n),
                       style: Theme.of(context).textTheme.labelSmall?.copyWith(
                         color: sportColor,
                         fontSize: compact ? 8 : 10,
@@ -127,7 +129,7 @@ class DraggableCardioCard extends StatelessWidget {
               ),
               const SizedBox(width: 4),
               Expanded(
-                child: _buildStatusChip(context, isComplete),
+                child: _buildStatusChip(context, l10n, isComplete),
               ),
             ],
           ),
@@ -136,20 +138,20 @@ class DraggableCardioCard extends StatelessWidget {
     );
   }
 
-  Widget _buildStatusChip(BuildContext context, bool isComplete) {
+  Widget _buildStatusChip(BuildContext context, AppLocalizations l10n, bool isComplete) {
     final Color color;
     final String text;
 
     switch (session.status) {
       case WorkoutStatus.completed:
         color = Colors.green;
-        text = 'Done';
+        text = l10n.statusDone;
       case WorkoutStatus.skipped:
         color = Theme.of(context).colorScheme.outline;
-        text = 'Skipped';
+        text = l10n.statusSkipped;
       case WorkoutStatus.incomplete:
         color = Theme.of(context).colorScheme.primary;
-        text = 'Planned';
+        text = l10n.statusPlanned;
     }
 
     return Container(

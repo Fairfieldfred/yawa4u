@@ -8,6 +8,20 @@
 /// The mapping is deliberately coarse. If a specific error needs bespoke
 /// copy, handle it at the call site and pass a [context] string that wins
 /// over the generic mapping.
+///
+/// **Localization note:** Localized equivalents of every message below are
+/// available in `AppLocalizations`:
+///   - [userErrorCouldnt]  — "Couldn't {context} — {message}"
+///   - [userErrorNetwork]  — network error
+///   - [userErrorBadState] — state error
+///   - [userErrorPermission] — permission denied
+///   - [userErrorConflict] — data conflict
+///   - [userErrorNotFound] — not found
+///   - [userErrorGeneric]  — generic fallback
+///
+/// This class does not accept `BuildContext`, so it returns hard-coded
+/// English strings. Call sites that have a `BuildContext` available may
+/// prefer using `AppLocalizations` directly for full l10n support.
 class UserErrors {
   const UserErrors._();
 

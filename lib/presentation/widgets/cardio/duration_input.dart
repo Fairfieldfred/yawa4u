@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../../core/utils/cardio_conversions.dart';
+import '../../../l10n/app_localizations.dart';
 
 /// A text field that captures duration as `MM:SS` or `HH:MM:SS` and emits
 /// seconds to the parent.
@@ -15,13 +16,13 @@ class DurationInput extends StatefulWidget {
     super.key,
     required this.initialSeconds,
     required this.onChanged,
-    this.label = 'Duration',
+    this.label,
     this.enabled = true,
   });
 
   final int? initialSeconds;
   final ValueChanged<int?> onChanged;
-  final String label;
+  final String? label;
   final bool enabled;
 
   @override
@@ -30,7 +31,7 @@ class DurationInput extends StatefulWidget {
 
 class _DurationInputState extends State<DurationInput> {
   late final TextEditingController _controller;
-  String? _errorText;
+  bool _hasFormatError = false;
 
   @override
   void initState() {
@@ -62,22 +63,23 @@ class _DurationInputState extends State<DurationInput> {
   void _onChanged(String text) {
     final trimmed = text.trim();
     if (trimmed.isEmpty) {
-      setState(() => _errorText = null);
+      setState(() => _hasFormatError = false);
       widget.onChanged(null);
       return;
     }
     final seconds = CardioConversions.parseDuration(trimmed);
     if (seconds == null) {
-      setState(() => _errorText = 'Use MM:SS or HH:MM:SS');
+      setState(() => _hasFormatError = true);
       widget.onChanged(null);
       return;
     }
-    setState(() => _errorText = null);
+    setState(() => _hasFormatError = false);
     widget.onChanged(seconds);
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return TextField(
       controller: _controller,
       enabled: widget.enabled,
@@ -86,11 +88,11 @@ class _DurationInputState extends State<DurationInput> {
         FilteringTextInputFormatter.allow(RegExp(r'[0-9:]')),
       ],
       decoration: InputDecoration(
-        labelText: widget.label,
-        hintText: '00:30:00',
+        labelText: widget.label ?? l10n.durationLabel,
+        hintText: l10n.durationHint,
         border: const OutlineInputBorder(),
         prefixIcon: const Icon(Icons.timer_outlined),
-        errorText: _errorText,
+        errorText: _hasFormatError ? l10n.durationFormatError : null,
         suffixIcon: widget.enabled
             ? IconButton(
                 icon: Text(
@@ -101,7 +103,7 @@ class _DurationInputState extends State<DurationInput> {
                     color: Theme.of(context).colorScheme.primary,
                   ),
                 ),
-                tooltip: 'Insert colon',
+                tooltip: l10n.insertColonTooltip,
                 onPressed: _insertColon,
               )
             : null,

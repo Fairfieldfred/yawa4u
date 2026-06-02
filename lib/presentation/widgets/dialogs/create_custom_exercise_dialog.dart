@@ -7,6 +7,7 @@ import '../../../core/constants/muscle_groups.dart';
 import '../../../data/models/custom_exercise_definition.dart';
 import '../../../domain/providers/database_providers.dart';
 import '../../../domain/providers/exercise_providers.dart';
+import '../../../l10n/app_localizations.dart';
 
 /// Dialog for creating a new custom exercise
 class CreateCustomExerciseDialog extends ConsumerStatefulWidget {
@@ -46,8 +47,9 @@ class _CreateCustomExerciseDialogState extends ConsumerState<CreateCustomExercis
       error: (_, _) => false,
     );
     if (exists) {
+      if (!mounted) return;
       setState(() {
-        _errorMessage = 'An exercise with this name already exists';
+        _errorMessage = AppLocalizations.of(context)!.exerciseNameExists;
       });
       return;
     }
@@ -78,8 +80,9 @@ class _CreateCustomExerciseDialogState extends ConsumerState<CreateCustomExercis
         Navigator.of(context).pop(customExercise.toExerciseDefinition());
       }
     } catch (e) {
+      if (!mounted) return;
       setState(() {
-        _errorMessage = 'Failed to create exercise: $e';
+        _errorMessage = AppLocalizations.of(context)!.failedToCreateExercise(e);
         _isSubmitting = false;
       });
     }
@@ -87,6 +90,7 @@ class _CreateCustomExerciseDialogState extends ConsumerState<CreateCustomExercis
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       child: Container(
@@ -108,7 +112,7 @@ class _CreateCustomExerciseDialogState extends ConsumerState<CreateCustomExercis
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      'Create Custom Exercise',
+                      l10n.createCustomExerciseTitle,
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
@@ -133,8 +137,8 @@ class _CreateCustomExerciseDialogState extends ConsumerState<CreateCustomExercis
                       TextFormField(
                         controller: _nameController,
                         decoration: InputDecoration(
-                          labelText: 'Exercise Name',
-                          hintText: 'e.g., Cable Chest Fly',
+                          labelText: l10n.exerciseNameLabel,
+                          hintText: l10n.exerciseNameHint,
                           prefixIcon: const Icon(Icons.fitness_center),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -144,10 +148,10 @@ class _CreateCustomExerciseDialogState extends ConsumerState<CreateCustomExercis
                         autofocus: true,
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
-                            return 'Please enter an exercise name';
+                            return l10n.exerciseNameRequired;
                           }
                           if (value.trim().length < 3) {
-                            return 'Name must be at least 3 characters';
+                            return l10n.exerciseNameMinLength;
                           }
                           return null;
                         },
@@ -158,7 +162,7 @@ class _CreateCustomExerciseDialogState extends ConsumerState<CreateCustomExercis
                       DropdownButtonFormField<MuscleGroup>(
                         initialValue: _selectedMuscleGroup,
                         decoration: InputDecoration(
-                          labelText: 'Muscle Group',
+                          labelText: l10n.muscleGroupLabel,
                           prefixIcon: const Icon(Icons.accessibility_new),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -182,16 +186,16 @@ class _CreateCustomExerciseDialogState extends ConsumerState<CreateCustomExercis
                       DropdownButtonFormField<MuscleGroup?>(
                         initialValue: _selectedSecondaryMuscleGroup,
                         decoration: InputDecoration(
-                          labelText: 'Secondary Muscle Group (Optional)',
+                          labelText: l10n.secondaryMuscleGroupLabel,
                           prefixIcon: const Icon(Icons.accessibility_new_outlined),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
                         ),
                         items: [
-                          const DropdownMenuItem<MuscleGroup?>(
+                          DropdownMenuItem<MuscleGroup?>(
                             value: null,
-                            child: Text('None'),
+                            child: Text(l10n.secondaryMuscleGroupNone),
                           ),
                           ...MuscleGroup.values.where((group) => group != _selectedMuscleGroup).map((group) {
                             return DropdownMenuItem<MuscleGroup?>(
@@ -210,7 +214,7 @@ class _CreateCustomExerciseDialogState extends ConsumerState<CreateCustomExercis
                       DropdownButtonFormField<EquipmentType>(
                         initialValue: _selectedEquipmentType,
                         decoration: InputDecoration(
-                          labelText: 'Equipment Type',
+                          labelText: l10n.equipmentTypeLabel,
                           prefixIcon: const Icon(Icons.sports_gymnastics),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -234,9 +238,9 @@ class _CreateCustomExerciseDialogState extends ConsumerState<CreateCustomExercis
                       TextFormField(
                         controller: _restSecondsController,
                         decoration: InputDecoration(
-                          labelText: 'Rest Timer (Optional)',
-                          hintText: 'e.g., 90',
-                          suffixText: 'seconds',
+                          labelText: l10n.restTimerOptionalLabel,
+                          hintText: l10n.restTimerHint,
+                          suffixText: l10n.restTimerSuffix,
                           prefixIcon: const Icon(Icons.timer),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -247,7 +251,7 @@ class _CreateCustomExerciseDialogState extends ConsumerState<CreateCustomExercis
                           if (value != null && value.trim().isNotEmpty) {
                             final parsed = int.tryParse(value.trim());
                             if (parsed == null || parsed < 0 || parsed > 600) {
-                              return 'Enter a value between 0 and 600';
+                              return l10n.restTimerValidation;
                             }
                           }
                           return null;
@@ -277,7 +281,7 @@ class _CreateCustomExerciseDialogState extends ConsumerState<CreateCustomExercis
                 children: [
                   TextButton(
                     onPressed: _isSubmitting ? null : () => Navigator.of(context).pop(),
-                    child: const Text('Cancel'),
+                    child: Text(l10n.cancel),
                   ),
                   const SizedBox(width: 12),
                   FilledButton.icon(
@@ -289,7 +293,7 @@ class _CreateCustomExerciseDialogState extends ConsumerState<CreateCustomExercis
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
                         : const Icon(Icons.add),
-                    label: Text(_isSubmitting ? 'Creating...' : 'Create'),
+                    label: Text(_isSubmitting ? l10n.creatingButton : l10n.createButton),
                   ),
                 ],
               ),

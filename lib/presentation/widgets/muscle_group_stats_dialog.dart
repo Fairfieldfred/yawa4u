@@ -6,6 +6,7 @@ import '../../core/constants/muscle_groups.dart';
 import '../../core/theme/skins/skins.dart';
 import '../../data/models/training_cycle.dart';
 import '../../domain/providers/workout_providers.dart';
+import '../../l10n/app_localizations.dart';
 
 class MuscleGroupStatsDialog extends ConsumerWidget {
   final TrainingCycle trainingCycle;
@@ -21,6 +22,7 @@ class MuscleGroupStatsDialog extends ConsumerWidget {
     final backgroundColor = isDark ? const Color(0xFF2C2C2E) : Colors.white;
     final textColor = isDark ? Colors.white : Colors.black87;
     final cellBackgroundColor = isDark ? Colors.grey[700] : Colors.grey[200];
+    final l10n = AppLocalizations.of(context)!;
 
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -32,7 +34,7 @@ class MuscleGroupStatsDialog extends ConsumerWidget {
             return Padding(
               padding: const EdgeInsets.all(20.0),
               child: Text(
-                'No sessions found for this training cycle.',
+                l10n.muscleGroupStatsNoSessions,
                 style: TextStyle(color: textColor),
               ),
             );
@@ -75,7 +77,7 @@ class MuscleGroupStatsDialog extends ConsumerWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Muscle group stats',
+                      l10n.muscleGroupStatsTitle,
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -104,7 +106,7 @@ class MuscleGroupStatsDialog extends ConsumerWidget {
                       return Expanded(
                         child: Center(
                           child: Text(
-                            isRecovery ? 'DL' : 'pd $period',
+                            isRecovery ? l10n.muscleGroupStatsDeload : l10n.muscleGroupStatsPeriod(period),
                             style: TextStyle(fontSize: 12, color: textColor),
                           ),
                         ),
@@ -188,7 +190,7 @@ class MuscleGroupStatsDialog extends ConsumerWidget {
                                         ),
                                         const SizedBox(height: 4),
                                         Text(
-                                          '$avgSets avg sets',
+                                          l10n.muscleGroupStatsAvgSets(avgSets),
                                           style: TextStyle(
                                             color: textColor,
                                             fontSize: 12,

@@ -2,6 +2,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
 import '../../../core/constants/muscle_groups.dart';
+import '../../../l10n/app_localizations.dart';
 
 /// Horizontal bar chart showing logged sets per muscle group.
 ///
@@ -13,10 +14,11 @@ class VolumeBarChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     if (setsByMuscleGroup.isEmpty) {
       return Center(
         child: Text(
-          'No data yet',
+          l10n.volumeBarChartEmpty,
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
             color: Theme.of(context).colorScheme.onSurface.withAlpha((255 * 0.5).round()),
           ),
@@ -38,7 +40,7 @@ class VolumeBarChart extends StatelessWidget {
             getTooltipItem: (group, groupIndex, rod, rodIndex) {
               final entry = sorted[group.x.toInt()];
               return BarTooltipItem(
-                '${entry.key.displayName}\n${entry.value} sets',
+                '${entry.key.localizedName(l10n)}\n${l10n.volumeBarChartSetsTooltip(entry.value)}',
                 Theme.of(context).textTheme.bodySmall!.copyWith(
                   color: Colors.white,
                   fontWeight: FontWeight.w600,
@@ -58,7 +60,7 @@ class VolumeBarChart extends StatelessWidget {
                 if (index >= sorted.length) {
                   return const SizedBox.shrink();
                 }
-                final name = sorted[index].key.displayName;
+                final name = sorted[index].key.localizedName(l10n);
                 // Abbreviate long names
                 final label = name.length > 5 ? '${name.substring(0, 4)}.' : name;
                 return SideTitleWidget(

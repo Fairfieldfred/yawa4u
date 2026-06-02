@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/app_localizations.dart';
+
 /// Top-level activity type for a training session.
 ///
 /// Every [Session] has a [Sport]. Strength sessions wrap the existing
@@ -21,6 +23,22 @@ extension SportExtension on Sport {
         return 'Swim';
       case Sport.other:
         return 'Other';
+    }
+  }
+
+  /// Localized user-facing name for this sport.
+  String localizedName(AppLocalizations l10n) {
+    switch (this) {
+      case Sport.strength:
+        return l10n.sportStrength;
+      case Sport.run:
+        return l10n.sportRun;
+      case Sport.bike:
+        return l10n.sportBike;
+      case Sport.swim:
+        return l10n.sportSwim;
+      case Sport.other:
+        return l10n.sportOther;
     }
   }
 
@@ -105,6 +123,28 @@ extension SessionSourceExtension on SessionSource {
     }
   }
 
+  /// Localized user-facing name for this session source.
+  String localizedName(AppLocalizations l10n) {
+    switch (this) {
+      case SessionSource.userPlanned:
+        return l10n.sessionSourcePlanned;
+      case SessionSource.userLogged:
+        return l10n.sessionSourceLogged;
+      case SessionSource.healthKit:
+        return l10n.sessionSourceAppleHealth;
+      case SessionSource.healthConnect:
+        return l10n.sessionSourceHealthConnect;
+      case SessionSource.peloton:
+        return l10n.sessionSourcePeloton;
+      case SessionSource.strava:
+        return l10n.sessionSourceStrava;
+      case SessionSource.garmin:
+        return l10n.sessionSourceGarmin;
+      case SessionSource.imported:
+        return l10n.sessionSourceImported;
+    }
+  }
+
   /// True if this session came from outside the app and should generally be
   /// treated as read-only (aggregates, samples) while still allowing notes /
   /// RPE / feedback edits.
@@ -152,6 +192,24 @@ extension IntervalIntentExtension on IntervalIntent {
     }
   }
 
+  /// Localized user-facing name for this interval intent.
+  String localizedName(AppLocalizations l10n) {
+    switch (this) {
+      case IntervalIntent.warmup:
+        return l10n.intervalIntentWarmup;
+      case IntervalIntent.work:
+        return l10n.intervalIntentWork;
+      case IntervalIntent.recovery:
+        return l10n.intervalIntentRecovery;
+      case IntervalIntent.cooldown:
+        return l10n.intervalIntentCooldown;
+      case IntervalIntent.rest:
+        return l10n.intervalIntentRest;
+      case IntervalIntent.repeatGroup:
+        return l10n.intervalIntentRepeat;
+    }
+  }
+
   /// Intervals whose `repeatCount` is meaningful.
   bool get isRepeat => this == IntervalIntent.repeatGroup;
 }
@@ -186,6 +244,24 @@ extension IntervalTargetKindExtension on IntervalTargetKind {
         return 'Freeform';
     }
   }
+
+  /// Localized user-facing name for this target kind.
+  String localizedName(AppLocalizations l10n) {
+    switch (this) {
+      case IntervalTargetKind.durationSec:
+        return l10n.intervalTargetDuration;
+      case IntervalTargetKind.distanceM:
+        return l10n.intervalTargetDistance;
+      case IntervalTargetKind.hrZone:
+        return l10n.intervalTargetHrZone;
+      case IntervalTargetKind.paceZone:
+        return l10n.intervalTargetPaceZone;
+      case IntervalTargetKind.powerZone:
+        return l10n.intervalTargetPowerZone;
+      case IntervalTargetKind.freeform:
+        return l10n.intervalTargetFreeform;
+    }
+  }
 }
 
 /// Swim stroke classification for pool swims.
@@ -213,6 +289,24 @@ extension StrokeTypeExtension on StrokeType {
         return 'Mixed';
       case StrokeType.drill:
         return 'Drill';
+    }
+  }
+
+  /// Localized user-facing name for this stroke type.
+  String localizedName(AppLocalizations l10n) {
+    switch (this) {
+      case StrokeType.freestyle:
+        return l10n.strokeTypeFreestyle;
+      case StrokeType.backstroke:
+        return l10n.strokeTypeBackstroke;
+      case StrokeType.breaststroke:
+        return l10n.strokeTypeBreaststroke;
+      case StrokeType.butterfly:
+        return l10n.strokeTypeButterfly;
+      case StrokeType.mixed:
+        return l10n.strokeTypeMixed;
+      case StrokeType.drill:
+        return l10n.strokeTypeDrill;
     }
   }
 }

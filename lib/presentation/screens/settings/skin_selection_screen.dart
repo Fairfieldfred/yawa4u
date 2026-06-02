@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/skins/skins.dart';
+import '../../../l10n/app_localizations.dart';
 
 /// Screen for selecting and previewing app skins/themes.
 class SkinSelectionScreen extends ConsumerWidget {
@@ -10,13 +11,14 @@ class SkinSelectionScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final skinState = ref.watch(skinProvider);
     final activeSkinId = skinState.activeSkin.id;
     final skins = skinState.availableSkins;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Appearance'),
+        title: Text(l10n.skinSelectionTitle),
         centerTitle: true,
         actions: [
           Padding(
@@ -36,7 +38,7 @@ class SkinSelectionScreen extends ConsumerWidget {
                     const Icon(Icons.share, size: 22),
                     const SizedBox(height: 2),
                     Text(
-                      'Share',
+                      l10n.skinSelectionShare,
                       style: Theme.of(context).textTheme.labelSmall,
                     ),
                   ],
@@ -62,13 +64,13 @@ class SkinSelectionScreen extends ConsumerWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Choose a Theme',
+                        l10n.skinSelectionChooseTheme,
                         style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                       ),
                       FilledButton.icon(
                         onPressed: () => context.push('/theme-editor'),
                         icon: const Icon(Icons.add, size: 20),
-                        label: const Text('Create'),
+                        label: Text(l10n.skinSelectionCreate),
                         style: FilledButton.styleFrom(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 12,
@@ -84,9 +86,9 @@ class SkinSelectionScreen extends ConsumerWidget {
                 Card(
                   child: ListTile(
                     leading: const Icon(Icons.explore),
-                    title: const Text('Browse Community Library'),
-                    subtitle: const Text(
-                      'Discover themes shared by other users',
+                    title: Text(l10n.skinSelectionBrowseCommunity),
+                    subtitle: Text(
+                      l10n.skinSelectionBrowseCommunitySubtitle,
                     ),
                     trailing: const Icon(
                       Icons.chevron_right,
@@ -126,6 +128,7 @@ class _CurrentSkinCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -155,7 +158,7 @@ class _CurrentSkinCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Current Theme',
+                    l10n.skinSelectionCurrentTheme,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: Theme.of(context).colorScheme.primary,
                       fontWeight: FontWeight.w600,
@@ -199,6 +202,7 @@ class _SkinCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final primaryColor = skin.colors.primaryColor;
     final isCustomSkin = !skin.isBuiltIn;
@@ -263,7 +267,7 @@ class _SkinCard extends ConsumerWidget {
                             ),
                             const SizedBox(width: 4),
                             Text(
-                              'Premium',
+                              l10n.skinSelectionPremium,
                               style: theme.textTheme.bodySmall?.copyWith(
                                 color: Colors.amber[600],
                                 fontWeight: FontWeight.w600,
@@ -331,6 +335,7 @@ class _SkinCard extends ConsumerWidget {
   }
 
   void _showCustomSkinOptions(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     showModalBottomSheet(
       context: context,
       builder: (context) => SafeArea(
@@ -339,7 +344,7 @@ class _SkinCard extends ConsumerWidget {
           children: [
             ListTile(
               leading: const Icon(Icons.edit),
-              title: const Text('Edit Theme'),
+              title: Text(l10n.skinSelectionEditTheme),
               onTap: () {
                 Navigator.pop(context);
                 context.push('/theme-editor/${skin.id}');
@@ -347,7 +352,7 @@ class _SkinCard extends ConsumerWidget {
             ),
             ListTile(
               leading: const Icon(Icons.share),
-              title: const Text('Share Theme'),
+              title: Text(l10n.skinSelectionShareTheme),
               onTap: () async {
                 Navigator.pop(context);
                 await _shareTheme(context, ref);
@@ -355,33 +360,36 @@ class _SkinCard extends ConsumerWidget {
             ),
             ListTile(
               leading: const Icon(Icons.delete_outline, color: Colors.red),
-              title: const Text(
-                'Delete Theme',
-                style: TextStyle(color: Colors.red),
+              title: Text(
+                l10n.skinSelectionDeleteTheme,
+                style: const TextStyle(color: Colors.red),
               ),
               onTap: () async {
                 Navigator.pop(context);
                 final confirm = await showDialog<bool>(
                   context: context,
-                  builder: (context) => AlertDialog(
-                    title: const Text('Delete Theme?'),
-                    content: Text(
-                      'Are you sure you want to delete "${skin.name}"?',
-                    ),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.pop(context, false),
-                        child: const Text('Cancel'),
+                  builder: (dialogContext) {
+                    final dialogL10n = AppLocalizations.of(dialogContext)!;
+                    return AlertDialog(
+                      title: Text(dialogL10n.skinSelectionDeleteThemeTitle),
+                      content: Text(
+                        dialogL10n.skinSelectionDeleteConfirm(skin.name),
                       ),
-                      TextButton(
-                        onPressed: () => Navigator.pop(context, true),
-                        style: TextButton.styleFrom(
-                          foregroundColor: Colors.red,
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(dialogContext, false),
+                          child: Text(dialogL10n.cancel),
                         ),
-                        child: const Text('Delete'),
-                      ),
-                    ],
-                  ),
+                        TextButton(
+                          onPressed: () => Navigator.pop(dialogContext, true),
+                          style: TextButton.styleFrom(
+                            foregroundColor: Colors.red,
+                          ),
+                          child: Text(dialogL10n.delete),
+                        ),
+                      ],
+                    );
+                  },
                 );
                 if (confirm == true) {
                   await ref.read(skinProvider.notifier).deleteCustomSkin(skin.id);

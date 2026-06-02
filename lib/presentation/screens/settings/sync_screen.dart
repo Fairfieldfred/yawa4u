@@ -9,6 +9,7 @@ import '../../../core/theme/skins/skins.dart';
 import '../../../data/services/data_backup_service.dart';
 import '../../../data/services/wifi_sync_service.dart';
 import '../../../domain/providers/sync_providers.dart';
+import '../../../l10n/app_localizations.dart';
 
 /// Screen for WiFi-based sync between devices
 class SyncScreen extends ConsumerStatefulWidget {
@@ -61,7 +62,7 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
       _isServerRunning = success;
       _connectionInfo = syncService.connectionInfo;
       if (!success) {
-        _errorMessage = 'Could not start sync server. Make sure you are connected to WiFi.';
+        _errorMessage = AppLocalizations.of(context)!.syncServerError;
       }
     });
   }
@@ -125,7 +126,7 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
       _isLoading = false;
       _connectedDevice = device;
       if (device == null) {
-        _errorMessage = 'Could not connect to device. Make sure both devices are on the same WiFi network.';
+        _errorMessage = AppLocalizations.of(context)!.syncConnectionError;
       }
     });
   }
@@ -149,10 +150,11 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
     });
 
     if (mounted) {
+      final l10n = AppLocalizations.of(context)!;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            result.message ?? (result.success ? 'Sync complete!' : 'Sync failed'),
+            result.message ?? (result.success ? l10n.syncComplete : l10n.syncFailed),
           ),
           backgroundColor: result.success ? context.successColor : context.errorColor,
         ),
@@ -183,10 +185,11 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
     });
 
     if (mounted) {
+      final l10n = AppLocalizations.of(context)!;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            result.message ?? (result.success ? 'Sync complete!' : 'Sync failed'),
+            result.message ?? (result.success ? l10n.syncComplete : l10n.syncFailed),
           ),
           backgroundColor: result.success ? context.successColor : context.errorColor,
         ),
@@ -203,8 +206,9 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
     final backupService = ref.watch(dataBackupServiceProvider);
     final isDesktop = Platform.isMacOS || Platform.isWindows || Platform.isLinux;
 
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      appBar: AppBar(title: const Text('Sync Data'), centerTitle: true),
+      appBar: AppBar(title: Text(l10n.syncTitle), centerTitle: true),
       body: _isScanning
           ? _buildScanner()
           : _connectedDevice != null
@@ -228,7 +232,7 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
                           ),
                           const SizedBox(height: 16),
                           Text(
-                            'Failed to load data',
+                            l10n.syncFailedToLoad,
                             style: Theme.of(context).textTheme.titleMedium,
                           ),
                           const SizedBox(height: 8),
@@ -252,6 +256,7 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
   }
 
   Widget _buildInitialView(DataStats stats, bool isDesktop) {
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.all(24),
       child: Column(
@@ -265,7 +270,7 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Your Data',
+                    l10n.syncYourData,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
@@ -275,11 +280,11 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
                       _buildStatItem(
-                        'TrainingCycles',
+                        l10n.syncStatTrainingCycles,
                         stats.trainingCycleCount,
                       ),
-                      _buildStatItem('Sessions', stats.workoutCount),
-                      _buildStatItem('Exercises', stats.exerciseCount),
+                      _buildStatItem(l10n.syncStatSessions, stats.workoutCount),
+                      _buildStatItem(l10n.syncStatExercises, stats.exerciseCount),
                     ],
                   ),
                 ],
@@ -290,14 +295,14 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
 
           // Instructions
           Text(
-            'Sync with another device',
+            l10n.syncWithAnotherDevice,
             style: Theme.of(
               context,
             ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
           Text(
-            'Both devices must be on the same WiFi network.',
+            l10n.syncWifiRequired,
             style: Theme.of(
               context,
             ).textTheme.bodyMedium?.copyWith(color: Colors.grey),
@@ -328,7 +333,7 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
             ElevatedButton.icon(
               onPressed: _startServer,
               icon: const Icon(Icons.qr_code),
-              label: const Text('Host Sync (Show QR Code)'),
+              label: Text(l10n.syncHostButton),
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 16),
               ),
@@ -339,7 +344,7 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
             OutlinedButton.icon(
               onPressed: _startScanning,
               icon: const Icon(Icons.qr_code_scanner),
-              label: const Text('Scan QR Code'),
+              label: Text(l10n.syncScanQrButton),
               style: OutlinedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 16),
               ),
@@ -371,13 +376,14 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
   }
 
   Widget _buildServerView() {
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.all(24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            'Waiting for connection...',
+            l10n.syncWaitingForConnection,
             style: Theme.of(
               context,
             ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
@@ -385,7 +391,7 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Scan this QR code from the other device',
+            l10n.syncScanFromOtherDevice,
             style: Theme.of(
               context,
             ).textTheme.bodyMedium?.copyWith(color: Colors.grey),
@@ -418,7 +424,7 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
             style: OutlinedButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: 16),
             ),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
         ],
       ),
@@ -436,6 +442,7 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
         MobileScanner(
           controller: _scannerController,
           errorBuilder: (context, error, child) {
+            final l10n = AppLocalizations.of(context)!;
             return Center(
               child: Padding(
                 padding: const EdgeInsets.all(24),
@@ -449,18 +456,18 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      'Camera Error',
+                      l10n.syncCameraError,
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      error.errorDetails?.message ?? 'Could not access camera',
+                      error.errorDetails?.message ?? l10n.syncCameraAccessFailed,
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 16),
                     ElevatedButton(
                       onPressed: () => setState(() => _isScanning = false),
-                      child: const Text('Go Back'),
+                      child: Text(l10n.syncGoBack),
                     ),
                   ],
                 ),
@@ -501,7 +508,7 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
           left: 0,
           right: 0,
           child: Text(
-            'Point camera at QR code',
+            AppLocalizations.of(context)!.syncScannerPrompt,
             style: Theme.of(
               context,
             ).textTheme.titleMedium?.copyWith(color: Colors.white),
@@ -513,6 +520,7 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
   }
 
   Widget _buildConnectedView() {
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.all(24),
       child: Column(
@@ -527,7 +535,7 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
                   const Icon(Icons.devices, size: 48),
                   const SizedBox(height: 12),
                   Text(
-                    'Connected to',
+                    l10n.syncConnectedTo,
                     style: Theme.of(
                       context,
                     ).textTheme.bodyMedium?.copyWith(color: Colors.grey),
@@ -544,15 +552,15 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
                       _buildStatItem(
-                        'TrainingCycles',
+                        l10n.syncStatTrainingCycles,
                         _connectedDevice!.trainingCycleCount,
                       ),
                       _buildStatItem(
-                        'Sessions',
+                        l10n.syncStatSessions,
                         _connectedDevice!.workoutCount,
                       ),
                       _buildStatItem(
-                        'Exercises',
+                        l10n.syncStatExercises,
                         _connectedDevice!.exerciseCount,
                       ),
                     ],
@@ -565,7 +573,7 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
 
           // Sync options
           Text(
-            'What would you like to do?',
+            l10n.syncWhatToDo,
             style: Theme.of(
               context,
             ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
@@ -580,7 +588,7 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
             ElevatedButton.icon(
               onPressed: _pullData,
               icon: const Icon(Icons.download),
-              label: Text('Import from ${_connectedDevice!.name}'),
+              label: Text(l10n.syncImportFrom(_connectedDevice!.name)),
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 16),
               ),
@@ -591,7 +599,7 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
             OutlinedButton.icon(
               onPressed: _pushData,
               icon: const Icon(Icons.upload),
-              label: Text('Export to ${_connectedDevice!.name}'),
+              label: Text(l10n.syncExportTo(_connectedDevice!.name)),
               style: OutlinedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 16),
               ),
@@ -607,7 +615,7 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
                 _connectedDevice = null;
               });
             },
-            child: const Text('Disconnect'),
+            child: Text(l10n.syncDisconnect),
           ),
         ],
       ),

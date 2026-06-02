@@ -1,3 +1,5 @@
+import '../../l10n/app_localizations.dart';
+
 /// Status of a trainingCycle
 enum TrainingCycleStatus {
   draft,
@@ -14,6 +16,17 @@ extension TrainingCycleStatusExtension on TrainingCycleStatus {
         return 'Current';
       case TrainingCycleStatus.completed:
         return 'Completed';
+    }
+  }
+
+  String localizedName(AppLocalizations l10n) {
+    switch (this) {
+      case TrainingCycleStatus.draft:
+        return l10n.trainingCycleStatusDraft;
+      case TrainingCycleStatus.current:
+        return l10n.trainingCycleStatusCurrent;
+      case TrainingCycleStatus.completed:
+        return l10n.trainingCycleStatusCompleted;
     }
   }
 
@@ -38,6 +51,17 @@ extension WorkoutStatusExtension on WorkoutStatus {
         return 'Completed';
       case WorkoutStatus.skipped:
         return 'Skipped';
+    }
+  }
+
+  String localizedName(AppLocalizations l10n) {
+    switch (this) {
+      case WorkoutStatus.incomplete:
+        return l10n.workoutStatusIncomplete;
+      case WorkoutStatus.completed:
+        return l10n.workoutStatusCompleted;
+      case WorkoutStatus.skipped:
+        return l10n.workoutStatusSkipped;
     }
   }
 
@@ -109,6 +133,40 @@ extension SetTypeExtension on SetType {
     }
   }
 
+  String localizedName(AppLocalizations l10n) {
+    switch (this) {
+      case SetType.regular:
+        return l10n.setTypeRegular;
+      case SetType.myorep:
+        return l10n.setTypeMyorep;
+      case SetType.myorepMatch:
+        return l10n.setTypeMyorepMatch;
+      case SetType.maxReps:
+        return l10n.setTypeMaxReps;
+      case SetType.endWithPartials:
+        return l10n.setTypeEndWithPartials;
+      case SetType.dropSet:
+        return l10n.setTypeDropSet;
+    }
+  }
+
+  String localizedDescription(AppLocalizations l10n) {
+    switch (this) {
+      case SetType.regular:
+        return l10n.setTypeRegularDesc;
+      case SetType.myorep:
+        return l10n.setTypeMyorepDesc;
+      case SetType.myorepMatch:
+        return l10n.setTypeMyorepMatchDesc;
+      case SetType.maxReps:
+        return l10n.setTypeMaxRepsDesc;
+      case SetType.endWithPartials:
+        return l10n.setTypeEndWithPartialsDesc;
+      case SetType.dropSet:
+        return l10n.setTypeDropSetDesc;
+    }
+  }
+
   bool get isRegular => this == SetType.regular;
   bool get isMyorep => this == SetType.myorep;
   bool get isMyorepMatch => this == SetType.myorepMatch;
@@ -136,6 +194,19 @@ extension JointPainExtension on JointPain {
         return 'MODERATE PAIN';
       case JointPain.severe:
         return 'A LOT OF PAIN';
+    }
+  }
+
+  String localizedName(AppLocalizations l10n) {
+    switch (this) {
+      case JointPain.none:
+        return l10n.jointPainNone;
+      case JointPain.low:
+        return l10n.jointPainLow;
+      case JointPain.moderate:
+        return l10n.jointPainModerate;
+      case JointPain.severe:
+        return l10n.jointPainSevere;
     }
   }
 
@@ -172,6 +243,17 @@ extension MusclePumpExtension on MusclePump {
     }
   }
 
+  String localizedName(AppLocalizations l10n) {
+    switch (this) {
+      case MusclePump.low:
+        return l10n.musclePumpLow;
+      case MusclePump.moderate:
+        return l10n.musclePumpModerate;
+      case MusclePump.amazing:
+        return l10n.musclePumpAmazing;
+    }
+  }
+
   int get level {
     switch (this) {
       case MusclePump.low:
@@ -203,6 +285,19 @@ extension WorkloadExtension on Workload {
         return 'PUSHED MY LIMITS';
       case Workload.tooMuch:
         return 'TOO MUCH';
+    }
+  }
+
+  String localizedName(AppLocalizations l10n) {
+    switch (this) {
+      case Workload.easy:
+        return l10n.workloadEasy;
+      case Workload.prettyGood:
+        return l10n.workloadPrettyGood;
+      case Workload.pushedLimits:
+        return l10n.workloadPushedLimits;
+      case Workload.tooMuch:
+        return l10n.workloadTooMuch;
     }
   }
 
@@ -242,6 +337,19 @@ extension SorenessExtension on Soreness {
     }
   }
 
+  String localizedName(AppLocalizations l10n) {
+    switch (this) {
+      case Soreness.neverGotSore:
+        return l10n.sorenessNeverGotSore;
+      case Soreness.healedAWhileAgo:
+        return l10n.sorenessHealedAWhileAgo;
+      case Soreness.healedJustOnTime:
+        return l10n.sorenessHealedJustOnTime;
+      case Soreness.stillSore:
+        return l10n.sorenessStillSore;
+    }
+  }
+
   int get recovery {
     switch (this) {
       case Soreness.neverGotSore:
@@ -269,6 +377,15 @@ extension GenderExtension on Gender {
         return 'MALE';
       case Gender.female:
         return 'FEMALE';
+    }
+  }
+
+  String localizedName(AppLocalizations l10n) {
+    switch (this) {
+      case Gender.male:
+        return l10n.genderMale;
+      case Gender.female:
+        return l10n.genderFemale;
     }
   }
 }
@@ -312,6 +429,28 @@ extension RecoveryPeriodTypeExtension on RecoveryPeriodType {
         return 'Reduce volume while maintaining intensity';
       case RecoveryPeriodType.recovery:
         return 'Light training to promote active recovery';
+    }
+  }
+
+  String localizedName(AppLocalizations l10n) {
+    switch (this) {
+      case RecoveryPeriodType.deload:
+        return l10n.recoveryPeriodTypeDeload;
+      case RecoveryPeriodType.taper:
+        return l10n.recoveryPeriodTypeTaper;
+      case RecoveryPeriodType.recovery:
+        return l10n.recoveryPeriodTypeRecovery;
+    }
+  }
+
+  String localizedDescription(AppLocalizations l10n) {
+    switch (this) {
+      case RecoveryPeriodType.deload:
+        return l10n.recoveryPeriodTypeDeloadDesc;
+      case RecoveryPeriodType.taper:
+        return l10n.recoveryPeriodTypeTaperDesc;
+      case RecoveryPeriodType.recovery:
+        return l10n.recoveryPeriodTypeRecoveryDesc;
     }
   }
 }
@@ -374,6 +513,36 @@ extension TrainingPhaseExtension on TrainingPhase {
         return 'Active recovery between training blocks';
     }
   }
+
+  String localizedName(AppLocalizations l10n) {
+    switch (this) {
+      case TrainingPhase.base:
+        return l10n.trainingPhaseBase;
+      case TrainingPhase.build:
+        return l10n.trainingPhaseBuild;
+      case TrainingPhase.peak:
+        return l10n.trainingPhasePeak;
+      case TrainingPhase.taper:
+        return l10n.trainingPhaseTaper;
+      case TrainingPhase.transition:
+        return l10n.trainingPhaseTransition;
+    }
+  }
+
+  String localizedDescription(AppLocalizations l10n) {
+    switch (this) {
+      case TrainingPhase.base:
+        return l10n.trainingPhaseBaseDesc;
+      case TrainingPhase.build:
+        return l10n.trainingPhaseBuildDesc;
+      case TrainingPhase.peak:
+        return l10n.trainingPhasePeakDesc;
+      case TrainingPhase.taper:
+        return l10n.trainingPhaseTaperDesc;
+      case TrainingPhase.transition:
+        return l10n.trainingPhaseTransitionDesc;
+    }
+  }
 }
 
 /// Measurement unit system. Stored per-sport in [OnboardingService] so users
@@ -390,6 +559,15 @@ extension UnitSystemExtension on UnitSystem {
         return 'Imperial';
       case UnitSystem.metric:
         return 'Metric';
+    }
+  }
+
+  String localizedName(AppLocalizations l10n) {
+    switch (this) {
+      case UnitSystem.imperial:
+        return l10n.unitSystemImperial;
+      case UnitSystem.metric:
+        return l10n.unitSystemMetric;
     }
   }
 

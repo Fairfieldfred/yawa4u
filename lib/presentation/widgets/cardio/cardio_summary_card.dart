@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../core/constants/enums.dart';
 import '../../../data/models/session.dart';
 import '../../../core/utils/cardio_conversions.dart';
+import '../../../l10n/app_localizations.dart';
 import 'sport_badge.dart';
 
 /// Compact horizontal summary of a [CardioSession] — sport, distance,
@@ -22,6 +23,7 @@ class CardioSummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final detail = session.detail;
     final theme = Theme.of(context);
 
@@ -75,7 +77,7 @@ class CardioSummaryCard extends StatelessWidget {
                   if (detail?.averageHr != null)
                     _Metric(
                       icon: Icons.favorite_outline,
-                      label: '${detail!.averageHr} bpm',
+                      label: '${detail!.averageHr} ${l10n.bpmSuffix}',
                     ),
                   if (detail?.perceivedExertion != null)
                     _Metric(

@@ -6,8 +6,10 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../core/constants/sports.dart';
 import '../../../core/theme/skins/skins.dart';
 import '../../../domain/providers/onboarding_providers.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../widgets/available_equipment_filter.dart';
 import '../../widgets/cardio/sport_badge.dart';
+import '../../widgets/localization_classes.dart';
 
 /// Training cycle terminology options
 enum TrainingCycleTerm {
@@ -18,8 +20,7 @@ enum TrainingCycleTerm {
   ),
   module('Module', 'A modular training unit that can be stacked'),
   phase('Phase', 'A training phase within your overall program'),
-  wave('Wave', 'A wave of progressive training intensity')
-  ;
+  wave('Wave', 'A wave of progressive training intensity');
 
   const TrainingCycleTerm(this.displayName, this.description);
 
@@ -263,18 +264,19 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     if (mounted) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('Settings saved')));
+      ).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.settingsSavedMessage)));
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Settings'),
+        title: Text(l10n.settingsTitle),
         centerTitle: true,
         actions: [
-          if (_hasChanges) TextButton(onPressed: _saveSettings, child: const Text('Save')),
+          if (_hasChanges) TextButton(onPressed: _saveSettings, child: Text(l10n.settingsSaveButton)),
         ],
       ),
       body: ListView(
@@ -286,21 +288,21 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Units',
+                  l10n.settingsUnitsHeader,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 const SizedBox(height: 16),
                 SegmentedButton<bool>(
-                  segments: const [
+                  segments: [
                     ButtonSegment<bool>(
                       value: false,
-                      label: Text('Imperial (lbs)'),
+                      label: Text(l10n.settingsImperialLabel),
                     ),
                     ButtonSegment<bool>(
                       value: true,
-                      label: Text('Metric (kg)'),
+                      label: Text(l10n.settingsMetricLabel),
                     ),
                   ],
                   selected: {_useMetric},
@@ -317,6 +319,32 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           ),
           const Divider(height: 1),
 
+          // Language Section
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  l10n.settingsLanguageHeader,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  l10n.settingsLanguageDescription,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                const LocaleSelector(),
+              ],
+            ),
+          ),
+          const Divider(height: 1),
+
           // Height & Weight Section
           Padding(
             padding: const EdgeInsets.all(16),
@@ -324,14 +352,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Body Measurements',
+                  l10n.settingsBodyMeasurementsHeader,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Update your measurements to track BMI over time',
+                  l10n.settingsBodyMeasurementsDesc,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Theme.of(
                       context,
@@ -345,8 +373,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   // Metric height (cm)
                   TextFormField(
                     controller: _heightCmController,
-                    decoration: const InputDecoration(
-                      labelText: 'Height',
+                    decoration: InputDecoration(
+                      labelText: l10n.heightLabel,
                       suffixText: 'cm',
                       border: OutlineInputBorder(),
                     ),
@@ -364,8 +392,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       Expanded(
                         child: TextFormField(
                           controller: _heightFeetController,
-                          decoration: const InputDecoration(
-                            labelText: 'Height',
+                          decoration: InputDecoration(
+                            labelText: l10n.heightLabel,
                             suffixText: 'ft',
                             border: OutlineInputBorder(),
                           ),
@@ -407,7 +435,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 TextFormField(
                   controller: _useMetric ? _weightKgController : _weightLbsController,
                   decoration: InputDecoration(
-                    labelText: 'Weight',
+                    labelText: l10n.weightLabel,
                     suffixText: _useMetric ? 'kg' : 'lbs',
                     border: const OutlineInputBorder(),
                   ),
@@ -438,7 +466,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Current BMI',
+                          l10n.settingsCurrentBmi,
                           style: Theme.of(context).textTheme.bodyMedium,
                         ),
                         Container(
@@ -486,7 +514,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            'BMI categories based on WHO guidelines',
+                            l10n.settingsBmiGuidelines,
                             style: Theme.of(context).textTheme.bodySmall?.copyWith(
                               color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
                             ),
@@ -530,11 +558,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'DEXA Scan Results',
+                                l10n.dexaScanTitle,
                                 style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
                               ),
                               Text(
-                                'Optional - for bodybuilders',
+                                l10n.dexaSubtitle,
                                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                   color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                                 ),
@@ -559,8 +587,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       Expanded(
                         child: TextFormField(
                           controller: _bodyFatController,
-                          decoration: const InputDecoration(
-                            labelText: 'Body Fat',
+                          decoration: InputDecoration(
+                            labelText: l10n.bodyFatLabel,
                             suffixText: '%',
                             border: OutlineInputBorder(),
                           ),
@@ -582,7 +610,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         child: TextFormField(
                           controller: _leanMassController,
                           decoration: InputDecoration(
-                            labelText: 'Lean Mass',
+                            labelText: l10n.leanMassLabel,
                             suffixText: _useMetric ? 'kg' : 'lbs',
                             border: const OutlineInputBorder(),
                           ),
@@ -614,14 +642,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Training Cycle Terminology',
+                  l10n.settingsTerminologyHeader,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Choose the term you prefer for your trainingCycles',
+                  l10n.settingsTerminologyDesc,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Theme.of(
                       context,
@@ -752,6 +780,7 @@ class _SportsSection extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final selected = ref.watch(selectedSportsProvider);
     final selectedSet = selected.toSet();
 
@@ -759,15 +788,14 @@ class _SportsSection extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Sports I train',
+          l10n.settingsSportsHeader,
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
             fontWeight: FontWeight.bold,
           ),
         ),
         const SizedBox(height: 4),
         Text(
-          'Pick the sports you want to log. The Workout tab\'s '
-          '"Add session" grid only shows these.',
+          l10n.settingsSportsDesc,
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
             color: Theme.of(context).colorScheme.onSurface.withValues(
               alpha: 0.7,
@@ -842,7 +870,7 @@ class _SportToggleTile extends StatelessWidget {
                       ),
                       if (isLastSelected)
                         Text(
-                          'At least one sport is required.',
+                          AppLocalizations.of(context)!.settingsSportsMinimumWarning,
                           style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                           ),

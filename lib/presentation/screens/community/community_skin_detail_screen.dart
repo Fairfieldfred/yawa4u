@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/skins/skins.dart';
 import '../../../data/repositories/community_repository.dart';
 import '../../../domain/providers/community_providers.dart';
+import '../../../l10n/app_localizations.dart';
 
 /// Detail + download screen for a single community skin/theme.
 class CommunitySkinDetailScreen extends ConsumerStatefulWidget {
@@ -20,10 +21,11 @@ class _CommunitySkinDetailScreenState extends ConsumerState<CommunitySkinDetailS
   bool _downloaded = false;
 
   Future<void> _download() async {
+    final l10n = AppLocalizations.of(context)!;
     if (widget.skin.skin == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text('This theme has invalid data and cannot be downloaded'),
+          content: Text(l10n.communityInvalidThemeData),
           backgroundColor: context.errorColor,
           behavior: SnackBarBehavior.floating,
         ),
@@ -48,7 +50,7 @@ class _CommunitySkinDetailScreenState extends ConsumerState<CommunitySkinDetailS
         });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('"${widget.skin.name}" saved to your themes'),
+            content: Text(l10n.communitySavedToThemes(widget.skin.name)),
             backgroundColor: context.successColor,
             behavior: SnackBarBehavior.floating,
           ),
@@ -59,7 +61,7 @@ class _CommunitySkinDetailScreenState extends ConsumerState<CommunitySkinDetailS
         setState(() => _isDownloading = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Download failed: $e'),
+            content: Text(l10n.communityDownloadFailed(e)),
             backgroundColor: context.errorColor,
             behavior: SnackBarBehavior.floating,
           ),
@@ -70,6 +72,7 @@ class _CommunitySkinDetailScreenState extends ConsumerState<CommunitySkinDetailS
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final colorScheme = Theme.of(context).colorScheme;
     final skin = widget.skin;
 
@@ -142,7 +145,7 @@ class _CommunitySkinDetailScreenState extends ConsumerState<CommunitySkinDetailS
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      '${skin.downloadCount} downloads',
+                      l10n.communityDownloadCount(skin.downloadCount),
                       style: TextStyle(
                         color: colorScheme.onSurfaceVariant,
                         fontSize: 14,
@@ -182,7 +185,7 @@ class _CommunitySkinDetailScreenState extends ConsumerState<CommunitySkinDetailS
                 // Color preview (if skin data available)
                 if (skin.skin != null) ...[
                   Text(
-                    'Color Preview',
+                    l10n.communityColorPreview,
                     style: TextStyle(
                       color: colorScheme.onSurface,
                       fontSize: 18,
@@ -190,7 +193,7 @@ class _CommunitySkinDetailScreenState extends ConsumerState<CommunitySkinDetailS
                     ),
                   ),
                   const SizedBox(height: 12),
-                  _buildColorPreview(skin.skin!.colors, colorScheme),
+                  _buildColorPreview(skin.skin!.colors, colorScheme, l10n),
                 ],
               ],
             ),
@@ -221,7 +224,7 @@ class _CommunitySkinDetailScreenState extends ConsumerState<CommunitySkinDetailS
                           ),
                         )
                       : Text(
-                          _downloaded ? 'SAVED' : 'DOWNLOAD THEME',
+                          _downloaded ? l10n.communitySavedButton : l10n.communityDownloadThemeButton,
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
@@ -246,6 +249,7 @@ class _CommunitySkinDetailScreenState extends ConsumerState<CommunitySkinDetailS
   Widget _buildColorPreview(
     dynamic colors,
     ColorScheme colorScheme,
+    AppLocalizations l10n,
   ) {
     // SkinColors has a toJson() that produces a map of color strings.
     // We'll show a simple grid of the raw color values if available.
@@ -258,7 +262,7 @@ class _CommunitySkinDetailScreenState extends ConsumerState<CommunitySkinDetailS
 
       if (entries.isEmpty) {
         return Text(
-          'No color data available',
+          l10n.communityNoColorData,
           style: TextStyle(color: colorScheme.onSurfaceVariant),
         );
       }
@@ -304,7 +308,7 @@ class _CommunitySkinDetailScreenState extends ConsumerState<CommunitySkinDetailS
       );
     } catch (_) {
       return Text(
-        'Color preview unavailable',
+        l10n.communityColorPreviewUnavailable,
         style: TextStyle(color: colorScheme.onSurfaceVariant),
       );
     }

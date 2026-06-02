@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/constants/enums.dart';
 import '../../../data/models/exercise_feedback.dart';
+import '../../../l10n/app_localizations.dart';
 
 /// Dialog for logging exercise feedback: joint pain, muscle pump, and workload.
 ///
@@ -51,6 +52,7 @@ class _ExerciseFeedbackDialogState extends State<ExerciseFeedbackDialog> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     return AlertDialog(
       title: Text(
@@ -65,7 +67,7 @@ class _ExerciseFeedbackDialogState extends State<ExerciseFeedbackDialog> {
           children: [
             _buildSection(
               theme,
-              label: 'Joint Pain',
+              label: l10n.jointPainLabel,
               icon: Icons.warning_amber_rounded,
               child: _buildChoiceRow<JointPain>(
                 values: JointPain.values,
@@ -77,7 +79,7 @@ class _ExerciseFeedbackDialogState extends State<ExerciseFeedbackDialog> {
             const SizedBox(height: 16),
             _buildSection(
               theme,
-              label: 'Muscle Pump',
+              label: l10n.musclePumpLabel,
               icon: Icons.local_fire_department_outlined,
               child: _buildChoiceRow<MusclePump>(
                 values: MusclePump.values,
@@ -89,7 +91,7 @@ class _ExerciseFeedbackDialogState extends State<ExerciseFeedbackDialog> {
             const SizedBox(height: 16),
             _buildSection(
               theme,
-              label: 'Workload',
+              label: l10n.workloadLabel,
               icon: Icons.fitness_center,
               child: _buildChoiceRow<Workload>(
                 values: Workload.values,
@@ -104,11 +106,11 @@ class _ExerciseFeedbackDialogState extends State<ExerciseFeedbackDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
+          child: Text(l10n.cancel),
         ),
         FilledButton(
           onPressed: _save,
-          child: const Text('Save'),
+          child: Text(l10n.save),
         ),
       ],
     );
@@ -147,6 +149,7 @@ class _ExerciseFeedbackDialogState extends State<ExerciseFeedbackDialog> {
     required ValueChanged<T?> onSelected,
     required Color Function(T) colorFor,
   }) {
+    final l10n = AppLocalizations.of(context)!;
     return Wrap(
       spacing: 6,
       runSpacing: 6,
@@ -155,7 +158,7 @@ class _ExerciseFeedbackDialogState extends State<ExerciseFeedbackDialog> {
         final color = colorFor(v);
         return ChoiceChip(
           label: Text(
-            _displayName(v),
+            _localizedName(v, l10n),
             style: TextStyle(
               fontSize: 11,
               fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
@@ -171,10 +174,10 @@ class _ExerciseFeedbackDialogState extends State<ExerciseFeedbackDialog> {
     );
   }
 
-  String _displayName(Enum value) {
-    if (value is JointPain) return value.displayName;
-    if (value is MusclePump) return value.displayName;
-    if (value is Workload) return value.displayName;
+  String _localizedName(Enum value, AppLocalizations l10n) {
+    if (value is JointPain) return value.localizedName(l10n);
+    if (value is MusclePump) return value.localizedName(l10n);
+    if (value is Workload) return value.localizedName(l10n);
     return value.name.toUpperCase();
   }
 

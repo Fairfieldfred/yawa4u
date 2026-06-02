@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/constants/enums.dart';
+import '../../../l10n/app_localizations.dart';
 
 /// Dialog explaining all set types with their badges, names, and descriptions.
 class SetTypeInfoDialog extends StatelessWidget {
@@ -40,13 +41,14 @@ class SetTypeInfoDialog extends StatelessWidget {
   }
 
   Widget _buildHeader(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.fromLTRB(24, 20, 16, 16),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
-            'Set Types',
+            l10n.setTypesTitle,
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
               fontWeight: FontWeight.bold,
             ),
@@ -63,6 +65,7 @@ class SetTypeInfoDialog extends StatelessWidget {
   }
 
   Widget _buildSetTypeRow(BuildContext context, SetType type) {
+    final l10n = AppLocalizations.of(context)!;
     final badge = type.badge;
     final colorScheme = Theme.of(context).colorScheme;
 
@@ -81,7 +84,7 @@ class SetTypeInfoDialog extends StatelessWidget {
               borderRadius: BorderRadius.circular(6),
             ),
             child: Text(
-              badge ?? 'REG',
+              badge ?? l10n.regularSetBadge,
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
                 fontWeight: FontWeight.w700,
                 color: badge != null
@@ -98,14 +101,14 @@ class SetTypeInfoDialog extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  type.displayName,
+                  type.localizedName(l10n),
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  type.description,
+                  type.localizedDescription(l10n),
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: colorScheme.onSurface.withAlpha(
                       (255 * 0.6).round(),

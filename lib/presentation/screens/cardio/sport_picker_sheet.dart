@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/constants/sports.dart';
+import '../../../l10n/app_localizations.dart';
 
 /// Modal bottom sheet that lets the user pick a [Sport] for a new session.
 ///
@@ -11,17 +12,18 @@ import '../../../core/constants/sports.dart';
 class SportPickerSheet extends StatelessWidget {
   const SportPickerSheet({
     super.key,
-    this.title = 'Add a session',
+    this.title,
     this.choices = const [Sport.strength, Sport.run, Sport.bike, Sport.swim],
   });
 
-  final String title;
+  /// Optional override title. When null, uses [AppLocalizations.sportPickerTitle].
+  final String? title;
   final List<Sport> choices;
 
   /// Presents this sheet and returns the chosen sport, or null if dismissed.
   static Future<Sport?> show(
     BuildContext context, {
-    String title = 'Add a session',
+    String? title,
     List<Sport> choices = const [
       Sport.strength,
       Sport.run,
@@ -38,6 +40,7 @@ class SportPickerSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
@@ -46,14 +49,14 @@ class SportPickerSheet extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              title,
+              title ?? l10n.sportPickerTitle,
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.w600,
               ),
             ),
             const SizedBox(height: 8),
             Text(
-              'Which sport is this session?',
+              l10n.sportPickerSubtitle,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: Theme.of(
                   context,
@@ -83,6 +86,7 @@ class _SportRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final color = sport.color;
     return Material(
       color: color.withValues(alpha: 0.08),
@@ -106,7 +110,7 @@ class _SportRow extends StatelessWidget {
               const SizedBox(width: 14),
               Expanded(
                 child: Text(
-                  sport.displayName,
+                  sport.localizedName(l10n),
                   style: Theme.of(
                     context,
                   ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),

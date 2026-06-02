@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../l10n/app_localizations.dart';
+
 /// Dialog for setting a custom rest timer duration for an exercise.
 ///
 /// Returns the selected rest duration in seconds, or null if cancelled.
@@ -44,9 +46,10 @@ class _RestTimerDialogState extends State<RestTimerDialog> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     return AlertDialog(
-      title: const Text('Rest Timer'),
+      title: Text(l10n.restTimerDialogTitle),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -55,11 +58,11 @@ class _RestTimerDialogState extends State<RestTimerDialog> {
           SwitchListTile(
             contentPadding: EdgeInsets.zero,
             title: Text(
-              'Use default',
+              l10n.restTimerUseDefault,
               style: theme.textTheme.bodyMedium,
             ),
             subtitle: Text(
-              'Based on set type',
+              l10n.restTimerBasedOnSetType,
               style: theme.textTheme.bodySmall,
             ),
             value: _useDefault,
@@ -70,7 +73,7 @@ class _RestTimerDialogState extends State<RestTimerDialog> {
           if (!_useDefault) ...[
             const SizedBox(height: 8),
             Text(
-              'Duration',
+              l10n.restTimerDuration,
               style: theme.textTheme.bodySmall?.copyWith(
                 fontWeight: FontWeight.w600,
               ),
@@ -122,7 +125,7 @@ class _RestTimerDialogState extends State<RestTimerDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel'),
+          child: Text(l10n.cancel),
         ),
         FilledButton(
           onPressed: () {
@@ -132,7 +135,7 @@ class _RestTimerDialogState extends State<RestTimerDialog> {
               Navigator.pop(context, _selectedSeconds);
             }
           },
-          child: const Text('Save'),
+          child: Text(l10n.save),
         ),
       ],
     );

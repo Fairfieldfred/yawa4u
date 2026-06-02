@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/sports.dart';
 import '../../../../core/utils/cardio_conversions.dart';
 import '../../../../data/models/cardio_stats.dart';
+import '../../../../l10n/app_localizations.dart';
 
 /// Stacked bar chart of weekly cardio volume broken down by sport.
 ///
@@ -31,8 +32,9 @@ class WeeklyVolumeChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     if (weeks.isEmpty) {
-      return _Empty(height: height, label: 'No cardio in this range yet');
+      return _Empty(height: height, label: l10n.weeklyVolumeChartEmpty);
     }
 
     final theme = Theme.of(context);
@@ -53,8 +55,11 @@ class WeeklyVolumeChart extends StatelessWidget {
                 final bucket = weeks[group.x.toInt()];
                 final totalMin = bucket.totalDurationSec ~/ 60;
                 return BarTooltipItem(
-                  '${_weekLabel(bucket.weekStart)}\n'
-                  '${bucket.totalSessions} sessions • ${_fmtMin(totalMin)}',
+                  l10n.weeklyVolumeChartTooltip(
+                    _weekLabel(l10n, bucket.weekStart),
+                    bucket.totalSessions,
+                    _fmtMin(totalMin),
+                  ),
                   theme.textTheme.bodySmall!.copyWith(
                     color: Colors.white,
                     fontWeight: FontWeight.w600,
@@ -187,8 +192,10 @@ class WeeklyVolumeChart extends StatelessWidget {
     return groups;
   }
 
-  String _weekLabel(DateTime d) {
-    return 'Wk of ${_months[d.month - 1]} ${d.day}';
+  String _weekLabel(AppLocalizations l10n, DateTime d) {
+    return l10n.weeklyVolumeChartWeekOf(
+      '${_months[d.month - 1]} ${d.day}',
+    );
   }
 
   String _shortWeekLabel(DateTime d) {

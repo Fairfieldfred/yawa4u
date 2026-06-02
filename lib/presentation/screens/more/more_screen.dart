@@ -11,7 +11,9 @@ import '../../../core/services/sentry_service.dart';
 import '../../../core/theme/skins/skin_provider.dart';
 import '../../../domain/providers/onboarding_providers.dart';
 import '../../../domain/providers/theme_provider.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../widgets/app_icon_widget.dart';
+import '../../widgets/localization_classes.dart';
 import '../../widgets/responsive_content.dart';
 import '../../widgets/screen_background.dart';
 
@@ -72,7 +74,7 @@ class _MoreScreenState extends ConsumerState<MoreScreen> with SingleTickerProvid
     final packageInfo = await PackageInfo.fromPlatform();
     if (mounted) {
       setState(() {
-        _version = 'Version ${packageInfo.version}';
+        _version = packageInfo.version;
       });
     }
   }
@@ -137,6 +139,7 @@ class _MoreScreenState extends ConsumerState<MoreScreen> with SingleTickerProvid
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final themeMode = ref.watch(themeModeProvider);
     final selectedIconIndex = ref.watch(userProfileProvider).appIconIndex;
     final activeSkin = ref.watch(activeSkinProvider);
@@ -146,7 +149,7 @@ class _MoreScreenState extends ConsumerState<MoreScreen> with SingleTickerProvid
         !activeSkin.isBuiltIn && activeSkin.backgrounds?.appIcon != null && activeSkin.backgrounds!.appIcon!.isNotEmpty;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('YAWA4U'), centerTitle: true),
+      appBar: AppBar(title: Text(l10n.moreScreenTitle), centerTitle: true),
       body: ScreenBackground.more(
         child: ResponsiveContent(
           child: ListView(
@@ -184,7 +187,7 @@ class _MoreScreenState extends ConsumerState<MoreScreen> with SingleTickerProvid
 
                     const SizedBox(height: 8),
                     Text(
-                      _version,
+                      l10n.versionLabel(_version),
                       style: Theme.of(
                         context,
                       ).textTheme.bodyMedium?.copyWith(color: Colors.grey),
@@ -203,23 +206,23 @@ class _MoreScreenState extends ConsumerState<MoreScreen> with SingleTickerProvid
                     Padding(
                       padding: const EdgeInsets.only(left: 12, bottom: 8),
                       child: Text(
-                        'Theme mode',
+                        l10n.themeMode,
                         style: Theme.of(context).textTheme.bodyMedium,
                       ),
                     ),
                     SegmentedButton<ThemeMode>(
-                      segments: const [
+                      segments: [
                         ButtonSegment<ThemeMode>(
                           value: ThemeMode.system,
-                          label: Text('System'),
+                          label: Text(l10n.themeModeSystem),
                         ),
                         ButtonSegment<ThemeMode>(
                           value: ThemeMode.light,
-                          label: Text('Light'),
+                          label: Text(l10n.themeModeLight),
                         ),
                         ButtonSegment<ThemeMode>(
                           value: ThemeMode.dark,
-                          label: Text('Dark'),
+                          label: Text(l10n.themeModeDark),
                         ),
                       ],
                       selected: {themeMode},
@@ -237,93 +240,91 @@ class _MoreScreenState extends ConsumerState<MoreScreen> with SingleTickerProvid
               const SizedBox(height: 24),
 
               // ─── Appearance ──────────────────────────────────────────────
-              const _MoreSectionHeader('Appearance'),
+              _MoreSectionHeader(l10n.sectionAppearance),
               ListTile(
                 leading: const Icon(Icons.palette_outlined),
-                title: const Text('Theme'),
-                subtitle: const Text('Choose your app theme'),
+                title: Text(l10n.themeTitle),
+                subtitle: Text(l10n.themeSubtitle),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () => context.push('/skins'),
               ),
 
               // ─── Training ────────────────────────────────────────────────
-              const _MoreSectionHeader('Training'),
+              _MoreSectionHeader(l10n.sectionTraining),
               ListTile(
                 leading: const Icon(Icons.bar_chart_outlined),
-                title: const Text('Statistics'),
-                subtitle: const Text('Volume, records, and progress'),
+                title: Text(l10n.statisticsTitle),
+                subtitle: Text(l10n.statisticsSubtitle),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () => context.push('/stats'),
               ),
               ListTile(
                 leading: const Icon(Icons.straighten),
-                title: const Text('Units'),
-                subtitle: const Text('Metric or imperial — per sport'),
+                title: Text(l10n.unitsTitle),
+                subtitle: Text(l10n.unitsSubtitle),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () => context.push('/settings/units'),
               ),
               ListTile(
                 leading: const Icon(Icons.favorite_outline),
-                title: const Text('Zones'),
-                subtitle: const Text('Heart-rate zones per sport'),
+                title: Text(l10n.zonesTitle),
+                subtitle: Text(l10n.zonesSubtitle),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () => context.push('/settings/zones'),
               ),
 
               // ─── Integrations & Data ─────────────────────────────────────
-              const _MoreSectionHeader('Integrations & data'),
+              _MoreSectionHeader(l10n.sectionIntegrationsData),
               ListTile(
                 leading: const Icon(Icons.integration_instructions_outlined),
-                title: const Text('Integrations'),
-                subtitle: const Text(
-                  'Apple Health / Health Connect — includes Peloton',
-                ),
+                title: Text(l10n.integrationsTitle),
+                subtitle: Text(l10n.integrationsSubtitle),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () => context.push('/settings/integrations'),
               ),
               ListTile(
                 leading: const Icon(Icons.sync),
-                title: const Text('Sync data'),
-                subtitle: const Text('Sync with another device via WiFi'),
+                title: Text(l10n.syncDataTitle),
+                subtitle: Text(l10n.syncDataSubtitle),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () => context.push('/sync'),
               ),
               ListTile(
                 leading: const Icon(Icons.file_copy_outlined),
-                title: const Text('Share template'),
-                subtitle: const Text('Share workout templates via WiFi'),
+                title: Text(l10n.shareTemplateTitle),
+                subtitle: Text(l10n.shareTemplateSubtitle),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () => context.push('/template-share'),
               ),
               ListTile(
                 leading: const Icon(Icons.share_outlined),
-                title: const Text('Share app'),
-                subtitle: const Text('Share YAWA4U with friends'),
+                title: Text(l10n.shareAppTitle),
+                subtitle: Text(l10n.shareAppSubtitle),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () async {
                   await SharePlus.instance.share(
                     ShareParams(
-                      text: 'Check out YAWA4U - The best workout tracker! https://testflight.apple.com/join/YVQsRjzD',
+                      text: l10n.shareAppText,
                     ),
                   );
                 },
               ),
 
               // ─── Preferences ─────────────────────────────────────────────
-              const _MoreSectionHeader('Preferences'),
+              _MoreSectionHeader(l10n.sectionPreferences),
               ListTile(
                 leading: const Icon(Icons.settings_outlined),
-                title: const Text('Settings'),
-                subtitle: const Text('Terminology, equipment, body metrics'),
+                title: Text(l10n.settingsTitle),
+                subtitle: Text(l10n.settingsSubtitle),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () => context.push('/settings'),
               ),
 
               // ─── Help & feedback ─────────────────────────────────────────
-              const _MoreSectionHeader('Help & feedback'),
+              _MoreSectionHeader(l10n.sectionHelpFeedback),
               ListTile(
                 leading: const Icon(Icons.feedback_outlined),
-                title: const Text('Send feedback'),
+                title: Text(l10n.sendFeedbackTitle),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () {
                   SentryService.instance.showBetterFeedback(context);
@@ -332,22 +333,46 @@ class _MoreScreenState extends ConsumerState<MoreScreen> with SingleTickerProvid
 
               ListTile(
                 leading: const Icon(Icons.language),
-                title: const Text('Language'),
+                title: Text(l10n.languageTitle),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Language selection coming soon'),
-                    ),
+                  showModalBottomSheet<void>(
+                    context: context,
+                    builder: (context) {
+                      final sheetL10n = AppLocalizations.of(context)!;
+                      return Padding(
+                        padding: const EdgeInsets.all(24),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              sheetL10n.languageSheetTitle,
+                              style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              sheetL10n.languageSheetSubtitle,
+                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            const LocaleSelector(),
+                            const SizedBox(height: 16),
+                          ],
+                        ),
+                      );
+                    },
                   );
                 },
               ),
 
               // ─── About ───────────────────────────────────────────────────
-              const _MoreSectionHeader('About'),
+              _MoreSectionHeader(l10n.sectionAbout),
               ListTile(
                 leading: const Icon(Icons.public),
-                title: const Text('Website'),
+                title: Text(l10n.websiteTitle),
                 trailing: const Icon(Icons.open_in_new, size: 18),
                 onTap: () async {
                   final url = Uri.parse(
@@ -360,7 +385,7 @@ class _MoreScreenState extends ConsumerState<MoreScreen> with SingleTickerProvid
               ),
               ListTile(
                 leading: const Icon(Icons.privacy_tip_outlined),
-                title: const Text('Privacy policy'),
+                title: Text(l10n.privacyPolicyTitle),
                 trailing: const Icon(Icons.open_in_new, size: 18),
                 onTap: () async {
                   final url = Uri.parse(AppConstants.privacyPolicyUrl);
@@ -373,11 +398,11 @@ class _MoreScreenState extends ConsumerState<MoreScreen> with SingleTickerProvid
               // Debug-only tools live at the very bottom so they don't
               // clutter the normal browsing experience.
               if (kDebugMode) ...[
-                const _MoreSectionHeader('Developer'),
+                _MoreSectionHeader(l10n.sectionDeveloper),
                 ListTile(
                   leading: const Icon(Icons.bug_report, color: Colors.orange),
-                  title: const Text('Sentry debug'),
-                  subtitle: const Text('Test Sentry integration'),
+                  title: Text(l10n.sentryDebugTitle),
+                  subtitle: Text(l10n.sentryDebugSubtitle),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () => context.push('/sentry-debug'),
                 ),
@@ -392,7 +417,7 @@ class _MoreScreenState extends ConsumerState<MoreScreen> with SingleTickerProvid
 }
 
 /// Section header used inside MoreScreen's list. Lives here rather than
-/// in a shared widget because it's heavily styled for this one surface —
+/// in a shared widget because it's heavily styled for this one surface --
 /// if another screen needs similar section headers, extract later.
 class _MoreSectionHeader extends StatelessWidget {
   const _MoreSectionHeader(this.label);

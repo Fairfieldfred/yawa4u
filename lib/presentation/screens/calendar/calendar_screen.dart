@@ -6,6 +6,7 @@ import 'package:table_calendar/table_calendar.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../core/extensions/context_extensions.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../widgets/empty_state_widget.dart';
 import '../../../core/theme/skins/skins.dart';
 import '../../../core/utils/date_helpers.dart';
@@ -56,6 +57,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final currentCycles = ref.watch(currentTrainingCyclesProvider);
     final currentTrainingCycle = currentCycles.isEmpty ? null : currentCycles.first;
 
@@ -67,7 +69,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
           automaticallyImplyLeading: false,
           leading: const AppIconWidget(),
           leadingWidth: kToolbarHeight + 12,
-          title: const Text('Calendar'),
+          title: Text(l10n.calendarTitle),
           actions: [
             const QuickLogAction(),
             // Theme toggle
@@ -75,7 +77,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
               icon: Icon(
                 ref.watch(isDarkModeProvider) ? Icons.light_mode : Icons.dark_mode,
               ),
-              tooltip: 'Toggle theme',
+              tooltip: l10n.toggleThemeTooltip,
               onPressed: () {
                 ref.read(themeModeProvider.notifier).toggleTheme();
               },
@@ -83,7 +85,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
             // Legend info button
             IconButton(
               icon: const Icon(Icons.info_outline),
-              tooltip: 'Show legend',
+              tooltip: l10n.calendarShowLegendTooltip,
               onPressed: () => CalendarLegendDialog.show(context),
             ),
           ],
@@ -283,12 +285,13 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
   }
 
   Widget _buildNoTrainingCycle(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return EmptyStateWidget(
       icon: Icons.calendar_month,
       iconSize: 80,
       iconColor: Theme.of(context).colorScheme.onSurface.withAlpha(77),
-      title: 'No active training cycle',
-      subtitle: 'Start a training cycle to see your workouts on the calendar',
+      title: l10n.calendarNoActiveCycleTitle,
+      subtitle: l10n.calendarNoActiveCycleSubtitle,
     );
   }
 
@@ -497,6 +500,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
       },
       onExerciseDropped: (dragData, targetDate) async {
         if (currentCycle == null) return;
+        final l10n = AppLocalizations.of(context)!;
 
         try {
           switch (dragData) {
@@ -513,8 +517,10 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(
-                      'Moved ${dragData.exercise.name} to '
-                      '${DateHelpers.shortDate.format(targetDate)}',
+                      l10n.calendarMovedExercise(
+                        dragData.exercise.name,
+                        DateHelpers.shortDate.format(targetDate),
+                      ),
                     ),
                     duration: const Duration(seconds: 2),
                   ),
@@ -533,8 +539,10 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(
-                      'Moved ${dragData.session.label ?? dragData.session.sport.displayName} to '
-                      '${DateHelpers.shortDate.format(targetDate)}',
+                      l10n.calendarMovedCardio(
+                        dragData.session.label ?? dragData.session.sport.displayName,
+                        DateHelpers.shortDate.format(targetDate),
+                      ),
                     ),
                     duration: const Duration(seconds: 2),
                   ),
@@ -545,7 +553,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
           if (context.mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text('Failed to move: $e'),
+                content: Text(l10n.calendarFailedToMove('$e')),
                 backgroundColor: Colors.red,
               ),
             );
@@ -565,9 +573,10 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
           );
         } catch (e) {
           if (context.mounted) {
+            final l10n = AppLocalizations.of(context)!;
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text('Failed to reorder exercise: $e'),
+                content: Text(l10n.calendarFailedToReorder('$e')),
                 backgroundColor: Colors.red,
               ),
             );
@@ -672,7 +681,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                   ),
                   if (dayData?.hasWorkout ?? false)
                     Text(
-                      'P${dayData!.periodNumber}D${dayData.dayNumber}',
+                      AppLocalizations.of(context)!.calendarPeriodDayLabel(dayData!.periodNumber!, dayData.dayNumber!),
                       style: TextStyle(
                         color: textColor.withAlpha(200),
                         fontSize: 9,
@@ -774,6 +783,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
       },
       onExerciseDropped: (dragData, targetDate) async {
         if (currentCycle == null) return;
+        final l10n = AppLocalizations.of(context)!;
 
         try {
           switch (dragData) {
@@ -790,7 +800,10 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(
-                      'Moved ${dragData.exercise.name} to ${DateHelpers.shortDate.format(targetDate)}',
+                      l10n.calendarMovedExercise(
+                        dragData.exercise.name,
+                        DateHelpers.shortDate.format(targetDate),
+                      ),
                     ),
                     duration: const Duration(seconds: 2),
                   ),
@@ -809,7 +822,10 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(
-                      'Moved ${dragData.session.label ?? dragData.session.sport.displayName} to ${DateHelpers.shortDate.format(targetDate)}',
+                      l10n.calendarMovedCardio(
+                        dragData.session.label ?? dragData.session.sport.displayName,
+                        DateHelpers.shortDate.format(targetDate),
+                      ),
                     ),
                     duration: const Duration(seconds: 2),
                   ),
@@ -820,7 +836,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
           if (context.mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text('Failed to move: $e'),
+                content: Text(l10n.calendarFailedToMove('$e')),
                 backgroundColor: Colors.red,
               ),
             );
@@ -840,9 +856,10 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
           );
         } catch (e) {
           if (context.mounted) {
+            final l10n = AppLocalizations.of(context)!;
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text('Failed to reorder exercise: $e'),
+                content: Text(l10n.calendarFailedToReorder('$e')),
                 backgroundColor: Colors.red,
               ),
             );
@@ -1072,6 +1089,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
         // Build tooltip message with exercise names
         final exercises = muscleGroupExercises?[entry.key] ?? [];
         final tooltipMessage = _buildTooltipMessage(
+          context,
           entry.key,
           entry.value,
           exercises,
@@ -1124,12 +1142,14 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
 
   /// Builds a tooltip message showing muscle group, set count, and exercises
   String _buildTooltipMessage(
+    BuildContext context,
     String muscleGroup,
     int setCount,
     List<String> exercises,
   ) {
+    final l10n = AppLocalizations.of(context)!;
     final buffer = StringBuffer();
-    buffer.write('$muscleGroup • $setCount sets');
+    buffer.write(l10n.calendarMuscleGroupSets(muscleGroup, setCount));
     if (exercises.isNotEmpty) {
       buffer.writeln();
       for (final exercise in exercises) {
@@ -1172,6 +1192,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
             // Build tooltip message with exercise names
             final exercises = muscleGroupExercises?[entry.key] ?? [];
             final tooltipMessage = _buildTooltipMessage(
+              context,
               entry.key,
               entry.value,
               exercises,
@@ -1212,6 +1233,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     Map<String, List<String>>? muscleGroupExercises,
   }) {
     if (muscleGroupSets.isEmpty) return const SizedBox.shrink();
+    final l10n = AppLocalizations.of(context)!;
 
     // Sort by set count descending
     final sortedEntries = muscleGroupSets.entries.toList()..sort((a, b) => b.value.compareTo(a.value));
@@ -1252,7 +1274,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                   children: [
                     // Muscle group header with set count
                     Text(
-                      '$muscleGroup • $setCount sets',
+                      l10n.calendarMuscleGroupSets(muscleGroup, setCount),
                       style: textStyle.labelSmall?.copyWith(
                         fontWeight: FontWeight.w600,
                         color: color,
@@ -1281,7 +1303,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                     // Show "+X more" if there are more exercises
                     if (exercises.length > (isWeekView ? 4 : 2))
                       Text(
-                        '+${exercises.length - (isWeekView ? 4 : 2)} more',
+                        l10n.calendarMoreExercises(exercises.length - (isWeekView ? 4 : 2)),
                         style: textStyle.labelSmall?.copyWith(
                           fontSize: isWeekView ? 9 : 7,
                           fontStyle: FontStyle.italic,
@@ -1306,6 +1328,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     CalendarDayData? dayData,
   ) {
     if (_selectedDay == null) return const SizedBox.shrink();
+    final l10n = AppLocalizations.of(context)!;
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -1351,7 +1374,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    'Rest Day',
+                    l10n.calendarRestDay,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: Theme.of(
                         context,
@@ -1365,7 +1388,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                         child: OutlinedButton.icon(
                           onPressed: () => _showEditSheet(context, dayData),
                           icon: const Icon(Icons.edit, size: 18),
-                          label: const Text('Edit'),
+                          label: Text(l10n.calendarEditButton),
                         ),
                       ),
                     ],
@@ -1374,7 +1397,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
               )
             else
               Text(
-                'No session scheduled',
+                l10n.calendarNoSessionScheduled,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: Theme.of(
                     context,
@@ -1387,18 +1410,19 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
   }
 
   Widget _buildStatusBadge(BuildContext context, CalendarDayData dayData) {
+    final l10n = AppLocalizations.of(context)!;
     Color color;
     String label;
 
     if (dayData.isCompleted) {
       color = context.successColor;
-      label = 'Completed';
+      label = l10n.calendarStatusCompleted;
     } else if (dayData.isPartiallyCompleted) {
       color = context.warningColor;
-      label = 'In Progress';
+      label = l10n.calendarStatusInProgress;
     } else {
       color = Theme.of(context).colorScheme.primary;
-      label = dayData.isRecoveryPeriod ? 'Recovery' : 'Scheduled';
+      label = dayData.isRecoveryPeriod ? l10n.calendarStatusRecovery : l10n.calendarStatusScheduled;
     }
 
     return Container(
@@ -1424,6 +1448,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     CalendarDayData dayData,
     dynamic trainingCycle,
   ) {
+    final l10n = AppLocalizations.of(context)!;
     var totalExercises = 0;
     for (final workout in dayData.workouts) {
       totalExercises += workout.exercises.length;
@@ -1434,14 +1459,16 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
       mainAxisSize: MainAxisSize.min,
       children: [
         Text(
-          'Period ${dayData.periodNumber}, Day ${dayData.dayNumber}${dayData.isRecoveryPeriod ? ' (Recovery)' : ''}',
+          dayData.isRecoveryPeriod
+              ? l10n.calendarPeriodDayRecovery(dayData.periodNumber!, dayData.dayNumber!)
+              : l10n.calendarPeriodDayInfo(dayData.periodNumber!, dayData.dayNumber!),
           style: Theme.of(
             context,
           ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
         ),
         const SizedBox(height: 4),
         Text(
-          '$totalExercises exercises • ${dayData.muscleGroups.join(', ')}',
+          l10n.calendarExercisesMuscleGroups(totalExercises, dayData.muscleGroups.join(', ')),
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
             color: Theme.of(context).colorScheme.onSurface.withAlpha(179),
           ),
@@ -1453,7 +1480,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
               child: OutlinedButton.icon(
                 onPressed: () => _showEditSheet(context, dayData),
                 icon: const Icon(Icons.edit, size: 18),
-                label: const Text('Edit'),
+                label: Text(l10n.calendarEditButton),
               ),
             ),
             const SizedBox(width: 12),
@@ -1464,7 +1491,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                   dayData.isCompleted ? Icons.visibility : Icons.play_arrow,
                   size: 18,
                 ),
-                label: Text(dayData.isCompleted ? 'View' : 'Go to Workout'),
+                label: Text(dayData.isCompleted ? l10n.calendarViewButton : l10n.calendarGoToWorkoutButton),
               ),
             ),
           ],
@@ -1478,6 +1505,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     BuildContext context,
     CalendarDayData dayData,
   ) {
+    final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final sessions = dayData.cardioSessions;
 
@@ -1486,7 +1514,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
       mainAxisSize: MainAxisSize.min,
       children: [
         Text(
-          '${sessions.length} cardio session${sessions.length == 1 ? '' : 's'}',
+          l10n.calendarCardioSessionCount(sessions.length),
           style: theme.textTheme.bodyMedium?.copyWith(
             fontWeight: FontWeight.w500,
           ),
@@ -1523,7 +1551,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                   child: FilledButton.icon(
                     onPressed: () => _navigateToWorkout(dayData),
                     icon: const Icon(Icons.visibility, size: 18),
-                    label: const Text('View Day'),
+                    label: Text(l10n.calendarViewDayButton),
                   ),
                 ),
             ],
@@ -1534,18 +1562,19 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
   }
 
   Widget _buildSessionStatusChip(BuildContext context, CardioSession session) {
+    final l10n = AppLocalizations.of(context)!;
     final Color color;
     final String label;
     switch (session.status) {
       case WorkoutStatus.completed:
         color = context.successColor;
-        label = 'Done';
+        label = l10n.calendarSessionStatusDone;
       case WorkoutStatus.skipped:
         color = Theme.of(context).colorScheme.outline;
-        label = 'Skipped';
+        label = l10n.calendarSessionStatusSkipped;
       case WorkoutStatus.incomplete:
         color = Theme.of(context).colorScheme.primary;
-        label = 'Planned';
+        label = l10n.calendarSessionStatusPlanned;
     }
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
@@ -1577,18 +1606,20 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
       ref.read(calendarUndoProvider.notifier).setSnapshot(cycle.id, snapshot);
 
       if (mounted) {
+        final l10n = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Rest day inserted before P${period}D$day'),
+            content: Text(l10n.calendarRestDayInserted(period, day)),
             duration: const Duration(seconds: 2),
           ),
         );
       }
     } catch (e) {
       if (mounted) {
+        final l10n = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to insert day: $e'),
+            content: Text(l10n.calendarFailedToInsertDay('$e')),
             backgroundColor: context.errorColor,
           ),
         );
@@ -1611,18 +1642,20 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
       ref.read(calendarUndoProvider.notifier).setSnapshot(cycle.id, snapshot);
 
       if (mounted) {
+        final l10n = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Rest day removed on ${DateHelpers.shortDate.format(restDayDate)}'),
+            content: Text(l10n.calendarRestDayRemoved(DateHelpers.shortDate.format(restDayDate))),
             duration: const Duration(seconds: 2),
           ),
         );
       }
     } catch (e) {
       if (mounted) {
+        final l10n = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to remove rest day: $e'),
+            content: Text(l10n.calendarFailedToRemoveRestDay('$e')),
             backgroundColor: context.errorColor,
           ),
         );

@@ -6,6 +6,7 @@ import '../../../core/theme/skins/skins.dart';
 import '../../../data/repositories/community_repository.dart';
 import '../../../domain/providers/auth_providers.dart';
 import '../../../domain/providers/community_providers.dart';
+import '../../../l10n/app_localizations.dart';
 import 'community_skin_detail_screen.dart';
 import '../../widgets/skeleton_loader.dart';
 import 'community_template_detail_screen.dart';
@@ -47,24 +48,25 @@ class _CommunityBrowseScreenState extends ConsumerState<CommunityBrowseScreen> w
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final canUpload = ref.watch(canUploadProvider);
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Community Library'),
+        title: Text(l10n.communityLibraryTitle),
         elevation: 0,
         bottom: TabBar(
           controller: _tabController,
-          tabs: const [
-            Tab(text: 'Programs'),
-            Tab(text: 'Themes'),
-            Tab(text: 'My Uploads'),
+          tabs: [
+            Tab(text: l10n.communityTabPrograms),
+            Tab(text: l10n.communityTabThemes),
+            Tab(text: l10n.communityTabMyUploads),
           ],
         ),
         actions: [
           if (canUpload)
             PopupMenuButton<String>(
               icon: const Icon(Icons.upload_outlined),
-              tooltip: 'Upload',
+              tooltip: l10n.communityUploadTooltip,
               onSelected: (value) {
                 switch (value) {
                   case 'template':
@@ -73,12 +75,12 @@ class _CommunityBrowseScreenState extends ConsumerState<CommunityBrowseScreen> w
                     context.push('/community/upload-skin');
                 }
               },
-              itemBuilder: (_) => const [
+              itemBuilder: (_) => [
                 PopupMenuItem(
                   value: 'template',
                   child: ListTile(
-                    leading: Icon(Icons.fitness_center),
-                    title: Text('Share a Program'),
+                    leading: const Icon(Icons.fitness_center),
+                    title: Text(l10n.communityShareProgram),
                     contentPadding: EdgeInsets.zero,
                     visualDensity: VisualDensity.compact,
                   ),
@@ -86,8 +88,8 @@ class _CommunityBrowseScreenState extends ConsumerState<CommunityBrowseScreen> w
                 PopupMenuItem(
                   value: 'skin',
                   child: ListTile(
-                    leading: Icon(Icons.palette),
-                    title: Text('Share a Theme'),
+                    leading: const Icon(Icons.palette),
+                    title: Text(l10n.communityShareTheme),
                     contentPadding: EdgeInsets.zero,
                     visualDensity: VisualDensity.compact,
                   ),
@@ -116,6 +118,7 @@ class _TemplatesTab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final templatesAsync = ref.watch(communityTemplatesProvider);
     final sort = ref.watch(communityTemplateSortProvider);
 
@@ -126,19 +129,19 @@ class _TemplatesTab extends ConsumerWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: Row(
             children: [
-              const Text('Sort by:'),
+              Text(l10n.communitySortBy),
               const SizedBox(width: 8),
               SegmentedButton<CommunitySortOrder>(
-                segments: const [
+                segments: [
                   ButtonSegment(
                     value: CommunitySortOrder.popular,
-                    label: Text('Popular'),
-                    icon: Icon(Icons.trending_up, size: 16),
+                    label: Text(l10n.communitySortPopular),
+                    icon: const Icon(Icons.trending_up, size: 16),
                   ),
                   ButtonSegment(
                     value: CommunitySortOrder.recent,
-                    label: Text('Recent'),
-                    icon: Icon(Icons.schedule, size: 16),
+                    label: Text(l10n.communitySortRecent),
+                    icon: const Icon(Icons.schedule, size: 16),
                   ),
                 ],
                 selected: {sort},
@@ -169,14 +172,14 @@ class _TemplatesTab extends ConsumerWidget {
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        'No programs shared yet',
+                        l10n.communityNoProgramsTitle,
                         style: TextStyle(
                           color: colorScheme.onSurface.withValues(alpha: 0.5),
                         ),
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Be the first to share a program!',
+                        l10n.communityNoProgramsSubtitle,
                         style: TextStyle(
                           fontSize: 13,
                           color: colorScheme.onSurface.withValues(alpha: 0.4),
@@ -213,13 +216,13 @@ class _TemplatesTab extends ConsumerWidget {
                   Icon(Icons.cloud_off, size: 48, color: context.errorColor),
                   const SizedBox(height: 12),
                   Text(
-                    'Could not load community programs',
+                    l10n.communityCouldNotLoadPrograms,
                     style: TextStyle(color: context.errorColor),
                   ),
                   const SizedBox(height: 8),
                   FilledButton.tonal(
                     onPressed: () => ref.invalidate(communityTemplatesProvider),
-                    child: const Text('Retry'),
+                    child: Text(l10n.retry),
                   ),
                 ],
               ),
@@ -239,6 +242,7 @@ class _SkinsTab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final skinsAsync = ref.watch(communitySkinsProvider);
     final sort = ref.watch(communitySkinSortProvider);
 
@@ -249,19 +253,19 @@ class _SkinsTab extends ConsumerWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: Row(
             children: [
-              const Text('Sort by:'),
+              Text(l10n.communitySortBy),
               const SizedBox(width: 8),
               SegmentedButton<CommunitySortOrder>(
-                segments: const [
+                segments: [
                   ButtonSegment(
                     value: CommunitySortOrder.popular,
-                    label: Text('Popular'),
-                    icon: Icon(Icons.trending_up, size: 16),
+                    label: Text(l10n.communitySortPopular),
+                    icon: const Icon(Icons.trending_up, size: 16),
                   ),
                   ButtonSegment(
                     value: CommunitySortOrder.recent,
-                    label: Text('Recent'),
-                    icon: Icon(Icons.schedule, size: 16),
+                    label: Text(l10n.communitySortRecent),
+                    icon: const Icon(Icons.schedule, size: 16),
                   ),
                 ],
                 selected: {sort},
@@ -292,14 +296,14 @@ class _SkinsTab extends ConsumerWidget {
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        'No themes shared yet',
+                        l10n.communityNoThemesTitle,
                         style: TextStyle(
                           color: colorScheme.onSurface.withValues(alpha: 0.5),
                         ),
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Be the first to share a theme!',
+                        l10n.communityNoThemesSubtitle,
                         style: TextStyle(
                           fontSize: 13,
                           color: colorScheme.onSurface.withValues(alpha: 0.4),
@@ -336,13 +340,13 @@ class _SkinsTab extends ConsumerWidget {
                   Icon(Icons.cloud_off, size: 48, color: context.errorColor),
                   const SizedBox(height: 12),
                   Text(
-                    'Could not load community themes',
+                    l10n.communityCouldNotLoadThemes,
                     style: TextStyle(color: context.errorColor),
                   ),
                   const SizedBox(height: 8),
                   FilledButton.tonal(
                     onPressed: () => ref.invalidate(communitySkinsProvider),
-                    child: const Text('Retry'),
+                    child: Text(l10n.retry),
                   ),
                 ],
               ),
@@ -362,6 +366,7 @@ class _MyUploadsTab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final user = ref.watch(currentUserProvider);
 
     if (user == null) {
@@ -376,7 +381,7 @@ class _MyUploadsTab extends ConsumerWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              'Sign in to see your uploads',
+              l10n.communitySignInToSeeUploads,
               style: TextStyle(
                 color: colorScheme.onSurface.withValues(alpha: 0.5),
               ),
@@ -394,7 +399,7 @@ class _MyUploadsTab extends ConsumerWidget {
       children: [
         // Templates section
         Text(
-          'My Programs',
+          l10n.communityMyPrograms,
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
             fontWeight: FontWeight.bold,
           ),
@@ -406,7 +411,7 @@ class _MyUploadsTab extends ConsumerWidget {
               return Padding(
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 child: Text(
-                  'No programs uploaded yet.',
+                  l10n.communityNoProgramsUploaded,
                   style: TextStyle(
                     color: colorScheme.onSurfaceVariant,
                     fontSize: 14,
@@ -425,7 +430,7 @@ class _MyUploadsTab extends ConsumerWidget {
           },
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (_, _) => Text(
-            'Failed to load your programs',
+            l10n.communityFailedToLoadPrograms,
             style: TextStyle(color: context.errorColor),
           ),
         ),
@@ -434,7 +439,7 @@ class _MyUploadsTab extends ConsumerWidget {
 
         // Skins section
         Text(
-          'My Themes',
+          l10n.communityMyThemes,
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
             fontWeight: FontWeight.bold,
           ),
@@ -446,7 +451,7 @@ class _MyUploadsTab extends ConsumerWidget {
               return Padding(
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 child: Text(
-                  'No themes uploaded yet.',
+                  l10n.communityNoThemesUploaded,
                   style: TextStyle(
                     color: colorScheme.onSurfaceVariant,
                     fontSize: 14,
@@ -465,7 +470,7 @@ class _MyUploadsTab extends ConsumerWidget {
           },
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (_, _) => Text(
-            'Failed to load your themes',
+            l10n.communityFailedToLoadThemes,
             style: TextStyle(color: context.errorColor),
           ),
         ),
@@ -478,25 +483,25 @@ class _MyUploadsTab extends ConsumerWidget {
     WidgetRef ref,
     CommunityTemplate item,
   ) async {
+    final l10n = AppLocalizations.of(context)!;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Program?'),
+        title: Text(l10n.communityDeleteProgramTitle),
         content: Text(
-          'Remove "${item.template.name}" from the community library? '
-          'This cannot be undone.',
+          l10n.communityDeleteProgramContent(item.template.name),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('CANCEL'),
+            child: Text(l10n.cancelUpper),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
             style: TextButton.styleFrom(
               foregroundColor: Theme.of(context).colorScheme.error,
             ),
-            child: const Text('DELETE'),
+            child: Text(l10n.deleteUpper),
           ),
         ],
       ),
@@ -511,7 +516,7 @@ class _MyUploadsTab extends ConsumerWidget {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('"${item.template.name}" deleted'),
+              content: Text(l10n.communityItemDeleted(item.template.name)),
               backgroundColor: context.successColor,
               behavior: SnackBarBehavior.floating,
             ),
@@ -521,7 +526,7 @@ class _MyUploadsTab extends ConsumerWidget {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Failed to delete: $e'),
+              content: Text(l10n.communityFailedToDelete(e)),
               backgroundColor: context.errorColor,
               behavior: SnackBarBehavior.floating,
             ),
@@ -536,25 +541,25 @@ class _MyUploadsTab extends ConsumerWidget {
     WidgetRef ref,
     CommunitySkin item,
   ) async {
+    final l10n = AppLocalizations.of(context)!;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Theme?'),
+        title: Text(l10n.communityDeleteThemeTitle),
         content: Text(
-          'Remove "${item.name}" from the community library? '
-          'This cannot be undone.',
+          l10n.communityDeleteThemeContent(item.name),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('CANCEL'),
+            child: Text(l10n.cancelUpper),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
             style: TextButton.styleFrom(
               foregroundColor: Theme.of(context).colorScheme.error,
             ),
-            child: const Text('DELETE'),
+            child: Text(l10n.deleteUpper),
           ),
         ],
       ),
@@ -569,7 +574,7 @@ class _MyUploadsTab extends ConsumerWidget {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('"${item.name}" deleted'),
+              content: Text(l10n.communityItemDeleted(item.name)),
               backgroundColor: context.successColor,
               behavior: SnackBarBehavior.floating,
             ),
@@ -579,7 +584,7 @@ class _MyUploadsTab extends ConsumerWidget {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Failed to delete: $e'),
+              content: Text(l10n.communityFailedToDelete(e)),
               backgroundColor: context.errorColor,
               behavior: SnackBarBehavior.floating,
             ),
@@ -601,6 +606,7 @@ class _MyUploadTemplateCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final colorScheme = Theme.of(context).colorScheme;
     final t = template.template;
 
@@ -633,7 +639,7 @@ class _MyUploadTemplateCard extends StatelessWidget {
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        '${template.downloadCount} downloads',
+                        l10n.communityDownloadCount(template.downloadCount),
                         style: TextStyle(
                           color: colorScheme.onSurfaceVariant,
                           fontSize: 12,
@@ -647,7 +653,7 @@ class _MyUploadTemplateCard extends StatelessWidget {
             IconButton(
               icon: Icon(Icons.delete_outline, color: context.errorColor),
               onPressed: onDelete,
-              tooltip: 'Delete',
+              tooltip: l10n.communityDeleteTooltip,
             ),
           ],
         ),
@@ -667,6 +673,7 @@ class _MyUploadSkinCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final colorScheme = Theme.of(context).colorScheme;
 
     return Card(
@@ -709,7 +716,7 @@ class _MyUploadSkinCard extends StatelessWidget {
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        '${skin.downloadCount} downloads',
+                        l10n.communityDownloadCount(skin.downloadCount),
                         style: TextStyle(
                           color: colorScheme.onSurfaceVariant,
                           fontSize: 12,
@@ -723,7 +730,7 @@ class _MyUploadSkinCard extends StatelessWidget {
             IconButton(
               icon: Icon(Icons.delete_outline, color: context.errorColor),
               onPressed: onDelete,
-              tooltip: 'Delete',
+              tooltip: l10n.communityDeleteTooltip,
             ),
           ],
         ),
@@ -745,6 +752,7 @@ class _CommunityTemplateCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final colorScheme = Theme.of(context).colorScheme;
     final t = template.template;
 
@@ -809,7 +817,7 @@ class _CommunityTemplateCard extends StatelessWidget {
                   ),
                   const SizedBox(width: 4),
                   Text(
-                    '${t.periodsTotal} Periods',
+                    l10n.communityPeriodsCount(t.periodsTotal),
                     style: TextStyle(
                       color: colorScheme.onSurfaceVariant,
                       fontSize: 12,
@@ -823,7 +831,7 @@ class _CommunityTemplateCard extends StatelessWidget {
                   ),
                   const SizedBox(width: 4),
                   Text(
-                    '${t.workouts.length} Sessions',
+                    l10n.communitySessionsCount(t.workouts.length),
                     style: TextStyle(
                       color: colorScheme.onSurfaceVariant,
                       fontSize: 12,

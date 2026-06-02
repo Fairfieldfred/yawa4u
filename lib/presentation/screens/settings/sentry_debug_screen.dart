@@ -6,6 +6,7 @@ import '../../../core/config/sentry_config.dart';
 import '../../../core/env/env.dart';
 import '../../../core/services/sentry_service.dart';
 import '../../../core/theme/skins/skins.dart';
+import '../../../l10n/app_localizations.dart';
 
 /// Debug screen for testing and troubleshooting Sentry integration.
 ///
@@ -130,24 +131,25 @@ class _SentryDebugScreenState extends State<SentryDebugScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     // Only show in debug mode
     if (!kDebugMode) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Sentry Debug')),
-        body: const Center(
-          child: Text('Debug screen only available in debug builds'),
+        appBar: AppBar(title: Text(l10n.sentryDebugTitle)),
+        body: Center(
+          child: Text(l10n.sentryDebugOnlyAvailable),
         ),
       );
     }
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Sentry Debug'),
+        title: Text(l10n.sentryDebugTitle),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: _loadStatus,
-            tooltip: 'Refresh status',
+            tooltip: l10n.sentryRefreshTooltip,
           ),
         ],
       ),
@@ -163,22 +165,22 @@ class _SentryDebugScreenState extends State<SentryDebugScreen> {
                 ElevatedButton.icon(
                   onPressed: _isLoading ? null : _sendTestMessage,
                   icon: const Icon(Icons.message),
-                  label: const Text('Test Message'),
+                  label: Text(l10n.sentryTestMessage),
                 ),
                 ElevatedButton.icon(
                   onPressed: _isLoading ? null : _sendTestException,
                   icon: const Icon(Icons.bug_report),
-                  label: const Text('Test Exception'),
+                  label: Text(l10n.sentryTestException),
                 ),
                 ElevatedButton.icon(
                   onPressed: _isLoading ? null : _sendTestFeedback,
                   icon: const Icon(Icons.feedback),
-                  label: const Text('Test Feedback'),
+                  label: Text(l10n.sentryTestFeedback),
                 ),
                 ElevatedButton.icon(
                   onPressed: _isLoading ? null : _triggerTestCrash,
                   icon: const Icon(Icons.dangerous),
-                  label: const Text('Test Crash'),
+                  label: Text(l10n.sentryTestCrash),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: context.errorColor,
                     foregroundColor: Theme.of(context).colorScheme.onError,

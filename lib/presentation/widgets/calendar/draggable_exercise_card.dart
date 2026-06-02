@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/constants/muscle_groups.dart';
 import '../../../data/models/exercise.dart';
+import '../../../l10n/app_localizations.dart';
 import 'calendar_drag_data.dart';
 
 // ExerciseDragData is now defined in calendar_drag_data.dart
@@ -33,6 +34,7 @@ class DraggableExerciseCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final dragData = ExerciseDragData(
       exercise: exercise,
       sourceWorkoutId: workoutId,
@@ -46,14 +48,14 @@ class DraggableExerciseCard extends StatelessWidget {
       feedback: Material(
         elevation: 8,
         borderRadius: BorderRadius.circular(8),
-        child: _buildCard(context, isDragging: true),
+        child: _buildCard(context, l10n, isDragging: true),
       ),
-      childWhenDragging: Opacity(opacity: 0.3, child: _buildCard(context)),
-      child: GestureDetector(onTap: onTap, child: _buildCard(context)),
+      childWhenDragging: Opacity(opacity: 0.3, child: _buildCard(context, l10n)),
+      child: GestureDetector(onTap: onTap, child: _buildCard(context, l10n)),
     );
   }
 
-  Widget _buildCard(BuildContext context, {bool isDragging = false}) {
+  Widget _buildCard(BuildContext context, AppLocalizations l10n, {bool isDragging = false}) {
     final muscleGroupColor = _getMuscleGroupColor(exercise.muscleGroup);
     final completedSets = exercise.sets.where((s) => s.isLogged).length;
     final totalSets = exercise.sets.length;
@@ -110,7 +112,7 @@ class DraggableExerciseCard extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                     Text(
-                      exercise.muscleGroup.displayName,
+                      exercise.muscleGroup.localizedName(l10n),
                       style: Theme.of(context).textTheme.labelSmall?.copyWith(
                         color: muscleGroupColor,
                         fontSize: compact ? 8 : 10,
@@ -142,7 +144,7 @@ class DraggableExerciseCard extends StatelessWidget {
               ),
               const SizedBox(width: 4),
               Text(
-                '$completedSets/$totalSets',
+                l10n.setsProgress(completedSets, totalSets),
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
                   color: Theme.of(context).colorScheme.onSurface.withAlpha(180),
                   fontSize: compact ? 8 : 10,
@@ -189,7 +191,7 @@ class DraggableExerciseCard extends StatelessWidget {
             ),
             if (exercise.sets.length > 6)
               Text(
-                '+${exercise.sets.length - 6} more',
+                l10n.moreCount(exercise.sets.length - 6),
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
                   fontSize: 8,
                   fontStyle: FontStyle.italic,

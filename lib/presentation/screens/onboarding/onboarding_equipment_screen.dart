@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/skins/skins.dart';
 import '../../../domain/providers/onboarding_providers.dart';
+import '../../../l10n/app_localizations.dart';
 
 /// Available equipment options for the user to select
 enum EquipmentOption {
@@ -20,8 +21,7 @@ enum EquipmentOption {
   lapPool('Lap Pool', Icons.pool),
   crossfitGym('Crossfit Gym', Icons.sports),
   pullUpBar('Pull-up Bar', Icons.accessibility_new),
-  suspensionTrainer('Suspension Trainer (TRX)', Icons.swap_vert)
-  ;
+  suspensionTrainer('Suspension Trainer (TRX)', Icons.swap_vert);
 
   const EquipmentOption(this.displayName, this.icon);
 

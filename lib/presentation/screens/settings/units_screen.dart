@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/enums.dart';
 import '../../../core/constants/sports.dart';
 import '../../../domain/providers/onboarding_providers.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../widgets/cardio/sport_badge.dart';
 
 /// Settings → Units screen.
@@ -50,18 +51,19 @@ class _UnitsScreenState extends ConsumerState<UnitsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final service = ref.watch(onboardingServiceProvider);
     final overrides = service.perSportUnits;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Units'),
+        title: Text(l10n.unitsTitle),
         actions: [
           if (overrides.isNotEmpty)
             TextButton.icon(
               onPressed: _resetAll,
               icon: const Icon(Icons.restart_alt, size: 18),
-              label: const Text('Reset'),
+              label: Text(l10n.unitsResetButton),
             ),
         ],
       ),
@@ -71,9 +73,7 @@ class _UnitsScreenState extends ConsumerState<UnitsScreen> {
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
             child: Text(
-              'Pick units per sport. A row you haven\'t touched follows the '
-              'sensible default (run → miles, bike → km, swim → meters), '
-              'falling back to your main metric / imperial setting.',
+              l10n.unitsDescription,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: Theme.of(
                   context,
@@ -92,9 +92,9 @@ class _UnitsScreenState extends ConsumerState<UnitsScreen> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Text(
-              'Strength defaults to your main metric/imperial choice '
-              '(${service.useMetric ? 'metric' : 'imperial'}) — change that '
-              'in Settings → Profile.',
+              l10n.unitsStrengthNote(
+                service.useMetric ? l10n.unitsMetricLabel.toLowerCase() : l10n.unitsImperialLabel.toLowerCase(),
+              ),
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: Theme.of(
                   context,
@@ -123,6 +123,7 @@ class _SportUnitsRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Column(
@@ -134,7 +135,7 @@ class _SportUnitsRow extends StatelessWidget {
               const SizedBox(width: 10),
               if (!isExplicit)
                 Text(
-                  '(default)',
+                  l10n.unitsDefaultLabel,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: Theme.of(
                       context,
@@ -146,16 +147,16 @@ class _SportUnitsRow extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           SegmentedButton<UnitSystem>(
-            segments: const [
+            segments: [
               ButtonSegment<UnitSystem>(
                 value: UnitSystem.imperial,
-                label: Text('Imperial'),
-                icon: Icon(Icons.flag_outlined),
+                label: Text(l10n.unitsImperialLabel),
+                icon: const Icon(Icons.flag_outlined),
               ),
               ButtonSegment<UnitSystem>(
                 value: UnitSystem.metric,
-                label: Text('Metric'),
-                icon: Icon(Icons.public),
+                label: Text(l10n.unitsMetricLabel),
+                icon: const Icon(Icons.public),
               ),
             ],
             selected: {current},

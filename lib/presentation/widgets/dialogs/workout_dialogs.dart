@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../l10n/app_localizations.dart';
+
 /// Type of note being edited - determines dialog title and hint text
 enum NoteType { trainingCycle, workout, exercise, cardioSession }
 
@@ -34,30 +36,30 @@ class NoteDialog extends StatefulWidget {
   State<NoteDialog> createState() => _NoteDialogState();
 
   /// Get the default title for a note type
-  static String getTitleForType(NoteType type) {
+  static String getTitleForType(NoteType type, AppLocalizations l10n) {
     switch (type) {
       case NoteType.trainingCycle:
-        return 'Training Cycle Note';
+        return l10n.trainingCycleNoteTitle;
       case NoteType.workout:
-        return 'Workout Note';
+        return l10n.workoutNoteTitle;
       case NoteType.exercise:
-        return 'Exercise Note';
+        return l10n.exerciseNoteTitle;
       case NoteType.cardioSession:
-        return 'Session Note';
+        return l10n.sessionNoteTitle;
     }
   }
 
   /// Get the default hint text for a note type
-  static String getHintForType(NoteType type) {
+  static String getHintForType(NoteType type, AppLocalizations l10n) {
     switch (type) {
       case NoteType.trainingCycle:
-        return 'Enter note for this training cycle...';
+        return l10n.trainingCycleNoteHint;
       case NoteType.workout:
-        return 'Enter note for this workout...';
+        return l10n.workoutNoteHint;
       case NoteType.exercise:
-        return 'Enter note for this exercise...';
+        return l10n.exerciseNoteHint;
       case NoteType.cardioSession:
-        return 'Enter note for this session...';
+        return l10n.sessionNoteHint;
     }
   }
 }
@@ -79,14 +81,15 @@ class _NoteDialogState extends State<NoteDialog> {
     super.dispose();
   }
 
-  String get _title => widget.customTitle ?? NoteDialog.getTitleForType(widget.noteType);
+  String _title(AppLocalizations l10n) => widget.customTitle ?? NoteDialog.getTitleForType(widget.noteType, l10n);
 
-  String get _hint => widget.customHint ?? NoteDialog.getHintForType(widget.noteType);
+  String _hint(AppLocalizations l10n) => widget.customHint ?? NoteDialog.getHintForType(widget.noteType, l10n);
 
   bool get _isExerciseNote => widget.noteType == NoteType.exercise;
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       child: Container(
@@ -99,22 +102,22 @@ class _NoteDialogState extends State<NoteDialog> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _buildHeader(context),
+            _buildHeader(context, l10n),
             const SizedBox(height: 24),
-            _buildNoteField(context),
+            _buildNoteField(context, l10n),
             if (_isExerciseNote) ...[
               const SizedBox(height: 16),
-              _buildPinCheckbox(context),
+              _buildPinCheckbox(context, l10n),
             ],
             const SizedBox(height: 24),
-            _buildActions(context),
+            _buildActions(context, l10n),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildPinCheckbox(BuildContext context) {
+  Widget _buildPinCheckbox(BuildContext context, AppLocalizations l10n) {
     return InkWell(
       onTap: () => setState(() => _isPinned = !_isPinned),
       borderRadius: BorderRadius.circular(8),
@@ -141,7 +144,7 @@ class _NoteDialogState extends State<NoteDialog> {
             ),
             const SizedBox(width: 8),
             Text(
-              'Pin to Exercise',
+              l10n.pinToExercise,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: _isPinned ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.onSurface,
               ),
@@ -152,14 +155,14 @@ class _NoteDialogState extends State<NoteDialog> {
     );
   }
 
-  Widget _buildHeader(BuildContext context) {
+  Widget _buildHeader(BuildContext context, AppLocalizations l10n) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         const SizedBox(width: 40),
         Flexible(
           child: Text(
-            _title,
+            _title(l10n),
             style: Theme.of(
               context,
             ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
@@ -176,13 +179,13 @@ class _NoteDialogState extends State<NoteDialog> {
     );
   }
 
-  Widget _buildNoteField(BuildContext context) {
+  Widget _buildNoteField(BuildContext context, AppLocalizations l10n) {
     return TextField(
       controller: _noteController,
       autofocus: true,
       maxLines: 5,
       decoration: InputDecoration(
-        hintText: _hint,
+        hintText: _hint(l10n),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
         filled: true,
         fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
@@ -191,7 +194,7 @@ class _NoteDialogState extends State<NoteDialog> {
     );
   }
 
-  Widget _buildActions(BuildContext context) {
+  Widget _buildActions(BuildContext context, AppLocalizations l10n) {
     return Row(
       children: [
         Expanded(
@@ -203,7 +206,7 @@ class _NoteDialogState extends State<NoteDialog> {
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
-            child: const Text('CANCEL'),
+            child: Text(l10n.cancelUpper),
           ),
         ),
         const SizedBox(width: 12),
@@ -227,7 +230,7 @@ class _NoteDialogState extends State<NoteDialog> {
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
-            child: const Text('SAVE'),
+            child: Text(l10n.saveUpper),
           ),
         ),
       ],
@@ -262,6 +265,7 @@ class _RenameTrainingCycleDialogState extends State<RenameTrainingCycleDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       child: Container(
@@ -274,24 +278,24 @@ class _RenameTrainingCycleDialogState extends State<RenameTrainingCycleDialog> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _buildHeader(context),
+            _buildHeader(context, l10n),
             const SizedBox(height: 24),
-            _buildNameField(context),
+            _buildNameField(context, l10n),
             const SizedBox(height: 24),
-            _buildActions(context),
+            _buildActions(context, l10n),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildHeader(BuildContext context) {
+  Widget _buildHeader(BuildContext context, AppLocalizations l10n) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         const SizedBox(width: 40),
         Text(
-          'Rename',
+          l10n.renameTitle,
           style: Theme.of(
             context,
           ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
@@ -306,12 +310,12 @@ class _RenameTrainingCycleDialogState extends State<RenameTrainingCycleDialog> {
     );
   }
 
-  Widget _buildNameField(BuildContext context) {
+  Widget _buildNameField(BuildContext context, AppLocalizations l10n) {
     return TextField(
       controller: _nameController,
       autofocus: true,
       decoration: InputDecoration(
-        hintText: 'TrainingCycle name',
+        hintText: l10n.trainingCycleNameHint,
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
         filled: true,
         fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
@@ -320,7 +324,7 @@ class _RenameTrainingCycleDialogState extends State<RenameTrainingCycleDialog> {
     );
   }
 
-  Widget _buildActions(BuildContext context) {
+  Widget _buildActions(BuildContext context, AppLocalizations l10n) {
     return Row(
       children: [
         Expanded(
@@ -332,7 +336,7 @@ class _RenameTrainingCycleDialogState extends State<RenameTrainingCycleDialog> {
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
-            child: const Text('CANCEL'),
+            child: Text(l10n.cancelUpper),
           ),
         ),
         const SizedBox(width: 12),
@@ -350,7 +354,7 @@ class _RenameTrainingCycleDialogState extends State<RenameTrainingCycleDialog> {
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
-            child: const Text('SAVE'),
+            child: Text(l10n.saveUpper),
           ),
         ),
       ],
@@ -388,6 +392,8 @@ class _RelabelDayDialogState extends State<RelabelDayDialog> {
   late String _selectedLabel;
   bool _applyToAll = false;
 
+  /// The day-of-week values used as data keys.
+  /// These are English strings that get stored in the database.
   static const List<String> _daysOfWeek = [
     'Monday',
     'Tuesday',
@@ -398,6 +404,28 @@ class _RelabelDayDialogState extends State<RelabelDayDialog> {
     'Sunday',
   ];
 
+  /// Returns the localized display label for a day-of-week data key.
+  String _localizedDay(String day, AppLocalizations l10n) {
+    switch (day) {
+      case 'Monday':
+        return l10n.mondayLabel;
+      case 'Tuesday':
+        return l10n.tuesdayLabel;
+      case 'Wednesday':
+        return l10n.wednesdayLabel;
+      case 'Thursday':
+        return l10n.thursdayLabel;
+      case 'Friday':
+        return l10n.fridayLabel;
+      case 'Saturday':
+        return l10n.saturdayLabel;
+      case 'Sunday':
+        return l10n.sundayLabel;
+      default:
+        return day;
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -406,6 +434,7 @@ class _RelabelDayDialogState extends State<RelabelDayDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       child: Container(
@@ -418,28 +447,28 @@ class _RelabelDayDialogState extends State<RelabelDayDialog> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _buildHeader(context),
+            _buildHeader(context, l10n),
             const SizedBox(height: 16),
-            _buildDescription(context),
+            _buildDescription(context, l10n),
             const SizedBox(height: 24),
-            _buildDaySelector(context),
+            _buildDaySelector(context, l10n),
             const SizedBox(height: 24),
-            _buildApplyToAllCheckbox(context),
+            _buildApplyToAllCheckbox(context, l10n),
             const SizedBox(height: 32),
-            _buildActions(context),
+            _buildActions(context, l10n),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildHeader(BuildContext context) {
+  Widget _buildHeader(BuildContext context, AppLocalizations l10n) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         const SizedBox(width: 40),
         Text(
-          'Update day label',
+          l10n.updateDayLabelTitle,
           style: Theme.of(
             context,
           ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
@@ -454,16 +483,16 @@ class _RelabelDayDialogState extends State<RelabelDayDialog> {
     );
   }
 
-  Widget _buildDescription(BuildContext context) {
+  Widget _buildDescription(BuildContext context, AppLocalizations l10n) {
     return Text(
-      'You can apply a different weekday label to this day.',
+      l10n.updateDayLabelDesc,
       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
         color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
       ),
     );
   }
 
-  Widget _buildDaySelector(BuildContext context) {
+  Widget _buildDaySelector(BuildContext context, AppLocalizations l10n) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
@@ -478,7 +507,10 @@ class _RelabelDayDialogState extends State<RelabelDayDialog> {
           value: _selectedLabel,
           isExpanded: true,
           items: _daysOfWeek.map((String day) {
-            return DropdownMenuItem<String>(value: day, child: Text(day));
+            return DropdownMenuItem<String>(
+              value: day,
+              child: Text(_localizedDay(day, l10n)),
+            );
           }).toList(),
           onChanged: (String? newValue) {
             if (newValue != null) {
@@ -492,7 +524,7 @@ class _RelabelDayDialogState extends State<RelabelDayDialog> {
     );
   }
 
-  Widget _buildApplyToAllCheckbox(BuildContext context) {
+  Widget _buildApplyToAllCheckbox(BuildContext context, AppLocalizations l10n) {
     return Row(
       children: [
         SizedBox(
@@ -519,7 +551,7 @@ class _RelabelDayDialogState extends State<RelabelDayDialog> {
               });
             },
             child: Text(
-              'Apply to all days in this position',
+              l10n.applyToAllDays,
               style: Theme.of(context).textTheme.bodyMedium,
             ),
           ),
@@ -528,13 +560,13 @@ class _RelabelDayDialogState extends State<RelabelDayDialog> {
     );
   }
 
-  Widget _buildActions(BuildContext context) {
+  Widget _buildActions(BuildContext context, AppLocalizations l10n) {
     return Row(
       children: [
         const Spacer(),
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('CANCEL'),
+          child: Text(l10n.cancelUpper),
         ),
         const SizedBox(width: 16),
         FilledButton(
@@ -550,7 +582,7 @@ class _RelabelDayDialogState extends State<RelabelDayDialog> {
               borderRadius: BorderRadius.circular(8),
             ),
           ),
-          child: const Text('SAVE'),
+          child: Text(l10n.saveUpper),
         ),
       ],
     );

@@ -4,6 +4,7 @@ import '../../../../core/constants/enums.dart';
 import '../../../../core/constants/sports.dart';
 import '../../../../core/utils/cardio_conversions.dart';
 import '../../../../data/models/cardio_stats.dart';
+import '../../../../l10n/app_localizations.dart';
 
 /// Compact card showing a [SportAggregate]: sessions / total time / total
 /// distance / avg HR. Used on the Cardio tab of the Stats screen.
@@ -21,6 +22,7 @@ class SportSummaryTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final sport = aggregate.sport;
     final color = sport.color;
     final theme = Theme.of(context);
@@ -47,7 +49,7 @@ class SportSummaryTile extends StatelessWidget {
                   ),
                   const SizedBox(width: 10),
                   Text(
-                    sport.displayName,
+                    sport.localizedName(l10n),
                     style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
                   ),
                   const Spacer(),
@@ -57,7 +59,7 @@ class SportSummaryTile extends StatelessWidget {
                   ),
                   const SizedBox(width: 4),
                   Text(
-                    aggregate.sessions == 1 ? 'session' : 'sessions',
+                    l10n.sportSummarySessionLabel(aggregate.sessions),
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
                     ),
@@ -91,13 +93,16 @@ class SportSummaryTile extends StatelessWidget {
                   if (aggregate.avgHr != null)
                     _Stat(
                       icon: Icons.favorite_outline,
-                      label: '${aggregate.avgHr} bpm',
+                      label: '${aggregate.avgHr} ${l10n.bpmSuffix}',
                     ),
                   if (aggregate.bestDistanceM > 0)
                     _Stat(
                       icon: Icons.emoji_events_outlined,
-                      label:
-                          'Best ${sport == Sport.swim ? CardioConversions.formatSwimDistance(aggregate.bestDistanceM, units) : CardioConversions.formatDistance(aggregate.bestDistanceM, units)}',
+                      label: l10n.sportSummaryBestLabel(
+                        sport == Sport.swim
+                            ? CardioConversions.formatSwimDistance(aggregate.bestDistanceM, units)
+                            : CardioConversions.formatDistance(aggregate.bestDistanceM, units),
+                      ),
                     ),
                 ],
               ),

@@ -5,6 +5,7 @@ import '../../../core/constants/sports.dart';
 import '../../../core/utils/cardio_conversions.dart';
 import '../../../data/models/cardio_session_template.dart';
 import '../../../domain/providers/cardio_library_providers.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../widgets/cardio/sport_badge.dart';
 import '../../widgets/skeleton_loader.dart';
 
@@ -38,6 +39,7 @@ class CardioTemplatePicker extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final async = ref.watch(cardioSessionTemplatesBySportProvider(sport));
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
@@ -50,7 +52,7 @@ class CardioTemplatePicker extends ConsumerWidget {
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
-                  'Start from a template',
+                  l10n.cardioTemplatePickerTitle,
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
@@ -60,8 +62,7 @@ class CardioTemplatePicker extends ConsumerWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'Pick a pre-built session to start from. You can edit the '
-            'intervals before saving.',
+            l10n.cardioTemplatePickerSubtitle,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               color: Theme.of(
                 context,
@@ -74,14 +75,14 @@ class CardioTemplatePicker extends ConsumerWidget {
               loading: () => const SkeletonCardList(itemCount: 3),
               error: (e, _) => Center(
                 child: Text(
-                  'Could not load the library. $e',
+                  l10n.cardioTemplatePickerLoadError('$e'),
                   textAlign: TextAlign.center,
                 ),
               ),
               data: (templates) {
                 if (templates.isEmpty) {
-                  return const Center(
-                    child: Text('No templates for this sport yet.'),
+                  return Center(
+                    child: Text(l10n.cardioTemplatePickerNoTemplates),
                   );
                 }
                 return ListView.separated(
@@ -109,6 +110,7 @@ class _TemplateCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final color = template.sport.color;
     return Material(
       color: color.withValues(alpha: 0.08),
@@ -160,7 +162,9 @@ class _TemplateCard extends StatelessWidget {
                     ),
                   _MetaChip(
                     icon: Icons.format_list_numbered,
-                    label: '${template.intervals.length} steps',
+                    label: l10n.cardioTemplatePickerStepsCount(
+                      template.intervals.length,
+                    ),
                   ),
                   _MetaChip(
                     icon: Icons.label_outline,

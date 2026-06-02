@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../data/services/schedule_service.dart';
 import '../../../domain/providers/calendar_providers.dart';
+import '../../../l10n/app_localizations.dart';
 
 /// Bottom sheet for selecting how to move a workout
 class WorkoutMoveSheet extends ConsumerStatefulWidget {
@@ -69,6 +70,7 @@ class _WorkoutMoveSheetState extends ConsumerState<WorkoutMoveSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: EdgeInsets.only(
         bottom: MediaQuery.of(context).viewInsets.bottom,
@@ -95,14 +97,14 @@ class _WorkoutMoveSheetState extends ConsumerState<WorkoutMoveSheet> {
 
           // Title
           Text(
-            'Move Session',
+            l10n.moveSessionTitle,
             style: Theme.of(
               context,
             ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 4),
           Text(
-            'From Period ${widget.sourcePeriod}, Day ${widget.sourceDay}',
+            l10n.moveFromLabel(widget.sourcePeriod, widget.sourceDay),
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               color: Theme.of(context).colorScheme.onSurface.withAlpha(179),
             ),
@@ -111,7 +113,7 @@ class _WorkoutMoveSheetState extends ConsumerState<WorkoutMoveSheet> {
 
           // Target selection
           Text(
-            'Move to:',
+            l10n.moveToLabel,
             style: Theme.of(
               context,
             ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w500),
@@ -124,7 +126,7 @@ class _WorkoutMoveSheetState extends ConsumerState<WorkoutMoveSheet> {
               Expanded(
                 child: _buildDropdown(
                   context,
-                  label: 'Period',
+                  label: l10n.periodDropdownLabel,
                   value: _targetPeriod,
                   items: List.generate(widget.periodsTotal, (i) => i + 1),
                   onChanged: (value) {
@@ -138,7 +140,7 @@ class _WorkoutMoveSheetState extends ConsumerState<WorkoutMoveSheet> {
               Expanded(
                 child: _buildDropdown(
                   context,
-                  label: 'Day',
+                  label: l10n.dayDropdownLabel,
                   value: _targetDay,
                   items: List.generate(widget.daysPerPeriod, (i) => i + 1),
                   onChanged: (value) {
@@ -154,7 +156,7 @@ class _WorkoutMoveSheetState extends ConsumerState<WorkoutMoveSheet> {
 
           // Move mode selection
           Text(
-            'Move mode:',
+            l10n.moveModeLabel,
             style: Theme.of(
               context,
             ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w500),
@@ -164,22 +166,22 @@ class _WorkoutMoveSheetState extends ConsumerState<WorkoutMoveSheet> {
           _buildModeOption(
             context,
             mode: MoveMode.shiftSubsequent,
-            title: 'Shift Subsequent',
-            description: 'Move this session and shift all following sessions',
+            title: l10n.shiftSubsequentTitle,
+            description: l10n.shiftSubsequentDesc,
             isSelected: _selectedMode == MoveMode.shiftSubsequent,
           ),
           _buildModeOption(
             context,
             mode: MoveMode.swap,
-            title: 'Swap',
-            description: 'Exchange with the session on the target date',
+            title: l10n.swapTitle,
+            description: l10n.swapDesc,
             isSelected: _selectedMode == MoveMode.swap,
           ),
           _buildModeOption(
             context,
             mode: MoveMode.single,
-            title: 'Single',
-            description: 'Move only this session (may create gaps)',
+            title: l10n.singleTitle,
+            description: l10n.singleDesc,
             isSelected: _selectedMode == MoveMode.single,
           ),
           const SizedBox(height: 24),
@@ -194,7 +196,7 @@ class _WorkoutMoveSheetState extends ConsumerState<WorkoutMoveSheet> {
               Expanded(
                 child: OutlinedButton(
                   onPressed: () => Navigator.of(context).pop(),
-                  child: const Text('Cancel'),
+                  child: Text(l10n.cancel),
                 ),
               ),
               const SizedBox(width: 16),
@@ -210,7 +212,7 @@ class _WorkoutMoveSheetState extends ConsumerState<WorkoutMoveSheet> {
                           );
                         }
                       : null,
-                  child: const Text('Move'),
+                  child: Text(l10n.moveButton),
                 ),
               ),
             ],
@@ -222,6 +224,7 @@ class _WorkoutMoveSheetState extends ConsumerState<WorkoutMoveSheet> {
   }
 
   Widget _buildUndoButton(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final undoState = ref.watch(calendarUndoProvider);
     final canUndo = undoState.hasRecentSnapshot;
 
@@ -242,7 +245,7 @@ class _WorkoutMoveSheetState extends ConsumerState<WorkoutMoveSheet> {
                   if (success) {
                     messenger.showSnackBar(
                       SnackBar(
-                        content: const Text('Move undone'),
+                        content: Text(l10n.moveUndoneSnackbar),
                         backgroundColor: primaryContainer,
                       ),
                     );
@@ -252,7 +255,11 @@ class _WorkoutMoveSheetState extends ConsumerState<WorkoutMoveSheet> {
             : null,
         icon: const Icon(Icons.undo),
         label: Text(
-          canUndo ? 'Undo: ${undoState.snapshot?.description ?? "last change"}' : 'Undo Move (no recent changes)',
+          canUndo
+              ? (undoState.snapshot?.description != null
+                    ? l10n.undoWithDescription(undoState.snapshot!.description)
+                    : l10n.undoLastChange)
+              : l10n.undoNoRecentChanges,
         ),
         style: OutlinedButton.styleFrom(
           foregroundColor: canUndo

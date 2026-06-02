@@ -11,6 +11,7 @@ import '../../../data/models/session.dart';
 import '../../../data/models/session_interval.dart';
 import '../../../domain/providers/database_providers.dart';
 import '../../../domain/providers/session_providers.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../widgets/cardio/sport_badge.dart';
 
 /// Interval builder for a cardio session.
@@ -184,8 +185,9 @@ class _IntervalBuilderScreenState extends ConsumerState<IntervalBuilderScreen> {
         );
       }
       if (mounted) {
+        final l10n = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Intervals saved')),
+          SnackBar(content: Text(l10n.intervalBuilderSaved)),
         );
         context.pop();
       }
@@ -204,21 +206,20 @@ class _IntervalBuilderScreenState extends ConsumerState<IntervalBuilderScreen> {
 
   Future<bool> _confirmDiscard() async {
     if (!_dirty) return true;
+    final l10n = AppLocalizations.of(context)!;
     final result = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Discard changes?'),
-        content: const Text(
-          'You have unsaved changes to this interval plan.',
-        ),
+        title: Text(l10n.intervalBuilderDiscardTitle),
+        content: Text(l10n.intervalBuilderDiscardContent),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Keep editing'),
+            child: Text(l10n.intervalBuilderKeepEditing),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Discard'),
+            child: Text(l10n.intervalBuilderDiscard),
           ),
         ],
       ),
@@ -233,10 +234,11 @@ class _IntervalBuilderScreenState extends ConsumerState<IntervalBuilderScreen> {
         body: Center(child: CircularProgressIndicator()),
       );
     }
+    final l10n = AppLocalizations.of(context)!;
     final session = _session;
     if (session == null) {
-      return const Scaffold(
-        body: Center(child: Text('Cardio session not found')),
+      return Scaffold(
+        body: Center(child: Text(l10n.intervalBuilderSessionNotFound)),
       );
     }
 
@@ -250,7 +252,7 @@ class _IntervalBuilderScreenState extends ConsumerState<IntervalBuilderScreen> {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Intervals'),
+          title: Text(l10n.intervalBuilderTitle),
           actions: [
             TextButton(
               onPressed: _saving || !_dirty ? null : _save,
@@ -260,7 +262,7 @@ class _IntervalBuilderScreenState extends ConsumerState<IntervalBuilderScreen> {
                       height: 16,
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
-                  : const Text('Save'),
+                  : Text(l10n.intervalBuilderSaveButton),
             ),
           ],
         ),
@@ -286,7 +288,7 @@ class _IntervalBuilderScreenState extends ConsumerState<IntervalBuilderScreen> {
                       ),
                     ),
                     Text(
-                      '${_intervals.length} steps',
+                      l10n.intervalBuilderStepsCount(_intervals.length),
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                   ],
@@ -330,7 +332,7 @@ class _IntervalBuilderScreenState extends ConsumerState<IntervalBuilderScreen> {
         floatingActionButton: FloatingActionButton.extended(
           onPressed: _saving ? null : () => _showAddMenu(context, _addInterval),
           icon: const Icon(Icons.add),
-          label: const Text('Add step'),
+          label: Text(l10n.intervalBuilderAddStep),
         ),
       ),
     );
@@ -367,6 +369,7 @@ Future<void> _showAddMenu(
     IntervalIntent.cooldown,
     if (includeRepeatGroup) IntervalIntent.repeatGroup,
   ];
+  final l10n = AppLocalizations.of(context)!;
   final pick = await showModalBottomSheet<IntervalIntent>(
     context: context,
     showDragHandle: true,
@@ -377,8 +380,8 @@ Future<void> _showAddMenu(
           for (final c in choices)
             ListTile(
               leading: Icon(_iconForIntent(c)),
-              title: Text(c.displayName),
-              subtitle: c == IntervalIntent.repeatGroup ? const Text('Group several steps and run them N times') : null,
+              title: Text(c.localizedName(l10n)),
+              subtitle: c == IntervalIntent.repeatGroup ? Text(l10n.intervalBuilderRepeatGroupSubtitle) : null,
               onTap: () => Navigator.pop(ctx, c),
             ),
           const SizedBox(height: 8),
@@ -467,6 +470,7 @@ class _IntervalEditorRow extends ConsumerStatefulWidget {
 class _IntervalEditorRowState extends ConsumerState<_IntervalEditorRow> {
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final i = widget.interval;
     final color = _colorForIntent(context, i.intent);
     final isRepeat = i.intent == IntervalIntent.repeatGroup;
@@ -503,7 +507,7 @@ class _IntervalEditorRowState extends ConsumerState<_IntervalEditorRow> {
                 Icon(_iconForIntent(i.intent), color: color, size: 18),
                 const SizedBox(width: 8),
                 Text(
-                  i.intent.displayName,
+                  i.intent.localizedName(l10n),
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
@@ -513,17 +517,17 @@ class _IntervalEditorRowState extends ConsumerState<_IntervalEditorRow> {
                 // is a pointer-only interaction, these remain reachable
                 // by screen readers and keyboard users.
                 IconButton(
-                  tooltip: 'Move up',
+                  tooltip: l10n.intervalBuilderMoveUpTooltip,
                   icon: const Icon(Icons.keyboard_arrow_up),
                   onPressed: widget.isFirst ? null : widget.onMoveUp,
                 ),
                 IconButton(
-                  tooltip: 'Move down',
+                  tooltip: l10n.intervalBuilderMoveDownTooltip,
                   icon: const Icon(Icons.keyboard_arrow_down),
                   onPressed: widget.isLast ? null : widget.onMoveDown,
                 ),
                 IconButton(
-                  tooltip: 'Remove',
+                  tooltip: l10n.intervalBuilderRemoveTooltip,
                   icon: const Icon(Icons.delete_outline),
                   onPressed: widget.onRemove,
                 ),
@@ -545,7 +549,7 @@ class _IntervalEditorRowState extends ConsumerState<_IntervalEditorRow> {
                   child: OutlinedButton.icon(
                     onPressed: widget.onAddToRepeat,
                     icon: const Icon(Icons.add, size: 18),
-                    label: const Text('Add to repeat'),
+                    label: Text(l10n.intervalBuilderAddToRepeat),
                   ),
                 ),
               ],
@@ -616,9 +620,10 @@ class _RepeatCountFieldState extends State<_RepeatCountField> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Row(
       children: [
-        const Text('Repeat'),
+        Text(l10n.intervalBuilderRepeatLabel),
         const SizedBox(width: 12),
         SizedBox(
           width: 70,
@@ -644,7 +649,7 @@ class _RepeatCountFieldState extends State<_RepeatCountField> {
           ),
         ),
         const SizedBox(width: 8),
-        const Text('times'),
+        Text(l10n.intervalBuilderTimesLabel),
       ],
     );
   }
@@ -660,37 +665,38 @@ class _TargetKindPicker extends StatelessWidget {
   /// is a DropdownButton. The icon-per-kind helps scanning the options.
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return DropdownButtonFormField<IntervalTargetKind>(
       initialValue: value,
       isDense: true,
-      decoration: const InputDecoration(
-        labelText: 'Target type',
-        border: OutlineInputBorder(),
+      decoration: InputDecoration(
+        labelText: l10n.intervalBuilderTargetTypeLabel,
+        border: const OutlineInputBorder(),
         isDense: true,
       ),
-      items: const [
+      items: [
         DropdownMenuItem(
           value: IntervalTargetKind.durationSec,
-          child: _TargetKindRow(icon: Icons.timer_outlined, label: 'Duration'),
+          child: _TargetKindRow(icon: Icons.timer_outlined, label: l10n.intervalTargetDuration),
         ),
         DropdownMenuItem(
           value: IntervalTargetKind.distanceM,
-          child: _TargetKindRow(icon: Icons.straighten, label: 'Distance'),
+          child: _TargetKindRow(icon: Icons.straighten, label: l10n.intervalTargetDistance),
         ),
         DropdownMenuItem(
           value: IntervalTargetKind.hrZone,
           child: _TargetKindRow(
             icon: Icons.favorite_outline,
-            label: 'HR zone',
+            label: l10n.intervalTargetHrZone,
           ),
         ),
         DropdownMenuItem(
           value: IntervalTargetKind.paceZone,
-          child: _TargetKindRow(icon: Icons.speed, label: 'Pace zone'),
+          child: _TargetKindRow(icon: Icons.speed, label: l10n.intervalTargetPaceZone),
         ),
         DropdownMenuItem(
           value: IntervalTargetKind.powerZone,
-          child: _TargetKindRow(icon: Icons.bolt, label: 'Power zone'),
+          child: _TargetKindRow(icon: Icons.bolt, label: l10n.intervalTargetPowerZone),
         ),
       ],
       onChanged: (v) {
@@ -774,12 +780,13 @@ class _TargetValueFieldState extends State<_TargetValueField> {
   }
 
   void _commit(String raw) {
+    final l10n = AppLocalizations.of(context)!;
     final i = widget.interval;
     switch (i.targetKind) {
       case IntervalTargetKind.durationSec:
         final seconds = CardioConversions.parseDuration(raw.trim());
         if (seconds == null && raw.isNotEmpty) {
-          setState(() => _error = 'Use MM:SS');
+          setState(() => _error = l10n.intervalBuilderErrorMmSs);
           return;
         }
         setState(() => _error = null);
@@ -787,7 +794,7 @@ class _TargetValueFieldState extends State<_TargetValueField> {
       case IntervalTargetKind.distanceM:
         final meters = double.tryParse(raw.trim());
         if (meters == null && raw.isNotEmpty) {
-          setState(() => _error = 'Enter meters');
+          setState(() => _error = l10n.intervalBuilderErrorMeters);
           return;
         }
         setState(() => _error = null);
@@ -795,7 +802,7 @@ class _TargetValueFieldState extends State<_TargetValueField> {
       case IntervalTargetKind.hrZone:
         final zone = int.tryParse(raw.trim());
         if (zone == null || zone < 1 || zone > 5) {
-          setState(() => _error = '1..5');
+          setState(() => _error = l10n.intervalBuilderErrorZoneRange);
           return;
         }
         setState(() => _error = null);
@@ -803,7 +810,7 @@ class _TargetValueFieldState extends State<_TargetValueField> {
       case IntervalTargetKind.paceZone:
         final zone = int.tryParse(raw.trim());
         if (zone == null || zone < 1 || zone > 5) {
-          setState(() => _error = '1..5');
+          setState(() => _error = l10n.intervalBuilderErrorZoneRange);
           return;
         }
         setState(() => _error = null);
@@ -811,7 +818,7 @@ class _TargetValueFieldState extends State<_TargetValueField> {
       case IntervalTargetKind.powerZone:
         final zone = int.tryParse(raw.trim());
         if (zone == null || zone < 1 || zone > 5) {
-          setState(() => _error = '1..5');
+          setState(() => _error = l10n.intervalBuilderErrorZoneRange);
           return;
         }
         setState(() => _error = null);
@@ -826,14 +833,15 @@ class _TargetValueFieldState extends State<_TargetValueField> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final i = widget.interval;
     final label = switch (i.targetKind) {
-      IntervalTargetKind.durationSec => 'Duration',
-      IntervalTargetKind.distanceM => 'Distance (m)',
-      IntervalTargetKind.hrZone => 'HR zone (1..5)',
-      IntervalTargetKind.paceZone => 'Pace zone (1..5)',
-      IntervalTargetKind.powerZone => 'Power zone (1..5)',
-      IntervalTargetKind.freeform => 'Target (free text)',
+      IntervalTargetKind.durationSec => l10n.intervalBuilderFieldDuration,
+      IntervalTargetKind.distanceM => l10n.intervalBuilderFieldDistanceM,
+      IntervalTargetKind.hrZone => l10n.intervalBuilderFieldHrZone,
+      IntervalTargetKind.paceZone => l10n.intervalBuilderFieldPaceZone,
+      IntervalTargetKind.powerZone => l10n.intervalBuilderFieldPowerZone,
+      IntervalTargetKind.freeform => l10n.intervalBuilderFieldFreeform,
     };
     final kind = i.targetKind;
     final isDuration = kind == IntervalTargetKind.durationSec;
@@ -868,6 +876,7 @@ class _EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -883,13 +892,12 @@ class _EmptyState extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              'No intervals yet',
+              l10n.intervalBuilderEmptyTitle,
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 8),
             Text(
-              'A structured plan looks like warm-up → work → recovery '
-              '→ cooldown. Start with a warm-up.',
+              l10n.intervalBuilderEmptySubtitle,
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: Theme.of(
@@ -901,7 +909,7 @@ class _EmptyState extends StatelessWidget {
             FilledButton.icon(
               onPressed: () => onAdd(IntervalIntent.warmup),
               icon: const Icon(Icons.add),
-              label: const Text('Add warm-up'),
+              label: Text(l10n.intervalBuilderAddWarmUp),
             ),
           ],
         ),

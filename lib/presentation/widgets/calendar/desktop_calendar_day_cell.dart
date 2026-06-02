@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../domain/providers/calendar_providers.dart';
+import '../../../l10n/app_localizations.dart';
 import 'calendar_sport_dots.dart';
 import 'draggable_cardio_card.dart';
 import 'draggable_exercise_card.dart';
@@ -277,9 +278,10 @@ class _DesktopCalendarDayCellState extends State<DesktopCalendarDayCell> {
   }
 
   Widget _buildEmptyState(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Center(
       child: Text(
-        _isDragOver ? 'Drop here' : '',
+        _isDragOver ? l10n.dropHere : '',
         style: Theme.of(context).textTheme.labelSmall?.copyWith(
           color: _isDragOver ? Colors.green : Theme.of(context).colorScheme.onSurface.withAlpha(100),
         ),

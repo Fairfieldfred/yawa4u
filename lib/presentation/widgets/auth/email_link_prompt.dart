@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme/skins/skins.dart';
 import '../../../domain/providers/auth_providers.dart';
+import '../../../l10n/app_localizations.dart';
 
 /// Ensures the user has a verified email before uploading.
 ///
@@ -186,7 +187,7 @@ class _EmailLinkSheetState extends ConsumerState<_EmailLinkSheet> {
     } else {
       setState(() {
         _isLoading = false;
-        _error = 'Email not yet verified. Check your inbox and spam folder.';
+        _error = AppLocalizations.of(context)!.authEmailNotVerified;
       });
     }
   }
@@ -200,13 +201,14 @@ class _EmailLinkSheetState extends ConsumerState<_EmailLinkSheet> {
       setState(() => _error = result);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Verification email sent')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.authVerificationSent)),
       );
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final colorScheme = Theme.of(context).colorScheme;
 
     return Padding(
@@ -216,11 +218,11 @@ class _EmailLinkSheetState extends ConsumerState<_EmailLinkSheet> {
         top: 24,
         bottom: MediaQuery.of(context).viewInsets.bottom + 24,
       ),
-      child: _awaitingVerification ? _buildVerificationView(colorScheme) : _buildLinkForm(colorScheme),
+      child: _awaitingVerification ? _buildVerificationView(colorScheme, l10n) : _buildLinkForm(colorScheme, l10n),
     );
   }
 
-  Widget _buildLinkForm(ColorScheme colorScheme) {
+  Widget _buildLinkForm(ColorScheme colorScheme, AppLocalizations l10n) {
     final onSubmit = _isSignInMode ? _signInEmail : _linkEmail;
 
     return Form(
@@ -251,7 +253,7 @@ class _EmailLinkSheetState extends ConsumerState<_EmailLinkSheet> {
             const SizedBox(height: 16),
 
             Text(
-              _isSignInMode ? 'Sign In' : 'Verify to Upload',
+              _isSignInMode ? l10n.authSignIn : l10n.authVerifyToUpload,
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
@@ -259,11 +261,7 @@ class _EmailLinkSheetState extends ConsumerState<_EmailLinkSheet> {
             ),
             const SizedBox(height: 8),
             Text(
-              _isSignInMode
-                  ? 'Sign in with the email and password you used on '
-                        'your other device.'
-                  : 'Link an email to your account to share content with the '
-                        'community. Your anonymous data is preserved.',
+              _isSignInMode ? l10n.authSignInBody : l10n.authLinkEmailBody,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: colorScheme.onSurfaceVariant,
               ),
@@ -273,19 +271,19 @@ class _EmailLinkSheetState extends ConsumerState<_EmailLinkSheet> {
 
             TextFormField(
               controller: _emailController,
-              decoration: const InputDecoration(
-                labelText: 'Email',
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.email_outlined),
+              decoration: InputDecoration(
+                labelText: l10n.authEmailLabel,
+                border: const OutlineInputBorder(),
+                prefixIcon: const Icon(Icons.email_outlined),
               ),
               keyboardType: TextInputType.emailAddress,
               textInputAction: TextInputAction.next,
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
-                  return 'Enter your email';
+                  return l10n.authEnterEmail;
                 }
                 if (!value.contains('@') || !value.contains('.')) {
-                  return 'Enter a valid email';
+                  return l10n.authEnterValidEmail;
                 }
                 return null;
               },
@@ -294,16 +292,16 @@ class _EmailLinkSheetState extends ConsumerState<_EmailLinkSheet> {
 
             TextFormField(
               controller: _passwordController,
-              decoration: const InputDecoration(
-                labelText: 'Password',
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.lock_outlined),
+              decoration: InputDecoration(
+                labelText: l10n.authPasswordLabel,
+                border: const OutlineInputBorder(),
+                prefixIcon: const Icon(Icons.lock_outlined),
               ),
               obscureText: true,
               textInputAction: TextInputAction.done,
               validator: (value) {
                 if (value == null || value.length < 6) {
-                  return 'Password must be at least 6 characters';
+                  return l10n.authPasswordMinLength;
                 }
                 return null;
               },
@@ -338,7 +336,7 @@ class _EmailLinkSheetState extends ConsumerState<_EmailLinkSheet> {
                         color: Colors.white,
                       ),
                     )
-                  : Text(_isSignInMode ? 'SIGN IN' : 'LINK EMAIL & VERIFY'),
+                  : Text(_isSignInMode ? l10n.authSignInUpper : l10n.authLinkEmailUpper),
             ),
             const SizedBox(height: 8),
             TextButton(
@@ -348,11 +346,11 @@ class _EmailLinkSheetState extends ConsumerState<_EmailLinkSheet> {
                   _error = null;
                 });
               },
-              child: Text(_isSignInMode ? 'CREATE NEW ACCOUNT' : 'SIGN IN WITH EXISTING ACCOUNT'),
+              child: Text(_isSignInMode ? l10n.authCreateNewAccount : l10n.authSignInExisting),
             ),
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('CANCEL'),
+              child: Text(l10n.cancelUpper),
             ),
           ],
         ),
@@ -360,7 +358,7 @@ class _EmailLinkSheetState extends ConsumerState<_EmailLinkSheet> {
     );
   }
 
-  Widget _buildVerificationView(ColorScheme colorScheme) {
+  Widget _buildVerificationView(ColorScheme colorScheme, AppLocalizations l10n) {
     return SingleChildScrollView(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -383,7 +381,7 @@ class _EmailLinkSheetState extends ConsumerState<_EmailLinkSheet> {
           const SizedBox(height: 16),
 
           Text(
-            'Check Your Inbox',
+            l10n.authCheckInbox,
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
               fontWeight: FontWeight.bold,
             ),
@@ -391,8 +389,7 @@ class _EmailLinkSheetState extends ConsumerState<_EmailLinkSheet> {
           ),
           const SizedBox(height: 8),
           Text(
-            'We sent a verification email. Open the link in the email, then '
-            'come back here and tap the button below.',
+            l10n.authCheckInboxBody,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               color: colorScheme.onSurfaceVariant,
             ),
@@ -426,16 +423,16 @@ class _EmailLinkSheetState extends ConsumerState<_EmailLinkSheet> {
                       color: Colors.white,
                     ),
                   )
-                : const Text("I'VE VERIFIED MY EMAIL"),
+                : Text(l10n.authVerifiedButton),
           ),
           const SizedBox(height: 8),
           TextButton(
             onPressed: _resendEmail,
-            child: const Text('RESEND VERIFICATION EMAIL'),
+            child: Text(l10n.authResendEmail),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('CANCEL'),
+            child: Text(l10n.cancelUpper),
           ),
         ],
       ),

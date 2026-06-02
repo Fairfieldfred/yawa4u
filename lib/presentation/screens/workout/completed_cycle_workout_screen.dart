@@ -9,6 +9,7 @@ import '../../../core/constants/muscle_groups.dart';
 import '../../../core/theme/skins/skins.dart';
 import '../../../core/utils/date_helpers.dart';
 import '../../../core/utils/weight_conversion.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../data/models/exercise.dart';
 import '../../../data/models/exercise_set.dart';
 import '../../../data/models/training_cycle.dart';
@@ -101,6 +102,7 @@ class _CompletedCycleWorkoutScreenState extends ConsumerState<CompletedCycleWork
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final trainingCyclesAsync = ref.watch(trainingCyclesProvider);
 
     return trainingCyclesAsync.when(
@@ -114,10 +116,10 @@ class _CompletedCycleWorkoutScreenState extends ConsumerState<CompletedCycleWork
                 icon: const Icon(Icons.arrow_back),
                 onPressed: () => context.pop(),
               ),
-              title: const Text('TrainingCycle Not Found'),
+              title: Text(l10n.completedWorkoutNotFoundTitle),
             ),
-            body: const Center(
-              child: Text('The requested trainingCycle could not be found.'),
+            body: Center(
+              child: Text(l10n.completedWorkoutNotFoundBody),
             ),
           );
         }
@@ -163,7 +165,7 @@ class _CompletedCycleWorkoutScreenState extends ConsumerState<CompletedCycleWork
               icon: const Icon(Icons.arrow_back),
               onPressed: () => context.pop(),
             ),
-            title: const Text('Error'),
+            title: Text(l10n.completedWorkoutErrorTitle),
           ),
           body: Center(
             child: Column(
@@ -171,7 +173,7 @@ class _CompletedCycleWorkoutScreenState extends ConsumerState<CompletedCycleWork
               children: [
                 Icon(Icons.error_outline, size: 64, color: context.errorColor),
                 const SizedBox(height: 16),
-                Text('Error loading trainingCycle: $error'),
+                Text(l10n.completedWorkoutErrorMessage(error)),
               ],
             ),
           ),
@@ -189,6 +191,8 @@ class _CompletedCycleWorkoutScreenState extends ConsumerState<CompletedCycleWork
     int displayDay, {
     required List<Workout> allWorkouts,
   }) {
+    final l10n = AppLocalizations.of(context)!;
+
     // Calculate day name, respecting any schedule shifts
     final dayName = calculateDayName(
       workouts: workouts,
@@ -244,7 +248,7 @@ class _CompletedCycleWorkoutScreenState extends ConsumerState<CompletedCycleWork
                           border: Border.all(color: successColor, width: 1),
                         ),
                         child: Text(
-                          'COMPLETED',
+                          l10n.completedWorkoutCompletedBadge,
                           style: TextStyle(
                             color: successColor,
                             fontSize: 9,
@@ -258,7 +262,7 @@ class _CompletedCycleWorkoutScreenState extends ConsumerState<CompletedCycleWork
               ),
               const SizedBox(height: 2),
               Text(
-                'WEEK $displayPeriod DAY $displayDay $dayName',
+                l10n.completedWorkoutWeekDayTitle(displayPeriod, displayDay, dayName),
                 style: TextStyle(
                   color: Theme.of(context).textTheme.titleLarge?.color,
                   fontSize: 17,
@@ -280,7 +284,7 @@ class _CompletedCycleWorkoutScreenState extends ConsumerState<CompletedCycleWork
               onPressed: () {
                 ref.read(themeModeProvider.notifier).toggleTheme();
               },
-              tooltip: 'Toggle theme',
+              tooltip: l10n.toggleThemeTooltip,
             ),
           ],
         ),
@@ -290,7 +294,7 @@ class _CompletedCycleWorkoutScreenState extends ConsumerState<CompletedCycleWork
             allExercises.isEmpty
                 ? Center(
                     child: Text(
-                      'No exercises for this day',
+                      l10n.completedWorkoutNoExercises,
                       style: TextStyle(
                         color: Theme.of(
                           context,
@@ -365,6 +369,7 @@ class _CompletedCycleWorkoutScreenState extends ConsumerState<CompletedCycleWork
     required bool showMuscleGroupBadge,
     int? targetRir,
   }) {
+    final l10n = AppLocalizations.of(context)!;
     final muscleGroup = exercise.muscleGroup as MuscleGroup;
     final equipmentType = exercise.equipmentType as EquipmentType?;
 
@@ -402,7 +407,7 @@ class _CompletedCycleWorkoutScreenState extends ConsumerState<CompletedCycleWork
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                equipmentType?.displayName.toUpperCase() ?? 'UNKNOWN',
+                                equipmentType?.displayName.toUpperCase() ?? l10n.completedWorkoutUnknownEquipment,
                                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                   fontSize: 13,
                                   fontWeight: FontWeight.w500,
@@ -460,7 +465,7 @@ class _CompletedCycleWorkoutScreenState extends ConsumerState<CompletedCycleWork
                             const SizedBox(width: 24),
                             Expanded(
                               child: Text(
-                                'WEIGHT',
+                                l10n.completedWorkoutWeightHeader,
                                 style: TextStyle(
                                   color: Theme.of(context).brightness == Brightness.light
                                       ? Theme.of(context).textTheme.bodySmall?.color?.withValues(alpha: 0.7)
@@ -474,7 +479,7 @@ class _CompletedCycleWorkoutScreenState extends ConsumerState<CompletedCycleWork
                             const SizedBox(width: 16),
                             Expanded(
                               child: Text(
-                                'REPS',
+                                l10n.completedWorkoutRepsHeader,
                                 style: TextStyle(
                                   color: Theme.of(context).brightness == Brightness.light
                                       ? Theme.of(context).textTheme.bodySmall?.color?.withValues(alpha: 0.7)
@@ -489,7 +494,7 @@ class _CompletedCycleWorkoutScreenState extends ConsumerState<CompletedCycleWork
                             SizedBox(
                               width: 40,
                               child: Text(
-                                'LOG',
+                                l10n.completedWorkoutLogHeader,
                                 style: TextStyle(
                                   color: Theme.of(context).brightness == Brightness.light
                                       ? Theme.of(context).textTheme.bodySmall?.color?.withValues(alpha: 0.7)
@@ -770,6 +775,8 @@ class _ReadOnlyCalendarDropdownState extends State<_ReadOnlyCalendarDropdown> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     // Build the date map once, respecting any schedule shifts
     final dateMap = widget.trainingCycle.startDate != null
         ? DateHelpers.buildPeriodDayDateMap(
@@ -835,7 +842,7 @@ class _ReadOnlyCalendarDropdownState extends State<_ReadOnlyCalendarDropdown> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'WEEKS (READ-ONLY)',
+                  l10n.completedWorkoutWeeksReadOnly,
                   style: TextStyle(
                     color: Theme.of(
                       context,
@@ -855,7 +862,7 @@ class _ReadOnlyCalendarDropdownState extends State<_ReadOnlyCalendarDropdown> {
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(
-                    'COMPLETED',
+                    l10n.completedWorkoutCompletedBadge,
                     style: TextStyle(
                       color: context.successColor,
                       fontSize: 10,
@@ -904,6 +911,8 @@ class _ReadOnlyCalendarDropdownState extends State<_ReadOnlyCalendarDropdown> {
     Map<(int, int), DateTime> dateMap,
     int daysForThisPeriod,
   ) {
+    final l10n = AppLocalizations.of(context)!;
+
     // Build day info (name + date number) for each day in this period
     final dayInfoList = List.generate(daysForThisPeriod, (
       index,
@@ -957,7 +966,7 @@ class _ReadOnlyCalendarDropdownState extends State<_ReadOnlyCalendarDropdown> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  isDeload ? 'DL' : '$periodNumber',
+                  isDeload ? l10n.completedWorkoutDlLabel : '$periodNumber',
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.onSurface,
                     fontSize: 18,
@@ -965,7 +974,7 @@ class _ReadOnlyCalendarDropdownState extends State<_ReadOnlyCalendarDropdown> {
                   ),
                 ),
                 Text(
-                  '${calculateRIR(periodNumber, widget.trainingCycle.recoveryPeriod)} RIR',
+                  l10n.completedWorkoutRirLabel(calculateRIR(periodNumber, widget.trainingCycle.recoveryPeriod)),
                   style: TextStyle(
                     color: Theme.of(
                       context,

@@ -7,6 +7,7 @@ import '../../../data/models/training_cycle_template.dart';
 import '../../../data/repositories/community_repository.dart';
 import '../../../domain/providers/community_providers.dart';
 import '../../../domain/providers/template_providers.dart';
+import '../../../l10n/app_localizations.dart';
 
 /// Detail + download screen for a single community template.
 class CommunityTemplateDetailScreen extends ConsumerStatefulWidget {
@@ -26,6 +27,7 @@ class _CommunityTemplateDetailScreenState extends ConsumerState<CommunityTemplat
   bool _downloaded = false;
 
   Future<void> _download() async {
+    final l10n = AppLocalizations.of(context)!;
     setState(() => _isDownloading = true);
     try {
       final repo = ref.read(communityRepositoryProvider);
@@ -42,7 +44,7 @@ class _CommunityTemplateDetailScreenState extends ConsumerState<CommunityTemplat
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              '"${widget.template.template.name}" saved to your programs',
+              l10n.communitySavedToPrograms(widget.template.template.name),
             ),
             backgroundColor: context.successColor,
             behavior: SnackBarBehavior.floating,
@@ -54,7 +56,7 @@ class _CommunityTemplateDetailScreenState extends ConsumerState<CommunityTemplat
         setState(() => _isDownloading = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Download failed: $e'),
+            content: Text(l10n.communityDownloadFailed(e)),
             backgroundColor: context.errorColor,
             behavior: SnackBarBehavior.floating,
           ),
@@ -65,6 +67,7 @@ class _CommunityTemplateDetailScreenState extends ConsumerState<CommunityTemplat
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final colorScheme = Theme.of(context).colorScheme;
     final t = widget.template.template;
 
@@ -100,7 +103,7 @@ class _CommunityTemplateDetailScreenState extends ConsumerState<CommunityTemplat
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      '${widget.template.downloadCount} downloads',
+                      l10n.communityDownloadCount(widget.template.downloadCount),
                       style: TextStyle(
                         color: colorScheme.onSurfaceVariant,
                         fontSize: 14,
@@ -122,7 +125,7 @@ class _CommunityTemplateDetailScreenState extends ConsumerState<CommunityTemplat
                 const SizedBox(height: 24),
 
                 // Program details
-                _buildInfoSection(t, colorScheme),
+                _buildInfoSection(t, colorScheme, l10n),
                 const SizedBox(height: 24),
 
                 // Tags
@@ -143,7 +146,7 @@ class _CommunityTemplateDetailScreenState extends ConsumerState<CommunityTemplat
 
                 // Sessions list
                 Text(
-                  'Sessions',
+                  l10n.communitySessionsHeader,
                   style: TextStyle(
                     color: colorScheme.onSurface,
                     fontSize: 20,
@@ -152,7 +155,7 @@ class _CommunityTemplateDetailScreenState extends ConsumerState<CommunityTemplat
                 ),
                 const SizedBox(height: 16),
                 ...t.workouts.map(
-                  (workout) => _buildWorkoutCard(workout, colorScheme),
+                  (workout) => _buildWorkoutCard(workout, colorScheme, l10n),
                 ),
               ],
             ),
@@ -183,7 +186,7 @@ class _CommunityTemplateDetailScreenState extends ConsumerState<CommunityTemplat
                           ),
                         )
                       : Text(
-                          _downloaded ? 'SAVED' : 'DOWNLOAD PROGRAM',
+                          _downloaded ? l10n.communitySavedButton : l10n.communityDownloadProgramButton,
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
@@ -207,6 +210,7 @@ class _CommunityTemplateDetailScreenState extends ConsumerState<CommunityTemplat
   Widget _buildInfoSection(
     TrainingCycleTemplate t,
     ColorScheme colorScheme,
+    AppLocalizations l10n,
   ) {
     return Container(
       padding: const EdgeInsets.all(16),
@@ -219,21 +223,21 @@ class _CommunityTemplateDetailScreenState extends ConsumerState<CommunityTemplat
         children: [
           _buildInfoItem(
             Icons.calendar_today,
-            '${t.periodsTotal} Periods',
-            'Duration',
+            l10n.communityPeriodsCount(t.periodsTotal),
+            l10n.communityDurationLabel,
             colorScheme,
           ),
           _buildInfoItem(
             Icons.fitness_center,
-            '${t.daysPerPeriod} Days',
-            'Per Period',
+            l10n.communityDaysCount(t.daysPerPeriod),
+            l10n.communityPerPeriodLabel,
             colorScheme,
           ),
           if (t.recoveryPeriod != null)
             _buildInfoItem(
               Icons.refresh,
-              'Period ${t.recoveryPeriod}',
-              'Recovery',
+              l10n.communityPeriodNumber(t.recoveryPeriod!),
+              l10n.communityRecoveryLabel,
               colorScheme,
             ),
         ],
@@ -274,6 +278,7 @@ class _CommunityTemplateDetailScreenState extends ConsumerState<CommunityTemplat
   Widget _buildWorkoutCard(
     WorkoutTemplate workout,
     ColorScheme colorScheme,
+    AppLocalizations l10n,
   ) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -285,7 +290,7 @@ class _CommunityTemplateDetailScreenState extends ConsumerState<CommunityTemplat
         data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
         child: ExpansionTile(
           title: Text(
-            workout.dayName ?? 'Day ${workout.dayNumber}',
+            workout.dayName ?? l10n.communityDayFallback(workout.dayNumber),
             style: TextStyle(
               color: colorScheme.onSurface,
               fontWeight: FontWeight.w600,
@@ -293,8 +298,10 @@ class _CommunityTemplateDetailScreenState extends ConsumerState<CommunityTemplat
           ),
           subtitle: Text(
             workout.isCardio
-                ? '${workout.sport[0].toUpperCase()}${workout.sport.substring(1)} session'
-                : '${workout.exercises.length} Exercises',
+                ? l10n.communityCardioSession(
+                    '${workout.sport[0].toUpperCase()}${workout.sport.substring(1)}',
+                  )
+                : l10n.communityExerciseCount(workout.exercises.length),
             style: TextStyle(color: colorScheme.onSurfaceVariant),
           ),
           children: [
@@ -348,7 +355,7 @@ class _CommunityTemplateDetailScreenState extends ConsumerState<CommunityTemplat
                                     ),
                                     const SizedBox(height: 2),
                                     Text(
-                                      '${exercise.sets} sets × ${exercise.reps}',
+                                      l10n.communitySetsReps(exercise.sets, exercise.reps),
                                       style: TextStyle(
                                         color: colorScheme.onSurfaceVariant,
                                         fontSize: 13,

@@ -1,19 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../../l10n/app_localizations.dart';
+
 /// Compact integer text field for entering an average heart rate in bpm.
 class HrInput extends StatefulWidget {
   const HrInput({
     super.key,
     required this.initialBpm,
     required this.onChanged,
-    this.label = 'Avg HR',
+    this.label,
     this.enabled = true,
   });
 
   final int? initialBpm;
   final ValueChanged<int?> onChanged;
-  final String label;
+  final String? label;
   final bool enabled;
 
   @override
@@ -39,16 +41,17 @@ class _HrInputState extends State<HrInput> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return TextField(
       controller: _controller,
       enabled: widget.enabled,
       keyboardType: TextInputType.number,
       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
       decoration: InputDecoration(
-        labelText: widget.label,
+        labelText: widget.label ?? l10n.avgHrLabel,
         border: const OutlineInputBorder(),
         prefixIcon: const Icon(Icons.favorite_outline),
-        suffixText: 'bpm',
+        suffixText: l10n.bpmSuffix,
       ),
       onChanged: (text) {
         final trimmed = text.trim();

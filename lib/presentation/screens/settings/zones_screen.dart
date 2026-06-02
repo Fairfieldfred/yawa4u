@@ -6,6 +6,7 @@ import 'package:uuid/uuid.dart';
 import '../../../core/constants/sports.dart';
 import '../../../data/models/sport_zone.dart';
 import '../../../domain/providers/database_providers.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../widgets/cardio/sport_badge.dart';
 import '../../widgets/empty_state_widget.dart';
 import '../../widgets/skeleton_loader.dart';
@@ -46,9 +47,10 @@ class _ZonesScreenState extends ConsumerState<ZonesScreen> with SingleTickerProv
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Zones'),
+        title: Text(l10n.zonesTitle),
         bottom: TabBar(
           controller: _tabController,
           isScrollable: true,
@@ -107,7 +109,9 @@ class _SportZonesTabState extends ConsumerState<_SportZonesTab> {
       absorbing: _saving,
       child: streamAsync.when(
         loading: () => const SkeletonZoneList(),
-        error: (e, _) => Center(child: Text('Error loading zones: $e')),
+        error: (e, _) => Center(
+          child: Text(AppLocalizations.of(context)!.zonesErrorLoading(e)),
+        ),
         data: (zones) {
           if (zones.isEmpty) {
             return _EmptyState(
@@ -115,6 +119,7 @@ class _SportZonesTabState extends ConsumerState<_SportZonesTab> {
               onSeed: _seedDefaults,
             );
           }
+          final l10n = AppLocalizations.of(context)!;
           return ListView(
             padding: const EdgeInsets.all(16),
             children: [
@@ -125,15 +130,13 @@ class _SportZonesTabState extends ConsumerState<_SportZonesTab> {
                   TextButton.icon(
                     onPressed: _clear,
                     icon: const Icon(Icons.delete_outline, size: 18),
-                    label: const Text('Clear'),
+                    label: Text(l10n.zonesClear),
                   ),
                 ],
               ),
               const SizedBox(height: 8),
               Text(
-                'Heart-rate zones in bpm. Tap a value to edit. Defaults are '
-                'a sensible starting point — adjust to your tested '
-                'thresholds.',
+                l10n.zonesHrDescription,
                 style: Theme.of(context).textTheme.bodySmall,
               ),
               const SizedBox(height: 16),
@@ -149,7 +152,7 @@ class _SportZonesTabState extends ConsumerState<_SportZonesTab> {
               OutlinedButton.icon(
                 onPressed: _seedDefaults,
                 icon: const Icon(Icons.restart_alt),
-                label: const Text('Reset to defaults'),
+                label: Text(l10n.zonesResetToDefaults),
               ),
               // Keep the repo variable referenced so the watch above is
               // meaningful in reactive builds.
@@ -212,7 +215,8 @@ class _ZoneRowState extends State<_ZoneRow> {
 
   @override
   Widget build(BuildContext context) {
-    final zoneLabel = 'Zone ${widget.zone.zoneNumber}';
+    final l10n = AppLocalizations.of(context)!;
+    final zoneLabel = l10n.zonesZoneLabel(widget.zone.zoneNumber);
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
@@ -231,10 +235,10 @@ class _ZoneRowState extends State<_ZoneRow> {
               controller: _minCtrl,
               keyboardType: TextInputType.number,
               inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              decoration: const InputDecoration(
-                labelText: 'Min',
-                border: OutlineInputBorder(),
-                suffixText: 'bpm',
+              decoration: InputDecoration(
+                labelText: l10n.zonesMinLabel,
+                border: const OutlineInputBorder(),
+                suffixText: l10n.zonesBpmSuffix,
                 isDense: true,
               ),
               onEditingComplete: _commit,
@@ -247,10 +251,10 @@ class _ZoneRowState extends State<_ZoneRow> {
               controller: _maxCtrl,
               keyboardType: TextInputType.number,
               inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              decoration: const InputDecoration(
-                labelText: 'Max',
-                border: OutlineInputBorder(),
-                suffixText: 'bpm',
+              decoration: InputDecoration(
+                labelText: l10n.zonesMaxLabel,
+                border: const OutlineInputBorder(),
+                suffixText: l10n.zonesBpmSuffix,
                 isDense: true,
               ),
               onEditingComplete: _commit,
@@ -271,17 +275,16 @@ class _EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return EmptyStateWidget(
       icon: sport.icon,
       iconSize: 64,
       iconColor: sport.color.withValues(alpha: 0.6),
-      title: 'No zones set for ${sport.displayName}',
-      subtitle:
-          'Start from the conventional five-zone split and tweak the '
-          'numbers to your tested thresholds.',
+      title: l10n.zonesNoZones(sport.displayName),
+      subtitle: l10n.zonesNoZonesSubtitle,
       padding: const EdgeInsets.all(24),
       primaryAction: EmptyStateAction(
-        label: 'Seed default zones',
+        label: l10n.zonesSeedDefaults,
         icon: Icons.add,
         onPressed: onSeed,
       ),

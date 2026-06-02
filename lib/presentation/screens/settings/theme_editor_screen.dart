@@ -8,6 +8,7 @@ import 'package:uuid/uuid.dart';
 import '../../../core/theme/skins/skin_model.dart';
 import '../../../core/theme/skins/skin_provider.dart';
 import '../../../data/services/theme_image_service.dart';
+import '../../../l10n/app_localizations.dart';
 
 /// Screen for creating or editing a custom theme.
 ///
@@ -118,7 +119,7 @@ class _ThemeEditorScreenState extends ConsumerState<ThemeEditorScreen> {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('Error loading theme: $e')));
+        ).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.themeEditorErrorLoading(e))));
       }
     }
   }
@@ -207,7 +208,7 @@ class _ThemeEditorScreenState extends ConsumerState<ThemeEditorScreen> {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('Error picking image: $e')));
+        ).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.themeEditorErrorPicking(e))));
       }
     } finally {
       if (mounted) {
@@ -255,7 +256,7 @@ class _ThemeEditorScreenState extends ConsumerState<ThemeEditorScreen> {
       _pageController.jumpToPage(0);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Please enter a theme name')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.themeEditorNameRequired)),
         );
       }
       return;
@@ -280,10 +281,11 @@ class _ThemeEditorScreenState extends ConsumerState<ThemeEditorScreen> {
       await ref.read(skinProvider.notifier).saveCustomSkin(skin);
 
       if (mounted) {
+        final l10nSave = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              widget.skinId != null ? 'Theme updated!' : 'Theme created!',
+              widget.skinId != null ? l10nSave.themeEditorUpdated : l10nSave.themeEditorCreated,
             ),
           ),
         );
@@ -293,7 +295,7 @@ class _ThemeEditorScreenState extends ConsumerState<ThemeEditorScreen> {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('Error saving theme: $e')));
+        ).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.themeEditorErrorSaving(e))));
       }
     } finally {
       if (mounted) {
@@ -401,9 +403,10 @@ class _ThemeEditorScreenState extends ConsumerState<ThemeEditorScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.skinId != null ? 'Edit Theme' : 'Create Theme'),
+        title: Text(widget.skinId != null ? l10n.themeEditorEditTitle : l10n.themeEditorCreateTitle),
         actions: [
           if (_currentPage == 3)
             TextButton(
@@ -414,7 +417,7 @@ class _ThemeEditorScreenState extends ConsumerState<ThemeEditorScreen> {
                       height: 20,
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
-                  : const Text('Save'),
+                  : Text(l10n.save),
             ),
         ],
       ),
@@ -449,7 +452,13 @@ class _ThemeEditorScreenState extends ConsumerState<ThemeEditorScreen> {
   }
 
   Widget _buildStepIndicator() {
-    final steps = ['Info', 'Backgrounds', 'Icon', 'Colors'];
+    final l10n = AppLocalizations.of(context)!;
+    final steps = [
+      l10n.themeEditorStepInfo,
+      l10n.themeEditorStepBackgrounds,
+      l10n.themeEditorStepIcon,
+      l10n.themeEditorStepColors,
+    ];
 
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16),
@@ -506,6 +515,7 @@ class _ThemeEditorScreenState extends ConsumerState<ThemeEditorScreen> {
   }
 
   Widget _buildNamePage() {
+    final l10n = AppLocalizations.of(context)!;
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Form(
@@ -514,12 +524,12 @@ class _ThemeEditorScreenState extends ConsumerState<ThemeEditorScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Theme Info',
+              l10n.themeEditorThemeInfoTitle,
               style: Theme.of(context).textTheme.headlineSmall,
             ),
             const SizedBox(height: 8),
             Text(
-              'Give your theme a name and description.',
+              l10n.themeEditorThemeInfoDesc,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
@@ -527,14 +537,14 @@ class _ThemeEditorScreenState extends ConsumerState<ThemeEditorScreen> {
             const SizedBox(height: 24),
             TextFormField(
               controller: _nameController,
-              decoration: const InputDecoration(
-                labelText: 'Theme Name',
-                hintText: 'My Custom Theme',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: l10n.themeEditorNameLabel,
+                hintText: l10n.themeEditorNameHint,
+                border: const OutlineInputBorder(),
               ),
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
-                  return 'Please enter a theme name';
+                  return l10n.themeEditorNameRequired;
                 }
                 return null;
               },
@@ -542,10 +552,10 @@ class _ThemeEditorScreenState extends ConsumerState<ThemeEditorScreen> {
             const SizedBox(height: 16),
             TextFormField(
               controller: _descriptionController,
-              decoration: const InputDecoration(
-                labelText: 'Description (optional)',
-                hintText: 'A brief description of your theme',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: l10n.themeEditorDescriptionLabel,
+                hintText: l10n.themeEditorDescriptionHint,
+                border: const OutlineInputBorder(),
               ),
               maxLines: 3,
             ),
@@ -556,49 +566,50 @@ class _ThemeEditorScreenState extends ConsumerState<ThemeEditorScreen> {
   }
 
   Widget _buildBackgroundsPage() {
+    final l10n = AppLocalizations.of(context)!;
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Screen Backgrounds',
+            l10n.themeEditorBackgroundsTitle,
             style: Theme.of(context).textTheme.headlineSmall,
           ),
           const SizedBox(height: 8),
           Text(
-            'Choose background images for each screen. Tap to add, long press to remove.',
+            l10n.themeEditorBackgroundsDesc,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
           ),
           const SizedBox(height: 24),
           _buildImagePicker(
-            label: 'Workout Screen',
+            label: l10n.themeEditorWorkoutScreen,
             imagePath: _workoutImagePath,
             imageType: 'workout',
             icon: Icons.fitness_center,
           ),
           _buildImagePicker(
-            label: 'Mesocycles Screen',
+            label: l10n.themeEditorMesocyclesScreen,
             imagePath: _cyclesImagePath,
             imageType: 'cycles',
             icon: Icons.calendar_month,
           ),
           _buildImagePicker(
-            label: 'Exercises Screen',
+            label: l10n.themeEditorExercisesScreen,
             imagePath: _exercisesImagePath,
             imageType: 'exercises',
             icon: Icons.list_alt,
           ),
           _buildImagePicker(
-            label: 'More Screen',
+            label: l10n.themeEditorMoreScreen,
             imagePath: _moreImagePath,
             imageType: 'more',
             icon: Icons.more_horiz,
           ),
           _buildImagePicker(
-            label: 'Default (Calendar & Others)',
+            label: l10n.themeEditorDefaultScreen,
             imagePath: _defaultImagePath,
             imageType: 'default',
             icon: Icons.wallpaper,
@@ -609,15 +620,16 @@ class _ThemeEditorScreenState extends ConsumerState<ThemeEditorScreen> {
   }
 
   Widget _buildAppIconPage() {
+    final l10n = AppLocalizations.of(context)!;
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('App Icon', style: Theme.of(context).textTheme.headlineSmall),
+          Text(l10n.themeEditorAppIconTitle, style: Theme.of(context).textTheme.headlineSmall),
           const SizedBox(height: 8),
           Text(
-            'Choose an image to use as your app\'s accent icon (displayed in the app bar).',
+            l10n.themeEditorAppIconDesc,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
@@ -657,7 +669,7 @@ class _ThemeEditorScreenState extends ConsumerState<ThemeEditorScreen> {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            'Tap to add',
+                            l10n.themeEditorTapToAdd,
                             style: Theme.of(context).textTheme.bodySmall?.copyWith(
                               color: Theme.of(
                                 context,
@@ -675,7 +687,7 @@ class _ThemeEditorScreenState extends ConsumerState<ThemeEditorScreen> {
               child: TextButton.icon(
                 onPressed: () => _removeImage('app_icon'),
                 icon: const Icon(Icons.delete_outline),
-                label: const Text('Remove'),
+                label: Text(l10n.themeEditorRemove),
               ),
             ),
           ],
@@ -685,18 +697,19 @@ class _ThemeEditorScreenState extends ConsumerState<ThemeEditorScreen> {
   }
 
   Widget _buildColorsPage() {
+    final l10n = AppLocalizations.of(context)!;
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Accent Colors',
+            l10n.themeEditorAccentColorsTitle,
             style: Theme.of(context).textTheme.headlineSmall,
           ),
           const SizedBox(height: 8),
           Text(
-            'Choose your theme\'s primary and secondary colors.',
+            l10n.themeEditorAccentColorsDesc,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
@@ -706,7 +719,7 @@ class _ThemeEditorScreenState extends ConsumerState<ThemeEditorScreen> {
           // Extracted colors suggestion
           if (_extractedColors.isNotEmpty) ...[
             Text(
-              'Suggested from your images:',
+              l10n.themeEditorSuggestedColors,
               style: Theme.of(context).textTheme.titleSmall,
             ),
             const SizedBox(height: 8),
@@ -722,7 +735,7 @@ class _ThemeEditorScreenState extends ConsumerState<ThemeEditorScreen> {
                     setState(() => _secondaryColor = color);
                   },
                   child: Tooltip(
-                    message: 'Tap: Primary\nDouble-tap: Secondary',
+                    message: l10n.themeEditorColorTooltip,
                     child: Container(
                       width: 48,
                       height: 48,
@@ -743,7 +756,7 @@ class _ThemeEditorScreenState extends ConsumerState<ThemeEditorScreen> {
 
           // Primary color
           _buildColorSelector(
-            label: 'Primary Color',
+            label: l10n.themeEditorPrimaryColor,
             color: _primaryColor,
             onColorChanged: (color) => setState(() => _primaryColor = color),
           ),
@@ -751,14 +764,14 @@ class _ThemeEditorScreenState extends ConsumerState<ThemeEditorScreen> {
 
           // Secondary color
           _buildColorSelector(
-            label: 'Secondary Color',
+            label: l10n.themeEditorSecondaryColor,
             color: _secondaryColor,
             onColorChanged: (color) => setState(() => _secondaryColor = color),
           ),
           const SizedBox(height: 24),
 
           // Preview
-          Text('Preview', style: Theme.of(context).textTheme.titleSmall),
+          Text(l10n.themeEditorPreview, style: Theme.of(context).textTheme.titleSmall),
           const SizedBox(height: 8),
           Card(
             child: Padding(
@@ -782,11 +795,11 @@ class _ThemeEditorScreenState extends ConsumerState<ThemeEditorScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              _nameController.text.isEmpty ? 'Theme Name' : _nameController.text,
+                              _nameController.text.isEmpty ? l10n.themeEditorThemeNameFallback : _nameController.text,
                               style: Theme.of(context).textTheme.titleMedium?.copyWith(color: _primaryColor),
                             ),
                             Text(
-                              'Custom Theme',
+                              l10n.themeEditorCustomTheme,
                               style: Theme.of(context).textTheme.bodySmall,
                             ),
                           ],
@@ -803,7 +816,7 @@ class _ThemeEditorScreenState extends ConsumerState<ThemeEditorScreen> {
                             backgroundColor: _primaryColor,
                           ),
                           onPressed: () {},
-                          child: const Text('Primary'),
+                          child: Text(l10n.themeEditorPrimaryButton),
                         ),
                       ),
                       const SizedBox(width: 8),
@@ -816,7 +829,7 @@ class _ThemeEditorScreenState extends ConsumerState<ThemeEditorScreen> {
                             foregroundColor: _secondaryColor,
                           ),
                           onPressed: () {},
-                          child: const Text('Secondary'),
+                          child: Text(l10n.themeEditorSecondaryButton),
                         ),
                       ),
                     ],
@@ -887,7 +900,9 @@ class _ThemeEditorScreenState extends ConsumerState<ThemeEditorScreen> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        imagePath != null ? 'Tap to change, hold to remove' : 'Tap to add image',
+                        imagePath != null
+                            ? AppLocalizations.of(context)!.themeEditorImageHasImage
+                            : AppLocalizations.of(context)!.themeEditorImageNoImage,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
@@ -985,6 +1000,7 @@ class _ThemeEditorScreenState extends ConsumerState<ThemeEditorScreen> {
   }
 
   Widget _buildNavigationButtons() {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -997,11 +1013,11 @@ class _ThemeEditorScreenState extends ConsumerState<ThemeEditorScreen> {
             if (_currentPage > 0)
               OutlinedButton(
                 onPressed: _previousPage,
-                child: const Text('Back'),
+                child: Text(l10n.themeEditorBackButton),
               ),
             const Spacer(),
             if (_currentPage < 3)
-              FilledButton(onPressed: _nextPage, child: const Text('Next'))
+              FilledButton(onPressed: _nextPage, child: Text(l10n.themeEditorNextButton))
             else
               FilledButton(
                 onPressed: _isSaving ? null : _saveTheme,
@@ -1014,7 +1030,7 @@ class _ThemeEditorScreenState extends ConsumerState<ThemeEditorScreen> {
                           color: Colors.white,
                         ),
                       )
-                    : const Text('Save Theme'),
+                    : Text(l10n.themeEditorSaveThemeButton),
               ),
           ],
         ),
@@ -1028,18 +1044,19 @@ enum ImagePickerSource { gallery, camera }
 class _ImageSourcePicker extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return SafeArea(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           ListTile(
             leading: const Icon(Icons.photo_library),
-            title: const Text('Choose from Gallery'),
+            title: Text(l10n.themeEditorChooseFromGallery),
             onTap: () => Navigator.pop(context, ImagePickerSource.gallery),
           ),
           ListTile(
             leading: const Icon(Icons.camera_alt),
-            title: const Text('Take a Photo'),
+            title: Text(l10n.themeEditorTakePhoto),
             onTap: () => Navigator.pop(context, ImagePickerSource.camera),
           ),
           const SizedBox(height: 8),

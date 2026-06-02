@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/constants/equipment_types.dart';
 import '../../core/theme/skins/skins.dart';
 import '../../domain/providers/onboarding_providers.dart';
+import '../../l10n/app_localizations.dart';
 
 /// Available equipment options for the user to select.
 /// These are high-level gym equipment categories that map to specific EquipmentTypes.
@@ -21,8 +22,7 @@ enum EquipmentOption {
   lapPool('Lap Pool', Icons.pool),
   crossfitGym('Crossfit Gym', Icons.sports),
   pullUpBar('Pull-up Bar', Icons.accessibility_new),
-  suspensionTrainer('Suspension Trainer (TRX)', Icons.swap_vert)
-  ;
+  suspensionTrainer('Suspension Trainer (TRX)', Icons.swap_vert);
 
   const EquipmentOption(this.displayName, this.icon);
 
@@ -169,6 +169,7 @@ class _AvailableEquipmentFilterState extends ConsumerState<AvailableEquipmentFil
 
   /// Compact layout for use in filter modals
   Widget _buildCompactLayout(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -187,14 +188,14 @@ class _AvailableEquipmentFilterState extends ConsumerState<AvailableEquipmentFil
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Filter by Available Equipment',
+                      l10n.equipmentFilterTitle,
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Only show exercises for equipment you have',
+                      l10n.equipmentFilterSubtitle,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: Theme.of(
                           context,
@@ -213,7 +214,7 @@ class _AvailableEquipmentFilterState extends ConsumerState<AvailableEquipmentFil
           if (_equipmentFilterEnabled) ...[
             const SizedBox(height: 16),
             Text(
-              'Select equipment you have access to',
+              l10n.equipmentFilterSelectPrompt,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: Theme.of(
                   context,
@@ -230,6 +231,7 @@ class _AvailableEquipmentFilterState extends ConsumerState<AvailableEquipmentFil
 
   /// Full layout for use in Settings screen
   Widget _buildFullLayout(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -241,14 +243,14 @@ class _AvailableEquipmentFilterState extends ConsumerState<AvailableEquipmentFil
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Filter by Available Equipment',
+                    l10n.equipmentFilterTitle,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Only show exercises for equipment you have',
+                    l10n.equipmentFilterSubtitle,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: Theme.of(
                         context,
@@ -267,7 +269,7 @@ class _AvailableEquipmentFilterState extends ConsumerState<AvailableEquipmentFil
         if (_equipmentFilterEnabled) ...[
           const SizedBox(height: 16),
           Text(
-            'Select equipment you have access to',
+            l10n.equipmentFilterSelectPrompt,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               color: Theme.of(
                 context,

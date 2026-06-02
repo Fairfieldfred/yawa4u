@@ -9,6 +9,7 @@ import '../../data/models/exercise.dart';
 import '../../data/models/exercise_set.dart';
 import '../../domain/providers/database_providers.dart';
 import '../../domain/providers/exercise_providers.dart';
+import '../../l10n/app_localizations.dart';
 import 'dialogs/exercise_info_dialog.dart';
 import 'dialogs/set_type_info_dialog.dart';
 import 'muscle_group_badge.dart';
@@ -128,6 +129,7 @@ class ExerciseCardWidget extends ConsumerWidget {
     final increment = service.getWeightIncrement(
       exercise.equipmentType,
     );
+    final l10n = AppLocalizations.of(context)!;
     String? suggestionText;
     if (hitAllReps && increment != null) {
       final loggedSets = prevExercise.sets.where((s) => s.isLogged).toList();
@@ -137,7 +139,7 @@ class ExerciseCardWidget extends ConsumerWidget {
           suggested,
           useMetric,
         );
-        suggestionText = '\u2191 Try $display $weightUnit';
+        suggestionText = l10n.exerciseCardTryWeight(display, weightUnit);
       }
     }
 
@@ -147,7 +149,7 @@ class ExerciseCardWidget extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Last: $summary$dateStr',
+            l10n.exerciseCardLastPerformance(summary, dateStr),
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
               fontSize: 11,
               color: Theme.of(context).colorScheme.onSurface.withAlpha((255 * 0.5).round()),
@@ -188,6 +190,7 @@ class ExerciseCardWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final muscleGroup = exercise.muscleGroup;
     final equipmentType = exercise.equipmentType;
 
@@ -266,7 +269,7 @@ class ExerciseCardWidget extends ConsumerWidget {
                                 ),
                               ),
                             ),
-                            tooltip: 'Exercise info',
+                            tooltip: l10n.exerciseCardExerciseInfo,
                             onPressed: () => showExerciseInfoDialog(context, exercise),
                             padding: EdgeInsets.zero,
                             constraints: const BoxConstraints(
@@ -277,10 +280,10 @@ class ExerciseCardWidget extends ConsumerWidget {
                           const SizedBox(width: 0),
                           // Overflow menu button
                           Semantics(
-                            label:
-                                'Exercise options for '
-                                '${exercise.name}',
-                            child: _buildExerciseOverflowMenu(context),
+                            label: l10n.exerciseCardOptionsLabel(
+                              exercise.name,
+                            ),
+                            child: _buildExerciseOverflowMenu(context, l10n),
                           ),
                         ],
                       ),
@@ -298,7 +301,7 @@ class ExerciseCardWidget extends ConsumerWidget {
                               ), // Spacer for overflow menu alignment
                               Expanded(
                                 child: Text(
-                                  'WEIGHT',
+                                  l10n.exerciseCardWeightHeader,
                                   style: TextStyle(
                                     color: Theme.of(context).brightness == Brightness.light
                                         ? Theme.of(context).textTheme.bodySmall?.color?.withValues(alpha: 0.7)
@@ -312,7 +315,7 @@ class ExerciseCardWidget extends ConsumerWidget {
                               const SizedBox(width: 8),
                               Expanded(
                                 child: Text(
-                                  'REPS',
+                                  l10n.exerciseCardRepsHeader,
                                   style: TextStyle(
                                     color: Theme.of(context).brightness == Brightness.light
                                         ? Theme.of(context).textTheme.bodySmall?.color?.withValues(alpha: 0.7)
@@ -327,7 +330,7 @@ class ExerciseCardWidget extends ConsumerWidget {
                               SizedBox(
                                 width: 40,
                                 child: Text(
-                                  'LOG',
+                                  l10n.exerciseCardLogHeader,
                                   style: TextStyle(
                                     color: Theme.of(context).brightness == Brightness.light
                                         ? Theme.of(context).textTheme.bodySmall?.color?.withValues(alpha: 0.7)
@@ -345,7 +348,7 @@ class ExerciseCardWidget extends ConsumerWidget {
                       // Sets list
                       ...List.generate(exercise.sets.length, (index) {
                         final set = exercise.sets[index];
-                        return _buildSetRow(context, set, index);
+                        return _buildSetRow(context, l10n, set, index);
                       }),
 
                       // Pinned note display (at bottom of card)
@@ -413,7 +416,7 @@ class ExerciseCardWidget extends ConsumerWidget {
     );
   }
 
-  Widget _buildExerciseOverflowMenu(BuildContext context) {
+  Widget _buildExerciseOverflowMenu(BuildContext context, AppLocalizations l10n) {
     final onSurfaceColor = Theme.of(context).colorScheme.onSurface;
 
     return PopupMenuButton<String>(
@@ -463,12 +466,12 @@ class ExerciseCardWidget extends ConsumerWidget {
       },
       itemBuilder: (context) => [
         // Header
-        const PopupMenuItem<String>(
+        PopupMenuItem<String>(
           enabled: false,
           height: 32,
           child: Text(
-            'EXERCISE',
-            style: TextStyle(
+            l10n.exerciseCardExerciseHeader,
+            style: const TextStyle(
               color: Colors.grey,
               fontSize: 12,
               fontWeight: FontWeight.w600,
@@ -483,7 +486,7 @@ class ExerciseCardWidget extends ConsumerWidget {
             children: [
               Icon(Icons.edit_outlined, color: onSurfaceColor, size: 20),
               const SizedBox(width: 12),
-              Text('New note', style: TextStyle(color: onSurfaceColor)),
+              Text(l10n.exerciseCardNewNote, style: TextStyle(color: onSurfaceColor)),
             ],
           ),
         ),
@@ -502,7 +505,7 @@ class ExerciseCardWidget extends ConsumerWidget {
                 ),
                 const SizedBox(width: 12),
                 Text(
-                  'Move up',
+                  l10n.exerciseCardMoveUp,
                   style: TextStyle(
                     color: isFirstExercise ? Colors.grey : onSurfaceColor,
                   ),
@@ -525,7 +528,7 @@ class ExerciseCardWidget extends ConsumerWidget {
                 ),
                 const SizedBox(width: 12),
                 Text(
-                  'Move down',
+                  l10n.exerciseCardMoveDown,
                   style: TextStyle(
                     color: isLastExercise ? Colors.grey : onSurfaceColor,
                   ),
@@ -541,7 +544,7 @@ class ExerciseCardWidget extends ConsumerWidget {
             children: [
               Icon(Icons.swap_horiz, color: onSurfaceColor, size: 20),
               const SizedBox(width: 12),
-              Text('Replace', style: TextStyle(color: onSurfaceColor)),
+              Text(l10n.exerciseCardReplace, style: TextStyle(color: onSurfaceColor)),
             ],
           ),
         ),
@@ -559,7 +562,7 @@ class ExerciseCardWidget extends ConsumerWidget {
               ),
               const SizedBox(width: 12),
               Text(
-                'Joint pain',
+                l10n.exerciseCardJointPain,
                 style: TextStyle(
                   color: exercise.sets.any((s) => s.isLogged) ? onSurfaceColor : Colors.grey,
                 ),
@@ -577,7 +580,9 @@ class ExerciseCardWidget extends ConsumerWidget {
                 Icon(Icons.timer, color: onSurfaceColor, size: 20),
                 const SizedBox(width: 12),
                 Text(
-                  exercise.restSeconds != null ? 'Rest: ${exercise.restSeconds}s' : 'Set rest timer',
+                  exercise.restSeconds != null
+                      ? l10n.exerciseCardRestTimerValue(exercise.restSeconds!)
+                      : l10n.exerciseCardSetRestTimer,
                   style: TextStyle(color: onSurfaceColor),
                 ),
               ],
@@ -591,7 +596,7 @@ class ExerciseCardWidget extends ConsumerWidget {
             children: [
               Icon(Icons.add, color: onSurfaceColor, size: 20),
               const SizedBox(width: 12),
-              Text('Add set', style: TextStyle(color: onSurfaceColor)),
+              Text(l10n.exerciseCardAddSet, style: TextStyle(color: onSurfaceColor)),
             ],
           ),
         ),
@@ -603,7 +608,7 @@ class ExerciseCardWidget extends ConsumerWidget {
             children: [
               Icon(Icons.fast_forward, color: onSurfaceColor, size: 20),
               const SizedBox(width: 12),
-              Text('Skip sets', style: TextStyle(color: onSurfaceColor)),
+              Text(l10n.exerciseCardSkipSets, style: TextStyle(color: onSurfaceColor)),
             ],
           ),
         ),
@@ -622,7 +627,7 @@ class ExerciseCardWidget extends ConsumerWidget {
                 ),
                 const SizedBox(width: 12),
                 Text(
-                  'Delete exercise',
+                  l10n.exerciseCardDeleteExercise,
                   style: TextStyle(
                     color: exercise.sets.any((s) => s.isLogged) ? Colors.grey : context.errorColor,
                   ),
@@ -635,7 +640,7 @@ class ExerciseCardWidget extends ConsumerWidget {
     );
   }
 
-  Widget _buildSetRow(BuildContext context, ExerciseSet set, int index) {
+  Widget _buildSetRow(BuildContext context, AppLocalizations l10n, ExerciseSet set, int index) {
     final isLoggable = set.weight != null && set.reps.isNotEmpty;
 
     // Myorep Match sets include weight/reps in the key so the field
@@ -650,13 +655,13 @@ class ExerciseCardWidget extends ConsumerWidget {
           // Set menu (3 dots)
           SizedBox(
             width: 24,
-            child: _buildSetOverflowMenu(context, set, index),
+            child: _buildSetOverflowMenu(context, l10n, set, index),
           ),
           const SizedBox(width: 24),
           // Weight Input
           Expanded(
             child: Semantics(
-              label: 'Weight for set ${index + 1}',
+              label: l10n.exerciseCardWeightSemantic(index + 1),
               textField: true,
               child: Container(
                 height: 30,
@@ -745,7 +750,7 @@ class ExerciseCardWidget extends ConsumerWidget {
           // Reps Input
           Expanded(
             child: Semantics(
-              label: 'Reps for set ${index + 1}',
+              label: l10n.exerciseCardRepsSemantic(index + 1),
               textField: true,
               child: Stack(
                 children: [
@@ -772,7 +777,9 @@ class ExerciseCardWidget extends ConsumerWidget {
                         keyboardAppearance: Brightness.light,
                         decoration: InputDecoration(
                           filled: false,
-                          hintText: targetRir != null ? '$targetRir RIR' : 'RIR',
+                          hintText: targetRir != null
+                              ? l10n.exerciseCardRirTargetHint(targetRir!)
+                              : l10n.exerciseCardRirHint,
                           hintStyle: Theme.of(
                             context,
                           ).inputDecorationTheme.hintStyle,
@@ -819,7 +826,9 @@ class ExerciseCardWidget extends ConsumerWidget {
                       top: 2,
                       right: 4,
                       child: Semantics(
-                        label: '${set.setType.displayName} set',
+                        label: l10n.exerciseCardSetTypeSemantic(
+                          set.setType.displayName,
+                        ),
                         child: Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 4,
@@ -848,7 +857,7 @@ class ExerciseCardWidget extends ConsumerWidget {
 
           // Log Checkbox
           Semantics(
-            label: 'Log set ${index + 1}',
+            label: l10n.exerciseCardLogSemantic(index + 1),
             checked: set.isLogged,
             enabled: isLoggable,
             child: SizedBox(
@@ -887,6 +896,7 @@ class ExerciseCardWidget extends ConsumerWidget {
 
   Widget _buildSetOverflowMenu(
     BuildContext context,
+    AppLocalizations l10n,
     ExerciseSet set,
     int index,
   ) {
@@ -937,12 +947,12 @@ class ExerciseCardWidget extends ConsumerWidget {
       },
       itemBuilder: (context) => [
         // SET Header
-        const PopupMenuItem<String>(
+        PopupMenuItem<String>(
           enabled: false,
           height: 32,
           child: Text(
-            'SET',
-            style: TextStyle(
+            l10n.exerciseCardSetHeader,
+            style: const TextStyle(
               color: Colors.grey,
               fontSize: 12,
               fontWeight: FontWeight.w600,
@@ -962,7 +972,7 @@ class ExerciseCardWidget extends ConsumerWidget {
               ),
               const SizedBox(width: 12),
               Text(
-                'Add set below',
+                l10n.exerciseCardAddSetBelow,
                 style: TextStyle(
                   color: Theme.of(context).colorScheme.onSurface,
                 ),
@@ -983,7 +993,7 @@ class ExerciseCardWidget extends ConsumerWidget {
               ),
               const SizedBox(width: 12),
               Text(
-                set.isSkipped ? 'Unskip set' : 'Skip set',
+                set.isSkipped ? l10n.exerciseCardUnskipSet : l10n.exerciseCardSkipSet,
                 style: TextStyle(
                   color: Theme.of(context).colorScheme.onSurface,
                 ),
@@ -1000,7 +1010,7 @@ class ExerciseCardWidget extends ConsumerWidget {
               children: [
                 Icon(Icons.delete_outline, color: context.errorColor, size: 20),
                 const SizedBox(width: 12),
-                Text('Delete set', style: TextStyle(color: context.errorColor)),
+                Text(l10n.exerciseCardDeleteSet, style: TextStyle(color: context.errorColor)),
               ],
             ),
           ),
@@ -1013,9 +1023,9 @@ class ExerciseCardWidget extends ConsumerWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'SET TYPE',
-                style: TextStyle(
+              Text(
+                l10n.exerciseCardSetTypeHeader,
+                style: const TextStyle(
                   color: Colors.grey,
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
@@ -1048,7 +1058,7 @@ class ExerciseCardWidget extends ConsumerWidget {
               ),
               const SizedBox(width: 12),
               Text(
-                'Regular',
+                l10n.setTypeRegular,
                 style: TextStyle(
                   color: Theme.of(context).colorScheme.onSurface,
                 ),
@@ -1069,7 +1079,7 @@ class ExerciseCardWidget extends ConsumerWidget {
               ),
               const SizedBox(width: 12),
               Text(
-                'Myorep',
+                l10n.setTypeMyorep,
                 style: TextStyle(
                   color: Theme.of(context).colorScheme.onSurface,
                 ),
@@ -1091,7 +1101,7 @@ class ExerciseCardWidget extends ConsumerWidget {
                 ),
                 const SizedBox(width: 12),
                 Text(
-                  'Myorep match',
+                  l10n.setTypeMyorepMatch,
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.onSurface,
                   ),
@@ -1112,7 +1122,7 @@ class ExerciseCardWidget extends ConsumerWidget {
               ),
               const SizedBox(width: 12),
               Text(
-                'Max reps',
+                l10n.setTypeMaxReps,
                 style: TextStyle(
                   color: Theme.of(context).colorScheme.onSurface,
                 ),
@@ -1133,7 +1143,7 @@ class ExerciseCardWidget extends ConsumerWidget {
               ),
               const SizedBox(width: 12),
               Text(
-                'End with partials',
+                l10n.setTypeEndWithPartials,
                 style: TextStyle(
                   color: Theme.of(context).colorScheme.onSurface,
                 ),
@@ -1155,7 +1165,7 @@ class ExerciseCardWidget extends ConsumerWidget {
                 ),
                 const SizedBox(width: 12),
                 Text(
-                  'Drop set',
+                  l10n.setTypeDropSet,
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.onSurface,
                   ),

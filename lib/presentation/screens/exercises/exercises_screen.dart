@@ -35,6 +35,7 @@ import '../../widgets/dialogs/add_exercise_dialog.dart';
 import '../../widgets/dialogs/exercise_feedback_dialog.dart';
 import '../../widgets/dialogs/workout_dialogs.dart';
 import '../../widgets/exercise_card_widget.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../widgets/screen_background.dart';
 import '../workout/add_exercise_screen.dart';
 
@@ -111,6 +112,7 @@ class _ExercisesHomeScreenState extends ConsumerState<ExercisesHomeScreen> {
 
   /// Show menu for training cycle operations (used on empty state)
   void _showCycleMenu(BuildContext context, TrainingCycle trainingCycle) {
+    final l10n = AppLocalizations.of(context)!;
     final RenderBox button = context.findRenderObject() as RenderBox;
     final RenderBox overlay = Navigator.of(context).overlay!.context.findRenderObject() as RenderBox;
     final Offset buttonPosition = button.localToGlobal(
@@ -158,7 +160,7 @@ class _ExercisesHomeScreenState extends ConsumerState<ExercisesHomeScreen> {
                 color: Theme.of(context).iconTheme.color,
               ),
               const SizedBox(width: 12),
-              Text('Note', style: Theme.of(context).textTheme.bodyMedium),
+              Text(l10n.exercisesMenuNote, style: Theme.of(context).textTheme.bodyMedium),
             ],
           ),
         ),
@@ -173,7 +175,7 @@ class _ExercisesHomeScreenState extends ConsumerState<ExercisesHomeScreen> {
                 color: Theme.of(context).iconTheme.color,
               ),
               const SizedBox(width: 12),
-              Text('Summary', style: Theme.of(context).textTheme.bodyMedium),
+              Text(l10n.exercisesMenuSummary, style: Theme.of(context).textTheme.bodyMedium),
             ],
           ),
         ),
@@ -189,6 +191,7 @@ class _ExercisesHomeScreenState extends ConsumerState<ExercisesHomeScreen> {
   }
 
   Future<void> _writeCycleNote(TrainingCycle trainingCycle) async {
+    final l10n = AppLocalizations.of(context)!;
     final cycleTerm = ref.read(trainingCycleTermProvider);
     final currentNote = trainingCycle.notes;
 
@@ -197,8 +200,8 @@ class _ExercisesHomeScreenState extends ConsumerState<ExercisesHomeScreen> {
       builder: (context) => NoteDialog(
         noteType: NoteType.trainingCycle,
         initialNote: currentNote,
-        customTitle: '$cycleTerm Note',
-        customHint: 'Enter note for this $cycleTerm...',
+        customTitle: l10n.exercisesCycleNoteTitle(cycleTerm),
+        customHint: l10n.exercisesCycleNoteHint(cycleTerm),
       ),
     );
 
@@ -211,7 +214,7 @@ class _ExercisesHomeScreenState extends ConsumerState<ExercisesHomeScreen> {
         if (mounted) {
           ScaffoldMessenger.of(
             context,
-          ).showSnackBar(SnackBar(content: Text('Failed to save note: $e')));
+          ).showSnackBar(SnackBar(content: Text(l10n.failedToSave(e))));
         }
       }
     }
@@ -219,18 +222,19 @@ class _ExercisesHomeScreenState extends ConsumerState<ExercisesHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final currentCycles = ref.watch(currentTrainingCyclesProvider);
     final currentTrainingCycle = currentCycles.isEmpty ? null : currentCycles.first;
 
     if (currentTrainingCycle == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Exercises')),
+        appBar: AppBar(title: Text(l10n.exercisesTitle)),
         body: ScreenBackground.exercises(
-          child: const EmptyStateWidget(
+          child: EmptyStateWidget(
             icon: Icons.fitness_center,
             iconSize: 80,
-            title: 'No Active TrainingCycle',
-            subtitle: 'Create and start a trainingCycle to begin',
+            title: l10n.exercisesNoActiveCycleTitle,
+            subtitle: l10n.exercisesNoActiveCycleSubtitle,
           ),
         ),
       );
@@ -403,6 +407,7 @@ class _ExercisesHomeScreenState extends ConsumerState<ExercisesHomeScreen> {
     required int currentDay,
     required List<Workout> allWorkouts,
   }) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
@@ -423,7 +428,7 @@ class _ExercisesHomeScreenState extends ConsumerState<ExercisesHomeScreen> {
             ),
             const SizedBox(height: 2),
             Text(
-              'PERIOD $period DAY $day',
+              l10n.exercisesPeriodDayHeader(period, day),
               style: TextStyle(
                 color: Theme.of(context).textTheme.titleLarge?.color,
                 fontSize: 17,
@@ -437,7 +442,7 @@ class _ExercisesHomeScreenState extends ConsumerState<ExercisesHomeScreen> {
           IconButton(
             icon: const Icon(Icons.calendar_today),
             onPressed: _togglePeriodSelector,
-            tooltip: 'Select day',
+            tooltip: l10n.exercisesSelectDayTooltip,
           ),
           IconButton(
             icon: Icon(
@@ -446,7 +451,7 @@ class _ExercisesHomeScreenState extends ConsumerState<ExercisesHomeScreen> {
             onPressed: () {
               ref.read(themeModeProvider.notifier).toggleTheme();
             },
-            tooltip: 'Toggle theme',
+            tooltip: l10n.toggleThemeTooltip,
           ),
           Builder(
             builder: (context) => IconButton(
@@ -462,10 +467,10 @@ class _ExercisesHomeScreenState extends ConsumerState<ExercisesHomeScreen> {
             EmptyStateWidget(
               icon: Icons.fitness_center,
               iconSize: 80,
-              title: 'No exercises scheduled',
-              subtitle: 'Add exercises for Period $period, Day $day',
+              title: l10n.exercisesNoScheduledTitle,
+              subtitle: l10n.exercisesNoScheduledSubtitleForDay(period, day),
               primaryAction: EmptyStateAction(
-                label: 'Add Exercise',
+                label: l10n.exercisesAddExercise,
                 icon: Icons.add,
                 onPressed: () => _addExerciseForDay(
                   trainingCycle.id,
@@ -623,6 +628,7 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     // Build exercise list directly from widget.workouts (fresh from provider)
     final (allExercises, exerciseSources) = _buildExerciseData();
 
@@ -694,7 +700,9 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
               ),
               const SizedBox(height: 2),
               Text(
-                'PERIOD $displayPeriod DAY $displayDay $dayName',
+                dayName.isNotEmpty
+                    ? l10n.exercisesPeriodDayHeaderWithName(displayPeriod, displayDay, dayName)
+                    : l10n.exercisesPeriodDayHeader(displayPeriod, displayDay),
                 style: TextStyle(
                   color: Theme.of(context).textTheme.titleLarge?.color,
                   fontSize: 17,
@@ -717,7 +725,7 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
               onPressed: () {
                 ref.read(themeModeProvider.notifier).toggleTheme();
               },
-              tooltip: 'Toggle theme',
+              tooltip: l10n.toggleThemeTooltip,
             ),
             // History toggle
             IconButton(
@@ -726,7 +734,7 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
                 color: ref.watch(showExerciseHistoryProvider) ? Theme.of(context).colorScheme.primary : null,
               ),
               onPressed: _toggleHistory,
-              tooltip: 'Toggle history',
+              tooltip: l10n.exercisesToggleHistoryTooltip,
             ),
             Builder(
               builder: (context) => IconButton(
@@ -922,9 +930,9 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
                                 ),
                                 elevation: 0,
                               ),
-                              child: const Text(
-                                'FINISH WORKOUT',
-                                style: TextStyle(
+                              child: Text(
+                                l10n.exercisesFinishWorkout,
+                                style: const TextStyle(
                                   fontSize: 17,
                                   fontWeight: FontWeight.w600,
                                   letterSpacing: 0.5,
@@ -981,13 +989,14 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
     BuildContext context,
     List<Workout> workouts,
   ) {
+    final l10n = AppLocalizations.of(context)!;
     return EmptyStateWidget(
       icon: Icons.fitness_center,
       iconSize: 80,
-      title: 'No exercises scheduled',
-      subtitle: 'Add exercises for this day',
+      title: l10n.exercisesNoScheduledTitle,
+      subtitle: l10n.exercisesNoScheduledSubtitle,
       primaryAction: EmptyStateAction(
-        label: 'Add Exercise',
+        label: l10n.exercisesAddExercise,
         icon: Icons.add,
         onPressed: () => _addExerciseToWorkout(workouts),
       ),
@@ -1085,12 +1094,13 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
 
     if (!mounted) return;
 
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('$cycleTerm Completed!'),
+        title: Text(l10n.exercisesCycleCompletedTitle(cycleTerm)),
         content: Text(
-          'Congratulations! You have finished all workouts in this $cycleTerm.',
+          l10n.exercisesCycleCompletedContent(cycleTerm),
         ),
         actions: [
           FilledButton(
@@ -1098,7 +1108,7 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
               Navigator.pop(context); // Close dialog
               context.go('/'); // Go back to list screen
             },
-            child: const Text('AWESOME'),
+            child: Text(l10n.exercisesAwesome),
           ),
         ],
       ),
@@ -1110,6 +1120,7 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
     dynamic trainingCycle,
     List<Workout> workouts,
   ) {
+    final l10n = AppLocalizations.of(context)!;
     final RenderBox button = context.findRenderObject() as RenderBox;
     final RenderBox overlay = Navigator.of(context).overlay!.context.findRenderObject() as RenderBox;
     final Offset buttonPosition = button.localToGlobal(
@@ -1134,31 +1145,31 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
         _buildMenuHeader(ref.watch(trainingCycleTermProvider).toUpperCase()),
         _buildMenuItem(
           icon: Icons.edit_note,
-          text: 'Note',
+          text: l10n.exercisesMenuNote,
           onTap: () => _writeTrainingCycleNote(trainingCycle),
         ),
         _buildMenuItem(
           icon: Icons.summarize_outlined,
-          text: 'Summary',
+          text: l10n.exercisesMenuSummary,
           onTap: () => _showTrainingCycleSummary(trainingCycle),
         ),
         const PopupMenuDivider(height: 1),
 
         // WORKOUT Section
-        _buildMenuHeader('WORKOUT'),
+        _buildMenuHeader(l10n.exercisesMenuWorkoutHeader),
         _buildMenuItem(
           icon: Icons.edit,
-          text: 'Note',
+          text: l10n.exercisesMenuNote,
           onTap: () => _newWorkoutNote(workouts),
         ),
         _buildMenuItem(
           icon: Icons.add,
-          text: 'Add exercise',
+          text: l10n.exercisesMenuAddExercise,
           onTap: () => _addExerciseToWorkout(workouts),
         ),
         _buildMenuItem(
           icon: Icons.undo,
-          text: 'Reset',
+          text: l10n.exercisesMenuReset,
           onTap: () => _resetWorkout(workouts),
           enabled:
               !workouts.any((w) => w.status == WorkoutStatus.completed) &&
@@ -1229,6 +1240,7 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
   }
 
   Future<void> _writeTrainingCycleNote(dynamic trainingCycle) async {
+    final l10n = AppLocalizations.of(context)!;
     final cycleTerm = ref.read(trainingCycleTermProvider);
     final currentNote = trainingCycle.notes as String?;
 
@@ -1237,8 +1249,8 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
       builder: (context) => NoteDialog(
         initialNote: currentNote,
         noteType: NoteType.trainingCycle,
-        customTitle: '$cycleTerm Note',
-        customHint: 'Enter note for this $cycleTerm...',
+        customTitle: l10n.exercisesCycleNoteTitle(cycleTerm),
+        customHint: l10n.exercisesCycleNoteHint(cycleTerm),
       ),
     );
 
@@ -1253,7 +1265,7 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: const Text('Note saved'),
+              content: Text(l10n.noteSaved),
               backgroundColor: context.successColor,
             ),
           );
@@ -1262,7 +1274,7 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Error saving note: $e'),
+              content: Text(l10n.exercisesErrorSavingNote(e)),
               backgroundColor: context.errorColor,
             ),
           );
@@ -1299,9 +1311,10 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
       await repository.update(updatedWorkout);
 
       if (mounted) {
+        final l10n = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('Note saved'),
+            content: Text(l10n.noteSaved),
             backgroundColor: context.successColor,
           ),
         );
@@ -1310,26 +1323,27 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
   }
 
   Future<void> _resetWorkout(List<Workout> workouts) async {
+    final l10n = AppLocalizations.of(context)!;
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Reset Workout'),
-        content: const Text(
-          'This will clear all logged sets and entered data for this workout. '
-          'This cannot be undone.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('CANCEL'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: FilledButton.styleFrom(backgroundColor: context.errorColor),
-            child: const Text('RESET'),
-          ),
-        ],
-      ),
+      builder: (context) {
+        final dialogL10n = AppLocalizations.of(context)!;
+        return AlertDialog(
+          title: Text(dialogL10n.exercisesResetTitle),
+          content: Text(dialogL10n.exercisesResetContent),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: Text(dialogL10n.cancelUpper),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(context, true),
+              style: FilledButton.styleFrom(backgroundColor: context.errorColor),
+              child: Text(dialogL10n.exercisesResetAction),
+            ),
+          ],
+        );
+      },
     );
 
     if (confirmed == true && mounted) {
@@ -1364,7 +1378,7 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('Workout reset'),
+            content: Text(l10n.exercisesWorkoutReset),
             backgroundColor: context.successColor,
           ),
         );
@@ -1868,6 +1882,7 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
 
   // ========== Exercise History ==========
   Widget _buildExerciseHistory(BuildContext context, Exercise exercise) {
+    final l10n = AppLocalizations.of(context)!;
     // Use provider data instead of sync repository calls
     final workoutsAsync = ref.watch(workoutsProvider);
     final trainingCyclesAsync = ref.watch(trainingCyclesProvider);
@@ -1957,7 +1972,7 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
               ),
               const SizedBox(width: 8),
               Text(
-                'History',
+                l10n.exercisesHistoryHeader,
                 style: Theme.of(
                   context,
                 ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
@@ -1975,13 +1990,14 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
     BuildContext context,
     TrainingCycle? trainingCycle,
   ) {
-    final name = trainingCycle?.name ?? 'Unknown TrainingCycle';
+    final l10n = AppLocalizations.of(context)!;
+    final name = trainingCycle?.name ?? l10n.exercisesUnknownCycle;
     final periods = trainingCycle?.periodsTotal ?? 0;
 
     return Padding(
       padding: const EdgeInsets.only(top: 4, bottom: 0),
       child: Text(
-        '$name - $periods PERIODS'.toUpperCase(),
+        l10n.exercisesCycleHistoryHeader(name, periods).toUpperCase(),
         style: Theme.of(context).textTheme.bodySmall?.copyWith(
           color: Theme.of(
             context,
@@ -1994,8 +2010,9 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
   }
 
   Widget _buildHistoryRow(BuildContext context, _HistoryEntry entry) {
+    final l10n = AppLocalizations.of(context)!;
     final dateFormat = DateFormat('MMM d, yyyy');
-    final dateStr = entry.completedDate != null ? dateFormat.format(entry.completedDate!) : 'Unknown date';
+    final dateStr = entry.completedDate != null ? dateFormat.format(entry.completedDate!) : l10n.exercisesUnknownDate;
 
     final loggedSets = entry.exercise.sets.where((s) => s.isLogged).toList();
     final isRecovery = entry.trainingCycle != null && entry.workout.periodNumber == entry.trainingCycle!.recoveryPeriod;
@@ -2013,7 +2030,9 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
       final weight = weightEntry.key;
       final sets = weightEntry.value;
 
-      final weightStr = weight != null ? weight.toStringAsFixed(weight % 1 == 0 ? 0 : 1) : 'BW';
+      final weightStr = weight != null
+          ? weight.toStringAsFixed(weight % 1 == 0 ? 0 : 1)
+          : l10n.exercisesBodyweightAbbrev;
 
       // Collect reps with their badges for this weight group
       final repsWithBadges = sets.map((set) {
@@ -2062,7 +2081,7 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
                 if (isRecovery) ...[
                   const SizedBox(height: 2),
                   Text(
-                    'DELOAD',
+                    l10n.exercisesDeloadLabel,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: Theme.of(
                         context,
@@ -2087,12 +2106,12 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
                     ).colorScheme.onSurface.withAlpha((255 * 0.6).round()),
                   ),
                   children: [
-                    const TextSpan(text: 'PERIOD '),
+                    TextSpan(text: l10n.exercisesHistoryPeriodLabel),
                     TextSpan(
                       text: '${entry.workout.periodNumber}',
                       style: const TextStyle(fontWeight: FontWeight.w600),
                     ),
-                    const TextSpan(text: ' - DAY '),
+                    TextSpan(text: l10n.exercisesHistoryDayLabel),
                     TextSpan(
                       text: '${entry.workout.dayNumber}',
                       style: const TextStyle(fontWeight: FontWeight.w600),
@@ -2121,6 +2140,7 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
     BuildContext context,
     List<_WeightRepsGroup> groups,
   ) {
+    final l10n = AppLocalizations.of(context)!;
     final List<InlineSpan> spans = [];
 
     for (var i = 0; i < groups.length; i++) {
@@ -2136,7 +2156,7 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
       );
       spans.add(
         TextSpan(
-          text: ' lbs',
+          text: ' ${l10n.exercisesWeightUnitLbs}',
           style: TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w400,

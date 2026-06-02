@@ -13,6 +13,7 @@ import '../../../data/services/cardio_session_library_service.dart';
 import '../../../domain/providers/database_providers.dart';
 import '../../../domain/providers/onboarding_providers.dart';
 import '../../../domain/providers/session_providers.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../screens/cardio/cardio_template_picker.dart';
 import '../../screens/workout/add_exercise_screen.dart';
 import '../cardio/distance_input.dart';
@@ -143,6 +144,7 @@ class _AddSessionSheetState extends State<_AddSessionSheet> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     // Pre-compute the muscle group → workout map once per build.
     final muscleGroupWorkouts = <MuscleGroup, Workout>{};
@@ -159,8 +161,8 @@ class _AddSessionSheetState extends State<_AddSessionSheet> {
 
     // Dynamic title based on mode.
     final title = _showSportPicker
-        ? (isCardio ? 'Plan ${_currentSport.displayName}' : 'Add Session')
-        : 'Select Muscle Group';
+        ? (isCardio ? l10n.addSessionPlanSport(_currentSport.displayName) : l10n.addSessionTitle)
+        : l10n.selectMuscleGroupTitle;
 
     return Container(
       height: MediaQuery.of(context).size.height * 0.8,
@@ -232,13 +234,14 @@ class _AddSessionSheetState extends State<_AddSessionSheet> {
   // ── Cardio form ──
 
   Widget _buildCardioForm(ThemeData theme) {
+    final l10n = AppLocalizations.of(context)!;
     return ListView(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       children: [
         OutlinedButton.icon(
           onPressed: _saving ? null : _pickTemplate,
           icon: const Icon(Icons.auto_awesome),
-          label: const Text('Start from template'),
+          label: Text(l10n.startFromTemplate),
         ),
         const SizedBox(height: 24),
         DistanceInput(
@@ -264,7 +267,7 @@ class _AddSessionSheetState extends State<_AddSessionSheet> {
                     color: Colors.white,
                   ),
                 )
-              : Text('Plan ${_currentSport.displayName}'),
+              : Text(l10n.planSportButton(_currentSport.displayName)),
         ),
       ],
     );
@@ -352,17 +355,19 @@ class _AddSessionSheetState extends State<_AddSessionSheet> {
 
       final parentCtx = widget.parentContext;
       if (!parentCtx.mounted) return;
+      final l10n = AppLocalizations.of(parentCtx)!;
       ScaffoldMessenger.of(parentCtx).showSnackBar(
         SnackBar(
           content: Text(
-            '${_currentSport.displayName} session planned',
+            l10n.sessionPlannedSnackbar(_currentSport.displayName),
           ),
         ),
       );
     } catch (e) {
       if (!mounted) return;
+      final l10n = AppLocalizations.of(context)!;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to save: $e')),
+        SnackBar(content: Text(l10n.failedToSave(e))),
       );
     } finally {
       if (mounted) setState(() => _saving = false);

@@ -10,6 +10,7 @@ import '../../../data/models/training_cycle_template.dart';
 import '../../../data/services/template_share_service.dart';
 import '../../../domain/providers/template_providers.dart';
 import '../../../domain/providers/template_share_providers.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../widgets/skeleton_loader.dart';
 
 /// Screen for sharing templates via WiFi with QR code
@@ -105,7 +106,7 @@ class _TemplateShareScreenState extends ConsumerState<TemplateShareScreen> {
       _isServerRunning = success;
       _connectionInfo = shareService.connectionInfo;
       if (!success) {
-        _errorMessage = 'Could not start share server. Make sure you are connected to WiFi.';
+        _errorMessage = AppLocalizations.of(context)!.templateShareServerError;
       }
     });
   }
@@ -169,8 +170,7 @@ class _TemplateShareScreenState extends ConsumerState<TemplateShareScreen> {
       _isLoading = false;
       _connectedDevice = device;
       if (device == null) {
-        _errorMessage =
-            'Could not connect to device. Make sure both devices are on the same WiFi network and you are scanning a valid template share QR code.';
+        _errorMessage = AppLocalizations.of(context)!.templateShareConnectionError;
       }
     });
   }
@@ -195,10 +195,11 @@ class _TemplateShareScreenState extends ConsumerState<TemplateShareScreen> {
       ref.invalidate(savedTemplatesProvider);
       ref.invalidate(availableTemplatesProvider);
 
+      final l10n = AppLocalizations.of(context)!;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            result.message ?? (result.success ? 'Templates received!' : 'Failed to receive templates'),
+            result.message ?? (result.success ? l10n.templateShareReceived : l10n.templateShareReceiveFailed),
           ),
           backgroundColor: result.success ? context.successColor : context.errorColor,
         ),
@@ -214,8 +215,9 @@ class _TemplateShareScreenState extends ConsumerState<TemplateShareScreen> {
   Widget build(BuildContext context) {
     final templatesAsync = ref.watch(savedTemplatesProvider);
 
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      appBar: AppBar(title: const Text('Share Templates'), centerTitle: true),
+      appBar: AppBar(title: Text(l10n.templateShareTitle), centerTitle: true),
       body: _isScanning
           ? _buildScanner()
           : _connectedDevice != null
@@ -247,6 +249,7 @@ class _TemplateShareScreenState extends ConsumerState<TemplateShareScreen> {
   }
 
   Widget _buildSelectionView(List<TrainingCycleTemplate> templates) {
+    final l10n = AppLocalizations.of(context)!;
     if (templates.isEmpty) {
       return Padding(
         padding: const EdgeInsets.all(24),
@@ -260,17 +263,14 @@ class _TemplateShareScreenState extends ConsumerState<TemplateShareScreen> {
             ),
             const SizedBox(height: 16),
             Text(
-              'No Saved Templates',
+              l10n.templateShareNoSavedTitle,
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(height: 8),
             Text(
-              'Save a Training Cycle as a template first, '
-              'then you can share it here.\n\n'
-              'To save a template, go to a Training Cycle '
-              'and use the "Save as Template" option.',
+              l10n.templateShareNoSavedDesc,
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
@@ -281,8 +281,8 @@ class _TemplateShareScreenState extends ConsumerState<TemplateShareScreen> {
             OutlinedButton.icon(
               onPressed: _startScanning,
               icon: const Icon(Icons.qr_code_scanner),
-              label: const Text(
-                'Scan QR Code to Receive Templates',
+              label: Text(
+                l10n.templateShareScanQrButton,
               ),
               style: OutlinedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 12),
@@ -304,14 +304,14 @@ class _TemplateShareScreenState extends ConsumerState<TemplateShareScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Share or Receive Templates',
+                l10n.templateShareOrReceiveTitle,
                 style: Theme.of(
                   context,
                 ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
               Text(
-                'Select templates to share, or scan a QR code to receive templates from another device.',
+                l10n.templateShareOrReceiveDesc,
                 style: Theme.of(
                   context,
                 ).textTheme.bodyMedium?.copyWith(color: Colors.grey),
@@ -343,7 +343,7 @@ class _TemplateShareScreenState extends ConsumerState<TemplateShareScreen> {
           child: OutlinedButton.icon(
             onPressed: _isLoading ? null : _startScanning,
             icon: const Icon(Icons.qr_code_scanner),
-            label: const Text('Scan QR Code to Receive Templates'),
+            label: Text(l10n.templateShareScanQrButton),
             style: OutlinedButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: 12),
               minimumSize: const Size(double.infinity, 48),
@@ -359,7 +359,7 @@ class _TemplateShareScreenState extends ConsumerState<TemplateShareScreen> {
           child: Row(
             children: [
               Text(
-                'Select Templates to Share',
+                l10n.templateShareSelectHeader,
                 style: Theme.of(context).textTheme.titleMedium,
               ),
               const Spacer(),
@@ -375,7 +375,9 @@ class _TemplateShareScreenState extends ConsumerState<TemplateShareScreen> {
                   });
                 },
                 child: Text(
-                  _selectedTemplateIds.length == templates.length ? 'Deselect All' : 'Select All',
+                  _selectedTemplateIds.length == templates.length
+                      ? l10n.templateShareDeselectAll
+                      : l10n.templateShareSelectAll,
                 ),
               ),
             ],
@@ -422,7 +424,7 @@ class _TemplateShareScreenState extends ConsumerState<TemplateShareScreen> {
                         )
                       : const Icon(Icons.qr_code),
                   label: Text(
-                    _selectedTemplateIds.isEmpty ? 'Select Templates to Share' : 'Share via QR Code',
+                    _selectedTemplateIds.isEmpty ? l10n.templateShareSelectToShare : l10n.templateShareViaQrCode,
                   ),
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
@@ -441,7 +443,7 @@ class _TemplateShareScreenState extends ConsumerState<TemplateShareScreen> {
                           );
                         },
                   icon: const Icon(Icons.cloud_upload),
-                  label: const Text('Upload to Cloud'),
+                  label: Text(l10n.templateShareUploadToCloud),
                   style: FilledButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     minimumSize: const Size(double.infinity, 56),
@@ -459,6 +461,7 @@ class _TemplateShareScreenState extends ConsumerState<TemplateShareScreen> {
     BuildContext context,
     TrainingCycleTemplate template,
   ) {
+    final l10n = AppLocalizations.of(context)!;
     final colorScheme = Theme.of(context).colorScheme;
     final isSelected = _selectedTemplateIds.contains(template.id);
 
@@ -522,7 +525,7 @@ class _TemplateShareScreenState extends ConsumerState<TemplateShareScreen> {
                             borderRadius: BorderRadius.circular(4),
                           ),
                           child: Text(
-                            '${template.daysPerPeriod} Days/Period',
+                            l10n.templateShareDaysPerPeriod(template.daysPerPeriod),
                             style: const TextStyle(
                               color: Colors.blue,
                               fontSize: 12,
@@ -560,7 +563,7 @@ class _TemplateShareScreenState extends ConsumerState<TemplateShareScreen> {
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          '${template.periodsTotal} Periods',
+                          l10n.templateSharePeriodsCount(template.periodsTotal),
                           style: TextStyle(
                             color: isSelected
                                 ? colorScheme.onPrimaryContainer.withValues(
@@ -582,7 +585,7 @@ class _TemplateShareScreenState extends ConsumerState<TemplateShareScreen> {
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          '${template.workouts.length} Workouts',
+                          l10n.templateShareWorkoutsCount(template.workouts.length),
                           style: TextStyle(
                             color: isSelected
                                 ? colorScheme.onPrimaryContainer.withValues(
@@ -605,13 +608,14 @@ class _TemplateShareScreenState extends ConsumerState<TemplateShareScreen> {
   }
 
   Widget _buildServerView() {
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.all(24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            'Ready to Share',
+            l10n.templateShareReadyTitle,
             style: Theme.of(
               context,
             ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
@@ -619,7 +623,7 @@ class _TemplateShareScreenState extends ConsumerState<TemplateShareScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Ask the other person to scan this QR code',
+            l10n.templateShareScanPrompt,
             style: Theme.of(
               context,
             ).textTheme.bodyMedium?.copyWith(color: Colors.grey),
@@ -635,14 +639,14 @@ class _TemplateShareScreenState extends ConsumerState<TemplateShareScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Sharing ${_selectedTemplateIds.length} Template${_selectedTemplateIds.length > 1 ? 's' : ''}',
+                    l10n.templateShareSharingCount(_selectedTemplateIds.length),
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'When scanned, these templates will be copied to the other device.',
+                    l10n.templateShareSharingNote,
                     style: Theme.of(
                       context,
                     ).textTheme.bodySmall?.copyWith(color: Colors.grey),
@@ -678,7 +682,7 @@ class _TemplateShareScreenState extends ConsumerState<TemplateShareScreen> {
             style: OutlinedButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: 16),
             ),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
         ],
       ),
@@ -696,6 +700,7 @@ class _TemplateShareScreenState extends ConsumerState<TemplateShareScreen> {
         MobileScanner(
           controller: _scannerController,
           errorBuilder: (context, error, child) {
+            final l10n = AppLocalizations.of(context)!;
             return Center(
               child: Padding(
                 padding: const EdgeInsets.all(24),
@@ -709,18 +714,18 @@ class _TemplateShareScreenState extends ConsumerState<TemplateShareScreen> {
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      'Camera Error',
+                      l10n.templateShareCameraError,
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      error.errorDetails?.message ?? 'Could not access camera',
+                      error.errorDetails?.message ?? l10n.templateShareCameraAccessFailed,
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 16),
                     ElevatedButton(
                       onPressed: () => setState(() => _isScanning = false),
-                      child: const Text('Go Back'),
+                      child: Text(l10n.templateShareGoBack),
                     ),
                   ],
                 ),
@@ -761,7 +766,7 @@ class _TemplateShareScreenState extends ConsumerState<TemplateShareScreen> {
           left: 0,
           right: 0,
           child: Text(
-            'Point camera at template share QR code',
+            AppLocalizations.of(context)!.templateShareScannerPrompt,
             style: Theme.of(
               context,
             ).textTheme.titleMedium?.copyWith(color: Colors.white),
@@ -773,6 +778,7 @@ class _TemplateShareScreenState extends ConsumerState<TemplateShareScreen> {
   }
 
   Widget _buildConnectedView() {
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.all(24),
       child: Column(
@@ -787,7 +793,7 @@ class _TemplateShareScreenState extends ConsumerState<TemplateShareScreen> {
                   const Icon(Icons.devices, size: 48),
                   const SizedBox(height: 12),
                   Text(
-                    'Connected to',
+                    l10n.templateShareConnectedTo,
                     style: Theme.of(
                       context,
                     ).textTheme.bodyMedium?.copyWith(color: Colors.grey),
@@ -812,7 +818,7 @@ class _TemplateShareScreenState extends ConsumerState<TemplateShareScreen> {
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
-                      '${_connectedDevice!.templateCount} Template${_connectedDevice!.templateCount != 1 ? 's' : ''} Available',
+                      l10n.templateShareAvailableCount(_connectedDevice!.templateCount),
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: Theme.of(context).colorScheme.primary,
@@ -828,7 +834,7 @@ class _TemplateShareScreenState extends ConsumerState<TemplateShareScreen> {
           // Template list
           if (_connectedDevice!.templateNames.isNotEmpty) ...[
             Text(
-              'Templates to Receive:',
+              l10n.templateShareToReceive,
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 8),
@@ -866,7 +872,7 @@ class _TemplateShareScreenState extends ConsumerState<TemplateShareScreen> {
               onPressed: _receiveTemplates,
               icon: const Icon(Icons.download),
               label: Text(
-                'Receive ${_connectedDevice!.templateCount} Template${_connectedDevice!.templateCount != 1 ? 's' : ''}',
+                l10n.templateShareReceiveButton(_connectedDevice!.templateCount),
               ),
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 16),
@@ -881,7 +887,7 @@ class _TemplateShareScreenState extends ConsumerState<TemplateShareScreen> {
                   _connectedDevice = null;
                 });
               },
-              child: const Text('Cancel'),
+              child: Text(l10n.cancel),
             ),
           ],
         ],

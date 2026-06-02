@@ -7,6 +7,7 @@ import '../../../core/theme/skins/skins.dart';
 import '../../../core/utils/cardio_conversions.dart';
 import '../../../data/models/session.dart';
 import '../../../domain/providers/onboarding_providers.dart';
+import '../../../l10n/app_localizations.dart';
 
 /// Callbacks used by [CardioSessionCard].
 ///
@@ -100,6 +101,7 @@ class CardioSessionCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final onboarding = ref.watch(onboardingServiceProvider);
     final units = onboarding.unitsFor(session.sport);
     final theme = Theme.of(context);
@@ -119,21 +121,21 @@ class CardioSessionCard extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildHeader(context, theme, isExternal),
+            _buildHeader(context, theme, l10n, isExternal),
             const SizedBox(height: 12),
             if (isSkipped)
-              _buildSkippedBody(theme)
+              _buildSkippedBody(theme, l10n)
             else if (!isCompleted)
-              _buildPlannedBody(context, theme, units)
+              _buildPlannedBody(context, theme, l10n, units)
             else
-              _buildCompletedBody(context, theme, units),
+              _buildCompletedBody(context, theme, l10n, units),
             const SizedBox(height: 12),
             Divider(
               height: 1,
               color: theme.colorScheme.outline.withValues(alpha: 0.15),
             ),
             const SizedBox(height: 8),
-            _buildFooter(context, theme),
+            _buildFooter(context, theme, l10n),
           ],
         ),
       ),
@@ -147,10 +149,11 @@ class CardioSessionCard extends ConsumerWidget {
   Widget _buildHeader(
     BuildContext context,
     ThemeData theme,
+    AppLocalizations l10n,
     bool isExternal,
   ) {
     final sport = session.sport;
-    final title = session.label?.trim().isNotEmpty == true ? session.label! : sport.displayName;
+    final title = session.label?.trim().isNotEmpty == true ? session.label! : sport.localizedName(l10n);
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -172,7 +175,7 @@ class CardioSessionCard extends ConsumerWidget {
               ),
               const SizedBox(height: 2),
               Text(
-                sport.displayName.toUpperCase(),
+                sport.localizedName(l10n).toUpperCase(),
                 style: theme.textTheme.bodySmall?.copyWith(
                   fontSize: 12,
                   fontWeight: FontWeight.w500,
@@ -207,6 +210,7 @@ class CardioSessionCard extends ConsumerWidget {
   Widget _buildPlannedBody(
     BuildContext context,
     ThemeData theme,
+    AppLocalizations l10n,
     UnitSystem units,
   ) {
     final detail = session.detail;
@@ -232,7 +236,7 @@ class CardioSessionCard extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'TARGET',
+          l10n.cardioCardTargetLabel,
           style: theme.textTheme.labelSmall?.copyWith(
             fontSize: 10,
             fontWeight: FontWeight.w600,
@@ -243,7 +247,7 @@ class CardioSessionCard extends ConsumerWidget {
         const SizedBox(height: 6),
         if (bits.isEmpty)
           Text(
-            'No target set',
+            l10n.cardioCardNoTarget,
             style: theme.textTheme.bodyMedium?.copyWith(
               fontStyle: FontStyle.italic,
               color: theme.colorScheme.onSurface.withValues(alpha: 0.55),
@@ -275,6 +279,7 @@ class CardioSessionCard extends ConsumerWidget {
   Widget _buildCompletedBody(
     BuildContext context,
     ThemeData theme,
+    AppLocalizations l10n,
     UnitSystem units,
   ) {
     final detail = session.detail;
@@ -295,7 +300,7 @@ class CardioSessionCard extends ConsumerWidget {
                     detail.actualDistanceM!,
                     units,
                   ),
-            label: 'Distance',
+            label: l10n.distanceLabel,
           ),
         );
       }
@@ -303,7 +308,7 @@ class CardioSessionCard extends ConsumerWidget {
         hero.add(
           _HeroMetricData(
             value: CardioConversions.formatDuration(detail.actualDurationSec!),
-            label: 'Duration',
+            label: l10n.durationLabel,
           ),
         );
       }
@@ -312,7 +317,7 @@ class CardioSessionCard extends ConsumerWidget {
           hero.add(
             _HeroMetricData(
               value: detail.swolf.toString(),
-              label: 'SWOLF',
+              label: l10n.cardioCardSwolfLabel,
             ),
           );
         }
@@ -324,7 +329,7 @@ class CardioSessionCard extends ConsumerWidget {
                 detail.averagePaceSecPerMeter!,
                 units,
               ),
-              label: units.isMetric ? 'Pace' : 'Pace',
+              label: l10n.cardioCardPaceLabel,
             ),
           );
         } else if (detail.averageSpeedMps != null && detail.averageSpeedMps! > 0) {
@@ -334,7 +339,7 @@ class CardioSessionCard extends ConsumerWidget {
                 detail.averageSpeedMps!,
                 units,
               ),
-              label: 'Avg speed',
+              label: l10n.cardioCardAvgSpeedLabel,
             ),
           );
         }
@@ -346,12 +351,12 @@ class CardioSessionCard extends ConsumerWidget {
     if (detail != null) {
       if (isSwim) {
         if (detail.lapCount != null && detail.lapCount! > 0) {
-          sub.add(_SubMetric(label: '', value: '${detail.lapCount} laps'));
+          sub.add(_SubMetric(label: '', value: l10n.cardioCardLapsValue(detail.lapCount!)));
         }
         if (detail.poolLengthM != null && detail.poolLengthM! > 0) {
           sub.add(
             _SubMetric(
-              label: 'pool',
+              label: l10n.cardioCardPoolLabel,
               value: CardioConversions.formatSwimDistance(
                 detail.poolLengthM!,
                 units,
@@ -360,27 +365,27 @@ class CardioSessionCard extends ConsumerWidget {
           );
         }
         if (detail.strokeType != null) {
-          sub.add(_SubMetric(label: '', value: detail.strokeType!.displayName));
+          sub.add(_SubMetric(label: '', value: detail.strokeType!.localizedName(l10n)));
         }
       } else {
         if (detail.elevationGainM != null && detail.elevationGainM! > 0) {
           sub.add(
             _SubMetric(
-              label: '▲',
+              label: l10n.cardioCardElevationGain,
               value: '${detail.elevationGainM!.toStringAsFixed(0)} m',
             ),
           );
         }
         if (detail.averageHr != null && detail.averageHr! > 0) {
-          sub.add(_SubMetric(label: 'avg', value: '${detail.averageHr} bpm'));
+          sub.add(_SubMetric(label: l10n.cardioCardAvgHr, value: '${detail.averageHr} ${l10n.bpmSuffix}'));
         }
         if (detail.maxHr != null && detail.maxHr! > 0) {
-          sub.add(_SubMetric(label: 'max', value: '${detail.maxHr} bpm'));
+          sub.add(_SubMetric(label: l10n.cardioCardMaxHr, value: '${detail.maxHr} ${l10n.bpmSuffix}'));
         }
         if (detail.averagePowerWatts != null && detail.averagePowerWatts! > 0) {
           sub.add(
             _SubMetric(
-              label: 'avg',
+              label: l10n.cardioCardAvgPower,
               value: '${detail.averagePowerWatts!.round()} W',
             ),
           );
@@ -393,7 +398,7 @@ class CardioSessionCard extends ConsumerWidget {
       children: [
         if (hero.isEmpty)
           Text(
-            'Completed',
+            l10n.workoutStatusCompleted,
             style: theme.textTheme.bodyMedium?.copyWith(
               fontStyle: FontStyle.italic,
               color: theme.colorScheme.onSurface.withValues(alpha: 0.55),
@@ -427,9 +432,9 @@ class CardioSessionCard extends ConsumerWidget {
   // Body — skipped variant
   // ---------------------------------------------------------------------------
 
-  Widget _buildSkippedBody(ThemeData theme) {
+  Widget _buildSkippedBody(ThemeData theme, AppLocalizations l10n) {
     return Text(
-      'Session skipped',
+      l10n.cardioSessionSkipped,
       style: theme.textTheme.bodyMedium?.copyWith(
         fontStyle: FontStyle.italic,
         color: theme.colorScheme.onSurface.withValues(alpha: 0.45),
@@ -441,7 +446,7 @@ class CardioSessionCard extends ConsumerWidget {
   // Footer
   // ---------------------------------------------------------------------------
 
-  Widget _buildFooter(BuildContext context, ThemeData theme) {
+  Widget _buildFooter(BuildContext context, ThemeData theme, AppLocalizations l10n) {
     final status = session.status;
 
     if (status == WorkoutStatus.skipped) {
@@ -454,7 +459,7 @@ class CardioSessionCard extends ConsumerWidget {
           ),
           const SizedBox(width: 6),
           Text(
-            'Skipped',
+            l10n.workoutStatusSkipped,
             style: theme.textTheme.bodyMedium?.copyWith(
               fontWeight: FontWeight.w600,
               color: theme.colorScheme.onSurface.withValues(alpha: 0.45),
@@ -474,7 +479,7 @@ class CardioSessionCard extends ConsumerWidget {
           ),
           const SizedBox(width: 6),
           Text(
-            'Completed',
+            l10n.workoutStatusCompleted,
             style: theme.textTheme.bodyMedium?.copyWith(
               fontWeight: FontWeight.w600,
               color: theme.colorScheme.primary,
@@ -485,7 +490,7 @@ class CardioSessionCard extends ConsumerWidget {
             TextButton.icon(
               onPressed: () => callbacks.onAddFeedback!(session.id),
               icon: const Icon(Icons.sentiment_satisfied, size: 18),
-              label: const Text('Add feedback'),
+              label: Text(l10n.cardioCardAddFeedback),
             ),
         ],
       );
@@ -497,7 +502,7 @@ class CardioSessionCard extends ConsumerWidget {
         FilledButton.icon(
           onPressed: callbacks.onPrimary == null ? null : () => callbacks.onPrimary!(session.id),
           icon: const Icon(Icons.check_circle_outline, size: 18),
-          label: const Text('Log session'),
+          label: Text(l10n.cardioCardLogSession),
         ),
       ],
     );
@@ -593,6 +598,7 @@ class _OverflowMenu extends StatelessWidget {
   Widget build(BuildContext context) {
     if (!_hasAnyItem) return const SizedBox(width: 32);
 
+    final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final onSurface = theme.colorScheme.onSurface;
     final isCompleted = status == WorkoutStatus.completed;
@@ -630,12 +636,12 @@ class _OverflowMenu extends StatelessWidget {
       },
       itemBuilder: (context) => [
         // Header
-        const PopupMenuItem<String>(
+        PopupMenuItem<String>(
           enabled: false,
           height: 32,
           child: Text(
-            'SESSION',
-            style: TextStyle(
+            l10n.cardioSessionMenuHeader,
+            style: const TextStyle(
               color: Colors.grey,
               fontSize: 12,
               fontWeight: FontWeight.w600,
@@ -651,7 +657,7 @@ class _OverflowMenu extends StatelessWidget {
               children: [
                 Icon(Icons.edit_outlined, color: onSurface, size: 20),
                 const SizedBox(width: 12),
-                Text('Notes', style: TextStyle(color: onSurface)),
+                Text(l10n.cardioCardMenuNotes, style: TextStyle(color: onSurface)),
               ],
             ),
           ),
@@ -670,7 +676,7 @@ class _OverflowMenu extends StatelessWidget {
                 ),
                 const SizedBox(width: 12),
                 Text(
-                  'Move up',
+                  l10n.cardioCardMenuMoveUp,
                   style: TextStyle(
                     color: isFirst ? Colors.grey : onSurface,
                   ),
@@ -693,7 +699,7 @@ class _OverflowMenu extends StatelessWidget {
                 ),
                 const SizedBox(width: 12),
                 Text(
-                  'Move down',
+                  l10n.cardioCardMenuMoveDown,
                   style: TextStyle(
                     color: isLast ? Colors.grey : onSurface,
                   ),
@@ -716,7 +722,7 @@ class _OverflowMenu extends StatelessWidget {
                 ),
                 const SizedBox(width: 12),
                 Text(
-                  'Replace',
+                  l10n.cardioCardMenuReplace,
                   style: TextStyle(
                     color: (isCompleted || isExternal) ? Colors.grey : onSurface,
                   ),
@@ -739,7 +745,7 @@ class _OverflowMenu extends StatelessWidget {
                 ),
                 const SizedBox(width: 12),
                 Text(
-                  'Skip session',
+                  l10n.cardioCardMenuSkipSession,
                   style: TextStyle(
                     color: (isCompleted || isSkipped || isExternal) ? Colors.grey : onSurface,
                   ),
@@ -762,7 +768,7 @@ class _OverflowMenu extends StatelessWidget {
                   ),
                   const SizedBox(width: 12),
                   Text(
-                    'Delete session',
+                    l10n.cardioCardMenuDeleteSession,
                     style: TextStyle(color: context.errorColor),
                   ),
                 ],
@@ -781,6 +787,7 @@ class _IntervalsRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     return InkWell(
       onTap: onTap,
@@ -802,7 +809,7 @@ class _IntervalsRow extends StatelessWidget {
             ),
             const SizedBox(width: 8),
             Text(
-              '$count interval${count == 1 ? '' : 's'}',
+              l10n.cardioCardIntervalCount(count),
               style: theme.textTheme.bodySmall?.copyWith(
                 fontSize: 13,
                 color: theme.colorScheme.onSurface.withValues(alpha: 0.75),

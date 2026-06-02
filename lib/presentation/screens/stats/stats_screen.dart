@@ -24,6 +24,7 @@ import '../../widgets/stats/cycle_comparison_view.dart';
 import '../../widgets/stats/volume_bar_chart.dart';
 import '../../widgets/stats/volume_line_chart.dart';
 import '../../widgets/stats/weight_progress_chart.dart';
+import '../../../l10n/app_localizations.dart';
 
 /// Statistics & Analytics screen showing workout volume,
 /// muscle group distribution, exercise frequency, and personal records.
@@ -53,6 +54,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen> with SingleTickerProv
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final currentCycle = ref.watch(currentTrainingCycleProvider);
     final allCycles = ref.watch(trainingCyclesProvider);
 
@@ -81,16 +83,16 @@ class _StatsScreenState extends ConsumerState<StatsScreen> with SingleTickerProv
         backgroundColor: Colors.transparent,
         appBar: AppBar(
           backgroundColor: Colors.transparent,
-          title: const Text('Statistics'),
+          title: Text(l10n.statsTitle),
           actions: const [QuickLogAction()],
           bottom: TabBar(
             controller: _tabController,
             isScrollable: true,
-            tabs: const [
-              Tab(text: 'Overview'),
-              Tab(text: 'Cardio'),
-              Tab(text: 'Compare'),
-              Tab(text: 'Body'),
+            tabs: [
+              Tab(text: l10n.statsTabOverview),
+              Tab(text: l10n.statsTabCardio),
+              Tab(text: l10n.statsTabCompare),
+              Tab(text: l10n.statsTabBody),
             ],
           ),
         ),
@@ -146,7 +148,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen> with SingleTickerProv
                                   }
                                 },
                                 icon: const Icon(Icons.refresh),
-                                label: const Text('Retry'),
+                                label: Text(l10n.retry),
                               ),
                             ],
                           ),
@@ -172,18 +174,17 @@ class _StatsScreenState extends ConsumerState<StatsScreen> with SingleTickerProv
   /// v5 Cardio tab. Weekly volume (stacked bars, last 12 weeks) +
   /// per-sport summary tiles. Empty state for users with no cardio logged.
   Widget _buildCardioTab() {
+    final l10n = AppLocalizations.of(context)!;
     final stats = ref.watch(cardioStatsProvider);
     final recentWeeks = ref.watch(recentCardioWeeksProvider(12));
     final onboarding = ref.watch(onboardingServiceProvider);
 
     if (stats.isEmpty) {
-      return const EmptyStateWidget(
+      return EmptyStateWidget(
         icon: Icons.directions_run,
         iconSize: 64,
-        title: 'No cardio logged yet',
-        subtitle:
-            'Log a run, bike, or swim from the More tab — stats will '
-            'show up here once you have a session or two on record.',
+        title: l10n.statsNoCardioTitle,
+        subtitle: l10n.statsNoCardioSubtitle,
       );
     }
 
@@ -193,7 +194,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen> with SingleTickerProv
       child: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          _buildSectionHeader(context, 'Weekly volume — last 12 weeks'),
+          _buildSectionHeader(context, l10n.statsWeeklyVolume),
           const SizedBox(height: 12),
           Card(
             child: Padding(
@@ -208,7 +209,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen> with SingleTickerProv
             ),
           ),
           const SizedBox(height: 20),
-          _buildSectionHeader(context, 'By sport'),
+          _buildSectionHeader(context, l10n.statsBySport),
           const SizedBox(height: 12),
           for (final sport in sportsWithData) ...[
             SportSummaryTile(
@@ -218,7 +219,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen> with SingleTickerProv
             const SizedBox(height: 8),
           ],
           const SizedBox(height: 20),
-          _buildSectionHeader(context, 'Lifetime totals'),
+          _buildSectionHeader(context, l10n.statsLifetimeTotals),
           const SizedBox(height: 12),
           _buildCardioLifetimeRow(context, stats),
           const SizedBox(height: 24),
@@ -228,13 +229,14 @@ class _StatsScreenState extends ConsumerState<StatsScreen> with SingleTickerProv
   }
 
   Widget _buildCardioLifetimeRow(BuildContext context, CardioStats stats) {
+    final l10n = AppLocalizations.of(context)!;
     final totalHours = (stats.totalDurationSec / 3600).toStringAsFixed(1);
     return Row(
       children: [
         Expanded(
           child: _buildSummaryCard(
             context,
-            'Sessions',
+            l10n.statsCardioSessions,
             '${stats.totalSessions}',
             Icons.directions_run,
           ),
@@ -243,7 +245,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen> with SingleTickerProv
         Expanded(
           child: _buildSummaryCard(
             context,
-            'Hours',
+            l10n.statsCardioHours,
             totalHours,
             Icons.timer_outlined,
           ),
@@ -252,7 +254,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen> with SingleTickerProv
         Expanded(
           child: _buildSummaryCard(
             context,
-            'Completed',
+            l10n.statsCardioCompleted,
             '${stats.completedSessions}',
             Icons.check_circle_outline,
           ),
@@ -262,16 +264,17 @@ class _StatsScreenState extends ConsumerState<StatsScreen> with SingleTickerProv
   }
 
   Widget _buildBodyMetricsTab() {
+    final l10n = AppLocalizations.of(context)!;
     final measurementsAsync = ref.watch(userMeasurementsProvider);
 
     return measurementsAsync.when(
       data: (measurements) {
         if (measurements.isEmpty) {
-          return const EmptyStateWidget(
+          return EmptyStateWidget(
             icon: Icons.monitor_weight_outlined,
             iconSize: 64,
-            title: 'No Measurements Yet',
-            subtitle: 'Add body measurements in Settings\nto see your progress here.',
+            title: l10n.statsNoMeasurementsTitle,
+            subtitle: l10n.statsNoMeasurementsSubtitle,
           );
         }
 
@@ -289,8 +292,8 @@ class _StatsScreenState extends ConsumerState<StatsScreen> with SingleTickerProv
                   Expanded(
                     child: _buildSummaryCard(
                       context,
-                      'Weight',
-                      '$weightStr kg',
+                      l10n.statsWeightLabel,
+                      l10n.statsWeightValueKg(weightStr),
                       Icons.monitor_weight_outlined,
                     ),
                   ),
@@ -298,7 +301,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen> with SingleTickerProv
                   Expanded(
                     child: _buildSummaryCard(
                       context,
-                      'BMI',
+                      l10n.statsBmiLabel,
                       bmiStr,
                       Icons.straighten,
                     ),
@@ -307,7 +310,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen> with SingleTickerProv
                   Expanded(
                     child: _buildSummaryCard(
                       context,
-                      'Entries',
+                      l10n.statsEntriesLabel,
                       '${measurements.length}',
                       Icons.timeline,
                     ),
@@ -317,7 +320,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen> with SingleTickerProv
               const SizedBox(height: 24),
 
               // Weight chart
-              _buildSectionHeader(context, 'Weight Progression'),
+              _buildSectionHeader(context, l10n.statsWeightProgression),
               const SizedBox(height: 8),
               SizedBox(
                 height: 200,
@@ -329,7 +332,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen> with SingleTickerProv
 
               // Body fat section (if available)
               if (measurements.any((m) => m.bodyFatPercent != null)) ...[
-                _buildSectionHeader(context, 'Body Composition'),
+                _buildSectionHeader(context, l10n.statsBodyComposition),
                 const SizedBox(height: 8),
                 _buildCompositionList(context, measurements),
                 const SizedBox(height: 24),
@@ -341,7 +344,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen> with SingleTickerProv
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (error, stack) {
         Sentry.captureException(error, stackTrace: stack);
-        return Center(child: Text('Error loading measurements: $error'));
+        return Center(child: Text(l10n.statsErrorLoadingMeasurements(error)));
       },
     );
   }
@@ -350,6 +353,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen> with SingleTickerProv
     BuildContext context,
     List<dynamic> measurements,
   ) {
+    final l10n = AppLocalizations.of(context)!;
     final withFat = measurements.where((m) => m.bodyFatPercent != null).take(5).toList();
 
     return Container(
@@ -373,7 +377,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen> with SingleTickerProv
                   color: Theme.of(context).colorScheme.primary,
                 ),
                 title: Text(
-                  '$fatStr% body fat${leanStr != null ? ' / $leanStr kg lean' : ''}',
+                  leanStr != null ? l10n.statsBodyFatWithLean(fatStr, leanStr) : l10n.statsBodyFatEntry(fatStr),
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
                 trailing: Text(
@@ -393,6 +397,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen> with SingleTickerProv
     List<TrainingCycle> cycles,
     String? selectedId,
   ) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12),
       decoration: BoxDecoration(
@@ -406,7 +411,9 @@ class _StatsScreenState extends ConsumerState<StatsScreen> with SingleTickerProv
         dropdownColor: Theme.of(context).cardTheme.color,
         items: [
           ...cycles.map((cycle) {
-            final label = cycle.status == TrainingCycleStatus.current ? '${cycle.name} (Active)' : cycle.name;
+            final label = cycle.status == TrainingCycleStatus.current
+                ? l10n.statsActiveCycleLabel(cycle.name)
+                : cycle.name;
             return DropdownMenuItem<String?>(
               value: cycle.id,
               child: Text(
@@ -424,6 +431,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen> with SingleTickerProv
   }
 
   Widget _buildStatsContent(BuildContext context, WorkoutStats stats) {
+    final l10n = AppLocalizations.of(context)!;
     return ResponsiveContent(
       child: ListView(
         padding: const EdgeInsets.all(16),
@@ -439,7 +447,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen> with SingleTickerProv
           const SizedBox(height: 24),
 
           // Volume by muscle group
-          _buildSectionHeader(context, 'Volume by Muscle Group'),
+          _buildSectionHeader(context, l10n.statsVolumeByMuscleGroup),
           const SizedBox(height: 8),
           SizedBox(
             height: 200,
@@ -448,7 +456,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen> with SingleTickerProv
           const SizedBox(height: 24),
 
           // Volume progression
-          _buildSectionHeader(context, 'Volume Progression'),
+          _buildSectionHeader(context, l10n.statsVolumeProgression),
           const SizedBox(height: 8),
           SizedBox(
             height: 200,
@@ -458,7 +466,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen> with SingleTickerProv
 
           // Top exercises
           if (stats.exerciseFrequency.isNotEmpty) ...[
-            _buildSectionHeader(context, 'Most Used Exercises'),
+            _buildSectionHeader(context, l10n.statsMostUsedExercises),
             const SizedBox(height: 8),
             _buildExerciseFrequencyList(context, stats),
             const SizedBox(height: 24),
@@ -466,7 +474,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen> with SingleTickerProv
 
           // Personal records
           if (stats.personalRecords.isNotEmpty) ...[
-            _buildSectionHeader(context, 'Personal Records'),
+            _buildSectionHeader(context, l10n.statsPersonalRecords),
             const SizedBox(height: 8),
             _buildPersonalRecordsList(context, stats),
             const SizedBox(height: 24),
@@ -477,13 +485,14 @@ class _StatsScreenState extends ConsumerState<StatsScreen> with SingleTickerProv
   }
 
   Widget _buildSummaryRow(BuildContext context, WorkoutStats stats) {
+    final l10n = AppLocalizations.of(context)!;
     return Row(
       children: [
         Expanded(
           child: _buildSummaryCard(
             context,
-            'Sessions',
-            '${stats.completedWorkouts}/${stats.totalWorkouts}',
+            l10n.statsSessionsLabel,
+            l10n.statsSessionsValue(stats.completedWorkouts, stats.totalWorkouts),
             Icons.fitness_center,
           ),
         ),
@@ -491,8 +500,8 @@ class _StatsScreenState extends ConsumerState<StatsScreen> with SingleTickerProv
         Expanded(
           child: _buildSummaryCard(
             context,
-            'Completion',
-            '${(stats.completionRate * 100).toInt()}%',
+            l10n.statsCompletionLabel,
+            l10n.statsCompletionValue((stats.completionRate * 100).toInt()),
             Icons.check_circle_outline,
           ),
         ),
@@ -500,7 +509,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen> with SingleTickerProv
         Expanded(
           child: _buildSummaryCard(
             context,
-            'Total Sets',
+            l10n.statsTotalSetsLabel,
             stats.totalSets.toString(),
             Icons.format_list_numbered,
           ),
@@ -564,6 +573,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen> with SingleTickerProv
     BuildContext context,
     WorkoutStats stats,
   ) {
+    final l10n = AppLocalizations.of(context)!;
     final topExercises = stats.topExercises();
     return Container(
       decoration: BoxDecoration(
@@ -594,7 +604,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen> with SingleTickerProv
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
                 trailing: Text(
-                  '${exerciseEntry.value}x',
+                  l10n.statsExerciseFrequencyCount(exerciseEntry.value),
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     fontWeight: FontWeight.w600,
                     color: Theme.of(context).colorScheme.primary,
@@ -613,6 +623,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen> with SingleTickerProv
     BuildContext context,
     WorkoutStats stats,
   ) {
+    final l10n = AppLocalizations.of(context)!;
     final topRecords = stats.topRecords();
     return Container(
       decoration: BoxDecoration(
@@ -645,7 +656,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen> with SingleTickerProv
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
                 trailing: Text(
-                  '$weightStr lbs',
+                  l10n.statsPersonalRecordWeight(weightStr),
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),

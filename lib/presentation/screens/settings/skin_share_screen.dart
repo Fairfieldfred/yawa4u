@@ -7,6 +7,7 @@ import 'package:qr_flutter/qr_flutter.dart';
 import '../../../core/theme/skins/skins.dart';
 import '../../../data/services/skin_share_service.dart';
 import '../../../domain/providers/skin_share_providers.dart';
+import '../../../l10n/app_localizations.dart';
 
 /// Screen for sharing themes/skins via WiFi with QR code
 class SkinShareScreen extends ConsumerStatefulWidget {
@@ -95,7 +96,7 @@ class _SkinShareScreenState extends ConsumerState<SkinShareScreen> {
       _isServerRunning = success;
       _connectionInfo = shareService.connectionInfo;
       if (!success) {
-        _errorMessage = 'Could not start share server. Make sure you are connected to WiFi.';
+        _errorMessage = AppLocalizations.of(context)!.skinShareServerError;
       }
     });
   }
@@ -161,8 +162,7 @@ class _SkinShareScreenState extends ConsumerState<SkinShareScreen> {
           _isLoading = false;
           _connectedDevice = device;
           if (device == null) {
-            _errorMessage =
-                'Could not connect to device. Make sure both devices are on the same WiFi network and you are scanning a valid theme share QR code.';
+            _errorMessage = AppLocalizations.of(context)!.skinShareConnectionError;
           }
         });
       }
@@ -194,10 +194,11 @@ class _SkinShareScreenState extends ConsumerState<SkinShareScreen> {
     });
 
     if (mounted) {
+      final l10n = AppLocalizations.of(context)!;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            result.message ?? (result.success ? 'Themes received!' : 'Failed to receive themes'),
+            result.message ?? (result.success ? l10n.skinShareThemesReceived : l10n.skinShareReceiveFailed),
           ),
           backgroundColor: result.success ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.error,
         ),
@@ -222,8 +223,9 @@ class _SkinShareScreenState extends ConsumerState<SkinShareScreen> {
     // Get only custom (non-built-in) skins for sharing
     final customSkins = skinState.availableSkins.where((s) => !s.isBuiltIn).toList();
 
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      appBar: AppBar(title: const Text('Share Themes'), centerTitle: true),
+      appBar: AppBar(title: Text(l10n.skinShareTitle), centerTitle: true),
       body: _isScanning
           ? _buildScanner()
           : _connectedDevice != null
@@ -244,6 +246,7 @@ class _SkinShareScreenState extends ConsumerState<SkinShareScreen> {
   }
 
   Widget _buildSelectionView(List<SkinModel> skins) {
+    final l10n = AppLocalizations.of(context)!;
     if (skins.isEmpty) {
       return Center(
         child: Padding(
@@ -260,7 +263,7 @@ class _SkinShareScreenState extends ConsumerState<SkinShareScreen> {
               ),
               const SizedBox(height: 16),
               Text(
-                'No custom themes to share',
+                l10n.skinShareNoCustomThemes,
                 style: TextStyle(
                   color: Theme.of(
                     context,
@@ -269,7 +272,7 @@ class _SkinShareScreenState extends ConsumerState<SkinShareScreen> {
               ),
               const SizedBox(height: 8),
               Text(
-                'Create a custom theme in Theme Settings to share it.',
+                l10n.skinShareCreateThemeHint,
                 style: TextStyle(
                   color: Theme.of(
                     context,
@@ -283,7 +286,7 @@ class _SkinShareScreenState extends ConsumerState<SkinShareScreen> {
               OutlinedButton.icon(
                 onPressed: _isLoading ? null : _startScanning,
                 icon: const Icon(Icons.qr_code_scanner),
-                label: const Text('Scan QR Code to Receive Themes'),
+                label: Text(l10n.skinShareScanQrButton),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: Theme.of(context).brightness == Brightness.dark ? Colors.white : null,
                 ),
@@ -303,14 +306,14 @@ class _SkinShareScreenState extends ConsumerState<SkinShareScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Share or Receive Themes',
+                l10n.skinShareOrReceiveTitle,
                 style: Theme.of(
                   context,
                 ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
               Text(
-                'Select themes to share, or scan a QR code to receive themes from another device.',
+                l10n.skinShareOrReceiveDesc,
                 style: Theme.of(
                   context,
                 ).textTheme.bodyMedium?.copyWith(color: Colors.grey),
@@ -344,7 +347,7 @@ class _SkinShareScreenState extends ConsumerState<SkinShareScreen> {
           child: OutlinedButton.icon(
             onPressed: _isLoading ? null : _startScanning,
             icon: const Icon(Icons.qr_code_scanner),
-            label: const Text('Scan QR Code to Receive Themes'),
+            label: Text(l10n.skinShareScanQrButton),
             style: OutlinedButton.styleFrom(
               foregroundColor: Theme.of(context).brightness == Brightness.dark ? Colors.white : null,
               padding: const EdgeInsets.symmetric(vertical: 12),
@@ -361,7 +364,7 @@ class _SkinShareScreenState extends ConsumerState<SkinShareScreen> {
           child: Row(
             children: [
               Text(
-                'Select Themes to Share',
+                l10n.skinShareSelectThemesHeader,
                 style: Theme.of(context).textTheme.titleMedium,
               ),
               const Spacer(),
@@ -377,7 +380,7 @@ class _SkinShareScreenState extends ConsumerState<SkinShareScreen> {
                   });
                 },
                 child: Text(
-                  _selectedSkinIds.length == skins.length ? 'Deselect All' : 'Select All',
+                  _selectedSkinIds.length == skins.length ? l10n.skinShareDeselectAll : l10n.skinShareSelectAll,
                 ),
               ),
             ],
@@ -420,7 +423,7 @@ class _SkinShareScreenState extends ConsumerState<SkinShareScreen> {
                         )
                       : const Icon(Icons.qr_code),
                   label: Text(
-                    _selectedSkinIds.isEmpty ? 'Select Themes to Share' : 'Share via QR Code',
+                    _selectedSkinIds.isEmpty ? l10n.skinShareSelectToShare : l10n.skinShareViaQrCode,
                   ),
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
@@ -437,7 +440,7 @@ class _SkinShareScreenState extends ConsumerState<SkinShareScreen> {
                           context.push('/community/upload-skin?skinId=$skinId');
                         },
                   icon: const Icon(Icons.cloud_upload),
-                  label: const Text('Upload to Cloud'),
+                  label: Text(l10n.skinShareUploadToCloud),
                   style: FilledButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     minimumSize: const Size(double.infinity, 56),
@@ -543,13 +546,14 @@ class _SkinShareScreenState extends ConsumerState<SkinShareScreen> {
   }
 
   Widget _buildServerView() {
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.all(24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            'Ready to Share',
+            l10n.skinShareReadyTitle,
             style: Theme.of(
               context,
             ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
@@ -557,7 +561,7 @@ class _SkinShareScreenState extends ConsumerState<SkinShareScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Ask the other person to scan this QR code',
+            l10n.skinShareScanPrompt,
             style: Theme.of(
               context,
             ).textTheme.bodyMedium?.copyWith(color: Colors.grey),
@@ -573,14 +577,14 @@ class _SkinShareScreenState extends ConsumerState<SkinShareScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Sharing ${_selectedSkinIds.length} Theme${_selectedSkinIds.length > 1 ? 's' : ''}',
+                    l10n.skinShareSharingCount(_selectedSkinIds.length),
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'When scanned, these themes will be copied to the other device.',
+                    l10n.skinShareSharingNote,
                     style: Theme.of(
                       context,
                     ).textTheme.bodySmall?.copyWith(color: Colors.grey),
@@ -616,7 +620,7 @@ class _SkinShareScreenState extends ConsumerState<SkinShareScreen> {
             style: OutlinedButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: 16),
             ),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
         ],
       ),
@@ -634,6 +638,7 @@ class _SkinShareScreenState extends ConsumerState<SkinShareScreen> {
         MobileScanner(
           controller: _scannerController,
           errorBuilder: (context, error, child) {
+            final l10n = AppLocalizations.of(context)!;
             return Center(
               child: Padding(
                 padding: const EdgeInsets.all(24),
@@ -647,18 +652,18 @@ class _SkinShareScreenState extends ConsumerState<SkinShareScreen> {
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      'Camera Error',
+                      l10n.skinShareCameraError,
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      error.errorDetails?.message ?? 'Could not access camera',
+                      error.errorDetails?.message ?? l10n.skinShareCameraAccessFailed,
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 16),
                     ElevatedButton(
                       onPressed: () => setState(() => _isScanning = false),
-                      child: const Text('Go Back'),
+                      child: Text(l10n.skinShareGoBack),
                     ),
                   ],
                 ),
@@ -698,7 +703,7 @@ class _SkinShareScreenState extends ConsumerState<SkinShareScreen> {
           left: 0,
           right: 0,
           child: Text(
-            'Point camera at theme share QR code',
+            AppLocalizations.of(context)!.skinShareScannerPrompt,
             style: Theme.of(
               context,
             ).textTheme.titleMedium?.copyWith(color: Colors.white),
@@ -710,6 +715,7 @@ class _SkinShareScreenState extends ConsumerState<SkinShareScreen> {
   }
 
   Widget _buildConnectedView() {
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.all(24),
       child: Column(
@@ -724,7 +730,7 @@ class _SkinShareScreenState extends ConsumerState<SkinShareScreen> {
                   const Icon(Icons.devices, size: 48),
                   const SizedBox(height: 12),
                   Text(
-                    'Connected to',
+                    l10n.skinShareConnectedTo,
                     style: Theme.of(
                       context,
                     ).textTheme.bodyMedium?.copyWith(color: Colors.grey),
@@ -749,7 +755,7 @@ class _SkinShareScreenState extends ConsumerState<SkinShareScreen> {
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
-                      '${_connectedDevice!.skinCount} Theme${_connectedDevice!.skinCount != 1 ? 's' : ''} Available',
+                      l10n.skinShareThemesAvailable(_connectedDevice!.skinCount),
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: Theme.of(context).colorScheme.primary,
@@ -765,7 +771,7 @@ class _SkinShareScreenState extends ConsumerState<SkinShareScreen> {
           // Theme list
           if (_connectedDevice!.skinNames.isNotEmpty) ...[
             Text(
-              'Themes to Receive:',
+              l10n.skinShareThemesToReceive,
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 8),
@@ -803,7 +809,7 @@ class _SkinShareScreenState extends ConsumerState<SkinShareScreen> {
               onPressed: _receiveSkins,
               icon: const Icon(Icons.download),
               label: Text(
-                'Receive ${_connectedDevice!.skinCount} Theme${_connectedDevice!.skinCount != 1 ? 's' : ''}',
+                l10n.skinShareReceiveButton(_connectedDevice!.skinCount),
               ),
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 16),
@@ -818,7 +824,7 @@ class _SkinShareScreenState extends ConsumerState<SkinShareScreen> {
                   _connectedDevice = null;
                 });
               },
-              child: const Text('Cancel'),
+              child: Text(l10n.cancel),
             ),
           ],
         ],

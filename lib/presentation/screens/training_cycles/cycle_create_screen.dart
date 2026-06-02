@@ -24,6 +24,7 @@ import '../../../domain/providers/navigation_providers.dart';
 import '../../../domain/providers/onboarding_providers.dart';
 import '../../../domain/providers/template_providers.dart';
 import '../../../domain/providers/training_cycle_providers.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../widgets/cardio/sport_chip_selector.dart';
 
 /// TrainingCycle creation screen with form
@@ -89,10 +90,11 @@ class _TrainingCycleCreateScreenState extends ConsumerState<TrainingCycleCreateS
   Future<void> _createTrainingCycle() async {
     // Check if name is empty first and show a clear prompt
     if (_nameController.text.trim().isEmpty) {
+      final l10n = AppLocalizations.of(context)!;
       final cycleTerm = ref.read(trainingCycleTermProvider);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Please enter a name for your $cycleTerm'),
+          content: Text(l10n.cycleCreateNameEmptySnackbar(cycleTerm)),
           backgroundColor: context.warningColor,
           behavior: SnackBarBehavior.floating,
         ),
@@ -169,11 +171,12 @@ class _TrainingCycleCreateScreenState extends ConsumerState<TrainingCycleCreateS
       );
 
       if (mounted) {
+        final l10n = AppLocalizations.of(context)!;
         final cycleTerm = ref.read(trainingCycleTermProvider);
         // Show success message
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('$cycleTerm "${trainingCycle.name}" created!'),
+            content: Text(l10n.cycleCreateSuccessSnackbar(cycleTerm, trainingCycle.name)),
             backgroundColor: context.successColor,
           ),
         );
@@ -275,11 +278,12 @@ class _TrainingCycleCreateScreenState extends ConsumerState<TrainingCycleCreateS
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final cycleTerm = ref.watch(trainingCycleTermProvider);
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Create $cycleTerm'),
+        title: Text(l10n.cycleCreateTitle(cycleTerm)),
         leading: IconButton(
           icon: const Icon(Icons.close),
           onPressed: () => context.pop(),
@@ -293,14 +297,14 @@ class _TrainingCycleCreateScreenState extends ConsumerState<TrainingCycleCreateS
             children: [
               // Header
               Text(
-                'New $cycleTerm',
+                l10n.cycleCreateHeading(cycleTerm),
                 style: Theme.of(
                   context,
                 ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
               Text(
-                'A $cycleTerm is a multi-period training program with progressive overload, often followed by a recovery period to allow your body to rest and adapt.',
+                l10n.cycleCreateDescription(cycleTerm),
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: Theme.of(
                     context,
@@ -313,18 +317,18 @@ class _TrainingCycleCreateScreenState extends ConsumerState<TrainingCycleCreateS
               TextFormField(
                 controller: _nameController,
                 decoration: InputDecoration(
-                  labelText: '$cycleTerm Name',
-                  hintText: 'e.g., Spring 2025 Hypertrophy',
+                  labelText: l10n.cycleCreateNameLabel(cycleTerm),
+                  hintText: l10n.cycleCreateNameHint,
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(Icons.fitness_center),
                 ),
                 textCapitalization: TextCapitalization.words,
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return 'Please enter a name';
+                    return l10n.cycleCreateNameRequired;
                   }
                   if (value.trim().length < 3) {
-                    return 'Name must be at least 3 characters';
+                    return l10n.cycleCreateNameMinLength;
                   }
                   return null;
                 },
@@ -332,12 +336,10 @@ class _TrainingCycleCreateScreenState extends ConsumerState<TrainingCycleCreateS
               const SizedBox(height: 24),
 
               // v5 — Primary sport picker (optional, UI hint only)
-              _buildSectionHeader('Primary sport (optional)'),
+              _buildSectionHeader(l10n.cycleCreatePrimarySportHeader),
               const SizedBox(height: 4),
               Text(
-                'Hints which sport the cycle is built around. Does not '
-                'restrict what sessions you can add — every cycle can mix '
-                'any sports.',
+                l10n.cycleCreatePrimarySportDesc,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: Theme.of(
                     context,
@@ -349,19 +351,19 @@ class _TrainingCycleCreateScreenState extends ConsumerState<TrainingCycleCreateS
               const SizedBox(height: 24),
 
               // Periods selector
-              _buildSectionHeader('Duration'),
+              _buildSectionHeader(l10n.cycleCreateDurationHeader),
               const SizedBox(height: 12),
               _buildPeriodsSelector(),
               const SizedBox(height: 24),
 
               // Days per period selector
-              _buildSectionHeader('Training Frequency'),
+              _buildSectionHeader(l10n.cycleCreateTrainingFrequencyHeader),
               const SizedBox(height: 12),
               _buildDaysPerPeriodSelector(),
               const SizedBox(height: 24),
 
               // Recovery period
-              _buildSectionHeader('Recovery Period (Optional)'),
+              _buildSectionHeader(l10n.cycleCreateRecoveryHeader),
               const SizedBox(height: 12),
               _buildRecoverySwitch(),
               if (_hasDeload) ...[
@@ -373,7 +375,7 @@ class _TrainingCycleCreateScreenState extends ConsumerState<TrainingCycleCreateS
               const SizedBox(height: 24),
 
               // Template (optional)
-              _buildSectionHeader('Template (Optional)'),
+              _buildSectionHeader(l10n.cycleCreateTemplateHeader),
               const SizedBox(height: 12),
               _buildTemplateSelector(),
               const SizedBox(height: 32),
@@ -388,7 +390,7 @@ class _TrainingCycleCreateScreenState extends ConsumerState<TrainingCycleCreateS
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
                     : const Icon(Icons.check),
-                label: Text(_isSubmitting ? 'Creating...' : 'Create $cycleTerm'),
+                label: Text(_isSubmitting ? l10n.cycleCreateCreatingButton : l10n.cycleCreateButton(cycleTerm)),
                 style: FilledButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   textStyle: const TextStyle(fontSize: 16),
@@ -452,6 +454,7 @@ class _TrainingCycleCreateScreenState extends ConsumerState<TrainingCycleCreateS
   }
 
   Widget _buildPeriodsSelector() {
+    final l10n = AppLocalizations.of(context)!;
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -462,11 +465,11 @@ class _TrainingCycleCreateScreenState extends ConsumerState<TrainingCycleCreateS
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Total Periods',
+                  l10n.cycleCreateTotalPeriods,
                   style: Theme.of(context).textTheme.bodyLarge,
                 ),
                 Text(
-                  '$_periodsTotal periods',
+                  l10n.cycleCreatePeriodsCount(_periodsTotal),
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: Theme.of(context).colorScheme.primary,
@@ -480,7 +483,7 @@ class _TrainingCycleCreateScreenState extends ConsumerState<TrainingCycleCreateS
               min: 1,
               max: 8,
               divisions: 7,
-              label: '$_periodsTotal periods',
+              label: l10n.cycleCreatePeriodsCount(_periodsTotal),
               onChanged: (value) {
                 setState(() {
                   _periodsTotal = value.toInt();
@@ -492,7 +495,7 @@ class _TrainingCycleCreateScreenState extends ConsumerState<TrainingCycleCreateS
               },
             ),
             Text(
-              'Recommended: 4-6 periods for hypertrophy',
+              l10n.cycleCreatePeriodsRecommendation,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: Theme.of(
                   context,
@@ -506,6 +509,7 @@ class _TrainingCycleCreateScreenState extends ConsumerState<TrainingCycleCreateS
   }
 
   Widget _buildDaysPerPeriodSelector() {
+    final l10n = AppLocalizations.of(context)!;
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -516,11 +520,11 @@ class _TrainingCycleCreateScreenState extends ConsumerState<TrainingCycleCreateS
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Training Days',
+                  l10n.cycleCreateTrainingDays,
                   style: Theme.of(context).textTheme.bodyLarge,
                 ),
                 Text(
-                  '$_daysPerPeriod days/period',
+                  l10n.cycleCreateDaysPerPeriod(_daysPerPeriod),
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: Theme.of(context).colorScheme.primary,
@@ -534,7 +538,7 @@ class _TrainingCycleCreateScreenState extends ConsumerState<TrainingCycleCreateS
               min: 2,
               max: AppConstants.maxDaysPerPeriod.toDouble(),
               divisions: AppConstants.maxDaysPerPeriod - 2,
-              label: '$_daysPerPeriod days',
+              label: l10n.cycleCreateDaysLabel(_daysPerPeriod),
               onChanged: (value) {
                 setState(() {
                   _daysPerPeriod = value.toInt();
@@ -557,44 +561,46 @@ class _TrainingCycleCreateScreenState extends ConsumerState<TrainingCycleCreateS
   }
 
   String _getDaysPerPeriodDescription() {
+    final l10n = AppLocalizations.of(context)!;
     switch (_daysPerPeriod) {
       case 2:
-        return 'Minimalist full body split';
+        return l10n.cycleCreateSplit2;
       case 3:
-        return 'Full body or Push/Pull/Legs split';
+        return l10n.cycleCreateSplit3;
       case 4:
-        return 'Upper/Lower or Push/Pull/Legs + Upper';
+        return l10n.cycleCreateSplit4;
       case 5:
-        return 'Push/Pull/Legs/Upper/Lower split';
+        return l10n.cycleCreateSplit5;
       case 6:
-        return 'Push/Pull/Legs twice per period';
+        return l10n.cycleCreateSplit6;
       case 7:
-        return 'Daily training (7-day cycle)';
+        return l10n.cycleCreateSplit7;
       case 8:
-        return '8-day training cycle with rest day';
+        return l10n.cycleCreateSplit8;
       case 9:
-        return '9-day training cycle (e.g., 3-on/1-off)';
+        return l10n.cycleCreateSplit9;
       case 10:
-        return '10-day training cycle';
+        return l10n.cycleCreateSplit10;
       case 11:
-        return '11-day training cycle';
+        return l10n.cycleCreateSplit11;
       case 12:
-        return '12-day training cycle';
+        return l10n.cycleCreateSplit12;
       case 13:
-        return '13-day training cycle';
+        return l10n.cycleCreateSplit13;
       case 14:
-        return '14-day (bi-weekly) training cycle';
+        return l10n.cycleCreateSplit14;
       default:
-        return '$_daysPerPeriod-day training cycle';
+        return l10n.cycleCreateSplitGeneric(_daysPerPeriod);
     }
   }
 
   Widget _buildRecoverySwitch() {
+    final l10n = AppLocalizations.of(context)!;
     return Card(
       child: SwitchListTile(
-        title: const Text('Include Recovery Period'),
-        subtitle: const Text(
-          'A lighter period to aid recovery and prevent overtraining',
+        title: Text(l10n.cycleCreateIncludeRecoveryTitle),
+        subtitle: Text(
+          l10n.cycleCreateIncludeRecoverySubtitle,
         ),
         value: _hasDeload,
         onChanged: (value) {
@@ -610,13 +616,14 @@ class _TrainingCycleCreateScreenState extends ConsumerState<TrainingCycleCreateS
   }
 
   Widget _buildRecoveryTypeSelector() {
+    final l10n = AppLocalizations.of(context)!;
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Recovery Type', style: Theme.of(context).textTheme.bodyLarge),
+            Text(l10n.cycleCreateRecoveryType, style: Theme.of(context).textTheme.bodyLarge),
             const SizedBox(height: 12),
             RadioGroup<RecoveryPeriodType>(
               groupValue: _recoveryPeriodType,
@@ -628,9 +635,9 @@ class _TrainingCycleCreateScreenState extends ConsumerState<TrainingCycleCreateS
               child: Column(
                 children: RecoveryPeriodType.values.map((type) {
                   return RadioListTile<RecoveryPeriodType>(
-                    title: Text(type.displayName),
+                    title: Text(type.localizedName(l10n)),
                     subtitle: Text(
-                      type.description,
+                      type.localizedDescription(l10n),
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: Theme.of(
                           context,
@@ -650,6 +657,7 @@ class _TrainingCycleCreateScreenState extends ConsumerState<TrainingCycleCreateS
   }
 
   Widget _buildRecoveryPeriodSelector() {
+    final l10n = AppLocalizations.of(context)!;
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -660,11 +668,11 @@ class _TrainingCycleCreateScreenState extends ConsumerState<TrainingCycleCreateS
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  '${_recoveryPeriodType.displayName} on Period',
+                  l10n.cycleCreateRecoveryOnPeriod(_recoveryPeriodType.localizedName(l10n)),
                   style: Theme.of(context).textTheme.bodyLarge,
                 ),
                 Text(
-                  'Period $_recoveryPeriod',
+                  l10n.cycleCreatePeriodNumber(_recoveryPeriod!),
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: Theme.of(context).colorScheme.secondary,
@@ -678,13 +686,13 @@ class _TrainingCycleCreateScreenState extends ConsumerState<TrainingCycleCreateS
               min: 1,
               max: _periodsTotal.toDouble(),
               divisions: _periodsTotal - 1,
-              label: 'Period $_recoveryPeriod',
+              label: l10n.cycleCreatePeriodNumber(_recoveryPeriod!),
               onChanged: (value) {
                 setState(() => _recoveryPeriod = value.toInt());
               },
             ),
             Text(
-              'Most people schedule this on the last period',
+              l10n.cycleCreateRecoveryScheduleHint,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: Theme.of(
                   context,
@@ -698,6 +706,7 @@ class _TrainingCycleCreateScreenState extends ConsumerState<TrainingCycleCreateS
   }
 
   Widget _buildTemplateSelector() {
+    final l10n = AppLocalizations.of(context)!;
     final templatesAsync = ref.watch(availableTemplatesProvider);
 
     return Card(
@@ -711,22 +720,22 @@ class _TrainingCycleCreateScreenState extends ConsumerState<TrainingCycleCreateS
               error: (error, stack) {
                 Sentry.captureException(error, stackTrace: stack);
                 return Text(
-                  'Error loading templates: $error',
+                  l10n.cycleCreateErrorLoadingTemplates(error),
                   style: TextStyle(color: Theme.of(context).colorScheme.error),
                 );
               },
               data: (templates) => DropdownButtonFormField<TrainingCycleTemplate?>(
                 isExpanded: true,
                 initialValue: _selectedTemplate,
-                decoration: const InputDecoration(
-                  labelText: 'Choose a Template',
+                decoration: InputDecoration(
+                  labelText: l10n.cycleCreateChooseTemplate,
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(Icons.library_books),
                 ),
                 items: [
-                  const DropdownMenuItem<TrainingCycleTemplate?>(
+                  DropdownMenuItem<TrainingCycleTemplate?>(
                     value: null,
-                    child: Text('None (Custom)'),
+                    child: Text(l10n.cycleCreateTemplateNone),
                   ),
                   ...templates.map(
                     (template) => DropdownMenuItem<TrainingCycleTemplate?>(
@@ -753,7 +762,7 @@ class _TrainingCycleCreateScreenState extends ConsumerState<TrainingCycleCreateS
             ),
             const SizedBox(height: 8),
             Text(
-              'Templates provide pre-configured training splits with strength exercises',
+              l10n.cycleCreateTemplateHint,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: Theme.of(
                   context,
@@ -778,6 +787,7 @@ class _MixedChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final bg = isSelected
         ? theme.colorScheme.onSurface.withValues(alpha: 0.12)
@@ -801,7 +811,7 @@ class _MixedChip extends StatelessWidget {
             Icon(Icons.shuffle, size: 18, color: textColor),
             const SizedBox(width: 8),
             Text(
-              'Mixed',
+              l10n.cycleCreateMixedChipLabel,
               style: theme.textTheme.labelLarge?.copyWith(
                 color: textColor,
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,

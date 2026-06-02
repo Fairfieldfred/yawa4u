@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -16,6 +17,7 @@ import 'data/services/csv_loader_service.dart';
 import 'data/services/database_service.dart';
 import 'data/services/firebase_auth_service.dart';
 import 'domain/providers/onboarding_providers.dart';
+import 'domain/providers/locale_provider.dart';
 import 'domain/providers/theme_provider.dart';
 import 'firebase_options.dart';
 import 'presentation/navigation/app_router.dart';
@@ -72,6 +74,7 @@ class MyApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final locale = ref.watch(localeProvider);
     final themeMode = ref.watch(themeModeProvider);
     final router = ref.watch(routerProvider);
     final skinState = ref.watch(skinProvider);
@@ -80,12 +83,16 @@ class MyApp extends ConsumerWidget {
       title: AppConstants.appName,
       debugShowCheckedModeBanner: false,
 
+      // Localization configuration
+      locale: locale,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+
       // Theme configuration from skin system
       theme: skinState.lightTheme,
       darkTheme: skinState.darkTheme,
       themeMode: themeMode,
 
-      // Router configuration
       // Router configuration
       routerConfig: router,
     );

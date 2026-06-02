@@ -7,6 +7,7 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 import '../../../core/theme/skins/skins.dart';
 import '../../../data/models/training_cycle_template.dart';
 import '../../../domain/providers/template_providers.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../widgets/skeleton_loader.dart';
 import 'template_preview_screen.dart';
 
@@ -20,17 +21,18 @@ class TemplateSelectionScreen extends ConsumerStatefulWidget {
 class _TemplateSelectionScreenState extends ConsumerState<TemplateSelectionScreen> {
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final templatesAsync = ref.watch(availableTemplatesProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Choose a Program'), elevation: 0),
+      appBar: AppBar(title: Text(l10n.templateSelectionTitle), elevation: 0),
       body: templatesAsync.when(
         data: (allTemplates) {
           final templates = kDebugMode ? allTemplates : allTemplates.where((t) => t.id != 'short').toList();
           if (templates.isEmpty) {
             return Center(
               child: Text(
-                'No templates available',
+                l10n.templateSelectionNoTemplates,
                 style: TextStyle(
                   color: Theme.of(
                     context,
@@ -68,6 +70,7 @@ class _TemplateSelectionScreenState extends ConsumerState<TemplateSelectionScree
   }
 
   Widget _buildCommunityCard(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final colorScheme = Theme.of(context).colorScheme;
 
     return Card(
@@ -99,7 +102,7 @@ class _TemplateSelectionScreenState extends ConsumerState<TemplateSelectionScree
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Browse Community',
+                      l10n.templateSelectionBrowseCommunity,
                       style: TextStyle(
                         color: colorScheme.onSurface,
                         fontSize: 17,
@@ -108,7 +111,7 @@ class _TemplateSelectionScreenState extends ConsumerState<TemplateSelectionScree
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Download programs shared by other users',
+                      l10n.templateSelectionBrowseCommunitySubtitle,
                       style: TextStyle(
                         color: colorScheme.onSurfaceVariant,
                         fontSize: 13,
@@ -132,6 +135,7 @@ class _TemplateSelectionScreenState extends ConsumerState<TemplateSelectionScree
     BuildContext context,
     TrainingCycleTemplate template,
   ) {
+    final l10n = AppLocalizations.of(context)!;
     final colorScheme = Theme.of(context).colorScheme;
 
     return Card(
@@ -177,7 +181,7 @@ class _TemplateSelectionScreenState extends ConsumerState<TemplateSelectionScree
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
-                          '${template.daysPerPeriod} Days/Period',
+                          l10n.templateSelectionDaysPerPeriod(template.daysPerPeriod),
                           style: const TextStyle(
                             color: Colors.blue,
                             fontSize: 12,
@@ -228,7 +232,7 @@ class _TemplateSelectionScreenState extends ConsumerState<TemplateSelectionScree
                   ),
                   const SizedBox(width: 4),
                   Text(
-                    '${template.periodsTotal} Periods',
+                    l10n.templateSelectionPeriodsCount(template.periodsTotal),
                     style: TextStyle(
                       color: colorScheme.onSurfaceVariant,
                       fontSize: 13,
@@ -242,7 +246,7 @@ class _TemplateSelectionScreenState extends ConsumerState<TemplateSelectionScree
                   ),
                   const SizedBox(width: 4),
                   Text(
-                    '${template.workouts.length} Sessions',
+                    l10n.templateSelectionSessionsCount(template.workouts.length),
                     style: TextStyle(
                       color: colorScheme.onSurfaceVariant,
                       fontSize: 13,
@@ -258,6 +262,7 @@ class _TemplateSelectionScreenState extends ConsumerState<TemplateSelectionScree
   }
 
   Future<void> _confirmDelete(TrainingCycleTemplate template) async {
+    final l10n = AppLocalizations.of(context)!;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => Dialog(
@@ -282,7 +287,7 @@ class _TemplateSelectionScreenState extends ConsumerState<TemplateSelectionScree
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      'Delete Template?',
+                      l10n.templateSelectionDeleteTitle,
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
@@ -292,7 +297,7 @@ class _TemplateSelectionScreenState extends ConsumerState<TemplateSelectionScree
               ),
               const SizedBox(height: 16),
               Text(
-                'Are you sure you want to delete "${template.name}"? This action cannot be undone.',
+                l10n.templateSelectionDeleteContent(template.name),
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: Theme.of(
                     context,
@@ -311,7 +316,7 @@ class _TemplateSelectionScreenState extends ConsumerState<TemplateSelectionScree
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      child: const Text('CANCEL'),
+                      child: Text(l10n.cancelUpper),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -325,7 +330,7 @@ class _TemplateSelectionScreenState extends ConsumerState<TemplateSelectionScree
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      child: const Text('DELETE'),
+                      child: Text(l10n.deleteUpper),
                     ),
                   ),
                 ],
@@ -347,7 +352,7 @@ class _TemplateSelectionScreenState extends ConsumerState<TemplateSelectionScree
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Template "${template.name}" deleted'),
+              content: Text(l10n.templateSelectionDeletedSnackbar(template.name)),
               backgroundColor: context.successColor,
               behavior: SnackBarBehavior.floating,
             ),
@@ -357,7 +362,7 @@ class _TemplateSelectionScreenState extends ConsumerState<TemplateSelectionScree
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Failed to delete template: $e'),
+              content: Text(l10n.templateSelectionDeleteError(e)),
               backgroundColor: context.errorColor,
               behavior: SnackBarBehavior.floating,
             ),

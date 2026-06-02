@@ -6,6 +6,7 @@ import '../../../data/models/training_cycle_template.dart';
 import '../../../domain/providers/database_providers.dart';
 import '../../../domain/providers/navigation_providers.dart';
 import '../../../domain/providers/template_providers.dart';
+import '../../../l10n/app_localizations.dart';
 
 class TemplatePreviewScreen extends ConsumerStatefulWidget {
   final TrainingCycleTemplate template;
@@ -58,7 +59,7 @@ class _TemplatePreviewScreenState extends ConsumerState<TemplatePreviewScreen> {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('Error creating program: $e')));
+        ).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.templatePreviewErrorCreating(e))));
       }
     } finally {
       if (mounted) {
@@ -133,9 +134,9 @@ class _TemplatePreviewScreenState extends ConsumerState<TemplatePreviewScreen> {
                             color: Colors.white,
                           ),
                         )
-                      : const Text(
-                          'LOAD PROGRAM',
-                          style: TextStyle(
+                      : Text(
+                          AppLocalizations.of(context)!.templatePreviewLoadProgram,
+                          style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                           ),
@@ -151,6 +152,7 @@ class _TemplatePreviewScreenState extends ConsumerState<TemplatePreviewScreen> {
 
   /// Build workout cards grouped by period number.
   List<Widget> _buildPeriodSections(ColorScheme colorScheme) {
+    final l10n = AppLocalizations.of(context)!;
     // Group workouts by period
     final byPeriod = <int, List<WorkoutTemplate>>{};
     for (final w in widget.template.workouts) {
@@ -162,7 +164,9 @@ class _TemplatePreviewScreenState extends ConsumerState<TemplatePreviewScreen> {
 
     for (final period in sortedPeriods) {
       final isRecovery = widget.template.recoveryPeriod == period;
-      final periodLabel = isRecovery ? 'Period $period (Recovery)' : 'Period $period';
+      final periodLabel = isRecovery
+          ? l10n.templatePreviewPeriodRecoveryHeader(period)
+          : l10n.templatePreviewPeriodHeader(period);
 
       widgets.add(
         Padding(
@@ -187,6 +191,7 @@ class _TemplatePreviewScreenState extends ConsumerState<TemplatePreviewScreen> {
   }
 
   Widget _buildInfoSection() {
+    final l10n = AppLocalizations.of(context)!;
     final colorScheme = Theme.of(context).colorScheme;
 
     return Container(
@@ -200,19 +205,19 @@ class _TemplatePreviewScreenState extends ConsumerState<TemplatePreviewScreen> {
         children: [
           _buildInfoItem(
             Icons.calendar_today,
-            '${widget.template.periodsTotal} Periods',
-            'Duration',
+            l10n.templateSelectionPeriodsCount(widget.template.periodsTotal),
+            l10n.templatePreviewDuration,
           ),
           _buildInfoItem(
             Icons.fitness_center,
-            '${widget.template.daysPerPeriod} Days',
-            'Per Period',
+            l10n.templatePreviewDaysCount(widget.template.daysPerPeriod),
+            l10n.templatePreviewPerPeriod,
           ),
           if (widget.template.recoveryPeriod != null)
             _buildInfoItem(
               Icons.refresh,
-              'Period ${widget.template.recoveryPeriod}',
-              'Recovery',
+              l10n.templatePreviewPeriodHeader(widget.template.recoveryPeriod!),
+              l10n.templatePreviewRecovery,
             ),
         ],
       ),
@@ -244,6 +249,7 @@ class _TemplatePreviewScreenState extends ConsumerState<TemplatePreviewScreen> {
   }
 
   Widget _buildWorkoutCard(WorkoutTemplate workout) {
+    final l10n = AppLocalizations.of(context)!;
     final colorScheme = Theme.of(context).colorScheme;
 
     return Container(
@@ -256,7 +262,7 @@ class _TemplatePreviewScreenState extends ConsumerState<TemplatePreviewScreen> {
         data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
         child: ExpansionTile(
           title: Text(
-            workout.dayName ?? 'Day ${workout.dayNumber}',
+            workout.dayName ?? l10n.templatePreviewDayFallback(workout.dayNumber),
             style: TextStyle(
               color: colorScheme.onSurface,
               fontWeight: FontWeight.w600,
@@ -264,8 +270,10 @@ class _TemplatePreviewScreenState extends ConsumerState<TemplatePreviewScreen> {
           ),
           subtitle: Text(
             workout.isCardio
-                ? '${workout.sport[0].toUpperCase()}${workout.sport.substring(1)} session'
-                : '${workout.exercises.length} Exercises',
+                ? l10n.templatePreviewCardioSession(
+                    '${workout.sport[0].toUpperCase()}${workout.sport.substring(1)}',
+                  )
+                : l10n.templatePreviewExerciseCount(workout.exercises.length),
             style: TextStyle(color: colorScheme.onSurfaceVariant),
           ),
           children: [
@@ -319,7 +327,7 @@ class _TemplatePreviewScreenState extends ConsumerState<TemplatePreviewScreen> {
                                     ),
                                     const SizedBox(height: 2),
                                     Text(
-                                      '${exercise.sets} sets × ${exercise.reps}',
+                                      l10n.templatePreviewSetsReps(exercise.sets, exercise.reps),
                                       style: TextStyle(
                                         color: colorScheme.onSurfaceVariant,
                                         fontSize: 13,

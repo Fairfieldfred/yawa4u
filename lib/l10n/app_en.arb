@@ -1,0 +1,2918 @@
+{
+  "@@locale": "en",
+  "appTitle": "YAWA4U",
+  "@appTitle": {
+    "description": "The application title"
+  },
+  "cancel": "Cancel",
+  "@cancel": {
+    "description": "Cancel button text"
+  },
+  "cancelUpper": "CANCEL",
+  "@cancelUpper": {
+    "description": "Cancel button text (uppercase)"
+  },
+  "save": "Save",
+  "@save": {
+    "description": "Save button text"
+  },
+  "saveUpper": "SAVE",
+  "@saveUpper": {
+    "description": "Save button text (uppercase)"
+  },
+  "delete": "Delete",
+  "@delete": {
+    "description": "Delete button text"
+  },
+  "deleteUpper": "DELETE",
+  "@deleteUpper": {
+    "description": "Delete button text (uppercase)"
+  },
+  "close": "Close",
+  "@close": {
+    "description": "Close button text"
+  },
+  "retry": "Retry",
+  "@retry": {
+    "description": "Retry button text"
+  },
+  "undo": "Undo",
+  "@undo": {
+    "description": "Undo snackbar action label"
+  },
+  "continueButton": "Continue",
+  "@continueButton": {
+    "description": "Continue button text"
+  },
+  "errorGeneric": "Error: {error}",
+  "@errorGeneric": {
+    "description": "Generic error message",
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "noteSaved": "Note saved",
+  "@noteSaved": {
+    "description": "Snackbar confirmation for note saved"
+  },
+  "noteSaveError": "Error saving note: {error}",
+  "@noteSaveError": {
+    "description": "Snackbar error when saving note fails",
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "toggleThemeTooltip": "Toggle theme",
+  "@toggleThemeTooltip": {
+    "description": "Tooltip for theme toggle button"
+  },
+  "navSession": "Session",
+  "@navSession": {
+    "description": "Bottom nav label for workout/session tab"
+  },
+  "navExercises": "Exercises",
+  "@navExercises": {
+    "description": "Bottom nav label for exercises tab"
+  },
+  "navCalendar": "Calendar",
+  "@navCalendar": {
+    "description": "Bottom nav label for calendar tab"
+  },
+  "navMore": "More",
+  "@navMore": {
+    "description": "Bottom nav label for more tab"
+  },
+  "trainingCycleStatusDraft": "Draft",
+  "trainingCycleStatusCurrent": "Current",
+  "trainingCycleStatusCompleted": "Completed",
+  "workoutStatusIncomplete": "Incomplete",
+  "workoutStatusCompleted": "Completed",
+  "workoutStatusSkipped": "Skipped",
+  "setTypeRegular": "Regular",
+  "setTypeMyorep": "Myorep",
+  "setTypeMyorepMatch": "Myorep match",
+  "setTypeMaxReps": "Max reps",
+  "setTypeEndWithPartials": "End with partials",
+  "setTypeDropSet": "Drop set",
+  "setTypeRegularDesc": "perform sets normally by hitting rep target or week over week RIR target",
+  "setTypeMyorepDesc": "take 5-15 second pauses between mini-sets of reps to hit rep target or week over week RIR target. Log total reps.",
+  "setTypeMyorepMatchDesc": "take 5-15 second pauses between mini-sets of reps to match reps from your first set. Log total reps.",
+  "setTypeMaxRepsDesc": "perform as many reps as possible until failure",
+  "setTypeEndWithPartialsDesc": "after reaching failure, continue with partial reps to further fatigue the muscle",
+  "setTypeDropSetDesc": "immediately reduce weight and continue reps without rest to extend the set",
+  "jointPainNone": "NONE",
+  "jointPainLow": "LOW PAIN",
+  "jointPainModerate": "MODERATE PAIN",
+  "jointPainSevere": "A LOT OF PAIN",
+  "musclePumpLow": "LOW PUMP",
+  "musclePumpModerate": "MODERATE PUMP",
+  "musclePumpAmazing": "AMAZING PUMP",
+  "workloadEasy": "EASY",
+  "workloadPrettyGood": "PRETTY GOOD",
+  "workloadPushedLimits": "PUSHED MY LIMITS",
+  "workloadTooMuch": "TOO MUCH",
+  "sorenessNeverGotSore": "NEVER GOT SORE",
+  "sorenessHealedAWhileAgo": "HEALED A WHILE AGO",
+  "sorenessHealedJustOnTime": "HEALED JUST ON TIME",
+  "sorenessStillSore": "I'M STILL SORE!",
+  "genderMale": "MALE",
+  "genderFemale": "FEMALE",
+  "recoveryPeriodTypeDeload": "Deload",
+  "recoveryPeriodTypeTaper": "Taper",
+  "recoveryPeriodTypeRecovery": "Recovery",
+  "recoveryPeriodTypeDeloadDesc": "Reduce weight while maintaining volume",
+  "recoveryPeriodTypeTaperDesc": "Reduce volume while maintaining intensity",
+  "recoveryPeriodTypeRecoveryDesc": "Light training to promote active recovery",
+  "trainingPhaseBase": "Base",
+  "trainingPhaseBuild": "Build",
+  "trainingPhasePeak": "Peak",
+  "trainingPhaseTaper": "Taper",
+  "trainingPhaseTransition": "Transition",
+  "trainingPhaseBaseDesc": "Aerobic foundation — high volume, low intensity",
+  "trainingPhaseBuildDesc": "Build fitness — volume plus targeted intensity",
+  "trainingPhasePeakDesc": "Race-specific intensity, reduced total volume",
+  "trainingPhaseTaperDesc": "Reduce volume sharply, keep touches of intensity",
+  "trainingPhaseTransitionDesc": "Active recovery between training blocks",
+  "unitSystemImperial": "Imperial",
+  "unitSystemMetric": "Metric",
+  "muscleGroupChest": "Chest",
+  "muscleGroupTriceps": "Triceps",
+  "muscleGroupShoulders": "Shoulders",
+  "muscleGroupBack": "Back",
+  "muscleGroupBiceps": "Biceps",
+  "muscleGroupQuads": "Quads",
+  "muscleGroupHamstrings": "Hamstrings",
+  "muscleGroupGlutes": "Glutes",
+  "muscleGroupCalves": "Calves",
+  "muscleGroupTraps": "Traps",
+  "muscleGroupForearms": "Forearms",
+  "muscleGroupAbs": "Abs",
+  "muscleGroupFullBody": "Full Body",
+  "muscleGroupAdductors": "Adductors",
+  "muscleGroupCore": "Core",
+  "muscleGroupGrip": "Grip",
+  "muscleGroupObliques": "Obliques",
+  "equipmentBarbell": "Barbell",
+  "equipmentBodyweightLoadable": "Bodyweight Loadable",
+  "equipmentBodyweightOnly": "Bodyweight Only",
+  "equipmentCable": "Cable",
+  "equipmentDumbbell": "Dumbbell",
+  "equipmentFreemotion": "Freemotion",
+  "equipmentKettlebell": "Kettlebell",
+  "equipmentMachine": "Machine",
+  "equipmentMachineAssistance": "Machine Assistance",
+  "equipmentSmithMachine": "Smith Machine",
+  "equipmentBandAssistance": "Band Assistance",
+  "sportStrength": "Strength",
+  "sportRun": "Run",
+  "sportBike": "Bike",
+  "sportSwim": "Swim",
+  "sportOther": "Other",
+  "sessionSourcePlanned": "Planned",
+  "sessionSourceLogged": "Logged",
+  "sessionSourceAppleHealth": "Apple Health",
+  "sessionSourceHealthConnect": "Health Connect",
+  "sessionSourcePeloton": "Peloton",
+  "sessionSourceStrava": "Strava",
+  "sessionSourceGarmin": "Garmin",
+  "sessionSourceImported": "Imported",
+  "intervalIntentWarmup": "Warm-up",
+  "intervalIntentWork": "Work",
+  "intervalIntentRecovery": "Recovery",
+  "intervalIntentCooldown": "Cool-down",
+  "intervalIntentRest": "Rest",
+  "intervalIntentRepeat": "Repeat",
+  "intervalTargetDuration": "Duration",
+  "intervalTargetDistance": "Distance",
+  "intervalTargetHrZone": "HR zone",
+  "intervalTargetPaceZone": "Pace zone",
+  "intervalTargetPowerZone": "Power zone",
+  "intervalTargetFreeform": "Freeform",
+  "strokeTypeFreestyle": "Freestyle",
+  "strokeTypeBackstroke": "Backstroke",
+  "strokeTypeBreaststroke": "Breaststroke",
+  "strokeTypeButterfly": "Butterfly",
+  "strokeTypeMixed": "Mixed",
+  "strokeTypeDrill": "Drill",
+  "onboardingSportsTitle": "Your sports",
+  "onboardingSportsHeadline": "Which sports do you train?",
+  "onboardingSportsSubtitle": "Pick all that apply. You can add more later in Settings.",
+  "sportDescriptionStrength": "Lifting, hypertrophy, powerlifting",
+  "sportDescriptionRun": "Running, treadmill, trail",
+  "sportDescriptionBike": "Road, trainer, MTB, spin (Peloton)",
+  "sportDescriptionSwim": "Pool or open water",
+  "sportDescriptionOther": "Other activities",
+  "onboardingTerminologyTitle": "Terminology",
+  "onboardingTerminologyHeadline": "What do you call a training cycle?",
+  "onboardingTerminologySubtitle": "Choose the term you're most comfortable with. We'll use this throughout the app.",
+  "getStartedButton": "Get Started",
+  "trainingCycleTermBlock": "Block",
+  "trainingCycleTermBlockDesc": "A focused training block with specific goals",
+  "trainingCycleTermMesocycle": "Mesocycle",
+  "trainingCycleTermMesocycleDesc": "A structured training period typically lasting 3-6 weeks",
+  "trainingCycleTermModule": "Module",
+  "trainingCycleTermModuleDesc": "A modular training unit that can be stacked",
+  "trainingCycleTermPhase": "Phase",
+  "trainingCycleTermPhaseDesc": "A training phase within your overall program",
+  "trainingCycleTermWave": "Wave",
+  "trainingCycleTermWaveDesc": "A wave of progressive training intensity",
+  "onboardingEquipmentTitle": "Your equipment",
+  "onboardingEquipmentHeadline": "What equipment do you have access to?",
+  "onboardingEquipmentSubtitle": "Select all that apply. This helps us suggest appropriate exercises.",
+  "onboardingEquipmentSkip": "Skip for now",
+  "equipmentDumbbells": "Dumbbells",
+  "equipmentHomeGymRack": "Home Gym Rack",
+  "equipmentFunctionalTrainer": "Functional (Cable) Trainer",
+  "equipmentGymMachines": "Gym Machines",
+  "equipmentBarbells": "Barbells",
+  "equipmentKettlebells": "Kettlebells",
+  "equipmentResistanceBands": "Resistance Bands",
+  "equipmentTreadmill": "Treadmill",
+  "equipmentExerciseBike": "Exercise Bike",
+  "equipmentRowingMachine": "Rowing Machine",
+  "equipmentLapPool": "Lap Pool",
+  "equipmentCrossfitGym": "Crossfit Gym",
+  "equipmentPullUpBar": "Pull-up Bar",
+  "equipmentSuspensionTrainer": "Suspension Trainer (TRX)",
+  "onboardingProfileTitle": "About you",
+  "onboardingProfileHeadline": "Let's get to know you",
+  "onboardingProfileSubtitle": "Height + weight let us track body metrics and show BMI. Icon preference is optional at the bottom.",
+  "unitsLabel": "Units:",
+  "imperialLabel": "Imperial",
+  "metricLabel": "Metric",
+  "heightLabel": "Height",
+  "centimetersLabel": "Centimeters",
+  "cmSuffix": "cm",
+  "feetLabel": "Feet",
+  "ftSuffix": "ft",
+  "inchesLabel": "Inches",
+  "inSuffix": "in",
+  "weightLabel": "Weight",
+  "kilogramsLabel": "Kilograms",
+  "poundsLabel": "Pounds",
+  "kgSuffix": "kg",
+  "lbsSuffix": "lbs",
+  "heightRequiredError": "Please enter your height",
+  "heightInvalidCmError": "Please enter a valid height (100-250 cm)",
+  "heightFeetRequiredError": "Required",
+  "heightInvalidError": "Invalid",
+  "weightRequiredError": "Please enter your weight",
+  "weightInvalidNumberError": "Please enter a valid number",
+  "weightInvalidKgError": "Please enter a valid weight (40-180 kg)",
+  "weightInvalidLbsError": "Please enter a valid weight (80-400 lbs)",
+  "bmiPlaceholder": "Enter height and weight to see BMI",
+  "bmiValue": "BMI {bmiValue}",
+  "@bmiValue": {
+    "description": "BMI display",
+    "placeholders": {
+      "bmiValue": {}
+    }
+  },
+  "aboutBmiCategories": "About BMI categories",
+  "bmiCategoryObese": "Obese",
+  "bmiCategoryOverweight": "Overweight",
+  "bmiCategoryNormal": "Normal",
+  "bmiCategoryUnderweight": "Underweight",
+  "bmiCategoriesTitle": "BMI categories",
+  "bmiGuidelines": "Based on WHO / CDC guidelines",
+  "dexaScanTitle": "DEXA Scan Results",
+  "dexaSubtitle": "Optional - for bodybuilders",
+  "bodyFatLabel": "Body Fat",
+  "bodyFatSuffix": "%",
+  "bodyFatInvalidError": "Invalid (3-60%)",
+  "leanMassLabel": "Lean Mass",
+  "appIconTitle": "App icon (optional)",
+  "appIconSubtitle": "Three variants — tap one to pick.",
+  "cycleCreateTitle": "Create {cycleTerm}",
+  "@cycleCreateTitle": {
+    "description": "AppBar title for create cycle",
+    "placeholders": {
+      "cycleTerm": {}
+    }
+  },
+  "cycleCreateHeading": "New {cycleTerm}",
+  "@cycleCreateHeading": {
+    "placeholders": {
+      "cycleTerm": {}
+    }
+  },
+  "cycleCreateDescription": "A {cycleTerm} is a multi-period training program with progressive overload, often followed by a recovery period to allow your body to rest and adapt.",
+  "@cycleCreateDescription": {
+    "placeholders": {
+      "cycleTerm": {}
+    }
+  },
+  "cycleCreateNameLabel": "{cycleTerm} Name",
+  "@cycleCreateNameLabel": {
+    "placeholders": {
+      "cycleTerm": {}
+    }
+  },
+  "cycleCreateNameHint": "e.g., Spring 2025 Hypertrophy",
+  "cycleCreateNameRequired": "Please enter a name",
+  "cycleCreateNameMinLength": "Name must be at least 3 characters",
+  "cycleCreateNameEmptySnackbar": "Please enter a name for your {cycleTerm}",
+  "@cycleCreateNameEmptySnackbar": {
+    "placeholders": {
+      "cycleTerm": {}
+    }
+  },
+  "cycleCreatePrimarySportHeader": "Primary sport (optional)",
+  "cycleCreatePrimarySportDesc": "Hints which sport the cycle is built around. Does not restrict what sessions you can add — every cycle can mix any sports.",
+  "cycleCreateDurationHeader": "Duration",
+  "cycleCreateTrainingFrequencyHeader": "Training Frequency",
+  "cycleCreateRecoveryHeader": "Recovery Period (Optional)",
+  "cycleCreateTemplateHeader": "Template (Optional)",
+  "cycleCreateCreatingButton": "Creating...",
+  "cycleCreateButton": "Create {cycleTerm}",
+  "@cycleCreateButton": {
+    "placeholders": {
+      "cycleTerm": {}
+    }
+  },
+  "cycleCreateTotalPeriods": "Total Periods",
+  "cycleCreatePeriodsCount": "{count} periods",
+  "@cycleCreatePeriodsCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "cycleCreatePeriodsRecommendation": "Recommended: 4-6 periods for hypertrophy",
+  "cycleCreateTrainingDays": "Training Days",
+  "cycleCreateDaysPerPeriod": "{count} days/period",
+  "@cycleCreateDaysPerPeriod": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "cycleCreateDaysLabel": "{count} days",
+  "@cycleCreateDaysLabel": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "cycleCreateSplit2": "Minimalist full body split",
+  "cycleCreateSplit3": "Full body or Push/Pull/Legs split",
+  "cycleCreateSplit4": "Upper/Lower or Push/Pull/Legs + Upper",
+  "cycleCreateSplit5": "Push/Pull/Legs/Upper/Lower split",
+  "cycleCreateSplit6": "Push/Pull/Legs twice per period",
+  "cycleCreateSplit7": "Daily training (7-day cycle)",
+  "cycleCreateSplit8": "8-day training cycle with rest day",
+  "cycleCreateSplit9": "9-day training cycle (e.g., 3-on/1-off)",
+  "cycleCreateSplit10": "10-day training cycle",
+  "cycleCreateSplit11": "11-day training cycle",
+  "cycleCreateSplit12": "12-day training cycle",
+  "cycleCreateSplit13": "13-day training cycle",
+  "cycleCreateSplit14": "14-day (bi-weekly) training cycle",
+  "cycleCreateSplitGeneric": "{count}-day training cycle",
+  "@cycleCreateSplitGeneric": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "cycleCreateIncludeRecoveryTitle": "Include Recovery Period",
+  "cycleCreateIncludeRecoverySubtitle": "A lighter period to aid recovery and prevent overtraining",
+  "cycleCreateRecoveryType": "Recovery Type",
+  "cycleCreateRecoveryOnPeriod": "{recoveryType} on Period",
+  "@cycleCreateRecoveryOnPeriod": {
+    "placeholders": {
+      "recoveryType": {}
+    }
+  },
+  "cycleCreatePeriodNumber": "Period {number}",
+  "@cycleCreatePeriodNumber": {
+    "placeholders": {
+      "number": {}
+    }
+  },
+  "cycleCreateRecoveryScheduleHint": "Most people schedule this on the last period",
+  "cycleCreateChooseTemplate": "Choose a Template",
+  "cycleCreateTemplateNone": "None (Custom)",
+  "cycleCreateTemplateHint": "Templates provide pre-configured training splits with strength exercises",
+  "cycleCreateErrorLoadingTemplates": "Error loading templates: {error}",
+  "@cycleCreateErrorLoadingTemplates": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "cycleCreateSuccessSnackbar": "{cycleTerm} \"{name}\" created!",
+  "@cycleCreateSuccessSnackbar": {
+    "placeholders": {
+      "cycleTerm": {},
+      "name": {}
+    }
+  },
+  "cycleCreateMixedChipLabel": "Mixed",
+  "cycleListNewButton": "New",
+  "cycleListDraftSectionHeader": "Draft {cycleTerm}",
+  "@cycleListDraftSectionHeader": {
+    "placeholders": {
+      "cycleTerm": {}
+    }
+  },
+  "cycleListCurrentSectionHeader": "Current {cycleTerm}",
+  "@cycleListCurrentSectionHeader": {
+    "placeholders": {
+      "cycleTerm": {}
+    }
+  },
+  "cycleListCompletedSectionHeader": "Completed {cycleTermPlural}",
+  "@cycleListCompletedSectionHeader": {
+    "placeholders": {
+      "cycleTermPlural": {}
+    }
+  },
+  "cycleListErrorLoading": "Error loading trainingCycles: {error}",
+  "@cycleListErrorLoading": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "cycleListCurrentBadge": "CURRENT",
+  "cycleListPeriodsCount": "{count} periods",
+  "@cycleListPeriodsCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "cycleListDaysPerPeriod": "{count} days/period",
+  "@cycleListDaysPerPeriod": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "cycleListStartButton": "Start",
+  "cycleListEmptyTitle": "No TrainingCycles",
+  "cycleListEmptySubtitle": "Create your first trainingCycle to get started",
+  "cycleListCreateNew": "Create New",
+  "cycleListStartFromTemplate": "Start from Template",
+  "cycleListMenuWriteNote": "Write a new note",
+  "cycleListMenuRename": "Rename",
+  "cycleListMenuCopy": "Copy the {cycleTerm}",
+  "@cycleListMenuCopy": {
+    "placeholders": {
+      "cycleTerm": {}
+    }
+  },
+  "cycleListMenuSummary": "Summary",
+  "cycleListMenuRestart": "Restart {cycleTerm}",
+  "@cycleListMenuRestart": {
+    "placeholders": {
+      "cycleTerm": {}
+    }
+  },
+  "cycleListMenuSaveAsTemplate": "Save as a Template",
+  "cycleListMenuShareQR": "Share (Host QR Code)",
+  "cycleListMenuExportDebug": "Export (Debug)",
+  "cycleListMenuDelete": "Delete {cycleTerm}",
+  "@cycleListMenuDelete": {
+    "placeholders": {
+      "cycleTerm": {}
+    }
+  },
+  "cycleListStartDialogTitle": "Start {cycleTerm}",
+  "@cycleListStartDialogTitle": {
+    "placeholders": {
+      "cycleTerm": {}
+    }
+  },
+  "cycleListStartDialogNoActive": "Start \"{name}\"? This will set it as your current {cycleTerm}.",
+  "@cycleListStartDialogNoActive": {
+    "placeholders": {
+      "name": {},
+      "cycleTerm": {}
+    }
+  },
+  "cycleListStartDialogHasActive": "You have an active {cycleTerm}: \"{activeNames}\".\n\nHow would you like to start \"{name}\"?",
+  "@cycleListStartDialogHasActive": {
+    "placeholders": {
+      "cycleTerm": {},
+      "activeNames": {},
+      "name": {}
+    }
+  },
+  "cycleListReplaceCurrentButton": "Replace current",
+  "cycleListStackAlongsideButton": "Stack alongside",
+  "cycleListNoteDialogTitle": "{cycleTerm} Note",
+  "@cycleListNoteDialogTitle": {
+    "placeholders": {
+      "cycleTerm": {}
+    }
+  },
+  "cycleListNoteDialogHint": "Enter note for this {cycleTerm}...",
+  "@cycleListNoteDialogHint": {
+    "placeholders": {
+      "cycleTerm": {}
+    }
+  },
+  "cycleListCopyNameSuffix": "{name} (Copy)",
+  "@cycleListCopyNameSuffix": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "cycleListCopiedSnackbar": "{cycleTerm} copied as draft!",
+  "@cycleListCopiedSnackbar": {
+    "placeholders": {
+      "cycleTerm": {}
+    }
+  },
+  "cycleListErrorCopying": "Error copying {cycleTerm}: {error}",
+  "@cycleListErrorCopying": {
+    "placeholders": {
+      "cycleTerm": {},
+      "error": {}
+    }
+  },
+  "cycleListRestartDialogTitle": "Restart {cycleTerm}",
+  "@cycleListRestartDialogTitle": {
+    "placeholders": {
+      "cycleTerm": {}
+    }
+  },
+  "cycleListRestartDialogContent": "Restart \"{name}\"? This will create a copy and set it as your current {cycleTerm}.",
+  "@cycleListRestartDialogContent": {
+    "placeholders": {
+      "name": {},
+      "cycleTerm": {}
+    }
+  },
+  "cycleListRestartButton": "Restart",
+  "cycleListRestartedSnackbar": "{cycleTerm} restarted!",
+  "@cycleListRestartedSnackbar": {
+    "placeholders": {
+      "cycleTerm": {}
+    }
+  },
+  "cycleListErrorRestarting": "Error restarting {cycleTerm}: {error}",
+  "@cycleListErrorRestarting": {
+    "placeholders": {
+      "cycleTerm": {},
+      "error": {}
+    }
+  },
+  "cycleListTemplateSaved": "Template \"{name}\" saved!",
+  "@cycleListTemplateSaved": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "cycleListErrorSavingTemplate": "Error saving template: {error}",
+  "@cycleListErrorSavingTemplate": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "cycleListPreparingShare": "Preparing to share...",
+  "cycleListSharedFromDescription": "Shared from {name}",
+  "@cycleListSharedFromDescription": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "cycleListErrorPreparingShare": "Error preparing template for sharing: {error}",
+  "@cycleListErrorPreparingShare": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "cycleListTemplateExported": "Template JSON copied to clipboard!",
+  "cycleListErrorExporting": "Error exporting template: {error}",
+  "@cycleListErrorExporting": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "cycleListRenamedSnackbar": "Renamed to \"{name}\"",
+  "@cycleListRenamedSnackbar": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "cycleListErrorRenaming": "Error renaming trainingCycle: {error}",
+  "@cycleListErrorRenaming": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "cycleListDeleteDialogTitle": "Delete Draft TrainingCycle",
+  "cycleListDeleteDialogContent": "Are you sure you want to delete \"{name}\"? This action cannot be undone.",
+  "@cycleListDeleteDialogContent": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "cycleListDeletedSnackbar": "\"{name}\" deleted",
+  "@cycleListDeletedSnackbar": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "cycleListErrorDeleting": "Error deleting trainingCycle: {error}",
+  "@cycleListErrorDeleting": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "cycleListRenameDialogTitle": "Rename",
+  "cycleListRenameDialogHint": "TrainingCycle name",
+  "cycleListSaveTemplateDialogTitle": "Save as Template",
+  "cycleListSaveTemplateNameLabel": "Template Name",
+  "cycleListSaveTemplateNameHint": "e.g., \"Upper Lower Split\"",
+  "cycleListSaveTemplateNameError": "Please enter a template name",
+  "cycleListSaveTemplateDescLabel": "Description",
+  "cycleListSaveTemplateDescHint": "e.g., \"Great for building strength and size\"",
+  "cycleListSaveTemplateDescError": "Please enter a description",
+  "templateSelectionTitle": "Choose a Program",
+  "templateSelectionNoTemplates": "No templates available",
+  "templateSelectionBrowseCommunity": "Browse Community",
+  "templateSelectionBrowseCommunitySubtitle": "Download programs shared by other users",
+  "templateSelectionDaysPerPeriod": "{count} Days/Period",
+  "@templateSelectionDaysPerPeriod": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "templateSelectionPeriodsCount": "{count} Periods",
+  "@templateSelectionPeriodsCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "templateSelectionSessionsCount": "{count} Sessions",
+  "@templateSelectionSessionsCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "templateSelectionDeleteTitle": "Delete Template?",
+  "templateSelectionDeleteContent": "Are you sure you want to delete \"{name}\"? This action cannot be undone.",
+  "@templateSelectionDeleteContent": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "templateSelectionDeletedSnackbar": "Template \"{name}\" deleted",
+  "@templateSelectionDeletedSnackbar": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "templateSelectionDeleteError": "Failed to delete template: {error}",
+  "@templateSelectionDeleteError": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "templatePreviewLoadProgram": "LOAD PROGRAM",
+  "templatePreviewErrorCreating": "Error creating program: {error}",
+  "@templatePreviewErrorCreating": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "templatePreviewDuration": "Duration",
+  "templatePreviewPerPeriod": "Per Period",
+  "templatePreviewRecovery": "Recovery",
+  "templatePreviewPeriodHeader": "Period {number}",
+  "@templatePreviewPeriodHeader": {
+    "placeholders": {
+      "number": {}
+    }
+  },
+  "templatePreviewPeriodRecoveryHeader": "Period {number} (Recovery)",
+  "@templatePreviewPeriodRecoveryHeader": {
+    "placeholders": {
+      "number": {}
+    }
+  },
+  "templatePreviewDayFallback": "Day {number}",
+  "@templatePreviewDayFallback": {
+    "placeholders": {
+      "number": {}
+    }
+  },
+  "templatePreviewCardioSession": "{sport} session",
+  "@templatePreviewCardioSession": {
+    "placeholders": {
+      "sport": {}
+    }
+  },
+  "templatePreviewExerciseCount": "{count} Exercises",
+  "@templatePreviewExerciseCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "templatePreviewSetsReps": "{sets} sets × {reps}",
+  "@templatePreviewSetsReps": {
+    "placeholders": {
+      "sets": {},
+      "reps": {}
+    }
+  },
+  "templatePreviewDaysCount": "{count} Days",
+  "@templatePreviewDaysCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "planCycleTitle": "Plan a {cycleTerm}",
+  "@planCycleTitle": {
+    "placeholders": {
+      "cycleTerm": {}
+    }
+  },
+  "planCycleStartWithTemplate": "Start with a template",
+  "planCycleStartWithTemplateSubtitle": "Pick a template that fits your goals and get started ASAP.",
+  "planCycleStartFromScratch": "Start from scratch",
+  "planCycleStartFromScratchSubtitle": "Build your own {cycleTerm} from a completely blank slate.",
+  "@planCycleStartFromScratchSubtitle": {
+    "placeholders": {
+      "cycleTerm": {}
+    }
+  },
+  "workoutSessionTitle": "Session",
+  "workoutPeriodDayTitle": "PERIOD {period} DAY {day} {dayName}",
+  "@workoutPeriodDayTitle": {
+    "placeholders": {
+      "period": {},
+      "day": {},
+      "dayName": {}
+    }
+  },
+  "workoutCycleCompletedTitle": "{cycleTerm} Completed!",
+  "@workoutCycleCompletedTitle": {
+    "placeholders": {
+      "cycleTerm": {}
+    }
+  },
+  "workoutCycleCompletedContent": "Congratulations! You have finished all workouts in this {cycleTerm}.",
+  "@workoutCycleCompletedContent": {
+    "placeholders": {
+      "cycleTerm": {}
+    }
+  },
+  "workoutCycleCompletedAction": "AWESOME",
+  "workoutEndCycleTitle": "End {cycleTerm}",
+  "@workoutEndCycleTitle": {
+    "placeholders": {
+      "cycleTerm": {}
+    }
+  },
+  "workoutEndCycleContent": "Are you sure you want to end \"{name}\"? This will mark it as completed.",
+  "@workoutEndCycleContent": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "workoutEndCycleAction": "END {cycleTerm}",
+  "@workoutEndCycleAction": {
+    "placeholders": {
+      "cycleTerm": {}
+    }
+  },
+  "workoutCycleCompleted": "\"{name}\" completed",
+  "@workoutCycleCompleted": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "workoutEndCycleError": "Error ending trainingCycle: {error}",
+  "@workoutEndCycleError": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "workoutFinishButton": "FINISH WORKOUT",
+  "workoutFinishLabel": "Finish workout",
+  "workoutSelectDayTooltip": "Select day",
+  "workoutAddSessionTooltip": "Add session",
+  "workoutAppLogoLabel": "App logo",
+  "workoutSetDeleted": "Set {setNumber} deleted",
+  "@workoutSetDeleted": {
+    "placeholders": {
+      "setNumber": {}
+    }
+  },
+  "workoutExerciseDeleted": "{exerciseName} deleted",
+  "@workoutExerciseDeleted": {
+    "placeholders": {
+      "exerciseName": {}
+    }
+  },
+  "workoutCardioSessionDeleted": "{label} deleted",
+  "@workoutCardioSessionDeleted": {
+    "placeholders": {
+      "label": {}
+    }
+  },
+  "workoutRenamedTo": "Renamed to \"{name}\"",
+  "@workoutRenamedTo": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "workoutRenameError": "Error renaming trainingCycle: {error}",
+  "@workoutRenameError": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "workoutLabelUpdated": "Label updated",
+  "workoutLabelUpdatedForAllDays": "Updated label for all Day {dayNumber} workouts",
+  "@workoutLabelUpdatedForAllDays": {
+    "placeholders": {
+      "dayNumber": {}
+    }
+  },
+  "workoutLabelUpdateError": "Error updating label: {error}",
+  "@workoutLabelUpdateError": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "workoutAllDayLabelsCleared": "All day labels cleared",
+  "workoutClearLabelsError": "Error clearing labels: {error}",
+  "@workoutClearLabelsError": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "workoutReset": "Workout reset",
+  "workoutResetError": "Error resetting workout: {error}",
+  "@workoutResetError": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "workoutClearDayLabelsTitle": "Clear All Day Labels",
+  "workoutClearDayLabelsContent": "This will remove all custom day labels from workouts in this trainingCycle. Day names will be calculated automatically based on the start date.\n\nThis cannot be undone.",
+  "workoutClearDayLabelsAction": "CLEAR ALL",
+  "workoutResetTitle": "Reset Workout?",
+  "workoutResetContent": "This will clear all logged sets and entered values for this workout. This action cannot be undone.",
+  "workoutResetAction": "RESET",
+  "workoutMenuTrainingCycleHeader": "TRAINING CYCLE",
+  "workoutMenuNote": "Note",
+  "workoutMenuSummary": "Summary",
+  "workoutMenuRename": "Rename",
+  "workoutMenuEndCycle": "End {cycleTerm}",
+  "@workoutMenuEndCycle": {
+    "placeholders": {
+      "cycleTerm": {}
+    }
+  },
+  "workoutMenuWorkoutHeader": "WORKOUT",
+  "workoutMenuNewNote": "New note",
+  "workoutMenuRelabel": "Relabel",
+  "workoutMenuClearDayLabels": "Clear all day labels",
+  "workoutMenuAddSession": "Add session",
+  "workoutMenuBodyweight": "Bodyweight",
+  "workoutMenuReset": "Reset",
+  "workoutMenuSkipWorkout": "Skip workout",
+  "workoutNoActiveCycleTitle": "No Active TrainingCycle",
+  "workoutNoActiveCycleMessage": "Create and start a trainingCycle to begin",
+  "workoutCycleNotActiveTitle": "TrainingCycle Not Active",
+  "workoutCycleNotActiveMessage": "The trainingCycle is scheduled for a future date or has ended",
+  "workoutCycleSectionPeriodDay": "Period {period} • Day {day}",
+  "@workoutCycleSectionPeriodDay": {
+    "placeholders": {
+      "period": {},
+      "day": {}
+    }
+  },
+  "editWorkoutStartButton": "Start",
+  "editWorkoutExportTemplateTooltip": "Export Template (Debug)",
+  "editWorkoutAddExerciseButton": "Add Exercise",
+  "editWorkoutPeriodLabel": "Period",
+  "editWorkoutRemovePeriodTooltip": "Remove Period",
+  "editWorkoutAddPeriodTooltip": "Add Period",
+  "editWorkoutMirrorPeriod1Tooltip": "Mirror Period 1",
+  "editWorkoutDayLabel": "Day",
+  "editWorkoutDayPrefix": "D{number}",
+  "@editWorkoutDayPrefix": {
+    "placeholders": {
+      "number": {}
+    }
+  },
+  "editWorkoutRemoveDayTooltip": "Remove Day",
+  "editWorkoutAddDayTooltip": "Add Day",
+  "editWorkoutPeriodAdded": "Period {number} added",
+  "@editWorkoutPeriodAdded": {
+    "placeholders": {
+      "number": {}
+    }
+  },
+  "editWorkoutPeriodAddError": "Error adding period: {error}",
+  "@editWorkoutPeriodAddError": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "editWorkoutRecoveryPeriodRemoved": "Recovery period removed",
+  "editWorkoutPeriodRemoved": "Period {number} removed",
+  "@editWorkoutPeriodRemoved": {
+    "placeholders": {
+      "number": {}
+    }
+  },
+  "editWorkoutPeriodRemoveError": "Error removing period: {error}",
+  "@editWorkoutPeriodRemoveError": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "editWorkoutRecoveryTypeChanged": "Recovery period changed to {type}",
+  "@editWorkoutRecoveryTypeChanged": {
+    "placeholders": {
+      "type": {}
+    }
+  },
+  "editWorkoutRecoveryTypeError": "Error updating recovery type: {error}",
+  "@editWorkoutRecoveryTypeError": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "editWorkoutDayAdded": "Day {number} added",
+  "@editWorkoutDayAdded": {
+    "placeholders": {
+      "number": {}
+    }
+  },
+  "editWorkoutDayAddError": "Error adding day: {error}",
+  "@editWorkoutDayAddError": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "editWorkoutDayRemoved": "Day {number} removed",
+  "@editWorkoutDayRemoved": {
+    "placeholders": {
+      "number": {}
+    }
+  },
+  "editWorkoutDayRemoveError": "Error removing day: {error}",
+  "@editWorkoutDayRemoveError": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "editWorkoutPeriod1Mirrored": "Period 1 mirrored to Period {number}",
+  "@editWorkoutPeriod1Mirrored": {
+    "placeholders": {
+      "number": {}
+    }
+  },
+  "editWorkoutMirrorError": "Error mirroring period: {error}",
+  "@editWorkoutMirrorError": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "editWorkoutTemplateExported": "Template JSON copied to clipboard!",
+  "editWorkoutTemplateExportError": "Error exporting template: {error}",
+  "@editWorkoutTemplateExportError": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "editWorkoutRemovePeriodTitle": "Remove Period",
+  "editWorkoutRemovePeriodContent": "Which period would you like to remove?\n\n• Period {number} (last training period)\n• Recovery period",
+  "@editWorkoutRemovePeriodContent": {
+    "placeholders": {
+      "number": {}
+    }
+  },
+  "editWorkoutRemoveDeload": "Remove Deload",
+  "editWorkoutRemovePeriodAction": "Remove Period {number}",
+  "@editWorkoutRemovePeriodAction": {
+    "placeholders": {
+      "number": {}
+    }
+  },
+  "editWorkoutRecoveryTypeTitle": "Recovery Period Type",
+  "editWorkoutRemoveDayTitle": "Remove Day",
+  "editWorkoutRemoveDayContent": "Day {number} has exercises assigned. Removing it will delete all exercises on this day across all periods.\n\nAre you sure you want to remove Day {number}?",
+  "@editWorkoutRemoveDayContent": {
+    "placeholders": {
+      "number": {}
+    }
+  },
+  "editWorkoutRemoveDayAction": "Remove",
+  "editWorkoutMirrorTitle": "Mirror Period 1",
+  "editWorkoutMirrorContent": "Copy all workouts from Period 1 to Period {number}? This will replace any existing workouts for Period {number}.",
+  "@editWorkoutMirrorContent": {
+    "placeholders": {
+      "number": {}
+    }
+  },
+  "editWorkoutMirrorAction": "Mirror",
+  "editWorkoutDeleteExerciseTitle": "Delete Exercise",
+  "editWorkoutDeleteExerciseContent": "Are you sure you want to delete \"{name}\"?",
+  "@editWorkoutDeleteExerciseContent": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "editWorkoutStartCycleTitle": "Start {cycleTerm}",
+  "@editWorkoutStartCycleTitle": {
+    "placeholders": {
+      "cycleTerm": {}
+    }
+  },
+  "editWorkoutStartCycleContent": "Start \"{name}\"? This will set it as your current {cycleTerm}.",
+  "@editWorkoutStartCycleContent": {
+    "placeholders": {
+      "name": {},
+      "cycleTerm": {}
+    }
+  },
+  "editWorkoutStartCycleActiveContent": "You have an active {cycleTerm}: \"{activeNames}\".\n\nHow would you like to start \"{name}\"?",
+  "@editWorkoutStartCycleActiveContent": {
+    "placeholders": {
+      "cycleTerm": {},
+      "activeNames": {},
+      "name": {}
+    }
+  },
+  "editWorkoutStartCycleReplace": "Replace current",
+  "editWorkoutStartCycleStack": "Stack alongside",
+  "editWorkoutSetHeader": "SET",
+  "editWorkoutRepsHeader": "REPS",
+  "editWorkoutRepsHint": "reps",
+  "editWorkoutExerciseMenuHeader": "EXERCISE",
+  "editWorkoutNewNote": "New note",
+  "editWorkoutMoveUp": "Move up",
+  "editWorkoutMoveDown": "Move down",
+  "editWorkoutReplace": "Replace",
+  "editWorkoutAddSet": "Add set",
+  "editWorkoutDeleteExercise": "Delete exercise",
+  "editWorkoutSetMenuHeader": "SET",
+  "editWorkoutAddSetBelow": "Add set below",
+  "editWorkoutDeleteSet": "Delete set",
+  "editWorkoutSetTypeHeader": "SET TYPE",
+  "editWorkoutNoExercisesTitle": "No exercises scheduled",
+  "editWorkoutNoExercisesSubtitle": "Add exercises for this day",
+  "editWorkoutAddCardioSessionTitle": "Add cardio session",
+  "editWorkoutAddCardio": "Add cardio",
+  "editWorkoutInfoButtonLabel": "i",
+  "addExerciseTitle": "Add exercise",
+  "addExerciseCreateCustomButton": "Create Custom",
+  "addExerciseAddButton": "Add",
+  "addExerciseSearchLabel": "Search exercises",
+  "addExerciseSearchHint": "Search",
+  "addExerciseClearSearchTooltip": "Clear search",
+  "addExerciseFilterButton": "Filter",
+  "addExerciseFilterClearAll": "CLEAR ALL",
+  "addExerciseFilterTitle": "Filter",
+  "addExerciseFilterMuscleGroup": "Muscle Group",
+  "addExerciseFilterEquipmentType": "Filter by Equipment Type",
+  "addExerciseFilterEquipmentTypeDesc": "Temporarily filter to specific equipment types",
+  "addExerciseFilterApplyButton": "APPLY FILTERS",
+  "addExerciseNoResults": "No exercises found",
+  "addExerciseAdjustFilters": "Try adjusting your search or filters",
+  "addExerciseLastPerformed": "Last performed {dateStr}",
+  "@addExerciseLastPerformed": {
+    "placeholders": {
+      "dateStr": {}
+    }
+  },
+  "addExerciseWorkoutNotFound": "Error: Workout not found",
+  "addExerciseReplaced": "{oldName} replaced with {newName}",
+  "@addExerciseReplaced": {
+    "placeholders": {
+      "oldName": {},
+      "newName": {}
+    }
+  },
+  "addExerciseAdded": "{name} added",
+  "@addExerciseAdded": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "completedWorkoutNotFoundTitle": "TrainingCycle Not Found",
+  "completedWorkoutNotFoundBody": "The requested trainingCycle could not be found.",
+  "completedWorkoutErrorTitle": "Error",
+  "completedWorkoutErrorMessage": "Error loading trainingCycle: {error}",
+  "@completedWorkoutErrorMessage": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "completedWorkoutCompletedBadge": "COMPLETED",
+  "completedWorkoutWeekDayTitle": "WEEK {period} DAY {day} {dayName}",
+  "@completedWorkoutWeekDayTitle": {
+    "placeholders": {
+      "period": {},
+      "day": {},
+      "dayName": {}
+    }
+  },
+  "completedWorkoutWeightHeader": "WEIGHT",
+  "completedWorkoutRepsHeader": "REPS",
+  "completedWorkoutLogHeader": "LOG",
+  "completedWorkoutNoExercises": "No exercises for this day",
+  "completedWorkoutWeeksReadOnly": "WEEKS (READ-ONLY)",
+  "completedWorkoutDlLabel": "DL",
+  "completedWorkoutRirLabel": "{rir} RIR",
+  "@completedWorkoutRirLabel": {
+    "placeholders": {
+      "rir": {}
+    }
+  },
+  "completedWorkoutUnknownEquipment": "UNKNOWN",
+  "completedWorkoutEmptyValue": "-",
+  "cardioSessionLogTitle": "Log {sport}",
+  "@cardioSessionLogTitle": {
+    "placeholders": {
+      "sport": {}
+    }
+  },
+  "cardioSessionEditTitle": "Edit {sport}",
+  "@cardioSessionEditTitle": {
+    "placeholders": {
+      "sport": {}
+    }
+  },
+  "cardioSessionPlanTitle": "Plan {sport}",
+  "@cardioSessionPlanTitle": {
+    "placeholders": {
+      "sport": {}
+    }
+  },
+  "cardioSessionEditIntervalsTooltip": "Edit intervals",
+  "cardioSessionImportedChip": "Imported",
+  "cardioSessionDateButton": "Date",
+  "cardioSessionStartFromTemplate": "Start from template",
+  "cardioSessionNameLabel": "Session name",
+  "cardioSessionNameHint": "e.g., 30 min Tempo",
+  "cardioSessionNotesLabel": "Notes",
+  "cardioSessionNotesHint": "Anything worth remembering about this session…",
+  "cardioSessionPlanButton": "Plan session",
+  "cardioSessionSaveButton": "Save session",
+  "cardioSessionLogButton": "Log session",
+  "cardioSessionUpdateButton": "Update session",
+  "cardioSessionPlanned": "Session planned",
+  "cardioSessionLogged": "Session logged",
+  "cardioSessionUpdated": "Session updated",
+  "cardioSessionPerceivedExertion": "Perceived exertion",
+  "cardioSessionRpeValue": "RPE {value}",
+  "@cardioSessionRpeValue": {
+    "placeholders": {
+      "value": {}
+    }
+  },
+  "cardioSessionRpeNotSet": "Not set",
+  "cardioSessionPaceAvgSpeed": "Pace {pace}  •  Avg speed {speed}",
+  "@cardioSessionPaceAvgSpeed": {
+    "placeholders": {
+      "pace": {},
+      "speed": {}
+    }
+  },
+  "cardioSessionAvgSpeed": "Avg speed {speed}",
+  "@cardioSessionAvgSpeed": {
+    "placeholders": {
+      "speed": {}
+    }
+  },
+  "intervalBuilderTitle": "Intervals",
+  "intervalBuilderSaveButton": "Save",
+  "intervalBuilderSessionNotFound": "Cardio session not found",
+  "intervalBuilderStepsCount": "{count} steps",
+  "@intervalBuilderStepsCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "intervalBuilderSaved": "Intervals saved",
+  "intervalBuilderDiscardTitle": "Discard changes?",
+  "intervalBuilderDiscardContent": "You have unsaved changes to this interval plan.",
+  "intervalBuilderKeepEditing": "Keep editing",
+  "intervalBuilderDiscard": "Discard",
+  "intervalBuilderAddStep": "Add step",
+  "intervalBuilderMoveUpTooltip": "Move up",
+  "intervalBuilderMoveDownTooltip": "Move down",
+  "intervalBuilderRemoveTooltip": "Remove",
+  "intervalBuilderAddToRepeat": "Add to repeat",
+  "intervalBuilderRepeatGroupSubtitle": "Group several steps and run them N times",
+  "intervalBuilderRepeatLabel": "Repeat",
+  "intervalBuilderTimesLabel": "times",
+  "intervalBuilderTargetTypeLabel": "Target type",
+  "intervalBuilderFieldDuration": "Duration",
+  "intervalBuilderFieldDistanceM": "Distance (m)",
+  "intervalBuilderFieldHrZone": "HR zone (1..5)",
+  "intervalBuilderFieldPaceZone": "Pace zone (1..5)",
+  "intervalBuilderFieldPowerZone": "Power zone (1..5)",
+  "intervalBuilderFieldFreeform": "Target (free text)",
+  "intervalBuilderErrorMmSs": "Use MM:SS",
+  "intervalBuilderErrorMeters": "Enter meters",
+  "intervalBuilderErrorZoneRange": "1..5",
+  "intervalBuilderEmptyTitle": "No intervals yet",
+  "intervalBuilderEmptySubtitle": "A structured plan looks like warm-up → work → recovery → cooldown. Start with a warm-up.",
+  "intervalBuilderAddWarmUp": "Add warm-up",
+  "calendarTitle": "Calendar",
+  "calendarShowLegendTooltip": "Show legend",
+  "calendarNoActiveCycleTitle": "No active training cycle",
+  "calendarNoActiveCycleSubtitle": "Start a training cycle to see your workouts on the calendar",
+  "calendarPeriodDayLabel": "P{period}D{day}",
+  "@calendarPeriodDayLabel": {
+    "placeholders": {
+      "period": {},
+      "day": {}
+    }
+  },
+  "calendarMuscleGroupSets": "{muscleGroup} • {setCount} sets",
+  "@calendarMuscleGroupSets": {
+    "placeholders": {
+      "muscleGroup": {},
+      "setCount": {}
+    }
+  },
+  "calendarMoreExercises": "+{count} more",
+  "@calendarMoreExercises": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "calendarRestDay": "Rest Day",
+  "calendarEditButton": "Edit",
+  "calendarNoSessionScheduled": "No session scheduled",
+  "calendarStatusCompleted": "Completed",
+  "calendarStatusInProgress": "In Progress",
+  "calendarStatusRecovery": "Recovery",
+  "calendarStatusScheduled": "Scheduled",
+  "calendarPeriodDayInfo": "Period {period}, Day {day}",
+  "@calendarPeriodDayInfo": {
+    "placeholders": {
+      "period": {},
+      "day": {}
+    }
+  },
+  "calendarPeriodDayRecovery": "Period {period}, Day {day} (Recovery)",
+  "@calendarPeriodDayRecovery": {
+    "placeholders": {
+      "period": {},
+      "day": {}
+    }
+  },
+  "calendarExercisesMuscleGroups": "{count} exercises • {muscleGroups}",
+  "@calendarExercisesMuscleGroups": {
+    "placeholders": {
+      "count": {},
+      "muscleGroups": {}
+    }
+  },
+  "calendarViewButton": "View",
+  "calendarGoToWorkoutButton": "Go to Workout",
+  "calendarCardioSessionCount": "{count, plural, =1{1 cardio session} other{{count} cardio sessions}}",
+  "@calendarCardioSessionCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "calendarViewDayButton": "View Day",
+  "calendarSessionStatusDone": "Done",
+  "calendarSessionStatusSkipped": "Skipped",
+  "calendarSessionStatusPlanned": "Planned",
+  "calendarMovedExercise": "Moved {exerciseName} to {date}",
+  "@calendarMovedExercise": {
+    "placeholders": {
+      "exerciseName": {},
+      "date": {}
+    }
+  },
+  "calendarMovedCardio": "Moved {sessionLabel} to {date}",
+  "@calendarMovedCardio": {
+    "placeholders": {
+      "sessionLabel": {},
+      "date": {}
+    }
+  },
+  "calendarFailedToMove": "Failed to move: {error}",
+  "@calendarFailedToMove": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "calendarFailedToReorder": "Failed to reorder exercise: {error}",
+  "@calendarFailedToReorder": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "calendarRestDayInserted": "Rest day inserted before P{period}D{day}",
+  "@calendarRestDayInserted": {
+    "placeholders": {
+      "period": {},
+      "day": {}
+    }
+  },
+  "calendarFailedToInsertDay": "Failed to insert day: {error}",
+  "@calendarFailedToInsertDay": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "calendarRestDayRemoved": "Rest day removed on {date}",
+  "@calendarRestDayRemoved": {
+    "placeholders": {
+      "date": {}
+    }
+  },
+  "calendarFailedToRemoveRestDay": "Failed to remove rest day: {error}",
+  "@calendarFailedToRemoveRestDay": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "settingsTitle": "Settings",
+  "settingsSaveButton": "Save",
+  "settingsSavedMessage": "Settings saved",
+  "settingsUnitsHeader": "Units",
+  "settingsImperialLabel": "Imperial (lbs)",
+  "settingsMetricLabel": "Metric (kg)",
+  "settingsLanguageHeader": "Language",
+  "settingsLanguageDescription": "Choose the display language for the app",
+  "settingsBodyMeasurementsHeader": "Body Measurements",
+  "settingsBodyMeasurementsDesc": "Update your measurements to track BMI over time",
+  "settingsCurrentBmi": "Current BMI",
+  "settingsBmiGuidelines": "BMI categories based on WHO guidelines",
+  "settingsTerminologyHeader": "Training Cycle Terminology",
+  "settingsTerminologyDesc": "Choose the term you prefer for your trainingCycles",
+  "settingsSportsHeader": "Sports I train",
+  "settingsSportsDesc": "Pick the sports you want to log. The Workout tab's \"Add session\" grid only shows these.",
+  "settingsSportsMinimumWarning": "At least one sport is required.",
+  "integrationsTitle": "Integrations",
+  "integrationsHealthPermissionsGranted": "Health permissions granted",
+  "integrationsHealthConnectRequired": "Health Connect Required",
+  "integrationsHealthConnectIntro": "To sync workouts from Health Connect and Peloton, please follow these steps:",
+  "integrationsHealthConnectStep1": "1. Download and install Health Connect from the Google Play Store (Android 14+ has it built in).",
+  "integrationsHealthConnectStep2": "2. Open Health Connect and go to App permissions.",
+  "integrationsHealthConnectStep3": "3. Find Yawa4u in the list and allow access to Exercise sessions, Heart rate, Distance, and Active energy burned.",
+  "integrationsHealthConnectStep4": "4. Return here and tap \"Grant permissions\" again.",
+  "integrationsGotIt": "GOT IT",
+  "integrationsHealthSyncSuccess": "Found {totalPoints} records · +{imported} imported · {skippedDuplicate} duplicate · {skippedUnsupported} unsupported",
+  "@integrationsHealthSyncSuccess": {
+    "placeholders": {
+      "totalPoints": {},
+      "imported": {},
+      "skippedDuplicate": {},
+      "skippedUnsupported": {}
+    }
+  },
+  "integrationsHealthSyncFailed": "Sync failed: {error}",
+  "@integrationsHealthSyncFailed": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "integrationsResetCursorMessage": "Next sync will look back 3 months.",
+  "integrationsHealthDiagnosticsTitle": "Health Diagnostics",
+  "integrationsStravaTitle": "Strava",
+  "integrationsStravaUnconfiguredMessage": "Strava requires client credentials at build time. See the README or the Bucket 3 hand-off doc for setup steps.",
+  "integrationsStravaDescription": "Pull activities from Strava — runs, rides, swims import with distance, duration, HR, and elevation.",
+  "integrationsLastSync": "Last sync: {timestamp}",
+  "@integrationsLastSync": {
+    "placeholders": {
+      "timestamp": {}
+    }
+  },
+  "integrationsStravaConnected": "Connected to Strava",
+  "integrationsStravaConnectFailed": "Could not connect to Strava",
+  "integrationsStravaSyncSuccess": "Imported {imported} · {skippedDuplicate} duplicate · {skippedUnsupported} unsupported",
+  "@integrationsStravaSyncSuccess": {
+    "placeholders": {
+      "imported": {},
+      "skippedDuplicate": {},
+      "skippedUnsupported": {}
+    }
+  },
+  "integrationsStravaSyncFailed": "Sync failed: {error}",
+  "@integrationsStravaSyncFailed": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "integrationsConnectToStrava": "Connect to Strava",
+  "integrationsSyncNow": "Sync now",
+  "integrationsDisconnect": "Disconnect",
+  "integrationsStatusUnconfigured": "Unconfigured",
+  "integrationsStatusConnected": "Connected",
+  "integrationsStatusNotConnected": "Not connected",
+  "integrationsStatusSyncing": "Syncing…",
+  "integrationsStatusError": "Error",
+  "integrationsStatusUnavailable": "Unavailable",
+  "integrationsHealthDescSupported": "Pull completed workouts (runs, rides, swims) from {providerName} so they join your training history.",
+  "@integrationsHealthDescSupported": {
+    "placeholders": {
+      "providerName": {}
+    }
+  },
+  "integrationsHealthDescUnsupported": "This integration is only available on iOS and Android devices.",
+  "integrationsGrantPermissions": "Grant permissions",
+  "integrationsResetCursor": "Reset cursor",
+  "integrationsDiagnostics": "Diagnostics",
+  "integrationsPelotonTitle": "Peloton comes through here",
+  "integrationsPelotonDescription": "Peloton is paired inside the Peloton app — not {providerName}.\nOpen Peloton → Profile / Settings → look for a {providerName} toggle and turn it on. Your rides, runs, and treads will then flow into the Health card above, and YAWA4U picks them up on the next sync. No separate Peloton login needed here.",
+  "@integrationsPelotonDescription": {
+    "placeholders": {
+      "providerName": {}
+    }
+  },
+  "integrationsFutureTitle": "More integrations coming",
+  "integrationsFutureDescription": "Garmin Connect and Wahoo are on the roadmap.",
+  "integrationsTimeJustNow": "just now",
+  "integrationsTimeMinutesAgo": "{minutes}m ago",
+  "@integrationsTimeMinutesAgo": {
+    "placeholders": {
+      "minutes": {}
+    }
+  },
+  "integrationsTimeHoursAgo": "{hours}h ago",
+  "@integrationsTimeHoursAgo": {
+    "placeholders": {
+      "hours": {}
+    }
+  },
+  "integrationsTimeDaysAgo": "{days}d ago",
+  "@integrationsTimeDaysAgo": {
+    "placeholders": {
+      "days": {}
+    }
+  },
+  "themeEditorEditTitle": "Edit Theme",
+  "themeEditorCreateTitle": "Create Theme",
+  "themeEditorErrorLoading": "Error loading theme: {error}",
+  "@themeEditorErrorLoading": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "themeEditorErrorPicking": "Error picking image: {error}",
+  "@themeEditorErrorPicking": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "themeEditorNameRequired": "Please enter a theme name",
+  "themeEditorUpdated": "Theme updated!",
+  "themeEditorCreated": "Theme created!",
+  "themeEditorErrorSaving": "Error saving theme: {error}",
+  "@themeEditorErrorSaving": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "themeEditorStepInfo": "Info",
+  "themeEditorStepBackgrounds": "Backgrounds",
+  "themeEditorStepIcon": "Icon",
+  "themeEditorStepColors": "Colors",
+  "themeEditorThemeInfoTitle": "Theme Info",
+  "themeEditorThemeInfoDesc": "Give your theme a name and description.",
+  "themeEditorNameLabel": "Theme Name",
+  "themeEditorNameHint": "My Custom Theme",
+  "themeEditorDescriptionLabel": "Description (optional)",
+  "themeEditorDescriptionHint": "A brief description of your theme",
+  "themeEditorBackgroundsTitle": "Screen Backgrounds",
+  "themeEditorBackgroundsDesc": "Choose background images for each screen. Tap to add, long press to remove.",
+  "themeEditorWorkoutScreen": "Workout Screen",
+  "themeEditorMesocyclesScreen": "Mesocycles Screen",
+  "themeEditorExercisesScreen": "Exercises Screen",
+  "themeEditorMoreScreen": "More Screen",
+  "themeEditorDefaultScreen": "Default (Calendar & Others)",
+  "themeEditorImageHasImage": "Tap to change, hold to remove",
+  "themeEditorImageNoImage": "Tap to add image",
+  "themeEditorAppIconTitle": "App Icon",
+  "themeEditorAppIconDesc": "Choose an image to use as your app's accent icon (displayed in the app bar).",
+  "themeEditorTapToAdd": "Tap to add",
+  "themeEditorRemove": "Remove",
+  "themeEditorAccentColorsTitle": "Accent Colors",
+  "themeEditorAccentColorsDesc": "Choose your theme's primary and secondary colors.",
+  "themeEditorSuggestedColors": "Suggested from your images:",
+  "themeEditorColorTooltip": "Tap: Primary\nDouble-tap: Secondary",
+  "themeEditorPrimaryColor": "Primary Color",
+  "themeEditorSecondaryColor": "Secondary Color",
+  "themeEditorPreview": "Preview",
+  "themeEditorThemeNameFallback": "Theme Name",
+  "themeEditorCustomTheme": "Custom Theme",
+  "themeEditorPrimaryButton": "Primary",
+  "themeEditorSecondaryButton": "Secondary",
+  "themeEditorBackButton": "Back",
+  "themeEditorNextButton": "Next",
+  "themeEditorSaveThemeButton": "Save Theme",
+  "themeEditorChooseFromGallery": "Choose from Gallery",
+  "themeEditorTakePhoto": "Take a Photo",
+  "skinShareTitle": "Share Themes",
+  "skinShareServerError": "Could not start share server. Make sure you are connected to WiFi.",
+  "skinShareConnectionError": "Could not connect to device. Make sure both devices are on the same WiFi network and you are scanning a valid theme share QR code.",
+  "skinShareNoCustomThemes": "No custom themes to share",
+  "skinShareCreateThemeHint": "Create a custom theme in Theme Settings to share it.",
+  "skinShareOrReceiveTitle": "Share or Receive Themes",
+  "skinShareOrReceiveDesc": "Select themes to share, or scan a QR code to receive themes from another device.",
+  "skinShareScanQrButton": "Scan QR Code to Receive Themes",
+  "skinShareSelectThemesHeader": "Select Themes to Share",
+  "skinShareDeselectAll": "Deselect All",
+  "skinShareSelectAll": "Select All",
+  "skinShareSelectToShare": "Select Themes to Share",
+  "skinShareViaQrCode": "Share via QR Code",
+  "skinShareUploadToCloud": "Upload to Cloud",
+  "skinShareReadyTitle": "Ready to Share",
+  "skinShareScanPrompt": "Ask the other person to scan this QR code",
+  "skinShareSharingCount": "{count, plural, =1{Sharing 1 Theme} other{Sharing {count} Themes}}",
+  "@skinShareSharingCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "skinShareSharingNote": "When scanned, these themes will be copied to the other device.",
+  "skinShareScannerPrompt": "Point camera at theme share QR code",
+  "skinShareCameraError": "Camera Error",
+  "skinShareCameraAccessFailed": "Could not access camera",
+  "skinShareGoBack": "Go Back",
+  "skinShareConnectedTo": "Connected to",
+  "skinShareThemesAvailable": "{count, plural, =1{1 Theme Available} other{{count} Themes Available}}",
+  "@skinShareThemesAvailable": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "skinShareThemesToReceive": "Themes to Receive:",
+  "skinShareReceiveButton": "{count, plural, =1{Receive 1 Theme} other{Receive {count} Themes}}",
+  "@skinShareReceiveButton": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "skinShareThemesReceived": "Themes received!",
+  "skinShareReceiveFailed": "Failed to receive themes",
+  "templateShareTitle": "Share Templates",
+  "templateShareServerError": "Could not start share server. Make sure you are connected to WiFi.",
+  "templateShareConnectionError": "Could not connect to device. Make sure both devices are on the same WiFi network and you are scanning a valid template share QR code.",
+  "templateShareNoSavedTitle": "No Saved Templates",
+  "templateShareNoSavedDesc": "Save a Training Cycle as a template first, then you can share it here.\n\nTo save a template, go to a Training Cycle and use the \"Save as Template\" option.",
+  "templateShareScanQrButton": "Scan QR Code to Receive Templates",
+  "templateShareOrReceiveTitle": "Share or Receive Templates",
+  "templateShareOrReceiveDesc": "Select templates to share, or scan a QR code to receive templates from another device.",
+  "templateShareSelectHeader": "Select Templates to Share",
+  "templateShareDeselectAll": "Deselect All",
+  "templateShareSelectAll": "Select All",
+  "templateShareSelectToShare": "Select Templates to Share",
+  "templateShareViaQrCode": "Share via QR Code",
+  "templateShareUploadToCloud": "Upload to Cloud",
+  "templateShareDaysPerPeriod": "{count} Days/Period",
+  "@templateShareDaysPerPeriod": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "templateSharePeriodsCount": "{count} Periods",
+  "@templateSharePeriodsCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "templateShareWorkoutsCount": "{count} Workouts",
+  "@templateShareWorkoutsCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "templateShareReadyTitle": "Ready to Share",
+  "templateShareScanPrompt": "Ask the other person to scan this QR code",
+  "templateShareSharingCount": "{count, plural, =1{Sharing 1 Template} other{Sharing {count} Templates}}",
+  "@templateShareSharingCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "templateShareSharingNote": "When scanned, these templates will be copied to the other device.",
+  "templateShareScannerPrompt": "Point camera at template share QR code",
+  "templateShareCameraError": "Camera Error",
+  "templateShareCameraAccessFailed": "Could not access camera",
+  "templateShareGoBack": "Go Back",
+  "templateShareConnectedTo": "Connected to",
+  "templateShareAvailableCount": "{count, plural, =1{1 Template Available} other{{count} Templates Available}}",
+  "@templateShareAvailableCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "templateShareToReceive": "Templates to Receive:",
+  "templateShareReceiveButton": "{count, plural, =1{Receive 1 Template} other{Receive {count} Templates}}",
+  "@templateShareReceiveButton": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "templateShareReceived": "Templates received!",
+  "templateShareReceiveFailed": "Failed to receive templates",
+  "syncTitle": "Sync Data",
+  "syncServerError": "Could not start sync server. Make sure you are connected to WiFi.",
+  "syncConnectionError": "Could not connect to device. Make sure both devices are on the same WiFi network.",
+  "syncComplete": "Sync complete!",
+  "syncFailed": "Sync failed",
+  "syncFailedToLoad": "Failed to load data",
+  "syncYourData": "Your Data",
+  "syncStatTrainingCycles": "TrainingCycles",
+  "syncStatSessions": "Sessions",
+  "syncStatExercises": "Exercises",
+  "syncWithAnotherDevice": "Sync with another device",
+  "syncWifiRequired": "Both devices must be on the same WiFi network.",
+  "syncHostButton": "Host Sync (Show QR Code)",
+  "syncScanQrButton": "Scan QR Code",
+  "syncWaitingForConnection": "Waiting for connection...",
+  "syncScanFromOtherDevice": "Scan this QR code from the other device",
+  "syncScannerPrompt": "Point camera at QR code",
+  "syncCameraError": "Camera Error",
+  "syncCameraAccessFailed": "Could not access camera",
+  "syncGoBack": "Go Back",
+  "syncConnectedTo": "Connected to",
+  "syncWhatToDo": "What would you like to do?",
+  "syncImportFrom": "Import from {deviceName}",
+  "@syncImportFrom": {
+    "placeholders": {
+      "deviceName": {}
+    }
+  },
+  "syncExportTo": "Export to {deviceName}",
+  "@syncExportTo": {
+    "placeholders": {
+      "deviceName": {}
+    }
+  },
+  "syncDisconnect": "Disconnect",
+  "communityLibraryTitle": "Community Library",
+  "communityTabPrograms": "Programs",
+  "communityTabThemes": "Themes",
+  "communityTabMyUploads": "My Uploads",
+  "communityUploadTooltip": "Upload",
+  "communityShareProgram": "Share a Program",
+  "communityShareTheme": "Share a Theme",
+  "communitySortBy": "Sort by:",
+  "communitySortPopular": "Popular",
+  "communitySortRecent": "Recent",
+  "communityNoProgramsTitle": "No programs shared yet",
+  "communityNoProgramsSubtitle": "Be the first to share a program!",
+  "communityCouldNotLoadPrograms": "Could not load community programs",
+  "communityNoThemesTitle": "No themes shared yet",
+  "communityNoThemesSubtitle": "Be the first to share a theme!",
+  "communityCouldNotLoadThemes": "Could not load community themes",
+  "communitySignInToSeeUploads": "Sign in to see your uploads",
+  "communityMyPrograms": "My Programs",
+  "communityNoProgramsUploaded": "No programs uploaded yet.",
+  "communityFailedToLoadPrograms": "Failed to load your programs",
+  "communityMyThemes": "My Themes",
+  "communityNoThemesUploaded": "No themes uploaded yet.",
+  "communityFailedToLoadThemes": "Failed to load your themes",
+  "communityDeleteProgramTitle": "Delete Program?",
+  "communityDeleteProgramContent": "Remove \"{name}\" from the community library? This cannot be undone.",
+  "@communityDeleteProgramContent": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "communityDeleteThemeTitle": "Delete Theme?",
+  "communityDeleteThemeContent": "Remove \"{name}\" from the community library? This cannot be undone.",
+  "@communityDeleteThemeContent": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "communityItemDeleted": "\"{name}\" deleted",
+  "@communityItemDeleted": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "communityFailedToDelete": "Failed to delete: {error}",
+  "@communityFailedToDelete": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "communityDownloadCount": "{count} downloads",
+  "@communityDownloadCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "communityDeleteTooltip": "Delete",
+  "communityPeriodsCount": "{count} Periods",
+  "@communityPeriodsCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "communitySessionsCount": "{count} Sessions",
+  "@communitySessionsCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "communityColorPreview": "Color Preview",
+  "communityNoColorData": "No color data available",
+  "communityColorPreviewUnavailable": "Color preview unavailable",
+  "communityInvalidThemeData": "This theme has invalid data and cannot be downloaded",
+  "communitySavedToThemes": "\"{name}\" saved to your themes",
+  "@communitySavedToThemes": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "communitySavedToPrograms": "\"{name}\" saved to your programs",
+  "@communitySavedToPrograms": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "communityDownloadFailed": "Download failed: {error}",
+  "@communityDownloadFailed": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "communityDownloadThemeButton": "DOWNLOAD THEME",
+  "communityDownloadProgramButton": "DOWNLOAD PROGRAM",
+  "communitySavedButton": "SAVED",
+  "communitySessionsHeader": "Sessions",
+  "communityDurationLabel": "Duration",
+  "communityPerPeriodLabel": "Per Period",
+  "communityRecoveryLabel": "Recovery",
+  "communityDaysCount": "{count} Days",
+  "@communityDaysCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "communityPeriodNumber": "Period {number}",
+  "@communityPeriodNumber": {
+    "placeholders": {
+      "number": {}
+    }
+  },
+  "communityDayFallback": "Day {number}",
+  "@communityDayFallback": {
+    "placeholders": {
+      "number": {}
+    }
+  },
+  "communityCardioSession": "{sport} session",
+  "@communityCardioSession": {
+    "placeholders": {
+      "sport": {}
+    }
+  },
+  "communityExerciseCount": "{count} Exercises",
+  "@communityExerciseCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "communitySetsReps": "{sets} sets × {reps}",
+  "@communitySetsReps": {
+    "placeholders": {
+      "sets": {},
+      "reps": {}
+    }
+  },
+  "uploadShareThemeTitle": "Share a Theme",
+  "uploadShareProgramTitle": "Share a Program",
+  "uploadSelectThemeDesc": "Select a custom theme to share with the community.",
+  "uploadSelectProgramDesc": "Select a program to share with the community.",
+  "uploadThemeLabel": "Theme",
+  "uploadProgramLabel": "Program",
+  "uploadNoCustomThemes": "No custom themes to share.",
+  "uploadCreateCustomThemeHint": "Create a custom theme in Settings first.",
+  "uploadNoSavedPrograms": "No saved programs to share.",
+  "uploadDisplayNameLabel": "Your Display Name",
+  "uploadDisplayNameHint": "How others will see your name",
+  "uploadTagsLabel": "Tags (optional)",
+  "uploadTemplateTagsHint": "beginner, strength, 4-week",
+  "uploadThemeTagsHint": "dark, minimal, colorful",
+  "uploadTemplateTagsHelper": "Comma-separated tags to help others find your program",
+  "uploadThemeTagsHelper": "Comma-separated tags to help others find your theme",
+  "uploadPublishThemeButton": "PUBLISH THEME",
+  "uploadPublishProgramButton": "PUBLISH PROGRAM",
+  "uploadEnterDisplayName": "Please enter a display name",
+  "uploadNotSignedIn": "Not signed in. Please try again.",
+  "uploadPublishedToCommunity": "\"{name}\" published to the community!",
+  "@uploadPublishedToCommunity": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "uploadFailed": "Upload failed: {error}",
+  "@uploadFailed": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "uploadErrorLoadingTemplates": "Error loading templates: {error}",
+  "@uploadErrorLoadingTemplates": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "uploadTemplateSummary": "{periods} periods, {days} days/period, {sessions} sessions",
+  "@uploadTemplateSummary": {
+    "placeholders": {
+      "periods": {},
+      "days": {},
+      "sessions": {}
+    }
+  },
+  "moreScreenTitle": "YAWA4U",
+  "versionLabel": "Version {version}",
+  "@versionLabel": {
+    "placeholders": {
+      "version": {}
+    }
+  },
+  "themeMode": "Theme mode",
+  "themeModeSystem": "System",
+  "themeModeLight": "Light",
+  "themeModeDark": "Dark",
+  "sectionAppearance": "Appearance",
+  "sectionTraining": "Training",
+  "sectionIntegrationsData": "Integrations & data",
+  "sectionPreferences": "Preferences",
+  "sectionHelpFeedback": "Help & feedback",
+  "sectionAbout": "About",
+  "sectionDeveloper": "Developer",
+  "themeTitle": "Theme",
+  "themeSubtitle": "Choose your app theme",
+  "statisticsTitle": "Statistics",
+  "statisticsSubtitle": "Volume, records, and progress",
+  "unitsTitle": "Units",
+  "unitsSubtitle": "Metric or imperial — per sport",
+  "zonesTitle": "Zones",
+  "zonesSubtitle": "Heart-rate zones per sport",
+  "integrationsSubtitle": "Apple Health / Health Connect — includes Peloton",
+  "syncDataTitle": "Sync data",
+  "syncDataSubtitle": "Sync with another device via WiFi",
+  "shareTemplateTitle": "Share template",
+  "shareTemplateSubtitle": "Share workout templates via WiFi",
+  "shareAppTitle": "Share app",
+  "shareAppSubtitle": "Share YAWA4U with friends",
+  "shareAppText": "Check out YAWA4U - The best workout tracker! https://testflight.apple.com/join/YVQsRjzD",
+  "settingsSubtitle": "Terminology, equipment, body metrics",
+  "sendFeedbackTitle": "Send feedback",
+  "languageTitle": "Language",
+  "languageSheetTitle": "Language",
+  "languageSheetSubtitle": "Choose the display language for the app",
+  "websiteTitle": "Website",
+  "privacyPolicyTitle": "Privacy policy",
+  "sentryDebugTitle": "Sentry debug",
+  "sentryDebugSubtitle": "Test Sentry integration",
+  "exercisesTitle": "Exercises",
+  "exercisesNoActiveCycleTitle": "No Active TrainingCycle",
+  "exercisesNoActiveCycleSubtitle": "Create and start a trainingCycle to begin",
+  "exercisesNoScheduledTitle": "No exercises scheduled",
+  "exercisesNoScheduledSubtitleForDay": "Add exercises for Period {period}, Day {day}",
+  "@exercisesNoScheduledSubtitleForDay": {
+    "placeholders": {
+      "period": {},
+      "day": {}
+    }
+  },
+  "exercisesNoScheduledSubtitle": "Add exercises for this day",
+  "exercisesAddExercise": "Add Exercise",
+  "exercisesPeriodDayHeader": "PERIOD {period} DAY {day}",
+  "@exercisesPeriodDayHeader": {
+    "placeholders": {
+      "period": {},
+      "day": {}
+    }
+  },
+  "exercisesPeriodDayHeaderWithName": "PERIOD {period} DAY {day} {dayName}",
+  "@exercisesPeriodDayHeaderWithName": {
+    "placeholders": {
+      "period": {},
+      "day": {},
+      "dayName": {}
+    }
+  },
+  "exercisesSelectDayTooltip": "Select day",
+  "exercisesToggleHistoryTooltip": "Toggle history",
+  "exercisesMenuNote": "Note",
+  "exercisesMenuSummary": "Summary",
+  "exercisesMenuWorkoutHeader": "WORKOUT",
+  "exercisesMenuAddExercise": "Add exercise",
+  "exercisesMenuReset": "Reset",
+  "exercisesFinishWorkout": "FINISH WORKOUT",
+  "exercisesResetTitle": "Reset Workout",
+  "exercisesResetContent": "This will clear all logged sets and entered data for this workout. This cannot be undone.",
+  "exercisesResetAction": "RESET",
+  "exercisesWorkoutReset": "Workout reset",
+  "exercisesHistoryHeader": "History",
+  "exercisesUnknownCycle": "Unknown TrainingCycle",
+  "exercisesCycleHistoryHeader": "{name} - {periods} PERIODS",
+  "@exercisesCycleHistoryHeader": {
+    "placeholders": {
+      "name": {},
+      "periods": {}
+    }
+  },
+  "exercisesDeloadLabel": "DELOAD",
+  "exercisesUnknownDate": "Unknown date",
+  "exercisesHistoryPeriodLabel": "PERIOD ",
+  "exercisesHistoryDayLabel": " - DAY ",
+  "exercisesBodyweightAbbrev": "BW",
+  "exercisesCycleCompletedTitle": "{cycleTerm} Completed!",
+  "@exercisesCycleCompletedTitle": {
+    "placeholders": {
+      "cycleTerm": {}
+    }
+  },
+  "exercisesCycleCompletedContent": "Congratulations! You have finished all workouts in this {cycleTerm}.",
+  "@exercisesCycleCompletedContent": {
+    "placeholders": {
+      "cycleTerm": {}
+    }
+  },
+  "exercisesAwesome": "AWESOME",
+  "exercisesCycleNoteTitle": "{cycleTerm} Note",
+  "@exercisesCycleNoteTitle": {
+    "placeholders": {
+      "cycleTerm": {}
+    }
+  },
+  "exercisesCycleNoteHint": "Enter note for this {cycleTerm}...",
+  "@exercisesCycleNoteHint": {
+    "placeholders": {
+      "cycleTerm": {}
+    }
+  },
+  "exercisesErrorSavingNote": "Error saving note: {error}",
+  "@exercisesErrorSavingNote": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "exercisesWeightUnitLbs": "lbs",
+  "statsTitle": "Statistics",
+  "statsTabOverview": "Overview",
+  "statsTabCardio": "Cardio",
+  "statsTabCompare": "Compare",
+  "statsTabBody": "Body",
+  "statsNoCardioTitle": "No cardio logged yet",
+  "statsNoCardioSubtitle": "Log a run, bike, or swim from the More tab — stats will show up here once you have a session or two on record.",
+  "statsWeeklyVolume": "Weekly volume — last 12 weeks",
+  "statsBySport": "By sport",
+  "statsLifetimeTotals": "Lifetime totals",
+  "statsCardioSessions": "Sessions",
+  "statsCardioHours": "Hours",
+  "statsCardioCompleted": "Completed",
+  "statsNoMeasurementsTitle": "No Measurements Yet",
+  "statsNoMeasurementsSubtitle": "Add body measurements in Settings\nto see your progress here.",
+  "statsWeightLabel": "Weight",
+  "statsWeightValueKg": "{weight} kg",
+  "@statsWeightValueKg": {
+    "placeholders": {
+      "weight": {}
+    }
+  },
+  "statsBmiLabel": "BMI",
+  "statsEntriesLabel": "Entries",
+  "statsWeightProgression": "Weight Progression",
+  "statsBodyComposition": "Body Composition",
+  "statsBodyFatEntry": "{fatPercent}% body fat",
+  "@statsBodyFatEntry": {
+    "placeholders": {
+      "fatPercent": {}
+    }
+  },
+  "statsBodyFatWithLean": "{fatPercent}% body fat / {leanMass} kg lean",
+  "@statsBodyFatWithLean": {
+    "placeholders": {
+      "fatPercent": {},
+      "leanMass": {}
+    }
+  },
+  "statsErrorLoadingMeasurements": "Error loading measurements: {error}",
+  "@statsErrorLoadingMeasurements": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "statsVolumeByMuscleGroup": "Volume by Muscle Group",
+  "statsVolumeProgression": "Volume Progression",
+  "statsMostUsedExercises": "Most Used Exercises",
+  "statsPersonalRecords": "Personal Records",
+  "statsSessionsLabel": "Sessions",
+  "statsSessionsValue": "{completed}/{total}",
+  "@statsSessionsValue": {
+    "placeholders": {
+      "completed": {},
+      "total": {}
+    }
+  },
+  "statsCompletionLabel": "Completion",
+  "statsCompletionValue": "{percent}%",
+  "@statsCompletionValue": {
+    "placeholders": {
+      "percent": {}
+    }
+  },
+  "statsTotalSetsLabel": "Total Sets",
+  "statsExerciseFrequencyCount": "{count}x",
+  "@statsExerciseFrequencyCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "statsPersonalRecordWeight": "{weight} lbs",
+  "@statsPersonalRecordWeight": {
+    "placeholders": {
+      "weight": {}
+    }
+  },
+  "statsActiveCycleLabel": "{cycleName} (Active)",
+  "@statsActiveCycleLabel": {
+    "placeholders": {
+      "cycleName": {}
+    }
+  },
+  "restTimerDialogTitle": "Rest Timer",
+  "restTimerUseDefault": "Use default",
+  "restTimerBasedOnSetType": "Based on set type",
+  "restTimerDuration": "Duration",
+  "addSessionPlanSport": "Plan {sport}",
+  "@addSessionPlanSport": {
+    "placeholders": {
+      "sport": {}
+    }
+  },
+  "addSessionTitle": "Add Session",
+  "selectMuscleGroupTitle": "Select Muscle Group",
+  "startFromTemplate": "Start from template",
+  "planSportButton": "Plan {sport}",
+  "@planSportButton": {
+    "placeholders": {
+      "sport": {}
+    }
+  },
+  "sessionPlannedSnackbar": "{sport} session planned",
+  "@sessionPlannedSnackbar": {
+    "placeholders": {
+      "sport": {}
+    }
+  },
+  "failedToSave": "Failed to save: {error}",
+  "@failedToSave": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "createCustomExerciseTitle": "Create Custom Exercise",
+  "exerciseNameLabel": "Exercise Name",
+  "exerciseNameHint": "e.g., Cable Chest Fly",
+  "exerciseNameRequired": "Please enter an exercise name",
+  "exerciseNameMinLength": "Name must be at least 3 characters",
+  "muscleGroupLabel": "Muscle Group",
+  "secondaryMuscleGroupLabel": "Secondary Muscle Group (Optional)",
+  "secondaryMuscleGroupNone": "None",
+  "equipmentTypeLabel": "Equipment Type",
+  "restTimerOptionalLabel": "Rest Timer (Optional)",
+  "restTimerHint": "e.g., 90",
+  "restTimerSuffix": "seconds",
+  "restTimerValidation": "Enter a value between 0 and 600",
+  "exerciseNameExists": "An exercise with this name already exists",
+  "failedToCreateExercise": "Failed to create exercise: {error}",
+  "@failedToCreateExercise": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "creatingButton": "Creating...",
+  "createButton": "Create",
+  "jointPainLabel": "Joint Pain",
+  "musclePumpLabel": "Muscle Pump",
+  "workloadLabel": "Workload",
+  "detailTab": "Detail",
+  "historyTab": "History",
+  "videoAvailable": "Video Available",
+  "watchOnYouTube": "Watch on YouTube",
+  "viewOnYouTube": "View on YouTube",
+  "noVideoAvailable": "No video available",
+  "notesLabel": "Notes",
+  "noNotesAdded": "No notes added yet.",
+  "errorLoadingHistory": "Error loading history: {error}",
+  "@errorLoadingHistory": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "noHistoryYet": "No history yet",
+  "noHistoryDescription": "Complete sets to build your exercise history.",
+  "weightProgressionLabel": "WEIGHT PROGRESSION",
+  "unknownTrainingCycle": "Unknown TrainingCycle",
+  "trainingCyclePeriodsHeader": "{name} - {count} PERIODS",
+  "@trainingCyclePeriodsHeader": {
+    "placeholders": {
+      "name": {},
+      "count": {}
+    }
+  },
+  "unknownDate": "Unknown date",
+  "recoveryLabel": "RECOVERY",
+  "periodDayLabel": "PERIOD {period} - DAY {day}",
+  "@periodDayLabel": {
+    "placeholders": {
+      "period": {},
+      "day": {}
+    }
+  },
+  "bodyweightAbbrev": "BW",
+  "setTypesTitle": "Set Types",
+  "regularSetBadge": "REG",
+  "trainingCycleNoteTitle": "Training Cycle Note",
+  "workoutNoteTitle": "Workout Note",
+  "exerciseNoteTitle": "Exercise Note",
+  "sessionNoteTitle": "Session Note",
+  "trainingCycleNoteHint": "Enter note for this training cycle...",
+  "workoutNoteHint": "Enter note for this workout...",
+  "exerciseNoteHint": "Enter note for this exercise...",
+  "sessionNoteHint": "Enter note for this session...",
+  "pinToExercise": "Pin to Exercise",
+  "renameTitle": "Rename",
+  "trainingCycleNameHint": "TrainingCycle name",
+  "updateDayLabelTitle": "Update day label",
+  "updateDayLabelDesc": "You can apply a different weekday label to this day.",
+  "mondayLabel": "Monday",
+  "tuesdayLabel": "Tuesday",
+  "wednesdayLabel": "Wednesday",
+  "thursdayLabel": "Thursday",
+  "fridayLabel": "Friday",
+  "saturdayLabel": "Saturday",
+  "sundayLabel": "Sunday",
+  "applyToAllDays": "Apply to all days in this position",
+  "avgHrLabel": "Avg HR",
+  "bpmSuffix": "bpm",
+  "logSessionTooltip": "Log session",
+  "logSessionTitle": "Log session",
+  "cardioTargetLabel": "TARGET",
+  "cardioNoTargetSet": "No target set",
+  "cardioIntervalsCount": "{count, plural, =1{1 interval} other{{count} intervals}}",
+  "@cardioIntervalsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "cardioCompletedStatus": "Completed",
+  "cardioAddFeedback": "Add feedback",
+  "cardioLogSession": "Log session",
+  "cardioSessionSkipped": "Session skipped",
+  "cardioSkippedFooter": "Skipped",
+  "cardioSessionMenuHeader": "SESSION",
+  "cardioNotesMenuItem": "Notes",
+  "cardioMoveUpMenuItem": "Move up",
+  "cardioMoveDownMenuItem": "Move down",
+  "cardioReplaceMenuItem": "Replace",
+  "cardioSkipSessionMenuItem": "Skip session",
+  "cardioDeleteSessionMenuItem": "Delete session",
+  "cardioDistanceMetric": "Distance",
+  "cardioDurationMetric": "Duration",
+  "cardioSwolfMetric": "SWOLF",
+  "cardioPaceMetric": "Pace",
+  "cardioAvgSpeedMetric": "Avg speed",
+  "cardioLapsFormat": "{count} laps",
+  "@cardioLapsFormat": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "cardioPoolLabel": "pool",
+  "cardioAvgLabel": "avg",
+  "cardioMaxLabel": "max",
+  "cardioElevationGain": "{meters} m",
+  "@cardioElevationGain": {
+    "placeholders": {
+      "meters": {}
+    }
+  },
+  "cardioHrBpm": "{bpm} bpm",
+  "@cardioHrBpm": {
+    "placeholders": {
+      "bpm": {}
+    }
+  },
+  "cardioPowerWatts": "{watts} W",
+  "@cardioPowerWatts": {
+    "placeholders": {
+      "watts": {}
+    }
+  },
+  "cardioRpeFormat": "RPE {value}",
+  "@cardioRpeFormat": {
+    "placeholders": {
+      "value": {}
+    }
+  },
+  "distanceLabel": "Distance",
+  "metersSuffix": "m",
+  "yardsSuffix": "yd",
+  "kilometersSuffix": "km",
+  "milesSuffix": "mi",
+  "durationLabel": "Duration",
+  "durationHint": "00:30:00",
+  "durationFormatError": "Use MM:SS or HH:MM:SS",
+  "insertColonTooltip": "Insert colon",
+  "readyToTrain": "Ready to train?",
+  "pickSportPrompt": "Pick a sport to add today's session.",
+  "addSportSessionSemantic": "Add a {sport} session",
+  "@addSportSessionSemantic": {
+    "placeholders": {
+      "sport": {}
+    }
+  },
+  "thisWeekTitle": "This week",
+  "nothingLoggedYet": "Nothing logged yet — your next session lands here.",
+  "strengthSessionCount": "{count, plural, =1{1 strength session} other{{count} strength sessions}}",
+  "@strengthSessionCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "calendarLegendTitle": "Calendar Legend",
+  "legendWorkoutStatus": "Workout Status",
+  "legendCompleted": "Completed",
+  "legendCompletedDesc": "All sessions for the day are done",
+  "legendPartiallyCompleted": "Partially Completed",
+  "legendPartiallyCompletedDesc": "Some sessions are done",
+  "legendScheduled": "Scheduled",
+  "legendScheduledDesc": "Session day not yet completed",
+  "legendRecoveryPeriod": "Recovery Period",
+  "legendRecoveryPeriodDesc": "Deload/recovery day",
+  "legendIndicators": "Indicators",
+  "legendPeriodDay": "P#D#",
+  "legendPeriodDayDesc": "Period and Day number (e.g., P2D3 = Period 2, Day 3)",
+  "legendColoredDots": "Colored dots",
+  "legendColoredDotsDesc": "Muscle groups being worked",
+  "legendBorderHighlight": "Border highlight",
+  "legendBorderHighlightDesc": "Today's date",
+  "legendSelectionBorder": "Selection border",
+  "legendSelectionBorderDesc": "Currently selected date",
+  "legendPeriodColors": "Period Colors",
+  "legendPeriodColorsDesc": "Each period has a distinct background tint to help visualize training blocks.",
+  "moveSessionTitle": "Move Session",
+  "moveFromLabel": "From Period {period}, Day {day}",
+  "@moveFromLabel": {
+    "placeholders": {
+      "period": {},
+      "day": {}
+    }
+  },
+  "moveToLabel": "Move to:",
+  "periodDropdownLabel": "Period",
+  "dayDropdownLabel": "Day",
+  "moveModeLabel": "Move mode:",
+  "shiftSubsequentTitle": "Shift Subsequent",
+  "shiftSubsequentDesc": "Move this session and shift all following sessions",
+  "swapTitle": "Swap",
+  "swapDesc": "Exchange with the session on the target date",
+  "singleTitle": "Single",
+  "singleDesc": "Move only this session (may create gaps)",
+  "moveButton": "Move",
+  "moveUndoneSnackbar": "Move undone",
+  "undoWithDescription": "Undo: {description}",
+  "@undoWithDescription": {
+    "placeholders": {
+      "description": {}
+    }
+  },
+  "undoLastChange": "Undo: last change",
+  "undoNoRecentChanges": "Undo Move (no recent changes)",
+  "editCalendarTitle": "Edit Calendar",
+  "editCalendarRestDay": "Rest Day",
+  "editCalendarPeriodDay": "Period {period}, Day {day}",
+  "@editCalendarPeriodDay": {
+    "placeholders": {
+      "period": {},
+      "day": {}
+    }
+  },
+  "removeRestDayLabel": "Remove Rest Day",
+  "removeRestDayDesc": "Remove this rest day and shift all future workouts backward",
+  "insertDayBeforeLabel": "Insert Day Before",
+  "insertDayBeforeDesc": "Add a rest day here, shifting this and all future workouts forward",
+  "changeUndoneSnackbar": "Change undone",
+  "statusDone": "Done",
+  "statusSkipped": "Skipped",
+  "statusPlanned": "Planned",
+  "setsProgress": "{completed}/{total}",
+  "@setsProgress": {
+    "placeholders": {
+      "completed": {},
+      "total": {}
+    }
+  },
+  "moreCount": "+{count} more",
+  "@moreCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "dropHere": "Drop here",
+  "exerciseCardWeightSuggestion": "↑ Try {weight} {unit}",
+  "@exerciseCardWeightSuggestion": {
+    "placeholders": {
+      "weight": {},
+      "unit": {}
+    }
+  },
+  "exerciseCardInfoTooltip": "Exercise info",
+  "exerciseCardOptionsSemantics": "Exercise options for {exerciseName}",
+  "@exerciseCardOptionsSemantics": {
+    "placeholders": {
+      "exerciseName": {}
+    }
+  },
+  "exerciseCardColumnWeight": "WEIGHT",
+  "exerciseCardColumnReps": "REPS",
+  "exerciseCardColumnLog": "LOG",
+  "exerciseCardMenuExercise": "EXERCISE",
+  "exerciseCardMenuNewNote": "New note",
+  "exerciseCardMenuMoveUp": "Move up",
+  "exerciseCardMenuMoveDown": "Move down",
+  "exerciseCardMenuReplace": "Replace",
+  "exerciseCardMenuJointPain": "Joint pain",
+  "exerciseCardMenuRestTimerValue": "Rest: {seconds}s",
+  "@exerciseCardMenuRestTimerValue": {
+    "placeholders": {
+      "seconds": {}
+    }
+  },
+  "exerciseCardMenuSetRestTimer": "Set rest timer",
+  "exerciseCardMenuAddSet": "Add set",
+  "exerciseCardMenuSkipSets": "Skip sets",
+  "exerciseCardMenuDeleteExercise": "Delete exercise",
+  "exerciseCardWeightSemantics": "Weight for set {setNumber}",
+  "@exerciseCardWeightSemantics": {
+    "placeholders": {
+      "setNumber": {}
+    }
+  },
+  "exerciseCardRepsSemantics": "Reps for set {setNumber}",
+  "@exerciseCardRepsSemantics": {
+    "placeholders": {
+      "setNumber": {}
+    }
+  },
+  "exerciseCardRepsHintRir": "{rir} RIR",
+  "@exerciseCardRepsHintRir": {
+    "placeholders": {
+      "rir": {}
+    }
+  },
+  "exerciseCardRepsHint": "RIR",
+  "exerciseCardSetTypeSemantics": "{setTypeName} set",
+  "@exerciseCardSetTypeSemantics": {
+    "placeholders": {
+      "setTypeName": {}
+    }
+  },
+  "exerciseCardLogSetSemantics": "Log set {setNumber}",
+  "@exerciseCardLogSetSemantics": {
+    "placeholders": {
+      "setNumber": {}
+    }
+  },
+  "exerciseCardSetMenuHeader": "SET",
+  "exerciseCardSetMenuAddBelow": "Add set below",
+  "exerciseCardSetMenuSkipSet": "Skip set",
+  "exerciseCardSetMenuUnskipSet": "Unskip set",
+  "exerciseCardSetMenuDeleteSet": "Delete set",
+  "exerciseCardSetTypeHeader": "SET TYPE",
+  "weeklyVolumeChartEmpty": "No cardio in this range yet",
+  "cycleComparisonNeedTwo": "Need at least 2 cycles to compare",
+  "cycleComparisonUnlockMessage": "Complete a training cycle to unlock comparisons.",
+  "cycleComparisonCycleA": "Cycle A",
+  "cycleComparisonCycleB": "Cycle B",
+  "cycleComparisonSelectPrompt": "Select two cycles to compare",
+  "cycleComparisonCompletion": "Completion",
+  "cycleComparisonTotalSets": "Total Sets",
+  "cycleComparisonWorkouts": "Workouts",
+  "cycleComparisonSetsByMuscle": "Sets by Muscle Group",
+  "cycleComparisonPrChanges": "Personal Record Changes",
+  "cycleComparisonPrSubtitle": "{weightA} → {weightB} lbs",
+  "@cycleComparisonPrSubtitle": {
+    "placeholders": {
+      "weightA": {},
+      "weightB": {}
+    }
+  },
+  "volumeBarChartNoData": "No data yet",
+  "volumeLineChartNoData": "No volume data yet",
+  "weightChartNoMeasurements": "No measurements yet",
+  "weightChartNeedTwo": "Need at least 2 measurements to show a chart",
+  "emailLinkVerificationSent": "Verification email sent",
+  "emailLinkSignInTitle": "Sign In",
+  "emailLinkVerifyTitle": "Verify to Upload",
+  "emailLinkSignInDesc": "Sign in with the email and password you used on your other device.",
+  "emailLinkVerifyDesc": "Link an email to your account to share content with the community. Your anonymous data is preserved.",
+  "emailLinkEmailLabel": "Email",
+  "emailLinkPasswordLabel": "Password",
+  "emailLinkEmailEmpty": "Enter your email",
+  "emailLinkEmailInvalid": "Enter a valid email",
+  "emailLinkPasswordShort": "Password must be at least 6 characters",
+  "emailLinkSignInButton": "SIGN IN",
+  "emailLinkLinkAndVerify": "LINK EMAIL & VERIFY",
+  "emailLinkCreateAccount": "CREATE NEW ACCOUNT",
+  "emailLinkSignInExisting": "SIGN IN WITH EXISTING ACCOUNT",
+  "emailLinkCheckInboxTitle": "Check Your Inbox",
+  "emailLinkCheckInboxDesc": "We sent a verification email. Open the link in the email, then come back here and tap the button below.",
+  "emailLinkNotYetVerified": "Email not yet verified. Check your inbox and spam folder.",
+  "emailLinkVerifiedButton": "I'VE VERIFIED MY EMAIL",
+  "emailLinkResendButton": "RESEND VERIFICATION EMAIL",
+  "userErrorCouldnt": "Couldn''t {context} — {message}",
+  "@userErrorCouldnt": {
+    "placeholders": {
+      "context": {},
+      "message": {}
+    }
+  },
+  "userErrorNetwork": "Check your connection and try again.",
+  "userErrorBadState": "Something got into a bad state. Try again.",
+  "userErrorPermission": "Permission was denied. Open Settings to grant access.",
+  "userErrorConflict": "That change conflicts with existing data.",
+  "userErrorNotFound": "Not found — it may have been deleted.",
+  "userErrorGeneric": "Something went wrong. Try again in a moment.",
+  "setTypeDialogTitle": "Set types",
+  "setTypeDialogDescription": "Keep track of how you performed your sets by specifying a type:",
+  "regularSetDefinition": "Regular: perform sets normally by hitting rep target or week over week RIR target",
+  "myorepSetDefinition": "Myoreps: take 5-15 second pauses between mini-sets of reps to hit rep target or week over week RIR target. Log total reps.",
+  "myorepMatchSetDefinition": "Myorep match: take 5-15 second pauses between mini-sets of reps to match reps from your first set. Log total reps.",
+  "jointPainTitle": "JOINT PAIN",
+  "musclePumpTitle": "MUSCLE PUMP",
+  "workloadTitle": "WORKLOAD",
+  "sorenessTitle": "SORENESS",
+  "jointPainQuestion": "How did your joints feel during {exerciseName}?",
+  "@jointPainQuestion": {
+    "placeholders": {
+      "exerciseName": {}
+    }
+  },
+  "musclePumpQuestion": "How much of a pump did you get today in your {muscleGroup}?",
+  "@musclePumpQuestion": {
+    "placeholders": {
+      "muscleGroup": {}
+    }
+  },
+  "workloadQuestion": "How would you rate the difficulty of the work you did for your {muscleGroup}?",
+  "@workloadQuestion": {
+    "placeholders": {
+      "muscleGroup": {}
+    }
+  },
+  "sorenessQuestion": "How sore did you get in your {muscleGroup} AFTER training it LAST TIME?",
+  "@sorenessQuestion": {
+    "placeholders": {
+      "muscleGroup": {}
+    }
+  },
+  "draftBannerText": "CONTINUE EDITING DRAFT TRAINING CYCLE",
+  "noExercisesTitle": "No exercises",
+  "noExercisesMessage": "Your custom exercises will appear here.",
+  "noPinnedNotesTitle": "No pinned notes",
+  "noPinnedNotesMessage": "Your pinned exercise notes will appear here.",
+  "navWorkout": "Workout",
+  "navTrainingCycles": "TrainingCycles",
+  "navExercisesConst": "Exercises",
+  "navMoreConst": "More",
+  "menuTemplates": "Templates",
+  "menuDarkTheme": "Dark Theme",
+  "menuExportData": "Export Data",
+  "menuImportData": "Import Data",
+  "menuShareData": "Share Data",
+  "menuHelp": "Help",
+  "menuLeaveReview": "Leave a review",
+  "localeSystem": "System",
+  "localeEnglish": "English",
+
+  "sportPickerTitle": "Add a session",
+  "sportPickerSubtitle": "Which sport is this session?",
+
+  "cardioTemplatePickerTitle": "Start from a template",
+  "cardioTemplatePickerSubtitle": "Pick a pre-built session to start from. You can edit the intervals before saving.",
+  "cardioTemplatePickerLoadError": "Could not load the library. {error}",
+  "@cardioTemplatePickerLoadError": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "cardioTemplatePickerNoTemplates": "No templates for this sport yet.",
+  "cardioTemplatePickerStepsCount": "{count} steps",
+  "@cardioTemplatePickerStepsCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "routerErrorTitle": "Error",
+  "@routerErrorTitle": {
+    "description": "App bar title on the router error page"
+  },
+  "routerPageNotFound": "Page not found: {location}",
+  "@routerPageNotFound": {
+    "description": "Body text shown when a route is not found",
+    "placeholders": {
+      "location": {}
+    }
+  },
+  "routerGoHome": "Go Home",
+  "@routerGoHome": {
+    "description": "Button text to navigate back to the home screen"
+  },
+
+  "cycleSummaryTitle": "{cycleTerm} summary",
+  "@cycleSummaryTitle": {
+    "placeholders": {
+      "cycleTerm": {}
+    }
+  },
+  "cycleSummaryWorkoutsSection": "Workouts",
+  "cycleSummaryCompleted": "Completed",
+  "cycleSummarySkipped": "Skipped",
+  "cycleSummaryIncomplete": "Incomplete",
+  "cycleSummaryStatsSection": "Stats",
+  "cycleSummaryMuscleGroups": "Muscle groups",
+  "closeUpper": "CLOSE",
+
+  "muscleGroupStatsTitle": "Muscle group stats",
+  "muscleGroupStatsNoSessions": "No sessions found for this training cycle.",
+  "muscleGroupStatsDeload": "DL",
+  "muscleGroupStatsPeriod": "pd {period}",
+  "@muscleGroupStatsPeriod": {
+    "placeholders": {
+      "period": {}
+    }
+  },
+  "muscleGroupStatsAvgSets": "{count} avg sets",
+  "@muscleGroupStatsAvgSets": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+
+  "skinSelectionTitle": "Appearance",
+  "skinSelectionShare": "Share",
+  "skinSelectionCurrentTheme": "Current Theme",
+  "skinSelectionChooseTheme": "Choose a Theme",
+  "skinSelectionCreate": "Create",
+  "skinSelectionBrowseCommunity": "Browse Community Library",
+  "skinSelectionBrowseCommunitySubtitle": "Discover themes shared by other users",
+  "skinSelectionPremium": "Premium",
+  "skinSelectionEditTheme": "Edit Theme",
+  "skinSelectionShareTheme": "Share Theme",
+  "skinSelectionDeleteTheme": "Delete Theme",
+  "skinSelectionDeleteThemeTitle": "Delete Theme?",
+  "skinSelectionDeleteConfirm": "Are you sure you want to delete \"{name}\"?",
+  "@skinSelectionDeleteConfirm": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+
+  "unitsResetButton": "Reset",
+  "unitsDescription": "Pick units per sport. A row you haven't touched follows the sensible default (run → miles, bike → km, swim → meters), falling back to your main metric / imperial setting.",
+  "unitsDefaultLabel": "(default)",
+  "unitsImperialLabel": "Imperial",
+  "unitsMetricLabel": "Metric",
+  "unitsStrengthNote": "Strength defaults to your main metric/imperial choice ({system}) — change that in Settings → Profile.",
+  "@unitsStrengthNote": {
+    "placeholders": {
+      "system": {}
+    }
+  },
+
+  "zonesNoZones": "No zones set for {sport}",
+  "@zonesNoZones": {
+    "placeholders": {
+      "sport": {}
+    }
+  },
+  "zonesNoZonesSubtitle": "Start from the conventional five-zone split and tweak the numbers to your tested thresholds.",
+  "zonesSeedDefaults": "Seed default zones",
+  "zonesClear": "Clear",
+  "zonesHrDescription": "Heart-rate zones in bpm. Tap a value to edit. Defaults are a sensible starting point — adjust to your tested thresholds.",
+  "zonesZoneLabel": "Zone {number}",
+  "@zonesZoneLabel": {
+    "placeholders": {
+      "number": {}
+    }
+  },
+  "zonesMinLabel": "Min",
+  "zonesMaxLabel": "Max",
+  "zonesBpmSuffix": "bpm",
+  "zonesResetToDefaults": "Reset to defaults",
+  "zonesErrorLoading": "Error loading zones: {error}",
+  "@zonesErrorLoading": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+
+  "sentryDebugOnlyAvailable": "Debug screen only available in debug builds",
+  "sentryRefreshTooltip": "Refresh status",
+  "sentryTestMessage": "Test Message",
+  "sentryTestException": "Test Exception",
+  "sentryTestFeedback": "Test Feedback",
+  "sentryTestCrash": "Test Crash",
+
+  "restTimerBannerSemantic": "Rest timer: {time} remaining",
+  "@restTimerBannerSemantic": {
+    "placeholders": {
+      "time": {}
+    }
+  },
+  "restTimerRestDisplay": "Rest: {time}",
+  "@restTimerRestDisplay": {
+    "placeholders": {
+      "time": {}
+    }
+  },
+  "restTimerResumeTooltip": "Resume",
+  "restTimerPauseTooltip": "Pause",
+  "restTimerAddTimeTooltip": "Add 30 seconds",
+  "restTimerSkipTooltip": "Skip rest",
+
+  "filterByAvailableEquipment": "Filter by Available Equipment",
+  "onlyShowEquipmentExercises": "Only show exercises for equipment you have",
+  "selectEquipmentAccess": "Select equipment you have access to",
+
+  "sportSummarySessionCount": "{count, plural, =1{session} other{sessions}}",
+  "@sportSummarySessionCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "sportSummaryBest": "Best {distance}",
+  "@sportSummaryBest": {
+    "placeholders": {
+      "distance": {}
+    }
+  },
+
+  "weeklyVolumeChartTooltipSessions": "{count} sessions",
+  "@weeklyVolumeChartTooltipSessions": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "weeklyVolumeChartWeekOf": "Wk of {date}",
+  "@weeklyVolumeChartWeekOf": {
+    "placeholders": {
+      "date": {}
+    }
+  },
+
+  "volumeBarChartSetsTooltip": "{count} sets",
+  "@volumeBarChartSetsTooltip": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+
+  "exerciseCardLastPerformance": "Last: {summary}{date}",
+  "@exerciseCardLastPerformance": {
+    "placeholders": {
+      "summary": {},
+      "date": {}
+    }
+  },
+
+  "cardioCardTargetLabel": "TARGET",
+  "cardioCardNoTarget": "No target set",
+  "cardioCardIntervalCount": "{count, plural, =1{1 interval} other{{count} intervals}}",
+  "@cardioCardIntervalCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "cardioCardPaceLabel": "Pace",
+  "cardioCardAvgSpeedLabel": "Avg speed",
+  "cardioCardSwolfLabel": "SWOLF",
+  "cardioCardLapsValue": "{count} laps",
+  "@cardioCardLapsValue": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "cardioCardPoolLabel": "pool",
+  "cardioCardAvgHr": "avg",
+  "cardioCardMaxHr": "max",
+  "cardioCardAvgPower": "avg",
+  "cardioCardElevationGain": "▲",
+  "cardioCardAddFeedback": "Add feedback",
+  "cardioCardLogSession": "Log session",
+  "cardioCardMenuNotes": "Notes",
+  "cardioCardMenuMoveUp": "Move up",
+  "cardioCardMenuMoveDown": "Move down",
+  "cardioCardMenuReplace": "Replace",
+  "cardioCardMenuSkipSession": "Skip session",
+  "cardioCardMenuDeleteSession": "Delete session",
+
+  "quickLogTooltip": "Log session",
+  "quickLogTitle": "Log session",
+
+  "thisWeekTitle": "This week",
+  "thisWeekEmpty": "Nothing logged yet — your next session lands here.",
+  "thisWeekStrengthSessions": "{count, plural, =1{1 strength session} other{{count} strength sessions}}",
+  "@thisWeekStrengthSessions": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "thisWeekSportLine": "{count} {sport}{countSuffix}",
+  "@thisWeekSportLine": {
+    "placeholders": {
+      "count": {},
+      "sport": {},
+      "countSuffix": {}
+    }
+  },
+
+  "sportSummarySessionLabel": "{count, plural, =1{session} other{sessions}}",
+  "@sportSummarySessionLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "sportSummaryBestLabel": "Best {distance}",
+  "@sportSummaryBestLabel": {
+    "placeholders": {
+      "distance": {}
+    }
+  },
+
+  "weeklyVolumeChartEmpty": "No cardio in this range yet",
+  "weeklyVolumeChartTooltip": "{weekLabel}\n{sessions} sessions • {duration}",
+  "@weeklyVolumeChartTooltip": {
+    "placeholders": {
+      "weekLabel": {},
+      "sessions": {},
+      "duration": {}
+    }
+  },
+
+  "volumeBarChartEmpty": "No data yet",
+
+  "exerciseCardExerciseInfo": "Exercise info",
+  "exerciseCardOptionsLabel": "Exercise options for {name}",
+  "@exerciseCardOptionsLabel": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "exerciseCardWeightHeader": "WEIGHT",
+  "exerciseCardRepsHeader": "REPS",
+  "exerciseCardLogHeader": "LOG",
+  "exerciseCardWeightSemantic": "Weight for set {number}",
+  "@exerciseCardWeightSemantic": {
+    "placeholders": {
+      "number": {}
+    }
+  },
+  "exerciseCardRepsSemantic": "Reps for set {number}",
+  "@exerciseCardRepsSemantic": {
+    "placeholders": {
+      "number": {}
+    }
+  },
+  "exerciseCardLogSemantic": "Log set {number}",
+  "@exerciseCardLogSemantic": {
+    "placeholders": {
+      "number": {}
+    }
+  },
+  "exerciseCardSetTypeSemantic": "{typeName} set",
+  "@exerciseCardSetTypeSemantic": {
+    "placeholders": {
+      "typeName": {}
+    }
+  },
+  "exerciseCardExerciseHeader": "EXERCISE",
+  "exerciseCardNewNote": "New note",
+  "exerciseCardMoveUp": "Move up",
+  "exerciseCardMoveDown": "Move down",
+  "exerciseCardReplace": "Replace",
+  "exerciseCardJointPain": "Joint pain",
+  "exerciseCardRestTimerValue": "Rest: {seconds}s",
+  "@exerciseCardRestTimerValue": {
+    "placeholders": {
+      "seconds": {}
+    }
+  },
+  "exerciseCardSetRestTimer": "Set rest timer",
+  "exerciseCardAddSet": "Add set",
+  "exerciseCardSkipSets": "Skip sets",
+  "exerciseCardDeleteExercise": "Delete exercise",
+  "exerciseCardSetHeader": "SET",
+  "exerciseCardAddSetBelow": "Add set below",
+  "exerciseCardSkipSet": "Skip set",
+  "exerciseCardUnskipSet": "Unskip set",
+  "exerciseCardDeleteSet": "Delete set",
+  "exerciseCardSetTypeHeader": "SET TYPE",
+  "exerciseCardTryWeight": "\u2191 Try {weight} {unit}",
+  "@exerciseCardTryWeight": {
+    "placeholders": {
+      "weight": {},
+      "unit": {}
+    }
+  },
+  "exerciseCardRirHint": "RIR",
+  "exerciseCardRirTargetHint": "{target} RIR",
+  "@exerciseCardRirTargetHint": {
+    "placeholders": {
+      "target": {}
+    }
+  },
+
+  "equipmentFilterTitle": "Filter by Available Equipment",
+  "equipmentFilterSubtitle": "Only show exercises for equipment you have",
+  "equipmentFilterSelectPrompt": "Select equipment you have access to",
+
+  "restTimerSemantic": "Rest timer: {time} remaining",
+  "@restTimerSemantic": {
+    "placeholders": {
+      "time": {}
+    }
+  },
+  "restTimerDisplay": "Rest: {time}",
+  "@restTimerDisplay": {
+    "placeholders": {
+      "time": {}
+    }
+  },
+  "restTimerResume": "Resume",
+  "restTimerPause": "Pause",
+  "restTimerAdd30": "Add 30 seconds",
+  "restTimerSkip": "Skip rest",
+
+  "cycleComparisonNeedTwoCycles": "Need at least 2 cycles to compare",
+  "cycleComparisonUnlockHint": "Complete a training cycle to unlock comparisons.",
+  "cycleComparisonCycleA": "Cycle A",
+  "cycleComparisonCycleB": "Cycle B",
+  "cycleComparisonSelectPrompt": "Select two cycles to compare",
+  "cycleComparisonCompletion": "Completion",
+  "cycleComparisonTotalSets": "Total Sets",
+  "cycleComparisonWorkouts": "Workouts",
+  "cycleComparisonSetsByMuscle": "Sets by Muscle Group",
+  "cycleComparisonPRChanges": "Personal Record Changes",
+  "cycleComparisonWeightChange": "{weightA} \u2192 {weightB} lbs",
+  "@cycleComparisonWeightChange": {
+    "placeholders": {
+      "weightA": {},
+      "weightB": {}
+    }
+  },
+
+  "authSignIn": "Sign In",
+  "authVerifyToUpload": "Verify to Upload",
+  "authSignInBody": "Sign in with the email and password you used on your other device.",
+  "authLinkEmailBody": "Link an email to your account to share content with the community. Your anonymous data is preserved.",
+  "authEmailLabel": "Email",
+  "authPasswordLabel": "Password",
+  "authEnterEmail": "Enter your email",
+  "authEnterValidEmail": "Enter a valid email",
+  "authPasswordMinLength": "Password must be at least 6 characters",
+  "authSignInUpper": "SIGN IN",
+  "authLinkEmailUpper": "LINK EMAIL & VERIFY",
+  "authCreateNewAccount": "CREATE NEW ACCOUNT",
+  "authSignInExisting": "SIGN IN WITH EXISTING ACCOUNT",
+  "authCheckInbox": "Check Your Inbox",
+  "authCheckInboxBody": "We sent a verification email. Open the link in the email, then come back here and tap the button below.",
+  "authEmailNotVerified": "Email not yet verified. Check your inbox and spam folder.",
+  "authVerifiedButton": "I'VE VERIFIED MY EMAIL",
+  "authResendEmail": "RESEND VERIFICATION EMAIL",
+  "authVerificationSent": "Verification email sent"
+}

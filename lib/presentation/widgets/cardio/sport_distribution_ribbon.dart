@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/constants/sports.dart';
+import '../../../l10n/app_localizations.dart';
 
 /// Thin horizontal bar showing proportional sport distribution for a
 /// training cycle, plus a compact legend below.
@@ -82,6 +83,7 @@ class _LegendItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final color = sport.color;
     final style = Theme.of(context).textTheme.labelSmall?.copyWith(
       color: Theme.of(
@@ -101,7 +103,7 @@ class _LegendItem extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 4),
-        Text('$count ${sport.displayName}', style: style),
+        Text('$count ${sport.localizedName(l10n)}', style: style),
       ],
     );
   }

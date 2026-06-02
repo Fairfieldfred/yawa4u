@@ -73,6 +73,8 @@ dependencies:
   firebase_auth: ^6.4.0
   cloud_firestore: ^6.3.0
   firebase_storage: ^13.3.0
+  flutter_localizations:
+    sdk: flutter
 
 dev_dependencies:
   sentry_dart_plugin: ^3.2.0
@@ -94,6 +96,8 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
+  generate: true
+
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.

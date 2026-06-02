@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/theme/skins/skins.dart';
+import '../../../l10n/app_localizations.dart';
 
 /// Dialog showing legend for calendar colors and indicators
 class CalendarLegendDialog extends StatelessWidget {
@@ -8,77 +9,78 @@ class CalendarLegendDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return AlertDialog(
-      title: const Text('Calendar Legend'),
+      title: Text(l10n.calendarLegendTitle),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildSection(context, 'Workout Status'),
+            _buildSection(context, l10n.legendWorkoutStatus),
             const SizedBox(height: 8),
             _buildLegendItem(
               context,
               color: context.successColor,
-              label: 'Completed',
-              description: 'All sessions for the day are done',
+              label: l10n.legendCompleted,
+              description: l10n.legendCompletedDesc,
             ),
             _buildLegendItem(
               context,
               color: context.warningColor,
-              label: 'Partially Completed',
-              description: 'Some sessions are done',
+              label: l10n.legendPartiallyCompleted,
+              description: l10n.legendPartiallyCompletedDesc,
             ),
             _buildLegendItem(
               context,
               color: Theme.of(context).colorScheme.primaryContainer,
-              label: 'Scheduled',
-              description: 'Session day not yet completed',
+              label: l10n.legendScheduled,
+              description: l10n.legendScheduledDesc,
             ),
             _buildLegendItem(
               context,
               color: context.workoutDeloadColor.withAlpha(77),
-              label: 'Recovery Period',
-              description: 'Deload/recovery day',
+              label: l10n.legendRecoveryPeriod,
+              description: l10n.legendRecoveryPeriodDesc,
             ),
             const Divider(height: 24),
-            _buildSection(context, 'Indicators'),
+            _buildSection(context, l10n.legendIndicators),
             const SizedBox(height: 8),
             _buildIndicatorItem(
               context,
               icon: Icons.circle,
               iconSize: 8,
-              label: 'P#D#',
-              description: 'Period and Day number (e.g., P2D3 = Period 2, Day 3)',
+              label: l10n.legendPeriodDay,
+              description: l10n.legendPeriodDayDesc,
             ),
             _buildIndicatorItem(
               context,
               icon: Icons.fiber_manual_record,
               iconSize: 10,
-              label: 'Colored dots',
-              description: 'Muscle groups being worked',
+              label: l10n.legendColoredDots,
+              description: l10n.legendColoredDotsDesc,
             ),
             _buildIndicatorItem(
               context,
               color: context.workoutCurrentColor,
               icon: Icons.crop_square,
               iconSize: 16,
-              label: 'Border highlight',
-              description: 'Today\'s date',
+              label: l10n.legendBorderHighlight,
+              description: l10n.legendBorderHighlightDesc,
             ),
             _buildIndicatorItem(
               context,
               color: context.warningColor,
               icon: Icons.crop_square,
               iconSize: 16,
-              label: 'Selection border',
-              description: 'Currently selected date',
+              label: l10n.legendSelectionBorder,
+              description: l10n.legendSelectionBorderDesc,
             ),
             const Divider(height: 24),
-            _buildSection(context, 'Period Colors'),
+            _buildSection(context, l10n.legendPeriodColors),
             const SizedBox(height: 8),
             Text(
-              'Each period has a distinct background tint to help visualize training blocks.',
+              l10n.legendPeriodColorsDesc,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: Theme.of(context).colorScheme.onSurface.withAlpha(179),
               ),
@@ -89,7 +91,7 @@ class CalendarLegendDialog extends StatelessWidget {
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Close'),
+          child: Text(l10n.close),
         ),
       ],
     );

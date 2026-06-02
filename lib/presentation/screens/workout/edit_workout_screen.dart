@@ -30,6 +30,7 @@ import '../../widgets/muscle_group_badge.dart';
 import '../../widgets/skeleton_loader.dart';
 import '../cardio/sport_picker_sheet.dart';
 import 'add_exercise_screen.dart';
+import '../../../l10n/app_localizations.dart';
 import 'edit_workout_controller.dart';
 
 /// Edit workout screen - Edit draft trainingCycle design
@@ -52,6 +53,8 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
     final controller = ref.watch(
       editWorkoutControllerProvider(widget.trainingCycleId),
     );
+
+    final l10n = AppLocalizations.of(context)!;
 
     return trainingCyclesAsync.when(
       data: (trainingCycles) {
@@ -86,7 +89,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
                   IconButton(
                     icon: const Icon(Icons.save_alt),
                     onPressed: () => _exportTemplate(context, trainingCycle, workouts),
-                    tooltip: 'Export Template (Debug)',
+                    tooltip: l10n.editWorkoutExportTemplateTooltip,
                   ),
                 // Start trainingCycle button (if draft)
                 if (trainingCycle.status == TrainingCycleStatus.draft)
@@ -114,7 +117,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
                               size: 24,
                             ),
                             Text(
-                              'Start',
+                              l10n.editWorkoutStartButton,
                               style: TextStyle(
                                 color: context.successColor,
                                 fontSize: 10,
@@ -156,7 +159,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
                       controller,
                     ),
                     backgroundColor: Theme.of(context).colorScheme.primary,
-                    label: const Text('Add Exercise'),
+                    label: Text(l10n.editWorkoutAddExerciseButton),
                     icon: const Icon(Icons.add),
                   ),
             floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
@@ -166,7 +169,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
       loading: () => const Scaffold(body: SkeletonCardList()),
       error: (error, stack) {
         Sentry.captureException(error, stackTrace: stack);
-        return Scaffold(body: Center(child: Text('Error: $error')));
+        return Scaffold(body: Center(child: Text(l10n.errorGeneric(error))));
       },
     );
   }
@@ -243,9 +246,10 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
   }
 
   Future<void> _pickAndCreateCardio(TrainingCycle trainingCycle) async {
+    final l10n = AppLocalizations.of(context)!;
     final sport = await SportPickerSheet.show(
       context,
-      title: 'Add cardio session',
+      title: l10n.editWorkoutAddCardioSessionTitle,
       choices: const [Sport.run, Sport.bike, Sport.swim],
     );
     if (sport == null || !mounted) return;
@@ -284,7 +288,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
       child: Row(
         children: [
           Text(
-            'Period',
+            AppLocalizations.of(context)!.editWorkoutPeriodLabel,
             style: Theme.of(
               context,
             ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
@@ -294,7 +298,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
           IconButton(
             icon: const Icon(Icons.remove_circle_outline, size: 20),
             onPressed: trainingCycle.periodsTotal > 2 ? () => _showRemovePeriodDialog(trainingCycle, controller) : null,
-            tooltip: 'Remove Period',
+            tooltip: AppLocalizations.of(context)!.editWorkoutRemovePeriodTooltip,
             visualDensity: VisualDensity.compact,
             padding: EdgeInsets.zero,
             constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
@@ -303,7 +307,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
           IconButton(
             icon: const Icon(Icons.add_circle_outline, size: 20),
             onPressed: () => _addPeriod(trainingCycle, controller),
-            tooltip: 'Add Period',
+            tooltip: AppLocalizations.of(context)!.editWorkoutAddPeriodTooltip,
             visualDensity: VisualDensity.compact,
             padding: EdgeInsets.zero,
             constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
@@ -364,7 +368,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
             IconButton(
               icon: const Icon(Icons.content_copy, size: 20),
               onPressed: () => _mirrorPeriod1ToSelectedPeriod(trainingCycle, controller),
-              tooltip: 'Mirror Period 1',
+              tooltip: AppLocalizations.of(context)!.editWorkoutMirrorPeriod1Tooltip,
               style: IconButton.styleFrom(
                 backgroundColor: Theme.of(context).colorScheme.primaryContainer,
                 foregroundColor: Theme.of(
@@ -381,12 +385,13 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
     TrainingCycle trainingCycle,
     EditWorkoutController controller,
   ) async {
+    final l10n = AppLocalizations.of(context)!;
     try {
       await controller.addPeriod(trainingCycle);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Period ${trainingCycle.periodsTotal} added'),
+            content: Text(l10n.editWorkoutPeriodAdded(trainingCycle.periodsTotal)),
             backgroundColor: context.successColor,
           ),
         );
@@ -395,7 +400,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error adding period: $e'),
+            content: Text(l10n.editWorkoutPeriodAddError(e)),
             backgroundColor: context.errorColor,
           ),
         );
@@ -407,30 +412,29 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
     TrainingCycle trainingCycle,
     EditWorkoutController controller,
   ) async {
+    final l10n = AppLocalizations.of(context)!;
     final lastNonRecoveryPeriod = trainingCycle.periodsTotal - 1;
 
     final result = await showDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Remove Period'),
+        title: Text(l10n.editWorkoutRemovePeriodTitle),
         content: Text(
-          'Which period would you like to remove?\n\n'
-          '• Period $lastNonRecoveryPeriod (last training period)\n'
-          '• Recovery period',
+          l10n.editWorkoutRemovePeriodContent(lastNonRecoveryPeriod),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           OutlinedButton(
             onPressed: () => Navigator.pop(context, 'deload'),
-            child: const Text('Remove Deload'),
+            child: Text(l10n.editWorkoutRemoveDeload),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, 'training'),
             style: FilledButton.styleFrom(backgroundColor: context.errorColor),
-            child: Text('Remove Period $lastNonRecoveryPeriod'),
+            child: Text(l10n.editWorkoutRemovePeriodAction(lastNonRecoveryPeriod)),
           ),
         ],
       ),
@@ -453,7 +457,9 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                removeRecovery ? 'Recovery period removed' : 'Period $lastNonRecoveryPeriod removed',
+                removeRecovery
+                    ? l10n.editWorkoutRecoveryPeriodRemoved
+                    : l10n.editWorkoutPeriodRemoved(lastNonRecoveryPeriod),
               ),
               backgroundColor: context.successColor,
             ),
@@ -463,7 +469,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Error removing period: $e'),
+              content: Text(l10n.editWorkoutPeriodRemoveError(e)),
               backgroundColor: context.errorColor,
             ),
           );
@@ -476,10 +482,11 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
     TrainingCycle trainingCycle,
     EditWorkoutController controller,
   ) async {
+    final l10n = AppLocalizations.of(context)!;
     final result = await showDialog<RecoveryPeriodType>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Recovery Period Type'),
+        title: Text(l10n.editWorkoutRecoveryTypeTitle),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: RecoveryPeriodType.values.map((type) {
@@ -510,7 +517,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
         ],
       ),
@@ -522,7 +529,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Recovery period changed to ${result.displayName}'),
+              content: Text(l10n.editWorkoutRecoveryTypeChanged(result.displayName)),
               backgroundColor: context.successColor,
             ),
           );
@@ -531,7 +538,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Error updating recovery type: $e'),
+              content: Text(l10n.editWorkoutRecoveryTypeError(e)),
               backgroundColor: context.errorColor,
             ),
           );
@@ -558,7 +565,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
         children: [
           const SizedBox(width: 16),
           Text(
-            'Day',
+            AppLocalizations.of(context)!.editWorkoutDayLabel,
             style: Theme.of(
               context,
             ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
@@ -568,7 +575,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
           IconButton(
             icon: const Icon(Icons.remove_circle_outline, size: 20),
             onPressed: trainingCycle.daysPerPeriod > 1 ? () => _removeDay(trainingCycle, controller) : null,
-            tooltip: 'Remove Day',
+            tooltip: AppLocalizations.of(context)!.editWorkoutRemoveDayTooltip,
             visualDensity: VisualDensity.compact,
             padding: EdgeInsets.zero,
             constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
@@ -579,7 +586,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
             onPressed: trainingCycle.daysPerPeriod < AppConstants.maxDaysPerPeriod
                 ? () => _addDay(trainingCycle, controller)
                 : null,
-            tooltip: 'Add Day',
+            tooltip: AppLocalizations.of(context)!.editWorkoutAddDayTooltip,
             visualDensity: VisualDensity.compact,
             padding: EdgeInsets.zero,
             constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
@@ -632,12 +639,13 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
     TrainingCycle trainingCycle,
     EditWorkoutController controller,
   ) async {
+    final l10n = AppLocalizations.of(context)!;
     try {
       await controller.addDay(trainingCycle);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Day ${trainingCycle.daysPerPeriod + 1} added'),
+            content: Text(l10n.editWorkoutDayAdded(trainingCycle.daysPerPeriod + 1)),
             backgroundColor: context.successColor,
           ),
         );
@@ -646,7 +654,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error adding day: $e'),
+            content: Text(l10n.editWorkoutDayAddError(e)),
             backgroundColor: context.errorColor,
           ),
         );
@@ -666,28 +674,28 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
     );
     final hasWorkoutsOnDay = allWorkouts.any((w) => w.dayNumber == dayToRemove);
 
+    final l10n = AppLocalizations.of(context)!;
+
     if (hasWorkoutsOnDay) {
       // Show confirmation dialog
       final confirm = await showDialog<bool>(
         context: context,
         builder: (context) => AlertDialog(
-          title: const Text('Remove Day'),
+          title: Text(l10n.editWorkoutRemoveDayTitle),
           content: Text(
-            'Day $dayToRemove has exercises assigned. '
-            'Removing it will delete all exercises on this day across all periods.\n\n'
-            'Are you sure you want to remove Day $dayToRemove?',
+            l10n.editWorkoutRemoveDayContent(dayToRemove),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, false),
-              child: const Text('Cancel'),
+              child: Text(l10n.cancel),
             ),
             FilledButton(
               onPressed: () => Navigator.pop(context, true),
               style: FilledButton.styleFrom(
                 backgroundColor: context.errorColor,
               ),
-              child: const Text('Remove'),
+              child: Text(l10n.editWorkoutRemoveDayAction),
             ),
           ],
         ),
@@ -707,7 +715,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Day $dayToRemove removed'),
+            content: Text(l10n.editWorkoutDayRemoved(dayToRemove)),
             backgroundColor: context.successColor,
           ),
         );
@@ -716,7 +724,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error removing day: $e'),
+            content: Text(l10n.editWorkoutDayRemoveError(e)),
             backgroundColor: context.errorColor,
           ),
         );
@@ -902,137 +910,140 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
                             break;
                         }
                       },
-                      itemBuilder: (context) => [
-                        // Header
-                        const PopupMenuItem<String>(
-                          enabled: false,
-                          height: 32,
-                          child: Text(
-                            'EXERCISE',
-                            style: TextStyle(
-                              color: Colors.grey,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
+                      itemBuilder: (context) {
+                        final l10n = AppLocalizations.of(context)!;
+                        return [
+                          // Header
+                          PopupMenuItem<String>(
+                            enabled: false,
+                            height: 32,
+                            child: Text(
+                              l10n.editWorkoutExerciseMenuHeader,
+                              style: const TextStyle(
+                                color: Colors.grey,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                           ),
-                        ),
-                        // New note
-                        const PopupMenuItem<String>(
-                          value: 'note',
-                          height: 48,
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.edit_outlined,
-                                color: Colors.white,
-                                size: 20,
-                              ),
-                              SizedBox(width: 12),
-                              Text(
-                                'New note',
-                                style: TextStyle(color: Colors.white),
-                              ),
-                            ],
+                          // New note
+                          PopupMenuItem<String>(
+                            value: 'note',
+                            height: 48,
+                            child: Row(
+                              children: [
+                                const Icon(
+                                  Icons.edit_outlined,
+                                  color: Colors.white,
+                                  size: 20,
+                                ),
+                                const SizedBox(width: 12),
+                                Text(
+                                  l10n.editWorkoutNewNote,
+                                  style: const TextStyle(color: Colors.white),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                        // Move up (disabled if first exercise)
-                        PopupMenuItem<String>(
-                          value: 'move_up',
-                          enabled: index > 0,
-                          height: 48,
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.arrow_upward,
-                                color: index > 0 ? Colors.white : Colors.grey,
-                                size: 20,
-                              ),
-                              const SizedBox(width: 12),
-                              Text(
-                                'Move up',
-                                style: TextStyle(
+                          // Move up (disabled if first exercise)
+                          PopupMenuItem<String>(
+                            value: 'move_up',
+                            enabled: index > 0,
+                            height: 48,
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.arrow_upward,
                                   color: index > 0 ? Colors.white : Colors.grey,
+                                  size: 20,
                                 ),
-                              ),
-                            ],
+                                const SizedBox(width: 12),
+                                Text(
+                                  l10n.editWorkoutMoveUp,
+                                  style: TextStyle(
+                                    color: index > 0 ? Colors.white : Colors.grey,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                        // Move down (disabled if last exercise)
-                        PopupMenuItem<String>(
-                          value: 'move_down',
-                          enabled: index < totalExercises - 1,
-                          height: 48,
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.arrow_downward,
-                                color: index < totalExercises - 1 ? Colors.white : Colors.grey,
-                                size: 20,
-                              ),
-                              const SizedBox(width: 12),
-                              Text(
-                                'Move down',
-                                style: TextStyle(
+                          // Move down (disabled if last exercise)
+                          PopupMenuItem<String>(
+                            value: 'move_down',
+                            enabled: index < totalExercises - 1,
+                            height: 48,
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.arrow_downward,
                                   color: index < totalExercises - 1 ? Colors.white : Colors.grey,
+                                  size: 20,
                                 ),
-                              ),
-                            ],
+                                const SizedBox(width: 12),
+                                Text(
+                                  l10n.editWorkoutMoveDown,
+                                  style: TextStyle(
+                                    color: index < totalExercises - 1 ? Colors.white : Colors.grey,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                        // Replace
-                        const PopupMenuItem<String>(
-                          value: 'replace',
-                          height: 48,
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.swap_horiz,
-                                color: Colors.white,
-                                size: 20,
-                              ),
-                              SizedBox(width: 12),
-                              Text(
-                                'Replace',
-                                style: TextStyle(color: Colors.white),
-                              ),
-                            ],
+                          // Replace
+                          PopupMenuItem<String>(
+                            value: 'replace',
+                            height: 48,
+                            child: Row(
+                              children: [
+                                const Icon(
+                                  Icons.swap_horiz,
+                                  color: Colors.white,
+                                  size: 20,
+                                ),
+                                const SizedBox(width: 12),
+                                Text(
+                                  l10n.editWorkoutReplace,
+                                  style: const TextStyle(color: Colors.white),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                        // Add set
-                        const PopupMenuItem<String>(
-                          value: 'add_set',
-                          height: 48,
-                          child: Row(
-                            children: [
-                              Icon(Icons.add, color: Colors.white, size: 20),
-                              SizedBox(width: 12),
-                              Text(
-                                'Add set',
-                                style: TextStyle(color: Colors.white),
-                              ),
-                            ],
+                          // Add set
+                          PopupMenuItem<String>(
+                            value: 'add_set',
+                            height: 48,
+                            child: Row(
+                              children: [
+                                const Icon(Icons.add, color: Colors.white, size: 20),
+                                const SizedBox(width: 12),
+                                Text(
+                                  l10n.editWorkoutAddSet,
+                                  style: const TextStyle(color: Colors.white),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                        // Delete exercise
-                        PopupMenuItem<String>(
-                          value: 'delete',
-                          height: 48,
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.delete_outline,
-                                color: context.errorColor,
-                                size: 20,
-                              ),
-                              const SizedBox(width: 12),
-                              Text(
-                                'Delete exercise',
-                                style: TextStyle(color: context.errorColor),
-                              ),
-                            ],
+                          // Delete exercise
+                          PopupMenuItem<String>(
+                            value: 'delete',
+                            height: 48,
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.delete_outline,
+                                  color: context.errorColor,
+                                  size: 20,
+                                ),
+                                const SizedBox(width: 12),
+                                Text(
+                                  l10n.editWorkoutDeleteExercise,
+                                  style: TextStyle(color: context.errorColor),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
+                        ];
+                      },
                     ),
                   ],
                 ),
@@ -1047,7 +1058,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
                         const SizedBox(width: 24), // Spacer for set menu
                         Expanded(
                           child: Text(
-                            'SET',
+                            AppLocalizations.of(context)!.editWorkoutSetHeader,
                             style: TextStyle(
                               color: Theme.of(context).brightness == Brightness.light
                                   ? Theme.of(context).textTheme.bodySmall?.color?.withValues(alpha: 0.7)
@@ -1061,7 +1072,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
                         const SizedBox(width: 16),
                         Expanded(
                           child: Text(
-                            'REPS',
+                            AppLocalizations.of(context)!.editWorkoutRepsHeader,
                             style: TextStyle(
                               color: Theme.of(context).brightness == Brightness.light
                                   ? Theme.of(context).textTheme.bodySmall?.color?.withValues(alpha: 0.7)
@@ -1156,216 +1167,219 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
                                   break;
                               }
                             },
-                            itemBuilder: (context) => [
-                              // SET Header
-                              const PopupMenuItem<String>(
-                                enabled: false,
-                                height: 32,
-                                child: Text(
-                                  'SET',
-                                  style: TextStyle(
-                                    color: Colors.grey,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600,
+                            itemBuilder: (context) {
+                              final l10n = AppLocalizations.of(context)!;
+                              return [
+                                // SET Header
+                                PopupMenuItem<String>(
+                                  enabled: false,
+                                  height: 32,
+                                  child: Text(
+                                    l10n.editWorkoutSetMenuHeader,
+                                    style: const TextStyle(
+                                      color: Colors.grey,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                    ),
                                   ),
                                 ),
-                              ),
-                              // Add set below
-                              PopupMenuItem<String>(
-                                value: 'add_below',
-                                height: 40,
-                                child: Row(
-                                  children: [
-                                    Icon(
-                                      Icons.subdirectory_arrow_right,
-                                      color: Theme.of(
-                                        context,
-                                      ).colorScheme.onSurface,
-                                      size: 20,
-                                    ),
-                                    const SizedBox(width: 12),
-                                    Text(
-                                      'Add set below',
-                                      style: TextStyle(
+                                // Add set below
+                                PopupMenuItem<String>(
+                                  value: 'add_below',
+                                  height: 40,
+                                  child: Row(
+                                    children: [
+                                      Icon(
+                                        Icons.subdirectory_arrow_right,
                                         color: Theme.of(
                                           context,
                                         ).colorScheme.onSurface,
+                                        size: 20,
                                       ),
-                                    ),
-                                  ],
+                                      const SizedBox(width: 12),
+                                      Text(
+                                        l10n.editWorkoutAddSetBelow,
+                                        style: TextStyle(
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.onSurface,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              ),
-                              // Delete set
-                              PopupMenuItem<String>(
-                                value: 'delete',
-                                height: 40,
-                                child: Row(
-                                  children: [
-                                    Icon(
-                                      Icons.delete_outline,
-                                      color: context.errorColor,
-                                      size: 20,
-                                    ),
-                                    const SizedBox(width: 12),
-                                    Text(
-                                      'Delete set',
-                                      style: TextStyle(
+                                // Delete set
+                                PopupMenuItem<String>(
+                                  value: 'delete',
+                                  height: 40,
+                                  child: Row(
+                                    children: [
+                                      Icon(
+                                        Icons.delete_outline,
                                         color: context.errorColor,
+                                        size: 20,
                                       ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const PopupMenuDivider(),
-                              // SET TYPE Header
-                              const PopupMenuItem<String>(
-                                enabled: false,
-                                height: 32,
-                                child: Text(
-                                  'SET TYPE',
-                                  style: TextStyle(
-                                    color: Colors.grey,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600,
+                                      const SizedBox(width: 12),
+                                      Text(
+                                        l10n.editWorkoutDeleteSet,
+                                        style: TextStyle(
+                                          color: context.errorColor,
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
-                              ),
-                              // Regular
-                              PopupMenuItem<String>(
-                                value: 'regular',
-                                height: 40,
-                                child: Row(
-                                  children: [
-                                    Icon(
-                                      set.setType == SetType.regular
-                                          ? Icons.radio_button_checked
-                                          : Icons.radio_button_unchecked,
-                                      color: set.setType == SetType.regular
-                                          ? context.selectedIndicatorColor
-                                          : Colors.grey,
-                                      size: 20,
+                                const PopupMenuDivider(),
+                                // SET TYPE Header
+                                PopupMenuItem<String>(
+                                  enabled: false,
+                                  height: 32,
+                                  child: Text(
+                                    l10n.editWorkoutSetTypeHeader,
+                                    style: const TextStyle(
+                                      color: Colors.grey,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
                                     ),
-                                    const SizedBox(width: 12),
-                                    Text(
-                                      'Regular',
-                                      style: TextStyle(
-                                        color: Theme.of(
-                                          context,
-                                        ).colorScheme.onSurface,
-                                      ),
-                                    ),
-                                  ],
+                                  ),
                                 ),
-                              ),
-                              // Myorep
-                              PopupMenuItem<String>(
-                                value: 'myorep',
-                                height: 40,
-                                child: Row(
-                                  children: [
-                                    Icon(
-                                      set.setType == SetType.myorep
-                                          ? Icons.radio_button_checked
-                                          : Icons.radio_button_unchecked,
-                                      color: set.setType == SetType.myorep
-                                          ? context.selectedIndicatorColor
-                                          : Colors.grey,
-                                      size: 20,
-                                    ),
-                                    const SizedBox(width: 12),
-                                    Text(
-                                      'Myorep',
-                                      style: TextStyle(
-                                        color: Theme.of(
-                                          context,
-                                        ).colorScheme.onSurface,
+                                // Regular
+                                PopupMenuItem<String>(
+                                  value: 'regular',
+                                  height: 40,
+                                  child: Row(
+                                    children: [
+                                      Icon(
+                                        set.setType == SetType.regular
+                                            ? Icons.radio_button_checked
+                                            : Icons.radio_button_unchecked,
+                                        color: set.setType == SetType.regular
+                                            ? context.selectedIndicatorColor
+                                            : Colors.grey,
+                                        size: 20,
                                       ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              // Myorep match
-                              PopupMenuItem<String>(
-                                value: 'myorep_match',
-                                height: 40,
-                                child: Row(
-                                  children: [
-                                    Icon(
-                                      set.setType == SetType.myorepMatch
-                                          ? Icons.radio_button_checked
-                                          : Icons.radio_button_unchecked,
-                                      color: set.setType == SetType.myorepMatch
-                                          ? context.selectedIndicatorColor
-                                          : Colors.grey,
-                                      size: 20,
-                                    ),
-                                    const SizedBox(width: 12),
-                                    Text(
-                                      'Myorep match',
-                                      style: TextStyle(
-                                        color: Theme.of(
-                                          context,
-                                        ).colorScheme.onSurface,
+                                      const SizedBox(width: 12),
+                                      Text(
+                                        l10n.setTypeRegular,
+                                        style: TextStyle(
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.onSurface,
+                                        ),
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
-                              ),
-                              // Max reps
-                              PopupMenuItem<String>(
-                                value: 'max_reps',
-                                height: 40,
-                                child: Row(
-                                  children: [
-                                    Icon(
-                                      set.setType == SetType.maxReps
-                                          ? Icons.radio_button_checked
-                                          : Icons.radio_button_unchecked,
-                                      color: set.setType == SetType.maxReps
-                                          ? context.selectedIndicatorColor
-                                          : Colors.grey,
-                                      size: 20,
-                                    ),
-                                    const SizedBox(width: 12),
-                                    Text(
-                                      'Max reps',
-                                      style: TextStyle(
-                                        color: Theme.of(
-                                          context,
-                                        ).colorScheme.onSurface,
+                                // Myorep
+                                PopupMenuItem<String>(
+                                  value: 'myorep',
+                                  height: 40,
+                                  child: Row(
+                                    children: [
+                                      Icon(
+                                        set.setType == SetType.myorep
+                                            ? Icons.radio_button_checked
+                                            : Icons.radio_button_unchecked,
+                                        color: set.setType == SetType.myorep
+                                            ? context.selectedIndicatorColor
+                                            : Colors.grey,
+                                        size: 20,
                                       ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              // End with partials
-                              PopupMenuItem<String>(
-                                value: 'end_with_partials',
-                                height: 40,
-                                child: Row(
-                                  children: [
-                                    Icon(
-                                      set.setType == SetType.endWithPartials
-                                          ? Icons.radio_button_checked
-                                          : Icons.radio_button_unchecked,
-                                      color: set.setType == SetType.endWithPartials
-                                          ? context.selectedIndicatorColor
-                                          : Colors.grey,
-                                      size: 20,
-                                    ),
-                                    const SizedBox(width: 12),
-                                    Text(
-                                      'End with partials',
-                                      style: TextStyle(
-                                        color: Theme.of(
-                                          context,
-                                        ).colorScheme.onSurface,
+                                      const SizedBox(width: 12),
+                                      Text(
+                                        l10n.setTypeMyorep,
+                                        style: TextStyle(
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.onSurface,
+                                        ),
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
-                              ),
-                            ],
+                                // Myorep match
+                                PopupMenuItem<String>(
+                                  value: 'myorep_match',
+                                  height: 40,
+                                  child: Row(
+                                    children: [
+                                      Icon(
+                                        set.setType == SetType.myorepMatch
+                                            ? Icons.radio_button_checked
+                                            : Icons.radio_button_unchecked,
+                                        color: set.setType == SetType.myorepMatch
+                                            ? context.selectedIndicatorColor
+                                            : Colors.grey,
+                                        size: 20,
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Text(
+                                        l10n.setTypeMyorepMatch,
+                                        style: TextStyle(
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.onSurface,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                // Max reps
+                                PopupMenuItem<String>(
+                                  value: 'max_reps',
+                                  height: 40,
+                                  child: Row(
+                                    children: [
+                                      Icon(
+                                        set.setType == SetType.maxReps
+                                            ? Icons.radio_button_checked
+                                            : Icons.radio_button_unchecked,
+                                        color: set.setType == SetType.maxReps
+                                            ? context.selectedIndicatorColor
+                                            : Colors.grey,
+                                        size: 20,
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Text(
+                                        l10n.setTypeMaxReps,
+                                        style: TextStyle(
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.onSurface,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                // End with partials
+                                PopupMenuItem<String>(
+                                  value: 'end_with_partials',
+                                  height: 40,
+                                  child: Row(
+                                    children: [
+                                      Icon(
+                                        set.setType == SetType.endWithPartials
+                                            ? Icons.radio_button_checked
+                                            : Icons.radio_button_unchecked,
+                                        color: set.setType == SetType.endWithPartials
+                                            ? context.selectedIndicatorColor
+                                            : Colors.grey,
+                                        size: 20,
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Text(
+                                        l10n.setTypeEndWithPartials,
+                                        style: TextStyle(
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.onSurface,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ];
+                            },
                           ),
                         ),
 
@@ -1422,7 +1436,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
                                     keyboardAppearance: Brightness.light,
                                     decoration: InputDecoration(
                                       filled: false,
-                                      hintText: 'reps',
+                                      hintText: AppLocalizations.of(context)!.editWorkoutRepsHint,
                                       hintStyle: Theme.of(
                                         context,
                                       ).inputDecorationTheme.hintStyle,
@@ -1622,20 +1636,21 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
     Exercise exercise,
     EditWorkoutController controller,
   ) async {
+    final l10n = AppLocalizations.of(context)!;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Exercise'),
-        content: Text('Are you sure you want to delete "${exercise.name}"?'),
+        title: Text(l10n.editWorkoutDeleteExerciseTitle),
+        content: Text(l10n.editWorkoutDeleteExerciseContent(exercise.name)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, true),
             style: FilledButton.styleFrom(backgroundColor: context.errorColor),
-            child: const Text('Delete'),
+            child: Text(l10n.delete),
           ),
         ],
       ),
@@ -1723,12 +1738,12 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
           ),
           const SizedBox(height: 16),
           Text(
-            'No exercises scheduled',
+            AppLocalizations.of(context)!.editWorkoutNoExercisesTitle,
             style: Theme.of(context).textTheme.headlineSmall,
           ),
           const SizedBox(height: 8),
           Text(
-            'Add exercises for this day',
+            AppLocalizations.of(context)!.editWorkoutNoExercisesSubtitle,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               color: Theme.of(
                 context,
@@ -1740,7 +1755,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
             FilledButton.icon(
               onPressed: () => _showMuscleGroupSelector(context, trainingCycle, controller),
               icon: const Icon(Icons.add),
-              label: const Text('Add Exercise'),
+              label: Text(AppLocalizations.of(context)!.editWorkoutAddExerciseButton),
             ),
           ],
         ],
@@ -1752,21 +1767,22 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
     TrainingCycle trainingCycle,
     EditWorkoutController controller,
   ) async {
+    final l10n = AppLocalizations.of(context)!;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Mirror Period 1'),
+        title: Text(l10n.editWorkoutMirrorTitle),
         content: Text(
-          'Copy all workouts from Period 1 to Period $_selectedPeriod? This will replace any existing workouts for Period $_selectedPeriod.',
+          l10n.editWorkoutMirrorContent(_selectedPeriod),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Mirror'),
+            child: Text(l10n.editWorkoutMirrorAction),
           ),
         ],
       ),
@@ -1782,7 +1798,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Period 1 mirrored to Period $_selectedPeriod'),
+              content: Text(l10n.editWorkoutPeriod1Mirrored(_selectedPeriod)),
               backgroundColor: context.successColor,
             ),
           );
@@ -1791,7 +1807,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Error mirroring period: $e'),
+              content: Text(l10n.editWorkoutMirrorError(e)),
               backgroundColor: context.errorColor,
             ),
           );
@@ -1805,6 +1821,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
     EditWorkoutController controller,
     TrainingCycle trainingCycle,
   ) async {
+    final l10n = AppLocalizations.of(context)!;
     final cycleTerm = ref.read(trainingCycleTermProvider);
     final currentCycles = ref.read(currentTrainingCyclesProvider);
 
@@ -1815,19 +1832,18 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
       final confirmed = await showDialog<bool>(
         context: context,
         builder: (context) => AlertDialog(
-          title: Text('Start $cycleTerm'),
+          title: Text(l10n.editWorkoutStartCycleTitle(cycleTerm)),
           content: Text(
-            'Start "${trainingCycle.name}"? '
-            'This will set it as your current $cycleTerm.',
+            l10n.editWorkoutStartCycleContent(trainingCycle.name, cycleTerm),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, false),
-              child: const Text('Cancel'),
+              child: Text(l10n.cancel),
             ),
             FilledButton(
               onPressed: () => Navigator.pop(context, true),
-              child: const Text('Start'),
+              child: Text(l10n.editWorkoutStartButton),
             ),
           ],
         ),
@@ -1839,23 +1855,22 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
       final result = await showDialog<String>(
         context: context,
         builder: (context) => AlertDialog(
-          title: Text('Start $cycleTerm'),
+          title: Text(l10n.editWorkoutStartCycleTitle(cycleTerm)),
           content: Text(
-            'You have an active $cycleTerm: "$activeNames".\n\n'
-            'How would you like to start "${trainingCycle.name}"?',
+            l10n.editWorkoutStartCycleActiveContent(cycleTerm, activeNames, trainingCycle.name),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, 'cancel'),
-              child: const Text('Cancel'),
+              child: Text(l10n.cancel),
             ),
             OutlinedButton(
               onPressed: () => Navigator.pop(context, 'replace'),
-              child: const Text('Replace current'),
+              child: Text(l10n.editWorkoutStartCycleReplace),
             ),
             FilledButton(
               onPressed: () => Navigator.pop(context, 'stack'),
-              child: const Text('Stack alongside'),
+              child: Text(l10n.editWorkoutStartCycleStack),
             ),
           ],
         ),
@@ -1876,7 +1891,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error: $e'),
+            content: Text(l10n.editWorkoutPeriodAddError(e)),
             backgroundColor: context.errorColor,
           ),
         );
@@ -1928,6 +1943,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
     );
 
     if (result != null && mounted) {
+      final l10n = AppLocalizations.of(context)!;
       try {
         final repository = ref.read(workoutRepositoryProvider);
         final updatedExercise = exercise.copyWith(
@@ -1945,7 +1961,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: const Text('Note saved'),
+              content: Text(l10n.noteSaved),
               backgroundColor: context.successColor,
             ),
           );
@@ -1954,7 +1970,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Error saving note: $e'),
+              content: Text(l10n.noteSaveError(e)),
               backgroundColor: context.errorColor,
             ),
           );
@@ -1973,18 +1989,20 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
       final trainingCycleToExport = trainingCycle.copyWith(workouts: workouts);
       await TemplateExporter.exportToClipboard(trainingCycleToExport);
       if (context.mounted) {
+        final l10n = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('Template JSON copied to clipboard!'),
+            content: Text(l10n.editWorkoutTemplateExported),
             backgroundColor: context.successColor,
           ),
         );
       }
     } catch (e) {
       if (context.mounted) {
+        final l10n = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error exporting template: $e'),
+            content: Text(l10n.editWorkoutTemplateExportError(e)),
             backgroundColor: context.errorColor,
           ),
         );
@@ -2064,7 +2082,7 @@ class _AddCardioChip extends StatelessWidget {
               Icon(Icons.directions_run, size: 16, color: color),
               const SizedBox(width: 6),
               Text(
-                'Add cardio',
+                AppLocalizations.of(context)!.editWorkoutAddCardio,
                 style: Theme.of(context).textTheme.labelLarge?.copyWith(
                   color: color,
                   fontWeight: FontWeight.w600,

@@ -40,6 +40,7 @@ import '../../widgets/dialogs/workout_dialogs.dart';
 import '../../widgets/exercise_card_widget.dart';
 import '../../widgets/rest_timer_widget.dart';
 import '../../widgets/screen_background.dart';
+import '../../../l10n/app_localizations.dart';
 import 'add_exercise_screen.dart';
 
 /// Workout home screen - shows current/upcoming workouts
@@ -445,14 +446,15 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     _invalidateWorkoutProviders();
 
     if (!mounted) return;
+    final l10n = AppLocalizations.of(context)!;
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(
         SnackBar(
-          content: Text('Set ${removedSet.setNumber} deleted'),
+          content: Text(l10n.workoutSetDeleted(removedSet.setNumber)),
           duration: const Duration(seconds: 6),
           action: SnackBarAction(
-            label: 'Undo',
+            label: l10n.undo,
             onPressed: () => _restoreSet(workoutId, exerciseId, setIndex, removedSet),
           ),
         ),
@@ -946,14 +948,15 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     _invalidateWorkoutProviders();
 
     if (!mounted) return;
+    final l10n = AppLocalizations.of(context)!;
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(
         SnackBar(
-          content: Text('${removedExercise.name} deleted'),
+          content: Text(l10n.workoutExerciseDeleted(removedExercise.name)),
           duration: const Duration(seconds: 6),
           action: SnackBarAction(
-            label: 'Undo',
+            label: l10n.undo,
             onPressed: () => _restoreExercise(
               workoutId,
               originalIndex,
@@ -1055,15 +1058,16 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     _invalidateWorkoutProviders();
 
     if (!mounted) return;
+    final l10n = AppLocalizations.of(context)!;
     final label = session.label?.trim().isNotEmpty == true ? session.label! : session.sport.displayName;
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(
         SnackBar(
-          content: Text('$label deleted'),
+          content: Text(l10n.workoutCardioSessionDeleted(label)),
           duration: const Duration(seconds: 6),
           action: SnackBarAction(
-            label: 'Undo',
+            label: l10n.undo,
             onPressed: () => _restoreCardioSession(session),
           ),
         ),
@@ -1197,12 +1201,13 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
 
       if (mounted) {
         final cycleTerm = ref.read(trainingCycleTermProvider);
+        final l10n = AppLocalizations.of(context)!;
         showDialog(
           context: context,
           builder: (context) => AlertDialog(
-            title: Text('$cycleTerm Completed!'),
+            title: Text(l10n.workoutCycleCompletedTitle(cycleTerm)),
             content: Text(
-              'Congratulations! You have finished all workouts in this $cycleTerm.',
+              l10n.workoutCycleCompletedContent(cycleTerm),
             ),
             actions: [
               FilledButton(
@@ -1210,7 +1215,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                   Navigator.pop(context); // Close dialog
                   context.go('/'); // Go back to list screen
                 },
-                child: const Text('AWESOME'),
+                child: Text(l10n.workoutCycleCompletedAction),
               ),
             ],
           ),
@@ -1293,10 +1298,11 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
 
       if (currentPeriod == null) {
         // TrainingCycle hasn't started yet or has ended
+        final l10n = AppLocalizations.of(context)!;
         return _buildEmptyState(
           context,
-          'TrainingCycle Not Active',
-          'The trainingCycle is scheduled for a future date or has ended',
+          l10n.workoutCycleNotActiveTitle,
+          l10n.workoutCycleNotActiveMessage,
         );
       }
 
@@ -1443,6 +1449,8 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
       ];
       final hasAnySessions = allDayWorkouts.isNotEmpty || allDayCardio.isNotEmpty;
 
+      final l10n = AppLocalizations.of(context)!;
+
       return GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),
         child: Scaffold(
@@ -1457,14 +1465,14 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                     workouts: todaysWorkouts,
                     sports: selectedSports,
                   ),
-                  tooltip: 'Add session',
+                  tooltip: l10n.workoutAddSessionTooltip,
                   child: const Icon(Icons.add),
                 ),
           appBar: AppBar(
             elevation: 0,
             automaticallyImplyLeading: false,
             leading: Semantics(
-              label: 'App logo',
+              label: l10n.workoutAppLogoLabel,
               child: const AppIconWidget(),
             ),
             leadingWidth: kToolbarHeight + 12,
@@ -1480,7 +1488,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  'PERIOD $displayPeriod DAY $displayDay $dayName',
+                  l10n.workoutPeriodDayTitle(displayPeriod, displayDay, dayName),
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
@@ -1494,7 +1502,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
               IconButton(
                 icon: const Icon(Icons.calendar_today),
                 onPressed: _togglePeriodSelector,
-                tooltip: 'Select day',
+                tooltip: l10n.workoutSelectDayTooltip,
               ),
               IconButton(
                 icon: Icon(
@@ -1503,13 +1511,13 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                 onPressed: () {
                   ref.read(themeModeProvider.notifier).toggleTheme();
                 },
-                tooltip: 'Toggle theme',
+                tooltip: l10n.toggleThemeTooltip,
               ),
               if (todaysWorkouts.isNotEmpty)
                 Builder(
                   builder: (context) => IconButton(
                     icon: const Icon(Icons.more_vert),
-                    tooltip: 'Workout options',
+                    tooltip: l10n.workoutMenuWorkoutHeader,
                     onPressed: () => _showWorkoutMenu(
                       context,
                       currentTrainingCycle,
@@ -1594,10 +1602,11 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     }
 
     // If no current trainingCycle, show empty state
+    final l10n = AppLocalizations.of(context)!;
     return _buildEmptyState(
       context,
-      'No Active TrainingCycle',
-      'Create and start a trainingCycle to begin',
+      l10n.workoutNoActiveCycleTitle,
+      l10n.workoutNoActiveCycleMessage,
     );
   }
 
@@ -2047,7 +2056,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
       child: SafeArea(
         top: false,
         child: Semantics(
-          label: 'Finish workout',
+          label: AppLocalizations.of(context)!.workoutFinishLabel,
           button: true,
           child: ElevatedButton(
             onPressed: () => _finishWorkout(todaysWorkouts),
@@ -2061,7 +2070,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
               elevation: 0,
             ),
             child: Text(
-              'FINISH WORKOUT',
+              AppLocalizations.of(context)!.workoutFinishButton,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.w600,
                 letterSpacing: 0.5,
@@ -2158,7 +2167,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
 
   Widget _buildEmptyState(BuildContext context, String title, String message) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Session')),
+      appBar: AppBar(title: Text(AppLocalizations.of(context)!.workoutSessionTitle)),
       body: ScreenBackground.workout(
         child: Center(
           child: Column(
@@ -2201,6 +2210,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     int day,
     List<Sport> sports,
   ) {
+    final l10n = AppLocalizations.of(this.context)!;
     final RenderBox button = context.findRenderObject() as RenderBox;
     final RenderBox overlay = Navigator.of(context).overlay!.context.findRenderObject() as RenderBox;
     final Offset buttonPosition = button.localToGlobal(
@@ -2222,50 +2232,50 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       items: <PopupMenuEntry<void>>[
         // TRAINING CYCLE Section
-        _buildMenuHeader('TRAINING CYCLE'),
+        _buildMenuHeader(l10n.workoutMenuTrainingCycleHeader),
         _buildMenuItem(
           icon: Icons.edit_note,
-          text: 'Note',
+          text: l10n.workoutMenuNote,
           onTap: () => _viewTrainingCycleNotes(trainingCycle),
         ),
         _buildMenuItem(
           icon: Icons.summarize_outlined,
-          text: 'Summary',
+          text: l10n.workoutMenuSummary,
           onTap: () => _showTrainingCycleSummary(trainingCycle),
         ),
         _buildMenuItem(
           icon: Icons.edit,
-          text: 'Rename',
+          text: l10n.workoutMenuRename,
           onTap: () => _renameTrainingCycle(trainingCycle),
         ),
         _buildMenuItem(
           icon: Icons.stop_circle_outlined,
-          text: 'End ${ref.watch(trainingCycleTermProvider)}',
+          text: l10n.workoutMenuEndCycle(ref.watch(trainingCycleTermProvider)),
           onTap: () => _endTrainingCycle(trainingCycle),
           color: context.errorColor,
         ),
         const PopupMenuDivider(height: 1),
 
         // WORKOUT Section
-        _buildMenuHeader('WORKOUT'),
+        _buildMenuHeader(l10n.workoutMenuWorkoutHeader),
         _buildMenuItem(
           icon: Icons.edit,
-          text: 'New note',
+          text: l10n.workoutMenuNewNote,
           onTap: () => _newWorkoutNote(workouts),
         ),
         _buildMenuItem(
           icon: Icons.label_outline,
-          text: 'Relabel',
+          text: l10n.workoutMenuRelabel,
           onTap: () => _relabelWorkout(workouts),
         ),
         _buildMenuItem(
           icon: Icons.clear_all,
-          text: 'Clear all day labels',
+          text: l10n.workoutMenuClearDayLabels,
           onTap: () => _clearAllDayNames(trainingCycle),
         ),
         _buildMenuItem(
           icon: Icons.add,
-          text: 'Add session',
+          text: l10n.workoutMenuAddSession,
           onTap: () => _showAddSessionDialog(
             cycleId: trainingCycle.id as String,
             period: period,
@@ -2276,12 +2286,12 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
         ),
         _buildMenuItem(
           icon: Icons.monitor_weight_outlined,
-          text: 'Bodyweight',
+          text: l10n.workoutMenuBodyweight,
           onTap: () => _logBodyweight(),
         ),
         _buildMenuItem(
           icon: Icons.undo,
-          text: 'Reset',
+          text: l10n.workoutMenuReset,
           onTap: () => _resetWorkout(workouts),
           enabled:
               !workouts.any((w) => w.status == WorkoutStatus.completed) &&
@@ -2295,7 +2305,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
         ),
         _buildMenuItem(
           icon: Icons.skip_next,
-          text: 'Skip workout',
+          text: l10n.workoutMenuSkipWorkout,
           onTap: () => _skipWorkout(workouts),
         ),
       ],
@@ -2354,6 +2364,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
 
   // Training Cycle actions
   Future<void> _viewTrainingCycleNotes(dynamic trainingCycle) async {
+    final l10n = AppLocalizations.of(context)!;
     final cycleTerm = ref.read(trainingCycleTermProvider);
     final currentNote = trainingCycle.notes as String?;
 
@@ -2362,8 +2373,8 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
       builder: (context) => NoteDialog(
         initialNote: currentNote,
         noteType: NoteType.trainingCycle,
-        customTitle: '$cycleTerm Note',
-        customHint: 'Enter note for this $cycleTerm...',
+        customTitle: l10n.cycleListNoteDialogTitle(cycleTerm),
+        customHint: l10n.cycleListNoteDialogHint(cycleTerm),
       ),
     );
 
@@ -2378,7 +2389,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: const Text('Note saved'),
+              content: Text(l10n.noteSaved),
               backgroundColor: context.successColor,
             ),
           );
@@ -2387,7 +2398,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Error saving note: $e'),
+              content: Text(l10n.noteSaveError(e)),
               backgroundColor: context.errorColor,
             ),
           );
@@ -2404,6 +2415,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
   }
 
   Future<void> _renameTrainingCycle(dynamic trainingCycle) async {
+    final l10n = AppLocalizations.of(context)!;
     final newName = await showDialog<String>(
       context: context,
       barrierDismissible: false,
@@ -2419,7 +2431,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Renamed to "$newName"'),
+              content: Text(l10n.workoutRenamedTo(newName)),
               backgroundColor: context.successColor,
             ),
           );
@@ -2428,7 +2440,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Error renaming trainingCycle: $e'),
+              content: Text(l10n.workoutRenameError(e)),
               backgroundColor: context.errorColor,
             ),
           );
@@ -2438,22 +2450,23 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
   }
 
   Future<void> _endTrainingCycle(dynamic trainingCycle) async {
+    final l10n = AppLocalizations.of(context)!;
     final cycleTerm = ref.read(trainingCycleTermProvider);
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('End $cycleTerm'),
+        title: Text(l10n.workoutEndCycleTitle(cycleTerm)),
         content: Text(
-          'Are you sure you want to end "${trainingCycle.name}"? This will mark it as completed.',
+          l10n.workoutEndCycleContent(trainingCycle.name),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('CANCEL'),
+            child: Text(l10n.cancelUpper),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, true),
-            child: Text('END ${cycleTerm.toUpperCase()}'),
+            child: Text(l10n.workoutEndCycleAction(cycleTerm)),
           ),
         ],
       ),
@@ -2471,7 +2484,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('"${trainingCycle.name}" completed'),
+              content: Text(l10n.workoutCycleCompleted(trainingCycle.name)),
               backgroundColor: context.successColor,
             ),
           );
@@ -2480,7 +2493,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Error ending trainingCycle: $e'),
+              content: Text(l10n.workoutEndCycleError(e)),
               backgroundColor: context.errorColor,
             ),
           );
@@ -2503,6 +2516,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     );
 
     if (newNote != null && newNote != currentNote && mounted) {
+      final l10n = AppLocalizations.of(context)!;
       try {
         final repository = ref.read(workoutRepositoryProvider);
         final updatedWorkout = workout.copyWith(notes: newNote);
@@ -2511,7 +2525,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: const Text('Note saved'),
+              content: Text(l10n.noteSaved),
               backgroundColor: context.successColor,
             ),
           );
@@ -2520,7 +2534,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Error saving note: $e'),
+              content: Text(l10n.noteSaveError(e)),
               backgroundColor: context.errorColor,
             ),
           );
@@ -2533,7 +2547,8 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     if (workouts.isEmpty) return;
 
     final workout = workouts.first;
-    final currentLabel = workout.dayName ?? 'Day ${workout.dayNumber}';
+    final l10n = AppLocalizations.of(context)!;
+    final currentLabel = workout.dayName ?? '${l10n.editWorkoutDayLabel} ${workout.dayNumber}';
 
     // Debug logging to understand what's being passed in
     debugPrint('=== RELABEL DEBUG ===');
@@ -2579,7 +2594,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(
-                  'Updated label for all Day ${workout.dayNumber} workouts',
+                  l10n.workoutLabelUpdatedForAllDays(workout.dayNumber),
                 ),
                 backgroundColor: context.successColor,
               ),
@@ -2626,7 +2641,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: const Text('Label updated'),
+                content: Text(l10n.workoutLabelUpdated),
                 backgroundColor: context.successColor,
               ),
             );
@@ -2637,7 +2652,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Error updating label: $e'),
+              content: Text(l10n.workoutLabelUpdateError(e)),
               backgroundColor: context.errorColor,
             ),
           );
@@ -2647,24 +2662,23 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
   }
 
   Future<void> _clearAllDayNames(dynamic trainingCycle) async {
+    final l10n = AppLocalizations.of(context)!;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Clear All Day Labels'),
-        content: const Text(
-          'This will remove all custom day labels from workouts in this trainingCycle. '
-          'Day names will be calculated automatically based on the start date.\n\n'
-          'This cannot be undone.',
+        title: Text(l10n.workoutClearDayLabelsTitle),
+        content: Text(
+          l10n.workoutClearDayLabelsContent,
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('CANCEL'),
+            child: Text(l10n.cancelUpper),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, true),
             style: FilledButton.styleFrom(backgroundColor: context.errorColor),
-            child: const Text('CLEAR ALL'),
+            child: Text(l10n.workoutClearDayLabelsAction),
           ),
         ],
       ),
@@ -2692,7 +2706,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: const Text('All day labels cleared'),
+              content: Text(l10n.workoutAllDayLabelsCleared),
               backgroundColor: context.successColor,
             ),
           );
@@ -2702,7 +2716,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Error clearing labels: $e'),
+              content: Text(l10n.workoutClearLabelsError(e)),
               backgroundColor: context.errorColor,
             ),
           );
@@ -2716,17 +2730,18 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
   }
 
   void _resetWorkout(List<Workout> workouts) {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Reset Workout?'),
-        content: const Text(
-          'This will clear all logged sets and entered values for this workout. This action cannot be undone.',
+        title: Text(l10n.workoutResetTitle),
+        content: Text(
+          l10n.workoutResetContent,
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('CANCEL'),
+            child: Text(l10n.cancelUpper),
           ),
           FilledButton(
             onPressed: () async {
@@ -2762,7 +2777,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                 if (!mounted) return;
                 ScaffoldMessenger.of(this.context).showSnackBar(
                   SnackBar(
-                    content: const Text('Workout reset'),
+                    content: Text(l10n.workoutReset),
                     backgroundColor: this.context.successColor,
                   ),
                 );
@@ -2770,14 +2785,14 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                 if (!mounted) return;
                 ScaffoldMessenger.of(this.context).showSnackBar(
                   SnackBar(
-                    content: Text('Error resetting workout: $e'),
+                    content: Text(l10n.workoutResetError(e)),
                     backgroundColor: this.context.errorColor,
                   ),
                 );
               }
             },
             style: FilledButton.styleFrom(backgroundColor: context.errorColor),
-            child: const Text('RESET'),
+            child: Text(l10n.workoutResetAction),
           ),
         ],
       ),
@@ -2851,7 +2866,7 @@ class _CycleSectionHeader extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  'Period $period \u2022 Day $day',
+                  AppLocalizations.of(context)!.workoutCycleSectionPeriodDay(period, day),
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
                   ),

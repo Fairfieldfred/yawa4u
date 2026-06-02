@@ -6,6 +6,7 @@ import '../../../data/models/training_cycle_template.dart';
 import '../../../domain/providers/auth_providers.dart';
 import '../../../domain/providers/community_providers.dart';
 import '../../../domain/providers/template_providers.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../widgets/auth/email_link_prompt.dart';
 import '../../widgets/skeleton_loader.dart';
 
@@ -46,11 +47,12 @@ class _UploadTemplateScreenState extends ConsumerState<UploadTemplateScreen> {
 
   Future<void> _publish() async {
     if (_selectedTemplate == null) return;
+    final l10n = AppLocalizations.of(context)!;
 
     final displayName = _displayNameController.text.trim();
     if (displayName.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter a display name')),
+        SnackBar(content: Text(l10n.uploadEnterDisplayName)),
       );
       return;
     }
@@ -71,7 +73,7 @@ class _UploadTemplateScreenState extends ConsumerState<UploadTemplateScreen> {
           setState(() => _isUploading = false);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: const Text('Not signed in. Please try again.'),
+              content: Text(l10n.uploadNotSignedIn),
               backgroundColor: context.errorColor,
               behavior: SnackBarBehavior.floating,
             ),
@@ -97,7 +99,7 @@ class _UploadTemplateScreenState extends ConsumerState<UploadTemplateScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              '"${_selectedTemplate!.name}" published to the community!',
+              l10n.uploadPublishedToCommunity(_selectedTemplate!.name),
             ),
             backgroundColor: context.successColor,
             behavior: SnackBarBehavior.floating,
@@ -110,7 +112,7 @@ class _UploadTemplateScreenState extends ConsumerState<UploadTemplateScreen> {
         setState(() => _isUploading = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Upload failed: $e'),
+            content: Text(l10n.uploadFailed(e)),
             backgroundColor: context.errorColor,
             behavior: SnackBarBehavior.floating,
           ),
@@ -121,11 +123,12 @@ class _UploadTemplateScreenState extends ConsumerState<UploadTemplateScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final colorScheme = Theme.of(context).colorScheme;
     final templatesAsync = ref.watch(availableTemplatesProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Share a Program'), elevation: 0),
+      appBar: AppBar(title: Text(l10n.uploadShareProgramTitle), elevation: 0),
       body: Column(
         children: [
           Expanded(
@@ -133,7 +136,7 @@ class _UploadTemplateScreenState extends ConsumerState<UploadTemplateScreen> {
               padding: const EdgeInsets.all(16),
               children: [
                 Text(
-                  'Select a program to share with the community.',
+                  l10n.uploadSelectProgramDesc,
                   style: TextStyle(
                     color: colorScheme.onSurfaceVariant,
                     fontSize: 15,
@@ -144,7 +147,7 @@ class _UploadTemplateScreenState extends ConsumerState<UploadTemplateScreen> {
 
                 // Template picker
                 Text(
-                  'Program',
+                  l10n.uploadProgramLabel,
                   style: TextStyle(
                     color: colorScheme.onSurface,
                     fontSize: 16,
@@ -170,7 +173,7 @@ class _UploadTemplateScreenState extends ConsumerState<UploadTemplateScreen> {
                     }
                     if (templates.isEmpty) {
                       return Text(
-                        'No saved programs to share.',
+                        l10n.uploadNoSavedPrograms,
                         style: TextStyle(
                           color: colorScheme.onSurfaceVariant,
                         ),
@@ -217,9 +220,11 @@ class _UploadTemplateScreenState extends ConsumerState<UploadTemplateScreen> {
                                         ),
                                         const SizedBox(height: 2),
                                         Text(
-                                          '${t.periodsTotal} periods, '
-                                          '${t.daysPerPeriod} days/period, '
-                                          '${t.workouts.length} sessions',
+                                          l10n.uploadTemplateSummary(
+                                            t.periodsTotal,
+                                            t.daysPerPeriod,
+                                            t.workouts.length,
+                                          ),
                                           style: TextStyle(
                                             color: colorScheme.onSurfaceVariant,
                                             fontSize: 12,
@@ -237,13 +242,13 @@ class _UploadTemplateScreenState extends ConsumerState<UploadTemplateScreen> {
                     );
                   },
                   loading: () => const SkeletonCardList(itemCount: 2),
-                  error: (e, _) => Text('Error loading templates: $e'),
+                  error: (e, _) => Text(l10n.uploadErrorLoadingTemplates(e)),
                 ),
                 const SizedBox(height: 24),
 
                 // Display name
                 Text(
-                  'Your Display Name',
+                  l10n.uploadDisplayNameLabel,
                   style: TextStyle(
                     color: colorScheme.onSurface,
                     fontSize: 16,
@@ -253,10 +258,10 @@ class _UploadTemplateScreenState extends ConsumerState<UploadTemplateScreen> {
                 const SizedBox(height: 8),
                 TextFormField(
                   controller: _displayNameController,
-                  decoration: const InputDecoration(
-                    hintText: 'How others will see your name',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.person_outline),
+                  decoration: InputDecoration(
+                    hintText: l10n.uploadDisplayNameHint,
+                    border: const OutlineInputBorder(),
+                    prefixIcon: const Icon(Icons.person_outline),
                   ),
                   textCapitalization: TextCapitalization.words,
                 ),
@@ -264,7 +269,7 @@ class _UploadTemplateScreenState extends ConsumerState<UploadTemplateScreen> {
 
                 // Tags
                 Text(
-                  'Tags (optional)',
+                  l10n.uploadTagsLabel,
                   style: TextStyle(
                     color: colorScheme.onSurface,
                     fontSize: 16,
@@ -274,11 +279,11 @@ class _UploadTemplateScreenState extends ConsumerState<UploadTemplateScreen> {
                 const SizedBox(height: 8),
                 TextFormField(
                   controller: _tagsController,
-                  decoration: const InputDecoration(
-                    hintText: 'beginner, strength, 4-week',
-                    helperText: 'Comma-separated tags to help others find your program',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.tag),
+                  decoration: InputDecoration(
+                    hintText: l10n.uploadTemplateTagsHint,
+                    helperText: l10n.uploadTemplateTagsHelper,
+                    border: const OutlineInputBorder(),
+                    prefixIcon: const Icon(Icons.tag),
                   ),
                 ),
               ],
@@ -309,9 +314,9 @@ class _UploadTemplateScreenState extends ConsumerState<UploadTemplateScreen> {
                             color: Colors.white,
                           ),
                         )
-                      : const Text(
-                          'PUBLISH PROGRAM',
-                          style: TextStyle(
+                      : Text(
+                          l10n.uploadPublishProgramButton,
+                          style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                           ),

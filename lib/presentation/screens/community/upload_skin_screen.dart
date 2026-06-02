@@ -8,6 +8,7 @@ import '../../../core/theme/skins/skins.dart';
 import '../../../data/services/theme_image_service.dart';
 import '../../../domain/providers/auth_providers.dart';
 import '../../../domain/providers/community_providers.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../widgets/auth/email_link_prompt.dart';
 
 /// Screen for selecting a local custom skin and publishing it to the
@@ -115,11 +116,12 @@ class _UploadSkinScreenState extends ConsumerState<UploadSkinScreen> {
 
   Future<void> _publish() async {
     if (_selectedSkin == null) return;
+    final l10n = AppLocalizations.of(context)!;
 
     final displayName = _displayNameController.text.trim();
     if (displayName.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter a display name')),
+        SnackBar(content: Text(l10n.uploadEnterDisplayName)),
       );
       return;
     }
@@ -140,7 +142,7 @@ class _UploadSkinScreenState extends ConsumerState<UploadSkinScreen> {
           setState(() => _isUploading = false);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: const Text('Not signed in. Please try again.'),
+              content: Text(l10n.uploadNotSignedIn),
               backgroundColor: context.errorColor,
               behavior: SnackBarBehavior.floating,
             ),
@@ -168,7 +170,7 @@ class _UploadSkinScreenState extends ConsumerState<UploadSkinScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              '"${_selectedSkin!.name}" published to the community!',
+              l10n.uploadPublishedToCommunity(_selectedSkin!.name),
             ),
             backgroundColor: context.successColor,
             behavior: SnackBarBehavior.floating,
@@ -181,7 +183,7 @@ class _UploadSkinScreenState extends ConsumerState<UploadSkinScreen> {
         setState(() => _isUploading = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Upload failed: $e'),
+            content: Text(l10n.uploadFailed(e)),
             backgroundColor: context.errorColor,
             behavior: SnackBarBehavior.floating,
           ),
@@ -192,12 +194,13 @@ class _UploadSkinScreenState extends ConsumerState<UploadSkinScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final colorScheme = Theme.of(context).colorScheme;
     final skinRepo = ref.watch(skinRepositoryProvider);
     final customSkins = skinRepo.getCustomSkins();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Share a Theme'), elevation: 0),
+      appBar: AppBar(title: Text(l10n.uploadShareThemeTitle), elevation: 0),
       body: Column(
         children: [
           Expanded(
@@ -205,7 +208,7 @@ class _UploadSkinScreenState extends ConsumerState<UploadSkinScreen> {
               padding: const EdgeInsets.all(16),
               children: [
                 Text(
-                  'Select a custom theme to share with the community.',
+                  l10n.uploadSelectThemeDesc,
                   style: TextStyle(
                     color: colorScheme.onSurfaceVariant,
                     fontSize: 15,
@@ -216,7 +219,7 @@ class _UploadSkinScreenState extends ConsumerState<UploadSkinScreen> {
 
                 // Skin picker
                 Text(
-                  'Theme',
+                  l10n.uploadThemeLabel,
                   style: TextStyle(
                     color: colorScheme.onSurface,
                     fontSize: 16,
@@ -241,14 +244,14 @@ class _UploadSkinScreenState extends ConsumerState<UploadSkinScreen> {
                         ),
                         const SizedBox(height: 12),
                         Text(
-                          'No custom themes to share.',
+                          l10n.uploadNoCustomThemes,
                           style: TextStyle(
                             color: colorScheme.onSurfaceVariant,
                           ),
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'Create a custom theme in Settings first.',
+                          l10n.uploadCreateCustomThemeHint,
                           style: TextStyle(
                             color: colorScheme.onSurfaceVariant,
                             fontSize: 13,
@@ -322,7 +325,7 @@ class _UploadSkinScreenState extends ConsumerState<UploadSkinScreen> {
 
                 // Display name
                 Text(
-                  'Your Display Name',
+                  l10n.uploadDisplayNameLabel,
                   style: TextStyle(
                     color: colorScheme.onSurface,
                     fontSize: 16,
@@ -332,10 +335,10 @@ class _UploadSkinScreenState extends ConsumerState<UploadSkinScreen> {
                 const SizedBox(height: 8),
                 TextFormField(
                   controller: _displayNameController,
-                  decoration: const InputDecoration(
-                    hintText: 'How others will see your name',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.person_outline),
+                  decoration: InputDecoration(
+                    hintText: l10n.uploadDisplayNameHint,
+                    border: const OutlineInputBorder(),
+                    prefixIcon: const Icon(Icons.person_outline),
                   ),
                   textCapitalization: TextCapitalization.words,
                 ),
@@ -343,7 +346,7 @@ class _UploadSkinScreenState extends ConsumerState<UploadSkinScreen> {
 
                 // Tags
                 Text(
-                  'Tags (optional)',
+                  l10n.uploadTagsLabel,
                   style: TextStyle(
                     color: colorScheme.onSurface,
                     fontSize: 16,
@@ -353,11 +356,11 @@ class _UploadSkinScreenState extends ConsumerState<UploadSkinScreen> {
                 const SizedBox(height: 8),
                 TextFormField(
                   controller: _tagsController,
-                  decoration: const InputDecoration(
-                    hintText: 'dark, minimal, colorful',
-                    helperText: 'Comma-separated tags to help others find your theme',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.tag),
+                  decoration: InputDecoration(
+                    hintText: l10n.uploadThemeTagsHint,
+                    helperText: l10n.uploadThemeTagsHelper,
+                    border: const OutlineInputBorder(),
+                    prefixIcon: const Icon(Icons.tag),
                   ),
                 ),
               ],
@@ -388,9 +391,9 @@ class _UploadSkinScreenState extends ConsumerState<UploadSkinScreen> {
                             color: Colors.white,
                           ),
                         )
-                      : const Text(
-                          'PUBLISH THEME',
-                          style: TextStyle(
+                      : Text(
+                          l10n.uploadPublishThemeButton,
+                          style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                           ),

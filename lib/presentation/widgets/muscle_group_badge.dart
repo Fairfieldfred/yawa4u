@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/constants/muscle_groups.dart';
+import '../../l10n/app_localizations.dart';
 
 /// A reusable badge widget that displays a muscle group indicator.
 ///
@@ -76,12 +77,13 @@ class MuscleGroupBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final isLightMode = Theme.of(context).brightness == Brightness.light;
 
     // Build display text with optional secondary muscle group
     final displayText = secondaryMuscleGroup != null
-        ? '${muscleGroup.displayName} / ${secondaryMuscleGroup!.displayName}'.toUpperCase()
-        : muscleGroup.displayName.toUpperCase();
+        ? '${muscleGroup.localizedName(l10n)} / ${secondaryMuscleGroup!.localizedName(l10n)}'.toUpperCase()
+        : muscleGroup.localizedName(l10n).toUpperCase();
 
     return Positioned(
       top: top,

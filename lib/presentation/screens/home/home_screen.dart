@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/extensions/context_extensions.dart';
 import '../../../domain/providers/navigation_providers.dart';
 import '../../../domain/providers/onboarding_providers.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../widgets/app_icon_widget.dart';
 import '../calendar/calendar_screen.dart';
 import '../training_cycles/cycle_list_screen.dart';
@@ -87,6 +88,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     required int selectedIndex,
     required String cycleTermPlural,
   }) {
+    final l10n = AppLocalizations.of(context)!;
+
     if (isDesktop) {
       return Scaffold(
         body: Row(
@@ -100,25 +103,25 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 child: AppIconWidget(),
               ),
               destinations: [
-                const NavigationRailDestination(
-                  icon: Icon(Icons.play_circle_fill),
-                  label: Text('Session'),
+                NavigationRailDestination(
+                  icon: const Icon(Icons.play_circle_fill),
+                  label: Text(l10n.navSession),
                 ),
                 NavigationRailDestination(
                   icon: const Icon(Icons.analytics),
                   label: Text(cycleTermPlural),
                 ),
-                const NavigationRailDestination(
-                  icon: Icon(Icons.fitness_center),
-                  label: Text('Exercises'),
+                NavigationRailDestination(
+                  icon: const Icon(Icons.fitness_center),
+                  label: Text(l10n.navExercises),
                 ),
-                const NavigationRailDestination(
-                  icon: Icon(Icons.calendar_month),
-                  label: Text('Calendar'),
+                NavigationRailDestination(
+                  icon: const Icon(Icons.calendar_month),
+                  label: Text(l10n.navCalendar),
                 ),
-                const NavigationRailDestination(
-                  icon: Icon(Icons.more_horiz),
-                  label: Text('More'),
+                NavigationRailDestination(
+                  icon: const Icon(Icons.more_horiz),
+                  label: Text(l10n.navMore),
                 ),
               ],
             ),
@@ -140,25 +143,25 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           context,
         ).colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
         items: [
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.play_circle_fill),
-            label: 'Session',
+          BottomNavigationBarItem(
+            icon: const Icon(Icons.play_circle_fill),
+            label: l10n.navSession,
           ),
           BottomNavigationBarItem(
             icon: const Icon(Icons.analytics),
             label: cycleTermPlural,
           ),
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.fitness_center),
-            label: 'Exercises',
+          BottomNavigationBarItem(
+            icon: const Icon(Icons.fitness_center),
+            label: l10n.navExercises,
           ),
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.calendar_month),
-            label: 'Calendar',
+          BottomNavigationBarItem(
+            icon: const Icon(Icons.calendar_month),
+            label: l10n.navCalendar,
           ),
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.more_horiz),
-            label: 'More',
+          BottomNavigationBarItem(
+            icon: const Icon(Icons.more_horiz),
+            label: l10n.navMore,
           ),
         ],
       ),

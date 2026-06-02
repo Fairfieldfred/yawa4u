@@ -1,3 +1,5 @@
+import '../../l10n/app_localizations.dart';
+
 /// Equipment type categories for exercises
 enum EquipmentType {
   barbell,
@@ -39,6 +41,34 @@ extension EquipmentTypeExtension on EquipmentType {
         return 'Smith Machine';
       case EquipmentType.bandAssistance:
         return 'Band Assistance';
+    }
+  }
+
+  /// Localized display name for UI
+  String localizedName(AppLocalizations l10n) {
+    switch (this) {
+      case EquipmentType.barbell:
+        return l10n.equipmentBarbell;
+      case EquipmentType.bodyweightLoadable:
+        return l10n.equipmentBodyweightLoadable;
+      case EquipmentType.bodyweightOnly:
+        return l10n.equipmentBodyweightOnly;
+      case EquipmentType.cable:
+        return l10n.equipmentCable;
+      case EquipmentType.dumbbell:
+        return l10n.equipmentDumbbell;
+      case EquipmentType.freemotion:
+        return l10n.equipmentFreemotion;
+      case EquipmentType.kettlebell:
+        return l10n.equipmentKettlebell;
+      case EquipmentType.machine:
+        return l10n.equipmentMachine;
+      case EquipmentType.machineAssistance:
+        return l10n.equipmentMachineAssistance;
+      case EquipmentType.smithMachine:
+        return l10n.equipmentSmithMachine;
+      case EquipmentType.bandAssistance:
+        return l10n.equipmentBandAssistance;
     }
   }
 
