@@ -20,8 +20,8 @@ if (localPropertiesFile.exists()) {
 }
 
 
-val flutterVersionName = localProperties.getProperty("flutter.versionName") ?: "1.2.0"
-val flutterVersionCode = localProperties.getProperty("flutter.versionCode")?.toInt() ?: 120
+val flutterVersionName = localProperties.getProperty("flutter.versionName") ?: "1.2.2"
+val flutterVersionCode = localProperties.getProperty("flutter.versionCode")?.toInt() ?: 122
 val flutterMinSdkVersion = localProperties.getProperty("flutter.minSdkVersion")?.toInt() ?: 26
 val flutterTargetSdkVersion = localProperties.getProperty("flutter.targetSdkVersion")?.toInt() ?: 35
 
