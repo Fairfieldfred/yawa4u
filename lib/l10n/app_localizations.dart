@@ -4704,6 +4704,30 @@ abstract class AppLocalizations {
   /// **'Go Back'**
   String get syncGoBack;
 
+  /// No description provided for @pasteCodeButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter Code Manually'**
+  String get pasteCodeButton;
+
+  /// No description provided for @pasteCodeDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter Connection Code'**
+  String get pasteCodeDialogTitle;
+
+  /// No description provided for @pasteCodeDialogHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste the code shown on the other device'**
+  String get pasteCodeDialogHint;
+
+  /// No description provided for @pasteCodeDialogConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect'**
+  String get pasteCodeDialogConfirm;
+
   /// No description provided for @syncConnectedTo.
   ///
   /// In en, this message translates to:

@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 import '../../../core/theme/skins/skins.dart';
@@ -10,6 +9,7 @@ import '../../../data/services/data_backup_service.dart';
 import '../../../data/services/wifi_sync_service.dart';
 import '../../../domain/providers/sync_providers.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../widgets/qr_scanner_view.dart';
 
 /// Screen for WiFi-based sync between devices
 class SyncScreen extends ConsumerStatefulWidget {
@@ -26,7 +26,6 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
   String? _errorMessage;
   bool _isLoading = false;
   bool _isScanning = false;
-  MobileScannerController? _scannerController;
 
   // Store reference to sync service for safe disposal
   late final WifiSyncService _syncService;
@@ -40,10 +39,8 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
 
   @override
   void dispose() {
-    // Stop scanner and server when leaving screen
-    // Note: We can't await in dispose, but stop() helps release resources
-    _scannerController?.stop();
-    _scannerController?.dispose();
+    // Stop server when leaving screen. The QR scanner manages its own camera
+    // lifecycle, so there's nothing scanner-related to tear down here.
     _syncService.stopServer();
     super.dispose();
   }
@@ -77,42 +74,28 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
     });
   }
 
-  Future<void> _startScanning() async {
-    // Stop and dispose old controller properly
-    if (_scannerController != null) {
-      await _scannerController!.stop();
-      await _scannerController!.dispose();
-      _scannerController = null;
-    }
-
-    // Create new controller with autoStart disabled
-    _scannerController = MobileScannerController(
-      detectionSpeed: DetectionSpeed.normal,
-      facing: CameraFacing.back,
-      autoStart: false,
-    );
-
+  void _startScanning() {
     setState(() {
       _isScanning = true;
     });
+  }
 
-    // Start the scanner after setState completes
-    await Future.delayed(const Duration(milliseconds: 100));
-    try {
-      await _scannerController?.start();
-    } catch (e) {
-      debugPrint('Scanner start error: $e');
+  /// Camera-free entry point: paste the connection code shown on the host.
+  Future<void> _pasteCode() async {
+    final l10n = AppLocalizations.of(context)!;
+    final code = await showPasteConnectionCodeDialog(
+      context,
+      title: l10n.pasteCodeDialogTitle,
+      hint: l10n.pasteCodeDialogHint,
+      confirmLabel: l10n.pasteCodeDialogConfirm,
+      cancelLabel: l10n.cancel,
+    );
+    if (code != null) {
+      await _onQRCodeScanned(code);
     }
   }
 
   Future<void> _onQRCodeScanned(String code) async {
-    // Stop and dispose scanner controller properly
-    if (_scannerController != null) {
-      await _scannerController!.stop();
-      await _scannerController!.dispose();
-      _scannerController = null;
-    }
-
     setState(() {
       _isScanning = false;
       _isLoading = true;
@@ -340,11 +323,25 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
             ),
             const SizedBox(height: 16),
 
-            // Scan QR code (mobile only, or desktop with camera)
+            // Scan QR code (camera-capable platforms: iOS / Android)
+            if (canScanQrWithCamera) ...[
+              OutlinedButton.icon(
+                onPressed: _startScanning,
+                icon: const Icon(Icons.qr_code_scanner),
+                label: Text(l10n.syncScanQrButton),
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                ),
+              ),
+              const SizedBox(height: 16),
+            ],
+
+            // Manual paste fallback (always available; the only receive path
+            // on desktop / web and the iOS simulator).
             OutlinedButton.icon(
-              onPressed: _startScanning,
-              icon: const Icon(Icons.qr_code_scanner),
-              label: Text(l10n.syncScanQrButton),
+              onPressed: _pasteCode,
+              icon: const Icon(Icons.keyboard),
+              label: Text(l10n.pasteCodeButton),
               style: OutlinedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 16),
               ),
@@ -432,90 +429,10 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
   }
 
   Widget _buildScanner() {
-    // Controller should already be created by _startScanning()
-    if (_scannerController == null) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
-    return Stack(
-      children: [
-        MobileScanner(
-          controller: _scannerController,
-          errorBuilder: (context, error, child) {
-            final l10n = AppLocalizations.of(context)!;
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.error_outline,
-                      size: 64,
-                      color: context.errorColor,
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      l10n.syncCameraError,
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      error.errorDetails?.message ?? l10n.syncCameraAccessFailed,
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 16),
-                    ElevatedButton(
-                      onPressed: () => setState(() => _isScanning = false),
-                      child: Text(l10n.syncGoBack),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
-          onDetect: (capture) {
-            final List<Barcode> barcodes = capture.barcodes;
-            for (final barcode in barcodes) {
-              if (barcode.rawValue != null) {
-                // Stop the scanner before processing
-                _scannerController?.stop();
-                _onQRCodeScanned(barcode.rawValue!);
-                return;
-              }
-            }
-          },
-        ),
-        Positioned(
-          top: 16,
-          left: 16,
-          child: IconButton(
-            icon: const Icon(Icons.close, color: Colors.white),
-            onPressed: () async {
-              if (_scannerController != null) {
-                await _scannerController!.stop();
-                await _scannerController!.dispose();
-                _scannerController = null;
-              }
-              setState(() {
-                _isScanning = false;
-              });
-            },
-          ),
-        ),
-        Positioned(
-          bottom: 48,
-          left: 0,
-          right: 0,
-          child: Text(
-            AppLocalizations.of(context)!.syncScannerPrompt,
-            style: Theme.of(
-              context,
-            ).textTheme.titleMedium?.copyWith(color: Colors.white),
-            textAlign: TextAlign.center,
-          ),
-        ),
-      ],
+    return QrScannerView(
+      promptText: AppLocalizations.of(context)!.syncScannerPrompt,
+      onClose: () => setState(() => _isScanning = false),
+      onCode: _onQRCodeScanned,
     );
   }
 

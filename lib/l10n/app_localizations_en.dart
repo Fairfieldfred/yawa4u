@@ -2691,6 +2691,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get syncGoBack => 'Go Back';
 
   @override
+  String get pasteCodeButton => 'Enter Code Manually';
+
+  @override
+  String get pasteCodeDialogTitle => 'Enter Connection Code';
+
+  @override
+  String get pasteCodeDialogHint => 'Paste the code shown on the other device';
+
+  @override
+  String get pasteCodeDialogConfirm => 'Connect';
+
+  @override
   String get syncConnectedTo => 'Connected to';
 
   @override

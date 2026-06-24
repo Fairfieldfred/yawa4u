@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 import '../../../core/theme/skins/skins.dart';
 import '../../../data/services/skin_share_service.dart';
 import '../../../domain/providers/skin_share_providers.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../widgets/qr_scanner_view.dart';
 
 /// Screen for sharing themes/skins via WiFi with QR code
 class SkinShareScreen extends ConsumerStatefulWidget {
@@ -39,7 +39,6 @@ class _SkinShareScreenState extends ConsumerState<SkinShareScreen> {
   String? _errorMessage;
   bool _isLoading = false;
   bool _isScanning = false;
-  MobileScannerController? _scannerController;
 
   // Store reference to share service for safe disposal
   late final SkinShareService _shareService;
@@ -74,10 +73,8 @@ class _SkinShareScreenState extends ConsumerState<SkinShareScreen> {
 
   @override
   void dispose() {
-    // Stop scanner and server when leaving screen
-    // Note: We can't await in dispose, but stop() helps release resources
-    _scannerController?.stop();
-    _scannerController?.dispose();
+    // Stop server when leaving screen. The QR scanner manages its own camera
+    // lifecycle, so there's nothing scanner-related to tear down here.
     _shareService.stopServer();
     super.dispose();
   }
@@ -111,42 +108,28 @@ class _SkinShareScreenState extends ConsumerState<SkinShareScreen> {
     });
   }
 
-  Future<void> _startScanning() async {
-    // Stop and dispose old controller properly
-    if (_scannerController != null) {
-      await _scannerController!.stop();
-      await _scannerController!.dispose();
-      _scannerController = null;
-    }
-
-    // Create new controller with autoStart disabled
-    _scannerController = MobileScannerController(
-      detectionSpeed: DetectionSpeed.normal,
-      facing: CameraFacing.back,
-      autoStart: false,
-    );
-
+  void _startScanning() {
     setState(() {
       _isScanning = true;
     });
+  }
 
-    // Start the scanner after setState completes
-    await Future.delayed(const Duration(milliseconds: 100));
-    try {
-      await _scannerController?.start();
-    } catch (e) {
-      debugPrint('Scanner start error: $e');
+  /// Camera-free entry point: paste the connection code shown on the host.
+  Future<void> _pasteCode() async {
+    final l10n = AppLocalizations.of(context)!;
+    final code = await showPasteConnectionCodeDialog(
+      context,
+      title: l10n.pasteCodeDialogTitle,
+      hint: l10n.pasteCodeDialogHint,
+      confirmLabel: l10n.pasteCodeDialogConfirm,
+      cancelLabel: l10n.cancel,
+    );
+    if (code != null) {
+      await _onQRCodeScanned(code);
     }
   }
 
   Future<void> _onQRCodeScanned(String code) async {
-    // Stop and dispose scanner controller properly
-    if (_scannerController != null) {
-      await _scannerController!.stop();
-      await _scannerController!.dispose();
-      _scannerController = null;
-    }
-
     setState(() {
       _isScanning = false;
       _isLoading = true;
@@ -282,11 +265,22 @@ class _SkinShareScreenState extends ConsumerState<SkinShareScreen> {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 24),
-              // Still allow scanning to receive
+              // Still allow receiving: scan (camera platforms) and/or paste.
+              if (canScanQrWithCamera) ...[
+                OutlinedButton.icon(
+                  onPressed: _isLoading ? null : _startScanning,
+                  icon: const Icon(Icons.qr_code_scanner),
+                  label: Text(l10n.skinShareScanQrButton),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: Theme.of(context).brightness == Brightness.dark ? Colors.white : null,
+                  ),
+                ),
+                const SizedBox(height: 12),
+              ],
               OutlinedButton.icon(
-                onPressed: _isLoading ? null : _startScanning,
-                icon: const Icon(Icons.qr_code_scanner),
-                label: Text(l10n.skinShareScanQrButton),
+                onPressed: _isLoading ? null : _pasteCode,
+                icon: const Icon(Icons.keyboard),
+                label: Text(l10n.pasteCodeButton),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: Theme.of(context).brightness == Brightness.dark ? Colors.white : null,
                 ),
@@ -341,13 +335,27 @@ class _SkinShareScreenState extends ConsumerState<SkinShareScreen> {
             ),
           ),
 
-        // Scan button to receive themes
+        // Receive themes: scan (camera platforms) and/or paste a code.
+        if (canScanQrWithCamera)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: OutlinedButton.icon(
+              onPressed: _isLoading ? null : _startScanning,
+              icon: const Icon(Icons.qr_code_scanner),
+              label: Text(l10n.skinShareScanQrButton),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: Theme.of(context).brightness == Brightness.dark ? Colors.white : null,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                minimumSize: const Size(double.infinity, 48),
+              ),
+            ),
+          ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: OutlinedButton.icon(
-            onPressed: _isLoading ? null : _startScanning,
-            icon: const Icon(Icons.qr_code_scanner),
-            label: Text(l10n.skinShareScanQrButton),
+            onPressed: _isLoading ? null : _pasteCode,
+            icon: const Icon(Icons.keyboard),
+            label: Text(l10n.pasteCodeButton),
             style: OutlinedButton.styleFrom(
               foregroundColor: Theme.of(context).brightness == Brightness.dark ? Colors.white : null,
               padding: const EdgeInsets.symmetric(vertical: 12),
@@ -628,89 +636,10 @@ class _SkinShareScreenState extends ConsumerState<SkinShareScreen> {
   }
 
   Widget _buildScanner() {
-    // Controller should already be created by _startScanning()
-    if (_scannerController == null) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
-    return Stack(
-      children: [
-        MobileScanner(
-          controller: _scannerController,
-          errorBuilder: (context, error, child) {
-            final l10n = AppLocalizations.of(context)!;
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.error_outline,
-                      size: 64,
-                      color: Theme.of(context).colorScheme.error,
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      l10n.skinShareCameraError,
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      error.errorDetails?.message ?? l10n.skinShareCameraAccessFailed,
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 16),
-                    ElevatedButton(
-                      onPressed: () => setState(() => _isScanning = false),
-                      child: Text(l10n.skinShareGoBack),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
-          onDetect: (capture) {
-            final List<Barcode> barcodes = capture.barcodes;
-            for (final barcode in barcodes) {
-              if (barcode.rawValue != null) {
-                _scannerController?.stop();
-                _onQRCodeScanned(barcode.rawValue!);
-                return;
-              }
-            }
-          },
-        ),
-        Positioned(
-          top: 16,
-          left: 16,
-          child: IconButton(
-            icon: const Icon(Icons.close, color: Colors.white),
-            onPressed: () async {
-              if (_scannerController != null) {
-                await _scannerController!.stop();
-                await _scannerController!.dispose();
-                _scannerController = null;
-              }
-              setState(() {
-                _isScanning = false;
-              });
-            },
-          ),
-        ),
-        Positioned(
-          bottom: 48,
-          left: 0,
-          right: 0,
-          child: Text(
-            AppLocalizations.of(context)!.skinShareScannerPrompt,
-            style: Theme.of(
-              context,
-            ).textTheme.titleMedium?.copyWith(color: Colors.white),
-            textAlign: TextAlign.center,
-          ),
-        ),
-      ],
+    return QrScannerView(
+      promptText: AppLocalizations.of(context)!.skinShareScannerPrompt,
+      onClose: () => setState(() => _isScanning = false),
+      onCode: _onQRCodeScanned,
     );
   }
 
