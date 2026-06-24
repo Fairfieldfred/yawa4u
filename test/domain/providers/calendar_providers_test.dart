@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:yawa4u/core/constants/enums.dart';
+import 'package:yawa4u/core/utils/date_helpers.dart';
 import 'package:yawa4u/domain/providers/calendar_providers.dart';
 
 import '../../helpers/test_fixtures.dart';
@@ -116,13 +117,13 @@ void main() {
       expect(june1.hasWorkout, isFalse);
     });
 
-    test('returns empty list when cycle is null in calendarDataProvider', () {
+    test('returns empty map when no active cycle in calendarMonthDataProvider', () {
       // Test the provider with no current cycle
       final container = ProviderContainer();
       addTearDown(container.dispose);
 
       final data = container.read(
-        calendarDataProvider(DateTime(2024, 6)),
+        calendarMonthDataProvider(DateTime(2024, 6)),
       );
       expect(data, isEmpty);
     });
@@ -263,6 +264,141 @@ void main() {
       final cleared = state.clear();
       expect(cleared.cycleId, isNull);
       expect(cleared.snapshot, isNull);
+    });
+  });
+
+  group('selectedPeriodDay / currentPeriodDay', () {
+    test('selectedPeriodDay maps a date to the cycle slot', () {
+      final cycle = TestFixtures.createTrainingCycle(
+        id: 'c1',
+        periodsTotal: 4,
+        daysPerPeriod: 7,
+        startDate: DateTime(2025, 1, 1),
+      );
+      expect(
+        selectedPeriodDay(cycle, const [], DateTime(2025, 1, 10)),
+        (period: 2, day: 3),
+      );
+    });
+
+    test('selectedPeriodDay returns null outside the cycle', () {
+      final cycle = TestFixtures.createTrainingCycle(
+        id: 'c1',
+        periodsTotal: 1,
+        daysPerPeriod: 7,
+        startDate: DateTime(2025, 1, 1),
+      );
+      expect(selectedPeriodDay(cycle, const [], DateTime(2025, 6, 1)), isNull);
+    });
+
+    test('selectedPeriodDay returns null when cycle has no start date', () {
+      final cycle = TestFixtures.createTrainingCycle(id: 'c1');
+      expect(selectedPeriodDay(cycle, const [], DateTime(2025, 1, 1)), isNull);
+    });
+
+    test('currentPeriodDay returns today\'s slot', () {
+      final today = DateHelpers.stripTime(DateTime.now());
+      final start = today.subtract(const Duration(days: 9));
+      final cycle = TestFixtures.createTrainingCycle(
+        id: 'c1',
+        periodsTotal: 4,
+        daysPerPeriod: 7,
+        startDate: start,
+      );
+      expect(currentPeriodDay(cycle, const []), (period: 2, day: 3));
+    });
+  });
+
+  group('dateForPeriodDay', () {
+    test('inverts a slot via the contiguous formula', () {
+      final cycle = TestFixtures.createTrainingCycle(
+        id: 'c1',
+        periodsTotal: 4,
+        daysPerPeriod: 7,
+        startDate: DateTime(2025, 1, 1),
+      );
+      expect(dateForPeriodDay(cycle, const [], 2, 3), DateTime(2025, 1, 10));
+    });
+
+    test('uses a workout scheduledDate override when present', () {
+      final cycle = TestFixtures.createTrainingCycle(
+        id: 'c1',
+        periodsTotal: 4,
+        daysPerPeriod: 7,
+        startDate: DateTime(2025, 1, 1),
+      );
+      final workouts = [
+        TestFixtures.createWorkout(
+          id: 'w1',
+          trainingCycleId: 'c1',
+          periodNumber: 1,
+          dayNumber: 2,
+          scheduledDate: DateTime(2025, 1, 5),
+        ),
+      ];
+      expect(dateForPeriodDay(cycle, workouts, 1, 2), DateTime(2025, 1, 5));
+    });
+  });
+
+  group('mergeDayData', () {
+    test('appends one segment per cycle preserving each period/day', () {
+      final primary = CalendarDayData(
+        date: DateTime(2025, 1, 10),
+        periodNumber: 2,
+        dayNumber: 3,
+        segments: const [
+          CycleDaySegment(
+            cycleId: 'c1',
+            cycleName: 'A',
+            periodNumber: 2,
+            dayNumber: 3,
+          ),
+        ],
+      );
+      final secondary = CalendarDayData(
+        date: DateTime(2025, 1, 10),
+        periodNumber: 1,
+        dayNumber: 5,
+        segments: const [
+          CycleDaySegment(
+            cycleId: 'c2',
+            cycleName: 'B',
+            periodNumber: 1,
+            dayNumber: 5,
+          ),
+        ],
+      );
+
+      final merged = mergeDayData(primary, secondary);
+
+      expect(merged.segments, hasLength(2));
+      // Primary's label is kept for the month-grid cell.
+      expect(merged.periodNumber, 2);
+      expect(merged.segments[0].cycleName, 'A');
+      expect(merged.segments[1].cycleName, 'B');
+      expect(merged.segments[1].periodNumber, 1);
+      expect(merged.segments[1].dayNumber, 5);
+    });
+
+    test('does not duplicate a segment for the same cycle', () {
+      final segment = const CycleDaySegment(
+        cycleId: 'c1',
+        cycleName: 'A',
+        periodNumber: 1,
+        dayNumber: 1,
+      );
+      final primary = CalendarDayData(
+        date: DateTime(2025, 1, 1),
+        segments: [segment],
+      );
+      final secondary = CalendarDayData(
+        date: DateTime(2025, 1, 1),
+        segments: [segment],
+      );
+
+      final merged = mergeDayData(primary, secondary);
+
+      expect(merged.segments, hasLength(1));
     });
   });
 }

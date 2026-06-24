@@ -20,6 +20,7 @@ import '../../../data/models/session.dart';
 import '../../../data/models/training_cycle.dart';
 import '../../../data/models/workout.dart';
 import '../../../domain/controllers/workout_home_controller.dart';
+import '../../../domain/providers/calendar_providers.dart';
 import '../../../domain/providers/database_providers.dart';
 import '../../../domain/providers/exercise_providers.dart';
 import '../../../domain/providers/onboarding_providers.dart';
@@ -573,8 +574,11 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
       workoutsByTrainingCycleListProvider(trainingCycle.id),
     );
 
-    final displayPeriod = _homeState.selectedPeriod ?? 1;
-    final displayDay = _homeState.selectedDay ?? 1;
+    final selectedDate = ref.read(selectedWorkoutDateProvider);
+    final slot =
+        selectedPeriodDay(trainingCycle, allWorkouts, selectedDate) ?? currentPeriodDay(trainingCycle, allWorkouts);
+    final displayPeriod = slot?.period ?? 1;
+    final displayDay = slot?.day ?? 1;
 
     // Get workouts for current day
     final dayWorkouts = allWorkouts
@@ -1241,16 +1245,14 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     _controller.navigateToNextDay(nextPeriod, nextDay);
   }
 
-  /// Compute (period, day) for a given cycle based on its own start date.
-  (int, int) _currentDayForCycle(TrainingCycle cycle) {
-    if (cycle.startDate == null) return (1, 1);
-    final daysSinceStart = DateTime.now().difference(cycle.startDate!).inDays;
-    final period = (daysSinceStart ~/ cycle.daysPerPeriod) + 1;
-    final day = (daysSinceStart % cycle.daysPerPeriod) + 1;
-    return (
-      period.clamp(1, cycle.periodsTotal).toInt(),
-      day.clamp(1, cycle.daysPerPeriod).toInt(),
-    );
+  /// Compute the displayed (period, day) for a stacked cycle, following the
+  /// shared selected date (falling back to that cycle's today slot when the
+  /// selected date falls outside the cycle).
+  (int, int) _displayDayForCycle(TrainingCycle cycle) {
+    final workouts = _cachedWorkoutsPerCycle[cycle.id] ?? const <Workout>[];
+    final selectedDate = ref.read(selectedWorkoutDateProvider);
+    final slot = selectedPeriodDay(cycle, workouts, selectedDate) ?? currentPeriodDay(cycle, workouts);
+    return slot != null ? (slot.period, slot.day) : (1, 1);
   }
 
   @override
@@ -1294,9 +1296,11 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
         return _buildEmptyState(context, currentTrainingCycle.name, '');
       }
 
-      final currentPeriod = currentTrainingCycle.getCurrentPeriod();
+      // Canonical "today" slot for the primary cycle (date-based, shared with
+      // the Calendar screen). Null means the cycle hasn't started or has ended.
+      final current = currentPeriodDay(currentTrainingCycle, allWorkouts);
 
-      if (currentPeriod == null) {
+      if (current == null) {
         // TrainingCycle hasn't started yet or has ended
         final l10n = AppLocalizations.of(context)!;
         return _buildEmptyState(
@@ -1306,39 +1310,15 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
         );
       }
 
-      // Use selected period/day if available, otherwise find first incomplete workout
-      int displayPeriod;
-      int displayDay;
+      final currentPeriod = current.period;
+      final currentDay = current.day;
 
-      if (_homeState.selectedPeriod != null && _homeState.selectedDay != null) {
-        // User has manually selected a specific workout (or we locked it in)
-        displayPeriod = _homeState.selectedPeriod!;
-        displayDay = _homeState.selectedDay!;
-      } else {
-        // Find first incomplete workout
-        final firstIncomplete = findFirstIncompleteWorkout(allWorkouts);
-        if (firstIncomplete != null) {
-          displayPeriod = firstIncomplete.$1;
-          displayDay = firstIncomplete.$2;
-        } else {
-          // All workouts complete, fall back to current period/day
-          displayPeriod = currentPeriod;
-          displayDay = (() {
-            final daysSinceStart = DateTime.now().difference(currentTrainingCycle.startDate!).inDays;
-            final daysSincePeriodStart = daysSinceStart % currentTrainingCycle.daysPerPeriod;
-            return (daysSincePeriodStart + 1).clamp(
-              1,
-              currentTrainingCycle.daysPerPeriod,
-            );
-          })();
-        }
-
-        // Lock in the selected day so we don't auto-navigate on rebuild
-        // This ensures user stays on current day until they press "Finish Workout"
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          _controller.selectDay(displayPeriod, displayDay);
-        });
-      }
+      // The displayed day follows the shared selected date; fall back to today
+      // when the selected date is outside this cycle.
+      final selectedDate = ref.watch(selectedWorkoutDateProvider);
+      final selected = selectedPeriodDay(currentTrainingCycle, allWorkouts, selectedDate) ?? current;
+      final displayPeriod = selected.period;
+      final displayDay = selected.day;
 
       debugPrint('Display period: $displayPeriod, Display day: $displayDay');
 
@@ -1355,7 +1335,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
       final secondaryCycleWorkouts = <TrainingCycle, List<Workout>>{};
       final secondaryCycleCardio = <TrainingCycle, List<CardioSession>>{};
       for (final cycle in currentCycles.skip(1)) {
-        final (secPeriod, secDay) = _currentDayForCycle(cycle);
+        final (secPeriod, secDay) = _displayDayForCycle(cycle);
         final secWorkouts = (_cachedWorkoutsPerCycle[cycle.id] ?? <Workout>[])
             .where(
               (w) => w.periodNumber == secPeriod && w.dayNumber == secDay,
@@ -1586,7 +1566,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
                     child: CalendarDropdown(
                       trainingCycle: currentTrainingCycle,
                       currentPeriod: currentPeriod,
-                      currentDay: displayDay,
+                      currentDay: currentDay,
                       selectedPeriod: displayPeriod,
                       selectedDay: displayDay,
                       allWorkouts: allWorkouts,
@@ -1687,7 +1667,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
       final cardio = secondaryCycleCardio[cycle] ?? [];
       if (workouts.isEmpty && cardio.isEmpty) continue;
 
-      final (secPeriod, secDay) = _currentDayForCycle(cycle);
+      final (secPeriod, secDay) = _displayDayForCycle(cycle);
       slivers.add(const SliverToBoxAdapter(child: SizedBox(height: 24)));
       slivers.add(
         SliverToBoxAdapter(

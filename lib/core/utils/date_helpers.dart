@@ -280,9 +280,50 @@ class DateHelpers {
     DateTime? scheduledDate,
   }) {
     if (scheduledDate != null) return stripTime(scheduledDate);
-    final absoluteDayIndex =
-        (periodNumber - 1) * daysPerPeriod + (dayNumber - 1);
+    final absoluteDayIndex = (periodNumber - 1) * daysPerPeriod + (dayNumber - 1);
     return addDays(stripTime(cycleStart), absoluteDayIndex);
+  }
+
+  /// Find the (period, day) slot that maps to a given calendar [date].
+  ///
+  /// This is the inverse of [buildPeriodDayDateMap]: it builds the
+  /// schedule-aware date map and looks up the slot whose effective date
+  /// matches [date], so callers get the same answer the calendar uses
+  /// (respecting inserted rest days via [scheduledDates]).
+  ///
+  /// When [date] is not an exact slot date (e.g. an inserted gap), falls
+  /// back to the contiguous formula. Returns `null` when [date] is before
+  /// the cycle start or beyond [periodsTotal].
+  static ({int period, int day})? periodDayForDate({
+    required DateTime cycleStart,
+    required int daysPerPeriod,
+    required int periodsTotal,
+    required DateTime date,
+    Map<(int, int), DateTime> scheduledDates = const {},
+  }) {
+    final stripped = stripTime(date);
+    final start = stripTime(cycleStart);
+    if (stripped.isBefore(start)) return null;
+
+    // Exact slot match (honors schedule shifts).
+    final dateMap = buildPeriodDayDateMap(
+      cycleStart: start,
+      daysPerPeriod: daysPerPeriod,
+      periodsTotal: periodsTotal,
+      scheduledDates: scheduledDates,
+    );
+    for (var p = 1; p <= periodsTotal; p++) {
+      for (var d = 1; d <= daysPerPeriod; d++) {
+        if (dateMap[(p, d)] == stripped) return (period: p, day: d);
+      }
+    }
+
+    // Contiguous fallback for non-slot dates within the cycle range.
+    final daysFromStart = daysBetween(start, stripped);
+    final period = (daysFromStart ~/ daysPerPeriod) + 1;
+    if (period < 1 || period > periodsTotal) return null;
+    final day = (daysFromStart % daysPerPeriod) + 1;
+    return (period: period, day: day);
   }
 
   /// Compute the maximum [dayNumber] observed in each period.

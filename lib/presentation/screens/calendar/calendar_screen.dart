@@ -10,8 +10,8 @@ import '../../../l10n/app_localizations.dart';
 import '../../widgets/empty_state_widget.dart';
 import '../../../core/theme/skins/skins.dart';
 import '../../../core/utils/date_helpers.dart';
-import '../../../domain/controllers/workout_home_controller.dart';
 import '../../../core/constants/enums.dart';
+import '../../../core/constants/muscle_groups.dart';
 import '../../../core/constants/sports.dart';
 import '../../../data/models/session.dart';
 import '../../../data/models/training_cycle.dart';
@@ -19,7 +19,6 @@ import '../../../data/models/workout.dart';
 import '../../../domain/providers/database_providers.dart';
 import '../../../domain/providers/calendar_providers.dart';
 import '../../../domain/providers/navigation_providers.dart';
-import '../../../domain/providers/session_providers.dart';
 import '../../../domain/providers/theme_provider.dart';
 import '../../../domain/providers/training_cycle_providers.dart';
 import '../../../domain/providers/workout_providers.dart';
@@ -60,6 +59,11 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     final l10n = AppLocalizations.of(context)!;
     final currentCycles = ref.watch(currentTrainingCyclesProvider);
     final currentTrainingCycle = currentCycles.isEmpty ? null : currentCycles.first;
+
+    // Mirror the shared selected-date so the Calendar stays in lockstep with
+    // the Workout/Exercises screens (which read the same provider). All writes
+    // go through selectedWorkoutDateProvider.notifier.selectDate(...).
+    _selectedDay = ref.watch(selectedWorkoutDateProvider);
 
     return ScreenBackground(
       child: Scaffold(
@@ -103,81 +107,9 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
   ) {
     final primaryCycle = allCycles.first;
 
-    // Build calendar data for current month and adjacent months
-    // to handle overflow days shown in calendar view
-    final currentMonth = DateTime(_focusedDay.year, _focusedDay.month, 1);
-    final prevMonth = DateTime(_focusedDay.year, _focusedDay.month - 1, 1);
-    final nextMonth = DateTime(_focusedDay.year, _focusedDay.month + 1, 1);
-
-    // Load date-range sessions for the 3-month window so imports
-    // (HealthKit / Strava) and cycle-attached cardio appear on calendar.
-    final rangeStart = prevMonth;
-    final rangeEnd = DateTime(
-      _focusedDay.year,
-      _focusedDay.month + 2,
-      0,
-      23,
-      59,
-      59,
-    );
-    final sessionsAsync = ref.watch(
-      sessionsInDateRangeProvider((start: rangeStart, end: rangeEnd)),
-    );
-    final dateRangeSessions = sessionsAsync.value ?? const <Session>[];
-
-    // Build calendar data for the primary cycle first.
-    final primaryWorkouts = ref.watch(
-      workoutsByTrainingCycleListProvider(primaryCycle.id),
-    );
-    final primarySessionsAsync = ref.watch(
-      sessionsByTrainingCycleProvider(primaryCycle.id),
-    );
-    final primarySessions = primarySessionsAsync.value ?? const <Session>[];
-
-    final months = [prevMonth, currentMonth, nextMonth];
-    final dataMap = <DateTime, CalendarDayData>{};
-    for (final month in months) {
-      for (final day in buildCalendarData(
-        cycle: primaryCycle,
-        allWorkouts: primaryWorkouts,
-        month: month,
-        dateRangeSessions: dateRangeSessions,
-        cycleSessions: primarySessions,
-      )) {
-        dataMap[DateHelpers.stripTime(day.date)] = day;
-      }
-    }
-
-    // Merge data from secondary stacked cycles so their workouts
-    // and cardio sessions also appear on the calendar.
-    for (final cycle in allCycles.skip(1)) {
-      final secWorkouts = ref.watch(
-        workoutsByTrainingCycleListProvider(cycle.id),
-      );
-      final secSessionsAsync = ref.watch(
-        sessionsByTrainingCycleProvider(cycle.id),
-      );
-      final secSessions = secSessionsAsync.value ?? const <Session>[];
-
-      for (final month in months) {
-        for (final day in buildCalendarData(
-          cycle: cycle,
-          allWorkouts: secWorkouts,
-          month: month,
-          // dateRangeSessions already included in primary — pass
-          // empty to avoid duplicating imports on each day.
-          cycleSessions: secSessions,
-        )) {
-          final key = DateHelpers.stripTime(day.date);
-          final existing = dataMap[key];
-          if (existing != null) {
-            dataMap[key] = _mergeDayData(existing, day);
-          } else {
-            dataMap[key] = day;
-          }
-        }
-      }
-    }
+    // Single source of truth: merged, per-cycle-attributed data for the
+    // focused month (plus adjacent months for overflow days).
+    final dataMap = ref.watch(calendarMonthDataProvider(_focusedDay));
 
     final periodColors = ref.watch(periodColorsProvider);
 
@@ -219,68 +151,6 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
             ),
         ],
       ),
-    );
-  }
-
-  /// Merge a secondary cycle's day data into the primary day entry.
-  ///
-  /// Keeps the primary's period/day numbers (for display) and combines
-  /// workouts, cardio sessions, muscle groups, and exercises from both.
-  CalendarDayData _mergeDayData(
-    CalendarDayData primary,
-    CalendarDayData secondary,
-  ) {
-    if (!secondary.hasAnySession) return primary;
-
-    // Deduplicate cardio by ID (dateRangeSessions may overlap).
-    final seenCardioIds = primary.cardioSessions.map((s) => s.id).toSet();
-    final newCardio = secondary.cardioSessions.where((s) => !seenCardioIds.contains(s.id)).toList();
-
-    // Merge muscle group sets by summing.
-    final mergedSets = Map<String, int>.from(primary.muscleGroupSets);
-    for (final entry in secondary.muscleGroupSets.entries) {
-      mergedSets[entry.key] = (mergedSets[entry.key] ?? 0) + entry.value;
-    }
-
-    // Merge muscle group exercises by concatenating.
-    final mergedExercises = Map<String, List<String>>.from(
-      primary.muscleGroupExercises,
-    );
-    for (final entry in secondary.muscleGroupExercises.entries) {
-      mergedExercises[entry.key] = [
-        ...mergedExercises[entry.key] ?? [],
-        ...entry.value,
-      ];
-    }
-
-    final allWorkouts = [...primary.workouts, ...secondary.workouts];
-    final allCardio = [...primary.cardioSessions, ...newCardio];
-    final allExercises = [...primary.exercises, ...secondary.exercises];
-
-    // Recompute completion from merged data.
-    final hasSessions = allWorkouts.isNotEmpty || allCardio.isNotEmpty;
-    final strengthDone = allWorkouts.isEmpty || allWorkouts.every((w) => w.status == WorkoutStatus.completed);
-    final cardioDone = allCardio.isEmpty || allCardio.every((s) => s.status == WorkoutStatus.completed);
-    final isCompleted = hasSessions && strengthDone && cardioDone;
-    final isPartiallyCompleted =
-        hasSessions &&
-        !isCompleted &&
-        (allWorkouts.any((w) => w.status == WorkoutStatus.completed) ||
-            allCardio.any((s) => s.status == WorkoutStatus.completed));
-
-    return CalendarDayData(
-      date: primary.date,
-      periodNumber: primary.periodNumber,
-      dayNumber: primary.dayNumber,
-      workouts: allWorkouts,
-      cardioSessions: allCardio,
-      isRecoveryPeriod: primary.isRecoveryPeriod,
-      isCompleted: isCompleted,
-      isPartiallyCompleted: isPartiallyCompleted,
-      muscleGroups: {...primary.muscleGroups, ...secondary.muscleGroups},
-      muscleGroupSets: mergedSets,
-      muscleGroupExercises: mergedExercises,
-      exercises: allExercises,
     );
   }
 
@@ -339,10 +209,8 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
         });
       },
       onDaySelected: (selectedDay, focusedDay) {
-        setState(() {
-          _selectedDay = selectedDay;
-          _focusedDay = focusedDay;
-        });
+        ref.read(selectedWorkoutDateProvider.notifier).selectDate(selectedDay);
+        setState(() => _focusedDay = focusedDay);
       },
       onDayLongPressed: (selectedDay, focusedDay) {
         final dayData = dataMap[DateHelpers.stripTime(selectedDay)];
@@ -476,10 +344,8 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
       dataMap: dataMap,
       periodColors: periodColors,
       onDaySelected: (selectedDay) {
-        setState(() {
-          _selectedDay = selectedDay;
-          _focusedDay = selectedDay;
-        });
+        ref.read(selectedWorkoutDateProvider.notifier).selectDate(selectedDay);
+        setState(() => _focusedDay = selectedDay);
       },
       onDayLongPressed: (day) {
         final dayData = dataMap[DateHelpers.stripTime(day)];
@@ -772,9 +638,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
       isSelected: isSelected,
       selectedExerciseId: _selectedExerciseId,
       onTap: (selectedDay) {
-        setState(() {
-          _selectedDay = selectedDay;
-        });
+        ref.read(selectedWorkoutDateProvider.notifier).selectDate(selectedDay);
       },
       onExerciseSelected: (exerciseId) {
         setState(() {
@@ -1361,10 +1225,15 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
             ],
           ),
           const SizedBox(height: 8),
-          if (dayData?.hasWorkout ?? false) _buildWorkoutSummary(context, dayData!, trainingCycle),
-          if (dayData?.hasCardio ?? false) ...[
-            if (dayData!.hasWorkout) const SizedBox(height: 12),
-            _buildCardioSummary(context, dayData),
+          // Stacked cycles: attribute each cycle's sessions under its name.
+          if (dayData != null && dayData.segments.length > 1)
+            _buildPerCycleSummary(context, dayData, trainingCycle)
+          else ...[
+            if (dayData?.hasWorkout ?? false) _buildWorkoutSummary(context, dayData!, trainingCycle),
+            if (dayData?.hasCardio ?? false) ...[
+              if (dayData!.hasWorkout) const SizedBox(height: 12),
+              _buildCardioSummary(context, dayData),
+            ],
           ],
           if (!(dayData?.hasAnySession ?? false))
             if (dayData != null)
@@ -1438,6 +1307,130 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
           color: color,
           fontSize: 12,
           fontWeight: FontWeight.w500,
+        ),
+      ),
+    );
+  }
+
+  /// Per-cycle attribution for a day shared by multiple stacked cycles.
+  ///
+  /// Renders one block per [CycleDaySegment] (cycle name + its own period/day +
+  /// session summary), then a single set of day-level action buttons.
+  Widget _buildPerCycleSummary(
+    BuildContext context,
+    CalendarDayData dayData,
+    dynamic trainingCycle,
+  ) {
+    final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        for (final segment in dayData.segments)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  segment.cycleName,
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                if (segment.periodNumber != null && segment.dayNumber != null)
+                  Text(
+                    segment.isRecoveryPeriod
+                        ? l10n.calendarPeriodDayRecovery(
+                            segment.periodNumber!,
+                            segment.dayNumber!,
+                          )
+                        : l10n.calendarPeriodDayInfo(
+                            segment.periodNumber!,
+                            segment.dayNumber!,
+                          ),
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurface.withAlpha(179),
+                    ),
+                  ),
+                if (segment.workouts.isNotEmpty) _buildSegmentStrengthLine(context, segment),
+                for (final session in segment.cardioSessions)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: Row(
+                      children: [
+                        Icon(
+                          session.sport.icon,
+                          size: 16,
+                          color: session.sport.color,
+                        ),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: Text(
+                            session.label ?? session.sport.displayName,
+                            style: theme.textTheme.bodySmall,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        _buildSessionStatusChip(context, session),
+                      ],
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        Row(
+          children: [
+            Expanded(
+              child: OutlinedButton.icon(
+                onPressed: () => _showEditSheet(context, dayData),
+                icon: const Icon(Icons.edit, size: 18),
+                label: Text(l10n.calendarEditButton),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: FilledButton.icon(
+                onPressed: () => _navigateToWorkout(dayData),
+                icon: Icon(
+                  dayData.isCompleted ? Icons.visibility : Icons.play_arrow,
+                  size: 18,
+                ),
+                label: Text(
+                  dayData.isCompleted ? l10n.calendarViewButton : l10n.calendarGoToWorkoutButton,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  /// One-line "N exercises · muscle groups" summary for a cycle segment.
+  Widget _buildSegmentStrengthLine(
+    BuildContext context,
+    CycleDaySegment segment,
+  ) {
+    final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+    var totalExercises = 0;
+    final groups = <String>{};
+    for (final workout in segment.workouts) {
+      totalExercises += workout.exercises.length;
+      for (final exercise in workout.exercises) {
+        groups.add(exercise.muscleGroup.displayName);
+      }
+    }
+    return Padding(
+      padding: const EdgeInsets.only(top: 2),
+      child: Text(
+        l10n.calendarExercisesMuscleGroups(totalExercises, groups.join(', ')),
+        style: theme.textTheme.bodySmall?.copyWith(
+          color: theme.colorScheme.onSurface.withAlpha(179),
         ),
       ),
     );
@@ -1679,10 +1672,9 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
   }
 
   void _navigateToWorkout(CalendarDayData dayData) {
-    if (!dayData.hasWorkout) return;
-
-    // Update workout home controller to select this day
-    ref.read(workoutHomeControllerProvider.notifier).selectDay(dayData.periodNumber!, dayData.dayNumber!);
+    // Drive the shared selected date so the Workout/Exercises screens land on
+    // this day; each screen derives its own cycle's period/day from the date.
+    ref.read(selectedWorkoutDateProvider.notifier).selectDate(dayData.date);
 
     // Switch to workout tab
     ref.read(homeTabIndexProvider.notifier).setTab(HomeTab.workout);

@@ -7,6 +7,7 @@ import '../../data/models/exercise.dart';
 import '../../data/models/exercise_set.dart';
 import '../../data/models/training_cycle.dart';
 import '../../data/models/workout.dart';
+import '../providers/calendar_providers.dart';
 import '../providers/database_providers.dart';
 import '../providers/training_cycle_providers.dart';
 import '../providers/use_case_providers.dart';
@@ -69,10 +70,25 @@ class WorkoutHomeController extends Notifier<WorkoutHomeState> {
       selectedPeriod: period,
       selectedDay: day,
     );
+    _syncSelectedDate(period, day);
   }
 
   void navigateToNextDay(int nextPeriod, int nextDay) {
     state = state.copyWith(selectedPeriod: nextPeriod, selectedDay: nextDay);
+    _syncSelectedDate(nextPeriod, nextDay);
+  }
+
+  /// Mirror the (period, day) selection into the shared selected-date provider
+  /// — the source of truth shared with the Calendar and Exercises screens.
+  ///
+  /// No-ops when there is no active cycle (e.g. in unit tests), so the
+  /// in-memory selection state still updates on its own.
+  void _syncSelectedDate(int period, int day) {
+    final cycle = ref.read(currentTrainingCycleProvider);
+    if (cycle == null) return;
+    final workouts = ref.read(workoutsByTrainingCycleListProvider(cycle.id));
+    final date = dateForPeriodDay(cycle, workouts, period, day);
+    ref.read(selectedWorkoutDateProvider.notifier).selectDate(date);
   }
 
   // ---------------------------------------------------------------------------

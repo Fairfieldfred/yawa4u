@@ -60,8 +60,7 @@ void main() {
       });
 
       test('returns false for yesterday', () {
-        final yesterday =
-            DateTime.now().subtract(const Duration(days: 1));
+        final yesterday = DateTime.now().subtract(const Duration(days: 1));
         expect(DateHelpers.isToday(yesterday), isFalse);
       });
     });
@@ -79,8 +78,7 @@ void main() {
 
     group('isYesterday', () {
       test('returns true for yesterday', () {
-        final yesterday =
-            DateTime.now().subtract(const Duration(days: 1));
+        final yesterday = DateTime.now().subtract(const Duration(days: 1));
         expect(DateHelpers.isYesterday(yesterday), isTrue);
       });
 
@@ -500,8 +498,7 @@ void main() {
         expect(result[(1, 1)]!.hour, 0);
       });
 
-      test('uses putIfAbsent — keeps first occurrence for duplicate keys',
-          () {
+      test('uses putIfAbsent — keeps first occurrence for duplicate keys', () {
         final items = [
           (
             periodNumber: 1,
@@ -596,6 +593,83 @@ void main() {
       });
     });
 
+    // ========== periodDayForDate ==========
+
+    group('periodDayForDate', () {
+      test('returns the contiguous slot for an in-cycle date', () {
+        final result = DateHelpers.periodDayForDate(
+          cycleStart: DateTime(2025, 1, 1),
+          daysPerPeriod: 7,
+          periodsTotal: 4,
+          date: DateTime(2025, 1, 10),
+        );
+        // Offset 9 → period 2, day 3.
+        expect(result, (period: 2, day: 3));
+      });
+
+      test('round-trips with buildPeriodDayDateMap', () {
+        final map = DateHelpers.buildPeriodDayDateMap(
+          cycleStart: DateTime(2025, 1, 1),
+          daysPerPeriod: 5,
+          periodsTotal: 3,
+        );
+        for (final entry in map.entries) {
+          final result = DateHelpers.periodDayForDate(
+            cycleStart: DateTime(2025, 1, 1),
+            daysPerPeriod: 5,
+            periodsTotal: 3,
+            date: entry.value,
+          );
+          expect(result, (period: entry.key.$1, day: entry.key.$2));
+        }
+      });
+
+      test('honors schedule shifts (inserted rest day)', () {
+        // Period 1 / Day 3 shifted one day later via scheduledDate.
+        final scheduled = {
+          (1, 3): DateTime(2025, 1, 4),
+        };
+        final result = DateHelpers.periodDayForDate(
+          cycleStart: DateTime(2025, 1, 1),
+          daysPerPeriod: 3,
+          periodsTotal: 2,
+          date: DateTime(2025, 1, 4),
+          scheduledDates: scheduled,
+        );
+        expect(result, (period: 1, day: 3));
+      });
+
+      test('returns null before the cycle start', () {
+        final result = DateHelpers.periodDayForDate(
+          cycleStart: DateTime(2025, 1, 10),
+          daysPerPeriod: 7,
+          periodsTotal: 4,
+          date: DateTime(2025, 1, 1),
+        );
+        expect(result, isNull);
+      });
+
+      test('returns null beyond the last period', () {
+        final result = DateHelpers.periodDayForDate(
+          cycleStart: DateTime(2025, 1, 1),
+          daysPerPeriod: 7,
+          periodsTotal: 2,
+          date: DateTime(2025, 3, 1),
+        );
+        expect(result, isNull);
+      });
+
+      test('strips time on the queried date', () {
+        final result = DateHelpers.periodDayForDate(
+          cycleStart: DateTime(2025, 1, 1),
+          daysPerPeriod: 7,
+          periodsTotal: 4,
+          date: DateTime(2025, 1, 1, 23, 59),
+        );
+        expect(result, (period: 1, day: 1));
+      });
+    });
+
     // ========== maxDayPerPeriod ==========
 
     group('maxDayPerPeriod', () {
@@ -641,8 +715,7 @@ void main() {
       });
 
       test('returns "Yesterday" for yesterday', () {
-        final yesterday =
-            DateTime.now().subtract(const Duration(days: 1));
+        final yesterday = DateTime.now().subtract(const Duration(days: 1));
         expect(
           DateHelpers.getRelativeDateString(yesterday),
           'Yesterday',
@@ -658,8 +731,7 @@ void main() {
       });
 
       test('returns "X days ago" for 2-6 days ago', () {
-        final threeDaysAgo =
-            DateTime.now().subtract(const Duration(days: 3));
+        final threeDaysAgo = DateTime.now().subtract(const Duration(days: 3));
         expect(
           DateHelpers.getRelativeDateString(threeDaysAgo),
           '3 days ago',
@@ -675,8 +747,7 @@ void main() {
       });
 
       test('returns "X weeks ago" for 1-3 weeks ago', () {
-        final twoWeeksAgo =
-            DateTime.now().subtract(const Duration(days: 14));
+        final twoWeeksAgo = DateTime.now().subtract(const Duration(days: 14));
         expect(
           DateHelpers.getRelativeDateString(twoWeeksAgo),
           '2 weeks ago',
@@ -684,8 +755,7 @@ void main() {
       });
 
       test('returns "1 week ago" singular', () {
-        final oneWeekAgo =
-            DateTime.now().subtract(const Duration(days: 7));
+        final oneWeekAgo = DateTime.now().subtract(const Duration(days: 7));
         expect(
           DateHelpers.getRelativeDateString(oneWeekAgo),
           '1 week ago',
@@ -693,8 +763,7 @@ void main() {
       });
 
       test('returns formatted date for > 4 weeks', () {
-        final longAgo =
-            DateTime.now().subtract(const Duration(days: 60));
+        final longAgo = DateTime.now().subtract(const Duration(days: 60));
         final result = DateHelpers.getRelativeDateString(longAgo);
         // Should be a formatted date string like "Mar 22, 2025"
         expect(result, isNot('Today'));

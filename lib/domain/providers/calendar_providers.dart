@@ -43,6 +43,35 @@ class CalendarExerciseItem {
   int get loggedSetCount => exercise.sets.where((s) => s.isLogged).length;
 }
 
+/// One active cycle's contribution to a single calendar day.
+///
+/// Used for per-cycle attribution when multiple cycles are stacked: each
+/// segment keeps its own period/day and the sessions that belong to that
+/// cycle, so the calendar can group them under the cycle's name instead of
+/// pooling everything under the primary cycle.
+class CycleDaySegment {
+  final String cycleId;
+  final String cycleName;
+  final int? periodNumber;
+  final int? dayNumber;
+  final bool isRecoveryPeriod;
+  final List<Workout> workouts;
+  final List<CardioSession> cardioSessions;
+
+  const CycleDaySegment({
+    required this.cycleId,
+    required this.cycleName,
+    this.periodNumber,
+    this.dayNumber,
+    this.isRecoveryPeriod = false,
+    this.workouts = const [],
+    this.cardioSessions = const [],
+  });
+
+  /// True if this cycle has any session on the day.
+  bool get hasAnySession => workouts.isNotEmpty || cardioSessions.isNotEmpty;
+}
+
 /// Data for a single calendar day
 class CalendarDayData {
   final DateTime date;
@@ -52,6 +81,13 @@ class CalendarDayData {
 
   /// Non-strength sessions on this day (imports, cycle-attached cardio, etc.)
   final List<CardioSession> cardioSessions;
+
+  /// Per-cycle breakdown of this day's cycle-attached sessions.
+  ///
+  /// One entry per active cycle that has a session on this day. Imported
+  /// sessions (not tied to an active cycle) are not represented here — they
+  /// remain in [cardioSessions] for the month-grid dots.
+  final List<CycleDaySegment> segments;
 
   final bool isRecoveryPeriod;
   final bool isCompleted;
@@ -73,6 +109,7 @@ class CalendarDayData {
     this.dayNumber,
     this.workouts = const [],
     this.cardioSessions = const [],
+    this.segments = const [],
     this.isRecoveryPeriod = false,
     this.isCompleted = false,
     this.isPartiallyCompleted = false,
@@ -297,6 +334,24 @@ List<CalendarDayData> buildCalendarData({
         (dayWorkouts.any((w) => w.status == WorkoutStatus.completed) ||
             dayCardio.any((s) => s.status == WorkoutStatus.completed));
 
+    // Per-cycle attribution: this day's cycle-attached sessions. Strength
+    // workouts are all cycle-attached by construction; cardio is filtered
+    // to this cycle so imports stay out of the cycle's segment.
+    final segmentCardio = dayCardio.where((s) => s.trainingCycleId == cycle.id).toList();
+    final daySegments = (dayWorkouts.isNotEmpty || segmentCardio.isNotEmpty)
+        ? [
+            CycleDaySegment(
+              cycleId: cycle.id,
+              cycleName: cycle.name,
+              periodNumber: displayPeriod,
+              dayNumber: displayDay,
+              isRecoveryPeriod: displayPeriod == cycle.recoveryPeriod,
+              workouts: dayWorkouts,
+              cardioSessions: segmentCardio,
+            ),
+          ]
+        : const <CycleDaySegment>[];
+
     result.add(
       CalendarDayData(
         date: strippedDay,
@@ -304,6 +359,7 @@ List<CalendarDayData> buildCalendarData({
         dayNumber: displayDay,
         workouts: dayWorkouts,
         cardioSessions: dayCardio,
+        segments: daySegments,
         isRecoveryPeriod: displayPeriod == cycle.recoveryPeriod,
         isCompleted: isCompleted,
         isPartiallyCompleted: isPartiallyCompleted,
@@ -318,43 +374,229 @@ List<CalendarDayData> buildCalendarData({
   return result;
 }
 
-/// Provider for calendar data for a specific month.
+/// Merge a secondary cycle's day data into an existing day entry.
 ///
-/// Merges cycle-attached strength workouts with date-scoped sessions
-/// so that imports (HealthKit / Strava) appear on the calendar.
-final calendarDataProvider = Provider.autoDispose.family<List<CalendarDayData>, DateTime>((
+/// Keeps the primary's period/day numbers (for the month-grid label) but
+/// **appends** the secondary's [CycleDaySegment]s so per-cycle attribution
+/// is preserved, and combines workouts, cardio, muscle groups, and
+/// exercises from both cycles for the aggregate dots/summary.
+CalendarDayData mergeDayData(CalendarDayData primary, CalendarDayData secondary) {
+  if (!secondary.hasAnySession && secondary.segments.isEmpty) return primary;
+
+  // Deduplicate cardio by ID (dateRangeSessions may overlap).
+  final seenCardioIds = primary.cardioSessions.map((s) => s.id).toSet();
+  final newCardio = secondary.cardioSessions.where((s) => !seenCardioIds.contains(s.id)).toList();
+
+  // Merge muscle group sets by summing.
+  final mergedSets = Map<String, int>.from(primary.muscleGroupSets);
+  for (final entry in secondary.muscleGroupSets.entries) {
+    mergedSets[entry.key] = (mergedSets[entry.key] ?? 0) + entry.value;
+  }
+
+  // Merge muscle group exercises by concatenating.
+  final mergedExercises = Map<String, List<String>>.from(
+    primary.muscleGroupExercises,
+  );
+  for (final entry in secondary.muscleGroupExercises.entries) {
+    mergedExercises[entry.key] = [
+      ...mergedExercises[entry.key] ?? [],
+      ...entry.value,
+    ];
+  }
+
+  final allWorkouts = [...primary.workouts, ...secondary.workouts];
+  final allCardio = [...primary.cardioSessions, ...newCardio];
+  final allExercises = [...primary.exercises, ...secondary.exercises];
+
+  // Append secondary segments (deduped by cycle id) for per-cycle attribution.
+  final seenCycleIds = primary.segments.map((s) => s.cycleId).toSet();
+  final mergedSegments = [
+    ...primary.segments,
+    ...secondary.segments.where((s) => !seenCycleIds.contains(s.cycleId)),
+  ];
+
+  // Recompute completion from merged data.
+  final hasSessions = allWorkouts.isNotEmpty || allCardio.isNotEmpty;
+  final strengthDone = allWorkouts.isEmpty || allWorkouts.every((w) => w.status == WorkoutStatus.completed);
+  final cardioDone = allCardio.isEmpty || allCardio.every((s) => s.status == WorkoutStatus.completed);
+  final isCompleted = hasSessions && strengthDone && cardioDone;
+  final isPartiallyCompleted =
+      hasSessions &&
+      !isCompleted &&
+      (allWorkouts.any((w) => w.status == WorkoutStatus.completed) ||
+          allCardio.any((s) => s.status == WorkoutStatus.completed));
+
+  return CalendarDayData(
+    date: primary.date,
+    periodNumber: primary.periodNumber,
+    dayNumber: primary.dayNumber,
+    workouts: allWorkouts,
+    cardioSessions: allCardio,
+    segments: mergedSegments,
+    isRecoveryPeriod: primary.isRecoveryPeriod,
+    isCompleted: isCompleted,
+    isPartiallyCompleted: isPartiallyCompleted,
+    muscleGroups: {...primary.muscleGroups, ...secondary.muscleGroups},
+    muscleGroupSets: mergedSets,
+    muscleGroupExercises: mergedExercises,
+    exercises: allExercises,
+  );
+}
+
+/// Merged calendar data for the focused month (plus adjacent months for
+/// overflow days), keyed by stripped date.
+///
+/// This is the single source of truth for the calendar: it watches **all**
+/// active cycles ([currentTrainingCyclesProvider]), builds each cycle's data,
+/// and merges them per date with per-cycle attribution preserved.
+final calendarMonthDataProvider = Provider.autoDispose.family<Map<DateTime, CalendarDayData>, DateTime>((
   ref,
-  month,
+  focusedDay,
 ) {
-  final cycle = ref.watch(currentTrainingCycleProvider);
+  final cycles = ref.watch(currentTrainingCyclesProvider);
+  if (cycles.isEmpty) return const {};
 
-  if (cycle == null) return [];
+  final currentMonth = DateTime(focusedDay.year, focusedDay.month, 1);
+  final prevMonth = DateTime(focusedDay.year, focusedDay.month - 1, 1);
+  final nextMonth = DateTime(focusedDay.year, focusedDay.month + 1, 1);
+  final months = [prevMonth, currentMonth, nextMonth];
 
-  final workouts = ref.watch(workoutsByTrainingCycleListProvider(cycle.id));
-
-  // Watch date-range sessions for the full month to pick up imports.
-  final monthStart = DateTime(month.year, month.month, 1);
-  final monthEnd = DateTime(month.year, month.month + 1, 0, 23, 59, 59);
-  final sessionsAsync = ref.watch(
-    sessionsInDateRangeProvider((start: monthStart, end: monthEnd)),
+  // Load date-range sessions for the 3-month window so imports
+  // (HealthKit / Strava) appear on the calendar.
+  final rangeStart = prevMonth;
+  final rangeEnd = DateTime(
+    focusedDay.year,
+    focusedDay.month + 2,
+    0,
+    23,
+    59,
+    59,
   );
-  final dateRangeSessions = sessionsAsync.value ?? const <Session>[];
+  final dateRangeSessions =
+      ref
+          .watch(
+            sessionsInDateRangeProvider((start: rangeStart, end: rangeEnd)),
+          )
+          .value ??
+      const <Session>[];
 
-  // Also watch cycle-attached sessions so cardio without scheduledDate
-  // (e.g. from templates) can be placed on the calendar via period/day.
-  final cycleSessionsAsync = ref.watch(
-    sessionsByTrainingCycleProvider(cycle.id),
-  );
-  final cycleSessions = cycleSessionsAsync.value ?? const <Session>[];
+  final dataMap = <DateTime, CalendarDayData>{};
 
-  return buildCalendarData(
-    cycle: cycle,
-    allWorkouts: workouts,
-    month: month,
-    dateRangeSessions: dateRangeSessions,
-    cycleSessions: cycleSessions,
+  // Primary cycle builds the baseline (and owns the imported sessions).
+  final primary = cycles.first;
+  final primaryWorkouts = ref.watch(
+    workoutsByTrainingCycleListProvider(primary.id),
   );
+  final primarySessions = ref.watch(sessionsByTrainingCycleProvider(primary.id)).value ?? const <Session>[];
+  for (final month in months) {
+    for (final day in buildCalendarData(
+      cycle: primary,
+      allWorkouts: primaryWorkouts,
+      month: month,
+      dateRangeSessions: dateRangeSessions,
+      cycleSessions: primarySessions,
+    )) {
+      dataMap[DateHelpers.stripTime(day.date)] = day;
+    }
+  }
+
+  // Merge each stacked cycle. Imports are omitted here (already on the
+  // primary) to avoid duplicating them per day.
+  for (final cycle in cycles.skip(1)) {
+    final secWorkouts = ref.watch(
+      workoutsByTrainingCycleListProvider(cycle.id),
+    );
+    final secSessions = ref.watch(sessionsByTrainingCycleProvider(cycle.id)).value ?? const <Session>[];
+    for (final month in months) {
+      for (final day in buildCalendarData(
+        cycle: cycle,
+        allWorkouts: secWorkouts,
+        month: month,
+        cycleSessions: secSessions,
+      )) {
+        final key = DateHelpers.stripTime(day.date);
+        final existing = dataMap[key];
+        dataMap[key] = existing != null ? mergeDayData(existing, day) : day;
+      }
+    }
+  }
+
+  return dataMap;
 });
+
+// ========== SHARED SELECTED-DATE STATE ==========
+
+/// The single shared "selected day" that drives the Calendar screen and the
+/// AppBar calendars on the Workout and Exercises screens.
+///
+/// Stored as a stripped [DateTime] (the calendar's natural currency) so every
+/// screen converts it to its own cycle's (period, day) via [selectedPeriodDay].
+class SelectedWorkoutDateNotifier extends Notifier<DateTime> {
+  @override
+  DateTime build() => DateHelpers.stripTime(DateTime.now());
+
+  void selectDate(DateTime date) => state = DateHelpers.stripTime(date);
+
+  void goToToday() => state = DateHelpers.stripTime(DateTime.now());
+}
+
+/// Provider for the shared selected workout date.
+final selectedWorkoutDateProvider = NotifierProvider<SelectedWorkoutDateNotifier, DateTime>(
+  SelectedWorkoutDateNotifier.new,
+);
+
+/// The (period, day) slot of [cycle] that contains [date], honoring schedule
+/// shifts via the cycle's workouts. Returns `null` when [date] is outside the
+/// cycle (or the cycle has no start date).
+({int period, int day})? selectedPeriodDay(
+  TrainingCycle cycle,
+  List<Workout> workouts,
+  DateTime date,
+) {
+  if (cycle.startDate == null) return null;
+  return DateHelpers.periodDayForDate(
+    cycleStart: cycle.startDate!,
+    daysPerPeriod: cycle.daysPerPeriod,
+    periodsTotal: cycle.periodsTotal,
+    date: date,
+    scheduledDates: DateHelpers.extractScheduledDates(
+      workouts.map(
+        (w) => (
+          periodNumber: w.periodNumber,
+          dayNumber: w.dayNumber,
+          scheduledDate: w.scheduledDate,
+        ),
+      ),
+    ),
+  );
+}
+
+/// The (period, day) slot of [cycle] for today's date.
+({int period, int day})? currentPeriodDay(
+  TrainingCycle cycle,
+  List<Workout> workouts,
+) => selectedPeriodDay(cycle, workouts, DateTime.now());
+
+/// The effective calendar date for a (period, day) slot of [cycle], honoring
+/// schedule shifts. Inverse of [selectedPeriodDay].
+DateTime dateForPeriodDay(
+  TrainingCycle cycle,
+  List<Workout> workouts,
+  int period,
+  int day,
+) {
+  final scheduled = workouts
+      .where((w) => w.periodNumber == period && w.dayNumber == day)
+      .map((w) => w.scheduledDate)
+      .firstWhere((d) => d != null, orElse: () => null);
+  return DateHelpers.getEffectiveWorkoutDate(
+    cycleStart: cycle.startDate ?? cycle.createdDate,
+    daysPerPeriod: cycle.daysPerPeriod,
+    periodNumber: period,
+    dayNumber: day,
+    scheduledDate: scheduled,
+  );
+}
 
 /// Provider for period background colors
 /// Returns a map of period number to color

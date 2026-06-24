@@ -18,6 +18,7 @@ import '../../../data/models/training_cycle.dart';
 import '../../../data/models/workout.dart';
 import '../../../data/repositories/training_cycle_repository.dart';
 import '../../../domain/controllers/workout_home_controller.dart';
+import '../../../domain/providers/calendar_providers.dart';
 import '../../../domain/providers/database_providers.dart';
 import '../../../domain/providers/exercise_providers.dart';
 import '../../widgets/empty_state_widget.dart';
@@ -63,8 +64,6 @@ class ExercisesHomeScreen extends ConsumerStatefulWidget {
 }
 
 class _ExercisesHomeScreenState extends ConsumerState<ExercisesHomeScreen> {
-  int? _selectedPeriod;
-  int? _selectedDay;
   bool _showPeriodSelector = false;
   PageController? _dayPageController;
   bool _isDaySwiping = false;
@@ -88,10 +87,13 @@ class _ExercisesHomeScreenState extends ConsumerState<ExercisesHomeScreen> {
   }
 
   void _onDaySelected(int period, int day) {
-    setState(() {
-      _selectedPeriod = period;
-      _selectedDay = day;
-    });
+    // Drive the shared selected date (source of truth for all three screens)
+    // by converting this primary-cycle (period, day) to its calendar date.
+    final cycle = ref.read(currentTrainingCycleProvider);
+    if (cycle == null) return;
+    final workouts = ref.read(workoutsByTrainingCycleListProvider(cycle.id));
+    final date = dateForPeriodDay(cycle, workouts, period, day);
+    ref.read(selectedWorkoutDateProvider.notifier).selectDate(date);
   }
 
   /// Add exercise to a day that has no workouts yet
@@ -305,28 +307,18 @@ class _ExercisesHomeScreenState extends ConsumerState<ExercisesHomeScreen> {
       }
     }
 
-    // Find first incomplete day using primary cycle workouts only.
-    // Secondary cycle progress shouldn't affect navigation position.
-    final Map<String, List<Workout>> primaryWorkoutsByDay = {};
-    for (final workout in primaryWorkouts) {
-      final key = '${workout.periodNumber}-${workout.dayNumber}';
-      primaryWorkoutsByDay.putIfAbsent(key, () => []).add(workout);
-    }
+    // Canonical "today" slot for the primary cycle (date-based, shared with
+    // the Calendar screen). Falls back to (1, 1) before the cycle starts.
+    final current = currentPeriodDay(currentTrainingCycle, primaryWorkouts);
+    final currentPeriod = current?.period ?? 1;
+    final currentDay = current?.day ?? 1;
 
-    int currentPeriod = 1;
-    int currentDay = 1;
-    for (var entry in primaryWorkoutsByDay.entries) {
-      if (entry.value.any((w) => w.status == WorkoutStatus.incomplete)) {
-        final parts = entry.key.split('-');
-        currentPeriod = int.parse(parts[0]);
-        currentDay = int.parse(parts[1]);
-        break;
-      }
-    }
-
-    // Use selected period/day if set, otherwise use current (first incomplete)
-    final displayPeriod = _selectedPeriod ?? currentPeriod;
-    final displayDay = _selectedDay ?? currentDay;
+    // The displayed day follows the shared selected date; fall back to today
+    // when the selected date is outside this cycle.
+    final selectedDate = ref.watch(selectedWorkoutDateProvider);
+    final selected = selectedPeriodDay(currentTrainingCycle, primaryWorkouts, selectedDate) ?? current;
+    final displayPeriod = selected?.period ?? currentPeriod;
+    final displayDay = selected?.day ?? currentDay;
 
     // Build day sequence for swipe navigation
     final daySequence = buildDaySequence(
