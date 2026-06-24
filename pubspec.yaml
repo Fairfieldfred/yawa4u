@@ -75,6 +75,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   flutter_zxing: ^2.3.0
+  camera_macos: ^0.0.9
 
 dev_dependencies:
   sentry_dart_plugin: ^3.2.0

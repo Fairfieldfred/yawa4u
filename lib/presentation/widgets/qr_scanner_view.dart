@@ -2,12 +2,16 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_zxing/flutter_zxing.dart';
 
+import 'macos_qr_scanner.dart';
+
 /// Full-screen QR scanner used by the WiFi sync / template-share / skin-share
 /// screens.
 ///
-/// Wraps `flutter_zxing`'s [ReaderWidget] (zxing-cpp, no GoogleMLKit) with a
-/// close button and a prompt label. [onCode] fires exactly once with the
-/// decoded QR string; the camera lifecycle is managed by [ReaderWidget].
+/// On iOS / Android, wraps `flutter_zxing`'s [ReaderWidget] (zxing-cpp, no
+/// GoogleMLKit). On macOS — where that widget's `camera`-plugin feed is
+/// unavailable — delegates to [MacosQrScanner] (camera_macos frames decoded by
+/// the same zxing-cpp FFI). [onCode] fires exactly once with the decoded QR
+/// string.
 class QrScannerView extends StatefulWidget {
   const QrScannerView({
     super.key,
@@ -42,6 +46,16 @@ class _QrScannerViewState extends State<QrScannerView> {
 
   @override
   Widget build(BuildContext context) {
+    // macOS needs the camera_macos-backed scanner (ReaderWidget's `camera`
+    // plugin has no macOS implementation).
+    if (!kIsWeb && defaultTargetPlatform == TargetPlatform.macOS) {
+      return MacosQrScanner(
+        promptText: widget.promptText,
+        onClose: widget.onClose,
+        onCode: (text) => _onScan(Code(text: text, isValid: true)),
+      );
+    }
+
     return Stack(
       children: [
         Positioned.fill(
@@ -82,11 +96,15 @@ class _QrScannerViewState extends State<QrScannerView> {
 
 /// Whether the current platform can scan QR codes via the device camera.
 ///
-/// `flutter_zxing` (and the underlying `camera` plugin) support live camera
-/// scanning on iOS and Android only. On desktop/web the caller should offer the
-/// manual paste fallback ([showPasteConnectionCodeDialog]) instead.
+/// Camera scanning is available on iOS / Android (via `flutter_zxing`'s
+/// `ReaderWidget`) and macOS (via [MacosQrScanner]). On other desktop targets
+/// and web the caller should offer the manual paste fallback
+/// ([showPasteConnectionCodeDialog]) instead.
 bool get canScanQrWithCamera =>
-    !kIsWeb && (defaultTargetPlatform == TargetPlatform.iOS || defaultTargetPlatform == TargetPlatform.android);
+    !kIsWeb &&
+    (defaultTargetPlatform == TargetPlatform.iOS ||
+        defaultTargetPlatform == TargetPlatform.android ||
+        defaultTargetPlatform == TargetPlatform.macOS);
 
 /// Prompts the user to paste a connection code (the JSON the host device
 /// shows). Returns the trimmed input, or `null` if cancelled or empty.
