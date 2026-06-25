@@ -28,15 +28,41 @@ enum MoveMode {
 class ScheduleSnapshot {
   final DateTime? cycleStartDate;
   final List<WorkoutSnapshot> workoutSnapshots;
+  final List<CardioSessionSnapshot> cardioSnapshots;
   final String description;
   final DateTime timestamp;
 
   ScheduleSnapshot({
     required this.cycleStartDate,
     required this.workoutSnapshots,
+    this.cardioSnapshots = const [],
     required this.description,
     DateTime? timestamp,
   }) : timestamp = timestamp ?? DateTime.now();
+}
+
+/// Minimal cardio-session state snapshot for undo
+class CardioSessionSnapshot {
+  final String id;
+  final int? periodNumber;
+  final int? dayNumber;
+  final DateTime? scheduledDate;
+
+  CardioSessionSnapshot({
+    required this.id,
+    this.periodNumber,
+    this.dayNumber,
+    this.scheduledDate,
+  });
+
+  factory CardioSessionSnapshot.fromSession(CardioSession session) {
+    return CardioSessionSnapshot(
+      id: session.id,
+      periodNumber: session.periodNumber,
+      dayNumber: session.dayNumber,
+      scheduledDate: session.scheduledDate,
+    );
+  }
 }
 
 /// Minimal workout state snapshot for undo
@@ -181,6 +207,126 @@ class ScheduleService {
     return snapshot;
   }
 
+  /// Insert a rest day before the specified calendar date, shifting all
+  /// workouts scheduled on or after that date forward by one calendar day.
+  ///
+  /// This is the date-based sibling of [insertDayBefore]. It is the form used
+  /// when multiple training cycles are active concurrently: each stacked cycle
+  /// maps the same calendar date to a different (period, day) slot, so the shift
+  /// must be keyed on the date rather than on period/day. Mirrors the date-based
+  /// filtering already used by [removeRestDay].
+  ///
+  /// Returns a snapshot for undo, or `null` when the cycle cannot be shifted
+  /// (no start date) so callers can skip it without aborting other cycles.
+  Future<ScheduleSnapshot?> insertDayBeforeDate({
+    required String cycleId,
+    required DateTime restDayDate,
+  }) async {
+    final cycle = await _cycleRepository.getById(cycleId);
+    if (cycle == null || cycle.startDate == null) {
+      return null;
+    }
+
+    final cycleStart = DateHelpers.stripTime(cycle.startDate!);
+    final strippedRestDay = DateHelpers.stripTime(restDayDate);
+    final workouts = await _workoutRepository.getByTrainingCycleId(cycleId);
+
+    // Shift cardio sessions on or after the rest day forward by one day,
+    // capturing their pre-edit state for undo.
+    final cardioSnapshots = await _shiftCardioByDate(
+      cycleId: cycleId,
+      cycleStart: cycleStart,
+      daysPerPeriod: cycle.daysPerPeriod,
+      pivotDate: strippedRestDay,
+      inclusive: true,
+      dayDelta: 1,
+    );
+
+    // Create snapshot for undo (including scheduledDates)
+    final snapshot = ScheduleSnapshot(
+      cycleStartDate: cycle.startDate,
+      workoutSnapshots: workouts.map((w) => WorkoutSnapshot.fromWorkout(w)).toList(),
+      cardioSnapshots: cardioSnapshots,
+      description: 'Inserted day before ${DateHelpers.shortDate.format(restDayDate)}',
+    );
+
+    // Helper to get a workout's effective scheduled date
+    DateTime getWorkoutDate(Workout w) {
+      if (w.scheduledDate != null) {
+        return DateHelpers.stripTime(w.scheduledDate!);
+      }
+      final absoluteDayIndex = (w.periodNumber - 1) * cycle.daysPerPeriod + (w.dayNumber - 1);
+      return DateHelpers.addDays(cycleStart, absoluteDayIndex);
+    }
+
+    // Find all workouts on or after the rest day and shift them forward
+    final workoutsToShift = workouts.where((w) {
+      final workoutDate = getWorkoutDate(w);
+      return !workoutDate.isBefore(strippedRestDay);
+    }).toList();
+
+    // Shift each workout's scheduledDate forward by one day, preserving
+    // periodNumber/dayNumber designations.
+    for (final workout in workoutsToShift) {
+      final currentDate = getWorkoutDate(workout);
+      final newScheduledDate = DateHelpers.addDays(currentDate, 1);
+      final updatedWorkout = workout.copyWith(scheduledDate: newScheduledDate);
+      await _workoutRepository.update(updatedWorkout);
+    }
+
+    return snapshot;
+  }
+
+  /// Shift the scheduled dates of a cycle's cardio sessions by [dayDelta] days.
+  ///
+  /// Mirrors the strength-workout shift used when inserting/removing a rest day:
+  /// only the `scheduledDate` is changed, period/day designations are preserved.
+  /// When [inclusive] is true, sessions on or after [pivotDate] move; otherwise
+  /// only those strictly after it. External (imported) sessions are never moved
+  /// — they record when an activity actually happened.
+  ///
+  /// Returns a snapshot of every session it shifted, for undo.
+  Future<List<CardioSessionSnapshot>> _shiftCardioByDate({
+    required String cycleId,
+    required DateTime cycleStart,
+    required int daysPerPeriod,
+    required DateTime pivotDate,
+    required bool inclusive,
+    required int dayDelta,
+  }) async {
+    final cardioSessions = await _sessionRepository.getCardioByTrainingCycleId(
+      cycleId,
+    );
+
+    DateTime? effectiveDate(CardioSession s) {
+      if (s.scheduledDate != null) return DateHelpers.stripTime(s.scheduledDate!);
+      if (s.completedDate != null) return DateHelpers.stripTime(s.completedDate!);
+      if (s.periodNumber != null && s.dayNumber != null) {
+        final index = (s.periodNumber! - 1) * daysPerPeriod + (s.dayNumber! - 1);
+        return DateHelpers.addDays(cycleStart, index);
+      }
+      return null;
+    }
+
+    final snapshots = <CardioSessionSnapshot>[];
+    for (final session in cardioSessions) {
+      if (session.isReadOnly) continue;
+      final date = effectiveDate(session);
+      if (date == null) continue;
+
+      final matches = inclusive ? !date.isBefore(pivotDate) : date.isAfter(pivotDate);
+      if (!matches) continue;
+
+      snapshots.add(CardioSessionSnapshot.fromSession(session));
+      final newDate = DateHelpers.addDays(date, dayDelta);
+      await _sessionRepository.updateSession(
+        session.copyWith(scheduledDate: newDate),
+      );
+    }
+
+    return snapshots;
+  }
+
   /// Remove a rest day at the specified calendar date, shifting all workouts
   /// scheduled after that date backward by one day.
   ///
@@ -208,10 +354,22 @@ class ScheduleService {
     final strippedRestDay = DateHelpers.stripTime(restDayDate);
     final workouts = await _workoutRepository.getByTrainingCycleId(cycleId);
 
+    // Shift cardio sessions scheduled after the rest day backward by one day,
+    // capturing their pre-edit state for undo.
+    final cardioSnapshots = await _shiftCardioByDate(
+      cycleId: cycleId,
+      cycleStart: cycleStart,
+      daysPerPeriod: cycle.daysPerPeriod,
+      pivotDate: strippedRestDay,
+      inclusive: false,
+      dayDelta: -1,
+    );
+
     // Create snapshot for undo
     final snapshot = ScheduleSnapshot(
       cycleStartDate: cycle.startDate,
       workoutSnapshots: workouts.map((w) => WorkoutSnapshot.fromWorkout(w)).toList(),
+      cardioSnapshots: cardioSnapshots,
       description: 'Removed rest day',
     );
 
@@ -916,6 +1074,30 @@ class ScheduleService {
           );
           await _workoutRepository.update(updated);
         }
+      }
+    }
+
+    // Restore cardio session scheduled dates
+    for (final cardioSnapshot in snapshot.cardioSnapshots) {
+      final session = await _sessionRepository.getById(cardioSnapshot.id);
+      if (session is! CardioSession) continue;
+
+      final needsUpdate =
+          session.periodNumber != cardioSnapshot.periodNumber ||
+          session.dayNumber != cardioSnapshot.dayNumber ||
+          session.scheduledDate != cardioSnapshot.scheduledDate;
+
+      if (needsUpdate) {
+        // Use clearScheduledDate when restoring to null
+        final shouldClearScheduledDate = cardioSnapshot.scheduledDate == null && session.scheduledDate != null;
+
+        final updated = session.copyWith(
+          periodNumber: cardioSnapshot.periodNumber,
+          dayNumber: cardioSnapshot.dayNumber,
+          scheduledDate: cardioSnapshot.scheduledDate,
+          clearScheduledDate: shouldClearScheduledDate,
+        );
+        await _sessionRepository.updateSession(updated);
       }
     }
   }

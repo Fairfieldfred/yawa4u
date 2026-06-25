@@ -86,6 +86,18 @@ class SessionRepository {
     return _sessionDao.watchAll().asyncMap(_hydrateMany);
   }
 
+  /// Load the cardio sessions attached to a training cycle (one-shot).
+  ///
+  /// Used by schedule edits (e.g. inserting a rest day) that need the current
+  /// cardio sessions to shift their dates alongside strength workouts.
+  Future<List<CardioSession>> getCardioByTrainingCycleId(
+    String trainingCycleId,
+  ) async {
+    final rows = await _sessionDao.getByTrainingCycleUuid(trainingCycleId);
+    final sessions = await _hydrateMany(rows);
+    return sessions.whereType<CardioSession>().toList();
+  }
+
   /// Stream sessions filtered to a given sport. Useful for the stats-tab
   /// per-sport charts.
   Stream<List<Session>> watchBySport(Sport sport) {

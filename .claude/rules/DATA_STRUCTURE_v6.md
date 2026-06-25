@@ -324,7 +324,7 @@ Backed by the `WorkoutRepository` facade (which funnels through `SessionReposito
 
 | File | Purpose |
 |---|---|
-| `calendar_providers.dart` | Calendar data mapping, undo state for schedule changes, sport-day aggregation. |
+| `calendar_providers.dart` | Calendar data mapping, undo state for schedule changes, sport-day aggregation. `calendarMonthDataProvider` merges **all** active (stacked) cycles per date. `CalendarUndoState` holds a **list** of per-cycle `(cycleId, ScheduleSnapshot)` entries so a multi-cycle edit undoes in one step. |
 | `drift_providers.dart` | Low-level Drift stream providers. |
 | `navigation_providers.dart` | Bottom nav tab state (`homeTabIndexProvider`). |
 | `onboarding_providers.dart` | Onboarding flow state, selected sports, per-sport unit preferences, training cycle term. |
@@ -649,7 +649,7 @@ Stored in Drift via `CustomExerciseDefinition`. Converts to `ExerciseDefinition`
 | `HealthSyncService` | `data/services/` | Apple Health / Health Connect import via `health` package |
 | `StravaIntegrationService` | `data/services/` | OAuth + sync for Strava activities |
 | `OnboardingService` | `data/services/` | Onboarding flow state + per-sport unit preferences |
-| `ScheduleService` | `data/services/` | Session scheduling, calendar shift/move |
+| `ScheduleService` | `data/services/` | Session scheduling, calendar shift/move, rest-day insert/remove. Date-based methods (`insertDayBeforeDate`, `removeRestDay`) shift both strength workouts and cardio sessions (`_shiftCardioByDate`, skipping external imports). `ScheduleSnapshot` carries `workoutSnapshots` + `cardioSnapshots` for undo |
 | `SkinShareService` | `data/services/` | Share custom themes between devices |
 | `TemplateShareService` | `data/services/` | Share training templates between devices |
 | `ThemeImageService` | `data/services/` | Theme image management for custom skins |
@@ -794,3 +794,4 @@ Each table has a corresponding DAO. Use them directly only when you need a singl
 5. **CardioFeedback is separate.** Not a field on `CardioSession`. Load via `cardioFeedbackProvider(sessionId)` or `CardioFeedbackRepository`.
 6. **WorkoutRepository is a facade.** It wraps `SessionRepository` with `Workout` ↔ `StrengthSession` conversion. No direct DB access. New code should prefer `SessionRepository` directly.
 7. **Planned vs logged cardio.** Sessions created via draft cycle planning use `SessionSource.userPlanned` and `WorkoutStatus.incomplete`. The card shows a "Log" button to mark as completed.
+8. **Calendar schedule edits are multi-cycle and date-based.** The calendar renders **all** active (stacked) cycles, so any schedule edit (rest-day insert/remove) must loop over `currentTrainingCyclesProvider` (plural) — not `currentTrainingCycleProvider` (the primary only) — and shift by **calendar date**, because each cycle maps the same date to a different `(periodNumber, dayNumber)`. Use the date-based `ScheduleService.insertDayBeforeDate` / `removeRestDay`. They shift strength **and** cardio (`_shiftCardioByDate`), changing only `scheduledDate` and skipping external imports (`session.isReadOnly`). Undo (`CalendarUndoState`) stores one snapshot per affected cycle. ⚠️ The drag-drop handlers `moveExerciseToDate` / `moveCardioToDate` still use the singular primary-cycle provider — same latent bug if a secondary cycle's item becomes draggable.

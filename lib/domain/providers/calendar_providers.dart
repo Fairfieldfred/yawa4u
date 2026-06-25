@@ -625,25 +625,28 @@ Color getPeriodColor(Map<int, Color> colors, int periodNumber) {
   return colors[index + 1] ?? Colors.grey;
 }
 
-/// State for undo functionality
-class CalendarUndoState {
-  final ScheduleSnapshot? snapshot;
-  final String? cycleId;
+/// A single cycle's schedule snapshot, paired with its cycle id.
+typedef CalendarUndoEntry = ({String cycleId, ScheduleSnapshot snapshot});
 
-  const CalendarUndoState({this.snapshot, this.cycleId});
+/// State for undo functionality.
+///
+/// Holds one entry per training cycle affected by the last schedule edit. A
+/// single edit (e.g. inserting a rest day) can touch every active cycle when
+/// cycles are stacked, so undo must be able to restore all of them.
+class CalendarUndoState {
+  final List<CalendarUndoEntry> entries;
+
+  const CalendarUndoState({this.entries = const []});
+
+  /// The most recent snapshot, used for display (e.g. the action description).
+  ScheduleSnapshot? get snapshot => entries.isEmpty ? null : entries.first.snapshot;
 
   /// Returns true if there's a snapshot from within the last 24 hours
   bool get hasRecentSnapshot {
-    if (snapshot == null) return false;
-    final age = DateTime.now().difference(snapshot!.timestamp);
+    final snap = snapshot;
+    if (snap == null) return false;
+    final age = DateTime.now().difference(snap.timestamp);
     return age.inHours < 24;
-  }
-
-  CalendarUndoState copyWith({ScheduleSnapshot? snapshot, String? cycleId}) {
-    return CalendarUndoState(
-      snapshot: snapshot ?? this.snapshot,
-      cycleId: cycleId ?? this.cycleId,
-    );
   }
 
   CalendarUndoState clear() {
@@ -658,8 +661,14 @@ class CalendarUndoNotifier extends Notifier<CalendarUndoState> {
     return const CalendarUndoState();
   }
 
+  /// Store a single cycle's snapshot (single-cycle edits).
   void setSnapshot(String cycleId, ScheduleSnapshot snapshot) {
-    state = CalendarUndoState(cycleId: cycleId, snapshot: snapshot);
+    state = CalendarUndoState(entries: [(cycleId: cycleId, snapshot: snapshot)]);
+  }
+
+  /// Store snapshots for every cycle touched by a multi-cycle edit.
+  void setSnapshots(List<CalendarUndoEntry> entries) {
+    state = CalendarUndoState(entries: entries);
   }
 
   void clear() {
@@ -667,13 +676,15 @@ class CalendarUndoNotifier extends Notifier<CalendarUndoState> {
   }
 
   Future<bool> undo() async {
-    if (state.snapshot == null || state.cycleId == null) {
+    if (state.entries.isEmpty) {
       return false;
     }
 
     try {
       final service = ref.read(scheduleServiceProvider);
-      await service.restoreSnapshot(state.cycleId!, state.snapshot!);
+      for (final entry in state.entries) {
+        await service.restoreSnapshot(entry.cycleId, entry.snapshot);
+      }
       clear();
       return true;
     } catch (e) {

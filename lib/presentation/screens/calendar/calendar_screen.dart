@@ -1583,20 +1583,31 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     );
   }
 
-  Future<void> _insertDayBefore(int period, int day) async {
-    final cycle = ref.read(currentTrainingCycleProvider);
-    if (cycle == null) return;
+  Future<void> _insertDayBefore(int period, int day, DateTime date) async {
+    final cycles = ref.read(currentTrainingCyclesProvider);
+    if (cycles.isEmpty) return;
 
     try {
       final service = ref.read(scheduleServiceProvider);
-      final snapshot = await service.insertDayBefore(
-        cycleId: cycle.id,
-        fromPeriod: period,
-        fromDay: day,
-      );
 
-      // Store snapshot for undo
-      ref.read(calendarUndoProvider.notifier).setSnapshot(cycle.id, snapshot);
+      // Insert the rest day across every active cycle. Each stacked cycle maps
+      // this calendar date to its own (period, day), so the shift is keyed on
+      // the date rather than the primary cycle's slot.
+      final entries = <CalendarUndoEntry>[];
+      for (final cycle in cycles) {
+        final snapshot = await service.insertDayBeforeDate(
+          cycleId: cycle.id,
+          restDayDate: date,
+        );
+        if (snapshot != null) {
+          entries.add((cycleId: cycle.id, snapshot: snapshot));
+        }
+      }
+
+      // Store snapshots for undo
+      if (entries.isNotEmpty) {
+        ref.read(calendarUndoProvider.notifier).setSnapshots(entries);
+      }
 
       if (mounted) {
         final l10n = AppLocalizations.of(context)!;
@@ -1621,18 +1632,28 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
   }
 
   Future<void> _removeRestDay(DateTime restDayDate) async {
-    final cycle = ref.read(currentTrainingCycleProvider);
-    if (cycle == null) return;
+    final cycles = ref.read(currentTrainingCyclesProvider);
+    if (cycles.isEmpty) return;
 
     try {
       final service = ref.read(scheduleServiceProvider);
-      final snapshot = await service.removeRestDay(
-        cycleId: cycle.id,
-        restDayDate: restDayDate,
-      );
 
-      // Store snapshot for undo
-      ref.read(calendarUndoProvider.notifier).setSnapshot(cycle.id, snapshot);
+      // Remove the rest day across every active cycle so stacked cycles stay in
+      // sync. removeRestDay is already date-based, so it applies uniformly.
+      final entries = <CalendarUndoEntry>[];
+      for (final cycle in cycles) {
+        if (cycle.startDate == null) continue;
+        final snapshot = await service.removeRestDay(
+          cycleId: cycle.id,
+          restDayDate: restDayDate,
+        );
+        entries.add((cycleId: cycle.id, snapshot: snapshot));
+      }
+
+      // Store snapshots for undo
+      if (entries.isNotEmpty) {
+        ref.read(calendarUndoProvider.notifier).setSnapshots(entries);
+      }
 
       if (mounted) {
         final l10n = AppLocalizations.of(context)!;
@@ -1666,7 +1687,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
       selectedDay: dayData.dayNumber, // Can be null for rest days
       isRestDay: isRestDay,
       selectedDate: dayData.date,
-      onInsertDayBefore: dayData.hasWorkout ? (period, day) => _insertDayBefore(period, day) : null,
+      onInsertDayBefore: dayData.hasWorkout ? (period, day) => _insertDayBefore(period, day, dayData.date) : null,
       onRemoveRestDay: isRestDay ? (date) => _removeRestDay(date) : null,
     );
   }

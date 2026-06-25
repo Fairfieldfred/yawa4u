@@ -23,6 +23,20 @@ final workouts = ref.watch(workoutsByTrainingCycleProvider(cycleId));
 final workouts = trainingCycle.workouts;
 ```
 
+**Stacked Cycles & Calendar Edits**: Multiple training cycles can be active at once. The calendar renders **all** of them (`calendarMonthDataProvider` watches `currentTrainingCyclesProvider`, plural). Any schedule edit (insert/remove rest day) must therefore loop over **all** active cycles and shift by **calendar date** — not period/day, since each cycle maps the same date differently. Using `currentTrainingCycleProvider` (singular = primary only) is the bug that makes "only the first template shifts."
+
+```dart
+// ✅ CORRECT - apply to every active cycle, keyed on date
+for (final cycle in ref.read(currentTrainingCyclesProvider)) {
+  await scheduleService.insertDayBeforeDate(cycleId: cycle.id, restDayDate: date);
+}
+// ❌ WRONG - only shifts the primary cycle
+final cycle = ref.read(currentTrainingCycleProvider);
+await scheduleService.insertDayBefore(cycleId: cycle.id, fromPeriod: p, fromDay: d);
+```
+
+Date-based shifts move strength **and** cardio (`_shiftCardioByDate`), changing only `scheduledDate` and skipping external imports (`session.isReadOnly`). Undo stores one `ScheduleSnapshot` per affected cycle.
+
 ## Architecture & Data Flow
 
 ```
