@@ -30,7 +30,6 @@ import '../../../domain/providers/workout_providers.dart';
 import '../../widgets/app_icon_widget.dart';
 import '../../widgets/calendar_dropdown.dart';
 import '../../widgets/cardio/cardio_session_card.dart';
-import '../../widgets/cardio/quick_log_action.dart';
 import '../../widgets/cycle_summary_dialog.dart';
 import '../../widgets/dialogs/add_exercise_dialog.dart';
 import '../../widgets/dialogs/exercise_feedback_dialog.dart';
@@ -400,7 +399,22 @@ class _ExercisesHomeScreenState extends ConsumerState<ExercisesHomeScreen> {
     required List<Workout> allWorkouts,
   }) {
     final l10n = AppLocalizations.of(context)!;
+    final selectedSports = ref.watch(selectedSportsProvider);
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        heroTag: 'exercisesEmptyDayAddSessionFab',
+        onPressed: () => showAddExerciseDialog(
+          context: context,
+          ref: ref,
+          workouts: const [],
+          trainingCycleId: trainingCycle.id,
+          periodNumber: period,
+          dayNumber: day,
+          selectedSports: selectedSports,
+        ),
+        tooltip: l10n.workoutAddSessionTooltip,
+        child: const Icon(Icons.add),
+      ),
       appBar: AppBar(
         elevation: 0,
         automaticallyImplyLeading: false,
@@ -430,7 +444,6 @@ class _ExercisesHomeScreenState extends ConsumerState<ExercisesHomeScreen> {
           ],
         ),
         actions: [
-          const QuickLogAction(),
           IconButton(
             icon: const Icon(Icons.calendar_today),
             onPressed: _togglePeriodSelector,
@@ -657,6 +670,10 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
     final displayDay = widget.selectedDay;
     final dayName = widget.workouts.isNotEmpty ? (widget.workouts.first.dayName ?? '') : '';
 
+    // The user's chosen sports drive which options appear in the
+    // Add Session dialog.
+    final selectedSports = ref.watch(selectedSportsProvider);
+
     // Check if all exercises are completed
     final allExercisesCompleted =
         allExercises.isNotEmpty &&
@@ -673,6 +690,21 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
+        floatingActionButton: FloatingActionButton(
+          heroTag: 'exercisesAddSessionFab',
+          onPressed: () => showAddExerciseDialog(
+            context: context,
+            ref: ref,
+            workouts: widget.workouts,
+            trainingCycleId: trainingCycle.id,
+            periodNumber: displayPeriod,
+            dayNumber: displayDay,
+            dayName: dayName.isNotEmpty ? dayName : null,
+            selectedSports: selectedSports,
+          ),
+          tooltip: l10n.workoutAddSessionTooltip,
+          child: const Icon(Icons.add),
+        ),
         appBar: AppBar(
           elevation: 0,
           automaticallyImplyLeading: false,
@@ -704,7 +736,6 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
             ],
           ),
           actions: [
-            const QuickLogAction(),
             IconButton(
               icon: const Icon(Icons.calendar_today),
               onPressed: _togglePeriodSelector,

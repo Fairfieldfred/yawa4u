@@ -1438,6 +1438,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
           floatingActionButton: !hasAnySessions
               ? null
               : FloatingActionButton(
+                  heroTag: 'workoutAddSessionFab',
                   onPressed: () => _showAddSessionDialog(
                     cycleId: currentTrainingCycle.id,
                     period: displayPeriod,
