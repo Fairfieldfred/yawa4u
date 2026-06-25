@@ -260,9 +260,9 @@ void main() {
     });
 
     test('clear returns empty state', () {
-      const state = CalendarUndoState(cycleId: 'c1');
+      const state = CalendarUndoState();
       final cleared = state.clear();
-      expect(cleared.cycleId, isNull);
+      expect(cleared.entries, isEmpty);
       expect(cleared.snapshot, isNull);
     });
   });
