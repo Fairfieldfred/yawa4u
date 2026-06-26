@@ -36,6 +36,22 @@ class QrScannerView extends StatefulWidget {
 class _QrScannerViewState extends State<QrScannerView> {
   bool _handled = false;
 
+  /// flutter_zxing's [ReaderWidget] loses a cold-start race with the iOS
+  /// camera capture session when it's mounted in the same frame the scanner
+  /// appears: AVFoundation bails with `FigCaptureSourceRemote err=-17281`, no
+  /// frames reach the decoder, and scanning only works on a manual second
+  /// attempt. Letting the appearing frame settle before attaching the camera
+  /// gives the first attempt a clean start.
+  bool _warmingUp = true;
+
+  @override
+  void initState() {
+    super.initState();
+    Future<void>.delayed(const Duration(milliseconds: 350), () {
+      if (mounted) setState(() => _warmingUp = false);
+    });
+  }
+
   void _onScan(Code code) {
     if (_handled) return;
     final text = code.text;
@@ -59,15 +75,29 @@ class _QrScannerViewState extends State<QrScannerView> {
     return Stack(
       children: [
         Positioned.fill(
-          child: ReaderWidget(
-            codeFormat: Format.qrCode,
-            showScannerOverlay: true,
-            showFlashlight: false,
-            showToggleCamera: false,
-            showGallery: false,
-            lensDirection: CameraLensDirection.back,
-            onScan: _onScan,
-          ),
+          // Hold the camera back for one beat so its capture session starts
+          // cleanly on the first attempt (see [_warmingUp]).
+          child: _warmingUp
+              ? const ColoredBox(
+                  color: Colors.black,
+                  child: Center(child: CircularProgressIndicator()),
+                )
+              : ReaderWidget(
+                  codeFormat: Format.qrCode,
+                  showScannerOverlay: true,
+                  showFlashlight: false,
+                  showToggleCamera: false,
+                  showGallery: false,
+                  lensDirection: CameraLensDirection.back,
+                  // Reading a QR off another device's *screen* is harder than off
+                  // paper: lower contrast, glare, and the dark-mode case where the
+                  // code renders light-on-dark. tryHarder/tryInverted/tryRotate
+                  // make zxing far more likely to lock on.
+                  tryHarder: true,
+                  tryInverted: true,
+                  tryRotate: true,
+                  onScan: _onScan,
+                ),
         ),
         Positioned(
           top: 16,

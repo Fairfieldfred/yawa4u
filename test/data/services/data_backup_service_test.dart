@@ -460,6 +460,51 @@ void main() {
       expect(loaded.exercises.first.sets.first.weight, 80);
     });
 
+    test('append import of real export shape does not double-insert exercises', () async {
+      // Reproduces the WiFi-sync crash: the real exportToJson embeds each
+      // exercise inside its workout AND lists it again top-level. The workout
+      // import writes the embedded copy, so a blind insert of the top-level
+      // copy used to throw UNIQUE(exercises.uuid) (SqliteException 2067) and
+      // abort the import — only "succeeding" on a second attempt.
+      final cycle = TestFixtures.createTrainingCycle(id: 'dup-cycle');
+      final exercise = TestFixtures.createExercise(
+        id: 'dup-e',
+        workoutId: 'dup-w',
+        sets: [TestFixtures.createExerciseSet(id: 'dup-s1', weight: 100)],
+      );
+      final workout = TestFixtures.createWorkout(
+        id: 'dup-w',
+        trainingCycleId: 'dup-cycle',
+        exercises: [exercise],
+      );
+
+      // Exercise appears in BOTH arrays, exactly like exportToJson emits.
+      final exportJson = jsonEncode({
+        'version': 4,
+        'trainingCycles': [cycle.toJson()],
+        'workouts': [workout.toJson()],
+        'exercises': [exercise.toJson()],
+        'customExercises': [],
+        'cardioSessions': [],
+        'cyclePeriods': [],
+        'sportZones': [],
+        'cardioFeedbacks': [],
+      });
+
+      final result = await backupService.importFromJson(
+        exportJson,
+        replace: false,
+        importThemes: false,
+      );
+
+      expect(result.success, isTrue);
+      // Exactly one exercise, written once via the workout — not duplicated.
+      final loaded = await workoutRepo.getById('dup-w');
+      expect(loaded, isNotNull);
+      expect(loaded!.exercises, hasLength(1));
+      expect(loaded.exercises.first.sets, hasLength(1));
+    });
+
     test('imports custom exercise definitions', () async {
       final ce = TestFixtures.createCustomExerciseDefinition(
         id: 'imp-ce',
@@ -603,6 +648,44 @@ void main() {
 
       expect(result.success, isTrue);
       expect(result.sportZonesImported, equals(1));
+    });
+
+    test('append import skips an already-present sport zone by id', () async {
+      // WiFi sync uses replace: false. Re-importing a backup that contains a
+      // zone the device already has must not throw on the UNIQUE(uuid)
+      // constraint — it should be skipped, like every other table.
+      final existing = TestFixtures.createSportZone(
+        id: 'z-dup',
+        sport: Sport.bike,
+        zoneNumber: 1,
+        minValue: 100,
+        maxValue: 150,
+      );
+      await sportZoneRepo.create(existing);
+
+      final exportJson = jsonEncode({
+        'version': 4,
+        'trainingCycles': [],
+        'workouts': [],
+        'exercises': [],
+        'customExercises': [],
+        'cardioSessions': [],
+        'cyclePeriods': [],
+        'sportZones': [existing.toJson()],
+        'cardioFeedbacks': [],
+      });
+
+      final result = await backupService.importFromJson(
+        exportJson,
+        replace: false,
+        importThemes: false,
+      );
+
+      expect(result.success, isTrue);
+      expect(result.sportZonesImported, equals(0));
+      // Still exactly one zone for the sport — no duplicate, no crash.
+      final zones = await sportZoneRepo.getBySport(Sport.bike);
+      expect(zones, hasLength(1));
     });
 
     test('cardio session with detail round-trips', () async {

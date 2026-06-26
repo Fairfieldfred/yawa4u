@@ -34,5 +34,7 @@
 		<string>NSApplication</string>
 		<key>NSCameraUsageDescription</key>
 		<string>YAWA4U needs camera access to scan QR codes for syncing data between devices.</string>
+		<key>NSLocalNetworkUsageDescription</key>
+		<string>YAWA4U uses your local network to sync workout data directly between your devices over WiFi.</string>
 	</dict>
 </plist>

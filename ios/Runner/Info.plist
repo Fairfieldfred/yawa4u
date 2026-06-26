@@ -43,6 +43,8 @@
 		<true/>
 		<key>NSCameraUsageDescription</key>
 		<string>Camera access is required to scan QR codes for device sync.</string>
+		<key>NSLocalNetworkUsageDescription</key>
+		<string>YAWA4U uses your local network to sync workout data directly between your devices over WiFi.</string>
 		<key>NSHealthShareUsageDescription</key>
 		<string>YAWA4U can read completed workouts, heart rate, and distance from Apple Health so your runs, rides, and swims (including Peloton workouts paired to Health) show up alongside your strength sessions.</string>
 		<key>NSHealthUpdateUsageDescription</key>

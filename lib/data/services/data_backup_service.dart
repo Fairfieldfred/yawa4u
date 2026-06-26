@@ -207,14 +207,14 @@ class DataBackupService {
       final existingWorkouts = await _workoutRepository.getAll();
       final existingWorkoutIds = existingWorkouts.map((w) => w.id).toSet();
 
-      final existingExercises = await _exerciseRepository.getAll();
-      final existingExerciseIds = existingExercises.map((e) => e.id).toSet();
-
       final existingCustomExercises = await _customExerciseRepository.getAll();
       final existingCustomExerciseIds = existingCustomExercises.map((ce) => ce.id).toSet();
 
       final existingSessions = await _loadAllSessions();
       final existingSessionIds = existingSessions.map((s) => s.id).toSet();
+
+      final existingSportZones = await _sportZoneRepository.getAll();
+      final existingSportZoneIds = existingSportZones.map((z) => z.id).toSet();
 
       // Import trainingCycles
       int trainingCyclesImported = 0;
@@ -236,10 +236,19 @@ class DataBackupService {
         workoutsImported++;
       }
 
-      // Import exercises
+      // Import exercises.
+      //
+      // Workouts embed their exercises (Workout.toJson) and the backup ALSO
+      // lists every exercise top-level, so each exercise arrives twice. The
+      // workouts loop above already persisted the embedded ones (idempotently
+      // via createStrength), so we must re-read existing ids HERE — a snapshot
+      // taken before that loop is stale and a blind create() would hit the
+      // UNIQUE(exercises.uuid) constraint (SqliteException 2067), aborting the
+      // whole import. Skipping already-present ids leaves only true orphans.
+      final exerciseIdsNow = (await _exerciseRepository.getAll()).map((e) => e.id).toSet();
       int exercisesImported = 0;
       for (final exercise in exercises) {
-        if (!replace && existingExerciseIds.contains(exercise.id)) {
+        if (exerciseIdsNow.contains(exercise.id)) {
           continue;
         }
         await _exerciseRepository.create(exercise);
@@ -304,6 +313,10 @@ class DataBackupService {
         }
       } else {
         for (final z in sportZones) {
+          // Skip zones we already have — the uuid column is UNIQUE, so a
+          // blind insert throws SqliteException(2067) on re-import (e.g.
+          // a second WiFi sync). Matches the dedup other tables do above.
+          if (existingSportZoneIds.contains(z.id)) continue;
           await _sportZoneRepository.create(z);
           sportZonesImported++;
         }

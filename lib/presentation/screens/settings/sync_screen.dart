@@ -408,7 +408,18 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
                 child: QrImageView(
                   data: _connectionInfo!,
                   version: QrVersions.auto,
-                  size: 200,
+                  size: 280,
+                  // Larger quiet zone + fixed dark/light so the code stays
+                  // high-contrast and easy to scan from another device.
+                  backgroundColor: Colors.white,
+                  eyeStyle: const QrEyeStyle(
+                    eyeShape: QrEyeShape.square,
+                    color: Colors.black,
+                  ),
+                  dataModuleStyle: const QrDataModuleStyle(
+                    dataModuleShape: QrDataModuleShape.square,
+                    color: Colors.black,
+                  ),
                 ),
               ),
             ),
