@@ -19,6 +19,7 @@ import '../../widgets/skeleton_loader.dart';
 import '../../../domain/providers/theme_provider.dart';
 import '../../../domain/providers/session_providers.dart';
 import '../../../domain/providers/training_cycle_providers.dart';
+import '../../../domain/providers/use_case_providers.dart';
 import '../../../domain/providers/workout_providers.dart';
 import '../../widgets/app_icon_widget.dart';
 import '../../widgets/cardio/quick_log_action.dart';
@@ -437,6 +438,21 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
                                 ],
                               ),
                             ),
+                          // Mark as completed, for active cycles only
+                          if (isCurrent)
+                            PopupMenuItem(
+                              value: 'complete',
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.check_circle_outline,
+                                    color: context.successColor,
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Text(l10n.cycleListMenuComplete),
+                                ],
+                              ),
+                            ),
                           PopupMenuItem(
                             value: 'delete',
                             child: Builder(
@@ -586,6 +602,9 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
         break;
       case 'export':
         await _exportTemplate(trainingCycle);
+        break;
+      case 'complete':
+        await _completeTrainingCycle(trainingCycle);
         break;
       case 'delete':
         await _deleteTrainingCycle(trainingCycle);
@@ -1103,6 +1122,57 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(l10n.cycleListErrorRenaming(e)),
+              backgroundColor: context.errorColor,
+            ),
+          );
+        }
+      }
+    }
+  }
+
+  Future<void> _completeTrainingCycle(TrainingCycle trainingCycle) async {
+    final l10n = AppLocalizations.of(context)!;
+    final cycleTerm = ref.read(trainingCycleTermProvider);
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.cycleListCompleteDialogTitle(cycleTerm)),
+        content: Text(
+          l10n.cycleListCompleteDialogContent(trainingCycle.name, cycleTerm),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(l10n.cancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(l10n.cycleListCompleteAction),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && mounted) {
+      try {
+        // Marks status as completed and stamps endDate while preserving all
+        // associated workouts, exercises, and sets.
+        await ref.read(endTrainingCycleUseCaseProvider).execute(trainingCycle);
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                l10n.cycleListCompletedSnackbar(trainingCycle.name),
+              ),
+            ),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(l10n.cycleListErrorCompleting(e)),
               backgroundColor: context.errorColor,
             ),
           );

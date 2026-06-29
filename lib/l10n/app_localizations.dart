@@ -1963,6 +1963,42 @@ abstract class AppLocalizations {
   /// **'Error deleting trainingCycle: {error}'**
   String cycleListErrorDeleting(Object error);
 
+  /// No description provided for @cycleListMenuComplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark as completed'**
+  String get cycleListMenuComplete;
+
+  /// No description provided for @cycleListCompleteDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete {cycleTerm}'**
+  String cycleListCompleteDialogTitle(Object cycleTerm);
+
+  /// No description provided for @cycleListCompleteDialogContent.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark \"{name}\" as completed? Your history is preserved and the {cycleTerm} moves to your completed list.'**
+  String cycleListCompleteDialogContent(Object name, Object cycleTerm);
+
+  /// No description provided for @cycleListCompleteAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete'**
+  String get cycleListCompleteAction;
+
+  /// No description provided for @cycleListCompletedSnackbar.
+  ///
+  /// In en, this message translates to:
+  /// **'\"{name}\" marked as completed'**
+  String cycleListCompletedSnackbar(Object name);
+
+  /// No description provided for @cycleListErrorCompleting.
+  ///
+  /// In en, this message translates to:
+  /// **'Error completing trainingCycle: {error}'**
+  String cycleListErrorCompleting(Object error);
+
   /// No description provided for @cycleListRenameDialogTitle.
   ///
   /// In en, this message translates to:

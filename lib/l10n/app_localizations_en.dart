@@ -1047,6 +1047,32 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get cycleListMenuComplete => 'Mark as completed';
+
+  @override
+  String cycleListCompleteDialogTitle(Object cycleTerm) {
+    return 'Complete $cycleTerm';
+  }
+
+  @override
+  String cycleListCompleteDialogContent(Object name, Object cycleTerm) {
+    return 'Mark \"$name\" as completed? Your history is preserved and the $cycleTerm moves to your completed list.';
+  }
+
+  @override
+  String get cycleListCompleteAction => 'Complete';
+
+  @override
+  String cycleListCompletedSnackbar(Object name) {
+    return '\"$name\" marked as completed';
+  }
+
+  @override
+  String cycleListErrorCompleting(Object error) {
+    return 'Error completing trainingCycle: $error';
+  }
+
+  @override
   String get cycleListRenameDialogTitle => 'Rename';
 
   @override

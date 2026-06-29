@@ -614,6 +614,33 @@
       "error": {}
     }
   },
+  "cycleListMenuComplete": "Mark as completed",
+  "cycleListCompleteDialogTitle": "Complete {cycleTerm}",
+  "@cycleListCompleteDialogTitle": {
+    "placeholders": {
+      "cycleTerm": {}
+    }
+  },
+  "cycleListCompleteDialogContent": "Mark \"{name}\" as completed? Your history is preserved and the {cycleTerm} moves to your completed list.",
+  "@cycleListCompleteDialogContent": {
+    "placeholders": {
+      "name": {},
+      "cycleTerm": {}
+    }
+  },
+  "cycleListCompleteAction": "Complete",
+  "cycleListCompletedSnackbar": "\"{name}\" marked as completed",
+  "@cycleListCompletedSnackbar": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "cycleListErrorCompleting": "Error completing trainingCycle: {error}",
+  "@cycleListErrorCompleting": {
+    "placeholders": {
+      "error": {}
+    }
+  },
   "cycleListRenameDialogTitle": "Rename",
   "cycleListRenameDialogHint": "TrainingCycle name",
   "cycleListSaveTemplateDialogTitle": "Save as Template",
