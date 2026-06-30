@@ -18,6 +18,7 @@ class LocaleSelector extends ConsumerWidget {
     final locales = [
       (null, l10n.localeSystem, 'locale_system'),
       (const Locale('en'), l10n.localeEnglish, 'locale_en'),
+      (const Locale('es'), l10n.localeSpanish, 'locale_es'),
     ];
 
     return Column(

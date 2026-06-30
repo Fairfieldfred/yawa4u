@@ -15,6 +15,7 @@ import 'core/services/sentry_service.dart';
 import 'core/theme/skins/skins.dart';
 import 'data/services/csv_loader_service.dart';
 import 'data/services/database_service.dart';
+import 'data/services/exercise_name_localizer.dart';
 import 'data/services/firebase_auth_service.dart';
 import 'domain/providers/onboarding_providers.dart';
 import 'domain/providers/locale_provider.dart';
@@ -51,6 +52,9 @@ Future<void> main() async {
 
   // Load exercises from CSV
   await CsvLoaderService().loadExercises();
+
+  // Load exercise-name translations for display-time localization
+  await ExerciseNameLocalizer().load();
 
   // Sign in anonymously for community library access (no-op if already signed in)
   await FirebaseAuthService().ensureSignedIn();

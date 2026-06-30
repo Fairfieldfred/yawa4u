@@ -113,6 +113,7 @@ Dumbbell Flye (Incline),Chest,Dumbbell
 Dumbbell Front Raise,Shoulders,Dumbbell
 Dumbbell Front Squat,Quads,Dumbbell
 Dumbbell Hip Thrust (Single Leg),Glutes,Dumbbell
+Dumbbell Incline Y Raises,Shoulders,Dumbbell
 Dumbbell Lateral Raise,Shoulders,Dumbbell
 Dumbbell Lateral Raise (Incline),Shoulders,Dumbbell
 Dumbbell Lateral Raise (Super Rom),Shoulders,Dumbbell
@@ -189,7 +190,6 @@ Copenhagen Plank (Elevated),Adductors,Bodyweight Only
 Side-Lying Hip Adduction,Adductors,Bodyweight Only
 Side-Lying Hip Adduction (Weighted),Adductors,Dumbbell
 In and Out Straight Arm Shoulder Flyes,Shoulders,Dumbbell
-Incline Dumbbell Y Raises,Shoulders,Dumbbell
 Inverted Row,Back,Bodyweight Only
 Inverted Skullcrusher,Triceps,Bodyweight Only
 JM Press,Triceps,Barbell
@@ -331,7 +331,7 @@ Smith Machine JM Press,Triceps,Smith Machine
 "Smith Machine Press (Incline, Wide Grip)",Chest,Smith Machine
 Smith Machine Row,Back,Smith Machine
 Smith Machine Shoulder Press (Seated),Shoulders,Smith Machine
-Smith Machine Shrug,Traps,Smith Machine
+Smith Machine Shrug,Traps3,Smith Machine
 Smith Machine Skullcrusher,Triceps,Smith Machine
 Smith Machine Split Squat,Glutes,Smith Machine
 Smith Machine Squat (Feet Forward),Quads,Smith Machine

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/constants/enums.dart';
 import '../../core/constants/equipment_types.dart';
+import '../../data/services/exercise_name_localizer.dart';
 import '../../core/theme/skins/skins.dart';
 import '../../core/utils/weight_conversion.dart';
 import '../../data/models/exercise.dart';
@@ -223,7 +224,7 @@ class ExerciseCardWidget extends ConsumerWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  exercise.name,
+                                  context.localizedExerciseName(exercise.name),
                                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                                     fontSize: 17,
                                     fontWeight: FontWeight.w600,
@@ -281,7 +282,7 @@ class ExerciseCardWidget extends ConsumerWidget {
                           // Overflow menu button
                           Semantics(
                             label: l10n.exerciseCardOptionsLabel(
-                              exercise.name,
+                              context.localizedExerciseName(exercise.name),
                             ),
                             child: _buildExerciseOverflowMenu(context, l10n),
                           ),

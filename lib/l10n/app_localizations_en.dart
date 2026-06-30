@@ -4295,6 +4295,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get localeEnglish => 'English';
 
   @override
+  String get localeSpanish => 'Spanish';
+
+  @override
   String get sportPickerTitle => 'Add a session';
 
   @override

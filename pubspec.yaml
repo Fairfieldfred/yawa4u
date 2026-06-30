@@ -111,6 +111,7 @@ flutter:
   assets:
     - assets/templates/
     - assets/cardio_sessions/
+    - assets/i18n/
     - exercises.csv
     - assets/images/
     - assets/common/

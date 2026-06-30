@@ -9,6 +9,7 @@ import '../../../core/constants/muscle_groups.dart';
 import '../../../data/models/exercise.dart';
 import '../../../data/models/exercise_definition.dart';
 import '../../../data/models/exercise_set.dart';
+import '../../../data/services/exercise_name_localizer.dart';
 import '../../../domain/providers/database_providers.dart';
 import '../../../domain/providers/exercise_providers.dart';
 import '../../../domain/providers/onboarding_providers.dart';
@@ -264,11 +265,15 @@ class _AddExerciseScreenState extends ConsumerState<AddExerciseScreen> {
   ) {
     var filtered = exercises;
 
-    // Filter by search query
+    // Filter by search query. Match against both the canonical English name
+    // and the localized display name so users can search in either language.
     if (_searchQuery.isNotEmpty) {
+      final query = _searchQuery.toLowerCase();
       filtered = filtered
           .where(
-            (e) => e.name.toLowerCase().contains(_searchQuery.toLowerCase()),
+            (e) =>
+                e.name.toLowerCase().contains(query) ||
+                context.localizedExerciseName(e.name).toLowerCase().contains(query),
           )
           .toList();
     }
@@ -305,7 +310,7 @@ class _AddExerciseScreenState extends ConsumerState<AddExerciseScreen> {
       child: ListTile(
         contentPadding: const EdgeInsets.all(16),
         title: Text(
-          exercise.name,
+          context.localizedExerciseName(exercise.name),
           style: Theme.of(context).textTheme.titleMedium,
         ),
         subtitle: Padding(
@@ -530,8 +535,15 @@ class _AddExerciseScreenState extends ConsumerState<AddExerciseScreen> {
         SnackBar(
           content: Text(
             isReplacing
-                ? l10n.addExerciseReplaced(existingExercise?.name ?? 'Exercise', exerciseDef.name)
-                : l10n.addExerciseAdded(exerciseDef.name),
+                ? l10n.addExerciseReplaced(
+                    context.localizedExerciseName(
+                      existingExercise?.name ?? 'Exercise',
+                    ),
+                    context.localizedExerciseName(exerciseDef.name),
+                  )
+                : l10n.addExerciseAdded(
+                    context.localizedExerciseName(exerciseDef.name),
+                  ),
           ),
           duration: const Duration(seconds: 2),
         ),

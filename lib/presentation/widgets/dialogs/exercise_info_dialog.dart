@@ -10,6 +10,7 @@ import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import '../../../core/constants/enums.dart';
 import '../../../core/constants/equipment_types.dart';
 import '../../../core/constants/muscle_groups.dart';
+import '../../../data/services/exercise_name_localizer.dart';
 import '../../../core/theme/skins/skins.dart';
 import '../../../data/models/exercise.dart';
 import '../../../data/models/exercise_set.dart';
@@ -186,7 +187,7 @@ class _ExerciseInfoDialogState extends ConsumerState<ExerciseInfoDialog> {
                     const SizedBox(height: 4),
                     // Exercise name
                     Text(
-                      widget.exercise.name,
+                      context.localizedExerciseName(widget.exercise.name),
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),

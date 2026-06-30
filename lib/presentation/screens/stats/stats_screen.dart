@@ -7,6 +7,7 @@ import '../../../core/utils/user_errors.dart';
 import '../../../data/models/cardio_stats.dart';
 import '../../../data/models/stats_data.dart';
 import '../../../data/models/training_cycle.dart';
+import '../../../data/services/exercise_name_localizer.dart';
 import '../../../domain/providers/measurement_providers.dart';
 import '../../../domain/providers/onboarding_providers.dart';
 import '../../../domain/providers/stats_providers.dart';
@@ -600,7 +601,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen> with SingleTickerProv
                   ),
                 ),
                 title: Text(
-                  exerciseEntry.key,
+                  context.localizedExerciseName(exerciseEntry.key),
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
                 trailing: Text(
@@ -652,7 +653,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen> with SingleTickerProv
                   size: 20,
                 ),
                 title: Text(
-                  recordEntry.key,
+                  context.localizedExerciseName(recordEntry.key),
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
                 trailing: Text(

@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../core/constants/enums.dart';
+import '../../../data/services/exercise_name_localizer.dart';
 import '../../../core/constants/sports.dart';
 import '../../../data/database/app_database.dart' show ExerciseSetsCompanion;
 import '../../../data/database/daos/exercise_set_dao.dart' show ExerciseSetDao;
@@ -957,7 +958,11 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
       ..hideCurrentSnackBar()
       ..showSnackBar(
         SnackBar(
-          content: Text(l10n.workoutExerciseDeleted(removedExercise.name)),
+          content: Text(
+            l10n.workoutExerciseDeleted(
+              context.localizedExerciseName(removedExercise.name),
+            ),
+          ),
           duration: const Duration(seconds: 6),
           action: SnackBarAction(
             label: l10n.undo,

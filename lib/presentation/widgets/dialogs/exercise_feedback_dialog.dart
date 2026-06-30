@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/constants/enums.dart';
 import '../../../data/models/exercise_feedback.dart';
+import '../../../data/services/exercise_name_localizer.dart';
 import '../../../l10n/app_localizations.dart';
 
 /// Dialog for logging exercise feedback: joint pain, muscle pump, and workload.
@@ -56,7 +57,7 @@ class _ExerciseFeedbackDialogState extends State<ExerciseFeedbackDialog> {
 
     return AlertDialog(
       title: Text(
-        widget.exerciseName,
+        context.localizedExerciseName(widget.exerciseName),
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
       ),
