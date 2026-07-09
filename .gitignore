@@ -55,12 +55,9 @@ firebase.json
 lib/firebase_options.dart
 
 /marketing
-BUILD_PLAN.md
-CLAUDE.md
 .mcp.json
 app_description.md
 ui_photo_descriptions.md
-SETUP.md
 /android/gradle/key.properties
 sentry.properties
 .vscode/launch.json

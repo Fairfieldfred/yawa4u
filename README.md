@@ -259,16 +259,16 @@ Add a JSON file to `assets/templates/` following the existing format and submit 
 
 ## Documentation
 
-Detailed reference documents in the repository root:
+Detailed reference documents:
 
 | Document | Purpose |
 |---|---|
-| `DATA_STRUCTURE_v5.md` | Schema v6 reference — tables, models, providers, enums, pitfalls |
-| `TERMINOLOGY.md` | Naming conventions: Workout vs Session, Period vs Week |
-| `MULTISPORT_EXPANSION_PLAN.md` | Multi-sport expansion completion record (Phases 1–6) |
-| `DESIGN_OPPORTUNITIES.md` | UX redesign completion record (home screen, quick-log, sport ribbon) |
-| `UX_REVIEW.md` | UX review status tracker with remaining polish items |
-| `WORKOUT_SCREEN_REWRITE.md` | Workout tab sliver-scroll rewrite record |
+| `CLAUDE.md` | Developer quick-start: commands, architecture, domain pitfalls |
+| `.claude/rules/DATA_STRUCTURE_v6.md` | Schema v6 reference — tables, models, providers, enums, pitfalls |
+| `.claude/rules/TERMINOLOGY.md` | Naming conventions: Workout vs Session, Period vs Week |
+| `.claude/rules/LOCALIZATION.md` | Adding a new language (UI strings + exercise names) |
+| `.claude/rules/SETUP.md` | Firebase and Sentry configuration |
+| `docs/watch_build_plan.md` | Planned watchOS companion app |
 
 ---
 
