@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/constants/muscle_groups.dart';
 import '../../../core/theme/skins/skins.dart';
 import '../../../data/models/training_cycle_template.dart';
 import '../../../data/repositories/community_repository.dart';
 import '../../../domain/providers/community_providers.dart';
+import '../../../domain/providers/database_providers.dart';
+import '../../../domain/providers/navigation_providers.dart';
 import '../../../domain/providers/template_providers.dart';
 import '../../../l10n/app_localizations.dart';
 
@@ -30,26 +33,45 @@ class _CommunityTemplateDetailScreenState extends ConsumerState<CommunityTemplat
     final l10n = AppLocalizations.of(context)!;
     setState(() => _isDownloading = true);
     try {
+      final template = widget.template.template;
+
+      // Save the template into the local library.
       final repo = ref.read(communityRepositoryProvider);
       await repo.downloadTemplate(widget.template);
-
       // Refresh local template list so it appears immediately.
       ref.invalidate(availableTemplatesProvider);
+
+      // Create a training cycle from the downloaded template. This mirrors the
+      // preloaded 'Create Program' flow in TemplatePreviewScreen so a community
+      // download lands the user on a usable draft cycle.
+      final templateRepository = ref.read(templateRepositoryProvider);
+      final result = await templateRepository.createTrainingCycleFromTemplate(template);
+
+      final trainingCycleRepository = ref.read(trainingCycleRepositoryProvider);
+      await trainingCycleRepository.create(result.trainingCycle);
+
+      final workoutRepository = ref.read(workoutRepositoryProvider);
+      for (final workout in result.trainingCycle.workouts) {
+        await workoutRepository.create(workout);
+      }
+
+      final sessionRepository = ref.read(sessionRepositoryProvider);
+      for (final cardio in result.cardioSessions) {
+        await sessionRepository.createCardio(cardio);
+      }
 
       if (mounted) {
         setState(() {
           _isDownloading = false;
           _downloaded = true;
         });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              l10n.communitySavedToPrograms(widget.template.template.name),
-            ),
-            backgroundColor: context.successColor,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
+        // Show the newly created draft on the cycle list (tab 1 of home).
+        ref.read(homeTabIndexProvider.notifier).setTab(HomeTab.trainingCycles);
+        // The community browse/detail and template picker screens are pushed
+        // imperatively, so context.go('/') alone won't dismiss them — pop the
+        // imperative routes first, then land on home.
+        Navigator.of(context).popUntil((route) => route.isFirst);
+        context.go('/');
       }
     } catch (e) {
       if (mounted) {

@@ -50,9 +50,13 @@ class _TemplatePreviewScreenState extends ConsumerState<TemplatePreviewScreen> {
       if (mounted) {
         // Set tab to TrainingCycles to show the newly created draft
         ref.read(homeTabIndexProvider.notifier).setTab(HomeTab.trainingCycles);
-        // Navigate to home via GoRouter — works correctly both after
-        // onboarding (where '/' was never on the stack) and during
-        // normal use. context.go() replaces the entire route stack.
+        // This screen and the template picker are pushed imperatively with
+        // Navigator.push, so they are pageless routes on top of the current
+        // GoRoute page. When opened from the cycle list we're already on '/',
+        // so context.go('/') alone won't dismiss them — pop them explicitly.
+        Navigator.of(context).popUntil((route) => route.isFirst);
+        // Then ensure we land on home even when '/' wasn't on the stack
+        // (e.g. after onboarding). context.go() replaces the route stack.
         context.go('/');
       }
     } catch (e) {
