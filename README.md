@@ -60,7 +60,7 @@ Your data lives on your device. Export, import, and device-to-device WiFi sync k
 - Structured interval builder with nested repeat groups (warmup / work / recovery / cooldown / rest)
 - Planned vs. logged sessions — plan cardio during cycle drafting, log when performed
 - Swim-specific fields: pool length, stroke type, lap count, SWOLF
-- Post-session feedback: RPE, enjoyment, breathing, GI comfort, weather notes
+- Post-session feedback: RPE, breathing, GI comfort, weather notes
 - Cardio session template library for common workouts (5k tempo, sweet-spot intervals, etc.)
 
 ### Home Screen
@@ -79,7 +79,7 @@ Your data lives on your device. Export, import, and device-to-device WiFi sync k
 
 ### Exercise Library
 
-- ~290 built-in exercises loaded from CSV, covering all muscle groups and equipment types
+- 335 built-in exercises loaded from CSV, covering all muscle groups and equipment types
 - Create custom exercises with muscle group, equipment, video link, and default rest timer
 - YouTube video integration for exercise demonstrations
 
@@ -95,11 +95,23 @@ Your data lives on your device. Export, import, and device-to-device WiFi sync k
 - **Cardio:** Per-sport aggregates (distance, duration, elevation), weekly volume buckets, sport distribution charts
 - Cycle selector shared across all stats tabs
 
+### Community Library
+
+- Browse and download community-contributed training templates and skins (Firestore-backed)
+- Downloading a template creates a ready-to-use draft cycle in one tap
+- Upload your own templates and skins to share (email verification required for uploads)
+
 ### Theming
 
 - Custom "Skins" system — create themes from seed colors or images
 - Light and dark mode with system-follows option
-- Share skins between devices via QR code
+- Share skins between devices via QR code or the community library
+
+### Localization
+
+- Full UI translation: English and Spanish
+- Exercise names translated at display time — stored data stays canonical so history and PRs are language-independent
+- See `.claude/rules/LOCALIZATION.md` to contribute a new language
 
 ### Data Management
 
@@ -125,7 +137,7 @@ Your data lives on your device. Export, import, and device-to-device WiFi sync k
 | Strava OAuth | flutter_web_auth_2 | ^5.0.0 |
 | Analytics | Firebase Analytics | ^12.0.4 |
 | Error tracking | Sentry | ^9.8.0 |
-| WiFi sync | shelf + shelf_router | ^1.4.2 |
+| WiFi sync | shelf + shelf_router | ^1.4.2 / ^1.1.4 |
 | QR sharing | qr_flutter + mobile_scanner | — |
 
 ---
@@ -226,8 +238,8 @@ Key tables: `training_cycles`, `sessions`, `session_cardio`, `session_intervals`
 A 4-screen flow guides new users:
 
 1. **Profile** — Height, weight, gender
-2. **Sports** — Multi-select: Strength, Run, Bike, Swim. Seeds per-sport unit preferences
-3. **Equipment** — Available equipment types for exercise filtering
+2. **Equipment** — Available equipment types for exercise filtering
+3. **Sports** — Multi-select: Strength, Run, Bike, Swim. Seeds per-sport unit preferences
 4. **Terminology** — Pick preferred term for "Training Cycle" (Block, Mesocycle, Phase, etc.)
 
 ---
