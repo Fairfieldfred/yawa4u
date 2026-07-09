@@ -63,6 +63,14 @@ either direction. A repeating unit of a cycle is a "Period" (not always 7 days).
 their cycle term (Block/Mesocycle/…) in onboarding — read it via `trainingCycleTermProvider`,
 never hardcode "Training Cycle" in UI copy.
 
+**Community & auth (the only cloud subsystem).** Everything else is local-first (Drift/SQLite).
+The community library is the exception: `CommunityService` does raw Firestore/Storage I/O against
+`community_templates` / `community_skins`, wrapped by `CommunityRepository`. `main.dart` calls
+`FirebaseAuthService().ensureSignedIn()` at startup to sign in **anonymously** (browsing/downloading
+needs no account); uploading is gated behind `canUploadProvider` → `isEmailVerifiedProvider`, so a
+user must link+verify an email first. Downloading a community template saves it locally *and*
+creates a draft cycle (see `community_template_detail_screen.dart`).
+
 ## Domain pitfalls (top sources of bugs)
 
 1. **Workout ≠ training day.** Multiple `Workout`/`StrengthSession` rows exist per day (one per
