@@ -8395,11 +8395,29 @@ abstract class AppLocalizations {
   /// **'Add 30 seconds'**
   String get restTimerAdd30;
 
+  /// No description provided for @restTimerSubtract30.
+  ///
+  /// In en, this message translates to:
+  /// **'Subtract 30 seconds'**
+  String get restTimerSubtract30;
+
   /// No description provided for @restTimerSkip.
   ///
   /// In en, this message translates to:
   /// **'Skip rest'**
   String get restTimerSkip;
+
+  /// No description provided for @restTimerNotificationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Rest over'**
+  String get restTimerNotificationTitle;
+
+  /// No description provided for @restTimerNotificationBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Time for your next set'**
+  String get restTimerNotificationBody;
 
   /// No description provided for @cycleComparisonNeedTwoCycles.
   ///

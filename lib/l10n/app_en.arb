@@ -2908,7 +2908,10 @@
   "restTimerResume": "Resume",
   "restTimerPause": "Pause",
   "restTimerAdd30": "Add 30 seconds",
+  "restTimerSubtract30": "Subtract 30 seconds",
   "restTimerSkip": "Skip rest",
+  "restTimerNotificationTitle": "Rest over",
+  "restTimerNotificationBody": "Time for your next set",
 
   "cycleComparisonNeedTwoCycles": "Need at least 2 cycles to compare",
   "cycleComparisonUnlockHint": "Complete a training cycle to unlock comparisons.",

@@ -4815,7 +4815,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get restTimerAdd30 => 'Add 30 seconds';
 
   @override
+  String get restTimerSubtract30 => 'Subtract 30 seconds';
+
+  @override
   String get restTimerSkip => 'Skip rest';
+
+  @override
+  String get restTimerNotificationTitle => 'Rest over';
+
+  @override
+  String get restTimerNotificationBody => 'Time for your next set';
 
   @override
   String get cycleComparisonNeedTwoCycles => 'Need at least 2 cycles to compare';

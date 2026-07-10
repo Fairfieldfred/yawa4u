@@ -53,7 +53,7 @@ class WorkoutHomeScreen extends ConsumerStatefulWidget {
   ConsumerState<WorkoutHomeScreen> createState() => _WorkoutHomeScreenState();
 }
 
-class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
+class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> with WidgetsBindingObserver {
   // ---------------------------------------------------------------------------
   // Scroll / keyboard state
   // ---------------------------------------------------------------------------
@@ -89,10 +89,21 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
   void initState() {
     super.initState();
     _setDaoForDispose = ref.read(exerciseSetDaoProvider);
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState lifecycleState) {
+    // Display timers don't fire in the background — re-derive the rest
+    // timer from its persisted wall-clock deadline when we come back.
+    if (lifecycleState == AppLifecycleState.resumed) {
+      ref.read(restTimerProvider.notifier).resync();
+    }
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     // UX review P0 #2 — flush any still-pending debounced set edits
     // BEFORE cancelling their timers so in-flight text-field changes
     // aren't lost when the user navigates away mid-keystroke. We use
@@ -303,7 +314,8 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
     _invalidateWorkoutProviders();
 
     // Start rest timer when a set is logged
-    if (nowLogging) {
+    if (nowLogging && mounted) {
+      final l10n = AppLocalizations.of(context)!;
       ref
           .read(restTimerProvider.notifier)
           .start(
@@ -311,6 +323,8 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> {
             exerciseRestSeconds: exercise.restSeconds,
             exerciseId: exercise.id,
             workoutId: exercise.workoutId,
+            notificationTitle: l10n.restTimerNotificationTitle,
+            notificationBody: l10n.restTimerNotificationBody,
           );
     }
   }

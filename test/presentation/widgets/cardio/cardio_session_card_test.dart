@@ -7,6 +7,7 @@ import 'package:yawa4u/core/constants/sports.dart';
 import 'package:yawa4u/data/models/cardio_detail.dart';
 import 'package:yawa4u/data/models/session.dart';
 import 'package:yawa4u/domain/providers/onboarding_providers.dart';
+import 'package:yawa4u/l10n/app_localizations.dart';
 import 'package:yawa4u/presentation/widgets/cardio/cardio_session_card.dart';
 
 /// Covers the render paths in [CardioSessionCard]:
@@ -31,6 +32,8 @@ void main() {
         sharedPreferencesProvider.overrideWithValue(prefs),
       ],
       child: MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
         home: Scaffold(
           body: SingleChildScrollView(child: child),
         ),

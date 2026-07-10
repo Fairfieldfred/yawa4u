@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:yawa4u/l10n/app_localizations.dart';
 
 /// Wraps a widget in the minimal scaffold needed for widget tests.
 ///
@@ -14,6 +15,8 @@ import 'package:go_router/go_router.dart';
 Widget wrapForTest(Widget child) {
   return ProviderScope(
     child: MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       home: Scaffold(
         body: SingleChildScrollView(child: child),
       ),
@@ -50,6 +53,8 @@ Widget wrapForTestWithRouter(
 
   final app = MaterialApp.router(
     routerConfig: effectiveRouter,
+    localizationsDelegates: AppLocalizations.localizationsDelegates,
+    supportedLocales: AppLocalizations.supportedLocales,
     theme: theme ?? ThemeData.light(),
     darkTheme: darkTheme,
     themeMode: themeMode,

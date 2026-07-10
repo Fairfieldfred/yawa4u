@@ -81,7 +81,15 @@ class RestTimerWidget extends ConsumerWidget {
                     },
                     color: colorScheme.onPrimaryContainer,
                   ),
-                  const SizedBox(width: 4),
+                  // −30s
+                  _TimerButton(
+                    icon: Icons.remove,
+                    tooltip: l10n.restTimerSubtract30,
+                    onPressed: () {
+                      ref.read(restTimerProvider.notifier).addTime(-30);
+                    },
+                    color: colorScheme.onPrimaryContainer,
+                  ),
                   // +30s
                   _TimerButton(
                     icon: Icons.add,
@@ -91,7 +99,6 @@ class RestTimerWidget extends ConsumerWidget {
                     },
                     color: colorScheme.onPrimaryContainer,
                   ),
-                  const SizedBox(width: 4),
                   // Skip
                   _TimerButton(
                     icon: Icons.skip_next_rounded,
@@ -124,15 +131,18 @@ class _TimerButton extends StatelessWidget {
     required this.color,
   });
 
+  /// Minimum tap-target edge for one-handed in-gym use (a11y guideline).
+  static const double _minHitBox = 44;
+
   @override
   Widget build(BuildContext context) {
     return Tooltip(
       message: tooltip,
       child: InkWell(
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(22),
         onTap: onPressed,
-        child: Padding(
-          padding: const EdgeInsets.all(6),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minWidth: _minHitBox, minHeight: _minHitBox),
           child: Icon(icon, size: 22, color: color),
         ),
       ),

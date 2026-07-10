@@ -4836,7 +4836,16 @@ class AppLocalizationsEs extends AppLocalizations {
   String get restTimerAdd30 => 'Agregar 30 segundos';
 
   @override
+  String get restTimerSubtract30 => 'Restar 30 segundos';
+
+  @override
   String get restTimerSkip => 'Omitir descanso';
+
+  @override
+  String get restTimerNotificationTitle => 'Descanso terminado';
+
+  @override
+  String get restTimerNotificationBody => 'Hora de tu próxima serie';
 
   @override
   String get cycleComparisonNeedTwoCycles => 'Se necesitan al menos 2 ciclos para comparar';
