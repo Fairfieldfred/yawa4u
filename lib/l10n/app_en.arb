@@ -1660,6 +1660,31 @@
   "syncStatTrainingCycles": "TrainingCycles",
   "syncStatSessions": "Sessions",
   "syncStatExercises": "Exercises",
+  "backupSectionTitle": "Backup",
+  "backupSectionSubtitle": "Save your data to a file, or restore from a previous backup. Restoring adds to your existing data — nothing is deleted.",
+  "backupExportButton": "Export backup file",
+  "backupRestoreButton": "Restore from file",
+  "backupExportError": "Couldn't export backup: {error}",
+  "@backupExportError": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "backupRestoreConfirmTitle": "Restore backup?",
+  "backupRestoreConfirmMessage": "Items from the backup will be added to your existing data. Nothing is deleted, and entries that already exist are kept unchanged.",
+  "backupRestoreSuccess": "Backup restored \u2014 {count} items added",
+  "@backupRestoreSuccess": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "backupRestoreError": "Couldn't restore backup: {error}",
+  "@backupRestoreError": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "syncMergeNote": "Syncing merges data \u2014 items from the other device are added, nothing is deleted.",
   "syncWithAnotherDevice": "Sync with another device",
   "syncWifiRequired": "Both devices must be on the same WiFi network.",
   "syncHostButton": "Host Sync (Show QR Code)",

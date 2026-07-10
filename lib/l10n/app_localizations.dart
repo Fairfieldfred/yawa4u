@@ -4681,6 +4681,66 @@ abstract class AppLocalizations {
   /// **'Exercises'**
   String get syncStatExercises;
 
+  /// No description provided for @backupSectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup'**
+  String get backupSectionTitle;
+
+  /// No description provided for @backupSectionSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Save your data to a file, or restore from a previous backup. Restoring adds to your existing data — nothing is deleted.'**
+  String get backupSectionSubtitle;
+
+  /// No description provided for @backupExportButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Export backup file'**
+  String get backupExportButton;
+
+  /// No description provided for @backupRestoreButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore from file'**
+  String get backupRestoreButton;
+
+  /// No description provided for @backupExportError.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t export backup: {error}'**
+  String backupExportError(Object error);
+
+  /// No description provided for @backupRestoreConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore backup?'**
+  String get backupRestoreConfirmTitle;
+
+  /// No description provided for @backupRestoreConfirmMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Items from the backup will be added to your existing data. Nothing is deleted, and entries that already exist are kept unchanged.'**
+  String get backupRestoreConfirmMessage;
+
+  /// No description provided for @backupRestoreSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup restored — {count} items added'**
+  String backupRestoreSuccess(Object count);
+
+  /// No description provided for @backupRestoreError.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t restore backup: {error}'**
+  String backupRestoreError(Object error);
+
+  /// No description provided for @syncMergeNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Syncing merges data — items from the other device are added, nothing is deleted.'**
+  String get syncMergeNote;
+
   /// No description provided for @syncWithAnotherDevice.
   ///
   /// In en, this message translates to:

@@ -1,5 +1,8 @@
 import 'dart:convert';
+import 'dart:io';
 
+import 'package:intl/intl.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 import '../../core/theme/skins/skin_model.dart';
@@ -143,6 +146,17 @@ class DataBackupService {
     }
 
     return jsonEncode(data);
+  }
+
+  /// Writes the current export to a timestamped JSON file in the system
+  /// temp directory and returns it. Callers hand the file to the OS share
+  /// sheet; the temp copy is cleaned up by the OS.
+  Future<File> exportToFile({bool includeThemes = true}) async {
+    final json = await exportToJson(includeThemes: includeThemes);
+    final dir = await getTemporaryDirectory();
+    final stamp = DateFormat('yyyy-MM-dd_HHmm').format(DateTime.now());
+    final file = File('${dir.path}/yawa4u_backup_$stamp.json');
+    return file.writeAsString(json);
   }
 
   /// Import data from a JSON string

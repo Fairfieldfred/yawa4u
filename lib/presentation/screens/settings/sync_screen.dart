@@ -1,8 +1,10 @@
 import 'dart:io';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../../../core/theme/skins/skins.dart';
 import '../../../data/services/data_backup_service.dart';
@@ -112,6 +114,96 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
         _errorMessage = AppLocalizations.of(context)!.syncConnectionError;
       }
     });
+  }
+
+  /// Exports all data to a timestamped JSON file and opens the share sheet
+  /// so the user can save it anywhere (Files, Drive, AirDrop, …).
+  Future<void> _exportBackup() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+    final l10n = AppLocalizations.of(context)!;
+    try {
+      final backupService = ref.read(dataBackupServiceProvider);
+      final file = await backupService.exportToFile();
+      await SharePlus.instance.share(
+        ShareParams(files: [XFile(file.path, mimeType: 'application/json')]),
+      );
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(l10n.backupExportError(e)),
+            backgroundColor: context.errorColor,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  /// Picks a backup JSON file and imports it with merge semantics
+  /// (existing entries kept, new entries added — nothing deleted).
+  Future<void> _restoreBackup() async {
+    final l10n = AppLocalizations.of(context)!;
+    final picked = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['json'],
+    );
+    final path = picked?.files.single.path;
+    if (path == null || !mounted) return;
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.backupRestoreConfirmTitle),
+        content: Text(l10n.backupRestoreConfirmMessage),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(l10n.cancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(l10n.backupRestoreButton),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+    try {
+      final jsonString = await File(path).readAsString();
+      final result = await ref.read(dataBackupServiceProvider).importFromJson(jsonString);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            result.success
+                ? l10n.backupRestoreSuccess(result.totalImported)
+                : l10n.backupRestoreError(result.error ?? ''),
+          ),
+          backgroundColor: result.success ? context.successColor : context.errorColor,
+        ),
+      );
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(l10n.backupRestoreError(e)),
+            backgroundColor: context.errorColor,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
   }
 
   Future<void> _pullData() async {
@@ -240,7 +332,7 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
 
   Widget _buildInitialView(DataStats stats, bool isDesktop) {
     final l10n = AppLocalizations.of(context)!;
-    return Padding(
+    return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -274,6 +366,42 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
               ),
             ),
           ),
+          const SizedBox(height: 32),
+
+          // ─── Backup to file ───────────────────────────────────────────
+          Text(
+            l10n.backupSectionTitle,
+            style: Theme.of(
+              context,
+            ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            l10n.backupSectionSubtitle,
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(color: Colors.grey),
+          ),
+          const SizedBox(height: 16),
+          if (!_isLoading) ...[
+            ElevatedButton.icon(
+              onPressed: _exportBackup,
+              icon: const Icon(Icons.file_upload_outlined),
+              label: Text(l10n.backupExportButton),
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+              ),
+            ),
+            const SizedBox(height: 16),
+            OutlinedButton.icon(
+              onPressed: _restoreBackup,
+              icon: const Icon(Icons.file_download_outlined),
+              label: Text(l10n.backupRestoreButton),
+              style: OutlinedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+              ),
+            ),
+          ],
           const SizedBox(height: 32),
 
           // Instructions
@@ -505,6 +633,15 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
             style: Theme.of(
               context,
             ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 8),
+          // Merge semantics — make explicit that sync adds, never deletes.
+          Text(
+            l10n.syncMergeNote,
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(color: Colors.grey),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 24),

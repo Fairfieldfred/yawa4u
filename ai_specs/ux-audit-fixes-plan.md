@@ -55,15 +55,15 @@ Fix all findings from the 2026-07-09 code-level UX/UI audit (5 parallel reviewer
 - [x] Robot journey: open workout → tap weight → keypad next → reps → log set → timer starts; stable Keys `workout_set_weight_{i}`, `workout_set_reps_{i}`, `workout_set_log_{i}` (`test/journeys/log_set_journey_test.dart` + `test/robots/` + `test/harness/`)
 - [x] Verify: `flutter analyze` && `flutter test`
 
-### Phase 3: Backup export/restore to file
+### Phase 3: Backup export/restore to file ✅
 
 - **Goal**: user can recover data without a second device (local-first data-loss gap).
-- [ ] `lib/data/services/data_backup_service.dart` - ensure `exportToJson()` produces v4 string; add convenience write-to-temp-file
-- [ ] `lib/presentation/screens/settings/sync_screen.dart` - "Backup" section: Export (share JSON via `share_plus`), Restore (pick via `file_picker` → confirm dialog stating merge semantics → `importFromJson`); progress indicator + success/error snackbars; localized strings (ARB en+es, `flutter gen-l10n`)
-- [ ] `sync_screen.dart:126,161` - surface merge-vs-replace semantics in WiFi sync UI copy (keep `replace:false` behavior)
-- [ ] TDD: export→import round-trip preserves cycles/sessions/exercises/sets (in-memory DB)
-- [ ] TDD: malformed/v3 file → graceful error/back-compat path
-- [ ] Verify: `flutter analyze` && `flutter test`
+- [x] `lib/data/services/data_backup_service.dart` - ensure `exportToJson()` produces v4 string (already did); added `exportToFile()` (timestamped temp file)
+- [x] `lib/presentation/screens/settings/sync_screen.dart` - "Backup" section: Export (share JSON via `share_plus`), Restore (pick via `file_picker` → confirm dialog stating merge semantics → `importFromJson`); progress indicator + success/error snackbars; localized strings (ARB en+es, `flutter gen-l10n`)
+- [x] `sync_screen.dart:126,161` - surface merge-vs-replace semantics in WiFi sync UI copy (`syncMergeNote`; kept `replace:false`)
+- [x] TDD: export→import round-trip preserves cycles/sessions/exercises/sets — already covered by existing `data_backup_service_test.dart` ("export then import on fresh DB produces equivalent data", "full strength chain round-trips", "full multi-sport chain round-trips"); verified green
+- [x] TDD: malformed/v3 file → graceful error/back-compat path — already covered ("corrupted JSON returns error result", "import accepts v3 JSON with no cardio content"); verified green
+- [x] Verify: `flutter analyze` && `flutter test`
 
 ### Phase 4: First-run funnel, discoverability, settings consolidation
 

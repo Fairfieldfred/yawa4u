@@ -2702,6 +2702,45 @@ class AppLocalizationsEs extends AppLocalizations {
   String get syncStatExercises => 'Ejercicios';
 
   @override
+  String get backupSectionTitle => 'Copia de seguridad';
+
+  @override
+  String get backupSectionSubtitle =>
+      'Guarda tus datos en un archivo o restaura una copia anterior. Restaurar añade a tus datos existentes; no se elimina nada.';
+
+  @override
+  String get backupExportButton => 'Exportar copia de seguridad';
+
+  @override
+  String get backupRestoreButton => 'Restaurar desde archivo';
+
+  @override
+  String backupExportError(Object error) {
+    return 'No se pudo exportar la copia: $error';
+  }
+
+  @override
+  String get backupRestoreConfirmTitle => '¿Restaurar copia de seguridad?';
+
+  @override
+  String get backupRestoreConfirmMessage =>
+      'Los elementos de la copia se añadirán a tus datos existentes. No se elimina nada y las entradas que ya existen se conservan sin cambios.';
+
+  @override
+  String backupRestoreSuccess(Object count) {
+    return 'Copia restaurada — $count elementos añadidos';
+  }
+
+  @override
+  String backupRestoreError(Object error) {
+    return 'No se pudo restaurar la copia: $error';
+  }
+
+  @override
+  String get syncMergeNote =>
+      'La sincronización combina datos: se añaden los elementos del otro dispositivo, no se elimina nada.';
+
+  @override
   String get syncWithAnotherDevice => 'Sincronizar con otro dispositivo';
 
   @override

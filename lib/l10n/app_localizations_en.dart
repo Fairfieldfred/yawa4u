@@ -2687,6 +2687,44 @@ class AppLocalizationsEn extends AppLocalizations {
   String get syncStatExercises => 'Exercises';
 
   @override
+  String get backupSectionTitle => 'Backup';
+
+  @override
+  String get backupSectionSubtitle =>
+      'Save your data to a file, or restore from a previous backup. Restoring adds to your existing data — nothing is deleted.';
+
+  @override
+  String get backupExportButton => 'Export backup file';
+
+  @override
+  String get backupRestoreButton => 'Restore from file';
+
+  @override
+  String backupExportError(Object error) {
+    return 'Couldn\'t export backup: $error';
+  }
+
+  @override
+  String get backupRestoreConfirmTitle => 'Restore backup?';
+
+  @override
+  String get backupRestoreConfirmMessage =>
+      'Items from the backup will be added to your existing data. Nothing is deleted, and entries that already exist are kept unchanged.';
+
+  @override
+  String backupRestoreSuccess(Object count) {
+    return 'Backup restored — $count items added';
+  }
+
+  @override
+  String backupRestoreError(Object error) {
+    return 'Couldn\'t restore backup: $error';
+  }
+
+  @override
+  String get syncMergeNote => 'Syncing merges data — items from the other device are added, nothing is deleted.';
+
+  @override
   String get syncWithAnotherDevice => 'Sync with another device';
 
   @override
