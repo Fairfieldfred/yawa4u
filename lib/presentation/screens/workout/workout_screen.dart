@@ -40,7 +40,6 @@ import '../../widgets/dialogs/rest_timer_dialog.dart';
 import '../../widgets/dialogs/workout_dialogs.dart';
 import '../../widgets/empty_state_widget.dart';
 import '../../widgets/exercise_card_widget.dart';
-import '../training_cycles/template_selection_screen.dart';
 import '../../widgets/rest_timer_widget.dart';
 import '../../widgets/screen_background.dart';
 import '../../../l10n/app_localizations.dart';
@@ -2240,11 +2239,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> with Widg
           secondaryAction: EmptyStateAction(
             label: l10n.emptyWorkoutUseTemplate,
             icon: Icons.grid_view_rounded,
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (context) => const TemplateSelectionScreen()),
-              );
-            },
+            onPressed: () => context.push('/templates'),
           ),
         ),
       ),

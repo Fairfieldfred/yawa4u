@@ -50,13 +50,13 @@ shape ↔ `StrengthSession` for pre-v6 UI call sites. New code uses `SessionRepo
 `CardioFeedback` is NOT a field on `CardioSession` — load via `cardioFeedbackProvider(sessionId)`.
 
 **Navigation.** GoRouter (`lib/presentation/navigation/app_router.dart`) with an onboarding
-redirect. Critical gotcha: the five home tabs (`WorkoutHomeScreen`, `CycleListScreen`,
-`ExercisesHomeScreen`, `CalendarScreen`, `MoreScreen`) are an `IndexedStack` inside `HomeScreen`
-at route `/` — they are **not routes**. To land on a tab: set `homeTabIndexProvider` then
-`context.go('/')`. Several screens (template picker/preview, community detail) are pushed
-imperatively with `Navigator.push`, so they sit as pageless routes on top of the current GoRoute
-page — if you're already on `/`, `context.go('/')` will NOT dismiss them; `popUntil((r) =>
-r.isFirst)` first.
+redirect. The five home tabs (`WorkoutHomeScreen`, `CycleListScreen`, `ExercisesHomeScreen`,
+`CalendarScreen`, `MoreScreen`) are `StatefulShellRoute.indexedStack` branches at `/`, `/cycles`,
+`/exercises`, `/calendar`, `/more` — each tab is deep-linkable and `context.go('/cycles')` both
+selects the tab and dismisses any routes pushed on top (`homeTabIndexProvider` was removed).
+The template picker is a route (`/templates`); the template preview and community detail screens
+are still pushed imperatively (pageless) but sit above real route pages, so `context.go(...)`
+dismisses them.
 
 **Terminology.** "Workout" is the user-facing label; `Session` is the code name — don't rename
 either direction. A repeating unit of a cycle is a "Period" (not always 7 days). The user picks

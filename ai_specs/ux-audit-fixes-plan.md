@@ -82,17 +82,17 @@ Fix all findings from the 2026-07-09 code-level UX/UI audit (5 parallel reviewer
 - [x] Robot journey: fresh install → onboarding (skip profile fields) → land Home → tap empty-state CTA → cycle create screen; Keys `onboarding_continue`, `empty_workout_create_cycle` (`test/journeys/onboarding_journey_test.dart`)
 - [x] Verify: `flutter analyze` && `flutter test`
 
-### Phase 5: Navigation architecture (StatefulShellRoute)
+### Phase 5: Navigation architecture (StatefulShellRoute) ✅
 
 - **Goal**: tabs deep-linkable; one navigation idiom; kill `homeTabIndexProvider` side-effect coupling.
-- **Risk boundary**: isolated phase — touches many screens; run GitNexus impact on `homeTabIndexProvider` + `HomeScreen` first.
-- [ ] `app_router.dart` - migrate `/` IndexedStack to `StatefulShellRoute.indexedStack` with branches `/`, `/cycles`, `/exercises`, `/calendar`, `/more`
-- [ ] `home_screen.dart:32-55` - shell renders `navigationShell`; keep NavigationRail/Ctrl+1-5 shortcuts
-- [ ] Replace `homeTabIndexProvider`-then-`go('/')` call sites (`cycle_list_screen.dart:243,684,954`, `calendar_screen.dart:1701`, `cycle_create_screen.dart:185`, `community_template_detail_screen.dart:63-75`) with direct `context.go('/cycles')` etc.
-- [ ] `app_router.dart` - add route for `TemplateSelectionScreen`; convert imperative pushes (`plan_a_cycle_screen.dart:100`, `cycle_list_screen.dart:564`, `workout_screen.dart:791,2105`) to `context.push`; remove `popUntil` workaround (`template_preview_screen.dart:57-60`)
-- [ ] Keep legacy redirects (`app_router.dart:144-150,197-205`) working
-- [ ] Robot journey: deep-link to `/calendar` renders Calendar tab; back from pushed template screen returns to correct tab
-- [ ] Verify: `flutter analyze` && `flutter test`
+- **Risk boundary**: isolated phase — touches many screens; run GitNexus impact on `homeTabIndexProvider` + `HomeScreen` first. (GitNexus index was stale/read-only; impact mapped via grep — 8 call sites across 7 screens, all migrated.)
+- [x] `app_router.dart` - migrate `/` IndexedStack to `StatefulShellRoute.indexedStack` with branches `/`, `/cycles`, `/exercises`, `/calendar`, `/more`
+- [x] `home_screen.dart:32-55` - shell renders `navigationShell`; keep NavigationRail/Ctrl+1-5 shortcuts
+- [x] Replace `homeTabIndexProvider`-then-`go('/')` call sites (cycle_list ×3, calendar, cycle_create, community_template_detail, template_preview, edit_workout) with direct `context.go('/')`/`context.go('/cycles')`; `navigation_providers.dart` deleted; CLAUDE.md + DATA_STRUCTURE_v6.md updated
+- [x] `app_router.dart` - `/templates` route for `TemplateSelectionScreen`; imperative pushes (plan_a_cycle, cycle_list, workout empty-state) → `context.push('/templates')`; `popUntil` workarounds removed (template_preview, community_template_detail)
+- [x] Keep legacy redirects (`/workouts` → `/sessions`) working — untouched, verified by analyze/tests
+- [x] Robot journey: deep-link to `/calendar` renders Calendar tab; back from pushed template screen returns to Cycles tab (`test/journeys/tab_deep_link_journey_test.dart`)
+- [x] Verify: `flutter analyze` && `flutter test`
 
 ### Phase 6: Forgiveness & undo coverage
 

@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:uuid/uuid.dart';
 
@@ -18,7 +19,6 @@ import '../../../data/models/training_cycle.dart';
 import '../../../data/models/workout.dart';
 import '../../../domain/providers/database_providers.dart';
 import '../../../domain/providers/calendar_providers.dart';
-import '../../../domain/providers/navigation_providers.dart';
 import '../../../domain/providers/theme_provider.dart';
 import '../../../domain/providers/training_cycle_providers.dart';
 import '../../../domain/providers/workout_providers.dart';
@@ -1698,6 +1698,6 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     ref.read(selectedWorkoutDateProvider.notifier).selectDate(dayData.date);
 
     // Switch to workout tab
-    ref.read(homeTabIndexProvider.notifier).setTab(HomeTab.workout);
+    context.go('/');
   }
 }

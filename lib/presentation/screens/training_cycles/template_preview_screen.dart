@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 import '../../../core/constants/muscle_groups.dart';
 import '../../../data/models/training_cycle_template.dart';
 import '../../../domain/providers/database_providers.dart';
-import '../../../domain/providers/navigation_providers.dart';
 import '../../../domain/providers/template_providers.dart';
 import '../../../l10n/app_localizations.dart';
 
@@ -48,16 +47,10 @@ class _TemplatePreviewScreenState extends ConsumerState<TemplatePreviewScreen> {
       }
 
       if (mounted) {
-        // Set tab to TrainingCycles to show the newly created draft
-        ref.read(homeTabIndexProvider.notifier).setTab(HomeTab.trainingCycles);
-        // This screen and the template picker are pushed imperatively with
-        // Navigator.push, so they are pageless routes on top of the current
-        // GoRoute page. When opened from the cycle list we're already on '/',
-        // so context.go('/') alone won't dismiss them — pop them explicitly.
-        Navigator.of(context).popUntil((route) => route.isFirst);
-        // Then ensure we land on home even when '/' wasn't on the stack
-        // (e.g. after onboarding). context.go() replaces the route stack.
-        context.go('/');
+        // Land on the Cycles tab to show the newly created draft.
+        // The Cycles tab is a shell branch now, so go() both dismisses
+        // this preview (and the picker below it) and selects the tab.
+        context.go('/cycles');
       }
     } catch (e) {
       if (mounted) {

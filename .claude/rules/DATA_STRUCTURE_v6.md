@@ -326,7 +326,7 @@ Backed by the `WorkoutRepository` facade (which funnels through `SessionReposito
 |---|---|
 | `calendar_providers.dart` | Calendar data mapping, undo state for schedule changes, sport-day aggregation. `calendarMonthDataProvider` merges **all** active (stacked) cycles per date. `CalendarUndoState` holds a **list** of per-cycle `(cycleId, ScheduleSnapshot)` entries so a multi-cycle edit undoes in one step. |
 | `drift_providers.dart` | Low-level Drift stream providers. |
-| `navigation_providers.dart` | Bottom nav tab state (`homeTabIndexProvider`). |
+| *(removed)* | `navigation_providers.dart` was deleted — tabs are StatefulShellRoute branches; navigate with `context.go('/cycles')` etc. |
 | `onboarding_providers.dart` | Onboarding flow state, selected sports, per-sport unit preferences, training cycle term. |
 | `skin_share_providers.dart` | Skin/theme sharing state. |
 | `sync_providers.dart` | WiFi sync service and status. |

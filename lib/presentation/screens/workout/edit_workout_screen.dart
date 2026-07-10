@@ -17,7 +17,6 @@ import '../../../data/models/session.dart';
 import '../../../data/models/training_cycle.dart';
 import '../../../data/models/workout.dart';
 import '../../../domain/providers/database_providers.dart';
-import '../../../domain/providers/navigation_providers.dart';
 import '../../../domain/providers/onboarding_providers.dart';
 import '../../../domain/providers/session_providers.dart';
 import '../../../domain/providers/training_cycle_providers.dart';
@@ -1884,7 +1883,6 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
 
       if (context.mounted) {
         // Navigate to workout tab on home screen
-        ref.read(homeTabIndexProvider.notifier).setTab(HomeTab.workout);
         context.go('/');
       }
     } catch (e) {

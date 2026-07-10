@@ -19,7 +19,13 @@ import '../screens/onboarding/onboarding_equipment_screen.dart';
 import '../screens/onboarding/onboarding_profile_screen.dart';
 import '../screens/onboarding/onboarding_sports_screen.dart';
 import '../screens/onboarding/onboarding_terminology_screen.dart';
+import '../screens/calendar/calendar_screen.dart';
+import '../screens/exercises/exercises_screen.dart';
+import '../screens/more/more_screen.dart';
+import '../screens/training_cycles/cycle_list_screen.dart';
 import '../screens/training_cycles/plan_a_cycle_screen.dart';
+import '../screens/training_cycles/template_selection_screen.dart';
+import '../screens/workout/workout_screen.dart';
 import '../screens/settings/sentry_debug_screen.dart';
 import '../screens/settings/settings_screen.dart';
 import '../screens/settings/skin_selection_screen.dart';
@@ -101,11 +107,58 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const OnboardingTerminologyScreen(),
       ),
 
-      // Home screen with bottom navigation
-      GoRoute(
-        path: AppRoutes.home,
-        name: 'home',
-        builder: (context, state) => const HomeScreen(),
+      // Home shell — the five tabs are StatefulShellRoute branches so each
+      // is deep-linkable ('/', '/cycles', '/exercises', '/calendar',
+      // '/more') and tab switching is plain context.go navigation.
+      StatefulShellRoute.indexedStack(
+        builder: (context, state, navigationShell) => HomeScreen(navigationShell: navigationShell),
+        branches: [
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.home,
+                name: 'home',
+                builder: (context, state) => const WorkoutHomeScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/cycles',
+                name: 'cycles',
+                builder: (context, state) => const CycleListScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/exercises',
+                name: 'exercises',
+                builder: (context, state) => const ExercisesHomeScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/calendar',
+                name: 'calendar',
+                builder: (context, state) => const CalendarScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/more',
+                name: 'more',
+                builder: (context, state) => const MoreScreen(),
+              ),
+            ],
+          ),
+        ],
       ),
 
       // Plan a trainingCycle screen
@@ -113,6 +166,13 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.planTrainingCycle,
         name: 'plan-trainingCycle',
         builder: (context, state) => const PlanATrainingCycleScreen(),
+      ),
+
+      // Template picker (was pushed imperatively pre-shell-route).
+      GoRoute(
+        path: '/templates',
+        name: 'template-selection',
+        builder: (context, state) => const TemplateSelectionScreen(),
       ),
 
       // TrainingCycle creation screen

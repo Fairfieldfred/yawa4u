@@ -8,7 +8,6 @@ import '../../../data/models/training_cycle_template.dart';
 import '../../../data/repositories/community_repository.dart';
 import '../../../domain/providers/community_providers.dart';
 import '../../../domain/providers/database_providers.dart';
-import '../../../domain/providers/navigation_providers.dart';
 import '../../../domain/providers/template_providers.dart';
 import '../../../l10n/app_localizations.dart';
 
@@ -65,13 +64,9 @@ class _CommunityTemplateDetailScreenState extends ConsumerState<CommunityTemplat
           _isDownloading = false;
           _downloaded = true;
         });
-        // Show the newly created draft on the cycle list (tab 1 of home).
-        ref.read(homeTabIndexProvider.notifier).setTab(HomeTab.trainingCycles);
-        // The community browse/detail and template picker screens are pushed
-        // imperatively, so context.go('/') alone won't dismiss them — pop the
-        // imperative routes first, then land on home.
-        Navigator.of(context).popUntil((route) => route.isFirst);
-        context.go('/');
+        // Show the newly created draft on the Cycles tab. go() replaces
+        // the stack, dismissing the browse/detail screens on the way.
+        context.go('/cycles');
       }
     } catch (e) {
       if (mounted) {

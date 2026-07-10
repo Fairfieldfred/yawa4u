@@ -1,68 +1,42 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/extensions/context_extensions.dart';
-import '../../../domain/providers/navigation_providers.dart';
 import '../../../domain/providers/onboarding_providers.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../widgets/app_icon_widget.dart';
-import '../calendar/calendar_screen.dart';
-import '../training_cycles/cycle_list_screen.dart';
-import '../exercises/exercises_screen.dart';
-import '../more/more_screen.dart';
-import '../workout/workout_screen.dart';
 
-/// Main home screen with bottom navigation (mobile/tablet)
-/// or NavigationRail sidebar (desktop >= 1200dp).
-class HomeScreen extends ConsumerStatefulWidget {
-  const HomeScreen({super.key});
+/// Main home shell with bottom navigation (mobile/tablet) or NavigationRail
+/// sidebar (desktop >= 1200dp).
+///
+/// The five tabs are [StatefulShellRoute] branches ('/', '/cycles',
+/// '/exercises', '/calendar', '/more'); [navigationShell] preserves each
+/// branch's state and tab switches are ordinary router navigation, so every
+/// tab is deep-linkable.
+class HomeScreen extends ConsumerWidget {
+  const HomeScreen({super.key, required this.navigationShell});
 
-  @override
-  ConsumerState<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends ConsumerState<HomeScreen> {
-  /// Tracks which tabs have been visited so we can lazily build them.
-  final Set<int> _visitedTabs = {0}; // Workout tab starts visited
-
-  /// Cached screen instances — created once per tab, reused on rebuilds.
-  final Map<int, Widget> _builtScreens = {};
-
-  static const _screenBuilders = [
-    WorkoutHomeScreen.new,
-    CycleListScreen.new,
-    ExercisesHomeScreen.new,
-    CalendarScreen.new,
-    MoreScreen.new,
-  ];
+  final StatefulNavigationShell navigationShell;
 
   void _onItemTapped(int index) {
-    setState(() => _visitedTabs.add(index));
-    ref.read(homeTabIndexProvider.notifier).setTab(index);
-  }
-
-  Widget _buildScreenStack(int selectedIndex) {
-    return IndexedStack(
-      index: selectedIndex,
-      children: List.generate(_screenBuilders.length, (i) {
-        if (_visitedTabs.contains(i)) {
-          return _builtScreens[i] ??= _screenBuilders[i]();
-        }
-        return const SizedBox.shrink();
-      }),
+    navigationShell.goBranch(
+      index,
+      // Re-tapping the active tab pops that branch back to its root —
+      // the conventional bottom-nav behavior.
+      initialLocation: index == navigationShell.currentIndex,
     );
   }
 
   @override
-  Widget build(BuildContext context) {
-    final selectedIndex = ref.watch(homeTabIndexProvider);
-    _visitedTabs.add(selectedIndex);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final selectedIndex = navigationShell.currentIndex;
     final cycleTermPlural = ref.watch(trainingCycleTermPluralProvider);
     final isDesktop = context.isDesktop;
 
     // Global keyboard shortcuts for tab switching (Ctrl+1..5)
-    final body = CallbackShortcuts(
+    return CallbackShortcuts(
       bindings: {
         const SingleActivator(LogicalKeyboardKey.digit1, control: true): () => _onItemTapped(0),
         const SingleActivator(LogicalKeyboardKey.digit2, control: true): () => _onItemTapped(1),
@@ -73,17 +47,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       child: Focus(
         autofocus: true,
         child: _buildLayout(
+          context: context,
           isDesktop: isDesktop,
           selectedIndex: selectedIndex,
           cycleTermPlural: cycleTermPlural,
         ),
       ),
     );
-
-    return body;
   }
 
   Widget _buildLayout({
+    required BuildContext context,
     required bool isDesktop,
     required int selectedIndex,
     required String cycleTermPlural,
@@ -126,14 +100,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               ],
             ),
             const VerticalDivider(thickness: 1, width: 1),
-            Expanded(child: _buildScreenStack(selectedIndex)),
+            Expanded(child: navigationShell),
           ],
         ),
       );
     }
 
     return Scaffold(
-      body: _buildScreenStack(selectedIndex),
+      body: navigationShell,
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         currentIndex: selectedIndex,

@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 
 import '../../../domain/providers/onboarding_providers.dart';
 import '../../../l10n/app_localizations.dart';
-import 'template_selection_screen.dart';
 
 /// Plan a trainingCycle screen - Shows different options for creating a trainingCycle
 class PlanATrainingCycleScreen extends ConsumerStatefulWidget {
@@ -97,9 +96,7 @@ class _PlanATrainingCycleScreenState extends ConsumerState<PlanATrainingCycleScr
   }
 
   void _handleStartWithTemplate() {
-    Navigator.of(context).push(
-      MaterialPageRoute(builder: (context) => const TemplateSelectionScreen()),
-    );
+    context.push('/templates');
   }
 
   void _handleStartFromScratch() {

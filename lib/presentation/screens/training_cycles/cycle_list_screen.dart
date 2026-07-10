@@ -10,7 +10,6 @@ import '../../../core/theme/skins/skins.dart';
 import '../../../core/utils/template_exporter.dart';
 import '../../../data/models/training_cycle.dart';
 import '../../../domain/providers/database_providers.dart';
-import '../../../domain/providers/navigation_providers.dart';
 import '../../../domain/providers/onboarding_providers.dart';
 import '../../../domain/providers/template_providers.dart';
 import '../../../l10n/app_localizations.dart';
@@ -29,7 +28,6 @@ import '../../widgets/cycle_summary_dialog.dart';
 import '../../widgets/dialogs/workout_dialogs.dart';
 import '../../widgets/responsive_content.dart';
 import '../../widgets/screen_background.dart';
-import 'template_selection_screen.dart';
 
 /// TrainingCycle list screen - organized by Draft/Current/Completed
 class CycleListScreen extends ConsumerStatefulWidget {
@@ -240,7 +238,7 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
             context.push('/trainingCycles/${trainingCycle.id}/view');
           } else if (isCurrent) {
             // Switch to workout tab (same as tapping Workout in bottomNav)
-            ref.read(homeTabIndexProvider.notifier).setTab(HomeTab.workout);
+            context.go('/');
           } else {
             // Navigate to editable session list for draft training cycles.
             context.push('/trainingCycles/${trainingCycle.id}/sessions');
@@ -543,11 +541,7 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
         label: l10n.cycleListStartFromTemplate,
         icon: Icons.copy,
         onPressed: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) => const TemplateSelectionScreen(),
-            ),
-          );
+          context.push('/templates');
         },
       ),
     );
@@ -663,7 +657,6 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
 
       if (mounted) {
         // Navigate to workout tab on home screen
-        ref.read(homeTabIndexProvider.notifier).setTab(HomeTab.workout);
         context.go('/');
       }
     } catch (e) {
@@ -933,7 +926,6 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
         );
 
         // Navigate to workout tab
-        ref.read(homeTabIndexProvider.notifier).setTab(HomeTab.workout);
         context.go('/');
       }
     } catch (e) {
