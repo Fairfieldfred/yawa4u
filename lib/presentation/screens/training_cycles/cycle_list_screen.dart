@@ -391,39 +391,21 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
                           PopupMenuItem(
                             value: 'template',
                             enabled: canSaveAsTemplate,
-                            child: Row(
-                              children: [
-                                Icon(
-                                  Icons.save_outlined,
-                                  color: canSaveAsTemplate ? null : Colors.grey,
-                                ),
-                                const SizedBox(width: 12),
-                                Text(
-                                  l10n.cycleListMenuSaveAsTemplate,
-                                  style: TextStyle(
-                                    color: canSaveAsTemplate ? null : Colors.grey,
-                                  ),
-                                ),
-                              ],
+                            child: _MenuItemWithHint(
+                              icon: Icons.save_outlined,
+                              label: l10n.cycleListMenuSaveAsTemplate,
+                              enabled: canSaveAsTemplate,
+                              disabledHint: l10n.cycleListMenuNeedsExercisesHint,
                             ),
                           ),
                           PopupMenuItem(
                             value: 'share',
                             enabled: canSaveAsTemplate,
-                            child: Row(
-                              children: [
-                                Icon(
-                                  Icons.qr_code,
-                                  color: canSaveAsTemplate ? null : Colors.grey,
-                                ),
-                                const SizedBox(width: 12),
-                                Text(
-                                  l10n.cycleListMenuShareQR,
-                                  style: TextStyle(
-                                    color: canSaveAsTemplate ? null : Colors.grey,
-                                  ),
-                                ),
-                              ],
+                            child: _MenuItemWithHint(
+                              icon: Icons.qr_code,
+                              label: l10n.cycleListMenuShareQR,
+                              enabled: canSaveAsTemplate,
+                              disabledHint: l10n.cycleListMenuNeedsExercisesHint,
                             ),
                           ),
                           // Export option (Debug mode only)
@@ -1565,6 +1547,46 @@ class _SaveTemplateDialogState extends State<_SaveTemplateDialog> {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// Popup-menu row that explains WHY it's disabled via a second hint line.
+class _MenuItemWithHint extends StatelessWidget {
+  const _MenuItemWithHint({
+    required this.icon,
+    required this.label,
+    required this.enabled,
+    required this.disabledHint,
+  });
+
+  final IconData icon;
+  final String label;
+  final bool enabled;
+  final String disabledHint;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, color: enabled ? null : Colors.grey),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(label, style: TextStyle(color: enabled ? null : Colors.grey)),
+              if (!enabled)
+                Text(
+                  disabledHint,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey),
+                ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

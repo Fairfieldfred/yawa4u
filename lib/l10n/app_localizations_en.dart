@@ -2725,6 +2725,46 @@ class AppLocalizationsEn extends AppLocalizations {
   String get syncMergeNote => 'Syncing merges data — items from the other device are added, nothing is deleted.';
 
   @override
+  String emptyWorkoutCreateCycle(Object cycleTerm) {
+    return 'Create $cycleTerm';
+  }
+
+  @override
+  String get emptyWorkoutUseTemplate => 'Use a template';
+
+  @override
+  String get communityLibraryTitle => 'Community Library';
+
+  @override
+  String get communityLibrarySubtitle => 'Browse and download shared templates and themes';
+
+  @override
+  String get settingsDefaultUnitsHeader => 'Default units';
+
+  @override
+  String get settingsPerSportUnitsLink => 'Per-sport units…';
+
+  @override
+  String get settingsDiscardTitle => 'Discard changes?';
+
+  @override
+  String get settingsDiscardMessage => 'You have unsaved changes. Leave without saving?';
+
+  @override
+  String get settingsDiscardButton => 'Discard';
+
+  @override
+  String get settingsKeepEditingButton => 'Keep editing';
+
+  @override
+  String cycleCreateSummary(Object periods, Object days) {
+    return 'Creates $periods periods × $days training days';
+  }
+
+  @override
+  String get cycleListMenuNeedsExercisesHint => 'Add exercises to every training day first';
+
+  @override
   String get syncWithAnotherDevice => 'Sync with another device';
 
   @override
@@ -2784,9 +2824,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get syncDisconnect => 'Disconnect';
-
-  @override
-  String get communityLibraryTitle => 'Community Library';
 
   @override
   String get communityTabPrograms => 'Programs';

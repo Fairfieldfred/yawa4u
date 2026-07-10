@@ -88,6 +88,12 @@ class UserProfileNotifier extends Notifier<UserProfile> {
     );
   }
 
+  /// Persist only the unit preference (height/weight are optional at
+  /// onboarding).
+  void updateUseMetric(bool useMetric) {
+    state = state.copyWith(useMetric: useMetric);
+  }
+
   /// Save height and weight to both SharedPreferences and database
   Future<void> saveHeightAndWeight(
     double heightCm,

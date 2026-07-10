@@ -1685,6 +1685,29 @@
     }
   },
   "syncMergeNote": "Syncing merges data \u2014 items from the other device are added, nothing is deleted.",
+  "emptyWorkoutCreateCycle": "Create {cycleTerm}",
+  "@emptyWorkoutCreateCycle": {
+    "placeholders": {
+      "cycleTerm": {}
+    }
+  },
+  "emptyWorkoutUseTemplate": "Use a template",
+  "communityLibraryTitle": "Community library",
+  "communityLibrarySubtitle": "Browse and download shared templates and themes",
+  "settingsDefaultUnitsHeader": "Default units",
+  "settingsPerSportUnitsLink": "Per-sport units\u2026",
+  "settingsDiscardTitle": "Discard changes?",
+  "settingsDiscardMessage": "You have unsaved changes. Leave without saving?",
+  "settingsDiscardButton": "Discard",
+  "settingsKeepEditingButton": "Keep editing",
+  "cycleCreateSummary": "Creates {periods} periods \u00d7 {days} training days",
+  "@cycleCreateSummary": {
+    "placeholders": {
+      "periods": {},
+      "days": {}
+    }
+  },
+  "cycleListMenuNeedsExercisesHint": "Add exercises to every training day first",
   "syncWithAnotherDevice": "Sync with another device",
   "syncWifiRequired": "Both devices must be on the same WiFi network.",
   "syncHostButton": "Host Sync (Show QR Code)",

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/constants/sports.dart';
@@ -268,494 +269,521 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     }
   }
 
+  /// Unsaved-changes guard: asks before discarding Save-model edits.
+  Future<void> _confirmDiscard() async {
+    final l10n = AppLocalizations.of(context)!;
+    final discard = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.settingsDiscardTitle),
+        content: Text(l10n.settingsDiscardMessage),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(l10n.settingsKeepEditingButton),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(l10n.settingsDiscardButton),
+          ),
+        ],
+      ),
+    );
+    if (discard == true && mounted) {
+      Navigator.of(context).pop();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.settingsTitle),
-        centerTitle: true,
-        actions: [
-          if (_hasChanges) TextButton(onPressed: _saveSettings, child: Text(l10n.settingsSaveButton)),
-        ],
+    return PopScope(
+      canPop: !_hasChanges,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) _confirmDiscard();
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(l10n.settingsTitle),
+          centerTitle: true,
+          actions: [
+            if (_hasChanges) TextButton(onPressed: _saveSettings, child: Text(l10n.settingsSaveButton)),
+          ],
+        ),
+        body: _buildBody(l10n),
       ),
-      body: ListView(
-        children: [
-          // Units Section
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  l10n.settingsUnitsHeader,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                SegmentedButton<bool>(
-                  segments: [
-                    ButtonSegment<bool>(
-                      value: false,
-                      label: Text(l10n.settingsImperialLabel),
-                    ),
-                    ButtonSegment<bool>(
-                      value: true,
-                      label: Text(l10n.settingsMetricLabel),
-                    ),
-                  ],
-                  selected: {_useMetric},
-                  onSelectionChanged: (selection) {
-                    setState(() {
-                      _useMetric = selection.first;
-                      _hasChanges = true;
-                      _convertUnits();
-                    });
-                  },
-                ),
-              ],
-            ),
-          ),
-          const Divider(height: 1),
+    );
+  }
 
-          // Language Section
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  l10n.settingsLanguageHeader,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+  Widget _buildBody(AppLocalizations l10n) {
+    return ListView(
+      children: [
+        // Default units — the global fallback; per-sport overrides live
+        // in Settings → Units.
+        Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                l10n.settingsDefaultUnitsHeader,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  l10n.settingsLanguageDescription,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+              ),
+              const SizedBox(height: 16),
+              SegmentedButton<bool>(
+                segments: [
+                  ButtonSegment<bool>(
+                    value: false,
+                    label: Text(l10n.settingsImperialLabel),
                   ),
-                ),
-                const SizedBox(height: 16),
-                const LocaleSelector(),
-              ],
-            ),
-          ),
-          const Divider(height: 1),
-
-          // Height & Weight Section
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  l10n.settingsBodyMeasurementsHeader,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  l10n.settingsBodyMeasurementsDesc,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.7),
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // Height input
-                if (_useMetric) ...[
-                  // Metric height (cm)
-                  TextFormField(
-                    controller: _heightCmController,
-                    decoration: InputDecoration(
-                      labelText: l10n.heightLabel,
-                      suffixText: 'cm',
-                      border: OutlineInputBorder(),
-                    ),
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    onChanged: (_) {
-                      _calculateBmi();
-                      setState(() => _hasChanges = true);
-                    },
-                  ),
-                ] else ...[
-                  // Imperial height (ft/in)
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextFormField(
-                          controller: _heightFeetController,
-                          decoration: InputDecoration(
-                            labelText: l10n.heightLabel,
-                            suffixText: 'ft',
-                            border: OutlineInputBorder(),
-                          ),
-                          keyboardType: TextInputType.number,
-                          inputFormatters: [
-                            FilteringTextInputFormatter.digitsOnly,
-                          ],
-                          onChanged: (_) {
-                            _calculateBmi();
-                            setState(() => _hasChanges = true);
-                          },
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: TextFormField(
-                          controller: _heightInchesController,
-                          decoration: const InputDecoration(
-                            labelText: '',
-                            suffixText: 'in',
-                            border: OutlineInputBorder(),
-                          ),
-                          keyboardType: TextInputType.number,
-                          inputFormatters: [
-                            FilteringTextInputFormatter.digitsOnly,
-                          ],
-                          onChanged: (_) {
-                            _calculateBmi();
-                            setState(() => _hasChanges = true);
-                          },
-                        ),
-                      ),
-                    ],
+                  ButtonSegment<bool>(
+                    value: true,
+                    label: Text(l10n.settingsMetricLabel),
                   ),
                 ],
-                const SizedBox(height: 16),
+                selected: {_useMetric},
+                onSelectionChanged: (selection) {
+                  setState(() {
+                    _useMetric = selection.first;
+                    _hasChanges = true;
+                    _convertUnits();
+                  });
+                },
+              ),
+              const SizedBox(height: 4),
+              TextButton.icon(
+                onPressed: () => context.push('/settings/units'),
+                icon: const Icon(Icons.tune, size: 18),
+                label: Text(l10n.settingsPerSportUnitsLink),
+              ),
+            ],
+          ),
+        ),
+        const Divider(height: 1),
 
-                // Weight input
+        // Language — single picker surface shared with the More tab.
+        ListTile(
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          leading: const Icon(Icons.language),
+          title: Text(l10n.settingsLanguageHeader),
+          subtitle: Text(l10n.settingsLanguageDescription),
+          trailing: const Icon(Icons.chevron_right),
+          onTap: () => showLanguageSheet(context),
+        ),
+        const Divider(height: 1),
+
+        // Height & Weight Section
+        Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                l10n.settingsBodyMeasurementsHeader,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                l10n.settingsBodyMeasurementsDesc,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.7),
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              // Height input
+              if (_useMetric) ...[
+                // Metric height (cm)
                 TextFormField(
-                  controller: _useMetric ? _weightKgController : _weightLbsController,
+                  controller: _heightCmController,
                   decoration: InputDecoration(
-                    labelText: l10n.weightLabel,
-                    suffixText: _useMetric ? 'kg' : 'lbs',
-                    border: const OutlineInputBorder(),
+                    labelText: l10n.heightLabel,
+                    suffixText: 'cm',
+                    border: OutlineInputBorder(),
                   ),
-                  keyboardType: const TextInputType.numberWithOptions(
-                    decimal: true,
-                  ),
-                  inputFormatters: [
-                    FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*')),
-                  ],
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   onChanged: (_) {
                     _calculateBmi();
                     setState(() => _hasChanges = true);
                   },
                 ),
-                const SizedBox(height: 16),
+              ] else ...[
+                // Imperial height (ft/in)
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextFormField(
+                        controller: _heightFeetController,
+                        decoration: InputDecoration(
+                          labelText: l10n.heightLabel,
+                          suffixText: 'ft',
+                          border: OutlineInputBorder(),
+                        ),
+                        keyboardType: TextInputType.number,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                        ],
+                        onChanged: (_) {
+                          _calculateBmi();
+                          setState(() => _hasChanges = true);
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: TextFormField(
+                        controller: _heightInchesController,
+                        decoration: const InputDecoration(
+                          labelText: '',
+                          suffixText: 'in',
+                          border: OutlineInputBorder(),
+                        ),
+                        keyboardType: TextInputType.number,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                        ],
+                        onChanged: (_) {
+                          _calculateBmi();
+                          setState(() => _hasChanges = true);
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+              const SizedBox(height: 16),
 
-                // BMI display
-                if (_bmi != null) ...[
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.surfaceContainerHighest,
-                      borderRadius: BorderRadius.circular(8),
+              // Weight input
+              TextFormField(
+                controller: _useMetric ? _weightKgController : _weightLbsController,
+                decoration: InputDecoration(
+                  labelText: l10n.weightLabel,
+                  suffixText: _useMetric ? 'kg' : 'lbs',
+                  border: const OutlineInputBorder(),
+                ),
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*')),
+                ],
+                onChanged: (_) {
+                  _calculateBmi();
+                  setState(() => _hasChanges = true);
+                },
+              ),
+              const SizedBox(height: 16),
+
+              // BMI display
+              if (_bmi != null) ...[
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.surfaceContainerHighest,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        l10n.settingsCurrentBmi,
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: _getBmiColor(
+                            context,
+                            _bmi!,
+                          ).withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: _getBmiColor(context, _bmi!),
+                            width: 1.5,
+                          ),
+                        ),
+                        child: Text(
+                          _bmi!.toStringAsFixed(1),
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: _getBmiColor(context, _bmi!),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 6),
+                  child: GestureDetector(
+                    onTap: () => launchUrl(
+                      Uri.parse(
+                        'https://www.cdc.gov/bmi/about/index.html',
+                      ),
                     ),
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        Text(
-                          l10n.settingsCurrentBmi,
-                          style: Theme.of(context).textTheme.bodyMedium,
+                        Icon(
+                          Icons.open_in_new,
+                          size: 12,
+                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
                         ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 6,
-                          ),
-                          decoration: BoxDecoration(
-                            color: _getBmiColor(
-                              context,
-                              _bmi!,
-                            ).withValues(alpha: 0.15),
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(
-                              color: _getBmiColor(context, _bmi!),
-                              width: 1.5,
-                            ),
-                          ),
-                          child: Text(
-                            _bmi!.toStringAsFixed(1),
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: _getBmiColor(context, _bmi!),
-                            ),
+                        const SizedBox(width: 4),
+                        Text(
+                          l10n.settingsBmiGuidelines,
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
                           ),
                         ),
                       ],
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 6),
-                    child: GestureDetector(
-                      onTap: () => launchUrl(
-                        Uri.parse(
-                          'https://www.cdc.gov/bmi/about/index.html',
+                ),
+              ],
+
+              const SizedBox(height: 16),
+
+              // DEXA Scan Results (Optional - collapsible)
+              InkWell(
+                onTap: () {
+                  setState(() {
+                    _showDexaFields = !_showDexaFields;
+                  });
+                },
+                borderRadius: BorderRadius.circular(8),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 12,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.surfaceContainerHighest,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.biotech_outlined,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              l10n.dexaScanTitle,
+                              style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
+                            ),
+                            Text(
+                              l10n.dexaSubtitle,
+                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          Icon(
-                            Icons.open_in_new,
-                            size: 12,
-                            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            l10n.settingsBmiGuidelines,
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
-                            ),
+                      Icon(
+                        _showDexaFields ? Icons.expand_less : Icons.expand_more,
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              // DEXA fields (shown when expanded)
+              if (_showDexaFields) ...[
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextFormField(
+                        controller: _bodyFatController,
+                        decoration: InputDecoration(
+                          labelText: l10n.bodyFatLabel,
+                          suffixText: '%',
+                          border: OutlineInputBorder(),
+                        ),
+                        keyboardType: const TextInputType.numberWithOptions(
+                          decimal: true,
+                        ),
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(
+                            RegExp(r'^\d*\.?\d*'),
                           ),
                         ],
+                        onChanged: (_) {
+                          setState(() => _hasChanges = true);
+                        },
                       ),
                     ),
-                  ),
-                ],
-
-                const SizedBox(height: 16),
-
-                // DEXA Scan Results (Optional - collapsible)
-                InkWell(
-                  onTap: () {
-                    setState(() {
-                      _showDexaFields = !_showDexaFields;
-                    });
-                  },
-                  borderRadius: BorderRadius.circular(8),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 12,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.surfaceContainerHighest,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.biotech_outlined,
-                          color: Theme.of(context).colorScheme.primary,
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: TextFormField(
+                        controller: _leanMassController,
+                        decoration: InputDecoration(
+                          labelText: l10n.leanMassLabel,
+                          suffixText: _useMetric ? 'kg' : 'lbs',
+                          border: const OutlineInputBorder(),
                         ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                        keyboardType: const TextInputType.numberWithOptions(
+                          decimal: true,
+                        ),
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(
+                            RegExp(r'^\d*\.?\d*'),
+                          ),
+                        ],
+                        onChanged: (_) {
+                          setState(() => _hasChanges = true);
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ],
+          ),
+        ),
+        const Divider(height: 1),
+
+        // Terminology Section
+        Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                l10n.settingsTerminologyHeader,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                l10n.settingsTerminologyDesc,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.7),
+                ),
+              ),
+              const SizedBox(height: 16),
+              RadioGroup<String>(
+                groupValue: _selectedTerminology,
+                onChanged: (value) {
+                  if (value != null) {
+                    setState(() {
+                      _selectedTerminology = value;
+                      _hasChanges = true;
+                    });
+                  }
+                },
+                child: Column(
+                  children: TrainingCycleTerm.values.map((term) {
+                    final isSelected = _selectedTerminology == term.name;
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 4),
+                      child: InkWell(
+                        onTap: () {
+                          setState(() {
+                            _selectedTerminology = term.name;
+                            _hasChanges = true;
+                          });
+                        },
+                        borderRadius: BorderRadius.circular(8),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.surfaceContainerHighest,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: isSelected ? Theme.of(context).colorScheme.primary : Colors.transparent,
+                              width: 2,
+                            ),
+                          ),
+                          child: Row(
                             children: [
-                              Text(
-                                l10n.dexaScanTitle,
-                                style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
+                              Radio<String>(
+                                value: term.name,
+                                activeColor: context.selectedIndicatorColor,
                               ),
-                              Text(
-                                l10n.dexaSubtitle,
-                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      term.displayName,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      term.description,
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ],
                           ),
                         ),
-                        Icon(
-                          _showDexaFields ? Icons.expand_less : Icons.expand_more,
-                          color: Theme.of(context).colorScheme.onSurface,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-
-                // DEXA fields (shown when expanded)
-                if (_showDexaFields) ...[
-                  const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextFormField(
-                          controller: _bodyFatController,
-                          decoration: InputDecoration(
-                            labelText: l10n.bodyFatLabel,
-                            suffixText: '%',
-                            border: OutlineInputBorder(),
-                          ),
-                          keyboardType: const TextInputType.numberWithOptions(
-                            decimal: true,
-                          ),
-                          inputFormatters: [
-                            FilteringTextInputFormatter.allow(
-                              RegExp(r'^\d*\.?\d*'),
-                            ),
-                          ],
-                          onChanged: (_) {
-                            setState(() => _hasChanges = true);
-                          },
-                        ),
                       ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: TextFormField(
-                          controller: _leanMassController,
-                          decoration: InputDecoration(
-                            labelText: l10n.leanMassLabel,
-                            suffixText: _useMetric ? 'kg' : 'lbs',
-                            border: const OutlineInputBorder(),
-                          ),
-                          keyboardType: const TextInputType.numberWithOptions(
-                            decimal: true,
-                          ),
-                          inputFormatters: [
-                            FilteringTextInputFormatter.allow(
-                              RegExp(r'^\d*\.?\d*'),
-                            ),
-                          ],
-                          onChanged: (_) {
-                            setState(() => _hasChanges = true);
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ],
-            ),
-          ),
-          const Divider(height: 1),
-
-          // Terminology Section
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  l10n.settingsTerminologyHeader,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+                    );
+                  }).toList(),
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  l10n.settingsTerminologyDesc,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.7),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                RadioGroup<String>(
-                  groupValue: _selectedTerminology,
-                  onChanged: (value) {
-                    if (value != null) {
-                      setState(() {
-                        _selectedTerminology = value;
-                        _hasChanges = true;
-                      });
-                    }
-                  },
-                  child: Column(
-                    children: TrainingCycleTerm.values.map((term) {
-                      final isSelected = _selectedTerminology == term.name;
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 4),
-                        child: InkWell(
-                          onTap: () {
-                            setState(() {
-                              _selectedTerminology = term.name;
-                              _hasChanges = true;
-                            });
-                          },
-                          borderRadius: BorderRadius.circular(8),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 6,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.surfaceContainerHighest,
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(
-                                color: isSelected ? Theme.of(context).colorScheme.primary : Colors.transparent,
-                                width: 2,
-                              ),
-                            ),
-                            child: Row(
-                              children: [
-                                Radio<String>(
-                                  value: term.name,
-                                  activeColor: context.selectedIndicatorColor,
-                                ),
-                                const SizedBox(width: 8),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        term.displayName,
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 16,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 2),
-                                      Text(
-                                        term.description,
-                                        style: TextStyle(
-                                          fontSize: 13,
-                                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
-          const Divider(height: 1),
+        ),
+        const Divider(height: 1),
 
-          // Equipment Section (using shared widget)
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: AvailableEquipmentFilter(compact: false, autoSave: true),
-          ),
-          const Divider(height: 1),
+        // Equipment Section (using shared widget)
+        Padding(
+          padding: const EdgeInsets.all(16),
+          child: AvailableEquipmentFilter(compact: false, autoSave: true),
+        ),
+        const Divider(height: 1),
 
-          // Sports I train — drives which boxes appear in the Workout
-          // tab's SportGrid. Mirrors the onboarding sport-picker so the
-          // user can change their mind later without re-onboarding.
-          const Padding(
-            padding: EdgeInsets.all(16),
-            child: _SportsSection(),
-          ),
-          const Divider(height: 1),
+        // Sports I train — drives which boxes appear in the Workout
+        // tab's SportGrid. Mirrors the onboarding sport-picker so the
+        // user can change their mind later without re-onboarding.
+        const Padding(
+          padding: EdgeInsets.all(16),
+          child: _SportsSection(),
+        ),
+        const Divider(height: 1),
 
-          const SizedBox(height: 32),
-        ],
-      ),
+        const SizedBox(height: 32),
+      ],
     );
   }
 }

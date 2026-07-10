@@ -73,9 +73,11 @@ class _OnboardingTerminologyScreenState extends ConsumerState<OnboardingTerminol
     // Mark onboarding as complete
     await ref.read(userProfileProvider.notifier).completeOnboarding();
 
-    // Navigate to plan training cycle screen
+    // Land on Home — the Workout tab's empty state carries the
+    // "Create cycle" / "Use template" CTAs, so users aren't forced
+    // straight into cycle creation.
     if (mounted) {
-      context.go('/plan-trainingCycle');
+      context.go('/');
     }
   }
 

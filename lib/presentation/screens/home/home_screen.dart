@@ -108,7 +108,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   label: Text(l10n.navSession),
                 ),
                 NavigationRailDestination(
-                  icon: const Icon(Icons.analytics),
+                  icon: const Icon(Icons.event_note),
                   label: Text(cycleTermPlural),
                 ),
                 NavigationRailDestination(
@@ -148,7 +148,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             label: l10n.navSession,
           ),
           BottomNavigationBarItem(
-            icon: const Icon(Icons.analytics),
+            icon: const Icon(Icons.event_note),
             label: cycleTermPlural,
           ),
           BottomNavigationBarItem(

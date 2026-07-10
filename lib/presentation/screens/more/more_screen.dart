@@ -239,17 +239,8 @@ class _MoreScreenState extends ConsumerState<MoreScreen> with SingleTickerProvid
               ),
               const SizedBox(height: 24),
 
-              // ─── Appearance ──────────────────────────────────────────────
-              _MoreSectionHeader(l10n.sectionAppearance),
-              ListTile(
-                leading: const Icon(Icons.palette_outlined),
-                title: Text(l10n.themeTitle),
-                subtitle: Text(l10n.themeSubtitle),
-                trailing: const Icon(Icons.chevron_right),
-                onTap: () => context.push('/skins'),
-              ),
-
-              // ─── Training ────────────────────────────────────────────────
+              // ─── Training (promoted above Appearance so Statistics and
+              // the Community library are easy to discover) ────────────────
               _MoreSectionHeader(l10n.sectionTraining),
               ListTile(
                 leading: const Icon(Icons.bar_chart_outlined),
@@ -257,6 +248,13 @@ class _MoreScreenState extends ConsumerState<MoreScreen> with SingleTickerProvid
                 subtitle: Text(l10n.statisticsSubtitle),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () => context.push('/stats'),
+              ),
+              ListTile(
+                leading: const Icon(Icons.people_outline),
+                title: Text(l10n.communityLibraryTitle),
+                subtitle: Text(l10n.communityLibrarySubtitle),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => context.push('/community'),
               ),
               ListTile(
                 leading: const Icon(Icons.straighten),
@@ -271,6 +269,16 @@ class _MoreScreenState extends ConsumerState<MoreScreen> with SingleTickerProvid
                 subtitle: Text(l10n.zonesSubtitle),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () => context.push('/settings/zones'),
+              ),
+
+              // ─── Appearance ──────────────────────────────────────────────
+              _MoreSectionHeader(l10n.sectionAppearance),
+              ListTile(
+                leading: const Icon(Icons.palette_outlined),
+                title: Text(l10n.themeTitle),
+                subtitle: Text(l10n.themeSubtitle),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => context.push('/skins'),
               ),
 
               // ─── Integrations & Data ─────────────────────────────────────
@@ -335,37 +343,7 @@ class _MoreScreenState extends ConsumerState<MoreScreen> with SingleTickerProvid
                 leading: const Icon(Icons.language),
                 title: Text(l10n.languageTitle),
                 trailing: const Icon(Icons.chevron_right),
-                onTap: () {
-                  showModalBottomSheet<void>(
-                    context: context,
-                    builder: (context) {
-                      final sheetL10n = AppLocalizations.of(context)!;
-                      return Padding(
-                        padding: const EdgeInsets.all(24),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              sheetL10n.languageSheetTitle,
-                              style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              sheetL10n.languageSheetSubtitle,
-                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
-                              ),
-                            ),
-                            const SizedBox(height: 16),
-                            const LocaleSelector(),
-                            const SizedBox(height: 16),
-                          ],
-                        ),
-                      );
-                    },
-                  );
-                },
+                onTap: () => showLanguageSheet(context),
               ),
 
               // ─── About ───────────────────────────────────────────────────

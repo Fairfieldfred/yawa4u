@@ -292,6 +292,7 @@ class _TrainingCycleCreateScreenState extends ConsumerState<TrainingCycleCreateS
       body: SafeArea(
         child: Form(
           key: _formKey,
+          autovalidateMode: AutovalidateMode.onUserInteraction,
           child: ListView(
             padding: const EdgeInsets.all(16.0),
             children: [
@@ -379,6 +380,18 @@ class _TrainingCycleCreateScreenState extends ConsumerState<TrainingCycleCreateS
               const SizedBox(height: 12),
               _buildTemplateSelector(),
               const SizedBox(height: 32),
+
+              // Summary of what Create will produce
+              Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: Text(
+                  l10n.cycleCreateSummary(_periodsTotal, _daysPerPeriod),
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                  ),
+                ),
+              ),
 
               // Create button
               FilledButton.icon(

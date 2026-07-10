@@ -74,7 +74,7 @@ class _OnboardingEquipmentScreenState extends ConsumerState<OnboardingEquipmentS
     final equipmentNames = _selectedEquipment.map((e) => e.name).toList();
     ref.read(userProfileProvider.notifier).updateEquipment(equipmentNames);
 
-    context.push('/onboarding/sports');
+    context.push('/onboarding/terminology');
   }
 
   @override
@@ -84,7 +84,7 @@ class _OnboardingEquipmentScreenState extends ConsumerState<OnboardingEquipmentS
       appBar: AppBar(
         title: Text(l10n.onboardingEquipmentTitle),
         centerTitle: true,
-        bottom: const _OnboardingProgress(step: 2, total: 4),
+        bottom: const _OnboardingProgress(step: 3, total: 4),
       ),
       body: SafeArea(
         child: Column(
@@ -214,7 +214,7 @@ class _OnboardingEquipmentScreenState extends ConsumerState<OnboardingEquipmentS
                     onPressed: () {
                       // Skip equipment selection
                       ref.read(userProfileProvider.notifier).updateEquipment([]);
-                      context.push('/onboarding/sports');
+                      context.push('/onboarding/terminology');
                     },
                     child: Text(l10n.onboardingEquipmentSkip),
                   ),

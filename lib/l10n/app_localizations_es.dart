@@ -2741,6 +2741,46 @@ class AppLocalizationsEs extends AppLocalizations {
       'La sincronización combina datos: se añaden los elementos del otro dispositivo, no se elimina nada.';
 
   @override
+  String emptyWorkoutCreateCycle(Object cycleTerm) {
+    return 'Crear $cycleTerm';
+  }
+
+  @override
+  String get emptyWorkoutUseTemplate => 'Usar una plantilla';
+
+  @override
+  String get communityLibraryTitle => 'Biblioteca de la comunidad';
+
+  @override
+  String get communityLibrarySubtitle => 'Explora y descarga plantillas y temas compartidos';
+
+  @override
+  String get settingsDefaultUnitsHeader => 'Unidades predeterminadas';
+
+  @override
+  String get settingsPerSportUnitsLink => 'Unidades por deporte…';
+
+  @override
+  String get settingsDiscardTitle => '¿Descartar cambios?';
+
+  @override
+  String get settingsDiscardMessage => 'Tienes cambios sin guardar. ¿Salir sin guardar?';
+
+  @override
+  String get settingsDiscardButton => 'Descartar';
+
+  @override
+  String get settingsKeepEditingButton => 'Seguir editando';
+
+  @override
+  String cycleCreateSummary(Object periods, Object days) {
+    return 'Crea $periods períodos × $days días de entrenamiento';
+  }
+
+  @override
+  String get cycleListMenuNeedsExercisesHint => 'Primero añade ejercicios a cada día de entrenamiento';
+
+  @override
   String get syncWithAnotherDevice => 'Sincronizar con otro dispositivo';
 
   @override
@@ -2800,9 +2840,6 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get syncDisconnect => 'Desconectar';
-
-  @override
-  String get communityLibraryTitle => 'Biblioteca de la comunidad';
 
   @override
   String get communityTabPrograms => 'Programas';

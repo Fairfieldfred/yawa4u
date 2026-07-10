@@ -8,7 +8,7 @@ import '../../../domain/providers/onboarding_providers.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../widgets/cardio/sport_badge.dart';
 
-/// Step 3 of onboarding (Profile → Equipment → Sports → Terminology).
+/// Step 2 of onboarding (Profile → Sports → Equipment → Terminology).
 ///
 /// Collects which sports the user plans to track so subsequent UI can
 /// default sensibly — cycle creator's primary sport, per-sport unit
@@ -61,7 +61,12 @@ class _OnboardingSportsScreenState extends ConsumerState<OnboardingSportsScreen>
     }
 
     if (!mounted) return;
-    context.push('/onboarding/terminology');
+    // Equipment only matters for strength training — skip it otherwise.
+    if (_selected.contains(Sport.strength)) {
+      context.push('/onboarding/equipment');
+    } else {
+      context.push('/onboarding/terminology');
+    }
   }
 
   UnitSystem _defaultUnitFor(Sport sport, bool userUseMetric) {
@@ -89,7 +94,7 @@ class _OnboardingSportsScreenState extends ConsumerState<OnboardingSportsScreen>
       appBar: AppBar(
         title: Text(l10n.onboardingSportsTitle),
         centerTitle: true,
-        bottom: const _OnboardingProgress(step: 3, total: 4),
+        bottom: const _OnboardingProgress(step: 2, total: 4),
       ),
       body: SafeArea(
         child: Padding(

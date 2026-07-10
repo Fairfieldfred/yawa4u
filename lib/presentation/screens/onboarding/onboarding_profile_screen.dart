@@ -356,19 +356,22 @@ class _OnboardingProfileScreenState extends ConsumerState<OnboardingProfileScree
 
   void _continue() async {
     if (_formKey.currentState!.validate()) {
-      double heightCm;
-      double weightKg;
+      // Height/weight are optional at onboarding — the Body stats screen
+      // prompts for them on first use. Save only when both were provided.
+      double? heightCm;
+      double? weightKg;
 
       if (_useMetric) {
-        heightCm = double.parse(_heightCmController.text);
-        weightKg = double.parse(_weightKgController.text);
+        heightCm = double.tryParse(_heightCmController.text);
+        weightKg = double.tryParse(_weightKgController.text);
       } else {
-        final feet = int.parse(_heightFeetController.text);
-        final inches = int.tryParse(_heightInchesController.text) ?? 0;
-        final totalInches = (feet * 12) + inches;
-        heightCm = totalInches * 2.54;
-        final weightLbs = double.parse(_weightController.text);
-        weightKg = weightLbs * 0.453592;
+        final feet = int.tryParse(_heightFeetController.text);
+        if (feet != null) {
+          final inches = int.tryParse(_heightInchesController.text) ?? 0;
+          heightCm = ((feet * 12) + inches) * 2.54;
+        }
+        final weightLbs = double.tryParse(_weightController.text);
+        weightKg = weightLbs == null ? null : weightLbs * 0.453592;
       }
 
       // Parse optional DEXA data
@@ -379,24 +382,24 @@ class _OnboardingProfileScreenState extends ConsumerState<OnboardingProfileScree
         leanMassKg = leanMassKg * 0.453592;
       }
 
-      // Save to provider (updates state with useMetric)
-      ref.read(userProfileProvider.notifier).updateProfile(heightCm, weightKg, _useMetric);
-
-      // Save height/weight/DEXA to both SharedPreferences and database
-      await ref
-          .read(userProfileProvider.notifier)
-          .saveHeightAndWeight(
-            heightCm,
-            weightKg,
-            bodyFatPercent: bodyFatPercent,
-            leanMassKg: leanMassKg,
-          );
+      final notifier = ref.read(userProfileProvider.notifier);
+      notifier.updateUseMetric(_useMetric);
+      if (heightCm != null && weightKg != null) {
+        notifier.updateProfile(heightCm, weightKg, _useMetric);
+        // Save height/weight/DEXA to both SharedPreferences and database
+        await notifier.saveHeightAndWeight(
+          heightCm,
+          weightKg,
+          bodyFatPercent: bodyFatPercent,
+          leanMassKg: leanMassKg,
+        );
+      }
 
       // Save the selected app icon
       ref.read(userProfileProvider.notifier).updateAppIconIndex(_selectedIconIndex);
 
       if (mounted) {
-        context.push('/onboarding/equipment');
+        context.push('/onboarding/sports');
       }
     }
   }
@@ -488,9 +491,8 @@ class _OnboardingProfileScreenState extends ConsumerState<OnboardingProfileScree
                           border: const OutlineInputBorder(),
                         ),
                         validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return l10n.heightRequiredError;
-                          }
+                          // Optional — validate only when filled in.
+                          if (value == null || value.isEmpty) return null;
                           final cm = int.tryParse(value);
                           if (cm == null || cm < 100 || cm > 250) {
                             return l10n.heightInvalidCmError;
@@ -518,9 +520,8 @@ class _OnboardingProfileScreenState extends ConsumerState<OnboardingProfileScree
                                 border: const OutlineInputBorder(),
                               ),
                               validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return l10n.heightFeetRequiredError;
-                                }
+                                // Optional — validate only when filled in.
+                                if (value == null || value.isEmpty) return null;
                                 final feet = int.tryParse(value);
                                 if (feet == null || feet < 3 || feet > 8) {
                                   return l10n.heightInvalidError;
@@ -587,9 +588,8 @@ class _OnboardingProfileScreenState extends ConsumerState<OnboardingProfileScree
                         border: const OutlineInputBorder(),
                       ),
                       validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return l10n.weightRequiredError;
-                        }
+                        // Optional — validate only when filled in.
+                        if (value == null || value.isEmpty) return null;
                         final weight = double.tryParse(value);
                         if (weight == null) {
                           return l10n.weightInvalidNumberError;
@@ -784,6 +784,7 @@ class _OnboardingProfileScreenState extends ConsumerState<OnboardingProfileScree
                     SizedBox(
                       width: double.infinity,
                       child: FilledButton(
+                        key: const ValueKey('onboarding_continue'),
                         onPressed: _continue,
                         child: Padding(
                           padding: const EdgeInsets.symmetric(vertical: 16),

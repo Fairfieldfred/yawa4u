@@ -4,6 +4,42 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/providers/locale_provider.dart';
 import '../../l10n/app_localizations.dart';
 
+/// Opens the single app-wide language picker sheet.
+///
+/// Both entry points (More tab and Settings) route here so there is one
+/// source of truth for changing the language.
+Future<void> showLanguageSheet(BuildContext context) {
+  return showModalBottomSheet<void>(
+    context: context,
+    builder: (context) {
+      final l10n = AppLocalizations.of(context)!;
+      return Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              l10n.languageSheetTitle,
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              l10n.languageSheetSubtitle,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+              ),
+            ),
+            const SizedBox(height: 16),
+            const LocaleSelector(),
+            const SizedBox(height: 16),
+          ],
+        ),
+      );
+    },
+  );
+}
+
 /// Displays a list of tappable language options.
 ///
 /// Each item has a [Semantics] identifier (e.g. `locale_en`) so automated

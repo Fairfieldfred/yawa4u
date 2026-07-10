@@ -72,6 +72,7 @@ class EmptyStateWidget extends StatelessWidget {
             if (primaryAction != null) ...[
               const SizedBox(height: 24),
               FilledButton.icon(
+                key: primaryAction!.key,
                 onPressed: primaryAction!.onPressed,
                 icon: Icon(primaryAction!.icon),
                 label: Text(primaryAction!.label),
@@ -80,6 +81,7 @@ class EmptyStateWidget extends StatelessWidget {
             if (secondaryAction != null) ...[
               const SizedBox(height: 12),
               OutlinedButton.icon(
+                key: secondaryAction!.key,
                 onPressed: secondaryAction!.onPressed,
                 icon: Icon(secondaryAction!.icon),
                 label: Text(secondaryAction!.label),
@@ -98,9 +100,13 @@ class EmptyStateAction {
     required this.label,
     required this.icon,
     required this.onPressed,
+    this.key,
   });
 
   final String label;
   final IconData icon;
   final VoidCallback onPressed;
+
+  /// Optional stable key for widget tests.
+  final Key? key;
 }

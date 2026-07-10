@@ -65,22 +65,22 @@ Fix all findings from the 2026-07-09 code-level UX/UI audit (5 parallel reviewer
 - [x] TDD: malformed/v3 file → graceful error/back-compat path — already covered ("corrupted JSON returns error result", "import accepts v3 JSON with no cardio content"); verified green
 - [x] Verify: `flutter analyze` && `flutter test`
 
-### Phase 4: First-run funnel, discoverability, settings consolidation
+### Phase 4: First-run funnel, discoverability, settings consolidation ✅
 
 - **Goal**: new user lands somewhere actionable; features findable; one source of truth per setting.
-- [ ] `workout_screen.dart:2154-2189` - empty state gains primary "Create cycle" + secondary "Use template" actions (reuse `EmptyStateWidget`)
-- [ ] `lib/presentation/screens/home/home_screen.dart:111,152` - Cycles tab icon → plan-style (e.g. `Icons.event_note`), not `Icons.analytics`
-- [ ] `lib/presentation/navigation/app_router.dart:77-102` + onboarding screens - reorder: Profile → Sports → Equipment → Terminology; filter equipment step by chosen sports (skip if no strength)
-- [ ] `lib/presentation/screens/onboarding/onboarding_profile_screen.dart:490-499,589-613` - height/weight optional (remove hard validators; prompt later at first Body-stats use)
-- [ ] `lib/presentation/screens/onboarding/onboarding_terminology_screen.dart:69-80` - finish → `context.go('/')` (Home), not forced cycle creation; Workout-tab CTA (above) takes over
-- [ ] `lib/presentation/screens/more/more_screen.dart` - add "Community library" tile → `/community`; promote Statistics placement
-- [ ] `more_screen.dart:334-368` / `lib/presentation/screens/settings/settings_screen.dart:322-345` - single Language surface; other location links to it
-- [ ] `more_screen.dart:261-267` / `settings_screen.dart:284-319` - label Settings toggle "Default units", cross-link to per-sport overrides screen
-- [ ] `settings_screen.dart:279` - unsaved-changes guard (`PopScope` + discard dialog) for Save-model fields
-- [ ] `cycle_create_screen.dart:326-334` - `autovalidateMode: onUserInteraction`; add "creates N periods × M days" summary line above Create (`:384-398`)
-- [ ] `cycle_list_screen.dart:391-428` - disabled "Save as template"/"Share" get explanatory subtitle (why disabled)
-- [ ] Robot journey: fresh install → onboarding (skip profile fields) → land Home → tap empty-state CTA → cycle create screen; Keys `onboarding_continue`, `empty_workout_create_cycle`
-- [ ] Verify: `flutter analyze` && `flutter test`
+- [x] `workout_screen.dart:2154-2189` - empty state gains primary "Create cycle" + secondary "Use template" actions (reuse `EmptyStateWidget`; added optional per-action `key`)
+- [x] `lib/presentation/screens/home/home_screen.dart:111,152` - Cycles tab icon → `Icons.event_note` (both bottom bar and NavigationRail)
+- [x] `lib/presentation/navigation/app_router.dart:77-102` + onboarding screens - reorder: Profile → Sports → Equipment → Terminology; equipment skipped when strength not selected (routes unchanged; flow order redirected at the screens' continue handlers)
+- [x] `lib/presentation/screens/onboarding/onboarding_profile_screen.dart:490-499,589-613` - height/weight optional (validators only check ranges when filled; Body stats screen remains the later entry point)
+- [x] `lib/presentation/screens/onboarding/onboarding_terminology_screen.dart:69-80` - finish → `context.go('/')` (Home); Workout-tab CTA takes over
+- [x] `lib/presentation/screens/more/more_screen.dart` - "Community library" tile → `/community`; Training section (Statistics first) promoted above Appearance
+- [x] `more_screen.dart:334-368` / `settings_screen.dart:322-345` - single Language surface (`showLanguageSheet` in localization_classes.dart; both locations open it)
+- [x] `more_screen.dart:261-267` / `settings_screen.dart:284-319` - Settings toggle labeled "Default units" + "Per-sport units…" cross-link
+- [x] `settings_screen.dart:279` - unsaved-changes guard (`PopScope` + discard dialog)
+- [x] `cycle_create_screen.dart:326-334` - `autovalidateMode: onUserInteraction`; "Creates N periods × M days" summary above Create
+- [x] `cycle_list_screen.dart:391-428` - disabled "Save as template"/"Share" get explanatory hint line (`_MenuItemWithHint`)
+- [x] Robot journey: fresh install → onboarding (skip profile fields) → land Home → tap empty-state CTA → cycle create screen; Keys `onboarding_continue`, `empty_workout_create_cycle` (`test/journeys/onboarding_journey_test.dart`)
+- [x] Verify: `flutter analyze` && `flutter test`
 
 ### Phase 5: Navigation architecture (StatefulShellRoute)
 

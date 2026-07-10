@@ -38,7 +38,9 @@ import '../../widgets/dialogs/add_exercise_dialog.dart';
 import '../../widgets/dialogs/exercise_feedback_dialog.dart';
 import '../../widgets/dialogs/rest_timer_dialog.dart';
 import '../../widgets/dialogs/workout_dialogs.dart';
+import '../../widgets/empty_state_widget.dart';
 import '../../widgets/exercise_card_widget.dart';
+import '../training_cycles/template_selection_screen.dart';
 import '../../widgets/rest_timer_widget.dart';
 import '../../widgets/screen_background.dart';
 import '../../../l10n/app_localizations.dart';
@@ -2219,36 +2221,30 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> with Widg
   }
 
   Widget _buildEmptyState(BuildContext context, String title, String message) {
+    final l10n = AppLocalizations.of(context)!;
+    final cycleTerm = ref.watch(trainingCycleTermProvider);
     return Scaffold(
-      appBar: AppBar(title: Text(AppLocalizations.of(context)!.workoutSessionTitle)),
+      appBar: AppBar(title: Text(l10n.workoutSessionTitle)),
       body: ScreenBackground.workout(
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.fitness_center,
-                size: 80,
-                color: Theme.of(
-                  context,
-                ).colorScheme.primary.withValues(alpha: 0.5),
-              ),
-              const SizedBox(height: 16),
-              Text(title, style: Theme.of(context).textTheme.headlineSmall),
-              const SizedBox(height: 8),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 32),
-                child: Text(
-                  message,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.7),
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-            ],
+        child: EmptyStateWidget(
+          icon: Icons.fitness_center,
+          iconSize: 80,
+          title: title,
+          subtitle: message,
+          primaryAction: EmptyStateAction(
+            key: const ValueKey('empty_workout_create_cycle'),
+            label: l10n.emptyWorkoutCreateCycle(cycleTerm),
+            icon: Icons.add,
+            onPressed: () => context.push('/trainingCycles/create'),
+          ),
+          secondaryAction: EmptyStateAction(
+            label: l10n.emptyWorkoutUseTemplate,
+            icon: Icons.grid_view_rounded,
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (context) => const TemplateSelectionScreen()),
+              );
+            },
           ),
         ),
       ),

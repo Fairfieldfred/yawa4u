@@ -4741,6 +4741,78 @@ abstract class AppLocalizations {
   /// **'Syncing merges data — items from the other device are added, nothing is deleted.'**
   String get syncMergeNote;
 
+  /// No description provided for @emptyWorkoutCreateCycle.
+  ///
+  /// In en, this message translates to:
+  /// **'Create {cycleTerm}'**
+  String emptyWorkoutCreateCycle(Object cycleTerm);
+
+  /// No description provided for @emptyWorkoutUseTemplate.
+  ///
+  /// In en, this message translates to:
+  /// **'Use a template'**
+  String get emptyWorkoutUseTemplate;
+
+  /// No description provided for @communityLibraryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Community Library'**
+  String get communityLibraryTitle;
+
+  /// No description provided for @communityLibrarySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Browse and download shared templates and themes'**
+  String get communityLibrarySubtitle;
+
+  /// No description provided for @settingsDefaultUnitsHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Default units'**
+  String get settingsDefaultUnitsHeader;
+
+  /// No description provided for @settingsPerSportUnitsLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Per-sport units…'**
+  String get settingsPerSportUnitsLink;
+
+  /// No description provided for @settingsDiscardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard changes?'**
+  String get settingsDiscardTitle;
+
+  /// No description provided for @settingsDiscardMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'You have unsaved changes. Leave without saving?'**
+  String get settingsDiscardMessage;
+
+  /// No description provided for @settingsDiscardButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard'**
+  String get settingsDiscardButton;
+
+  /// No description provided for @settingsKeepEditingButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep editing'**
+  String get settingsKeepEditingButton;
+
+  /// No description provided for @cycleCreateSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Creates {periods} periods × {days} training days'**
+  String cycleCreateSummary(Object periods, Object days);
+
+  /// No description provided for @cycleListMenuNeedsExercisesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Add exercises to every training day first'**
+  String get cycleListMenuNeedsExercisesHint;
+
   /// No description provided for @syncWithAnotherDevice.
   ///
   /// In en, this message translates to:
@@ -4854,12 +4926,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Disconnect'**
   String get syncDisconnect;
-
-  /// No description provided for @communityLibraryTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Community Library'**
-  String get communityLibraryTitle;
 
   /// No description provided for @communityTabPrograms.
   ///
