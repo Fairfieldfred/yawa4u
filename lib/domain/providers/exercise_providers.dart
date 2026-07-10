@@ -281,3 +281,58 @@ final previousPerformanceBatchProvider = FutureProvider.autoDispose.family<Map<S
   }).toList();
   return service.getPreviousPerformanceBatchByKey(entries);
 });
+
+/// Best historical single-set volume (weight × reps) per exercise name,
+/// used for the PR badge on logged sets.
+final bestSetVolumeProvider = FutureProvider.autoDispose.family<double?, ({String name, String currentId})>((
+  ref,
+  params,
+) async {
+  final service = ref.watch(exerciseHistoryServiceProvider);
+  return service.getBestSetVolume(params.name, params.currentId);
+});
+
+/// Last-performed date for every exercise name in one pass over history.
+/// Keys are lowercased exercise names. Used by the Add Exercise list so
+/// each row doesn't run its own full-history scan.
+final lastPerformedDatesProvider = FutureProvider.autoDispose<Map<String, DateTime>>((ref) async {
+  final service = ref.watch(exerciseHistoryServiceProvider);
+  return service.getLastPerformedDates();
+});
+
+/// Set IDs whose weight was auto-filled from history and not yet confirmed
+/// by the user (edited or logged). Drives the distinct "suggested" styling
+/// on the weight field.
+class AutoSuggestedSetIdsNotifier extends Notifier<Set<String>> {
+  @override
+  Set<String> build() => const {};
+
+  void addAll(Iterable<String> setIds) {
+    if (setIds.isEmpty) return;
+    state = {...state, ...setIds};
+  }
+
+  /// Clears the suggestion mark once the user edits or logs the set.
+  void confirm(String setId) {
+    if (!state.contains(setId)) return;
+    state = {...state}..remove(setId);
+  }
+}
+
+final autoSuggestedSetIdsProvider = NotifierProvider<AutoSuggestedSetIdsNotifier, Set<String>>(
+  AutoSuggestedSetIdsNotifier.new,
+);
+
+/// Bumped whenever a suggested weight is applied programmatically (e.g. the
+/// "Try X" chip) so weight text fields rebuild with fresh initial values.
+/// Typing never bumps this — field focus is preserved during edits.
+class SuggestionRevisionNotifier extends Notifier<int> {
+  @override
+  int build() => 0;
+
+  void bump() => state++;
+}
+
+final suggestionRevisionProvider = NotifierProvider<SuggestionRevisionNotifier, int>(
+  SuggestionRevisionNotifier.new,
+);

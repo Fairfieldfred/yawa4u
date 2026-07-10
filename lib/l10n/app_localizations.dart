@@ -8329,6 +8329,30 @@ abstract class AppLocalizations {
   /// **'Delete set'**
   String get exerciseCardDeleteSet;
 
+  /// No description provided for @exerciseCardPrBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'PR'**
+  String get exerciseCardPrBadge;
+
+  /// No description provided for @exerciseCardPrBadgeSemantic.
+  ///
+  /// In en, this message translates to:
+  /// **'Personal record'**
+  String get exerciseCardPrBadgeSemantic;
+
+  /// No description provided for @exerciseCardLogHintMissingFields.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter weight and reps to log this set'**
+  String get exerciseCardLogHintMissingFields;
+
+  /// No description provided for @workoutActionError.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t save changes: {error}'**
+  String workoutActionError(Object error);
+
   /// No description provided for @exerciseCardTryWeight.
   ///
   /// In en, this message translates to:

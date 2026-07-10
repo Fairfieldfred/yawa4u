@@ -33,27 +33,27 @@ Fix all findings from the 2026-07-09 code-level UX/UI audit (5 parallel reviewer
 - [x] Verify: `flutter analyze` && `flutter test`
 - Note (2026-07-10): fixed 34 pre-existing test failures unrelated to this phase — test harnesses lacked l10n delegates (`test/helpers/test_widget_wrapper.dart`, `muscle_group_badge_test.dart`, `cardio_session_card_test.dart`). On-device verification of notification timing (iOS prompt, Android 13+ POST_NOTIFICATIONS / exact-alarm fallback) still recommended.
 
-### Phase 2: In-gym logging ergonomics
+### Phase 2: In-gym logging ergonomics ✅
 
 - **Goal**: log a set one-handed, keyboard never blocks input, weights pre-filled.
-- [ ] `lib/presentation/screens/workout/workout_screen.dart:1442` - remove `resizeToAvoidBottomInset: false`; `Scrollable.ensureVisible` on field focus
-- [ ] `workout_screen.dart:1702-1711, 1750-1759` - don't dismiss keyboard on scroll while a field has focus
-- [ ] `lib/presentation/widgets/exercise_card_widget.dart:691,778` - `keyboardAppearance: Theme.of(context).brightness`
-- [ ] `exercise_card_widget.dart:727-777` - weight `textInputAction.next` + FocusNode chain → reps `.done`
-- [ ] `exercise_card_widget.dart:668,759,864,657,276` - raise weight/reps/log-checkbox to ≥44px height; widen set-menu + info-button hit boxes via `BoxConstraints`
-- [ ] `exercise_card_widget.dart:886-888` - `HapticFeedback.selectionClick()` on set-log toggle
-- [ ] `lib/presentation/screens/exercises/add_exercise_screen.dart:494-507` - seed initial sets via `ExerciseHistoryService.getAutoPopulateWeightWithSuggestion`
-- [ ] `exercise_card_widget.dart` + `workout_screen.dart:346-352,885-891` - style auto-suggested (unconfirmed) weight distinctly (accent/italic) until user edits or logs
-- [ ] `exercise_card_widget.dart:152-169` - promote "Try X" suggestion to tappable chip that fills weight field; bump last-performance legibility (≥12px, higher contrast)
-- [ ] `exercise_card_widget.dart` - PR badge on set row when logged weight×reps beats history (compare via `ExerciseHistoryService`)
-- [ ] `exercise_card_widget.dart:645,887` - tap on disabled Log checkbox → flash empty field(s) / hint snackbar
-- [ ] `workout_screen.dart:258-316` (`_toggleSetLog`, `_addSetToExercise`, `_updateSetType`, `_deleteSet`) - wrap writes in try/catch + error snackbar (mirror `:2376-2391`)
-- [ ] `workout_screen.dart:1299-1301` - distinct loading skeleton vs true empty state
-- [ ] `lib/presentation/screens/exercises/add_exercise_screen.dart:385-406` - batch last-performed lookups (reuse `previousPerformanceBatchProvider` pattern); autofocus search field (`:94`)
-- [ ] TDD: initial sets seeded with history weight+suggestion; empty history → empty sets
-- [ ] TDD: PR detection true/false boundary cases (equal, higher weight lower reps)
-- [ ] Robot journey: open workout → tap weight → keypad next → reps → log set → timer starts; stable Keys `workout_set_weight_{i}`, `workout_set_reps_{i}`, `workout_set_log_{i}`
-- [ ] Verify: `flutter analyze` && `flutter test`
+- [x] `lib/presentation/screens/workout/workout_screen.dart:1442` - remove `resizeToAvoidBottomInset: false`; `Scrollable.ensureVisible` on field focus (EditableText's built-in caret-on-screen covers this once insets resize)
+- [x] `workout_screen.dart:1702-1711, 1750-1759` - don't dismiss keyboard on scroll while a field has focus
+- [x] `lib/presentation/widgets/exercise_card_widget.dart:691,778` - `keyboardAppearance: Theme.of(context).brightness`
+- [x] `exercise_card_widget.dart:727-777` - weight `textInputAction.next` + FocusNode chain → reps `.done` (framework's built-in `.next` traversal moves to reps; no manual FocusNodes needed)
+- [x] `exercise_card_widget.dart:668,759,864,657,276` - raise weight/reps/log-checkbox to ≥44px height; widen set-menu + info-button hit boxes via `BoxConstraints`
+- [x] `exercise_card_widget.dart:886-888` - `HapticFeedback.selectionClick()` on set-log toggle
+- [x] `lib/presentation/screens/workout/add_exercise_screen.dart:494-507` - seed initial sets via new `ExerciseHistoryService.buildInitialSets` (wraps `getAutoPopulateWeightWithSuggestion`)
+- [x] `exercise_card_widget.dart` + `workout_screen.dart:346-352,885-891` - style auto-suggested (unconfirmed) weight distinctly (accent/italic) until user edits or logs (`autoSuggestedSetIdsProvider`)
+- [x] `exercise_card_widget.dart:152-169` - promote "Try X" suggestion to tappable chip that fills weight field; bump last-performance legibility (≥12px, higher contrast)
+- [x] `exercise_card_widget.dart` - PR badge on set row when logged weight×reps beats history (`getBestSetVolume` + `isPersonalRecord`)
+- [x] `exercise_card_widget.dart:645,887` - tap on disabled Log checkbox → hint snackbar (`onDisabledLogTap`)
+- [x] `workout_screen.dart:258-316` (`_toggleSetLog`, `_addSetToExercise`, `_updateSetType`, `_deleteSet`) - wrap writes in try/catch + error snackbar (`_guardWrite`)
+- [x] `workout_screen.dart:1299-1301` - distinct loading skeleton vs true empty state (`_buildLoadingState`)
+- [x] `lib/presentation/screens/workout/add_exercise_screen.dart:385-406` - batch last-performed lookups (`lastPerformedDatesProvider`, one history pass); autofocus search field (`:94`)
+- [x] TDD: initial sets seeded with history weight+suggestion; empty history → empty sets
+- [x] TDD: PR detection true/false boundary cases (equal, higher weight lower reps)
+- [x] Robot journey: open workout → tap weight → keypad next → reps → log set → timer starts; stable Keys `workout_set_weight_{i}`, `workout_set_reps_{i}`, `workout_set_log_{i}` (`test/journeys/log_set_journey_test.dart` + `test/robots/` + `test/harness/`)
+- [x] Verify: `flutter analyze` && `flutter test`
 
 ### Phase 3: Backup export/restore to file
 

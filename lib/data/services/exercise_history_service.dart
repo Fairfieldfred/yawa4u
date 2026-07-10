@@ -1,10 +1,14 @@
 import 'package:intl/intl.dart';
+import 'package:uuid/uuid.dart';
 
+import '../../core/constants/enums.dart';
 import '../../core/constants/equipment_types.dart';
 import '../models/exercise.dart';
 import '../models/exercise_set.dart';
 import '../models/workout.dart';
 import '../repositories/workout_repository.dart';
+
+const _uuid = Uuid();
 
 /// Provides exercise history lookups for auto-populating weights
 /// and showing previous performance inline.
@@ -242,6 +246,27 @@ class ExerciseHistoryService {
     return latest;
   }
 
+  /// Last-performed date for every exercise name with logged history,
+  /// computed in a single pass. Keys are lowercased names.
+  Future<Map<String, DateTime>> getLastPerformedDates() async {
+    final allWorkouts = await _getAllCached();
+    final dates = <String, DateTime>{};
+
+    for (final workout in allWorkouts) {
+      for (final exercise in workout.exercises) {
+        if (!exercise.sets.any((s) => s.isLogged)) continue;
+        final date = workout.completedDate ?? exercise.lastPerformed;
+        if (date == null) continue;
+        final key = exercise.name.toLowerCase();
+        final existing = dates[key];
+        if (existing == null || date.isAfter(existing)) {
+          dates[key] = date;
+        }
+      }
+    }
+    return dates;
+  }
+
   /// Get all history entries for an exercise name, sorted most recent first.
   ///
   /// Each entry contains the exercise and its parent workout.
@@ -317,6 +342,41 @@ class ExerciseHistoryService {
     }
   }
 
+  /// Build the initial sets for a newly added exercise, seeding each set's
+  /// weight from the previous performance (with the same per-set increase
+  /// suggestion as [getAutoPopulateWeightWithSuggestion]). With no history
+  /// the sets are returned with empty weights.
+  ///
+  /// Returns the list of seeded sets plus the ids of sets whose weight was
+  /// auto-filled, so callers can style them as unconfirmed suggestions.
+  Future<({List<ExerciseSet> sets, Set<String> suggestedSetIds})> buildInitialSets({
+    required String exerciseName,
+    required String newExerciseId,
+    required EquipmentType equipmentType,
+    int count = 2,
+  }) async {
+    final sets = <ExerciseSet>[];
+    final suggestedSetIds = <String>{};
+    for (var i = 0; i < count; i++) {
+      final result = await getAutoPopulateWeightWithSuggestion(
+        exerciseName,
+        newExerciseId,
+        i,
+        equipmentType,
+      );
+      final set = ExerciseSet(
+        id: _uuid.v4(),
+        setNumber: i + 1,
+        weight: result.weight,
+        reps: '',
+        setType: SetType.regular,
+      );
+      if (result.weight != null) suggestedSetIds.add(set.id);
+      sets.add(set);
+    }
+    return (sets: sets, suggestedSetIds: suggestedSetIds);
+  }
+
   /// Get auto-populate weight with optional increase suggestion.
   ///
   /// If the user hit all reps last time and the equipment supports
@@ -354,6 +414,43 @@ class ExerciseHistoryService {
     }
 
     return (weight: baseWeight, hasSuggestion: false);
+  }
+
+  /// Best logged single-set volume (weight × integer reps) for an exercise
+  /// name across all history, excluding [excludeExerciseId]. Returns null
+  /// when there is no comparable history (no logged sets with numeric reps).
+  Future<double?> getBestSetVolume(String exerciseName, String excludeExerciseId) async {
+    final allWorkouts = await _getAllCached();
+    final lowerName = exerciseName.toLowerCase();
+    double? best;
+
+    for (final workout in allWorkouts) {
+      for (final exercise in workout.exercises) {
+        if (exercise.id == excludeExerciseId) continue;
+        if (exercise.name.toLowerCase() != lowerName) continue;
+        for (final set in exercise.sets) {
+          if (!set.isLogged || set.weight == null) continue;
+          final reps = int.tryParse(set.reps.trim());
+          if (reps == null) continue;
+          final volume = set.weight! * reps;
+          if (best == null || volume > best) best = volume;
+        }
+      }
+    }
+    return best;
+  }
+
+  /// Whether a logged set's weight × reps strictly beats the historical
+  /// [bestVolume]. No history (or non-numeric reps) never counts as a PR.
+  static bool isPersonalRecord({
+    required double? bestVolume,
+    required double? weight,
+    required String reps,
+  }) {
+    if (bestVolume == null || weight == null) return false;
+    final repCount = int.tryParse(reps.trim());
+    if (repCount == null) return false;
+    return weight * repCount > bestVolume;
   }
 
   String _formatWeight(double weight) {

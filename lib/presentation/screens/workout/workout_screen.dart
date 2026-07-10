@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart' show ScrollDirection;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uuid/uuid.dart';
@@ -57,10 +56,6 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> with Widg
   // ---------------------------------------------------------------------------
   // Scroll / keyboard state
   // ---------------------------------------------------------------------------
-
-  /// Tracks the last scroll direction so we only dismiss the keyboard
-  /// on a genuine scroll, not on rest-position notifications.
-  ScrollDirection _lastScrollDirection = ScrollDirection.idle;
 
   /// Manual override for slot render order (move up/down).
   /// Null = use natural sort from [sortByPerformedOrder].
@@ -174,6 +169,62 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> with Widg
     }
   }
 
+  /// Runs a workout write, surfacing failures as an error snackbar instead
+  /// of silently losing the edit (mirrors the note-save error pattern).
+  Future<void> _guardWrite(Future<void> Function() write) async {
+    try {
+      await write();
+    } catch (e) {
+      if (!mounted) return;
+      final l10n = AppLocalizations.of(context)!;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(l10n.workoutActionError(e)),
+          backgroundColor: context.errorColor,
+        ),
+      );
+    }
+  }
+
+  /// Hint shown when the Log checkbox is tapped while weight/reps missing.
+  void _showLogHint() {
+    final l10n = AppLocalizations.of(context)!;
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(l10n.exerciseCardLogHintMissingFields),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+  }
+
+  /// Applies the "Try X" suggested weight to every unlogged set that has
+  /// no weight yet, marking them as unconfirmed suggestions.
+  Future<void> _applySuggestedWeight(String workoutId, String exerciseId, double weightLbs) async {
+    final repository = ref.read(workoutRepositoryProvider);
+    final workout = await repository.getById(workoutId);
+    if (workout == null) return;
+    final exerciseIndex = workout.exercises.indexWhere((e) => e.id == exerciseId);
+    if (exerciseIndex == -1) return;
+    final exercise = workout.exercises[exerciseIndex];
+
+    final filledIds = <String>{};
+    final updatedSets = exercise.sets.map((s) {
+      if (s.isLogged || s.weight != null) return s;
+      filledIds.add(s.id);
+      return s.copyWith(weight: weightLbs);
+    }).toList();
+    if (filledIds.isEmpty) return;
+
+    await repository.update(
+      workout.updateExercise(exerciseIndex, exercise.copyWith(sets: updatedSets)),
+    );
+    ref.read(autoSuggestedSetIdsProvider.notifier).addAll(filledIds);
+    ref.read(suggestionRevisionProvider.notifier).bump();
+    _invalidateWorkoutProviders();
+  }
+
   /// Direct single-row update for set weight — avoids full workout
   /// tree reconstruction (O(1) instead of O(1+N+M) queries).
   /// Debounced to coalesce rapid keystrokes into a single DB write.
@@ -185,6 +236,8 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> with Widg
 
     final wasLoggable = _isSetLoggable(setId);
     _localWeights[setId] = weight;
+    // A manual edit confirms (unmarks) an auto-suggested weight.
+    ref.read(autoSuggestedSetIdsProvider.notifier).confirm(setId);
     if (wasLoggable != _isSetLoggable(setId)) setState(() {});
 
     final key = 'weight_$setId';
@@ -285,6 +338,10 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> with Widg
     if (set.weight == null || set.reps.isEmpty) return;
 
     final nowLogging = !set.isLogged;
+    if (nowLogging) {
+      // Logging confirms an auto-suggested weight.
+      ref.read(autoSuggestedSetIdsProvider.notifier).confirm(set.id);
+    }
     final updatedSet = set.copyWith(isLogged: nowLogging);
     var updatedExercise = exercise.updateSet(setIndex, updatedSet);
 
@@ -364,6 +421,9 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> with Widg
       reps: '',
       setType: SetType.regular,
     );
+    if (prevWeight != null) {
+      ref.read(autoSuggestedSetIdsProvider.notifier).addAll([newSet.id]);
+    }
 
     // Insert set after current index
     final updatedSets = List<ExerciseSet>.from(exercise.sets);
@@ -903,6 +963,9 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> with Widg
       reps: '',
       setType: SetType.regular,
     );
+    if (prevWeight != null) {
+      ref.read(autoSuggestedSetIdsProvider.notifier).addAll([newSet.id]);
+    }
 
     final updatedSets = List<ExerciseSet>.from(exercise.sets)..add(newSet);
     final updatedExercise = exercise.copyWith(sets: updatedSets);
@@ -1311,8 +1374,9 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> with Widg
       // Primary cycle drives period/day selection and AppBar.
       final allWorkouts = _cachedWorkoutsPerCycle[currentTrainingCycle.id] ?? [];
       if (allWorkouts.isEmpty && !_cachedWorkoutsPerCycle.containsKey(currentTrainingCycle.id)) {
-        // First load — no cached data yet
-        return _buildEmptyState(context, currentTrainingCycle.name, '');
+        // First load — data still in flight. Show a loading state, NOT the
+        // empty state, so users don't see a "no workouts" flash.
+        return _buildLoadingState(context);
       }
 
       // Canonical "today" slot for the primary cycle (date-based, shared with
@@ -1453,7 +1517,6 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> with Widg
       return GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),
         child: Scaffold(
-          resizeToAvoidBottomInset: false,
           floatingActionButton: !hasAnySessions
               ? null
               : FloatingActionButton(
@@ -1713,18 +1776,10 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> with Widg
 
     slivers.add(const SliverToBoxAdapter(child: SizedBox(height: 88)));
 
-    return NotificationListener<UserScrollNotification>(
-      onNotification: (notification) {
-        final direction = notification.direction;
-        if (direction != _lastScrollDirection &&
-            (direction == ScrollDirection.forward || direction == ScrollDirection.reverse)) {
-          FocusScope.of(context).unfocus();
-        }
-        _lastScrollDirection = direction;
-        return false;
-      },
-      child: CustomScrollView(slivers: slivers),
-    );
+    // Scrolling intentionally does NOT dismiss the keyboard — yanking it
+    // away mid-entry was a top in-gym annoyance. Tapping outside a field
+    // (the screen-level GestureDetector) still dismisses it.
+    return CustomScrollView(slivers: slivers);
   }
 
   /// Build the scrollable portion of the Workout tab — strength exercises
@@ -1761,18 +1816,10 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> with Widg
       );
     }
 
-    return NotificationListener<UserScrollNotification>(
-      onNotification: (notification) {
-        final direction = notification.direction;
-        if (direction != _lastScrollDirection &&
-            (direction == ScrollDirection.forward || direction == ScrollDirection.reverse)) {
-          FocusScope.of(context).unfocus();
-        }
-        _lastScrollDirection = direction;
-        return false;
-      },
-      child: CustomScrollView(slivers: slivers),
-    );
+    // Scrolling intentionally does NOT dismiss the keyboard — yanking it
+    // away mid-entry was a top in-gym annoyance. Tapping outside a field
+    // (the screen-level GestureDetector) still dismisses it.
+    return CustomScrollView(slivers: slivers);
   }
 
   /// Returns the raw sliver list for a single cycle's day of sessions.
@@ -1901,36 +1948,31 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> with Widg
                       onReplace: (id) => _replaceExercise(exercise.workoutId, id),
                       onJointPain: (id) => _logJointPain(exercise.workoutId, id),
                       onRestTimer: (id) => _setRestTimer(exercise.workoutId, id),
-                      onAddSet: (id) => _addSetToExercise(exercise.workoutId, id),
+                      onAddSet: (id) => _guardWrite(() => _addSetToExercise(exercise.workoutId, id)),
                       onSkipSets: (id) => _skipExerciseSets(exercise.workoutId, id),
                       onDelete: (id) => _deleteExercise(exercise.workoutId, id),
-                      onAddSetBelow: (i) => _addSetBelow(
-                        exercise.workoutId,
-                        exercise.id,
-                        i,
+                      onAddSetBelow: (i) => _guardWrite(
+                        () => _addSetBelow(exercise.workoutId, exercise.id, i),
                       ),
                       onToggleSetSkip: (i) => _toggleSetSkip(
                         exercise.workoutId,
                         exercise.id,
                         i,
                       ),
-                      onDeleteSet: (i) => _deleteSet(
-                        exercise.workoutId,
-                        exercise.id,
-                        i,
+                      onDeleteSet: (i) => _guardWrite(
+                        () => _deleteSet(exercise.workoutId, exercise.id, i),
                       ),
-                      onUpdateSetType: (i, type) => _updateSetType(
-                        exercise.workoutId,
-                        exercise.id,
-                        i,
-                        type,
+                      onUpdateSetType: (i, type) => _guardWrite(
+                        () => _updateSetType(exercise.workoutId, exercise.id, i, type),
                       ),
                       onUpdateSetWeight: (i, setId, v) => _updateSetWeight(setId, v),
                       onUpdateSetReps: (i, setId, v) => _updateSetReps(setId, v),
-                      onToggleSetLog: (i) => _toggleSetLog(
-                        exercise.workoutId,
-                        exercise.id,
-                        i,
+                      onToggleSetLog: (i) => _guardWrite(
+                        () => _toggleSetLog(exercise.workoutId, exercise.id, i),
+                      ),
+                      onDisabledLogTap: (_) => _showLogHint(),
+                      onApplySuggestedWeight: (id, weightLbs) => _guardWrite(
+                        () => _applySuggestedWeight(exercise.workoutId, id, weightLbs),
                       ),
                     ),
                   ),
@@ -2162,6 +2204,17 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> with Widg
       periodNumber: period,
       dayNumber: day,
       selectedSports: sports,
+    );
+  }
+
+  /// Shown while the first workout load is in flight — distinct from the
+  /// true empty state.
+  Widget _buildLoadingState(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text(AppLocalizations.of(context)!.workoutSessionTitle)),
+      body: ScreenBackground.workout(
+        child: const Center(child: CircularProgressIndicator()),
+      ),
     );
   }
 

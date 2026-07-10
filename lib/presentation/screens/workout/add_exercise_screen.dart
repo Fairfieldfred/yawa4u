@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uuid/uuid.dart';
 
-import '../../../core/constants/enums.dart';
 import '../../../core/constants/equipment_types.dart';
 import '../../../core/constants/muscle_groups.dart';
 import '../../../data/models/exercise.dart';
@@ -93,6 +92,7 @@ class _AddExerciseScreenState extends ConsumerState<AddExerciseScreen> {
               label: l10n.addExerciseSearchLabel,
               child: TextField(
                 controller: _searchController,
+                autofocus: true,
                 decoration: InputDecoration(
                   hintText: l10n.addExerciseSearchHint,
                   prefixIcon: const Icon(Icons.search),
@@ -383,25 +383,21 @@ class _AddExerciseScreenState extends ConsumerState<AddExerciseScreen> {
   }
 
   Widget _buildLastPerformed(String exerciseName) {
+    // One shared history pass for the whole list instead of a per-row scan.
+    final date = ref.watch(lastPerformedDatesProvider).value?[exerciseName.toLowerCase()];
+    if (date == null) return const SizedBox.shrink();
+
     final historyService = ref.read(exerciseHistoryServiceProvider);
-    return FutureBuilder<DateTime?>(
-      future: historyService.getLastPerformedDateForName(exerciseName),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData || snapshot.data == null) {
-          return const SizedBox.shrink();
-        }
-        final dateStr = historyService.formatRelativeDate(snapshot.data!);
-        return Padding(
-          padding: const EdgeInsets.only(top: 4),
-          child: Text(
-            AppLocalizations.of(context)!.addExerciseLastPerformed(dateStr),
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              fontSize: 11,
-              color: Theme.of(context).colorScheme.onSurface.withAlpha((255 * 0.5).round()),
-            ),
-          ),
-        );
-      },
+    final dateStr = historyService.formatRelativeDate(date);
+    return Padding(
+      padding: const EdgeInsets.only(top: 4),
+      child: Text(
+        AppLocalizations.of(context)!.addExerciseLastPerformed(dateStr),
+        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+          fontSize: 11,
+          color: Theme.of(context).colorScheme.onSurface.withAlpha((255 * 0.5).round()),
+        ),
+      ),
     );
   }
 
@@ -479,9 +475,23 @@ class _AddExerciseScreenState extends ConsumerState<AddExerciseScreen> {
         ? workout.exercises.where((e) => e.id == widget.replaceExerciseId).firstOrNull
         : null;
 
+    // Seed initial sets from the previous performance (empty on no history).
+    final newExerciseId = const Uuid().v4();
+    List<ExerciseSet>? seededSets;
+    if (existingExercise == null) {
+      final historyService = ref.read(exerciseHistoryServiceProvider);
+      final seeded = await historyService.buildInitialSets(
+        exerciseName: exerciseDef.name,
+        newExerciseId: newExerciseId,
+        equipmentType: exerciseDef.equipmentType,
+      );
+      seededSets = seeded.sets;
+      ref.read(autoSuggestedSetIdsProvider.notifier).addAll(seeded.suggestedSetIds);
+    }
+
     // Create new exercise from definition
     final newExercise = Exercise(
-      id: const Uuid().v4(),
+      id: newExerciseId,
       workoutId: workout.id,
       name: exerciseDef.name,
       muscleGroup: exerciseDef.muscleGroup,
@@ -489,22 +499,7 @@ class _AddExerciseScreenState extends ConsumerState<AddExerciseScreen> {
       orderIndex: existingExercise?.orderIndex ?? workout.exercises.length,
       videoUrl: exerciseDef.videoUrl,
       restSeconds: exerciseDef.restSeconds,
-      sets:
-          existingExercise?.sets ??
-          [
-            ExerciseSet(
-              id: const Uuid().v4(),
-              setNumber: 1,
-              reps: '',
-              setType: SetType.regular,
-            ),
-            ExerciseSet(
-              id: const Uuid().v4(),
-              setNumber: 2,
-              reps: '',
-              setType: SetType.regular,
-            ),
-          ],
+      sets: existingExercise?.sets ?? seededSets!,
     );
 
     List<Exercise> updatedExercises;

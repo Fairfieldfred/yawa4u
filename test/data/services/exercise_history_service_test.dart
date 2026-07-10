@@ -629,5 +629,90 @@ void main() {
         expect(entry.maxWeight, 0);
       });
     });
+
+    group('buildInitialSets', () {
+      test('seeds set weights from previous performance per set index', () async {
+        final workout = makeCompletedWorkout(
+          exerciseName: 'Bench Press',
+          sets: [
+            TestFixtures.createExerciseSet(weight: 100, reps: '8-12', isLogged: true, setNumber: 1),
+            TestFixtures.createExerciseSet(weight: 95, reps: '8-12', isLogged: true, setNumber: 2),
+          ],
+        );
+        service = ExerciseHistoryService(FakeWorkoutRepository([workout]));
+
+        final result = await service.buildInitialSets(
+          exerciseName: 'Bench Press',
+          newExerciseId: 'new-ex',
+          equipmentType: EquipmentType.barbell,
+        );
+        final sets = result.sets;
+
+        expect(sets, hasLength(2));
+        expect(sets[0].weight, 100);
+        expect(sets[1].weight, 95);
+        expect(sets[0].setNumber, 1);
+        expect(sets[1].setNumber, 2);
+        expect(sets.every((s) => s.reps.isEmpty), isTrue);
+        expect(sets.every((s) => !s.isLogged), isTrue);
+        expect(result.suggestedSetIds, sets.map((s) => s.id).toSet());
+      });
+
+      test('empty history produces empty sets and no suggestions', () async {
+        service = ExerciseHistoryService(FakeWorkoutRepository([]));
+
+        final result = await service.buildInitialSets(
+          exerciseName: 'Bench Press',
+          newExerciseId: 'new-ex',
+          equipmentType: EquipmentType.barbell,
+        );
+
+        expect(result.sets, hasLength(2));
+        expect(result.sets.every((s) => s.weight == null), isTrue);
+        expect(result.suggestedSetIds, isEmpty);
+      });
+    });
+
+    group('PR detection', () {
+      // History best: 100 lbs × 8 reps = 800 volume.
+      Workout historyWorkout() => makeCompletedWorkout(
+        exerciseName: 'Bench Press',
+        sets: [
+          TestFixtures.createExerciseSet(weight: 100, reps: '8', isLogged: true),
+          TestFixtures.createExerciseSet(weight: 90, reps: '10', isLogged: true, setNumber: 2),
+        ],
+      );
+
+      test('getBestSetVolume returns the best logged weight×reps', () async {
+        service = ExerciseHistoryService(FakeWorkoutRepository([historyWorkout()]));
+        final best = await service.getBestSetVolume('Bench Press', currentExerciseId);
+        expect(best, 900); // 90 × 10 beats 100 × 8
+      });
+
+      test('getBestSetVolume returns null with no history', () async {
+        service = ExerciseHistoryService(FakeWorkoutRepository([]));
+        expect(await service.getBestSetVolume('Bench Press', currentExerciseId), isNull);
+      });
+
+      test('higher volume than best is a PR', () {
+        expect(ExerciseHistoryService.isPersonalRecord(bestVolume: 900, weight: 100, reps: '10'), isTrue);
+      });
+
+      test('equal volume is not a PR', () {
+        expect(ExerciseHistoryService.isPersonalRecord(bestVolume: 900, weight: 90, reps: '10'), isFalse);
+      });
+
+      test('higher weight but lower reps giving lower volume is not a PR', () {
+        expect(ExerciseHistoryService.isPersonalRecord(bestVolume: 900, weight: 105, reps: '6'), isFalse);
+      });
+
+      test('no history means no PR badge', () {
+        expect(ExerciseHistoryService.isPersonalRecord(bestVolume: null, weight: 100, reps: '10'), isFalse);
+      });
+
+      test('non-numeric reps cannot be a PR', () {
+        expect(ExerciseHistoryService.isPersonalRecord(bestVolume: 900, weight: 200, reps: '8-12'), isFalse);
+      });
+    });
   });
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/constants/enums.dart';
@@ -8,6 +9,7 @@ import '../../core/theme/skins/skins.dart';
 import '../../core/utils/weight_conversion.dart';
 import '../../data/models/exercise.dart';
 import '../../data/models/exercise_set.dart';
+import '../../data/services/exercise_history_service.dart';
 import '../../domain/providers/database_providers.dart';
 import '../../domain/providers/exercise_providers.dart';
 import '../../l10n/app_localizations.dart';
@@ -41,6 +43,14 @@ class ExerciseCardCallbacks {
   final void Function(int setIndex, String setId, String value) onUpdateSetReps;
   final void Function(int setIndex) onToggleSetLog;
 
+  /// Tapping the Log checkbox while the set is missing weight/reps.
+  /// Used to hint at what's blocking the log instead of doing nothing.
+  final void Function(int setIndex)? onDisabledLogTap;
+
+  /// Tapping the "Try X" suggestion chip. [suggestedWeightLbs] is in the
+  /// storage unit (lbs).
+  final void Function(String exerciseId, double suggestedWeightLbs)? onApplySuggestedWeight;
+
   const ExerciseCardCallbacks({
     required this.onAddNote,
     this.onMoveUp,
@@ -58,6 +68,8 @@ class ExerciseCardCallbacks {
     required this.onUpdateSetWeight,
     required this.onUpdateSetReps,
     required this.onToggleSetLog,
+    this.onDisabledLogTap,
+    this.onApplySuggestedWeight,
   });
 }
 
@@ -132,12 +144,13 @@ class ExerciseCardWidget extends ConsumerWidget {
     );
     final l10n = AppLocalizations.of(context)!;
     String? suggestionText;
+    double? suggestedWeightLbs;
     if (hitAllReps && increment != null) {
       final loggedSets = prevExercise.sets.where((s) => s.isLogged).toList();
       if (loggedSets.isNotEmpty && loggedSets.first.weight != null) {
-        final suggested = loggedSets.first.weight! + increment;
+        suggestedWeightLbs = loggedSets.first.weight! + increment;
         final display = formatWeightForDisplay(
-          suggested,
+          suggestedWeightLbs,
           useMetric,
         );
         suggestionText = l10n.exerciseCardTryWeight(display, weightUnit);
@@ -152,20 +165,42 @@ class ExerciseCardWidget extends ConsumerWidget {
           Text(
             l10n.exerciseCardLastPerformance(summary, dateStr),
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              fontSize: 11,
-              color: Theme.of(context).colorScheme.onSurface.withAlpha((255 * 0.5).round()),
+              fontSize: 12,
+              color: Theme.of(context).colorScheme.onSurface.withAlpha((255 * 0.7).round()),
             ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
           if (suggestionText != null)
-            Text(
-              suggestionText,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-                color: Theme.of(context).colorScheme.primary,
-              ),
+            Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: callbacks.onApplySuggestedWeight == null
+                  ? Text(
+                      suggestionText,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                    )
+                  : ActionChip(
+                      key: ValueKey('exercise_try_weight_${exercise.id}'),
+                      avatar: Icon(
+                        Icons.trending_up,
+                        size: 16,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                      label: Text(suggestionText),
+                      labelStyle: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                      visualDensity: VisualDensity.compact,
+                      materialTapTargetSize: MaterialTapTargetSize.padded,
+                      side: BorderSide(color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.4)),
+                      onPressed: () => callbacks.onApplySuggestedWeight!(exercise.id, suggestedWeightLbs!),
+                    ),
             ),
         ],
       ),
@@ -274,8 +309,8 @@ class ExerciseCardWidget extends ConsumerWidget {
                             onPressed: () => showExerciseInfoDialog(context, exercise),
                             padding: EdgeInsets.zero,
                             constraints: const BoxConstraints(
-                              minWidth: 24,
-                              minHeight: 24,
+                              minWidth: 44,
+                              minHeight: 44,
                             ),
                           ),
                           const SizedBox(width: 0),
@@ -298,7 +333,7 @@ class ExerciseCardWidget extends ConsumerWidget {
                           child: Row(
                             children: [
                               const SizedBox(
-                                width: 24,
+                                width: 40,
                               ), // Spacer for overflow menu alignment
                               Expanded(
                                 child: Text(
@@ -349,7 +384,7 @@ class ExerciseCardWidget extends ConsumerWidget {
                       // Sets list
                       ...List.generate(exercise.sets.length, (index) {
                         final set = exercise.sets[index];
-                        return _buildSetRow(context, l10n, set, index);
+                        return _buildSetRow(context, ref, l10n, set, index);
                       }),
 
                       // Pinned note display (at bottom of card)
@@ -641,7 +676,7 @@ class ExerciseCardWidget extends ConsumerWidget {
     );
   }
 
-  Widget _buildSetRow(BuildContext context, AppLocalizations l10n, ExerciseSet set, int index) {
+  Widget _buildSetRow(BuildContext context, WidgetRef ref, AppLocalizations l10n, ExerciseSet set, int index) {
     final isLoggable = set.weight != null && set.reps.isNotEmpty;
 
     // Myorep Match sets include weight/reps in the key so the field
@@ -649,114 +684,168 @@ class ExerciseCardWidget extends ConsumerWidget {
     // Regular sets use a stable key to avoid focus loss during typing.
     final isMyorepMatch = set.setType == SetType.myorepMatch && index > 0;
 
+    // Suggested (auto-filled, unconfirmed) weight gets distinct styling
+    // until the user edits or logs the set. The revision only changes when
+    // a suggestion is applied programmatically, so typing never loses focus.
+    final isSuggested = !set.isLogged && ref.watch(autoSuggestedSetIdsProvider).contains(set.id);
+    final suggestionRevision = ref.watch(suggestionRevisionProvider);
+    final bestVolume = ref.watch(bestSetVolumeProvider((name: exercise.name, currentId: exercise.id))).value;
+    final isPr =
+        set.isLogged &&
+        ExerciseHistoryService.isPersonalRecord(
+          bestVolume: bestVolume,
+          weight: set.weight,
+          reps: set.reps,
+        );
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 6),
       child: Row(
         children: [
           // Set menu (3 dots)
           SizedBox(
-            width: 24,
+            width: 40,
+            height: 44,
             child: _buildSetOverflowMenu(context, l10n, set, index),
           ),
-          const SizedBox(width: 24),
+          const SizedBox(width: 8),
           // Weight Input
           Expanded(
             child: Semantics(
+              key: ValueKey('workout_set_weight_$index'),
               label: l10n.exerciseCardWeightSemantic(index + 1),
               textField: true,
-              child: Container(
-                height: 30,
-                decoration: BoxDecoration(
-                  color: Theme.of(context).inputDecorationTheme.fillColor,
-                  borderRadius: BorderRadius.circular(
-                    context.inputBorderRadius,
-                  ),
-                  border: Border.all(
-                    color: Theme.of(context).dividerColor,
-                  ),
-                ),
-                child: Center(
-                  child: TextFormField(
-                    key: ValueKey(
-                      isMyorepMatch
-                          ? 'weight_${set.id}_${set.setType.name}_${set.weight}_$useMetric'
-                          : 'weight_${set.id}_${set.setType.name}_$useMetric',
+              child: Stack(
+                children: [
+                  Container(
+                    height: 44,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).inputDecorationTheme.fillColor,
+                      borderRadius: BorderRadius.circular(
+                        context.inputBorderRadius,
+                      ),
+                      border: Border.all(
+                        color: Theme.of(context).dividerColor,
+                      ),
                     ),
-                    initialValue: formatWeightForDisplay(
-                      set.weight,
-                      useMetric,
-                    ),
-                    style: Theme.of(context).textTheme.bodyMedium,
-                    textAlign: TextAlign.center,
-                    keyboardAppearance: Brightness.light,
-                    decoration: InputDecoration(
-                      filled: false,
-                      hintText: weightUnit,
-                      hintStyle: Theme.of(context).inputDecorationTheme.hintStyle,
-                      border: InputBorder.none,
-                      enabledBorder: InputBorder.none,
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(
-                          context.inputBorderRadius,
+                    child: Center(
+                      child: TextFormField(
+                        key: ValueKey(
+                          isMyorepMatch
+                              ? 'weight_${set.id}_${set.setType.name}_${set.weight}_${useMetric}_r$suggestionRevision'
+                              : 'weight_${set.id}_${set.setType.name}_${useMetric}_r$suggestionRevision',
                         ),
-                        borderSide: BorderSide(
-                          color: Theme.of(context).colorScheme.primary,
-                          width: 2,
+                        initialValue: formatWeightForDisplay(
+                          set.weight,
+                          useMetric,
+                        ),
+                        style: isSuggested
+                            ? Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                fontStyle: FontStyle.italic,
+                                color: Theme.of(context).colorScheme.primary,
+                              )
+                            : Theme.of(context).textTheme.bodyMedium,
+                        textAlign: TextAlign.center,
+                        keyboardAppearance: Theme.of(context).brightness,
+                        textInputAction: TextInputAction.next,
+                        decoration: InputDecoration(
+                          filled: false,
+                          hintText: weightUnit,
+                          hintStyle: Theme.of(context).inputDecorationTheme.hintStyle,
+                          border: InputBorder.none,
+                          enabledBorder: InputBorder.none,
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(
+                              context.inputBorderRadius,
+                            ),
+                            borderSide: BorderSide(
+                              color: Theme.of(context).colorScheme.primary,
+                              width: 2,
+                            ),
+                          ),
+                          errorBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(
+                              context.inputBorderRadius,
+                            ),
+                            borderSide: BorderSide(
+                              color: Theme.of(context).colorScheme.error,
+                              width: 1,
+                            ),
+                          ),
+                          focusedErrorBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(
+                              context.inputBorderRadius,
+                            ),
+                            borderSide: BorderSide(
+                              color: Theme.of(context).colorScheme.error,
+                              width: 2,
+                            ),
+                          ),
+                          contentPadding: const EdgeInsets.only(bottom: 12),
+                        ),
+                        keyboardType: const TextInputType.numberWithOptions(
+                          decimal: true,
+                        ),
+                        onChanged: (value) {
+                          // Convert user input back to storage unit (lbs)
+                          final displayWeight = double.tryParse(value);
+                          if (displayWeight == null && value.isNotEmpty) return;
+                          final storageWeight = convertWeightForStorage(
+                            displayWeight,
+                            useMetric,
+                          );
+                          callbacks.onUpdateSetWeight(
+                            index,
+                            set.id,
+                            storageWeight?.toString() ?? '',
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                  // PR badge — logged weight×reps beats all history
+                  if (isPr)
+                    Positioned(
+                      top: 2,
+                      right: 4,
+                      child: Semantics(
+                        label: l10n.exerciseCardPrBadgeSemantic,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 4,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: context.successColor.withValues(alpha: 0.85),
+                            borderRadius: BorderRadius.circular(3),
+                          ),
+                          child: Text(
+                            l10n.exerciseCardPrBadge,
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.onPrimary,
+                              fontSize: 9,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ),
                       ),
-                      errorBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(
-                          context.inputBorderRadius,
-                        ),
-                        borderSide: BorderSide(
-                          color: Theme.of(context).colorScheme.error,
-                          width: 1,
-                        ),
-                      ),
-                      focusedErrorBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(
-                          context.inputBorderRadius,
-                        ),
-                        borderSide: BorderSide(
-                          color: Theme.of(context).colorScheme.error,
-                          width: 2,
-                        ),
-                      ),
-                      contentPadding: const EdgeInsets.only(bottom: 12),
                     ),
-                    keyboardType: const TextInputType.numberWithOptions(
-                      decimal: true,
-                    ),
-                    onChanged: (value) {
-                      // Convert user input back to storage unit (lbs)
-                      final displayWeight = double.tryParse(value);
-                      if (displayWeight == null && value.isNotEmpty) return;
-                      final storageWeight = convertWeightForStorage(
-                        displayWeight,
-                        useMetric,
-                      );
-                      callbacks.onUpdateSetWeight(
-                        index,
-                        set.id,
-                        storageWeight?.toString() ?? '',
-                      );
-                    },
-                  ),
-                ),
+                ],
               ),
             ),
           ),
-          const SizedBox(width: 24),
+          const SizedBox(width: 8),
 
           // Reps Input
           Expanded(
             child: Semantics(
+              key: ValueKey('workout_set_reps_$index'),
               label: l10n.exerciseCardRepsSemantic(index + 1),
               textField: true,
               child: Stack(
                 children: [
                   Container(
-                    height: 30,
+                    height: 44,
                     decoration: BoxDecoration(
                       color: Theme.of(context).inputDecorationTheme.fillColor,
                       borderRadius: BorderRadius.circular(
@@ -775,7 +864,8 @@ class ExerciseCardWidget extends ConsumerWidget {
                         style: Theme.of(context).textTheme.bodyMedium,
                         textAlign: TextAlign.center,
                         keyboardType: TextInputType.number,
-                        keyboardAppearance: Brightness.light,
+                        keyboardAppearance: Theme.of(context).brightness,
+                        textInputAction: TextInputAction.done,
                         decoration: InputDecoration(
                           filled: false,
                           hintText: targetRir != null
@@ -854,16 +944,17 @@ class ExerciseCardWidget extends ConsumerWidget {
               ),
             ),
           ),
-          const SizedBox(width: 48),
+          const SizedBox(width: 24),
 
           // Log Checkbox
           Semantics(
+            key: ValueKey('workout_set_log_$index'),
             label: l10n.exerciseCardLogSemantic(index + 1),
             checked: set.isLogged,
             enabled: isLoggable,
             child: SizedBox(
-              width: 30,
-              height: 30,
+              width: 44,
+              height: 44,
               child: Container(
                 decoration: BoxDecoration(
                   color: set.isLogged
@@ -884,7 +975,12 @@ class ExerciseCardWidget extends ConsumerWidget {
                   ),
                 ),
                 child: InkWell(
-                  onTap: isLoggable ? () => callbacks.onToggleSetLog(index) : null,
+                  onTap: isLoggable
+                      ? () {
+                          HapticFeedback.selectionClick();
+                          callbacks.onToggleSetLog(index);
+                        }
+                      : () => callbacks.onDisabledLogTap?.call(index),
                   child: set.isLogged ? Icon(Icons.check, color: context.successColor) : null,
                 ),
               ),

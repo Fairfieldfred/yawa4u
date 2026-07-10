@@ -4774,6 +4774,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get exerciseCardDeleteSet => 'Delete set';
 
   @override
+  String get exerciseCardPrBadge => 'PR';
+
+  @override
+  String get exerciseCardPrBadgeSemantic => 'Personal record';
+
+  @override
+  String get exerciseCardLogHintMissingFields => 'Enter weight and reps to log this set';
+
+  @override
+  String workoutActionError(Object error) {
+    return 'Couldn\'t save changes: $error';
+  }
+
+  @override
   String exerciseCardTryWeight(Object weight, Object unit) {
     return '↑ Try $weight $unit';
   }

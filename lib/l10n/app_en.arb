@@ -2874,6 +2874,15 @@
   "exerciseCardUnskipSet": "Unskip set",
   "exerciseCardDeleteSet": "Delete set",
   "exerciseCardSetTypeHeader": "SET TYPE",
+  "exerciseCardPrBadge": "PR",
+  "exerciseCardPrBadgeSemantic": "Personal record",
+  "exerciseCardLogHintMissingFields": "Enter weight and reps to log this set",
+  "workoutActionError": "Couldn't save changes: {error}",
+  "@workoutActionError": {
+    "placeholders": {
+      "error": {}
+    }
+  },
   "exerciseCardTryWeight": "\u2191 Try {weight} {unit}",
   "@exerciseCardTryWeight": {
     "placeholders": {
