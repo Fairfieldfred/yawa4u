@@ -89,7 +89,16 @@ creates a draft cycle (see `community_template_detail_screen.dart`).
 5. **External sessions are read-only.** `SessionSource.isExternal` (healthKit, strava, …) —
    schedule shifts and edits must skip them.
 6. **Planned vs logged cardio.** Draft-planning creates `SessionSource.userPlanned` +
-   `WorkoutStatus.incomplete`; the card's "Log" button promotes it to completed.
+   `WorkoutStatus.incomplete`; the card's "Log" button promotes it to completed. Promoting an
+   existing plan asks for confirmation; the cardio form shows an explicit Plan/Log mode indicator.
+7. **`ExerciseSet.copyWith(weight: null)` is a no-op.** Like most copyWith implementations,
+   null means "keep". To clear a weight pass `clearWeight: true` (`Workout`/`CardioSession`
+   have the same pattern via `clearScheduledDate`).
+8. **Rest timer is wall-clock driven.** `restTimerProvider` persists an end-timestamp to
+   SharedPreferences and re-derives remaining time on every tick/rebuild — never count ticks.
+   It schedules an OS notification (`NotificationService`) at the deadline and fires a haptic at
+   zero. Tests inject `restTimerClockProvider`, `restTimerHapticProvider`, and
+   `notificationServiceProvider` fakes.
 
 ## Conventions
 
@@ -98,9 +107,19 @@ creates a draft cycle (see `community_template_detail_screen.dart`).
 - Enums live in `lib/core/constants/enums.dart` and `lib/core/constants/sports.dart`, with
   `displayName`/`badge`/localized-name extensions. Template JSON (`assets/templates/*.json`) uses
   lowercase enum values.
-- Backup format is JSON `version: 4` (multi-sport); `version: 3` imports still accepted.
+- Backup format is JSON `version: 4` (multi-sport); `version: 3` imports still accepted. Users
+  can export/restore a backup file from the Sync screen (`DataBackupService.exportToFile`).
+- Snackbars go through `context.showSnackBar` / `showSuccessSnackBar` / `showErrorSnackBar`
+  (`lib/core/extensions/context_extensions.dart`) unless they need a `SnackBarAction` (e.g. Undo) —
+  those stay raw `ScaffoldMessenger`. `ContextExtensions` deliberately has NO push/pop helpers;
+  navigation is go_router's `context.go`/`context.push` (or `Navigator.of(context)` for dialogs).
+- Destructive/movable actions are undoable or confirmed: schedule edits and Reset workout capture
+  snapshots (`ScheduleSnapshot`, incl. exercise placements) surfaced as 6s Undo snackbars.
+- Text scale is clamped app-wide to 0.8–1.6 in the `MaterialApp` builder; icon-only buttons carry
+  `tooltip:` (which doubles as the semantics label).
 - Tests override `appDatabaseProvider` with `AppDatabase.forTesting(NativeDatabase.memory())` and
-  `sharedPreferencesProvider` with a mock; see `test/helpers/`.
+  `sharedPreferencesProvider` with a mock; see `test/helpers/`. Robot journey tests live in
+  `test/journeys/` with robots in `test/robots/` and harnesses in `test/harness/`.
 
 <!-- gitnexus:start -->
 # GitNexus — Code Intelligence

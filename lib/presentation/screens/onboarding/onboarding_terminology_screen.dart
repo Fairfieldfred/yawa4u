@@ -55,7 +55,8 @@ enum TrainingCycleTerm {
   }
 }
 
-/// Third onboarding screen - collects user's preferred terminology
+/// Step 4 of onboarding (Profile → Sports → Equipment → Terminology).
+/// Collects the user's preferred terminology; finishing lands on Home.
 class OnboardingTerminologyScreen extends ConsumerStatefulWidget {
   const OnboardingTerminologyScreen({super.key});
 

@@ -52,7 +52,9 @@ Your data lives on your device. Export, import, and device-to-device WiFi sync k
 - Per-exercise feedback: joint pain, muscle pump, workload, soreness
 - Exercise notes with pin-to-top option
 - Exercise history overlay showing previous performances
-- Configurable rest timers per exercise
+- Smart weight pre-fill from your last performance, with a tappable "Try X" progression suggestion
+- PR badge when a logged set beats your best historical set
+- Configurable rest timers per exercise — the countdown survives phone lock and notifies you (haptic + local notification) when rest is over
 
 ### Cardio Sessions
 
@@ -66,6 +68,7 @@ Your data lives on your device. Export, import, and device-to-device WiFi sync k
 ### Home Screen
 
 - Unified vertical scroll of strength and cardio cards, sorted by completion status
+- Five deep-linkable tabs (Workout, Cycles, Exercises, Calendar, More) backed by router branches
 - Pinned sport grid footer for one-tap session creation (Lift, Run, Bike, Swim)
 - Grid adapts to the sports you selected during onboarding — show only what you train
 - Quick-log action in the app bar of every non-Workout tab
@@ -86,6 +89,7 @@ Your data lives on your device. Export, import, and device-to-device WiFi sync k
 ### Calendar
 
 - Visual calendar with colored sport dots per day (strength, run, bike, swim)
+- Drag-and-drop rescheduling and rest-day edits, all undoable from the confirmation snackbar
 - Quick navigation between training days
 - Desktop and mobile calendar variants with consistent data
 
@@ -117,6 +121,7 @@ Your data lives on your device. Export, import, and device-to-device WiFi sync k
 
 - Local-first SQLite storage via Drift
 - JSON export/import (backup format v4 — multi-sport aware)
+- One-tap backup to a file via the share sheet, and restore from a picked file (merge semantics — nothing is deleted)
 - Device-to-device WiFi sync via embedded HTTP server
 - Template sharing between devices
 
@@ -135,6 +140,7 @@ Your data lives on your device. Export, import, and device-to-device WiFi sync k
 | Calendar | table_calendar | ^3.2.0 |
 | Health data | health | ^13.1.4 |
 | Strava OAuth | flutter_web_auth_2 | ^5.0.0 |
+| Local notifications | flutter_local_notifications | ^22.0.1 |
 | Analytics | Firebase Analytics | ^12.0.4 |
 | Error tracking | Sentry | ^9.8.0 |
 | WiFi sync | shelf + shelf_router | ^1.4.2 / ^1.1.4 |
@@ -237,10 +243,12 @@ Key tables: `training_cycles`, `sessions`, `session_cardio`, `session_intervals`
 
 A 4-screen flow guides new users:
 
-1. **Profile** — Height, weight, gender
-2. **Equipment** — Available equipment types for exercise filtering
-3. **Sports** — Multi-select: Strength, Run, Bike, Swim. Seeds per-sport unit preferences
+1. **Profile** — Height and weight (optional — you can add them later in Body stats)
+2. **Sports** — Multi-select: Strength, Run, Bike, Swim. Seeds per-sport unit preferences
+3. **Equipment** — Available equipment types for exercise filtering (skipped when Strength isn't selected)
 4. **Terminology** — Pick preferred term for "Training Cycle" (Block, Mesocycle, Phase, etc.)
+
+Finishing lands on the Home tab, where the empty state offers "Create cycle" and "Use a template" as next steps.
 
 ---
 

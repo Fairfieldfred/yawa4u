@@ -29,7 +29,9 @@ enum EquipmentOption {
   final IconData icon;
 }
 
-/// Second onboarding screen - collects user's available equipment
+/// Step 3 of onboarding (Profile → Sports → Equipment → Terminology).
+/// Collects available equipment; skipped entirely when Strength isn't
+/// among the selected sports.
 class OnboardingEquipmentScreen extends ConsumerStatefulWidget {
   const OnboardingEquipmentScreen({super.key});
 

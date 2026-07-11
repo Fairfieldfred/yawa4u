@@ -311,6 +311,11 @@ Backed by the `WorkoutRepository` facade (which funnels through `SessionReposito
 | `exercisesByWorkoutProvider(id)` | `FutureProvider.family` | Exercises for a workout. |
 | `exerciseHistoryServiceProvider` | `Provider` | History service access. |
 | `previousPerformanceProvider` | `FutureProvider.family` | Previous performance data. |
+| `previousPerformanceBatchProvider` | `FutureProvider.family` | Batched previous performances (stable string key via `batchProviderKey`). |
+| `bestSetVolumeProvider((name, currentId))` | `FutureProvider.family` | Best historical single-set volume — drives the PR badge on logged sets. |
+| `lastPerformedDatesProvider` | `FutureProvider` | Last-performed date for every exercise name in one history pass (Add Exercise list). |
+| `autoSuggestedSetIdsProvider` | `NotifierProvider` | Set IDs whose weight was auto-filled from history and not yet confirmed (drives the italic/accent "suggested" styling). |
+| `suggestionRevisionProvider` | `NotifierProvider` | Bumped when a suggestion is applied programmatically so weight fields rebuild with fresh initial values (typing never bumps it). |
 
 ### Template providers (`template_providers.dart`)
 
@@ -334,7 +339,7 @@ Backed by the `WorkoutRepository` facade (which funnels through `SessionReposito
 | `theme_provider.dart` | Theme mode (light/dark/system), `themeModeProvider`, `isDarkModeProvider`. |
 | `cardio_library_providers.dart` | Cardio session template library by sport. |
 | `measurement_providers.dart` | User body measurement tracking. |
-| `rest_timer_provider.dart` | Rest timer between sets management. |
+| `rest_timer_provider.dart` | Rest timer between sets. Wall-clock driven: persists an end-timestamp to SharedPreferences (survives lock/process death), schedules an OS notification via `NotificationService`, fires a haptic at zero. Injectable seams: `restTimerClockProvider`, `restTimerHapticProvider`, `notificationServiceProvider`. |
 | `use_case_providers.dart` | Use case dependency providers (finish/skip/reset workout, add set, start/end cycle). |
 | `auth_providers.dart` | Firebase auth state — `firebaseAuthServiceProvider`, `authStateProvider`, `currentUserProvider`, `isEmailVerifiedProvider`, `canUploadProvider`. |
 | `community_providers.dart` | Community library browsing/upload — sort, filter, pagination for templates and skins. |
@@ -641,6 +646,7 @@ Stored in Drift via `CustomExerciseDefinition`. Converts to `ExerciseDefinition`
 | Service | Location | Purpose |
 |---|---|---|
 | `AnalyticsService` | `data/services/` | Firebase analytics event tracking |
+| `NotificationService` | `data/services/` | Thin wrapper over flutter_local_notifications: one-shot scheduled notifications (rest timer). Idempotent init, exact-alarm fallback on Android 14+, safe no-op on unsupported platforms |
 | `CsvLoaderService` | `data/services/` | Load exercise library from CSV |
 | `CardioSessionLibraryService` | `data/services/` | Load cardio session templates from assets |
 | `DataBackupService` | `data/services/` | JSON backup/restore (v4 schema — multi-sport) |
@@ -649,7 +655,7 @@ Stored in Drift via `CustomExerciseDefinition`. Converts to `ExerciseDefinition`
 | `HealthSyncService` | `data/services/` | Apple Health / Health Connect import via `health` package |
 | `StravaIntegrationService` | `data/services/` | OAuth + sync for Strava activities |
 | `OnboardingService` | `data/services/` | Onboarding flow state + per-sport unit preferences |
-| `ScheduleService` | `data/services/` | Session scheduling, calendar shift/move, rest-day insert/remove. Date-based methods (`insertDayBeforeDate`, `removeRestDay`) shift both strength workouts and cardio sessions (`_shiftCardioByDate`, skipping external imports). `ScheduleSnapshot` carries `workoutSnapshots` + `cardioSnapshots` for undo |
+| `ScheduleService` | `data/services/` | Session scheduling, calendar shift/move, rest-day insert/remove. Date-based methods (`insertDayBeforeDate`, `removeRestDay`) shift both strength workouts and cardio sessions (`_shiftCardioByDate`, skipping external imports). `ScheduleSnapshot` carries `workoutSnapshots` + `cardioSnapshots` + `exercisePlacements` (which workout each exercise lived in, at which order) so drag-drop moves and reorders are fully undoable; `moveExerciseToDate`, `moveCardioToDate`, and `reorderExerciseWithinDayByDate` all return snapshots |
 | `SkinShareService` | `data/services/` | Share custom themes between devices |
 | `TemplateShareService` | `data/services/` | Share training templates between devices |
 | `ThemeImageService` | `data/services/` | Theme image management for custom skins |
@@ -795,3 +801,5 @@ Each table has a corresponding DAO. Use them directly only when you need a singl
 6. **WorkoutRepository is a facade.** It wraps `SessionRepository` with `Workout` ↔ `StrengthSession` conversion. No direct DB access. New code should prefer `SessionRepository` directly.
 7. **Planned vs logged cardio.** Sessions created via draft cycle planning use `SessionSource.userPlanned` and `WorkoutStatus.incomplete`. The card shows a "Log" button to mark as completed.
 8. **Calendar schedule edits are multi-cycle and date-based.** The calendar renders **all** active (stacked) cycles, so any schedule edit (rest-day insert/remove) must loop over `currentTrainingCyclesProvider` (plural) — not `currentTrainingCycleProvider` (the primary only) — and shift by **calendar date**, because each cycle maps the same date to a different `(periodNumber, dayNumber)`. Use the date-based `ScheduleService.insertDayBeforeDate` / `removeRestDay`. They shift strength **and** cardio (`_shiftCardioByDate`), changing only `scheduledDate` and skipping external imports (`session.isReadOnly`). Undo (`CalendarUndoState`) stores one snapshot per affected cycle. ⚠️ The drag-drop handlers `moveExerciseToDate` / `moveCardioToDate` still use the singular primary-cycle provider — same latent bug if a secondary cycle's item becomes draggable.
+9. **`copyWith(x: null)` keeps the old value.** To actually clear a nullable field use the dedicated flags: `ExerciseSet.copyWith(clearWeight: true)`, `Workout`/`CardioSession` `copyWith(clearScheduledDate: true)`. The Reset-workout bug (weights never cleared) came from this.
+10. **Snackbars & undo.** Simple snackbars use `context.showSnackBar` / `showSuccessSnackBar` / `showErrorSnackBar`; snackbars that need an action (Undo) stay raw `ScaffoldMessenger`. Calendar edits and Reset workout capture snapshots and offer a 6-second Undo.

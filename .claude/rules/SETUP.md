@@ -84,6 +84,31 @@ options.sendDefaultPii = false;
 
 Session replay is disabled by default to protect user privacy.
 
+## Local Notifications (rest timer)
+
+The rest timer schedules a one-shot local notification at its deadline via
+`flutter_local_notifications` (wrapped by
+`lib/data/services/notification_service.dart`). Platform setup is already
+in place; keep it intact when touching build files:
+
+- **Android** (`android/app/`):
+  - `build.gradle.kts` enables core library desugaring
+    (`isCoreLibraryDesugaringEnabled = true` + the
+    `coreLibraryDesugaring(...)` dependency) — required by the plugin.
+  - `AndroidManifest.xml` declares `POST_NOTIFICATIONS` (Android 13+
+    runtime permission), `SCHEDULE_EXACT_ALARM`, `RECEIVE_BOOT_COMPLETED`,
+    and the two `com.dexterous.flutterlocalnotifications` receivers.
+  - On Android 14+ the exact-alarm permission can be denied;
+    `NotificationService` falls back to an inexact schedule automatically.
+- **iOS/macOS** (`ios/Runner/AppDelegate.swift`): sets
+  `UNUserNotificationCenter.current().delegate` so notifications present
+  while the app is foregrounded. No Info.plist entries are needed for
+  local notifications.
+
+Permission is requested lazily the first time a rest timer starts (not at
+app launch). Tests never touch the plugin — override
+`notificationServiceProvider` with a fake.
+
 ## Running the App
 
 ### Development
