@@ -12,11 +12,9 @@ mixin _$SessionDaoMixin on DatabaseAccessor<AppDatabase> {
 class SessionDaoManager {
   final _$SessionDaoMixin _db;
   SessionDaoManager(this._db);
-  $$TrainingCyclesTableTableManager get trainingCycles =>
-      $$TrainingCyclesTableTableManager(
-        _db.attachedDatabase,
-        _db.trainingCycles,
-      );
-  $$SessionsTableTableManager get sessions =>
-      $$SessionsTableTableManager(_db.attachedDatabase, _db.sessions);
+  $$TrainingCyclesTableTableManager get trainingCycles => $$TrainingCyclesTableTableManager(
+    _db.attachedDatabase,
+    _db.trainingCycles,
+  );
+  $$SessionsTableTableManager get sessions => $$SessionsTableTableManager(_db.attachedDatabase, _db.sessions);
 }

@@ -50,77 +50,80 @@ class _RestTimerDialogState extends State<RestTimerDialog> {
 
     return AlertDialog(
       title: Text(l10n.restTimerDialogTitle),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Use default toggle
-          SwitchListTile(
-            contentPadding: EdgeInsets.zero,
-            title: Text(
-              l10n.restTimerUseDefault,
-              style: theme.textTheme.bodyMedium,
-            ),
-            subtitle: Text(
-              l10n.restTimerBasedOnSetType,
-              style: theme.textTheme.bodySmall,
-            ),
-            value: _useDefault,
-            onChanged: (value) {
-              setState(() => _useDefault = value);
-            },
-          ),
-          if (!_useDefault) ...[
-            const SizedBox(height: 8),
-            Text(
-              l10n.restTimerDuration,
-              style: theme.textTheme.bodySmall?.copyWith(
-                fontWeight: FontWeight.w600,
+      // Scrollable so large text scales / small screens never overflow.
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Use default toggle
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: Text(
+                l10n.restTimerUseDefault,
+                style: theme.textTheme.bodyMedium,
               ),
+              subtitle: Text(
+                l10n.restTimerBasedOnSetType,
+                style: theme.textTheme.bodySmall,
+              ),
+              value: _useDefault,
+              onChanged: (value) {
+                setState(() => _useDefault = value);
+              },
             ),
-            const SizedBox(height: 8),
-            // Preset chips
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: _presets.map((seconds) {
-                final label = seconds >= 60
-                    ? '${seconds ~/ 60}:${(seconds % 60).toString().padLeft(2, '0')}'
-                    : '${seconds}s';
-                return ChoiceChip(
-                  label: Text(label),
-                  selected: _selectedSeconds == seconds,
-                  onSelected: (_) {
-                    setState(() => _selectedSeconds = seconds);
-                  },
-                );
-              }).toList(),
-            ),
-            const SizedBox(height: 16),
-            // Slider for fine-tuning
-            Row(
-              children: [
-                Text(
-                  _formatDuration(_selectedSeconds),
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+            if (!_useDefault) ...[
+              const SizedBox(height: 8),
+              Text(
+                l10n.restTimerDuration,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  fontWeight: FontWeight.w600,
                 ),
-                Expanded(
-                  child: Slider(
-                    value: _selectedSeconds.toDouble(),
-                    min: 10,
-                    max: 300,
-                    divisions: 29,
-                    onChanged: (value) {
-                      setState(() => _selectedSeconds = value.round());
+              ),
+              const SizedBox(height: 8),
+              // Preset chips
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: _presets.map((seconds) {
+                  final label = seconds >= 60
+                      ? '${seconds ~/ 60}:${(seconds % 60).toString().padLeft(2, '0')}'
+                      : '${seconds}s';
+                  return ChoiceChip(
+                    label: Text(label),
+                    selected: _selectedSeconds == seconds,
+                    onSelected: (_) {
+                      setState(() => _selectedSeconds = seconds);
                     },
+                  );
+                }).toList(),
+              ),
+              const SizedBox(height: 16),
+              // Slider for fine-tuning
+              Row(
+                children: [
+                  Text(
+                    _formatDuration(_selectedSeconds),
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ),
-              ],
-            ),
+                  Expanded(
+                    child: Slider(
+                      value: _selectedSeconds.toDouble(),
+                      min: 10,
+                      max: 300,
+                      divisions: 29,
+                      onChanged: (value) {
+                        setState(() => _selectedSeconds = value.round());
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ],
-        ],
+        ),
       ),
       actions: [
         TextButton(

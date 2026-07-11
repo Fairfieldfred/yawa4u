@@ -111,22 +111,22 @@ Fix all findings from the 2026-07-09 code-level UX/UI audit (5 parallel reviewer
 - [x] TDD: reset-workout undo restores weight/reps/isLogged per set (`workout_flow_test.dart`)
 - [x] Verify: `flutter analyze` && `flutter test`
 
-### Phase 7: Consistency sweep — theming, l10n, errors, a11y, community polish
+### Phase 7: Consistency sweep — theming, l10n, errors, a11y, community polish ✅ (one deferred item)
 
 - **Goal**: skin system honored everywhere; es locale complete; no silent errors.
-- [ ] `lib/core/extensions/context_extensions.dart:147` - success snackbar uses `SkinExtension.success`; `:171-230` dialog/loading defaults require localized strings (update all callers; ARB en+es)
-- [ ] `lib/core/theme/app_theme.dart:88-543` - delete dead static themes (verify zero refs first)
-- [ ] `lib/core/theme/colors.dart:117-132` - `getMuscleColor` → skin-driven `MuscleGroupColors` (English-substring match breaks under es)
-- [ ] Hardcoded-color sweep (249 hits): priority files `exercise_card_widget.dart` (grey states → `colorScheme.onSurfaceVariant`), `edit_workout_screen.dart` (white-on-color), `calendar_screen.dart:423,446,705,727` (`Colors.red` → `context.errorColor`)
-- [ ] Inline-TextStyle sweep (256 hits): priority files `community_browse_screen.dart`, `exercise_card_widget.dart`, `edit_workout_screen.dart`, `completed_cycle_workout_screen.dart`, `calendar_screen.dart` → `context.textTheme.*`
-- [ ] Swallowed errors → small retry affordance: `integrations_screen.dart:337`, `exercise_card_widget.dart:108`, `calendar_sport_dots.dart:35`; raw `Error: $e` → localized message `cycle_comparison_view.dart:160-163`
-- [ ] Migrate direct `ScaffoldMessenger` calls (108) to `context.show*SnackBar` helpers — mechanical, per-file
-- [ ] Localize stragglers: `calendar_dropdown.dart:169,189,228`; `integrations_screen.dart:627,635-640`; hardcoded month arrays `cardio_session_screen.dart:448-465`, `cycle_list_screen.dart:1230-1245` → `DateFormat`; `stats_screen.dart:386` date format
-- [ ] `integrations_screen.dart:42-88` - branch permission-denied guide on `Platform.isIOS` (Apple Health copy + iOS Settings deep-link) vs Android Health Connect
-- [ ] A11y: clamp `textScaler` app-side (MaterialApp builder); `Semantics` labels on icon-only buttons in cardio/stats/settings/community; scroll wrappers in `rest_timer_dialog.dart` + `workout_dialogs.dart`; `settings_screen.dart:414` inches label
-- [ ] `stats_screen.dart:434-486` - Overview empty state (guard charts like `:183-190`); `:453,462,326` responsive chart heights
-- [ ] Community: `community_browse_screen.dart:66` always show upload affordance → unverified tap triggers `showEmailLinkPrompt`; `:372-392` signed-out My Uploads gets sign-in button; `community_template_detail_screen.dart:63-75` success snackbar before nav (match skin flow `community_skin_detail_screen.dart:51-57`); clamp `initialTab` (`:35`)
-- [ ] Verify: `flutter analyze` && `flutter test` && ARB parity check (LOCALIZATION.md script)
+- [x] `lib/core/extensions/context_extensions.dart:147` - success snackbar uses the skin success color; dialog/loading helpers now REQUIRE localized strings (no English defaults; zero existing callers). Also removed the Navigator push/pop helpers — they collided with go_router's extension and had no callers
+- [x] `lib/core/theme/app_theme.dart:88-543` - dead static themes + `AppThemeMode` deleted (zero refs verified); `MuscleGroupColors` ThemeExtension kept
+- [x] `lib/core/theme/colors.dart:117-132` - `getMuscleColor` deleted (zero callers; skin-driven `MuscleGroupColors` is the real mechanism)
+- [x] Hardcoded-color sweep — priority files converted: `exercise_card_widget.dart` (greys → `onSurfaceVariant`/`disabledColor`), `edit_workout_screen.dart` (hardcoded dark menu surface + white-on-color → theme card/onSurface), `calendar_screen.dart` (`Colors.red` → `context.errorColor` ×4)
+- [ ] Inline-TextStyle sweep (256 hits) — **deferred**: converting inline sizes/weights to `context.textTheme.*` changes visual metrics and needs the simulator screenshot pass this plan lists as out of scope; the color halves of these styles in the priority files were themed above
+- [x] Swallowed errors: `exercise_card_widget.dart:108` history-load failure → tap-to-retry affordance; `calendar_sport_dots.dart:35` failure now logged; `cycle_comparison_view.dart:160-163` raw `Error: $e` → localized; integrations sync errors were already surfaced inline (unknown-error fallback localized)
+- [x] Migrate direct `ScaffoldMessenger` calls → `context.show*SnackBar` helpers: 107 simple calls across 23 files migrated; calls with `SnackBarAction`/custom styling (e.g. undo snackbars) intentionally stay raw — the helpers don't support actions
+- [x] Localize stragglers: `calendar_dropdown` period snackbars; integrations unknown-error + last-run summary; month arrays in `cardio_session_screen` + `cycle_list_screen` → locale-aware `DateFormat`; `stats_screen` measurement date → `DateFormat.Md`
+- [x] `integrations_screen.dart:42-88` - permission-denied guide branches on `Platform.isIOS` (Apple Health steps + `app-settings:` deep-link) vs Android Health Connect
+- [x] A11y: `textScaler` clamped 0.8–1.6 in MaterialApp builder; icon-only buttons in cardio/stats/settings/community all carry tooltips (verified — none missing); scroll wrappers added to `rest_timer_dialog.dart` + all three `workout_dialogs.dart` dialogs; inches field labeled
+- [x] `stats_screen.dart:434-486` - Overview empty state when no workouts (mirrors Cardio tab guard); chart heights scale with viewport (clamped 180–320)
+- [x] Community: upload affordance always visible (unverified tap → `showEmailLinkPrompt`); signed-out My Uploads gets a Sign in button; template download shows a success snackbar before navigating; `initialTab` clamped
+- [x] Verify: `flutter analyze` && `flutter test` && ARB parity check (no missing/extra keys; only the pre-existing ICU false positives noted in LOCALIZATION.md)
 
 ## Risks / Out of scope
 

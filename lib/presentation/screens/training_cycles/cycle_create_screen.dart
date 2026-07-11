@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+import '../../../core/extensions/context_extensions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -173,12 +175,7 @@ class _TrainingCycleCreateScreenState extends ConsumerState<TrainingCycleCreateS
         final l10n = AppLocalizations.of(context)!;
         final cycleTerm = ref.read(trainingCycleTermProvider);
         // Show success message
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(l10n.cycleCreateSuccessSnackbar(cycleTerm, trainingCycle.name)),
-            backgroundColor: context.successColor,
-          ),
-        );
+        context.showSuccessSnackBar(l10n.cycleCreateSuccessSnackbar(cycleTerm, trainingCycle.name));
 
         // Land on the Cycles tab to show the draft
         context.go('/cycles');
@@ -186,15 +183,10 @@ class _TrainingCycleCreateScreenState extends ConsumerState<TrainingCycleCreateS
     } catch (e) {
       if (mounted) {
         final cycleTerm = ref.read(trainingCycleTermProvider);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              UserErrors.describe(
-                e,
-                context: 'create ${cycleTerm.toLowerCase()}',
-              ),
-            ),
-            backgroundColor: context.errorColor,
+        context.showErrorSnackBar(
+          UserErrors.describe(
+            e,
+            context: 'create ${cycleTerm.toLowerCase()}',
           ),
         );
       }

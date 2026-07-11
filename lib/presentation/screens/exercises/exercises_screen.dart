@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
+
+import '../../../core/extensions/context_extensions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -213,9 +215,7 @@ class _ExercisesHomeScreenState extends ConsumerState<ExercisesHomeScreen> {
         await repository.update(updatedCycle);
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text(l10n.failedToSave(e))));
+          context.showSnackBar(l10n.failedToSave(e));
         }
       }
     }
@@ -1286,21 +1286,11 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
         await repository.update(updatedTrainingCycle);
 
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(l10n.noteSaved),
-              backgroundColor: context.successColor,
-            ),
-          );
+          context.showSuccessSnackBar(l10n.noteSaved);
         }
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(l10n.exercisesErrorSavingNote(e)),
-              backgroundColor: context.errorColor,
-            ),
-          );
+          context.showErrorSnackBar(l10n.exercisesErrorSavingNote(e));
         }
       }
     }
@@ -1335,12 +1325,7 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
 
       if (mounted) {
         final l10n = AppLocalizations.of(context)!;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(l10n.noteSaved),
-            backgroundColor: context.successColor,
-          ),
-        );
+        context.showSuccessSnackBar(l10n.noteSaved);
       }
     }
   }
@@ -1399,12 +1384,7 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
       }
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(l10n.exercisesWorkoutReset),
-            backgroundColor: context.successColor,
-          ),
-        );
+        context.showSuccessSnackBar(l10n.exercisesWorkoutReset);
       }
     }
   }

@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+
+import '../../../core/extensions/context_extensions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/constants/muscle_groups.dart';
-import '../../../core/theme/skins/skins.dart';
 import '../../../data/models/training_cycle_template.dart';
 import '../../../data/repositories/community_repository.dart';
 import '../../../domain/providers/community_providers.dart';
@@ -64,6 +65,8 @@ class _CommunityTemplateDetailScreenState extends ConsumerState<CommunityTemplat
           _isDownloading = false;
           _downloaded = true;
         });
+        // Confirm the download before navigating (mirrors the skin flow).
+        context.showSuccessSnackBar(l10n.communityTemplateSaved(widget.template.template.name));
         // Show the newly created draft on the Cycles tab. go() replaces
         // the stack, dismissing the browse/detail screens on the way.
         context.go('/cycles');
@@ -71,13 +74,7 @@ class _CommunityTemplateDetailScreenState extends ConsumerState<CommunityTemplat
     } catch (e) {
       if (mounted) {
         setState(() => _isDownloading = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(l10n.communityDownloadFailed(e)),
-            backgroundColor: context.errorColor,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
+        context.showErrorSnackBar(l10n.communityDownloadFailed(e));
       }
     }
   }

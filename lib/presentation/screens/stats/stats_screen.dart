@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
@@ -324,7 +325,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen> with SingleTickerProv
               _buildSectionHeader(context, l10n.statsWeightProgression),
               const SizedBox(height: 8),
               SizedBox(
-                height: 200,
+                height: _chartHeight(context),
                 child: WeightProgressChart(
                   measurements: measurements,
                 ),
@@ -382,7 +383,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen> with SingleTickerProv
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
                 trailing: Text(
-                  '${m.timestamp.month}/${m.timestamp.day}',
+                  DateFormat.Md(Localizations.localeOf(context).toString()).format(m.timestamp),
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
               ),
@@ -431,8 +432,26 @@ class _StatsScreenState extends ConsumerState<StatsScreen> with SingleTickerProv
     );
   }
 
+  /// Chart height scaled to the viewport (a quarter of the screen,
+  /// clamped) so charts stay readable on small phones and large tablets.
+  double _chartHeight(BuildContext context) {
+    return (MediaQuery.sizeOf(context).height * 0.25).clamp(180.0, 320.0);
+  }
+
   Widget _buildStatsContent(BuildContext context, WorkoutStats stats) {
     final l10n = AppLocalizations.of(context)!;
+
+    // No strength data at all — show a real empty state instead of a page
+    // of zeroed-out charts (mirrors the Cardio tab's guard).
+    if (stats.totalWorkouts == 0) {
+      return EmptyStateWidget(
+        icon: Icons.bar_chart,
+        iconSize: 64,
+        title: l10n.statsNoStrengthTitle,
+        subtitle: l10n.statsNoStrengthSubtitle,
+      );
+    }
+
     return ResponsiveContent(
       child: ListView(
         padding: const EdgeInsets.all(16),
@@ -451,7 +470,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen> with SingleTickerProv
           _buildSectionHeader(context, l10n.statsVolumeByMuscleGroup),
           const SizedBox(height: 8),
           SizedBox(
-            height: 200,
+            height: _chartHeight(context),
             child: VolumeBarChart(setsByMuscleGroup: stats.setsByMuscleGroup),
           ),
           const SizedBox(height: 24),
@@ -460,7 +479,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen> with SingleTickerProv
           _buildSectionHeader(context, l10n.statsVolumeProgression),
           const SizedBox(height: 8),
           SizedBox(
-            height: 200,
+            height: _chartHeight(context),
             child: VolumeLineChart(volumeProgression: stats.volumeProgression),
           ),
           const SizedBox(height: 24),

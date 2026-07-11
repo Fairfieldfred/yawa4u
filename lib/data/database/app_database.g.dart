@@ -3,8 +3,7 @@
 part of 'app_database.dart';
 
 // ignore_for_file: type=lint
-class $TrainingCyclesTable extends TrainingCycles
-    with TableInfo<$TrainingCyclesTable, TrainingCycle> {
+class $TrainingCyclesTable extends TrainingCycles with TableInfo<$TrainingCyclesTable, TrainingCycle> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
@@ -125,17 +124,15 @@ class $TrainingCyclesTable extends TrainingCycles
     type: DriftSqlType.dateTime,
     requiredDuringInsert: false,
   );
-  static const VerificationMeta _muscleGroupPrioritiesMeta =
-      const VerificationMeta('muscleGroupPriorities');
+  static const VerificationMeta _muscleGroupPrioritiesMeta = const VerificationMeta('muscleGroupPriorities');
   @override
-  late final GeneratedColumn<String> muscleGroupPriorities =
-      GeneratedColumn<String>(
-        'muscle_group_priorities',
-        aliasedName,
-        true,
-        type: DriftSqlType.string,
-        requiredDuringInsert: false,
-      );
+  late final GeneratedColumn<String> muscleGroupPriorities = GeneratedColumn<String>(
+    'muscle_group_priorities',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _templateNameMeta = const VerificationMeta(
     'templateName',
   );
@@ -156,8 +153,7 @@ class $TrainingCyclesTable extends TrainingCycles
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
-  static const VerificationMeta _recoveryPeriodTypeMeta =
-      const VerificationMeta('recoveryPeriodType');
+  static const VerificationMeta _recoveryPeriodTypeMeta = const VerificationMeta('recoveryPeriodType');
   @override
   late final GeneratedColumn<int> recoveryPeriodType = GeneratedColumn<int>(
     'recovery_period_type',
@@ -560,37 +556,19 @@ class TrainingCycle extends DataClass implements Insertable<TrainingCycle> {
       daysPerPeriod: Value(daysPerPeriod),
       recoveryPeriod: Value(recoveryPeriod),
       status: Value(status),
-      gender: gender == null && nullToAbsent
-          ? const Value.absent()
-          : Value(gender),
+      gender: gender == null && nullToAbsent ? const Value.absent() : Value(gender),
       createdDate: Value(createdDate),
-      startDate: startDate == null && nullToAbsent
-          ? const Value.absent()
-          : Value(startDate),
-      endDate: endDate == null && nullToAbsent
-          ? const Value.absent()
-          : Value(endDate),
+      startDate: startDate == null && nullToAbsent ? const Value.absent() : Value(startDate),
+      endDate: endDate == null && nullToAbsent ? const Value.absent() : Value(endDate),
       muscleGroupPriorities: muscleGroupPriorities == null && nullToAbsent
           ? const Value.absent()
           : Value(muscleGroupPriorities),
-      templateName: templateName == null && nullToAbsent
-          ? const Value.absent()
-          : Value(templateName),
-      notes: notes == null && nullToAbsent
-          ? const Value.absent()
-          : Value(notes),
-      recoveryPeriodType: recoveryPeriodType == null && nullToAbsent
-          ? const Value.absent()
-          : Value(recoveryPeriodType),
-      primarySport: primarySport == null && nullToAbsent
-          ? const Value.absent()
-          : Value(primarySport),
-      creatorUuid: creatorUuid == null && nullToAbsent
-          ? const Value.absent()
-          : Value(creatorUuid),
-      ownerUuid: ownerUuid == null && nullToAbsent
-          ? const Value.absent()
-          : Value(ownerUuid),
+      templateName: templateName == null && nullToAbsent ? const Value.absent() : Value(templateName),
+      notes: notes == null && nullToAbsent ? const Value.absent() : Value(notes),
+      recoveryPeriodType: recoveryPeriodType == null && nullToAbsent ? const Value.absent() : Value(recoveryPeriodType),
+      primarySport: primarySport == null && nullToAbsent ? const Value.absent() : Value(primarySport),
+      creatorUuid: creatorUuid == null && nullToAbsent ? const Value.absent() : Value(creatorUuid),
+      ownerUuid: ownerUuid == null && nullToAbsent ? const Value.absent() : Value(ownerUuid),
     );
   }
 
@@ -680,14 +658,10 @@ class TrainingCycle extends DataClass implements Insertable<TrainingCycle> {
     createdDate: createdDate ?? this.createdDate,
     startDate: startDate.present ? startDate.value : this.startDate,
     endDate: endDate.present ? endDate.value : this.endDate,
-    muscleGroupPriorities: muscleGroupPriorities.present
-        ? muscleGroupPriorities.value
-        : this.muscleGroupPriorities,
+    muscleGroupPriorities: muscleGroupPriorities.present ? muscleGroupPriorities.value : this.muscleGroupPriorities,
     templateName: templateName.present ? templateName.value : this.templateName,
     notes: notes.present ? notes.value : this.notes,
-    recoveryPeriodType: recoveryPeriodType.present
-        ? recoveryPeriodType.value
-        : this.recoveryPeriodType,
+    recoveryPeriodType: recoveryPeriodType.present ? recoveryPeriodType.value : this.recoveryPeriodType,
     primarySport: primarySport.present ? primarySport.value : this.primarySport,
     creatorUuid: creatorUuid.present ? creatorUuid.value : this.creatorUuid,
     ownerUuid: ownerUuid.present ? ownerUuid.value : this.ownerUuid,
@@ -697,38 +671,22 @@ class TrainingCycle extends DataClass implements Insertable<TrainingCycle> {
       id: data.id.present ? data.id.value : this.id,
       uuid: data.uuid.present ? data.uuid.value : this.uuid,
       name: data.name.present ? data.name.value : this.name,
-      periodsTotal: data.periodsTotal.present
-          ? data.periodsTotal.value
-          : this.periodsTotal,
-      daysPerPeriod: data.daysPerPeriod.present
-          ? data.daysPerPeriod.value
-          : this.daysPerPeriod,
-      recoveryPeriod: data.recoveryPeriod.present
-          ? data.recoveryPeriod.value
-          : this.recoveryPeriod,
+      periodsTotal: data.periodsTotal.present ? data.periodsTotal.value : this.periodsTotal,
+      daysPerPeriod: data.daysPerPeriod.present ? data.daysPerPeriod.value : this.daysPerPeriod,
+      recoveryPeriod: data.recoveryPeriod.present ? data.recoveryPeriod.value : this.recoveryPeriod,
       status: data.status.present ? data.status.value : this.status,
       gender: data.gender.present ? data.gender.value : this.gender,
-      createdDate: data.createdDate.present
-          ? data.createdDate.value
-          : this.createdDate,
+      createdDate: data.createdDate.present ? data.createdDate.value : this.createdDate,
       startDate: data.startDate.present ? data.startDate.value : this.startDate,
       endDate: data.endDate.present ? data.endDate.value : this.endDate,
       muscleGroupPriorities: data.muscleGroupPriorities.present
           ? data.muscleGroupPriorities.value
           : this.muscleGroupPriorities,
-      templateName: data.templateName.present
-          ? data.templateName.value
-          : this.templateName,
+      templateName: data.templateName.present ? data.templateName.value : this.templateName,
       notes: data.notes.present ? data.notes.value : this.notes,
-      recoveryPeriodType: data.recoveryPeriodType.present
-          ? data.recoveryPeriodType.value
-          : this.recoveryPeriodType,
-      primarySport: data.primarySport.present
-          ? data.primarySport.value
-          : this.primarySport,
-      creatorUuid: data.creatorUuid.present
-          ? data.creatorUuid.value
-          : this.creatorUuid,
+      recoveryPeriodType: data.recoveryPeriodType.present ? data.recoveryPeriodType.value : this.recoveryPeriodType,
+      primarySport: data.primarySport.present ? data.primarySport.value : this.primarySport,
+      creatorUuid: data.creatorUuid.present ? data.creatorUuid.value : this.creatorUuid,
       ownerUuid: data.ownerUuid.present ? data.ownerUuid.value : this.ownerUuid,
     );
   }
@@ -900,12 +858,10 @@ class TrainingCyclesCompanion extends UpdateCompanion<TrainingCycle> {
       if (createdDate != null) 'created_date': createdDate,
       if (startDate != null) 'start_date': startDate,
       if (endDate != null) 'end_date': endDate,
-      if (muscleGroupPriorities != null)
-        'muscle_group_priorities': muscleGroupPriorities,
+      if (muscleGroupPriorities != null) 'muscle_group_priorities': muscleGroupPriorities,
       if (templateName != null) 'template_name': templateName,
       if (notes != null) 'notes': notes,
-      if (recoveryPeriodType != null)
-        'recovery_period_type': recoveryPeriodType,
+      if (recoveryPeriodType != null) 'recovery_period_type': recoveryPeriodType,
       if (primarySport != null) 'primary_sport': primarySport,
       if (creatorUuid != null) 'creator_uuid': creatorUuid,
       if (ownerUuid != null) 'owner_uuid': ownerUuid,
@@ -944,8 +900,7 @@ class TrainingCyclesCompanion extends UpdateCompanion<TrainingCycle> {
       createdDate: createdDate ?? this.createdDate,
       startDate: startDate ?? this.startDate,
       endDate: endDate ?? this.endDate,
-      muscleGroupPriorities:
-          muscleGroupPriorities ?? this.muscleGroupPriorities,
+      muscleGroupPriorities: muscleGroupPriorities ?? this.muscleGroupPriorities,
       templateName: templateName ?? this.templateName,
       notes: notes ?? this.notes,
       recoveryPeriodType: recoveryPeriodType ?? this.recoveryPeriodType,
@@ -1043,8 +998,7 @@ class TrainingCyclesCompanion extends UpdateCompanion<TrainingCycle> {
   }
 }
 
-class $ExercisesTable extends Exercises
-    with TableInfo<$ExercisesTable, Exercise> {
+class $ExercisesTable extends Exercises with TableInfo<$ExercisesTable, Exercise> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
@@ -1114,8 +1068,7 @@ class $ExercisesTable extends Exercises
     type: DriftSqlType.int,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _secondaryMuscleGroupMeta =
-      const VerificationMeta('secondaryMuscleGroup');
+  static const VerificationMeta _secondaryMuscleGroupMeta = const VerificationMeta('secondaryMuscleGroup');
   @override
   late final GeneratedColumn<int> secondaryMuscleGroup = GeneratedColumn<int>(
     'secondary_muscle_group',
@@ -1170,14 +1123,13 @@ class $ExercisesTable extends Exercises
     'lastPerformed',
   );
   @override
-  late final GeneratedColumn<DateTime> lastPerformed =
-      GeneratedColumn<DateTime>(
-        'last_performed',
-        aliasedName,
-        true,
-        type: DriftSqlType.dateTime,
-        requiredDuringInsert: false,
-      );
+  late final GeneratedColumn<DateTime> lastPerformed = GeneratedColumn<DateTime>(
+    'last_performed',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _videoUrlMeta = const VerificationMeta(
     'videoUrl',
   );
@@ -1519,9 +1471,7 @@ class Exercise extends DataClass implements Insertable<Exercise> {
       id: Value(id),
       uuid: Value(uuid),
       workoutUuid: Value(workoutUuid),
-      sessionUuid: sessionUuid == null && nullToAbsent
-          ? const Value.absent()
-          : Value(sessionUuid),
+      sessionUuid: sessionUuid == null && nullToAbsent ? const Value.absent() : Value(sessionUuid),
       name: Value(name),
       muscleGroup: Value(muscleGroup),
       secondaryMuscleGroup: secondaryMuscleGroup == null && nullToAbsent
@@ -1529,22 +1479,12 @@ class Exercise extends DataClass implements Insertable<Exercise> {
           : Value(secondaryMuscleGroup),
       equipmentType: Value(equipmentType),
       orderIndex: Value(orderIndex),
-      bodyweight: bodyweight == null && nullToAbsent
-          ? const Value.absent()
-          : Value(bodyweight),
-      notes: notes == null && nullToAbsent
-          ? const Value.absent()
-          : Value(notes),
-      lastPerformed: lastPerformed == null && nullToAbsent
-          ? const Value.absent()
-          : Value(lastPerformed),
-      videoUrl: videoUrl == null && nullToAbsent
-          ? const Value.absent()
-          : Value(videoUrl),
+      bodyweight: bodyweight == null && nullToAbsent ? const Value.absent() : Value(bodyweight),
+      notes: notes == null && nullToAbsent ? const Value.absent() : Value(notes),
+      lastPerformed: lastPerformed == null && nullToAbsent ? const Value.absent() : Value(lastPerformed),
+      videoUrl: videoUrl == null && nullToAbsent ? const Value.absent() : Value(videoUrl),
       isNotePinned: Value(isNotePinned),
-      restSeconds: restSeconds == null && nullToAbsent
-          ? const Value.absent()
-          : Value(restSeconds),
+      restSeconds: restSeconds == null && nullToAbsent ? const Value.absent() : Value(restSeconds),
     );
   }
 
@@ -1618,16 +1558,12 @@ class Exercise extends DataClass implements Insertable<Exercise> {
     sessionUuid: sessionUuid.present ? sessionUuid.value : this.sessionUuid,
     name: name ?? this.name,
     muscleGroup: muscleGroup ?? this.muscleGroup,
-    secondaryMuscleGroup: secondaryMuscleGroup.present
-        ? secondaryMuscleGroup.value
-        : this.secondaryMuscleGroup,
+    secondaryMuscleGroup: secondaryMuscleGroup.present ? secondaryMuscleGroup.value : this.secondaryMuscleGroup,
     equipmentType: equipmentType ?? this.equipmentType,
     orderIndex: orderIndex ?? this.orderIndex,
     bodyweight: bodyweight.present ? bodyweight.value : this.bodyweight,
     notes: notes.present ? notes.value : this.notes,
-    lastPerformed: lastPerformed.present
-        ? lastPerformed.value
-        : this.lastPerformed,
+    lastPerformed: lastPerformed.present ? lastPerformed.value : this.lastPerformed,
     videoUrl: videoUrl.present ? videoUrl.value : this.videoUrl,
     isNotePinned: isNotePinned ?? this.isNotePinned,
     restSeconds: restSeconds.present ? restSeconds.value : this.restSeconds,
@@ -1636,39 +1572,21 @@ class Exercise extends DataClass implements Insertable<Exercise> {
     return Exercise(
       id: data.id.present ? data.id.value : this.id,
       uuid: data.uuid.present ? data.uuid.value : this.uuid,
-      workoutUuid: data.workoutUuid.present
-          ? data.workoutUuid.value
-          : this.workoutUuid,
-      sessionUuid: data.sessionUuid.present
-          ? data.sessionUuid.value
-          : this.sessionUuid,
+      workoutUuid: data.workoutUuid.present ? data.workoutUuid.value : this.workoutUuid,
+      sessionUuid: data.sessionUuid.present ? data.sessionUuid.value : this.sessionUuid,
       name: data.name.present ? data.name.value : this.name,
-      muscleGroup: data.muscleGroup.present
-          ? data.muscleGroup.value
-          : this.muscleGroup,
+      muscleGroup: data.muscleGroup.present ? data.muscleGroup.value : this.muscleGroup,
       secondaryMuscleGroup: data.secondaryMuscleGroup.present
           ? data.secondaryMuscleGroup.value
           : this.secondaryMuscleGroup,
-      equipmentType: data.equipmentType.present
-          ? data.equipmentType.value
-          : this.equipmentType,
-      orderIndex: data.orderIndex.present
-          ? data.orderIndex.value
-          : this.orderIndex,
-      bodyweight: data.bodyweight.present
-          ? data.bodyweight.value
-          : this.bodyweight,
+      equipmentType: data.equipmentType.present ? data.equipmentType.value : this.equipmentType,
+      orderIndex: data.orderIndex.present ? data.orderIndex.value : this.orderIndex,
+      bodyweight: data.bodyweight.present ? data.bodyweight.value : this.bodyweight,
       notes: data.notes.present ? data.notes.value : this.notes,
-      lastPerformed: data.lastPerformed.present
-          ? data.lastPerformed.value
-          : this.lastPerformed,
+      lastPerformed: data.lastPerformed.present ? data.lastPerformed.value : this.lastPerformed,
       videoUrl: data.videoUrl.present ? data.videoUrl.value : this.videoUrl,
-      isNotePinned: data.isNotePinned.present
-          ? data.isNotePinned.value
-          : this.isNotePinned,
-      restSeconds: data.restSeconds.present
-          ? data.restSeconds.value
-          : this.restSeconds,
+      isNotePinned: data.isNotePinned.present ? data.isNotePinned.value : this.isNotePinned,
+      restSeconds: data.restSeconds.present ? data.restSeconds.value : this.restSeconds,
     );
   }
 
@@ -1812,8 +1730,7 @@ class ExercisesCompanion extends UpdateCompanion<Exercise> {
       if (sessionUuid != null) 'session_uuid': sessionUuid,
       if (name != null) 'name': name,
       if (muscleGroup != null) 'muscle_group': muscleGroup,
-      if (secondaryMuscleGroup != null)
-        'secondary_muscle_group': secondaryMuscleGroup,
+      if (secondaryMuscleGroup != null) 'secondary_muscle_group': secondaryMuscleGroup,
       if (equipmentType != null) 'equipment_type': equipmentType,
       if (orderIndex != null) 'order_index': orderIndex,
       if (bodyweight != null) 'bodyweight': bodyweight,
@@ -1935,8 +1852,7 @@ class ExercisesCompanion extends UpdateCompanion<Exercise> {
   }
 }
 
-class $ExerciseSetsTable extends ExerciseSets
-    with TableInfo<$ExerciseSetsTable, ExerciseSet> {
+class $ExerciseSetsTable extends ExerciseSets with TableInfo<$ExerciseSetsTable, ExerciseSet> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
@@ -2259,15 +2175,11 @@ class ExerciseSet extends DataClass implements Insertable<ExerciseSet> {
       uuid: Value(uuid),
       exerciseUuid: Value(exerciseUuid),
       setNumber: Value(setNumber),
-      weight: weight == null && nullToAbsent
-          ? const Value.absent()
-          : Value(weight),
+      weight: weight == null && nullToAbsent ? const Value.absent() : Value(weight),
       reps: Value(reps),
       setType: Value(setType),
       isLogged: Value(isLogged),
-      notes: notes == null && nullToAbsent
-          ? const Value.absent()
-          : Value(notes),
+      notes: notes == null && nullToAbsent ? const Value.absent() : Value(notes),
       isSkipped: Value(isSkipped),
     );
   }
@@ -2334,9 +2246,7 @@ class ExerciseSet extends DataClass implements Insertable<ExerciseSet> {
     return ExerciseSet(
       id: data.id.present ? data.id.value : this.id,
       uuid: data.uuid.present ? data.uuid.value : this.uuid,
-      exerciseUuid: data.exerciseUuid.present
-          ? data.exerciseUuid.value
-          : this.exerciseUuid,
+      exerciseUuid: data.exerciseUuid.present ? data.exerciseUuid.value : this.exerciseUuid,
       setNumber: data.setNumber.present ? data.setNumber.value : this.setNumber,
       weight: data.weight.present ? data.weight.value : this.weight,
       reps: data.reps.present ? data.reps.value : this.reps,
@@ -2538,8 +2448,7 @@ class ExerciseSetsCompanion extends UpdateCompanion<ExerciseSet> {
   }
 }
 
-class $ExerciseFeedbacksTable extends ExerciseFeedbacks
-    with TableInfo<$ExerciseFeedbacksTable, ExerciseFeedback> {
+class $ExerciseFeedbacksTable extends ExerciseFeedbacks with TableInfo<$ExerciseFeedbacksTable, ExerciseFeedback> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
@@ -2626,17 +2535,15 @@ class $ExerciseFeedbacksTable extends ExerciseFeedbacks
     type: DriftSqlType.int,
     requiredDuringInsert: false,
   );
-  static const VerificationMeta _muscleGroupSorenessMeta =
-      const VerificationMeta('muscleGroupSoreness');
+  static const VerificationMeta _muscleGroupSorenessMeta = const VerificationMeta('muscleGroupSoreness');
   @override
-  late final GeneratedColumn<String> muscleGroupSoreness =
-      GeneratedColumn<String>(
-        'muscle_group_soreness',
-        aliasedName,
-        true,
-        type: DriftSqlType.string,
-        requiredDuringInsert: false,
-      );
+  late final GeneratedColumn<String> muscleGroupSoreness = GeneratedColumn<String>(
+    'muscle_group_soreness',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _timestampMeta = const VerificationMeta(
     'timestamp',
   );
@@ -2788,8 +2695,7 @@ class $ExerciseFeedbacksTable extends ExerciseFeedbacks
   }
 }
 
-class ExerciseFeedback extends DataClass
-    implements Insertable<ExerciseFeedback> {
+class ExerciseFeedback extends DataClass implements Insertable<ExerciseFeedback> {
   final int id;
   final String exerciseUuid;
   final String? sessionUuid;
@@ -2843,27 +2749,15 @@ class ExerciseFeedback extends DataClass
     return ExerciseFeedbacksCompanion(
       id: Value(id),
       exerciseUuid: Value(exerciseUuid),
-      sessionUuid: sessionUuid == null && nullToAbsent
-          ? const Value.absent()
-          : Value(sessionUuid),
-      jointPain: jointPain == null && nullToAbsent
-          ? const Value.absent()
-          : Value(jointPain),
-      musclePump: musclePump == null && nullToAbsent
-          ? const Value.absent()
-          : Value(musclePump),
-      workload: workload == null && nullToAbsent
-          ? const Value.absent()
-          : Value(workload),
-      soreness: soreness == null && nullToAbsent
-          ? const Value.absent()
-          : Value(soreness),
+      sessionUuid: sessionUuid == null && nullToAbsent ? const Value.absent() : Value(sessionUuid),
+      jointPain: jointPain == null && nullToAbsent ? const Value.absent() : Value(jointPain),
+      musclePump: musclePump == null && nullToAbsent ? const Value.absent() : Value(musclePump),
+      workload: workload == null && nullToAbsent ? const Value.absent() : Value(workload),
+      soreness: soreness == null && nullToAbsent ? const Value.absent() : Value(soreness),
       muscleGroupSoreness: muscleGroupSoreness == null && nullToAbsent
           ? const Value.absent()
           : Value(muscleGroupSoreness),
-      timestamp: timestamp == null && nullToAbsent
-          ? const Value.absent()
-          : Value(timestamp),
+      timestamp: timestamp == null && nullToAbsent ? const Value.absent() : Value(timestamp),
     );
   }
 
@@ -2920,29 +2814,19 @@ class ExerciseFeedback extends DataClass
     musclePump: musclePump.present ? musclePump.value : this.musclePump,
     workload: workload.present ? workload.value : this.workload,
     soreness: soreness.present ? soreness.value : this.soreness,
-    muscleGroupSoreness: muscleGroupSoreness.present
-        ? muscleGroupSoreness.value
-        : this.muscleGroupSoreness,
+    muscleGroupSoreness: muscleGroupSoreness.present ? muscleGroupSoreness.value : this.muscleGroupSoreness,
     timestamp: timestamp.present ? timestamp.value : this.timestamp,
   );
   ExerciseFeedback copyWithCompanion(ExerciseFeedbacksCompanion data) {
     return ExerciseFeedback(
       id: data.id.present ? data.id.value : this.id,
-      exerciseUuid: data.exerciseUuid.present
-          ? data.exerciseUuid.value
-          : this.exerciseUuid,
-      sessionUuid: data.sessionUuid.present
-          ? data.sessionUuid.value
-          : this.sessionUuid,
+      exerciseUuid: data.exerciseUuid.present ? data.exerciseUuid.value : this.exerciseUuid,
+      sessionUuid: data.sessionUuid.present ? data.sessionUuid.value : this.sessionUuid,
       jointPain: data.jointPain.present ? data.jointPain.value : this.jointPain,
-      musclePump: data.musclePump.present
-          ? data.musclePump.value
-          : this.musclePump,
+      musclePump: data.musclePump.present ? data.musclePump.value : this.musclePump,
       workload: data.workload.present ? data.workload.value : this.workload,
       soreness: data.soreness.present ? data.soreness.value : this.soreness,
-      muscleGroupSoreness: data.muscleGroupSoreness.present
-          ? data.muscleGroupSoreness.value
-          : this.muscleGroupSoreness,
+      muscleGroupSoreness: data.muscleGroupSoreness.present ? data.muscleGroupSoreness.value : this.muscleGroupSoreness,
       timestamp: data.timestamp.present ? data.timestamp.value : this.timestamp,
     );
   }
@@ -3041,8 +2925,7 @@ class ExerciseFeedbacksCompanion extends UpdateCompanion<ExerciseFeedback> {
       if (musclePump != null) 'muscle_pump': musclePump,
       if (workload != null) 'workload': workload,
       if (soreness != null) 'soreness': soreness,
-      if (muscleGroupSoreness != null)
-        'muscle_group_soreness': muscleGroupSoreness,
+      if (muscleGroupSoreness != null) 'muscle_group_soreness': muscleGroupSoreness,
       if (timestamp != null) 'timestamp': timestamp,
     });
   }
@@ -3172,8 +3055,7 @@ class $CustomExerciseDefinitionsTable extends CustomExerciseDefinitions
     type: DriftSqlType.int,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _secondaryMuscleGroupMeta =
-      const VerificationMeta('secondaryMuscleGroup');
+  static const VerificationMeta _secondaryMuscleGroupMeta = const VerificationMeta('secondaryMuscleGroup');
   @override
   late final GeneratedColumn<int> secondaryMuscleGroup = GeneratedColumn<int>(
     'secondary_muscle_group',
@@ -3380,8 +3262,7 @@ class $CustomExerciseDefinitionsTable extends CustomExerciseDefinitions
   }
 }
 
-class CustomExerciseDefinition extends DataClass
-    implements Insertable<CustomExerciseDefinition> {
+class CustomExerciseDefinition extends DataClass implements Insertable<CustomExerciseDefinition> {
   final int id;
   final String uuid;
   final String name;
@@ -3433,12 +3314,8 @@ class CustomExerciseDefinition extends DataClass
           ? const Value.absent()
           : Value(secondaryMuscleGroup),
       equipmentType: Value(equipmentType),
-      videoUrl: videoUrl == null && nullToAbsent
-          ? const Value.absent()
-          : Value(videoUrl),
-      restSeconds: restSeconds == null && nullToAbsent
-          ? const Value.absent()
-          : Value(restSeconds),
+      videoUrl: videoUrl == null && nullToAbsent ? const Value.absent() : Value(videoUrl),
+      restSeconds: restSeconds == null && nullToAbsent ? const Value.absent() : Value(restSeconds),
       createdAt: Value(createdAt),
     );
   }
@@ -3493,9 +3370,7 @@ class CustomExerciseDefinition extends DataClass
     uuid: uuid ?? this.uuid,
     name: name ?? this.name,
     muscleGroup: muscleGroup ?? this.muscleGroup,
-    secondaryMuscleGroup: secondaryMuscleGroup.present
-        ? secondaryMuscleGroup.value
-        : this.secondaryMuscleGroup,
+    secondaryMuscleGroup: secondaryMuscleGroup.present ? secondaryMuscleGroup.value : this.secondaryMuscleGroup,
     equipmentType: equipmentType ?? this.equipmentType,
     videoUrl: videoUrl.present ? videoUrl.value : this.videoUrl,
     restSeconds: restSeconds.present ? restSeconds.value : this.restSeconds,
@@ -3508,19 +3383,13 @@ class CustomExerciseDefinition extends DataClass
       id: data.id.present ? data.id.value : this.id,
       uuid: data.uuid.present ? data.uuid.value : this.uuid,
       name: data.name.present ? data.name.value : this.name,
-      muscleGroup: data.muscleGroup.present
-          ? data.muscleGroup.value
-          : this.muscleGroup,
+      muscleGroup: data.muscleGroup.present ? data.muscleGroup.value : this.muscleGroup,
       secondaryMuscleGroup: data.secondaryMuscleGroup.present
           ? data.secondaryMuscleGroup.value
           : this.secondaryMuscleGroup,
-      equipmentType: data.equipmentType.present
-          ? data.equipmentType.value
-          : this.equipmentType,
+      equipmentType: data.equipmentType.present ? data.equipmentType.value : this.equipmentType,
       videoUrl: data.videoUrl.present ? data.videoUrl.value : this.videoUrl,
-      restSeconds: data.restSeconds.present
-          ? data.restSeconds.value
-          : this.restSeconds,
+      restSeconds: data.restSeconds.present ? data.restSeconds.value : this.restSeconds,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
     );
   }
@@ -3568,8 +3437,7 @@ class CustomExerciseDefinition extends DataClass
           other.createdAt == this.createdAt);
 }
 
-class CustomExerciseDefinitionsCompanion
-    extends UpdateCompanion<CustomExerciseDefinition> {
+class CustomExerciseDefinitionsCompanion extends UpdateCompanion<CustomExerciseDefinition> {
   final Value<int> id;
   final Value<String> uuid;
   final Value<String> name;
@@ -3621,8 +3489,7 @@ class CustomExerciseDefinitionsCompanion
       if (uuid != null) 'uuid': uuid,
       if (name != null) 'name': name,
       if (muscleGroup != null) 'muscle_group': muscleGroup,
-      if (secondaryMuscleGroup != null)
-        'secondary_muscle_group': secondaryMuscleGroup,
+      if (secondaryMuscleGroup != null) 'secondary_muscle_group': secondaryMuscleGroup,
       if (equipmentType != null) 'equipment_type': equipmentType,
       if (videoUrl != null) 'video_url': videoUrl,
       if (restSeconds != null) 'rest_seconds': restSeconds,
@@ -3704,8 +3571,7 @@ class CustomExerciseDefinitionsCompanion
   }
 }
 
-class $UserMeasurementsTable extends UserMeasurements
-    with TableInfo<$UserMeasurementsTable, UserMeasurement> {
+class $UserMeasurementsTable extends UserMeasurements with TableInfo<$UserMeasurementsTable, UserMeasurement> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
@@ -3975,15 +3841,9 @@ class UserMeasurement extends DataClass implements Insertable<UserMeasurement> {
       heightCm: Value(heightCm),
       weightKg: Value(weightKg),
       timestamp: Value(timestamp),
-      notes: notes == null && nullToAbsent
-          ? const Value.absent()
-          : Value(notes),
-      bodyFatPercent: bodyFatPercent == null && nullToAbsent
-          ? const Value.absent()
-          : Value(bodyFatPercent),
-      leanMassKg: leanMassKg == null && nullToAbsent
-          ? const Value.absent()
-          : Value(leanMassKg),
+      notes: notes == null && nullToAbsent ? const Value.absent() : Value(notes),
+      bodyFatPercent: bodyFatPercent == null && nullToAbsent ? const Value.absent() : Value(bodyFatPercent),
+      leanMassKg: leanMassKg == null && nullToAbsent ? const Value.absent() : Value(leanMassKg),
     );
   }
 
@@ -4034,9 +3894,7 @@ class UserMeasurement extends DataClass implements Insertable<UserMeasurement> {
     weightKg: weightKg ?? this.weightKg,
     timestamp: timestamp ?? this.timestamp,
     notes: notes.present ? notes.value : this.notes,
-    bodyFatPercent: bodyFatPercent.present
-        ? bodyFatPercent.value
-        : this.bodyFatPercent,
+    bodyFatPercent: bodyFatPercent.present ? bodyFatPercent.value : this.bodyFatPercent,
     leanMassKg: leanMassKg.present ? leanMassKg.value : this.leanMassKg,
   );
   UserMeasurement copyWithCompanion(UserMeasurementsCompanion data) {
@@ -4047,12 +3905,8 @@ class UserMeasurement extends DataClass implements Insertable<UserMeasurement> {
       weightKg: data.weightKg.present ? data.weightKg.value : this.weightKg,
       timestamp: data.timestamp.present ? data.timestamp.value : this.timestamp,
       notes: data.notes.present ? data.notes.value : this.notes,
-      bodyFatPercent: data.bodyFatPercent.present
-          ? data.bodyFatPercent.value
-          : this.bodyFatPercent,
-      leanMassKg: data.leanMassKg.present
-          ? data.leanMassKg.value
-          : this.leanMassKg,
+      bodyFatPercent: data.bodyFatPercent.present ? data.bodyFatPercent.value : this.bodyFatPercent,
+      leanMassKg: data.leanMassKg.present ? data.leanMassKg.value : this.leanMassKg,
     );
   }
 
@@ -4501,8 +4355,7 @@ class Skin extends DataClass implements Insertable<Skin> {
   }
 
   @override
-  int get hashCode =>
-      Object.hash(id, uuid, name, skinJson, isActive, createdAt);
+  int get hashCode => Object.hash(id, uuid, name, skinJson, isActive, createdAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -4647,17 +4500,16 @@ class $SessionsTable extends Sessions with TableInfo<$SessionsTable, Session> {
     'trainingCycleUuid',
   );
   @override
-  late final GeneratedColumn<String> trainingCycleUuid =
-      GeneratedColumn<String>(
-        'training_cycle_uuid',
-        aliasedName,
-        true,
-        type: DriftSqlType.string,
-        requiredDuringInsert: false,
-        defaultConstraints: GeneratedColumn.constraintIsAlways(
-          'REFERENCES training_cycles (uuid)',
-        ),
-      );
+  late final GeneratedColumn<String> trainingCycleUuid = GeneratedColumn<String>(
+    'training_cycle_uuid',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES training_cycles (uuid)',
+    ),
+  );
   static const VerificationMeta _sportMeta = const VerificationMeta('sport');
   @override
   late final GeneratedColumn<int> sport = GeneratedColumn<int>(
@@ -4731,26 +4583,24 @@ class $SessionsTable extends Sessions with TableInfo<$SessionsTable, Session> {
     'scheduledDate',
   );
   @override
-  late final GeneratedColumn<DateTime> scheduledDate =
-      GeneratedColumn<DateTime>(
-        'scheduled_date',
-        aliasedName,
-        true,
-        type: DriftSqlType.dateTime,
-        requiredDuringInsert: false,
-      );
+  late final GeneratedColumn<DateTime> scheduledDate = GeneratedColumn<DateTime>(
+    'scheduled_date',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _completedDateMeta = const VerificationMeta(
     'completedDate',
   );
   @override
-  late final GeneratedColumn<DateTime> completedDate =
-      GeneratedColumn<DateTime>(
-        'completed_date',
-        aliasedName,
-        true,
-        type: DriftSqlType.dateTime,
-        requiredDuringInsert: false,
-      );
+  late final GeneratedColumn<DateTime> completedDate = GeneratedColumn<DateTime>(
+    'completed_date',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _startTimeMeta = const VerificationMeta(
     'startTime',
   );
@@ -5159,48 +5009,22 @@ class Session extends DataClass implements Insertable<Session> {
     return SessionsCompanion(
       id: Value(id),
       uuid: Value(uuid),
-      trainingCycleUuid: trainingCycleUuid == null && nullToAbsent
-          ? const Value.absent()
-          : Value(trainingCycleUuid),
+      trainingCycleUuid: trainingCycleUuid == null && nullToAbsent ? const Value.absent() : Value(trainingCycleUuid),
       sport: Value(sport),
       source: Value(source),
-      periodNumber: periodNumber == null && nullToAbsent
-          ? const Value.absent()
-          : Value(periodNumber),
-      dayNumber: dayNumber == null && nullToAbsent
-          ? const Value.absent()
-          : Value(dayNumber),
-      dayName: dayName == null && nullToAbsent
-          ? const Value.absent()
-          : Value(dayName),
-      label: label == null && nullToAbsent
-          ? const Value.absent()
-          : Value(label),
+      periodNumber: periodNumber == null && nullToAbsent ? const Value.absent() : Value(periodNumber),
+      dayNumber: dayNumber == null && nullToAbsent ? const Value.absent() : Value(dayNumber),
+      dayName: dayName == null && nullToAbsent ? const Value.absent() : Value(dayName),
+      label: label == null && nullToAbsent ? const Value.absent() : Value(label),
       status: Value(status),
-      scheduledDate: scheduledDate == null && nullToAbsent
-          ? const Value.absent()
-          : Value(scheduledDate),
-      completedDate: completedDate == null && nullToAbsent
-          ? const Value.absent()
-          : Value(completedDate),
-      startTime: startTime == null && nullToAbsent
-          ? const Value.absent()
-          : Value(startTime),
-      endTime: endTime == null && nullToAbsent
-          ? const Value.absent()
-          : Value(endTime),
-      notes: notes == null && nullToAbsent
-          ? const Value.absent()
-          : Value(notes),
-      externalId: externalId == null && nullToAbsent
-          ? const Value.absent()
-          : Value(externalId),
-      creatorUuid: creatorUuid == null && nullToAbsent
-          ? const Value.absent()
-          : Value(creatorUuid),
-      ownerUuid: ownerUuid == null && nullToAbsent
-          ? const Value.absent()
-          : Value(ownerUuid),
+      scheduledDate: scheduledDate == null && nullToAbsent ? const Value.absent() : Value(scheduledDate),
+      completedDate: completedDate == null && nullToAbsent ? const Value.absent() : Value(completedDate),
+      startTime: startTime == null && nullToAbsent ? const Value.absent() : Value(startTime),
+      endTime: endTime == null && nullToAbsent ? const Value.absent() : Value(endTime),
+      notes: notes == null && nullToAbsent ? const Value.absent() : Value(notes),
+      externalId: externalId == null && nullToAbsent ? const Value.absent() : Value(externalId),
+      creatorUuid: creatorUuid == null && nullToAbsent ? const Value.absent() : Value(creatorUuid),
+      ownerUuid: ownerUuid == null && nullToAbsent ? const Value.absent() : Value(ownerUuid),
     );
   }
 
@@ -5279,9 +5103,7 @@ class Session extends DataClass implements Insertable<Session> {
   }) => Session(
     id: id ?? this.id,
     uuid: uuid ?? this.uuid,
-    trainingCycleUuid: trainingCycleUuid.present
-        ? trainingCycleUuid.value
-        : this.trainingCycleUuid,
+    trainingCycleUuid: trainingCycleUuid.present ? trainingCycleUuid.value : this.trainingCycleUuid,
     sport: sport ?? this.sport,
     source: source ?? this.source,
     periodNumber: periodNumber.present ? periodNumber.value : this.periodNumber,
@@ -5289,12 +5111,8 @@ class Session extends DataClass implements Insertable<Session> {
     dayName: dayName.present ? dayName.value : this.dayName,
     label: label.present ? label.value : this.label,
     status: status ?? this.status,
-    scheduledDate: scheduledDate.present
-        ? scheduledDate.value
-        : this.scheduledDate,
-    completedDate: completedDate.present
-        ? completedDate.value
-        : this.completedDate,
+    scheduledDate: scheduledDate.present ? scheduledDate.value : this.scheduledDate,
+    completedDate: completedDate.present ? completedDate.value : this.completedDate,
     startTime: startTime.present ? startTime.value : this.startTime,
     endTime: endTime.present ? endTime.value : this.endTime,
     notes: notes.present ? notes.value : this.notes,
@@ -5306,33 +5124,21 @@ class Session extends DataClass implements Insertable<Session> {
     return Session(
       id: data.id.present ? data.id.value : this.id,
       uuid: data.uuid.present ? data.uuid.value : this.uuid,
-      trainingCycleUuid: data.trainingCycleUuid.present
-          ? data.trainingCycleUuid.value
-          : this.trainingCycleUuid,
+      trainingCycleUuid: data.trainingCycleUuid.present ? data.trainingCycleUuid.value : this.trainingCycleUuid,
       sport: data.sport.present ? data.sport.value : this.sport,
       source: data.source.present ? data.source.value : this.source,
-      periodNumber: data.periodNumber.present
-          ? data.periodNumber.value
-          : this.periodNumber,
+      periodNumber: data.periodNumber.present ? data.periodNumber.value : this.periodNumber,
       dayNumber: data.dayNumber.present ? data.dayNumber.value : this.dayNumber,
       dayName: data.dayName.present ? data.dayName.value : this.dayName,
       label: data.label.present ? data.label.value : this.label,
       status: data.status.present ? data.status.value : this.status,
-      scheduledDate: data.scheduledDate.present
-          ? data.scheduledDate.value
-          : this.scheduledDate,
-      completedDate: data.completedDate.present
-          ? data.completedDate.value
-          : this.completedDate,
+      scheduledDate: data.scheduledDate.present ? data.scheduledDate.value : this.scheduledDate,
+      completedDate: data.completedDate.present ? data.completedDate.value : this.completedDate,
       startTime: data.startTime.present ? data.startTime.value : this.startTime,
       endTime: data.endTime.present ? data.endTime.value : this.endTime,
       notes: data.notes.present ? data.notes.value : this.notes,
-      externalId: data.externalId.present
-          ? data.externalId.value
-          : this.externalId,
-      creatorUuid: data.creatorUuid.present
-          ? data.creatorUuid.value
-          : this.creatorUuid,
+      externalId: data.externalId.present ? data.externalId.value : this.externalId,
+      creatorUuid: data.creatorUuid.present ? data.creatorUuid.value : this.creatorUuid,
       ownerUuid: data.ownerUuid.present ? data.ownerUuid.value : this.ownerUuid,
     );
   }
@@ -5639,8 +5445,7 @@ class SessionsCompanion extends UpdateCompanion<Session> {
   }
 }
 
-class $CyclePeriodsTable extends CyclePeriods
-    with TableInfo<$CyclePeriodsTable, CyclePeriod> {
+class $CyclePeriodsTable extends CyclePeriods with TableInfo<$CyclePeriodsTable, CyclePeriod> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
@@ -5672,17 +5477,16 @@ class $CyclePeriodsTable extends CyclePeriods
     'trainingCycleUuid',
   );
   @override
-  late final GeneratedColumn<String> trainingCycleUuid =
-      GeneratedColumn<String>(
-        'training_cycle_uuid',
-        aliasedName,
-        false,
-        type: DriftSqlType.string,
-        requiredDuringInsert: true,
-        defaultConstraints: GeneratedColumn.constraintIsAlways(
-          'REFERENCES training_cycles (uuid)',
-        ),
-      );
+  late final GeneratedColumn<String> trainingCycleUuid = GeneratedColumn<String>(
+    'training_cycle_uuid',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES training_cycles (uuid)',
+    ),
+  );
   static const VerificationMeta _periodNumberMeta = const VerificationMeta(
     'periodNumber',
   );
@@ -5914,18 +5718,10 @@ class CyclePeriod extends DataClass implements Insertable<CyclePeriod> {
       uuid: Value(uuid),
       trainingCycleUuid: Value(trainingCycleUuid),
       periodNumber: Value(periodNumber),
-      phase: phase == null && nullToAbsent
-          ? const Value.absent()
-          : Value(phase),
-      notes: notes == null && nullToAbsent
-          ? const Value.absent()
-          : Value(notes),
-      creatorUuid: creatorUuid == null && nullToAbsent
-          ? const Value.absent()
-          : Value(creatorUuid),
-      ownerUuid: ownerUuid == null && nullToAbsent
-          ? const Value.absent()
-          : Value(ownerUuid),
+      phase: phase == null && nullToAbsent ? const Value.absent() : Value(phase),
+      notes: notes == null && nullToAbsent ? const Value.absent() : Value(notes),
+      creatorUuid: creatorUuid == null && nullToAbsent ? const Value.absent() : Value(creatorUuid),
+      ownerUuid: ownerUuid == null && nullToAbsent ? const Value.absent() : Value(ownerUuid),
     );
   }
 
@@ -5983,17 +5779,11 @@ class CyclePeriod extends DataClass implements Insertable<CyclePeriod> {
     return CyclePeriod(
       id: data.id.present ? data.id.value : this.id,
       uuid: data.uuid.present ? data.uuid.value : this.uuid,
-      trainingCycleUuid: data.trainingCycleUuid.present
-          ? data.trainingCycleUuid.value
-          : this.trainingCycleUuid,
-      periodNumber: data.periodNumber.present
-          ? data.periodNumber.value
-          : this.periodNumber,
+      trainingCycleUuid: data.trainingCycleUuid.present ? data.trainingCycleUuid.value : this.trainingCycleUuid,
+      periodNumber: data.periodNumber.present ? data.periodNumber.value : this.periodNumber,
       phase: data.phase.present ? data.phase.value : this.phase,
       notes: data.notes.present ? data.notes.value : this.notes,
-      creatorUuid: data.creatorUuid.present
-          ? data.creatorUuid.value
-          : this.creatorUuid,
+      creatorUuid: data.creatorUuid.present ? data.creatorUuid.value : this.creatorUuid,
       ownerUuid: data.ownerUuid.present ? data.ownerUuid.value : this.ownerUuid,
     );
   }
@@ -6159,8 +5949,7 @@ class CyclePeriodsCompanion extends UpdateCompanion<CyclePeriod> {
   }
 }
 
-class $SessionCardioTable extends SessionCardio
-    with TableInfo<$SessionCardioTable, SessionCardioData> {
+class $SessionCardioTable extends SessionCardio with TableInfo<$SessionCardioTable, SessionCardioData> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
@@ -6214,8 +6003,7 @@ class $SessionCardioTable extends SessionCardio
     type: DriftSqlType.double,
     requiredDuringInsert: false,
   );
-  static const VerificationMeta _plannedDurationSecMeta =
-      const VerificationMeta('plannedDurationSec');
+  static const VerificationMeta _plannedDurationSecMeta = const VerificationMeta('plannedDurationSec');
   @override
   late final GeneratedColumn<int> plannedDurationSec = GeneratedColumn<int>(
     'planned_duration_sec',
@@ -6292,25 +6080,22 @@ class $SessionCardioTable extends SessionCardio
     'averagePowerWatts',
   );
   @override
-  late final GeneratedColumn<double> averagePowerWatts =
-      GeneratedColumn<double>(
-        'average_power_watts',
-        aliasedName,
-        true,
-        type: DriftSqlType.double,
-        requiredDuringInsert: false,
-      );
-  static const VerificationMeta _normalizedPowerWattsMeta =
-      const VerificationMeta('normalizedPowerWatts');
+  late final GeneratedColumn<double> averagePowerWatts = GeneratedColumn<double>(
+    'average_power_watts',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _normalizedPowerWattsMeta = const VerificationMeta('normalizedPowerWatts');
   @override
-  late final GeneratedColumn<double> normalizedPowerWatts =
-      GeneratedColumn<double>(
-        'normalized_power_watts',
-        aliasedName,
-        true,
-        type: DriftSqlType.double,
-        requiredDuringInsert: false,
-      );
+  late final GeneratedColumn<double> normalizedPowerWatts = GeneratedColumn<double>(
+    'normalized_power_watts',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _averageSpeedMpsMeta = const VerificationMeta(
     'averageSpeedMps',
   );
@@ -6322,17 +6107,15 @@ class $SessionCardioTable extends SessionCardio
     type: DriftSqlType.double,
     requiredDuringInsert: false,
   );
-  static const VerificationMeta _averagePaceSecPerMeterMeta =
-      const VerificationMeta('averagePaceSecPerMeter');
+  static const VerificationMeta _averagePaceSecPerMeterMeta = const VerificationMeta('averagePaceSecPerMeter');
   @override
-  late final GeneratedColumn<double> averagePaceSecPerMeter =
-      GeneratedColumn<double>(
-        'average_pace_sec_per_meter',
-        aliasedName,
-        true,
-        type: DriftSqlType.double,
-        requiredDuringInsert: false,
-      );
+  late final GeneratedColumn<double> averagePaceSecPerMeter = GeneratedColumn<double>(
+    'average_pace_sec_per_meter',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _poolLengthMMeta = const VerificationMeta(
     'poolLengthM',
   );
@@ -6700,8 +6483,7 @@ class $SessionCardioTable extends SessionCardio
   }
 }
 
-class SessionCardioData extends DataClass
-    implements Insertable<SessionCardioData> {
+class SessionCardioData extends DataClass implements Insertable<SessionCardioData> {
   final int id;
   final String sessionUuid;
   final double? plannedDistanceM;
@@ -6817,63 +6599,29 @@ class SessionCardioData extends DataClass
     return SessionCardioCompanion(
       id: Value(id),
       sessionUuid: Value(sessionUuid),
-      plannedDistanceM: plannedDistanceM == null && nullToAbsent
-          ? const Value.absent()
-          : Value(plannedDistanceM),
-      actualDistanceM: actualDistanceM == null && nullToAbsent
-          ? const Value.absent()
-          : Value(actualDistanceM),
-      plannedDurationSec: plannedDurationSec == null && nullToAbsent
-          ? const Value.absent()
-          : Value(plannedDurationSec),
-      actualDurationSec: actualDurationSec == null && nullToAbsent
-          ? const Value.absent()
-          : Value(actualDurationSec),
-      elevationGainM: elevationGainM == null && nullToAbsent
-          ? const Value.absent()
-          : Value(elevationGainM),
-      elevationLossM: elevationLossM == null && nullToAbsent
-          ? const Value.absent()
-          : Value(elevationLossM),
-      averageHr: averageHr == null && nullToAbsent
-          ? const Value.absent()
-          : Value(averageHr),
-      maxHr: maxHr == null && nullToAbsent
-          ? const Value.absent()
-          : Value(maxHr),
-      averageCadence: averageCadence == null && nullToAbsent
-          ? const Value.absent()
-          : Value(averageCadence),
-      averagePowerWatts: averagePowerWatts == null && nullToAbsent
-          ? const Value.absent()
-          : Value(averagePowerWatts),
+      plannedDistanceM: plannedDistanceM == null && nullToAbsent ? const Value.absent() : Value(plannedDistanceM),
+      actualDistanceM: actualDistanceM == null && nullToAbsent ? const Value.absent() : Value(actualDistanceM),
+      plannedDurationSec: plannedDurationSec == null && nullToAbsent ? const Value.absent() : Value(plannedDurationSec),
+      actualDurationSec: actualDurationSec == null && nullToAbsent ? const Value.absent() : Value(actualDurationSec),
+      elevationGainM: elevationGainM == null && nullToAbsent ? const Value.absent() : Value(elevationGainM),
+      elevationLossM: elevationLossM == null && nullToAbsent ? const Value.absent() : Value(elevationLossM),
+      averageHr: averageHr == null && nullToAbsent ? const Value.absent() : Value(averageHr),
+      maxHr: maxHr == null && nullToAbsent ? const Value.absent() : Value(maxHr),
+      averageCadence: averageCadence == null && nullToAbsent ? const Value.absent() : Value(averageCadence),
+      averagePowerWatts: averagePowerWatts == null && nullToAbsent ? const Value.absent() : Value(averagePowerWatts),
       normalizedPowerWatts: normalizedPowerWatts == null && nullToAbsent
           ? const Value.absent()
           : Value(normalizedPowerWatts),
-      averageSpeedMps: averageSpeedMps == null && nullToAbsent
-          ? const Value.absent()
-          : Value(averageSpeedMps),
+      averageSpeedMps: averageSpeedMps == null && nullToAbsent ? const Value.absent() : Value(averageSpeedMps),
       averagePaceSecPerMeter: averagePaceSecPerMeter == null && nullToAbsent
           ? const Value.absent()
           : Value(averagePaceSecPerMeter),
-      poolLengthM: poolLengthM == null && nullToAbsent
-          ? const Value.absent()
-          : Value(poolLengthM),
-      strokeType: strokeType == null && nullToAbsent
-          ? const Value.absent()
-          : Value(strokeType),
-      lapCount: lapCount == null && nullToAbsent
-          ? const Value.absent()
-          : Value(lapCount),
-      swolf: swolf == null && nullToAbsent
-          ? const Value.absent()
-          : Value(swolf),
-      perceivedExertion: perceivedExertion == null && nullToAbsent
-          ? const Value.absent()
-          : Value(perceivedExertion),
-      notes: notes == null && nullToAbsent
-          ? const Value.absent()
-          : Value(notes),
+      poolLengthM: poolLengthM == null && nullToAbsent ? const Value.absent() : Value(poolLengthM),
+      strokeType: strokeType == null && nullToAbsent ? const Value.absent() : Value(strokeType),
+      lapCount: lapCount == null && nullToAbsent ? const Value.absent() : Value(lapCount),
+      swolf: swolf == null && nullToAbsent ? const Value.absent() : Value(swolf),
+      perceivedExertion: perceivedExertion == null && nullToAbsent ? const Value.absent() : Value(perceivedExertion),
+      notes: notes == null && nullToAbsent ? const Value.absent() : Value(notes),
     );
   }
 
@@ -6967,102 +6715,52 @@ class SessionCardioData extends DataClass
   }) => SessionCardioData(
     id: id ?? this.id,
     sessionUuid: sessionUuid ?? this.sessionUuid,
-    plannedDistanceM: plannedDistanceM.present
-        ? plannedDistanceM.value
-        : this.plannedDistanceM,
-    actualDistanceM: actualDistanceM.present
-        ? actualDistanceM.value
-        : this.actualDistanceM,
-    plannedDurationSec: plannedDurationSec.present
-        ? plannedDurationSec.value
-        : this.plannedDurationSec,
-    actualDurationSec: actualDurationSec.present
-        ? actualDurationSec.value
-        : this.actualDurationSec,
-    elevationGainM: elevationGainM.present
-        ? elevationGainM.value
-        : this.elevationGainM,
-    elevationLossM: elevationLossM.present
-        ? elevationLossM.value
-        : this.elevationLossM,
+    plannedDistanceM: plannedDistanceM.present ? plannedDistanceM.value : this.plannedDistanceM,
+    actualDistanceM: actualDistanceM.present ? actualDistanceM.value : this.actualDistanceM,
+    plannedDurationSec: plannedDurationSec.present ? plannedDurationSec.value : this.plannedDurationSec,
+    actualDurationSec: actualDurationSec.present ? actualDurationSec.value : this.actualDurationSec,
+    elevationGainM: elevationGainM.present ? elevationGainM.value : this.elevationGainM,
+    elevationLossM: elevationLossM.present ? elevationLossM.value : this.elevationLossM,
     averageHr: averageHr.present ? averageHr.value : this.averageHr,
     maxHr: maxHr.present ? maxHr.value : this.maxHr,
-    averageCadence: averageCadence.present
-        ? averageCadence.value
-        : this.averageCadence,
-    averagePowerWatts: averagePowerWatts.present
-        ? averagePowerWatts.value
-        : this.averagePowerWatts,
-    normalizedPowerWatts: normalizedPowerWatts.present
-        ? normalizedPowerWatts.value
-        : this.normalizedPowerWatts,
-    averageSpeedMps: averageSpeedMps.present
-        ? averageSpeedMps.value
-        : this.averageSpeedMps,
-    averagePaceSecPerMeter: averagePaceSecPerMeter.present
-        ? averagePaceSecPerMeter.value
-        : this.averagePaceSecPerMeter,
+    averageCadence: averageCadence.present ? averageCadence.value : this.averageCadence,
+    averagePowerWatts: averagePowerWatts.present ? averagePowerWatts.value : this.averagePowerWatts,
+    normalizedPowerWatts: normalizedPowerWatts.present ? normalizedPowerWatts.value : this.normalizedPowerWatts,
+    averageSpeedMps: averageSpeedMps.present ? averageSpeedMps.value : this.averageSpeedMps,
+    averagePaceSecPerMeter: averagePaceSecPerMeter.present ? averagePaceSecPerMeter.value : this.averagePaceSecPerMeter,
     poolLengthM: poolLengthM.present ? poolLengthM.value : this.poolLengthM,
     strokeType: strokeType.present ? strokeType.value : this.strokeType,
     lapCount: lapCount.present ? lapCount.value : this.lapCount,
     swolf: swolf.present ? swolf.value : this.swolf,
-    perceivedExertion: perceivedExertion.present
-        ? perceivedExertion.value
-        : this.perceivedExertion,
+    perceivedExertion: perceivedExertion.present ? perceivedExertion.value : this.perceivedExertion,
     notes: notes.present ? notes.value : this.notes,
   );
   SessionCardioData copyWithCompanion(SessionCardioCompanion data) {
     return SessionCardioData(
       id: data.id.present ? data.id.value : this.id,
-      sessionUuid: data.sessionUuid.present
-          ? data.sessionUuid.value
-          : this.sessionUuid,
-      plannedDistanceM: data.plannedDistanceM.present
-          ? data.plannedDistanceM.value
-          : this.plannedDistanceM,
-      actualDistanceM: data.actualDistanceM.present
-          ? data.actualDistanceM.value
-          : this.actualDistanceM,
-      plannedDurationSec: data.plannedDurationSec.present
-          ? data.plannedDurationSec.value
-          : this.plannedDurationSec,
-      actualDurationSec: data.actualDurationSec.present
-          ? data.actualDurationSec.value
-          : this.actualDurationSec,
-      elevationGainM: data.elevationGainM.present
-          ? data.elevationGainM.value
-          : this.elevationGainM,
-      elevationLossM: data.elevationLossM.present
-          ? data.elevationLossM.value
-          : this.elevationLossM,
+      sessionUuid: data.sessionUuid.present ? data.sessionUuid.value : this.sessionUuid,
+      plannedDistanceM: data.plannedDistanceM.present ? data.plannedDistanceM.value : this.plannedDistanceM,
+      actualDistanceM: data.actualDistanceM.present ? data.actualDistanceM.value : this.actualDistanceM,
+      plannedDurationSec: data.plannedDurationSec.present ? data.plannedDurationSec.value : this.plannedDurationSec,
+      actualDurationSec: data.actualDurationSec.present ? data.actualDurationSec.value : this.actualDurationSec,
+      elevationGainM: data.elevationGainM.present ? data.elevationGainM.value : this.elevationGainM,
+      elevationLossM: data.elevationLossM.present ? data.elevationLossM.value : this.elevationLossM,
       averageHr: data.averageHr.present ? data.averageHr.value : this.averageHr,
       maxHr: data.maxHr.present ? data.maxHr.value : this.maxHr,
-      averageCadence: data.averageCadence.present
-          ? data.averageCadence.value
-          : this.averageCadence,
-      averagePowerWatts: data.averagePowerWatts.present
-          ? data.averagePowerWatts.value
-          : this.averagePowerWatts,
+      averageCadence: data.averageCadence.present ? data.averageCadence.value : this.averageCadence,
+      averagePowerWatts: data.averagePowerWatts.present ? data.averagePowerWatts.value : this.averagePowerWatts,
       normalizedPowerWatts: data.normalizedPowerWatts.present
           ? data.normalizedPowerWatts.value
           : this.normalizedPowerWatts,
-      averageSpeedMps: data.averageSpeedMps.present
-          ? data.averageSpeedMps.value
-          : this.averageSpeedMps,
+      averageSpeedMps: data.averageSpeedMps.present ? data.averageSpeedMps.value : this.averageSpeedMps,
       averagePaceSecPerMeter: data.averagePaceSecPerMeter.present
           ? data.averagePaceSecPerMeter.value
           : this.averagePaceSecPerMeter,
-      poolLengthM: data.poolLengthM.present
-          ? data.poolLengthM.value
-          : this.poolLengthM,
-      strokeType: data.strokeType.present
-          ? data.strokeType.value
-          : this.strokeType,
+      poolLengthM: data.poolLengthM.present ? data.poolLengthM.value : this.poolLengthM,
+      strokeType: data.strokeType.present ? data.strokeType.value : this.strokeType,
       lapCount: data.lapCount.present ? data.lapCount.value : this.lapCount,
       swolf: data.swolf.present ? data.swolf.value : this.swolf,
-      perceivedExertion: data.perceivedExertion.present
-          ? data.perceivedExertion.value
-          : this.perceivedExertion,
+      perceivedExertion: data.perceivedExertion.present ? data.perceivedExertion.value : this.perceivedExertion,
       notes: data.notes.present ? data.notes.value : this.notes,
     );
   }
@@ -7242,8 +6940,7 @@ class SessionCardioCompanion extends UpdateCompanion<SessionCardioData> {
       if (sessionUuid != null) 'session_uuid': sessionUuid,
       if (plannedDistanceM != null) 'planned_distance_m': plannedDistanceM,
       if (actualDistanceM != null) 'actual_distance_m': actualDistanceM,
-      if (plannedDurationSec != null)
-        'planned_duration_sec': plannedDurationSec,
+      if (plannedDurationSec != null) 'planned_duration_sec': plannedDurationSec,
       if (actualDurationSec != null) 'actual_duration_sec': actualDurationSec,
       if (elevationGainM != null) 'elevation_gain_m': elevationGainM,
       if (elevationLossM != null) 'elevation_loss_m': elevationLossM,
@@ -7251,11 +6948,9 @@ class SessionCardioCompanion extends UpdateCompanion<SessionCardioData> {
       if (maxHr != null) 'max_hr': maxHr,
       if (averageCadence != null) 'average_cadence': averageCadence,
       if (averagePowerWatts != null) 'average_power_watts': averagePowerWatts,
-      if (normalizedPowerWatts != null)
-        'normalized_power_watts': normalizedPowerWatts,
+      if (normalizedPowerWatts != null) 'normalized_power_watts': normalizedPowerWatts,
       if (averageSpeedMps != null) 'average_speed_mps': averageSpeedMps,
-      if (averagePaceSecPerMeter != null)
-        'average_pace_sec_per_meter': averagePaceSecPerMeter,
+      if (averagePaceSecPerMeter != null) 'average_pace_sec_per_meter': averagePaceSecPerMeter,
       if (poolLengthM != null) 'pool_length_m': poolLengthM,
       if (strokeType != null) 'stroke_type': strokeType,
       if (lapCount != null) 'lap_count': lapCount,
@@ -7303,8 +6998,7 @@ class SessionCardioCompanion extends UpdateCompanion<SessionCardioData> {
       averagePowerWatts: averagePowerWatts ?? this.averagePowerWatts,
       normalizedPowerWatts: normalizedPowerWatts ?? this.normalizedPowerWatts,
       averageSpeedMps: averageSpeedMps ?? this.averageSpeedMps,
-      averagePaceSecPerMeter:
-          averagePaceSecPerMeter ?? this.averagePaceSecPerMeter,
+      averagePaceSecPerMeter: averagePaceSecPerMeter ?? this.averagePaceSecPerMeter,
       poolLengthM: poolLengthM ?? this.poolLengthM,
       strokeType: strokeType ?? this.strokeType,
       lapCount: lapCount ?? this.lapCount,
@@ -7416,8 +7110,7 @@ class SessionCardioCompanion extends UpdateCompanion<SessionCardioData> {
   }
 }
 
-class $SessionIntervalsTable extends SessionIntervals
-    with TableInfo<$SessionIntervalsTable, SessionInterval> {
+class $SessionIntervalsTable extends SessionIntervals with TableInfo<$SessionIntervalsTable, SessionInterval> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
@@ -7613,28 +7306,26 @@ class $SessionIntervalsTable extends SessionIntervals
     type: DriftSqlType.int,
     requiredDuringInsert: false,
   );
-  static const VerificationMeta _actualAveragePaceSecPerMeterMeta =
-      const VerificationMeta('actualAveragePaceSecPerMeter');
+  static const VerificationMeta _actualAveragePaceSecPerMeterMeta = const VerificationMeta(
+    'actualAveragePaceSecPerMeter',
+  );
   @override
-  late final GeneratedColumn<double> actualAveragePaceSecPerMeter =
-      GeneratedColumn<double>(
-        'actual_average_pace_sec_per_meter',
-        aliasedName,
-        true,
-        type: DriftSqlType.double,
-        requiredDuringInsert: false,
-      );
-  static const VerificationMeta _actualAveragePowerWattsMeta =
-      const VerificationMeta('actualAveragePowerWatts');
+  late final GeneratedColumn<double> actualAveragePaceSecPerMeter = GeneratedColumn<double>(
+    'actual_average_pace_sec_per_meter',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _actualAveragePowerWattsMeta = const VerificationMeta('actualAveragePowerWatts');
   @override
-  late final GeneratedColumn<double> actualAveragePowerWatts =
-      GeneratedColumn<double>(
-        'actual_average_power_watts',
-        aliasedName,
-        true,
-        type: DriftSqlType.double,
-        requiredDuringInsert: false,
-      );
+  late final GeneratedColumn<double> actualAveragePowerWatts = GeneratedColumn<double>(
+    'actual_average_power_watts',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _repeatCountMeta = const VerificationMeta(
     'repeatCount',
   );
@@ -7646,17 +7337,15 @@ class $SessionIntervalsTable extends SessionIntervals
     type: DriftSqlType.int,
     requiredDuringInsert: false,
   );
-  static const VerificationMeta _parentIntervalUuidMeta =
-      const VerificationMeta('parentIntervalUuid');
+  static const VerificationMeta _parentIntervalUuidMeta = const VerificationMeta('parentIntervalUuid');
   @override
-  late final GeneratedColumn<String> parentIntervalUuid =
-      GeneratedColumn<String>(
-        'parent_interval_uuid',
-        aliasedName,
-        true,
-        type: DriftSqlType.string,
-        requiredDuringInsert: false,
-      );
+  late final GeneratedColumn<String> parentIntervalUuid = GeneratedColumn<String>(
+    'parent_interval_uuid',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _notesMeta = const VerificationMeta('notes');
   @override
   late final GeneratedColumn<String> notes = GeneratedColumn<String>(
@@ -8115,55 +7804,26 @@ class SessionInterval extends DataClass implements Insertable<SessionInterval> {
       orderIndex: Value(orderIndex),
       intentType: Value(intentType),
       targetKind: Value(targetKind),
-      targetDurationSec: targetDurationSec == null && nullToAbsent
-          ? const Value.absent()
-          : Value(targetDurationSec),
-      targetDistanceM: targetDistanceM == null && nullToAbsent
-          ? const Value.absent()
-          : Value(targetDistanceM),
-      targetHrZone: targetHrZone == null && nullToAbsent
-          ? const Value.absent()
-          : Value(targetHrZone),
-      targetPaceZone: targetPaceZone == null && nullToAbsent
-          ? const Value.absent()
-          : Value(targetPaceZone),
-      targetPowerZone: targetPowerZone == null && nullToAbsent
-          ? const Value.absent()
-          : Value(targetPowerZone),
-      targetValueMin: targetValueMin == null && nullToAbsent
-          ? const Value.absent()
-          : Value(targetValueMin),
-      targetValueMax: targetValueMax == null && nullToAbsent
-          ? const Value.absent()
-          : Value(targetValueMax),
-      targetFreeform: targetFreeform == null && nullToAbsent
-          ? const Value.absent()
-          : Value(targetFreeform),
-      actualDurationSec: actualDurationSec == null && nullToAbsent
-          ? const Value.absent()
-          : Value(actualDurationSec),
-      actualDistanceM: actualDistanceM == null && nullToAbsent
-          ? const Value.absent()
-          : Value(actualDistanceM),
-      actualAverageHr: actualAverageHr == null && nullToAbsent
-          ? const Value.absent()
-          : Value(actualAverageHr),
-      actualAveragePaceSecPerMeter:
-          actualAveragePaceSecPerMeter == null && nullToAbsent
+      targetDurationSec: targetDurationSec == null && nullToAbsent ? const Value.absent() : Value(targetDurationSec),
+      targetDistanceM: targetDistanceM == null && nullToAbsent ? const Value.absent() : Value(targetDistanceM),
+      targetHrZone: targetHrZone == null && nullToAbsent ? const Value.absent() : Value(targetHrZone),
+      targetPaceZone: targetPaceZone == null && nullToAbsent ? const Value.absent() : Value(targetPaceZone),
+      targetPowerZone: targetPowerZone == null && nullToAbsent ? const Value.absent() : Value(targetPowerZone),
+      targetValueMin: targetValueMin == null && nullToAbsent ? const Value.absent() : Value(targetValueMin),
+      targetValueMax: targetValueMax == null && nullToAbsent ? const Value.absent() : Value(targetValueMax),
+      targetFreeform: targetFreeform == null && nullToAbsent ? const Value.absent() : Value(targetFreeform),
+      actualDurationSec: actualDurationSec == null && nullToAbsent ? const Value.absent() : Value(actualDurationSec),
+      actualDistanceM: actualDistanceM == null && nullToAbsent ? const Value.absent() : Value(actualDistanceM),
+      actualAverageHr: actualAverageHr == null && nullToAbsent ? const Value.absent() : Value(actualAverageHr),
+      actualAveragePaceSecPerMeter: actualAveragePaceSecPerMeter == null && nullToAbsent
           ? const Value.absent()
           : Value(actualAveragePaceSecPerMeter),
       actualAveragePowerWatts: actualAveragePowerWatts == null && nullToAbsent
           ? const Value.absent()
           : Value(actualAveragePowerWatts),
-      repeatCount: repeatCount == null && nullToAbsent
-          ? const Value.absent()
-          : Value(repeatCount),
-      parentIntervalUuid: parentIntervalUuid == null && nullToAbsent
-          ? const Value.absent()
-          : Value(parentIntervalUuid),
-      notes: notes == null && nullToAbsent
-          ? const Value.absent()
-          : Value(notes),
+      repeatCount: repeatCount == null && nullToAbsent ? const Value.absent() : Value(repeatCount),
+      parentIntervalUuid: parentIntervalUuid == null && nullToAbsent ? const Value.absent() : Value(parentIntervalUuid),
+      notes: notes == null && nullToAbsent ? const Value.absent() : Value(notes),
     );
   }
 
@@ -8266,37 +7926,17 @@ class SessionInterval extends DataClass implements Insertable<SessionInterval> {
     orderIndex: orderIndex ?? this.orderIndex,
     intentType: intentType ?? this.intentType,
     targetKind: targetKind ?? this.targetKind,
-    targetDurationSec: targetDurationSec.present
-        ? targetDurationSec.value
-        : this.targetDurationSec,
-    targetDistanceM: targetDistanceM.present
-        ? targetDistanceM.value
-        : this.targetDistanceM,
+    targetDurationSec: targetDurationSec.present ? targetDurationSec.value : this.targetDurationSec,
+    targetDistanceM: targetDistanceM.present ? targetDistanceM.value : this.targetDistanceM,
     targetHrZone: targetHrZone.present ? targetHrZone.value : this.targetHrZone,
-    targetPaceZone: targetPaceZone.present
-        ? targetPaceZone.value
-        : this.targetPaceZone,
-    targetPowerZone: targetPowerZone.present
-        ? targetPowerZone.value
-        : this.targetPowerZone,
-    targetValueMin: targetValueMin.present
-        ? targetValueMin.value
-        : this.targetValueMin,
-    targetValueMax: targetValueMax.present
-        ? targetValueMax.value
-        : this.targetValueMax,
-    targetFreeform: targetFreeform.present
-        ? targetFreeform.value
-        : this.targetFreeform,
-    actualDurationSec: actualDurationSec.present
-        ? actualDurationSec.value
-        : this.actualDurationSec,
-    actualDistanceM: actualDistanceM.present
-        ? actualDistanceM.value
-        : this.actualDistanceM,
-    actualAverageHr: actualAverageHr.present
-        ? actualAverageHr.value
-        : this.actualAverageHr,
+    targetPaceZone: targetPaceZone.present ? targetPaceZone.value : this.targetPaceZone,
+    targetPowerZone: targetPowerZone.present ? targetPowerZone.value : this.targetPowerZone,
+    targetValueMin: targetValueMin.present ? targetValueMin.value : this.targetValueMin,
+    targetValueMax: targetValueMax.present ? targetValueMax.value : this.targetValueMax,
+    targetFreeform: targetFreeform.present ? targetFreeform.value : this.targetFreeform,
+    actualDurationSec: actualDurationSec.present ? actualDurationSec.value : this.actualDurationSec,
+    actualDistanceM: actualDistanceM.present ? actualDistanceM.value : this.actualDistanceM,
+    actualAverageHr: actualAverageHr.present ? actualAverageHr.value : this.actualAverageHr,
     actualAveragePaceSecPerMeter: actualAveragePaceSecPerMeter.present
         ? actualAveragePaceSecPerMeter.value
         : this.actualAveragePaceSecPerMeter,
@@ -8304,72 +7944,36 @@ class SessionInterval extends DataClass implements Insertable<SessionInterval> {
         ? actualAveragePowerWatts.value
         : this.actualAveragePowerWatts,
     repeatCount: repeatCount.present ? repeatCount.value : this.repeatCount,
-    parentIntervalUuid: parentIntervalUuid.present
-        ? parentIntervalUuid.value
-        : this.parentIntervalUuid,
+    parentIntervalUuid: parentIntervalUuid.present ? parentIntervalUuid.value : this.parentIntervalUuid,
     notes: notes.present ? notes.value : this.notes,
   );
   SessionInterval copyWithCompanion(SessionIntervalsCompanion data) {
     return SessionInterval(
       id: data.id.present ? data.id.value : this.id,
       uuid: data.uuid.present ? data.uuid.value : this.uuid,
-      sessionUuid: data.sessionUuid.present
-          ? data.sessionUuid.value
-          : this.sessionUuid,
-      orderIndex: data.orderIndex.present
-          ? data.orderIndex.value
-          : this.orderIndex,
-      intentType: data.intentType.present
-          ? data.intentType.value
-          : this.intentType,
-      targetKind: data.targetKind.present
-          ? data.targetKind.value
-          : this.targetKind,
-      targetDurationSec: data.targetDurationSec.present
-          ? data.targetDurationSec.value
-          : this.targetDurationSec,
-      targetDistanceM: data.targetDistanceM.present
-          ? data.targetDistanceM.value
-          : this.targetDistanceM,
-      targetHrZone: data.targetHrZone.present
-          ? data.targetHrZone.value
-          : this.targetHrZone,
-      targetPaceZone: data.targetPaceZone.present
-          ? data.targetPaceZone.value
-          : this.targetPaceZone,
-      targetPowerZone: data.targetPowerZone.present
-          ? data.targetPowerZone.value
-          : this.targetPowerZone,
-      targetValueMin: data.targetValueMin.present
-          ? data.targetValueMin.value
-          : this.targetValueMin,
-      targetValueMax: data.targetValueMax.present
-          ? data.targetValueMax.value
-          : this.targetValueMax,
-      targetFreeform: data.targetFreeform.present
-          ? data.targetFreeform.value
-          : this.targetFreeform,
-      actualDurationSec: data.actualDurationSec.present
-          ? data.actualDurationSec.value
-          : this.actualDurationSec,
-      actualDistanceM: data.actualDistanceM.present
-          ? data.actualDistanceM.value
-          : this.actualDistanceM,
-      actualAverageHr: data.actualAverageHr.present
-          ? data.actualAverageHr.value
-          : this.actualAverageHr,
+      sessionUuid: data.sessionUuid.present ? data.sessionUuid.value : this.sessionUuid,
+      orderIndex: data.orderIndex.present ? data.orderIndex.value : this.orderIndex,
+      intentType: data.intentType.present ? data.intentType.value : this.intentType,
+      targetKind: data.targetKind.present ? data.targetKind.value : this.targetKind,
+      targetDurationSec: data.targetDurationSec.present ? data.targetDurationSec.value : this.targetDurationSec,
+      targetDistanceM: data.targetDistanceM.present ? data.targetDistanceM.value : this.targetDistanceM,
+      targetHrZone: data.targetHrZone.present ? data.targetHrZone.value : this.targetHrZone,
+      targetPaceZone: data.targetPaceZone.present ? data.targetPaceZone.value : this.targetPaceZone,
+      targetPowerZone: data.targetPowerZone.present ? data.targetPowerZone.value : this.targetPowerZone,
+      targetValueMin: data.targetValueMin.present ? data.targetValueMin.value : this.targetValueMin,
+      targetValueMax: data.targetValueMax.present ? data.targetValueMax.value : this.targetValueMax,
+      targetFreeform: data.targetFreeform.present ? data.targetFreeform.value : this.targetFreeform,
+      actualDurationSec: data.actualDurationSec.present ? data.actualDurationSec.value : this.actualDurationSec,
+      actualDistanceM: data.actualDistanceM.present ? data.actualDistanceM.value : this.actualDistanceM,
+      actualAverageHr: data.actualAverageHr.present ? data.actualAverageHr.value : this.actualAverageHr,
       actualAveragePaceSecPerMeter: data.actualAveragePaceSecPerMeter.present
           ? data.actualAveragePaceSecPerMeter.value
           : this.actualAveragePaceSecPerMeter,
       actualAveragePowerWatts: data.actualAveragePowerWatts.present
           ? data.actualAveragePowerWatts.value
           : this.actualAveragePowerWatts,
-      repeatCount: data.repeatCount.present
-          ? data.repeatCount.value
-          : this.repeatCount,
-      parentIntervalUuid: data.parentIntervalUuid.present
-          ? data.parentIntervalUuid.value
-          : this.parentIntervalUuid,
+      repeatCount: data.repeatCount.present ? data.repeatCount.value : this.repeatCount,
+      parentIntervalUuid: data.parentIntervalUuid.present ? data.parentIntervalUuid.value : this.parentIntervalUuid,
       notes: data.notes.present ? data.notes.value : this.notes,
     );
   }
@@ -8451,8 +8055,7 @@ class SessionInterval extends DataClass implements Insertable<SessionInterval> {
           other.actualDurationSec == this.actualDurationSec &&
           other.actualDistanceM == this.actualDistanceM &&
           other.actualAverageHr == this.actualAverageHr &&
-          other.actualAveragePaceSecPerMeter ==
-              this.actualAveragePaceSecPerMeter &&
+          other.actualAveragePaceSecPerMeter == this.actualAveragePaceSecPerMeter &&
           other.actualAveragePowerWatts == this.actualAveragePowerWatts &&
           other.repeatCount == this.repeatCount &&
           other.parentIntervalUuid == this.parentIntervalUuid &&
@@ -8576,13 +8179,10 @@ class SessionIntervalsCompanion extends UpdateCompanion<SessionInterval> {
       if (actualDurationSec != null) 'actual_duration_sec': actualDurationSec,
       if (actualDistanceM != null) 'actual_distance_m': actualDistanceM,
       if (actualAverageHr != null) 'actual_average_hr': actualAverageHr,
-      if (actualAveragePaceSecPerMeter != null)
-        'actual_average_pace_sec_per_meter': actualAveragePaceSecPerMeter,
-      if (actualAveragePowerWatts != null)
-        'actual_average_power_watts': actualAveragePowerWatts,
+      if (actualAveragePaceSecPerMeter != null) 'actual_average_pace_sec_per_meter': actualAveragePaceSecPerMeter,
+      if (actualAveragePowerWatts != null) 'actual_average_power_watts': actualAveragePowerWatts,
       if (repeatCount != null) 'repeat_count': repeatCount,
-      if (parentIntervalUuid != null)
-        'parent_interval_uuid': parentIntervalUuid,
+      if (parentIntervalUuid != null) 'parent_interval_uuid': parentIntervalUuid,
       if (notes != null) 'notes': notes,
     });
   }
@@ -8629,10 +8229,8 @@ class SessionIntervalsCompanion extends UpdateCompanion<SessionInterval> {
       actualDurationSec: actualDurationSec ?? this.actualDurationSec,
       actualDistanceM: actualDistanceM ?? this.actualDistanceM,
       actualAverageHr: actualAverageHr ?? this.actualAverageHr,
-      actualAveragePaceSecPerMeter:
-          actualAveragePaceSecPerMeter ?? this.actualAveragePaceSecPerMeter,
-      actualAveragePowerWatts:
-          actualAveragePowerWatts ?? this.actualAveragePowerWatts,
+      actualAveragePaceSecPerMeter: actualAveragePaceSecPerMeter ?? this.actualAveragePaceSecPerMeter,
+      actualAveragePowerWatts: actualAveragePowerWatts ?? this.actualAveragePowerWatts,
       repeatCount: repeatCount ?? this.repeatCount,
       parentIntervalUuid: parentIntervalUuid ?? this.parentIntervalUuid,
       notes: notes ?? this.notes,
@@ -8747,8 +8345,7 @@ class SessionIntervalsCompanion extends UpdateCompanion<SessionInterval> {
   }
 }
 
-class $SessionSamplesTable extends SessionSamples
-    with TableInfo<$SessionSamplesTable, SessionSample> {
+class $SessionSamplesTable extends SessionSamples with TableInfo<$SessionSamplesTable, SessionSample> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
@@ -9091,22 +8688,12 @@ class SessionSample extends DataClass implements Insertable<SessionSample> {
       offsetSec: Value(offsetSec),
       lat: lat == null && nullToAbsent ? const Value.absent() : Value(lat),
       lng: lng == null && nullToAbsent ? const Value.absent() : Value(lng),
-      altitudeM: altitudeM == null && nullToAbsent
-          ? const Value.absent()
-          : Value(altitudeM),
+      altitudeM: altitudeM == null && nullToAbsent ? const Value.absent() : Value(altitudeM),
       hr: hr == null && nullToAbsent ? const Value.absent() : Value(hr),
-      cadence: cadence == null && nullToAbsent
-          ? const Value.absent()
-          : Value(cadence),
-      powerW: powerW == null && nullToAbsent
-          ? const Value.absent()
-          : Value(powerW),
-      speedMps: speedMps == null && nullToAbsent
-          ? const Value.absent()
-          : Value(speedMps),
-      strokeRate: strokeRate == null && nullToAbsent
-          ? const Value.absent()
-          : Value(strokeRate),
+      cadence: cadence == null && nullToAbsent ? const Value.absent() : Value(cadence),
+      powerW: powerW == null && nullToAbsent ? const Value.absent() : Value(powerW),
+      speedMps: speedMps == null && nullToAbsent ? const Value.absent() : Value(speedMps),
+      strokeRate: strokeRate == null && nullToAbsent ? const Value.absent() : Value(strokeRate),
     );
   }
 
@@ -9175,9 +8762,7 @@ class SessionSample extends DataClass implements Insertable<SessionSample> {
   SessionSample copyWithCompanion(SessionSamplesCompanion data) {
     return SessionSample(
       id: data.id.present ? data.id.value : this.id,
-      sessionUuid: data.sessionUuid.present
-          ? data.sessionUuid.value
-          : this.sessionUuid,
+      sessionUuid: data.sessionUuid.present ? data.sessionUuid.value : this.sessionUuid,
       offsetSec: data.offsetSec.present ? data.offsetSec.value : this.offsetSec,
       lat: data.lat.present ? data.lat.value : this.lat,
       lng: data.lng.present ? data.lng.value : this.lng,
@@ -9186,9 +8771,7 @@ class SessionSample extends DataClass implements Insertable<SessionSample> {
       cadence: data.cadence.present ? data.cadence.value : this.cadence,
       powerW: data.powerW.present ? data.powerW.value : this.powerW,
       speedMps: data.speedMps.present ? data.speedMps.value : this.speedMps,
-      strokeRate: data.strokeRate.present
-          ? data.strokeRate.value
-          : this.strokeRate,
+      strokeRate: data.strokeRate.present ? data.strokeRate.value : this.strokeRate,
     );
   }
 
@@ -9394,8 +8977,7 @@ class SessionSamplesCompanion extends UpdateCompanion<SessionSample> {
   }
 }
 
-class $SportZonesTable extends SportZones
-    with TableInfo<$SportZonesTable, SportZone> {
+class $SportZonesTable extends SportZones with TableInfo<$SportZonesTable, SportZone> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
@@ -9686,9 +9268,7 @@ class SportZone extends DataClass implements Insertable<SportZone> {
       minValue: Value(minValue),
       maxValue: Value(maxValue),
       unit: Value(unit),
-      ownerUuid: ownerUuid == null && nullToAbsent
-          ? const Value.absent()
-          : Value(ownerUuid),
+      ownerUuid: ownerUuid == null && nullToAbsent ? const Value.absent() : Value(ownerUuid),
       createdAt: Value(createdAt),
     );
   }
@@ -9752,9 +9332,7 @@ class SportZone extends DataClass implements Insertable<SportZone> {
       id: data.id.present ? data.id.value : this.id,
       uuid: data.uuid.present ? data.uuid.value : this.uuid,
       sport: data.sport.present ? data.sport.value : this.sport,
-      zoneNumber: data.zoneNumber.present
-          ? data.zoneNumber.value
-          : this.zoneNumber,
+      zoneNumber: data.zoneNumber.present ? data.zoneNumber.value : this.zoneNumber,
       minValue: data.minValue.present ? data.minValue.value : this.minValue,
       maxValue: data.maxValue.present ? data.maxValue.value : this.maxValue,
       unit: data.unit.present ? data.unit.value : this.unit,
@@ -9942,8 +9520,7 @@ class SportZonesCompanion extends UpdateCompanion<SportZone> {
   }
 }
 
-class $CardioFeedbackTable extends CardioFeedback
-    with TableInfo<$CardioFeedbackTable, CardioFeedbackData> {
+class $CardioFeedbackTable extends CardioFeedback with TableInfo<$CardioFeedbackTable, CardioFeedbackData> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
@@ -10207,8 +9784,7 @@ class $CardioFeedbackTable extends CardioFeedback
   }
 }
 
-class CardioFeedbackData extends DataClass
-    implements Insertable<CardioFeedbackData> {
+class CardioFeedbackData extends DataClass implements Insertable<CardioFeedbackData> {
   final int id;
   final String sessionUuid;
   final int? rpe;
@@ -10268,27 +9844,13 @@ class CardioFeedbackData extends DataClass
       id: Value(id),
       sessionUuid: Value(sessionUuid),
       rpe: rpe == null && nullToAbsent ? const Value.absent() : Value(rpe),
-      breathing: breathing == null && nullToAbsent
-          ? const Value.absent()
-          : Value(breathing),
-      giComfort: giComfort == null && nullToAbsent
-          ? const Value.absent()
-          : Value(giComfort),
-      weather: weather == null && nullToAbsent
-          ? const Value.absent()
-          : Value(weather),
-      notes: notes == null && nullToAbsent
-          ? const Value.absent()
-          : Value(notes),
-      timestamp: timestamp == null && nullToAbsent
-          ? const Value.absent()
-          : Value(timestamp),
-      creatorUuid: creatorUuid == null && nullToAbsent
-          ? const Value.absent()
-          : Value(creatorUuid),
-      ownerUuid: ownerUuid == null && nullToAbsent
-          ? const Value.absent()
-          : Value(ownerUuid),
+      breathing: breathing == null && nullToAbsent ? const Value.absent() : Value(breathing),
+      giComfort: giComfort == null && nullToAbsent ? const Value.absent() : Value(giComfort),
+      weather: weather == null && nullToAbsent ? const Value.absent() : Value(weather),
+      notes: notes == null && nullToAbsent ? const Value.absent() : Value(notes),
+      timestamp: timestamp == null && nullToAbsent ? const Value.absent() : Value(timestamp),
+      creatorUuid: creatorUuid == null && nullToAbsent ? const Value.absent() : Value(creatorUuid),
+      ownerUuid: ownerUuid == null && nullToAbsent ? const Value.absent() : Value(ownerUuid),
     );
   }
 
@@ -10353,18 +9915,14 @@ class CardioFeedbackData extends DataClass
   CardioFeedbackData copyWithCompanion(CardioFeedbackCompanion data) {
     return CardioFeedbackData(
       id: data.id.present ? data.id.value : this.id,
-      sessionUuid: data.sessionUuid.present
-          ? data.sessionUuid.value
-          : this.sessionUuid,
+      sessionUuid: data.sessionUuid.present ? data.sessionUuid.value : this.sessionUuid,
       rpe: data.rpe.present ? data.rpe.value : this.rpe,
       breathing: data.breathing.present ? data.breathing.value : this.breathing,
       giComfort: data.giComfort.present ? data.giComfort.value : this.giComfort,
       weather: data.weather.present ? data.weather.value : this.weather,
       notes: data.notes.present ? data.notes.value : this.notes,
       timestamp: data.timestamp.present ? data.timestamp.value : this.timestamp,
-      creatorUuid: data.creatorUuid.present
-          ? data.creatorUuid.value
-          : this.creatorUuid,
+      creatorUuid: data.creatorUuid.present ? data.creatorUuid.value : this.creatorUuid,
       ownerUuid: data.ownerUuid.present ? data.ownerUuid.value : this.ownerUuid,
     );
   }
@@ -10562,10 +10120,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $TrainingCyclesTable trainingCycles = $TrainingCyclesTable(this);
   late final $ExercisesTable exercises = $ExercisesTable(this);
   late final $ExerciseSetsTable exerciseSets = $ExerciseSetsTable(this);
-  late final $ExerciseFeedbacksTable exerciseFeedbacks =
-      $ExerciseFeedbacksTable(this);
-  late final $CustomExerciseDefinitionsTable customExerciseDefinitions =
-      $CustomExerciseDefinitionsTable(this);
+  late final $ExerciseFeedbacksTable exerciseFeedbacks = $ExerciseFeedbacksTable(this);
+  late final $CustomExerciseDefinitionsTable customExerciseDefinitions = $CustomExerciseDefinitionsTable(this);
   late final $UserMeasurementsTable userMeasurements = $UserMeasurementsTable(
     this,
   );
@@ -10614,8 +10170,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     this as AppDatabase,
   );
   @override
-  Iterable<TableInfo<Table, Object?>> get allTables =>
-      allSchemaEntities.whereType<TableInfo<Table, Object?>>();
+  Iterable<TableInfo<Table, Object?>> get allTables => allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities => [
     trainingCycles,
@@ -10678,8 +10233,7 @@ typedef $$TrainingCyclesTableUpdateCompanionBuilder =
       Value<String?> ownerUuid,
     });
 
-final class $$TrainingCyclesTableReferences
-    extends BaseReferences<_$AppDatabase, $TrainingCyclesTable, TrainingCycle> {
+final class $$TrainingCyclesTableReferences extends BaseReferences<_$AppDatabase, $TrainingCyclesTable, TrainingCycle> {
   $$TrainingCyclesTableReferences(
     super.$_db,
     super.$_table,
@@ -10707,21 +10261,19 @@ final class $$TrainingCyclesTableReferences
     );
   }
 
-  static MultiTypedResultKey<$CyclePeriodsTable, List<CyclePeriod>>
-  _cyclePeriodsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
-    db.cyclePeriods,
-    aliasName: $_aliasNameGenerator(
-      db.trainingCycles.uuid,
-      db.cyclePeriods.trainingCycleUuid,
-    ),
-  );
+  static MultiTypedResultKey<$CyclePeriodsTable, List<CyclePeriod>> _cyclePeriodsRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.cyclePeriods,
+        aliasName: $_aliasNameGenerator(
+          db.trainingCycles.uuid,
+          db.cyclePeriods.trainingCycleUuid,
+        ),
+      );
 
   $$CyclePeriodsTableProcessedTableManager get cyclePeriodsRefs {
-    final manager = $$CyclePeriodsTableTableManager($_db, $_db.cyclePeriods)
-        .filter(
-          (f) =>
-              f.trainingCycleUuid.uuid.sqlEquals($_itemColumn<String>('uuid')!),
-        );
+    final manager = $$CyclePeriodsTableTableManager($_db, $_db.cyclePeriods).filter(
+      (f) => f.trainingCycleUuid.uuid.sqlEquals($_itemColumn<String>('uuid')!),
+    );
 
     final cache = $_typedResult.readTableOrNull(_cyclePeriodsRefsTable($_db));
     return ProcessedTableManager(
@@ -10730,8 +10282,7 @@ final class $$TrainingCyclesTableReferences
   }
 }
 
-class $$TrainingCyclesTableFilterComposer
-    extends Composer<_$AppDatabase, $TrainingCyclesTable> {
+class $$TrainingCyclesTableFilterComposer extends Composer<_$AppDatabase, $TrainingCyclesTable> {
   $$TrainingCyclesTableFilterComposer({
     required super.$db,
     required super.$table,
@@ -10847,8 +10398,7 @@ class $$TrainingCyclesTableFilterComposer
             $table: $db.sessions,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
           ),
     );
     return f(composer);
@@ -10872,16 +10422,14 @@ class $$TrainingCyclesTableFilterComposer
             $table: $db.cyclePeriods,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
           ),
     );
     return f(composer);
   }
 }
 
-class $$TrainingCyclesTableOrderingComposer
-    extends Composer<_$AppDatabase, $TrainingCyclesTable> {
+class $$TrainingCyclesTableOrderingComposer extends Composer<_$AppDatabase, $TrainingCyclesTable> {
   $$TrainingCyclesTableOrderingComposer({
     required super.$db,
     required super.$table,
@@ -10980,8 +10528,7 @@ class $$TrainingCyclesTableOrderingComposer
   );
 }
 
-class $$TrainingCyclesTableAnnotationComposer
-    extends Composer<_$AppDatabase, $TrainingCyclesTable> {
+class $$TrainingCyclesTableAnnotationComposer extends Composer<_$AppDatabase, $TrainingCyclesTable> {
   $$TrainingCyclesTableAnnotationComposer({
     required super.$db,
     required super.$table,
@@ -10989,14 +10536,11 @@ class $$TrainingCyclesTableAnnotationComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  GeneratedColumn<int> get id =>
-      $composableBuilder(column: $table.id, builder: (column) => column);
+  GeneratedColumn<int> get id => $composableBuilder(column: $table.id, builder: (column) => column);
 
-  GeneratedColumn<String> get uuid =>
-      $composableBuilder(column: $table.uuid, builder: (column) => column);
+  GeneratedColumn<String> get uuid => $composableBuilder(column: $table.uuid, builder: (column) => column);
 
-  GeneratedColumn<String> get name =>
-      $composableBuilder(column: $table.name, builder: (column) => column);
+  GeneratedColumn<String> get name => $composableBuilder(column: $table.name, builder: (column) => column);
 
   GeneratedColumn<int> get periodsTotal => $composableBuilder(
     column: $table.periodsTotal,
@@ -11013,22 +10557,18 @@ class $$TrainingCyclesTableAnnotationComposer
     builder: (column) => column,
   );
 
-  GeneratedColumn<int> get status =>
-      $composableBuilder(column: $table.status, builder: (column) => column);
+  GeneratedColumn<int> get status => $composableBuilder(column: $table.status, builder: (column) => column);
 
-  GeneratedColumn<int> get gender =>
-      $composableBuilder(column: $table.gender, builder: (column) => column);
+  GeneratedColumn<int> get gender => $composableBuilder(column: $table.gender, builder: (column) => column);
 
   GeneratedColumn<DateTime> get createdDate => $composableBuilder(
     column: $table.createdDate,
     builder: (column) => column,
   );
 
-  GeneratedColumn<DateTime> get startDate =>
-      $composableBuilder(column: $table.startDate, builder: (column) => column);
+  GeneratedColumn<DateTime> get startDate => $composableBuilder(column: $table.startDate, builder: (column) => column);
 
-  GeneratedColumn<DateTime> get endDate =>
-      $composableBuilder(column: $table.endDate, builder: (column) => column);
+  GeneratedColumn<DateTime> get endDate => $composableBuilder(column: $table.endDate, builder: (column) => column);
 
   GeneratedColumn<String> get muscleGroupPriorities => $composableBuilder(
     column: $table.muscleGroupPriorities,
@@ -11040,8 +10580,7 @@ class $$TrainingCyclesTableAnnotationComposer
     builder: (column) => column,
   );
 
-  GeneratedColumn<String> get notes =>
-      $composableBuilder(column: $table.notes, builder: (column) => column);
+  GeneratedColumn<String> get notes => $composableBuilder(column: $table.notes, builder: (column) => column);
 
   GeneratedColumn<int> get recoveryPeriodType => $composableBuilder(
     column: $table.recoveryPeriodType,
@@ -11058,8 +10597,7 @@ class $$TrainingCyclesTableAnnotationComposer
     builder: (column) => column,
   );
 
-  GeneratedColumn<String> get ownerUuid =>
-      $composableBuilder(column: $table.ownerUuid, builder: (column) => column);
+  GeneratedColumn<String> get ownerUuid => $composableBuilder(column: $table.ownerUuid, builder: (column) => column);
 
   Expression<T> sessionsRefs<T extends Object>(
     Expression<T> Function($$SessionsTableAnnotationComposer a) f,
@@ -11079,8 +10617,7 @@ class $$TrainingCyclesTableAnnotationComposer
             $table: $db.sessions,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
           ),
     );
     return f(composer);
@@ -11104,8 +10641,7 @@ class $$TrainingCyclesTableAnnotationComposer
             $table: $db.cyclePeriods,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
           ),
     );
     return f(composer);
@@ -11134,12 +10670,9 @@ class $$TrainingCyclesTableTableManager
         TableManagerState(
           db: db,
           table: table,
-          createFilteringComposer: () =>
-              $$TrainingCyclesTableFilterComposer($db: db, $table: table),
-          createOrderingComposer: () =>
-              $$TrainingCyclesTableOrderingComposer($db: db, $table: table),
-          createComputedFieldComposer: () =>
-              $$TrainingCyclesTableAnnotationComposer($db: db, $table: table),
+          createFilteringComposer: () => $$TrainingCyclesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () => $$TrainingCyclesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () => $$TrainingCyclesTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
@@ -11228,63 +10761,48 @@ class $$TrainingCyclesTableTableManager
                 ),
               )
               .toList(),
-          prefetchHooksCallback:
-              ({sessionsRefs = false, cyclePeriodsRefs = false}) {
-                return PrefetchHooks(
-                  db: db,
-                  explicitlyWatchedTables: [
-                    if (sessionsRefs) db.sessions,
-                    if (cyclePeriodsRefs) db.cyclePeriods,
-                  ],
-                  addJoins: null,
-                  getPrefetchedDataCallback: (items) async {
-                    return [
-                      if (sessionsRefs)
-                        await $_getPrefetchedData<
-                          TrainingCycle,
-                          $TrainingCyclesTable,
-                          Session
-                        >(
-                          currentTable: table,
-                          referencedTable: $$TrainingCyclesTableReferences
-                              ._sessionsRefsTable(db),
-                          managerFromTypedResult: (p0) =>
-                              $$TrainingCyclesTableReferences(
-                                db,
-                                table,
-                                p0,
-                              ).sessionsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.trainingCycleUuid == item.uuid,
-                              ),
-                          typedResults: items,
-                        ),
-                      if (cyclePeriodsRefs)
-                        await $_getPrefetchedData<
-                          TrainingCycle,
-                          $TrainingCyclesTable,
-                          CyclePeriod
-                        >(
-                          currentTable: table,
-                          referencedTable: $$TrainingCyclesTableReferences
-                              ._cyclePeriodsRefsTable(db),
-                          managerFromTypedResult: (p0) =>
-                              $$TrainingCyclesTableReferences(
-                                db,
-                                table,
-                                p0,
-                              ).cyclePeriodsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.trainingCycleUuid == item.uuid,
-                              ),
-                          typedResults: items,
-                        ),
-                    ];
-                  },
-                );
+          prefetchHooksCallback: ({sessionsRefs = false, cyclePeriodsRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [
+                if (sessionsRefs) db.sessions,
+                if (cyclePeriodsRefs) db.cyclePeriods,
+              ],
+              addJoins: null,
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (sessionsRefs)
+                    await $_getPrefetchedData<TrainingCycle, $TrainingCyclesTable, Session>(
+                      currentTable: table,
+                      referencedTable: $$TrainingCyclesTableReferences._sessionsRefsTable(db),
+                      managerFromTypedResult: (p0) => $$TrainingCyclesTableReferences(
+                        db,
+                        table,
+                        p0,
+                      ).sessionsRefs,
+                      referencedItemsForCurrentItem: (item, referencedItems) => referencedItems.where(
+                        (e) => e.trainingCycleUuid == item.uuid,
+                      ),
+                      typedResults: items,
+                    ),
+                  if (cyclePeriodsRefs)
+                    await $_getPrefetchedData<TrainingCycle, $TrainingCyclesTable, CyclePeriod>(
+                      currentTable: table,
+                      referencedTable: $$TrainingCyclesTableReferences._cyclePeriodsRefsTable(db),
+                      managerFromTypedResult: (p0) => $$TrainingCyclesTableReferences(
+                        db,
+                        table,
+                        p0,
+                      ).cyclePeriodsRefs,
+                      referencedItemsForCurrentItem: (item, referencedItems) => referencedItems.where(
+                        (e) => e.trainingCycleUuid == item.uuid,
+                      ),
+                      typedResults: items,
+                    ),
+                ];
               },
+            );
+          },
         ),
       );
 }
@@ -11340,24 +10858,22 @@ typedef $$ExercisesTableUpdateCompanionBuilder =
       Value<int?> restSeconds,
     });
 
-final class $$ExercisesTableReferences
-    extends BaseReferences<_$AppDatabase, $ExercisesTable, Exercise> {
+final class $$ExercisesTableReferences extends BaseReferences<_$AppDatabase, $ExercisesTable, Exercise> {
   $$ExercisesTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
-  static MultiTypedResultKey<$ExerciseSetsTable, List<ExerciseSet>>
-  _exerciseSetsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
-    db.exerciseSets,
-    aliasName: $_aliasNameGenerator(
-      db.exercises.uuid,
-      db.exerciseSets.exerciseUuid,
-    ),
-  );
+  static MultiTypedResultKey<$ExerciseSetsTable, List<ExerciseSet>> _exerciseSetsRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.exerciseSets,
+        aliasName: $_aliasNameGenerator(
+          db.exercises.uuid,
+          db.exerciseSets.exerciseUuid,
+        ),
+      );
 
   $$ExerciseSetsTableProcessedTableManager get exerciseSetsRefs {
-    final manager = $$ExerciseSetsTableTableManager($_db, $_db.exerciseSets)
-        .filter(
-          (f) => f.exerciseUuid.uuid.sqlEquals($_itemColumn<String>('uuid')!),
-        );
+    final manager = $$ExerciseSetsTableTableManager($_db, $_db.exerciseSets).filter(
+      (f) => f.exerciseUuid.uuid.sqlEquals($_itemColumn<String>('uuid')!),
+    );
 
     final cache = $_typedResult.readTableOrNull(_exerciseSetsRefsTable($_db));
     return ProcessedTableManager(
@@ -11365,15 +10881,15 @@ final class $$ExercisesTableReferences
     );
   }
 
-  static MultiTypedResultKey<$ExerciseFeedbacksTable, List<ExerciseFeedback>>
-  _exerciseFeedbacksRefsTable(_$AppDatabase db) =>
-      MultiTypedResultKey.fromTable(
-        db.exerciseFeedbacks,
-        aliasName: $_aliasNameGenerator(
-          db.exercises.uuid,
-          db.exerciseFeedbacks.exerciseUuid,
-        ),
-      );
+  static MultiTypedResultKey<$ExerciseFeedbacksTable, List<ExerciseFeedback>> _exerciseFeedbacksRefsTable(
+    _$AppDatabase db,
+  ) => MultiTypedResultKey.fromTable(
+    db.exerciseFeedbacks,
+    aliasName: $_aliasNameGenerator(
+      db.exercises.uuid,
+      db.exerciseFeedbacks.exerciseUuid,
+    ),
+  );
 
   $$ExerciseFeedbacksTableProcessedTableManager get exerciseFeedbacksRefs {
     final manager =
@@ -11393,8 +10909,7 @@ final class $$ExercisesTableReferences
   }
 }
 
-class $$ExercisesTableFilterComposer
-    extends Composer<_$AppDatabase, $ExercisesTable> {
+class $$ExercisesTableFilterComposer extends Composer<_$AppDatabase, $ExercisesTable> {
   $$ExercisesTableFilterComposer({
     required super.$db,
     required super.$table,
@@ -11495,8 +11010,7 @@ class $$ExercisesTableFilterComposer
             $table: $db.exerciseSets,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
           ),
     );
     return f(composer);
@@ -11520,16 +11034,14 @@ class $$ExercisesTableFilterComposer
             $table: $db.exerciseFeedbacks,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
           ),
     );
     return f(composer);
   }
 }
 
-class $$ExercisesTableOrderingComposer
-    extends Composer<_$AppDatabase, $ExercisesTable> {
+class $$ExercisesTableOrderingComposer extends Composer<_$AppDatabase, $ExercisesTable> {
   $$ExercisesTableOrderingComposer({
     required super.$db,
     required super.$table,
@@ -11613,8 +11125,7 @@ class $$ExercisesTableOrderingComposer
   );
 }
 
-class $$ExercisesTableAnnotationComposer
-    extends Composer<_$AppDatabase, $ExercisesTable> {
+class $$ExercisesTableAnnotationComposer extends Composer<_$AppDatabase, $ExercisesTable> {
   $$ExercisesTableAnnotationComposer({
     required super.$db,
     required super.$table,
@@ -11622,11 +11133,9 @@ class $$ExercisesTableAnnotationComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  GeneratedColumn<int> get id =>
-      $composableBuilder(column: $table.id, builder: (column) => column);
+  GeneratedColumn<int> get id => $composableBuilder(column: $table.id, builder: (column) => column);
 
-  GeneratedColumn<String> get uuid =>
-      $composableBuilder(column: $table.uuid, builder: (column) => column);
+  GeneratedColumn<String> get uuid => $composableBuilder(column: $table.uuid, builder: (column) => column);
 
   GeneratedColumn<String> get workoutUuid => $composableBuilder(
     column: $table.workoutUuid,
@@ -11638,8 +11147,7 @@ class $$ExercisesTableAnnotationComposer
     builder: (column) => column,
   );
 
-  GeneratedColumn<String> get name =>
-      $composableBuilder(column: $table.name, builder: (column) => column);
+  GeneratedColumn<String> get name => $composableBuilder(column: $table.name, builder: (column) => column);
 
   GeneratedColumn<int> get muscleGroup => $composableBuilder(
     column: $table.muscleGroup,
@@ -11666,16 +11174,14 @@ class $$ExercisesTableAnnotationComposer
     builder: (column) => column,
   );
 
-  GeneratedColumn<String> get notes =>
-      $composableBuilder(column: $table.notes, builder: (column) => column);
+  GeneratedColumn<String> get notes => $composableBuilder(column: $table.notes, builder: (column) => column);
 
   GeneratedColumn<DateTime> get lastPerformed => $composableBuilder(
     column: $table.lastPerformed,
     builder: (column) => column,
   );
 
-  GeneratedColumn<String> get videoUrl =>
-      $composableBuilder(column: $table.videoUrl, builder: (column) => column);
+  GeneratedColumn<String> get videoUrl => $composableBuilder(column: $table.videoUrl, builder: (column) => column);
 
   GeneratedColumn<bool> get isNotePinned => $composableBuilder(
     column: $table.isNotePinned,
@@ -11705,8 +11211,7 @@ class $$ExercisesTableAnnotationComposer
             $table: $db.exerciseSets,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
           ),
     );
     return f(composer);
@@ -11715,26 +11220,24 @@ class $$ExercisesTableAnnotationComposer
   Expression<T> exerciseFeedbacksRefs<T extends Object>(
     Expression<T> Function($$ExerciseFeedbacksTableAnnotationComposer a) f,
   ) {
-    final $$ExerciseFeedbacksTableAnnotationComposer composer =
-        $composerBuilder(
-          composer: this,
-          getCurrentColumn: (t) => t.uuid,
-          referencedTable: $db.exerciseFeedbacks,
-          getReferencedColumn: (t) => t.exerciseUuid,
-          builder:
-              (
-                joinBuilder, {
-                $addJoinBuilderToRootComposer,
-                $removeJoinBuilderFromRootComposer,
-              }) => $$ExerciseFeedbacksTableAnnotationComposer(
-                $db: $db,
-                $table: $db.exerciseFeedbacks,
-                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-                joinBuilder: joinBuilder,
-                $removeJoinBuilderFromRootComposer:
-                    $removeJoinBuilderFromRootComposer,
-              ),
-        );
+    final $$ExerciseFeedbacksTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.uuid,
+      referencedTable: $db.exerciseFeedbacks,
+      getReferencedColumn: (t) => t.exerciseUuid,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ExerciseFeedbacksTableAnnotationComposer(
+            $db: $db,
+            $table: $db.exerciseFeedbacks,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
+          ),
+    );
     return f(composer);
   }
 }
@@ -11762,12 +11265,9 @@ class $$ExercisesTableTableManager
         TableManagerState(
           db: db,
           table: table,
-          createFilteringComposer: () =>
-              $$ExercisesTableFilterComposer($db: db, $table: table),
-          createOrderingComposer: () =>
-              $$ExercisesTableOrderingComposer($db: db, $table: table),
-          createComputedFieldComposer: () =>
-              $$ExercisesTableAnnotationComposer($db: db, $table: table),
+          createFilteringComposer: () => $$ExercisesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () => $$ExercisesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () => $$ExercisesTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
@@ -11844,63 +11344,48 @@ class $$ExercisesTableTableManager
                 ),
               )
               .toList(),
-          prefetchHooksCallback:
-              ({exerciseSetsRefs = false, exerciseFeedbacksRefs = false}) {
-                return PrefetchHooks(
-                  db: db,
-                  explicitlyWatchedTables: [
-                    if (exerciseSetsRefs) db.exerciseSets,
-                    if (exerciseFeedbacksRefs) db.exerciseFeedbacks,
-                  ],
-                  addJoins: null,
-                  getPrefetchedDataCallback: (items) async {
-                    return [
-                      if (exerciseSetsRefs)
-                        await $_getPrefetchedData<
-                          Exercise,
-                          $ExercisesTable,
-                          ExerciseSet
-                        >(
-                          currentTable: table,
-                          referencedTable: $$ExercisesTableReferences
-                              ._exerciseSetsRefsTable(db),
-                          managerFromTypedResult: (p0) =>
-                              $$ExercisesTableReferences(
-                                db,
-                                table,
-                                p0,
-                              ).exerciseSetsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.exerciseUuid == item.uuid,
-                              ),
-                          typedResults: items,
-                        ),
-                      if (exerciseFeedbacksRefs)
-                        await $_getPrefetchedData<
-                          Exercise,
-                          $ExercisesTable,
-                          ExerciseFeedback
-                        >(
-                          currentTable: table,
-                          referencedTable: $$ExercisesTableReferences
-                              ._exerciseFeedbacksRefsTable(db),
-                          managerFromTypedResult: (p0) =>
-                              $$ExercisesTableReferences(
-                                db,
-                                table,
-                                p0,
-                              ).exerciseFeedbacksRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.exerciseUuid == item.uuid,
-                              ),
-                          typedResults: items,
-                        ),
-                    ];
-                  },
-                );
+          prefetchHooksCallback: ({exerciseSetsRefs = false, exerciseFeedbacksRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [
+                if (exerciseSetsRefs) db.exerciseSets,
+                if (exerciseFeedbacksRefs) db.exerciseFeedbacks,
+              ],
+              addJoins: null,
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (exerciseSetsRefs)
+                    await $_getPrefetchedData<Exercise, $ExercisesTable, ExerciseSet>(
+                      currentTable: table,
+                      referencedTable: $$ExercisesTableReferences._exerciseSetsRefsTable(db),
+                      managerFromTypedResult: (p0) => $$ExercisesTableReferences(
+                        db,
+                        table,
+                        p0,
+                      ).exerciseSetsRefs,
+                      referencedItemsForCurrentItem: (item, referencedItems) => referencedItems.where(
+                        (e) => e.exerciseUuid == item.uuid,
+                      ),
+                      typedResults: items,
+                    ),
+                  if (exerciseFeedbacksRefs)
+                    await $_getPrefetchedData<Exercise, $ExercisesTable, ExerciseFeedback>(
+                      currentTable: table,
+                      referencedTable: $$ExercisesTableReferences._exerciseFeedbacksRefsTable(db),
+                      managerFromTypedResult: (p0) => $$ExercisesTableReferences(
+                        db,
+                        table,
+                        p0,
+                      ).exerciseFeedbacksRefs,
+                      referencedItemsForCurrentItem: (item, referencedItems) => referencedItems.where(
+                        (e) => e.exerciseUuid == item.uuid,
+                      ),
+                      typedResults: items,
+                    ),
+                ];
               },
+            );
+          },
         ),
       );
 }
@@ -11949,14 +11434,12 @@ typedef $$ExerciseSetsTableUpdateCompanionBuilder =
       Value<bool> isSkipped,
     });
 
-final class $$ExerciseSetsTableReferences
-    extends BaseReferences<_$AppDatabase, $ExerciseSetsTable, ExerciseSet> {
+final class $$ExerciseSetsTableReferences extends BaseReferences<_$AppDatabase, $ExerciseSetsTable, ExerciseSet> {
   $$ExerciseSetsTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
-  static $ExercisesTable _exerciseUuidTable(_$AppDatabase db) =>
-      db.exercises.createAlias(
-        $_aliasNameGenerator(db.exerciseSets.exerciseUuid, db.exercises.uuid),
-      );
+  static $ExercisesTable _exerciseUuidTable(_$AppDatabase db) => db.exercises.createAlias(
+    $_aliasNameGenerator(db.exerciseSets.exerciseUuid, db.exercises.uuid),
+  );
 
   $$ExercisesTableProcessedTableManager get exerciseUuid {
     final $_column = $_itemColumn<String>('exercise_uuid')!;
@@ -11973,8 +11456,7 @@ final class $$ExerciseSetsTableReferences
   }
 }
 
-class $$ExerciseSetsTableFilterComposer
-    extends Composer<_$AppDatabase, $ExerciseSetsTable> {
+class $$ExerciseSetsTableFilterComposer extends Composer<_$AppDatabase, $ExerciseSetsTable> {
   $$ExerciseSetsTableFilterComposer({
     required super.$db,
     required super.$table,
@@ -12043,16 +11525,14 @@ class $$ExerciseSetsTableFilterComposer
             $table: $db.exercises,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
           ),
     );
     return composer;
   }
 }
 
-class $$ExerciseSetsTableOrderingComposer
-    extends Composer<_$AppDatabase, $ExerciseSetsTable> {
+class $$ExerciseSetsTableOrderingComposer extends Composer<_$AppDatabase, $ExerciseSetsTable> {
   $$ExerciseSetsTableOrderingComposer({
     required super.$db,
     required super.$table,
@@ -12121,16 +11601,14 @@ class $$ExerciseSetsTableOrderingComposer
             $table: $db.exercises,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
           ),
     );
     return composer;
   }
 }
 
-class $$ExerciseSetsTableAnnotationComposer
-    extends Composer<_$AppDatabase, $ExerciseSetsTable> {
+class $$ExerciseSetsTableAnnotationComposer extends Composer<_$AppDatabase, $ExerciseSetsTable> {
   $$ExerciseSetsTableAnnotationComposer({
     required super.$db,
     required super.$table,
@@ -12138,32 +11616,23 @@ class $$ExerciseSetsTableAnnotationComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  GeneratedColumn<int> get id =>
-      $composableBuilder(column: $table.id, builder: (column) => column);
+  GeneratedColumn<int> get id => $composableBuilder(column: $table.id, builder: (column) => column);
 
-  GeneratedColumn<String> get uuid =>
-      $composableBuilder(column: $table.uuid, builder: (column) => column);
+  GeneratedColumn<String> get uuid => $composableBuilder(column: $table.uuid, builder: (column) => column);
 
-  GeneratedColumn<int> get setNumber =>
-      $composableBuilder(column: $table.setNumber, builder: (column) => column);
+  GeneratedColumn<int> get setNumber => $composableBuilder(column: $table.setNumber, builder: (column) => column);
 
-  GeneratedColumn<double> get weight =>
-      $composableBuilder(column: $table.weight, builder: (column) => column);
+  GeneratedColumn<double> get weight => $composableBuilder(column: $table.weight, builder: (column) => column);
 
-  GeneratedColumn<String> get reps =>
-      $composableBuilder(column: $table.reps, builder: (column) => column);
+  GeneratedColumn<String> get reps => $composableBuilder(column: $table.reps, builder: (column) => column);
 
-  GeneratedColumn<int> get setType =>
-      $composableBuilder(column: $table.setType, builder: (column) => column);
+  GeneratedColumn<int> get setType => $composableBuilder(column: $table.setType, builder: (column) => column);
 
-  GeneratedColumn<bool> get isLogged =>
-      $composableBuilder(column: $table.isLogged, builder: (column) => column);
+  GeneratedColumn<bool> get isLogged => $composableBuilder(column: $table.isLogged, builder: (column) => column);
 
-  GeneratedColumn<String> get notes =>
-      $composableBuilder(column: $table.notes, builder: (column) => column);
+  GeneratedColumn<String> get notes => $composableBuilder(column: $table.notes, builder: (column) => column);
 
-  GeneratedColumn<bool> get isSkipped =>
-      $composableBuilder(column: $table.isSkipped, builder: (column) => column);
+  GeneratedColumn<bool> get isSkipped => $composableBuilder(column: $table.isSkipped, builder: (column) => column);
 
   $$ExercisesTableAnnotationComposer get exerciseUuid {
     final $$ExercisesTableAnnotationComposer composer = $composerBuilder(
@@ -12181,8 +11650,7 @@ class $$ExerciseSetsTableAnnotationComposer
             $table: $db.exercises,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
           ),
     );
     return composer;
@@ -12209,12 +11677,9 @@ class $$ExerciseSetsTableTableManager
         TableManagerState(
           db: db,
           table: table,
-          createFilteringComposer: () =>
-              $$ExerciseSetsTableFilterComposer($db: db, $table: table),
-          createOrderingComposer: () =>
-              $$ExerciseSetsTableOrderingComposer($db: db, $table: table),
-          createComputedFieldComposer: () =>
-              $$ExerciseSetsTableAnnotationComposer($db: db, $table: table),
+          createFilteringComposer: () => $$ExerciseSetsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () => $$ExerciseSetsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () => $$ExerciseSetsTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
@@ -12296,11 +11761,8 @@ class $$ExerciseSetsTableTableManager
                           state.withJoin(
                                 currentTable: table,
                                 currentColumn: table.exerciseUuid,
-                                referencedTable: $$ExerciseSetsTableReferences
-                                    ._exerciseUuidTable(db),
-                                referencedColumn: $$ExerciseSetsTableReferences
-                                    ._exerciseUuidTable(db)
-                                    .uuid,
+                                referencedTable: $$ExerciseSetsTableReferences._exerciseUuidTable(db),
+                                referencedColumn: $$ExerciseSetsTableReferences._exerciseUuidTable(db).uuid,
                               )
                               as T;
                     }
@@ -12356,25 +11818,19 @@ typedef $$ExerciseFeedbacksTableUpdateCompanionBuilder =
     });
 
 final class $$ExerciseFeedbacksTableReferences
-    extends
-        BaseReferences<
-          _$AppDatabase,
-          $ExerciseFeedbacksTable,
-          ExerciseFeedback
-        > {
+    extends BaseReferences<_$AppDatabase, $ExerciseFeedbacksTable, ExerciseFeedback> {
   $$ExerciseFeedbacksTableReferences(
     super.$_db,
     super.$_table,
     super.$_typedResult,
   );
 
-  static $ExercisesTable _exerciseUuidTable(_$AppDatabase db) =>
-      db.exercises.createAlias(
-        $_aliasNameGenerator(
-          db.exerciseFeedbacks.exerciseUuid,
-          db.exercises.uuid,
-        ),
-      );
+  static $ExercisesTable _exerciseUuidTable(_$AppDatabase db) => db.exercises.createAlias(
+    $_aliasNameGenerator(
+      db.exerciseFeedbacks.exerciseUuid,
+      db.exercises.uuid,
+    ),
+  );
 
   $$ExercisesTableProcessedTableManager get exerciseUuid {
     final $_column = $_itemColumn<String>('exercise_uuid')!;
@@ -12391,8 +11847,7 @@ final class $$ExerciseFeedbacksTableReferences
   }
 }
 
-class $$ExerciseFeedbacksTableFilterComposer
-    extends Composer<_$AppDatabase, $ExerciseFeedbacksTable> {
+class $$ExerciseFeedbacksTableFilterComposer extends Composer<_$AppDatabase, $ExerciseFeedbacksTable> {
   $$ExerciseFeedbacksTableFilterComposer({
     required super.$db,
     required super.$table,
@@ -12456,16 +11911,14 @@ class $$ExerciseFeedbacksTableFilterComposer
             $table: $db.exercises,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
           ),
     );
     return composer;
   }
 }
 
-class $$ExerciseFeedbacksTableOrderingComposer
-    extends Composer<_$AppDatabase, $ExerciseFeedbacksTable> {
+class $$ExerciseFeedbacksTableOrderingComposer extends Composer<_$AppDatabase, $ExerciseFeedbacksTable> {
   $$ExerciseFeedbacksTableOrderingComposer({
     required super.$db,
     required super.$table,
@@ -12529,16 +11982,14 @@ class $$ExerciseFeedbacksTableOrderingComposer
             $table: $db.exercises,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
           ),
     );
     return composer;
   }
 }
 
-class $$ExerciseFeedbacksTableAnnotationComposer
-    extends Composer<_$AppDatabase, $ExerciseFeedbacksTable> {
+class $$ExerciseFeedbacksTableAnnotationComposer extends Composer<_$AppDatabase, $ExerciseFeedbacksTable> {
   $$ExerciseFeedbacksTableAnnotationComposer({
     required super.$db,
     required super.$table,
@@ -12546,35 +11997,30 @@ class $$ExerciseFeedbacksTableAnnotationComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  GeneratedColumn<int> get id =>
-      $composableBuilder(column: $table.id, builder: (column) => column);
+  GeneratedColumn<int> get id => $composableBuilder(column: $table.id, builder: (column) => column);
 
   GeneratedColumn<String> get sessionUuid => $composableBuilder(
     column: $table.sessionUuid,
     builder: (column) => column,
   );
 
-  GeneratedColumn<int> get jointPain =>
-      $composableBuilder(column: $table.jointPain, builder: (column) => column);
+  GeneratedColumn<int> get jointPain => $composableBuilder(column: $table.jointPain, builder: (column) => column);
 
   GeneratedColumn<int> get musclePump => $composableBuilder(
     column: $table.musclePump,
     builder: (column) => column,
   );
 
-  GeneratedColumn<int> get workload =>
-      $composableBuilder(column: $table.workload, builder: (column) => column);
+  GeneratedColumn<int> get workload => $composableBuilder(column: $table.workload, builder: (column) => column);
 
-  GeneratedColumn<int> get soreness =>
-      $composableBuilder(column: $table.soreness, builder: (column) => column);
+  GeneratedColumn<int> get soreness => $composableBuilder(column: $table.soreness, builder: (column) => column);
 
   GeneratedColumn<String> get muscleGroupSoreness => $composableBuilder(
     column: $table.muscleGroupSoreness,
     builder: (column) => column,
   );
 
-  GeneratedColumn<DateTime> get timestamp =>
-      $composableBuilder(column: $table.timestamp, builder: (column) => column);
+  GeneratedColumn<DateTime> get timestamp => $composableBuilder(column: $table.timestamp, builder: (column) => column);
 
   $$ExercisesTableAnnotationComposer get exerciseUuid {
     final $$ExercisesTableAnnotationComposer composer = $composerBuilder(
@@ -12592,8 +12038,7 @@ class $$ExerciseFeedbacksTableAnnotationComposer
             $table: $db.exercises,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
           ),
     );
     return composer;
@@ -12622,15 +12067,12 @@ class $$ExerciseFeedbacksTableTableManager
         TableManagerState(
           db: db,
           table: table,
-          createFilteringComposer: () =>
-              $$ExerciseFeedbacksTableFilterComposer($db: db, $table: table),
-          createOrderingComposer: () =>
-              $$ExerciseFeedbacksTableOrderingComposer($db: db, $table: table),
-          createComputedFieldComposer: () =>
-              $$ExerciseFeedbacksTableAnnotationComposer(
-                $db: db,
-                $table: table,
-              ),
+          createFilteringComposer: () => $$ExerciseFeedbacksTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () => $$ExerciseFeedbacksTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () => $$ExerciseFeedbacksTableAnnotationComposer(
+            $db: db,
+            $table: table,
+          ),
           updateCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
@@ -12708,13 +12150,8 @@ class $$ExerciseFeedbacksTableTableManager
                           state.withJoin(
                                 currentTable: table,
                                 currentColumn: table.exerciseUuid,
-                                referencedTable:
-                                    $$ExerciseFeedbacksTableReferences
-                                        ._exerciseUuidTable(db),
-                                referencedColumn:
-                                    $$ExerciseFeedbacksTableReferences
-                                        ._exerciseUuidTable(db)
-                                        .uuid,
+                                referencedTable: $$ExerciseFeedbacksTableReferences._exerciseUuidTable(db),
+                                referencedColumn: $$ExerciseFeedbacksTableReferences._exerciseUuidTable(db).uuid,
                               )
                               as T;
                     }
@@ -12769,8 +12206,7 @@ typedef $$CustomExerciseDefinitionsTableUpdateCompanionBuilder =
       Value<DateTime> createdAt,
     });
 
-class $$CustomExerciseDefinitionsTableFilterComposer
-    extends Composer<_$AppDatabase, $CustomExerciseDefinitionsTable> {
+class $$CustomExerciseDefinitionsTableFilterComposer extends Composer<_$AppDatabase, $CustomExerciseDefinitionsTable> {
   $$CustomExerciseDefinitionsTableFilterComposer({
     required super.$db,
     required super.$table,
@@ -12888,14 +12324,11 @@ class $$CustomExerciseDefinitionsTableAnnotationComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  GeneratedColumn<int> get id =>
-      $composableBuilder(column: $table.id, builder: (column) => column);
+  GeneratedColumn<int> get id => $composableBuilder(column: $table.id, builder: (column) => column);
 
-  GeneratedColumn<String> get uuid =>
-      $composableBuilder(column: $table.uuid, builder: (column) => column);
+  GeneratedColumn<String> get uuid => $composableBuilder(column: $table.uuid, builder: (column) => column);
 
-  GeneratedColumn<String> get name =>
-      $composableBuilder(column: $table.name, builder: (column) => column);
+  GeneratedColumn<String> get name => $composableBuilder(column: $table.name, builder: (column) => column);
 
   GeneratedColumn<int> get muscleGroup => $composableBuilder(
     column: $table.muscleGroup,
@@ -12912,16 +12345,14 @@ class $$CustomExerciseDefinitionsTableAnnotationComposer
     builder: (column) => column,
   );
 
-  GeneratedColumn<String> get videoUrl =>
-      $composableBuilder(column: $table.videoUrl, builder: (column) => column);
+  GeneratedColumn<String> get videoUrl => $composableBuilder(column: $table.videoUrl, builder: (column) => column);
 
   GeneratedColumn<int> get restSeconds => $composableBuilder(
     column: $table.restSeconds,
     builder: (column) => column,
   );
 
-  GeneratedColumn<DateTime> get createdAt =>
-      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+  GeneratedColumn<DateTime> get createdAt => $composableBuilder(column: $table.createdAt, builder: (column) => column);
 }
 
 class $$CustomExerciseDefinitionsTableTableManager
@@ -12937,11 +12368,7 @@ class $$CustomExerciseDefinitionsTableTableManager
           $$CustomExerciseDefinitionsTableUpdateCompanionBuilder,
           (
             CustomExerciseDefinition,
-            BaseReferences<
-              _$AppDatabase,
-              $CustomExerciseDefinitionsTable,
-              CustomExerciseDefinition
-            >,
+            BaseReferences<_$AppDatabase, $CustomExerciseDefinitionsTable, CustomExerciseDefinition>,
           ),
           CustomExerciseDefinition,
           PrefetchHooks Function()
@@ -12953,21 +12380,18 @@ class $$CustomExerciseDefinitionsTableTableManager
         TableManagerState(
           db: db,
           table: table,
-          createFilteringComposer: () =>
-              $$CustomExerciseDefinitionsTableFilterComposer(
-                $db: db,
-                $table: table,
-              ),
-          createOrderingComposer: () =>
-              $$CustomExerciseDefinitionsTableOrderingComposer(
-                $db: db,
-                $table: table,
-              ),
-          createComputedFieldComposer: () =>
-              $$CustomExerciseDefinitionsTableAnnotationComposer(
-                $db: db,
-                $table: table,
-              ),
+          createFilteringComposer: () => $$CustomExerciseDefinitionsTableFilterComposer(
+            $db: db,
+            $table: table,
+          ),
+          createOrderingComposer: () => $$CustomExerciseDefinitionsTableOrderingComposer(
+            $db: db,
+            $table: table,
+          ),
+          createComputedFieldComposer: () => $$CustomExerciseDefinitionsTableAnnotationComposer(
+            $db: db,
+            $table: table,
+          ),
           updateCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
@@ -13012,9 +12436,7 @@ class $$CustomExerciseDefinitionsTableTableManager
                 restSeconds: restSeconds,
                 createdAt: createdAt,
               ),
-          withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
-              .toList(),
+          withReferenceMapper: (p0) => p0.map((e) => (e.readTable(table), BaseReferences(db, table, e))).toList(),
           prefetchHooksCallback: null,
         ),
       );
@@ -13032,11 +12454,7 @@ typedef $$CustomExerciseDefinitionsTableProcessedTableManager =
       $$CustomExerciseDefinitionsTableUpdateCompanionBuilder,
       (
         CustomExerciseDefinition,
-        BaseReferences<
-          _$AppDatabase,
-          $CustomExerciseDefinitionsTable,
-          CustomExerciseDefinition
-        >,
+        BaseReferences<_$AppDatabase, $CustomExerciseDefinitionsTable, CustomExerciseDefinition>,
       ),
       CustomExerciseDefinition,
       PrefetchHooks Function()
@@ -13064,8 +12482,7 @@ typedef $$UserMeasurementsTableUpdateCompanionBuilder =
       Value<double?> leanMassKg,
     });
 
-class $$UserMeasurementsTableFilterComposer
-    extends Composer<_$AppDatabase, $UserMeasurementsTable> {
+class $$UserMeasurementsTableFilterComposer extends Composer<_$AppDatabase, $UserMeasurementsTable> {
   $$UserMeasurementsTableFilterComposer({
     required super.$db,
     required super.$table,
@@ -13114,8 +12531,7 @@ class $$UserMeasurementsTableFilterComposer
   );
 }
 
-class $$UserMeasurementsTableOrderingComposer
-    extends Composer<_$AppDatabase, $UserMeasurementsTable> {
+class $$UserMeasurementsTableOrderingComposer extends Composer<_$AppDatabase, $UserMeasurementsTable> {
   $$UserMeasurementsTableOrderingComposer({
     required super.$db,
     required super.$table,
@@ -13164,8 +12580,7 @@ class $$UserMeasurementsTableOrderingComposer
   );
 }
 
-class $$UserMeasurementsTableAnnotationComposer
-    extends Composer<_$AppDatabase, $UserMeasurementsTable> {
+class $$UserMeasurementsTableAnnotationComposer extends Composer<_$AppDatabase, $UserMeasurementsTable> {
   $$UserMeasurementsTableAnnotationComposer({
     required super.$db,
     required super.$table,
@@ -13173,23 +12588,17 @@ class $$UserMeasurementsTableAnnotationComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  GeneratedColumn<int> get id =>
-      $composableBuilder(column: $table.id, builder: (column) => column);
+  GeneratedColumn<int> get id => $composableBuilder(column: $table.id, builder: (column) => column);
 
-  GeneratedColumn<String> get uuid =>
-      $composableBuilder(column: $table.uuid, builder: (column) => column);
+  GeneratedColumn<String> get uuid => $composableBuilder(column: $table.uuid, builder: (column) => column);
 
-  GeneratedColumn<double> get heightCm =>
-      $composableBuilder(column: $table.heightCm, builder: (column) => column);
+  GeneratedColumn<double> get heightCm => $composableBuilder(column: $table.heightCm, builder: (column) => column);
 
-  GeneratedColumn<double> get weightKg =>
-      $composableBuilder(column: $table.weightKg, builder: (column) => column);
+  GeneratedColumn<double> get weightKg => $composableBuilder(column: $table.weightKg, builder: (column) => column);
 
-  GeneratedColumn<DateTime> get timestamp =>
-      $composableBuilder(column: $table.timestamp, builder: (column) => column);
+  GeneratedColumn<DateTime> get timestamp => $composableBuilder(column: $table.timestamp, builder: (column) => column);
 
-  GeneratedColumn<String> get notes =>
-      $composableBuilder(column: $table.notes, builder: (column) => column);
+  GeneratedColumn<String> get notes => $composableBuilder(column: $table.notes, builder: (column) => column);
 
   GeneratedColumn<double> get bodyFatPercent => $composableBuilder(
     column: $table.bodyFatPercent,
@@ -13215,11 +12624,7 @@ class $$UserMeasurementsTableTableManager
           $$UserMeasurementsTableUpdateCompanionBuilder,
           (
             UserMeasurement,
-            BaseReferences<
-              _$AppDatabase,
-              $UserMeasurementsTable,
-              UserMeasurement
-            >,
+            BaseReferences<_$AppDatabase, $UserMeasurementsTable, UserMeasurement>,
           ),
           UserMeasurement,
           PrefetchHooks Function()
@@ -13231,12 +12636,9 @@ class $$UserMeasurementsTableTableManager
         TableManagerState(
           db: db,
           table: table,
-          createFilteringComposer: () =>
-              $$UserMeasurementsTableFilterComposer($db: db, $table: table),
-          createOrderingComposer: () =>
-              $$UserMeasurementsTableOrderingComposer($db: db, $table: table),
-          createComputedFieldComposer: () =>
-              $$UserMeasurementsTableAnnotationComposer($db: db, $table: table),
+          createFilteringComposer: () => $$UserMeasurementsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () => $$UserMeasurementsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () => $$UserMeasurementsTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
@@ -13277,9 +12679,7 @@ class $$UserMeasurementsTableTableManager
                 bodyFatPercent: bodyFatPercent,
                 leanMassKg: leanMassKg,
               ),
-          withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
-              .toList(),
+          withReferenceMapper: (p0) => p0.map((e) => (e.readTable(table), BaseReferences(db, table, e))).toList(),
           prefetchHooksCallback: null,
         ),
       );
@@ -13360,8 +12760,7 @@ class $$SkinsTableFilterComposer extends Composer<_$AppDatabase, $SkinsTable> {
   );
 }
 
-class $$SkinsTableOrderingComposer
-    extends Composer<_$AppDatabase, $SkinsTable> {
+class $$SkinsTableOrderingComposer extends Composer<_$AppDatabase, $SkinsTable> {
   $$SkinsTableOrderingComposer({
     required super.$db,
     required super.$table,
@@ -13400,8 +12799,7 @@ class $$SkinsTableOrderingComposer
   );
 }
 
-class $$SkinsTableAnnotationComposer
-    extends Composer<_$AppDatabase, $SkinsTable> {
+class $$SkinsTableAnnotationComposer extends Composer<_$AppDatabase, $SkinsTable> {
   $$SkinsTableAnnotationComposer({
     required super.$db,
     required super.$table,
@@ -13409,23 +12807,17 @@ class $$SkinsTableAnnotationComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  GeneratedColumn<int> get id =>
-      $composableBuilder(column: $table.id, builder: (column) => column);
+  GeneratedColumn<int> get id => $composableBuilder(column: $table.id, builder: (column) => column);
 
-  GeneratedColumn<String> get uuid =>
-      $composableBuilder(column: $table.uuid, builder: (column) => column);
+  GeneratedColumn<String> get uuid => $composableBuilder(column: $table.uuid, builder: (column) => column);
 
-  GeneratedColumn<String> get name =>
-      $composableBuilder(column: $table.name, builder: (column) => column);
+  GeneratedColumn<String> get name => $composableBuilder(column: $table.name, builder: (column) => column);
 
-  GeneratedColumn<String> get skinJson =>
-      $composableBuilder(column: $table.skinJson, builder: (column) => column);
+  GeneratedColumn<String> get skinJson => $composableBuilder(column: $table.skinJson, builder: (column) => column);
 
-  GeneratedColumn<bool> get isActive =>
-      $composableBuilder(column: $table.isActive, builder: (column) => column);
+  GeneratedColumn<bool> get isActive => $composableBuilder(column: $table.isActive, builder: (column) => column);
 
-  GeneratedColumn<DateTime> get createdAt =>
-      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+  GeneratedColumn<DateTime> get createdAt => $composableBuilder(column: $table.createdAt, builder: (column) => column);
 }
 
 class $$SkinsTableTableManager
@@ -13448,12 +12840,9 @@ class $$SkinsTableTableManager
         TableManagerState(
           db: db,
           table: table,
-          createFilteringComposer: () =>
-              $$SkinsTableFilterComposer($db: db, $table: table),
-          createOrderingComposer: () =>
-              $$SkinsTableOrderingComposer($db: db, $table: table),
-          createComputedFieldComposer: () =>
-              $$SkinsTableAnnotationComposer($db: db, $table: table),
+          createFilteringComposer: () => $$SkinsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () => $$SkinsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () => $$SkinsTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
@@ -13486,9 +12875,7 @@ class $$SkinsTableTableManager
                 isActive: isActive,
                 createdAt: createdAt,
               ),
-          withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
-              .toList(),
+          withReferenceMapper: (p0) => p0.map((e) => (e.readTable(table), BaseReferences(db, table, e))).toList(),
           prefetchHooksCallback: null,
         ),
       );
@@ -13551,17 +12938,15 @@ typedef $$SessionsTableUpdateCompanionBuilder =
       Value<String?> ownerUuid,
     });
 
-final class $$SessionsTableReferences
-    extends BaseReferences<_$AppDatabase, $SessionsTable, Session> {
+final class $$SessionsTableReferences extends BaseReferences<_$AppDatabase, $SessionsTable, Session> {
   $$SessionsTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
-  static $TrainingCyclesTable _trainingCycleUuidTable(_$AppDatabase db) =>
-      db.trainingCycles.createAlias(
-        $_aliasNameGenerator(
-          db.sessions.trainingCycleUuid,
-          db.trainingCycles.uuid,
-        ),
-      );
+  static $TrainingCyclesTable _trainingCycleUuidTable(_$AppDatabase db) => db.trainingCycles.createAlias(
+    $_aliasNameGenerator(
+      db.sessions.trainingCycleUuid,
+      db.trainingCycles.uuid,
+    ),
+  );
 
   $$TrainingCyclesTableProcessedTableManager? get trainingCycleUuid {
     final $_column = $_itemColumn<String>('training_cycle_uuid');
@@ -13577,20 +12962,19 @@ final class $$SessionsTableReferences
     );
   }
 
-  static MultiTypedResultKey<$SessionCardioTable, List<SessionCardioData>>
-  _sessionCardioRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
-    db.sessionCardio,
-    aliasName: $_aliasNameGenerator(
-      db.sessions.uuid,
-      db.sessionCardio.sessionUuid,
-    ),
-  );
+  static MultiTypedResultKey<$SessionCardioTable, List<SessionCardioData>> _sessionCardioRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.sessionCardio,
+        aliasName: $_aliasNameGenerator(
+          db.sessions.uuid,
+          db.sessionCardio.sessionUuid,
+        ),
+      );
 
   $$SessionCardioTableProcessedTableManager get sessionCardioRefs {
-    final manager = $$SessionCardioTableTableManager($_db, $_db.sessionCardio)
-        .filter(
-          (f) => f.sessionUuid.uuid.sqlEquals($_itemColumn<String>('uuid')!),
-        );
+    final manager = $$SessionCardioTableTableManager($_db, $_db.sessionCardio).filter(
+      (f) => f.sessionUuid.uuid.sqlEquals($_itemColumn<String>('uuid')!),
+    );
 
     final cache = $_typedResult.readTableOrNull(_sessionCardioRefsTable($_db));
     return ProcessedTableManager(
@@ -13598,8 +12982,9 @@ final class $$SessionsTableReferences
     );
   }
 
-  static MultiTypedResultKey<$SessionIntervalsTable, List<SessionInterval>>
-  _sessionIntervalsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+  static MultiTypedResultKey<$SessionIntervalsTable, List<SessionInterval>> _sessionIntervalsRefsTable(
+    _$AppDatabase db,
+  ) => MultiTypedResultKey.fromTable(
     db.sessionIntervals,
     aliasName: $_aliasNameGenerator(
       db.sessions.uuid,
@@ -13608,10 +12993,9 @@ final class $$SessionsTableReferences
   );
 
   $$SessionIntervalsTableProcessedTableManager get sessionIntervalsRefs {
-    final manager =
-        $$SessionIntervalsTableTableManager($_db, $_db.sessionIntervals).filter(
-          (f) => f.sessionUuid.uuid.sqlEquals($_itemColumn<String>('uuid')!),
-        );
+    final manager = $$SessionIntervalsTableTableManager($_db, $_db.sessionIntervals).filter(
+      (f) => f.sessionUuid.uuid.sqlEquals($_itemColumn<String>('uuid')!),
+    );
 
     final cache = $_typedResult.readTableOrNull(
       _sessionIntervalsRefsTable($_db),
@@ -13621,20 +13005,19 @@ final class $$SessionsTableReferences
     );
   }
 
-  static MultiTypedResultKey<$SessionSamplesTable, List<SessionSample>>
-  _sessionSamplesRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
-    db.sessionSamples,
-    aliasName: $_aliasNameGenerator(
-      db.sessions.uuid,
-      db.sessionSamples.sessionUuid,
-    ),
-  );
+  static MultiTypedResultKey<$SessionSamplesTable, List<SessionSample>> _sessionSamplesRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.sessionSamples,
+        aliasName: $_aliasNameGenerator(
+          db.sessions.uuid,
+          db.sessionSamples.sessionUuid,
+        ),
+      );
 
   $$SessionSamplesTableProcessedTableManager get sessionSamplesRefs {
-    final manager = $$SessionSamplesTableTableManager($_db, $_db.sessionSamples)
-        .filter(
-          (f) => f.sessionUuid.uuid.sqlEquals($_itemColumn<String>('uuid')!),
-        );
+    final manager = $$SessionSamplesTableTableManager($_db, $_db.sessionSamples).filter(
+      (f) => f.sessionUuid.uuid.sqlEquals($_itemColumn<String>('uuid')!),
+    );
 
     final cache = $_typedResult.readTableOrNull(_sessionSamplesRefsTable($_db));
     return ProcessedTableManager(
@@ -13642,8 +13025,9 @@ final class $$SessionsTableReferences
     );
   }
 
-  static MultiTypedResultKey<$CardioFeedbackTable, List<CardioFeedbackData>>
-  _cardioFeedbackRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+  static MultiTypedResultKey<$CardioFeedbackTable, List<CardioFeedbackData>> _cardioFeedbackRefsTable(
+    _$AppDatabase db,
+  ) => MultiTypedResultKey.fromTable(
     db.cardioFeedback,
     aliasName: $_aliasNameGenerator(
       db.sessions.uuid,
@@ -13652,10 +13036,9 @@ final class $$SessionsTableReferences
   );
 
   $$CardioFeedbackTableProcessedTableManager get cardioFeedbackRefs {
-    final manager = $$CardioFeedbackTableTableManager($_db, $_db.cardioFeedback)
-        .filter(
-          (f) => f.sessionUuid.uuid.sqlEquals($_itemColumn<String>('uuid')!),
-        );
+    final manager = $$CardioFeedbackTableTableManager($_db, $_db.cardioFeedback).filter(
+      (f) => f.sessionUuid.uuid.sqlEquals($_itemColumn<String>('uuid')!),
+    );
 
     final cache = $_typedResult.readTableOrNull(_cardioFeedbackRefsTable($_db));
     return ProcessedTableManager(
@@ -13664,8 +13047,7 @@ final class $$SessionsTableReferences
   }
 }
 
-class $$SessionsTableFilterComposer
-    extends Composer<_$AppDatabase, $SessionsTable> {
+class $$SessionsTableFilterComposer extends Composer<_$AppDatabase, $SessionsTable> {
   $$SessionsTableFilterComposer({
     required super.$db,
     required super.$table,
@@ -13774,8 +13156,7 @@ class $$SessionsTableFilterComposer
             $table: $db.trainingCycles,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
           ),
     );
     return composer;
@@ -13799,8 +13180,7 @@ class $$SessionsTableFilterComposer
             $table: $db.sessionCardio,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
           ),
     );
     return f(composer);
@@ -13824,8 +13204,7 @@ class $$SessionsTableFilterComposer
             $table: $db.sessionIntervals,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
           ),
     );
     return f(composer);
@@ -13849,8 +13228,7 @@ class $$SessionsTableFilterComposer
             $table: $db.sessionSamples,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
           ),
     );
     return f(composer);
@@ -13874,16 +13252,14 @@ class $$SessionsTableFilterComposer
             $table: $db.cardioFeedback,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
           ),
     );
     return f(composer);
   }
 }
 
-class $$SessionsTableOrderingComposer
-    extends Composer<_$AppDatabase, $SessionsTable> {
+class $$SessionsTableOrderingComposer extends Composer<_$AppDatabase, $SessionsTable> {
   $$SessionsTableOrderingComposer({
     required super.$db,
     required super.$table,
@@ -13992,16 +13368,14 @@ class $$SessionsTableOrderingComposer
             $table: $db.trainingCycles,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
           ),
     );
     return composer;
   }
 }
 
-class $$SessionsTableAnnotationComposer
-    extends Composer<_$AppDatabase, $SessionsTable> {
+class $$SessionsTableAnnotationComposer extends Composer<_$AppDatabase, $SessionsTable> {
   $$SessionsTableAnnotationComposer({
     required super.$db,
     required super.$table,
@@ -14009,34 +13383,26 @@ class $$SessionsTableAnnotationComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  GeneratedColumn<int> get id =>
-      $composableBuilder(column: $table.id, builder: (column) => column);
+  GeneratedColumn<int> get id => $composableBuilder(column: $table.id, builder: (column) => column);
 
-  GeneratedColumn<String> get uuid =>
-      $composableBuilder(column: $table.uuid, builder: (column) => column);
+  GeneratedColumn<String> get uuid => $composableBuilder(column: $table.uuid, builder: (column) => column);
 
-  GeneratedColumn<int> get sport =>
-      $composableBuilder(column: $table.sport, builder: (column) => column);
+  GeneratedColumn<int> get sport => $composableBuilder(column: $table.sport, builder: (column) => column);
 
-  GeneratedColumn<int> get source =>
-      $composableBuilder(column: $table.source, builder: (column) => column);
+  GeneratedColumn<int> get source => $composableBuilder(column: $table.source, builder: (column) => column);
 
   GeneratedColumn<int> get periodNumber => $composableBuilder(
     column: $table.periodNumber,
     builder: (column) => column,
   );
 
-  GeneratedColumn<int> get dayNumber =>
-      $composableBuilder(column: $table.dayNumber, builder: (column) => column);
+  GeneratedColumn<int> get dayNumber => $composableBuilder(column: $table.dayNumber, builder: (column) => column);
 
-  GeneratedColumn<String> get dayName =>
-      $composableBuilder(column: $table.dayName, builder: (column) => column);
+  GeneratedColumn<String> get dayName => $composableBuilder(column: $table.dayName, builder: (column) => column);
 
-  GeneratedColumn<String> get label =>
-      $composableBuilder(column: $table.label, builder: (column) => column);
+  GeneratedColumn<String> get label => $composableBuilder(column: $table.label, builder: (column) => column);
 
-  GeneratedColumn<int> get status =>
-      $composableBuilder(column: $table.status, builder: (column) => column);
+  GeneratedColumn<int> get status => $composableBuilder(column: $table.status, builder: (column) => column);
 
   GeneratedColumn<DateTime> get scheduledDate => $composableBuilder(
     column: $table.scheduledDate,
@@ -14048,14 +13414,11 @@ class $$SessionsTableAnnotationComposer
     builder: (column) => column,
   );
 
-  GeneratedColumn<DateTime> get startTime =>
-      $composableBuilder(column: $table.startTime, builder: (column) => column);
+  GeneratedColumn<DateTime> get startTime => $composableBuilder(column: $table.startTime, builder: (column) => column);
 
-  GeneratedColumn<DateTime> get endTime =>
-      $composableBuilder(column: $table.endTime, builder: (column) => column);
+  GeneratedColumn<DateTime> get endTime => $composableBuilder(column: $table.endTime, builder: (column) => column);
 
-  GeneratedColumn<String> get notes =>
-      $composableBuilder(column: $table.notes, builder: (column) => column);
+  GeneratedColumn<String> get notes => $composableBuilder(column: $table.notes, builder: (column) => column);
 
   GeneratedColumn<String> get externalId => $composableBuilder(
     column: $table.externalId,
@@ -14067,8 +13430,7 @@ class $$SessionsTableAnnotationComposer
     builder: (column) => column,
   );
 
-  GeneratedColumn<String> get ownerUuid =>
-      $composableBuilder(column: $table.ownerUuid, builder: (column) => column);
+  GeneratedColumn<String> get ownerUuid => $composableBuilder(column: $table.ownerUuid, builder: (column) => column);
 
   $$TrainingCyclesTableAnnotationComposer get trainingCycleUuid {
     final $$TrainingCyclesTableAnnotationComposer composer = $composerBuilder(
@@ -14086,8 +13448,7 @@ class $$SessionsTableAnnotationComposer
             $table: $db.trainingCycles,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
           ),
     );
     return composer;
@@ -14111,8 +13472,7 @@ class $$SessionsTableAnnotationComposer
             $table: $db.sessionCardio,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
           ),
     );
     return f(composer);
@@ -14136,8 +13496,7 @@ class $$SessionsTableAnnotationComposer
             $table: $db.sessionIntervals,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
           ),
     );
     return f(composer);
@@ -14161,8 +13520,7 @@ class $$SessionsTableAnnotationComposer
             $table: $db.sessionSamples,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
           ),
     );
     return f(composer);
@@ -14186,8 +13544,7 @@ class $$SessionsTableAnnotationComposer
             $table: $db.cardioFeedback,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
           ),
     );
     return f(composer);
@@ -14220,12 +13577,9 @@ class $$SessionsTableTableManager
         TableManagerState(
           db: db,
           table: table,
-          createFilteringComposer: () =>
-              $$SessionsTableFilterComposer($db: db, $table: table),
-          createOrderingComposer: () =>
-              $$SessionsTableOrderingComposer($db: db, $table: table),
-          createComputedFieldComposer: () =>
-              $$SessionsTableAnnotationComposer($db: db, $table: table),
+          createFilteringComposer: () => $$SessionsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () => $$SessionsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () => $$SessionsTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
@@ -14351,11 +13705,8 @@ class $$SessionsTableTableManager
                               state.withJoin(
                                     currentTable: table,
                                     currentColumn: table.trainingCycleUuid,
-                                    referencedTable: $$SessionsTableReferences
-                                        ._trainingCycleUuidTable(db),
-                                    referencedColumn: $$SessionsTableReferences
-                                        ._trainingCycleUuidTable(db)
-                                        .uuid,
+                                    referencedTable: $$SessionsTableReferences._trainingCycleUuidTable(db),
+                                    referencedColumn: $$SessionsTableReferences._trainingCycleUuidTable(db).uuid,
                                   )
                                   as T;
                         }
@@ -14365,87 +13716,59 @@ class $$SessionsTableTableManager
                   getPrefetchedDataCallback: (items) async {
                     return [
                       if (sessionCardioRefs)
-                        await $_getPrefetchedData<
-                          Session,
-                          $SessionsTable,
-                          SessionCardioData
-                        >(
+                        await $_getPrefetchedData<Session, $SessionsTable, SessionCardioData>(
                           currentTable: table,
-                          referencedTable: $$SessionsTableReferences
-                              ._sessionCardioRefsTable(db),
-                          managerFromTypedResult: (p0) =>
-                              $$SessionsTableReferences(
-                                db,
-                                table,
-                                p0,
-                              ).sessionCardioRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.sessionUuid == item.uuid,
-                              ),
+                          referencedTable: $$SessionsTableReferences._sessionCardioRefsTable(db),
+                          managerFromTypedResult: (p0) => $$SessionsTableReferences(
+                            db,
+                            table,
+                            p0,
+                          ).sessionCardioRefs,
+                          referencedItemsForCurrentItem: (item, referencedItems) => referencedItems.where(
+                            (e) => e.sessionUuid == item.uuid,
+                          ),
                           typedResults: items,
                         ),
                       if (sessionIntervalsRefs)
-                        await $_getPrefetchedData<
-                          Session,
-                          $SessionsTable,
-                          SessionInterval
-                        >(
+                        await $_getPrefetchedData<Session, $SessionsTable, SessionInterval>(
                           currentTable: table,
-                          referencedTable: $$SessionsTableReferences
-                              ._sessionIntervalsRefsTable(db),
-                          managerFromTypedResult: (p0) =>
-                              $$SessionsTableReferences(
-                                db,
-                                table,
-                                p0,
-                              ).sessionIntervalsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.sessionUuid == item.uuid,
-                              ),
+                          referencedTable: $$SessionsTableReferences._sessionIntervalsRefsTable(db),
+                          managerFromTypedResult: (p0) => $$SessionsTableReferences(
+                            db,
+                            table,
+                            p0,
+                          ).sessionIntervalsRefs,
+                          referencedItemsForCurrentItem: (item, referencedItems) => referencedItems.where(
+                            (e) => e.sessionUuid == item.uuid,
+                          ),
                           typedResults: items,
                         ),
                       if (sessionSamplesRefs)
-                        await $_getPrefetchedData<
-                          Session,
-                          $SessionsTable,
-                          SessionSample
-                        >(
+                        await $_getPrefetchedData<Session, $SessionsTable, SessionSample>(
                           currentTable: table,
-                          referencedTable: $$SessionsTableReferences
-                              ._sessionSamplesRefsTable(db),
-                          managerFromTypedResult: (p0) =>
-                              $$SessionsTableReferences(
-                                db,
-                                table,
-                                p0,
-                              ).sessionSamplesRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.sessionUuid == item.uuid,
-                              ),
+                          referencedTable: $$SessionsTableReferences._sessionSamplesRefsTable(db),
+                          managerFromTypedResult: (p0) => $$SessionsTableReferences(
+                            db,
+                            table,
+                            p0,
+                          ).sessionSamplesRefs,
+                          referencedItemsForCurrentItem: (item, referencedItems) => referencedItems.where(
+                            (e) => e.sessionUuid == item.uuid,
+                          ),
                           typedResults: items,
                         ),
                       if (cardioFeedbackRefs)
-                        await $_getPrefetchedData<
-                          Session,
-                          $SessionsTable,
-                          CardioFeedbackData
-                        >(
+                        await $_getPrefetchedData<Session, $SessionsTable, CardioFeedbackData>(
                           currentTable: table,
-                          referencedTable: $$SessionsTableReferences
-                              ._cardioFeedbackRefsTable(db),
-                          managerFromTypedResult: (p0) =>
-                              $$SessionsTableReferences(
-                                db,
-                                table,
-                                p0,
-                              ).cardioFeedbackRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.sessionUuid == item.uuid,
-                              ),
+                          referencedTable: $$SessionsTableReferences._cardioFeedbackRefsTable(db),
+                          managerFromTypedResult: (p0) => $$SessionsTableReferences(
+                            db,
+                            table,
+                            p0,
+                          ).cardioFeedbackRefs,
+                          referencedItemsForCurrentItem: (item, referencedItems) => referencedItems.where(
+                            (e) => e.sessionUuid == item.uuid,
+                          ),
                           typedResults: items,
                         ),
                     ];
@@ -14499,17 +13822,15 @@ typedef $$CyclePeriodsTableUpdateCompanionBuilder =
       Value<String?> ownerUuid,
     });
 
-final class $$CyclePeriodsTableReferences
-    extends BaseReferences<_$AppDatabase, $CyclePeriodsTable, CyclePeriod> {
+final class $$CyclePeriodsTableReferences extends BaseReferences<_$AppDatabase, $CyclePeriodsTable, CyclePeriod> {
   $$CyclePeriodsTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
-  static $TrainingCyclesTable _trainingCycleUuidTable(_$AppDatabase db) =>
-      db.trainingCycles.createAlias(
-        $_aliasNameGenerator(
-          db.cyclePeriods.trainingCycleUuid,
-          db.trainingCycles.uuid,
-        ),
-      );
+  static $TrainingCyclesTable _trainingCycleUuidTable(_$AppDatabase db) => db.trainingCycles.createAlias(
+    $_aliasNameGenerator(
+      db.cyclePeriods.trainingCycleUuid,
+      db.trainingCycles.uuid,
+    ),
+  );
 
   $$TrainingCyclesTableProcessedTableManager get trainingCycleUuid {
     final $_column = $_itemColumn<String>('training_cycle_uuid')!;
@@ -14526,8 +13847,7 @@ final class $$CyclePeriodsTableReferences
   }
 }
 
-class $$CyclePeriodsTableFilterComposer
-    extends Composer<_$AppDatabase, $CyclePeriodsTable> {
+class $$CyclePeriodsTableFilterComposer extends Composer<_$AppDatabase, $CyclePeriodsTable> {
   $$CyclePeriodsTableFilterComposer({
     required super.$db,
     required super.$table,
@@ -14586,16 +13906,14 @@ class $$CyclePeriodsTableFilterComposer
             $table: $db.trainingCycles,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
           ),
     );
     return composer;
   }
 }
 
-class $$CyclePeriodsTableOrderingComposer
-    extends Composer<_$AppDatabase, $CyclePeriodsTable> {
+class $$CyclePeriodsTableOrderingComposer extends Composer<_$AppDatabase, $CyclePeriodsTable> {
   $$CyclePeriodsTableOrderingComposer({
     required super.$db,
     required super.$table,
@@ -14654,16 +13972,14 @@ class $$CyclePeriodsTableOrderingComposer
             $table: $db.trainingCycles,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
           ),
     );
     return composer;
   }
 }
 
-class $$CyclePeriodsTableAnnotationComposer
-    extends Composer<_$AppDatabase, $CyclePeriodsTable> {
+class $$CyclePeriodsTableAnnotationComposer extends Composer<_$AppDatabase, $CyclePeriodsTable> {
   $$CyclePeriodsTableAnnotationComposer({
     required super.$db,
     required super.$table,
@@ -14671,30 +13987,25 @@ class $$CyclePeriodsTableAnnotationComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  GeneratedColumn<int> get id =>
-      $composableBuilder(column: $table.id, builder: (column) => column);
+  GeneratedColumn<int> get id => $composableBuilder(column: $table.id, builder: (column) => column);
 
-  GeneratedColumn<String> get uuid =>
-      $composableBuilder(column: $table.uuid, builder: (column) => column);
+  GeneratedColumn<String> get uuid => $composableBuilder(column: $table.uuid, builder: (column) => column);
 
   GeneratedColumn<int> get periodNumber => $composableBuilder(
     column: $table.periodNumber,
     builder: (column) => column,
   );
 
-  GeneratedColumn<int> get phase =>
-      $composableBuilder(column: $table.phase, builder: (column) => column);
+  GeneratedColumn<int> get phase => $composableBuilder(column: $table.phase, builder: (column) => column);
 
-  GeneratedColumn<String> get notes =>
-      $composableBuilder(column: $table.notes, builder: (column) => column);
+  GeneratedColumn<String> get notes => $composableBuilder(column: $table.notes, builder: (column) => column);
 
   GeneratedColumn<String> get creatorUuid => $composableBuilder(
     column: $table.creatorUuid,
     builder: (column) => column,
   );
 
-  GeneratedColumn<String> get ownerUuid =>
-      $composableBuilder(column: $table.ownerUuid, builder: (column) => column);
+  GeneratedColumn<String> get ownerUuid => $composableBuilder(column: $table.ownerUuid, builder: (column) => column);
 
   $$TrainingCyclesTableAnnotationComposer get trainingCycleUuid {
     final $$TrainingCyclesTableAnnotationComposer composer = $composerBuilder(
@@ -14712,8 +14023,7 @@ class $$CyclePeriodsTableAnnotationComposer
             $table: $db.trainingCycles,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
           ),
     );
     return composer;
@@ -14740,12 +14050,9 @@ class $$CyclePeriodsTableTableManager
         TableManagerState(
           db: db,
           table: table,
-          createFilteringComposer: () =>
-              $$CyclePeriodsTableFilterComposer($db: db, $table: table),
-          createOrderingComposer: () =>
-              $$CyclePeriodsTableOrderingComposer($db: db, $table: table),
-          createComputedFieldComposer: () =>
-              $$CyclePeriodsTableAnnotationComposer($db: db, $table: table),
+          createFilteringComposer: () => $$CyclePeriodsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () => $$CyclePeriodsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () => $$CyclePeriodsTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
@@ -14819,11 +14126,8 @@ class $$CyclePeriodsTableTableManager
                           state.withJoin(
                                 currentTable: table,
                                 currentColumn: table.trainingCycleUuid,
-                                referencedTable: $$CyclePeriodsTableReferences
-                                    ._trainingCycleUuidTable(db),
-                                referencedColumn: $$CyclePeriodsTableReferences
-                                    ._trainingCycleUuidTable(db)
-                                    .uuid,
+                                referencedTable: $$CyclePeriodsTableReferences._trainingCycleUuidTable(db),
+                                referencedColumn: $$CyclePeriodsTableReferences._trainingCycleUuidTable(db).uuid,
                               )
                               as T;
                     }
@@ -14903,18 +14207,16 @@ typedef $$SessionCardioTableUpdateCompanionBuilder =
     });
 
 final class $$SessionCardioTableReferences
-    extends
-        BaseReferences<_$AppDatabase, $SessionCardioTable, SessionCardioData> {
+    extends BaseReferences<_$AppDatabase, $SessionCardioTable, SessionCardioData> {
   $$SessionCardioTableReferences(
     super.$_db,
     super.$_table,
     super.$_typedResult,
   );
 
-  static $SessionsTable _sessionUuidTable(_$AppDatabase db) =>
-      db.sessions.createAlias(
-        $_aliasNameGenerator(db.sessionCardio.sessionUuid, db.sessions.uuid),
-      );
+  static $SessionsTable _sessionUuidTable(_$AppDatabase db) => db.sessions.createAlias(
+    $_aliasNameGenerator(db.sessionCardio.sessionUuid, db.sessions.uuid),
+  );
 
   $$SessionsTableProcessedTableManager get sessionUuid {
     final $_column = $_itemColumn<String>('session_uuid')!;
@@ -14931,8 +14233,7 @@ final class $$SessionCardioTableReferences
   }
 }
 
-class $$SessionCardioTableFilterComposer
-    extends Composer<_$AppDatabase, $SessionCardioTable> {
+class $$SessionCardioTableFilterComposer extends Composer<_$AppDatabase, $SessionCardioTable> {
   $$SessionCardioTableFilterComposer({
     required super.$db,
     required super.$table,
@@ -15056,16 +14357,14 @@ class $$SessionCardioTableFilterComposer
             $table: $db.sessions,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
           ),
     );
     return composer;
   }
 }
 
-class $$SessionCardioTableOrderingComposer
-    extends Composer<_$AppDatabase, $SessionCardioTable> {
+class $$SessionCardioTableOrderingComposer extends Composer<_$AppDatabase, $SessionCardioTable> {
   $$SessionCardioTableOrderingComposer({
     required super.$db,
     required super.$table,
@@ -15189,16 +14488,14 @@ class $$SessionCardioTableOrderingComposer
             $table: $db.sessions,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
           ),
     );
     return composer;
   }
 }
 
-class $$SessionCardioTableAnnotationComposer
-    extends Composer<_$AppDatabase, $SessionCardioTable> {
+class $$SessionCardioTableAnnotationComposer extends Composer<_$AppDatabase, $SessionCardioTable> {
   $$SessionCardioTableAnnotationComposer({
     required super.$db,
     required super.$table,
@@ -15206,8 +14503,7 @@ class $$SessionCardioTableAnnotationComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  GeneratedColumn<int> get id =>
-      $composableBuilder(column: $table.id, builder: (column) => column);
+  GeneratedColumn<int> get id => $composableBuilder(column: $table.id, builder: (column) => column);
 
   GeneratedColumn<double> get plannedDistanceM => $composableBuilder(
     column: $table.plannedDistanceM,
@@ -15239,11 +14535,9 @@ class $$SessionCardioTableAnnotationComposer
     builder: (column) => column,
   );
 
-  GeneratedColumn<int> get averageHr =>
-      $composableBuilder(column: $table.averageHr, builder: (column) => column);
+  GeneratedColumn<int> get averageHr => $composableBuilder(column: $table.averageHr, builder: (column) => column);
 
-  GeneratedColumn<int> get maxHr =>
-      $composableBuilder(column: $table.maxHr, builder: (column) => column);
+  GeneratedColumn<int> get maxHr => $composableBuilder(column: $table.maxHr, builder: (column) => column);
 
   GeneratedColumn<double> get averageCadence => $composableBuilder(
     column: $table.averageCadence,
@@ -15280,19 +14574,16 @@ class $$SessionCardioTableAnnotationComposer
     builder: (column) => column,
   );
 
-  GeneratedColumn<int> get lapCount =>
-      $composableBuilder(column: $table.lapCount, builder: (column) => column);
+  GeneratedColumn<int> get lapCount => $composableBuilder(column: $table.lapCount, builder: (column) => column);
 
-  GeneratedColumn<int> get swolf =>
-      $composableBuilder(column: $table.swolf, builder: (column) => column);
+  GeneratedColumn<int> get swolf => $composableBuilder(column: $table.swolf, builder: (column) => column);
 
   GeneratedColumn<int> get perceivedExertion => $composableBuilder(
     column: $table.perceivedExertion,
     builder: (column) => column,
   );
 
-  GeneratedColumn<String> get notes =>
-      $composableBuilder(column: $table.notes, builder: (column) => column);
+  GeneratedColumn<String> get notes => $composableBuilder(column: $table.notes, builder: (column) => column);
 
   $$SessionsTableAnnotationComposer get sessionUuid {
     final $$SessionsTableAnnotationComposer composer = $composerBuilder(
@@ -15310,8 +14601,7 @@ class $$SessionCardioTableAnnotationComposer
             $table: $db.sessions,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
           ),
     );
     return composer;
@@ -15338,12 +14628,9 @@ class $$SessionCardioTableTableManager
         TableManagerState(
           db: db,
           table: table,
-          createFilteringComposer: () =>
-              $$SessionCardioTableFilterComposer($db: db, $table: table),
-          createOrderingComposer: () =>
-              $$SessionCardioTableOrderingComposer($db: db, $table: table),
-          createComputedFieldComposer: () =>
-              $$SessionCardioTableAnnotationComposer($db: db, $table: table),
+          createFilteringComposer: () => $$SessionCardioTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () => $$SessionCardioTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () => $$SessionCardioTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
@@ -15469,11 +14756,8 @@ class $$SessionCardioTableTableManager
                           state.withJoin(
                                 currentTable: table,
                                 currentColumn: table.sessionUuid,
-                                referencedTable: $$SessionCardioTableReferences
-                                    ._sessionUuidTable(db),
-                                referencedColumn: $$SessionCardioTableReferences
-                                    ._sessionUuidTable(db)
-                                    .uuid,
+                                referencedTable: $$SessionCardioTableReferences._sessionUuidTable(db),
+                                referencedColumn: $$SessionCardioTableReferences._sessionUuidTable(db).uuid,
                               )
                               as T;
                     }
@@ -15555,18 +14839,16 @@ typedef $$SessionIntervalsTableUpdateCompanionBuilder =
     });
 
 final class $$SessionIntervalsTableReferences
-    extends
-        BaseReferences<_$AppDatabase, $SessionIntervalsTable, SessionInterval> {
+    extends BaseReferences<_$AppDatabase, $SessionIntervalsTable, SessionInterval> {
   $$SessionIntervalsTableReferences(
     super.$_db,
     super.$_table,
     super.$_typedResult,
   );
 
-  static $SessionsTable _sessionUuidTable(_$AppDatabase db) =>
-      db.sessions.createAlias(
-        $_aliasNameGenerator(db.sessionIntervals.sessionUuid, db.sessions.uuid),
-      );
+  static $SessionsTable _sessionUuidTable(_$AppDatabase db) => db.sessions.createAlias(
+    $_aliasNameGenerator(db.sessionIntervals.sessionUuid, db.sessions.uuid),
+  );
 
   $$SessionsTableProcessedTableManager get sessionUuid {
     final $_column = $_itemColumn<String>('session_uuid')!;
@@ -15583,8 +14865,7 @@ final class $$SessionIntervalsTableReferences
   }
 }
 
-class $$SessionIntervalsTableFilterComposer
-    extends Composer<_$AppDatabase, $SessionIntervalsTable> {
+class $$SessionIntervalsTableFilterComposer extends Composer<_$AppDatabase, $SessionIntervalsTable> {
   $$SessionIntervalsTableFilterComposer({
     required super.$db,
     required super.$table,
@@ -15713,16 +14994,14 @@ class $$SessionIntervalsTableFilterComposer
             $table: $db.sessions,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
           ),
     );
     return composer;
   }
 }
 
-class $$SessionIntervalsTableOrderingComposer
-    extends Composer<_$AppDatabase, $SessionIntervalsTable> {
+class $$SessionIntervalsTableOrderingComposer extends Composer<_$AppDatabase, $SessionIntervalsTable> {
   $$SessionIntervalsTableOrderingComposer({
     required super.$db,
     required super.$table,
@@ -15810,11 +15089,10 @@ class $$SessionIntervalsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<double> get actualAveragePaceSecPerMeter =>
-      $composableBuilder(
-        column: $table.actualAveragePaceSecPerMeter,
-        builder: (column) => ColumnOrderings(column),
-      );
+  ColumnOrderings<double> get actualAveragePaceSecPerMeter => $composableBuilder(
+    column: $table.actualAveragePaceSecPerMeter,
+    builder: (column) => ColumnOrderings(column),
+  );
 
   ColumnOrderings<double> get actualAveragePowerWatts => $composableBuilder(
     column: $table.actualAveragePowerWatts,
@@ -15852,16 +15130,14 @@ class $$SessionIntervalsTableOrderingComposer
             $table: $db.sessions,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
           ),
     );
     return composer;
   }
 }
 
-class $$SessionIntervalsTableAnnotationComposer
-    extends Composer<_$AppDatabase, $SessionIntervalsTable> {
+class $$SessionIntervalsTableAnnotationComposer extends Composer<_$AppDatabase, $SessionIntervalsTable> {
   $$SessionIntervalsTableAnnotationComposer({
     required super.$db,
     required super.$table,
@@ -15869,11 +15145,9 @@ class $$SessionIntervalsTableAnnotationComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  GeneratedColumn<int> get id =>
-      $composableBuilder(column: $table.id, builder: (column) => column);
+  GeneratedColumn<int> get id => $composableBuilder(column: $table.id, builder: (column) => column);
 
-  GeneratedColumn<String> get uuid =>
-      $composableBuilder(column: $table.uuid, builder: (column) => column);
+  GeneratedColumn<String> get uuid => $composableBuilder(column: $table.uuid, builder: (column) => column);
 
   GeneratedColumn<int> get orderIndex => $composableBuilder(
     column: $table.orderIndex,
@@ -15945,11 +15219,10 @@ class $$SessionIntervalsTableAnnotationComposer
     builder: (column) => column,
   );
 
-  GeneratedColumn<double> get actualAveragePaceSecPerMeter =>
-      $composableBuilder(
-        column: $table.actualAveragePaceSecPerMeter,
-        builder: (column) => column,
-      );
+  GeneratedColumn<double> get actualAveragePaceSecPerMeter => $composableBuilder(
+    column: $table.actualAveragePaceSecPerMeter,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<double> get actualAveragePowerWatts => $composableBuilder(
     column: $table.actualAveragePowerWatts,
@@ -15966,8 +15239,7 @@ class $$SessionIntervalsTableAnnotationComposer
     builder: (column) => column,
   );
 
-  GeneratedColumn<String> get notes =>
-      $composableBuilder(column: $table.notes, builder: (column) => column);
+  GeneratedColumn<String> get notes => $composableBuilder(column: $table.notes, builder: (column) => column);
 
   $$SessionsTableAnnotationComposer get sessionUuid {
     final $$SessionsTableAnnotationComposer composer = $composerBuilder(
@@ -15985,8 +15257,7 @@ class $$SessionIntervalsTableAnnotationComposer
             $table: $db.sessions,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
           ),
     );
     return composer;
@@ -16015,12 +15286,9 @@ class $$SessionIntervalsTableTableManager
         TableManagerState(
           db: db,
           table: table,
-          createFilteringComposer: () =>
-              $$SessionIntervalsTableFilterComposer($db: db, $table: table),
-          createOrderingComposer: () =>
-              $$SessionIntervalsTableOrderingComposer($db: db, $table: table),
-          createComputedFieldComposer: () =>
-              $$SessionIntervalsTableAnnotationComposer($db: db, $table: table),
+          createFilteringComposer: () => $$SessionIntervalsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () => $$SessionIntervalsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () => $$SessionIntervalsTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
@@ -16040,8 +15308,7 @@ class $$SessionIntervalsTableTableManager
                 Value<int?> actualDurationSec = const Value.absent(),
                 Value<double?> actualDistanceM = const Value.absent(),
                 Value<int?> actualAverageHr = const Value.absent(),
-                Value<double?> actualAveragePaceSecPerMeter =
-                    const Value.absent(),
+                Value<double?> actualAveragePaceSecPerMeter = const Value.absent(),
                 Value<double?> actualAveragePowerWatts = const Value.absent(),
                 Value<int?> repeatCount = const Value.absent(),
                 Value<String?> parentIntervalUuid = const Value.absent(),
@@ -16089,8 +15356,7 @@ class $$SessionIntervalsTableTableManager
                 Value<int?> actualDurationSec = const Value.absent(),
                 Value<double?> actualDistanceM = const Value.absent(),
                 Value<int?> actualAverageHr = const Value.absent(),
-                Value<double?> actualAveragePaceSecPerMeter =
-                    const Value.absent(),
+                Value<double?> actualAveragePaceSecPerMeter = const Value.absent(),
                 Value<double?> actualAveragePowerWatts = const Value.absent(),
                 Value<int?> repeatCount = const Value.absent(),
                 Value<String?> parentIntervalUuid = const Value.absent(),
@@ -16152,13 +15418,8 @@ class $$SessionIntervalsTableTableManager
                           state.withJoin(
                                 currentTable: table,
                                 currentColumn: table.sessionUuid,
-                                referencedTable:
-                                    $$SessionIntervalsTableReferences
-                                        ._sessionUuidTable(db),
-                                referencedColumn:
-                                    $$SessionIntervalsTableReferences
-                                        ._sessionUuidTable(db)
-                                        .uuid,
+                                referencedTable: $$SessionIntervalsTableReferences._sessionUuidTable(db),
+                                referencedColumn: $$SessionIntervalsTableReferences._sessionUuidTable(db).uuid,
                               )
                               as T;
                     }
@@ -16217,18 +15478,16 @@ typedef $$SessionSamplesTableUpdateCompanionBuilder =
       Value<double?> strokeRate,
     });
 
-final class $$SessionSamplesTableReferences
-    extends BaseReferences<_$AppDatabase, $SessionSamplesTable, SessionSample> {
+final class $$SessionSamplesTableReferences extends BaseReferences<_$AppDatabase, $SessionSamplesTable, SessionSample> {
   $$SessionSamplesTableReferences(
     super.$_db,
     super.$_table,
     super.$_typedResult,
   );
 
-  static $SessionsTable _sessionUuidTable(_$AppDatabase db) =>
-      db.sessions.createAlias(
-        $_aliasNameGenerator(db.sessionSamples.sessionUuid, db.sessions.uuid),
-      );
+  static $SessionsTable _sessionUuidTable(_$AppDatabase db) => db.sessions.createAlias(
+    $_aliasNameGenerator(db.sessionSamples.sessionUuid, db.sessions.uuid),
+  );
 
   $$SessionsTableProcessedTableManager get sessionUuid {
     final $_column = $_itemColumn<String>('session_uuid')!;
@@ -16245,8 +15504,7 @@ final class $$SessionSamplesTableReferences
   }
 }
 
-class $$SessionSamplesTableFilterComposer
-    extends Composer<_$AppDatabase, $SessionSamplesTable> {
+class $$SessionSamplesTableFilterComposer extends Composer<_$AppDatabase, $SessionSamplesTable> {
   $$SessionSamplesTableFilterComposer({
     required super.$db,
     required super.$table,
@@ -16320,16 +15578,14 @@ class $$SessionSamplesTableFilterComposer
             $table: $db.sessions,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
           ),
     );
     return composer;
   }
 }
 
-class $$SessionSamplesTableOrderingComposer
-    extends Composer<_$AppDatabase, $SessionSamplesTable> {
+class $$SessionSamplesTableOrderingComposer extends Composer<_$AppDatabase, $SessionSamplesTable> {
   $$SessionSamplesTableOrderingComposer({
     required super.$db,
     required super.$table,
@@ -16403,16 +15659,14 @@ class $$SessionSamplesTableOrderingComposer
             $table: $db.sessions,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
           ),
     );
     return composer;
   }
 }
 
-class $$SessionSamplesTableAnnotationComposer
-    extends Composer<_$AppDatabase, $SessionSamplesTable> {
+class $$SessionSamplesTableAnnotationComposer extends Composer<_$AppDatabase, $SessionSamplesTable> {
   $$SessionSamplesTableAnnotationComposer({
     required super.$db,
     required super.$table,
@@ -16420,32 +15674,23 @@ class $$SessionSamplesTableAnnotationComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  GeneratedColumn<int> get id =>
-      $composableBuilder(column: $table.id, builder: (column) => column);
+  GeneratedColumn<int> get id => $composableBuilder(column: $table.id, builder: (column) => column);
 
-  GeneratedColumn<int> get offsetSec =>
-      $composableBuilder(column: $table.offsetSec, builder: (column) => column);
+  GeneratedColumn<int> get offsetSec => $composableBuilder(column: $table.offsetSec, builder: (column) => column);
 
-  GeneratedColumn<double> get lat =>
-      $composableBuilder(column: $table.lat, builder: (column) => column);
+  GeneratedColumn<double> get lat => $composableBuilder(column: $table.lat, builder: (column) => column);
 
-  GeneratedColumn<double> get lng =>
-      $composableBuilder(column: $table.lng, builder: (column) => column);
+  GeneratedColumn<double> get lng => $composableBuilder(column: $table.lng, builder: (column) => column);
 
-  GeneratedColumn<double> get altitudeM =>
-      $composableBuilder(column: $table.altitudeM, builder: (column) => column);
+  GeneratedColumn<double> get altitudeM => $composableBuilder(column: $table.altitudeM, builder: (column) => column);
 
-  GeneratedColumn<int> get hr =>
-      $composableBuilder(column: $table.hr, builder: (column) => column);
+  GeneratedColumn<int> get hr => $composableBuilder(column: $table.hr, builder: (column) => column);
 
-  GeneratedColumn<double> get cadence =>
-      $composableBuilder(column: $table.cadence, builder: (column) => column);
+  GeneratedColumn<double> get cadence => $composableBuilder(column: $table.cadence, builder: (column) => column);
 
-  GeneratedColumn<double> get powerW =>
-      $composableBuilder(column: $table.powerW, builder: (column) => column);
+  GeneratedColumn<double> get powerW => $composableBuilder(column: $table.powerW, builder: (column) => column);
 
-  GeneratedColumn<double> get speedMps =>
-      $composableBuilder(column: $table.speedMps, builder: (column) => column);
+  GeneratedColumn<double> get speedMps => $composableBuilder(column: $table.speedMps, builder: (column) => column);
 
   GeneratedColumn<double> get strokeRate => $composableBuilder(
     column: $table.strokeRate,
@@ -16468,8 +15713,7 @@ class $$SessionSamplesTableAnnotationComposer
             $table: $db.sessions,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
           ),
     );
     return composer;
@@ -16498,12 +15742,9 @@ class $$SessionSamplesTableTableManager
         TableManagerState(
           db: db,
           table: table,
-          createFilteringComposer: () =>
-              $$SessionSamplesTableFilterComposer($db: db, $table: table),
-          createOrderingComposer: () =>
-              $$SessionSamplesTableOrderingComposer($db: db, $table: table),
-          createComputedFieldComposer: () =>
-              $$SessionSamplesTableAnnotationComposer($db: db, $table: table),
+          createFilteringComposer: () => $$SessionSamplesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () => $$SessionSamplesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () => $$SessionSamplesTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
@@ -16589,12 +15830,8 @@ class $$SessionSamplesTableTableManager
                           state.withJoin(
                                 currentTable: table,
                                 currentColumn: table.sessionUuid,
-                                referencedTable: $$SessionSamplesTableReferences
-                                    ._sessionUuidTable(db),
-                                referencedColumn:
-                                    $$SessionSamplesTableReferences
-                                        ._sessionUuidTable(db)
-                                        .uuid,
+                                referencedTable: $$SessionSamplesTableReferences._sessionUuidTable(db),
+                                referencedColumn: $$SessionSamplesTableReferences._sessionUuidTable(db).uuid,
                               )
                               as T;
                     }
@@ -16649,8 +15886,7 @@ typedef $$SportZonesTableUpdateCompanionBuilder =
       Value<DateTime> createdAt,
     });
 
-class $$SportZonesTableFilterComposer
-    extends Composer<_$AppDatabase, $SportZonesTable> {
+class $$SportZonesTableFilterComposer extends Composer<_$AppDatabase, $SportZonesTable> {
   $$SportZonesTableFilterComposer({
     required super.$db,
     required super.$table,
@@ -16704,8 +15940,7 @@ class $$SportZonesTableFilterComposer
   );
 }
 
-class $$SportZonesTableOrderingComposer
-    extends Composer<_$AppDatabase, $SportZonesTable> {
+class $$SportZonesTableOrderingComposer extends Composer<_$AppDatabase, $SportZonesTable> {
   $$SportZonesTableOrderingComposer({
     required super.$db,
     required super.$table,
@@ -16759,8 +15994,7 @@ class $$SportZonesTableOrderingComposer
   );
 }
 
-class $$SportZonesTableAnnotationComposer
-    extends Composer<_$AppDatabase, $SportZonesTable> {
+class $$SportZonesTableAnnotationComposer extends Composer<_$AppDatabase, $SportZonesTable> {
   $$SportZonesTableAnnotationComposer({
     required super.$db,
     required super.$table,
@@ -16768,34 +16002,26 @@ class $$SportZonesTableAnnotationComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  GeneratedColumn<int> get id =>
-      $composableBuilder(column: $table.id, builder: (column) => column);
+  GeneratedColumn<int> get id => $composableBuilder(column: $table.id, builder: (column) => column);
 
-  GeneratedColumn<String> get uuid =>
-      $composableBuilder(column: $table.uuid, builder: (column) => column);
+  GeneratedColumn<String> get uuid => $composableBuilder(column: $table.uuid, builder: (column) => column);
 
-  GeneratedColumn<int> get sport =>
-      $composableBuilder(column: $table.sport, builder: (column) => column);
+  GeneratedColumn<int> get sport => $composableBuilder(column: $table.sport, builder: (column) => column);
 
   GeneratedColumn<int> get zoneNumber => $composableBuilder(
     column: $table.zoneNumber,
     builder: (column) => column,
   );
 
-  GeneratedColumn<double> get minValue =>
-      $composableBuilder(column: $table.minValue, builder: (column) => column);
+  GeneratedColumn<double> get minValue => $composableBuilder(column: $table.minValue, builder: (column) => column);
 
-  GeneratedColumn<double> get maxValue =>
-      $composableBuilder(column: $table.maxValue, builder: (column) => column);
+  GeneratedColumn<double> get maxValue => $composableBuilder(column: $table.maxValue, builder: (column) => column);
 
-  GeneratedColumn<String> get unit =>
-      $composableBuilder(column: $table.unit, builder: (column) => column);
+  GeneratedColumn<String> get unit => $composableBuilder(column: $table.unit, builder: (column) => column);
 
-  GeneratedColumn<String> get ownerUuid =>
-      $composableBuilder(column: $table.ownerUuid, builder: (column) => column);
+  GeneratedColumn<String> get ownerUuid => $composableBuilder(column: $table.ownerUuid, builder: (column) => column);
 
-  GeneratedColumn<DateTime> get createdAt =>
-      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+  GeneratedColumn<DateTime> get createdAt => $composableBuilder(column: $table.createdAt, builder: (column) => column);
 }
 
 class $$SportZonesTableTableManager
@@ -16821,12 +16047,9 @@ class $$SportZonesTableTableManager
         TableManagerState(
           db: db,
           table: table,
-          createFilteringComposer: () =>
-              $$SportZonesTableFilterComposer($db: db, $table: table),
-          createOrderingComposer: () =>
-              $$SportZonesTableOrderingComposer($db: db, $table: table),
-          createComputedFieldComposer: () =>
-              $$SportZonesTableAnnotationComposer($db: db, $table: table),
+          createFilteringComposer: () => $$SportZonesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () => $$SportZonesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () => $$SportZonesTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
@@ -16871,9 +16094,7 @@ class $$SportZonesTableTableManager
                 ownerUuid: ownerUuid,
                 createdAt: createdAt,
               ),
-          withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
-              .toList(),
+          withReferenceMapper: (p0) => p0.map((e) => (e.readTable(table), BaseReferences(db, table, e))).toList(),
           prefetchHooksCallback: null,
         ),
       );
@@ -16921,22 +16142,16 @@ typedef $$CardioFeedbackTableUpdateCompanionBuilder =
     });
 
 final class $$CardioFeedbackTableReferences
-    extends
-        BaseReferences<
-          _$AppDatabase,
-          $CardioFeedbackTable,
-          CardioFeedbackData
-        > {
+    extends BaseReferences<_$AppDatabase, $CardioFeedbackTable, CardioFeedbackData> {
   $$CardioFeedbackTableReferences(
     super.$_db,
     super.$_table,
     super.$_typedResult,
   );
 
-  static $SessionsTable _sessionUuidTable(_$AppDatabase db) =>
-      db.sessions.createAlias(
-        $_aliasNameGenerator(db.cardioFeedback.sessionUuid, db.sessions.uuid),
-      );
+  static $SessionsTable _sessionUuidTable(_$AppDatabase db) => db.sessions.createAlias(
+    $_aliasNameGenerator(db.cardioFeedback.sessionUuid, db.sessions.uuid),
+  );
 
   $$SessionsTableProcessedTableManager get sessionUuid {
     final $_column = $_itemColumn<String>('session_uuid')!;
@@ -16953,8 +16168,7 @@ final class $$CardioFeedbackTableReferences
   }
 }
 
-class $$CardioFeedbackTableFilterComposer
-    extends Composer<_$AppDatabase, $CardioFeedbackTable> {
+class $$CardioFeedbackTableFilterComposer extends Composer<_$AppDatabase, $CardioFeedbackTable> {
   $$CardioFeedbackTableFilterComposer({
     required super.$db,
     required super.$table,
@@ -17023,16 +16237,14 @@ class $$CardioFeedbackTableFilterComposer
             $table: $db.sessions,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
           ),
     );
     return composer;
   }
 }
 
-class $$CardioFeedbackTableOrderingComposer
-    extends Composer<_$AppDatabase, $CardioFeedbackTable> {
+class $$CardioFeedbackTableOrderingComposer extends Composer<_$AppDatabase, $CardioFeedbackTable> {
   $$CardioFeedbackTableOrderingComposer({
     required super.$db,
     required super.$table,
@@ -17101,16 +16313,14 @@ class $$CardioFeedbackTableOrderingComposer
             $table: $db.sessions,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
           ),
     );
     return composer;
   }
 }
 
-class $$CardioFeedbackTableAnnotationComposer
-    extends Composer<_$AppDatabase, $CardioFeedbackTable> {
+class $$CardioFeedbackTableAnnotationComposer extends Composer<_$AppDatabase, $CardioFeedbackTable> {
   $$CardioFeedbackTableAnnotationComposer({
     required super.$db,
     required super.$table,
@@ -17118,34 +16328,26 @@ class $$CardioFeedbackTableAnnotationComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  GeneratedColumn<int> get id =>
-      $composableBuilder(column: $table.id, builder: (column) => column);
+  GeneratedColumn<int> get id => $composableBuilder(column: $table.id, builder: (column) => column);
 
-  GeneratedColumn<int> get rpe =>
-      $composableBuilder(column: $table.rpe, builder: (column) => column);
+  GeneratedColumn<int> get rpe => $composableBuilder(column: $table.rpe, builder: (column) => column);
 
-  GeneratedColumn<int> get breathing =>
-      $composableBuilder(column: $table.breathing, builder: (column) => column);
+  GeneratedColumn<int> get breathing => $composableBuilder(column: $table.breathing, builder: (column) => column);
 
-  GeneratedColumn<int> get giComfort =>
-      $composableBuilder(column: $table.giComfort, builder: (column) => column);
+  GeneratedColumn<int> get giComfort => $composableBuilder(column: $table.giComfort, builder: (column) => column);
 
-  GeneratedColumn<String> get weather =>
-      $composableBuilder(column: $table.weather, builder: (column) => column);
+  GeneratedColumn<String> get weather => $composableBuilder(column: $table.weather, builder: (column) => column);
 
-  GeneratedColumn<String> get notes =>
-      $composableBuilder(column: $table.notes, builder: (column) => column);
+  GeneratedColumn<String> get notes => $composableBuilder(column: $table.notes, builder: (column) => column);
 
-  GeneratedColumn<DateTime> get timestamp =>
-      $composableBuilder(column: $table.timestamp, builder: (column) => column);
+  GeneratedColumn<DateTime> get timestamp => $composableBuilder(column: $table.timestamp, builder: (column) => column);
 
   GeneratedColumn<String> get creatorUuid => $composableBuilder(
     column: $table.creatorUuid,
     builder: (column) => column,
   );
 
-  GeneratedColumn<String> get ownerUuid =>
-      $composableBuilder(column: $table.ownerUuid, builder: (column) => column);
+  GeneratedColumn<String> get ownerUuid => $composableBuilder(column: $table.ownerUuid, builder: (column) => column);
 
   $$SessionsTableAnnotationComposer get sessionUuid {
     final $$SessionsTableAnnotationComposer composer = $composerBuilder(
@@ -17163,8 +16365,7 @@ class $$CardioFeedbackTableAnnotationComposer
             $table: $db.sessions,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
           ),
     );
     return composer;
@@ -17193,12 +16394,9 @@ class $$CardioFeedbackTableTableManager
         TableManagerState(
           db: db,
           table: table,
-          createFilteringComposer: () =>
-              $$CardioFeedbackTableFilterComposer($db: db, $table: table),
-          createOrderingComposer: () =>
-              $$CardioFeedbackTableOrderingComposer($db: db, $table: table),
-          createComputedFieldComposer: () =>
-              $$CardioFeedbackTableAnnotationComposer($db: db, $table: table),
+          createFilteringComposer: () => $$CardioFeedbackTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () => $$CardioFeedbackTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () => $$CardioFeedbackTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
@@ -17280,12 +16478,8 @@ class $$CardioFeedbackTableTableManager
                           state.withJoin(
                                 currentTable: table,
                                 currentColumn: table.sessionUuid,
-                                referencedTable: $$CardioFeedbackTableReferences
-                                    ._sessionUuidTable(db),
-                                referencedColumn:
-                                    $$CardioFeedbackTableReferences
-                                        ._sessionUuidTable(db)
-                                        .uuid,
+                                referencedTable: $$CardioFeedbackTableReferences._sessionUuidTable(db),
+                                referencedColumn: $$CardioFeedbackTableReferences._sessionUuidTable(db).uuid,
                               )
                               as T;
                     }
@@ -17319,12 +16513,9 @@ typedef $$CardioFeedbackTableProcessedTableManager =
 class $AppDatabaseManager {
   final _$AppDatabase _db;
   $AppDatabaseManager(this._db);
-  $$TrainingCyclesTableTableManager get trainingCycles =>
-      $$TrainingCyclesTableTableManager(_db, _db.trainingCycles);
-  $$ExercisesTableTableManager get exercises =>
-      $$ExercisesTableTableManager(_db, _db.exercises);
-  $$ExerciseSetsTableTableManager get exerciseSets =>
-      $$ExerciseSetsTableTableManager(_db, _db.exerciseSets);
+  $$TrainingCyclesTableTableManager get trainingCycles => $$TrainingCyclesTableTableManager(_db, _db.trainingCycles);
+  $$ExercisesTableTableManager get exercises => $$ExercisesTableTableManager(_db, _db.exercises);
+  $$ExerciseSetsTableTableManager get exerciseSets => $$ExerciseSetsTableTableManager(_db, _db.exerciseSets);
   $$ExerciseFeedbacksTableTableManager get exerciseFeedbacks =>
       $$ExerciseFeedbacksTableTableManager(_db, _db.exerciseFeedbacks);
   $$CustomExerciseDefinitionsTableTableManager get customExerciseDefinitions =>
@@ -17334,20 +16525,13 @@ class $AppDatabaseManager {
       );
   $$UserMeasurementsTableTableManager get userMeasurements =>
       $$UserMeasurementsTableTableManager(_db, _db.userMeasurements);
-  $$SkinsTableTableManager get skins =>
-      $$SkinsTableTableManager(_db, _db.skins);
-  $$SessionsTableTableManager get sessions =>
-      $$SessionsTableTableManager(_db, _db.sessions);
-  $$CyclePeriodsTableTableManager get cyclePeriods =>
-      $$CyclePeriodsTableTableManager(_db, _db.cyclePeriods);
-  $$SessionCardioTableTableManager get sessionCardio =>
-      $$SessionCardioTableTableManager(_db, _db.sessionCardio);
+  $$SkinsTableTableManager get skins => $$SkinsTableTableManager(_db, _db.skins);
+  $$SessionsTableTableManager get sessions => $$SessionsTableTableManager(_db, _db.sessions);
+  $$CyclePeriodsTableTableManager get cyclePeriods => $$CyclePeriodsTableTableManager(_db, _db.cyclePeriods);
+  $$SessionCardioTableTableManager get sessionCardio => $$SessionCardioTableTableManager(_db, _db.sessionCardio);
   $$SessionIntervalsTableTableManager get sessionIntervals =>
       $$SessionIntervalsTableTableManager(_db, _db.sessionIntervals);
-  $$SessionSamplesTableTableManager get sessionSamples =>
-      $$SessionSamplesTableTableManager(_db, _db.sessionSamples);
-  $$SportZonesTableTableManager get sportZones =>
-      $$SportZonesTableTableManager(_db, _db.sportZones);
-  $$CardioFeedbackTableTableManager get cardioFeedback =>
-      $$CardioFeedbackTableTableManager(_db, _db.cardioFeedback);
+  $$SessionSamplesTableTableManager get sessionSamples => $$SessionSamplesTableTableManager(_db, _db.sessionSamples);
+  $$SportZonesTableTableManager get sportZones => $$SportZonesTableTableManager(_db, _db.sportZones);
+  $$CardioFeedbackTableTableManager get cardioFeedback => $$CardioFeedbackTableTableManager(_db, _db.cardioFeedback);
 }

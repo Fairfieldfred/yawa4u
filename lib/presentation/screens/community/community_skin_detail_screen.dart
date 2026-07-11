@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+import '../../../core/extensions/context_extensions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme/skins/skins.dart';
@@ -23,13 +25,7 @@ class _CommunitySkinDetailScreenState extends ConsumerState<CommunitySkinDetailS
   Future<void> _download() async {
     final l10n = AppLocalizations.of(context)!;
     if (widget.skin.skin == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(l10n.communityInvalidThemeData),
-          backgroundColor: context.errorColor,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+      context.showErrorSnackBar(l10n.communityInvalidThemeData);
       return;
     }
 
@@ -48,24 +44,12 @@ class _CommunitySkinDetailScreenState extends ConsumerState<CommunitySkinDetailS
           _isDownloading = false;
           _downloaded = true;
         });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(l10n.communitySavedToThemes(widget.skin.name)),
-            backgroundColor: context.successColor,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
+        context.showSuccessSnackBar(l10n.communitySavedToThemes(widget.skin.name));
       }
     } catch (e) {
       if (mounted) {
         setState(() => _isDownloading = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(l10n.communityDownloadFailed(e)),
-            backgroundColor: context.errorColor,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
+        context.showErrorSnackBar(l10n.communityDownloadFailed(e));
       }
     }
   }

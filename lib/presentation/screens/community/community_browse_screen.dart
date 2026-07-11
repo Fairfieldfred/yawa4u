@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+import '../../../core/extensions/context_extensions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -7,6 +9,7 @@ import '../../../data/repositories/community_repository.dart';
 import '../../../domain/providers/auth_providers.dart';
 import '../../../domain/providers/community_providers.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../widgets/auth/email_link_prompt.dart';
 import 'community_skin_detail_screen.dart';
 import '../../widgets/skeleton_loader.dart';
 import 'community_template_detail_screen.dart';
@@ -34,7 +37,7 @@ class _CommunityBrowseScreenState extends ConsumerState<CommunityBrowseScreen> w
     _tabController = TabController(
       length: 3,
       vsync: this,
-      initialIndex: widget.initialTab,
+      initialIndex: widget.initialTab.clamp(0, 2),
     );
   }
 
@@ -63,39 +66,45 @@ class _CommunityBrowseScreenState extends ConsumerState<CommunityBrowseScreen> w
           ],
         ),
         actions: [
-          if (canUpload)
-            PopupMenuButton<String>(
-              icon: const Icon(Icons.upload_outlined),
-              tooltip: l10n.communityUploadTooltip,
-              onSelected: (value) {
-                switch (value) {
-                  case 'template':
-                    context.push('/community/upload-template');
-                  case 'skin':
-                    context.push('/community/upload-skin');
-                }
-              },
-              itemBuilder: (_) => [
-                PopupMenuItem(
-                  value: 'template',
-                  child: ListTile(
-                    leading: const Icon(Icons.fitness_center),
-                    title: Text(l10n.communityShareProgram),
-                    contentPadding: EdgeInsets.zero,
-                    visualDensity: VisualDensity.compact,
-                  ),
+          // Always visible so uploading is discoverable — unverified users
+          // get the email link prompt instead of a hidden button.
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.upload_outlined),
+            tooltip: l10n.communityUploadTooltip,
+            onSelected: (value) async {
+              if (!canUpload) {
+                final verified = await showEmailLinkPrompt(context);
+                if (verified != true || !context.mounted) return;
+              }
+              if (!context.mounted) return;
+              switch (value) {
+                case 'template':
+                  context.push('/community/upload-template');
+                case 'skin':
+                  context.push('/community/upload-skin');
+              }
+            },
+            itemBuilder: (_) => [
+              PopupMenuItem(
+                value: 'template',
+                child: ListTile(
+                  leading: const Icon(Icons.fitness_center),
+                  title: Text(l10n.communityShareProgram),
+                  contentPadding: EdgeInsets.zero,
+                  visualDensity: VisualDensity.compact,
                 ),
-                PopupMenuItem(
-                  value: 'skin',
-                  child: ListTile(
-                    leading: const Icon(Icons.palette),
-                    title: Text(l10n.communityShareTheme),
-                    contentPadding: EdgeInsets.zero,
-                    visualDensity: VisualDensity.compact,
-                  ),
+              ),
+              PopupMenuItem(
+                value: 'skin',
+                child: ListTile(
+                  leading: const Icon(Icons.palette),
+                  title: Text(l10n.communityShareTheme),
+                  contentPadding: EdgeInsets.zero,
+                  visualDensity: VisualDensity.compact,
                 ),
-              ],
-            ),
+              ),
+            ],
+          ),
         ],
       ),
       body: TabBarView(
@@ -386,6 +395,12 @@ class _MyUploadsTab extends ConsumerWidget {
                 color: colorScheme.onSurface.withValues(alpha: 0.5),
               ),
             ),
+            const SizedBox(height: 16),
+            FilledButton.icon(
+              onPressed: () => showEmailLinkPrompt(context),
+              icon: const Icon(Icons.login),
+              label: Text(l10n.communitySignInButton),
+            ),
           ],
         ),
       );
@@ -514,23 +529,11 @@ class _MyUploadsTab extends ConsumerWidget {
         ref.invalidate(myUploadedTemplatesProvider);
         ref.invalidate(communityTemplatesProvider);
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(l10n.communityItemDeleted(item.template.name)),
-              backgroundColor: context.successColor,
-              behavior: SnackBarBehavior.floating,
-            ),
-          );
+          context.showSuccessSnackBar(l10n.communityItemDeleted(item.template.name));
         }
       } catch (e) {
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(l10n.communityFailedToDelete(e)),
-              backgroundColor: context.errorColor,
-              behavior: SnackBarBehavior.floating,
-            ),
-          );
+          context.showErrorSnackBar(l10n.communityFailedToDelete(e));
         }
       }
     }
@@ -572,23 +575,11 @@ class _MyUploadsTab extends ConsumerWidget {
         ref.invalidate(myUploadedSkinsProvider);
         ref.invalidate(communitySkinsProvider);
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(l10n.communityItemDeleted(item.name)),
-              backgroundColor: context.successColor,
-              behavior: SnackBarBehavior.floating,
-            ),
-          );
+          context.showSuccessSnackBar(l10n.communityItemDeleted(item.name));
         }
       } catch (e) {
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(l10n.communityFailedToDelete(e)),
-              backgroundColor: context.errorColor,
-              behavior: SnackBarBehavior.floating,
-            ),
-          );
+          context.showErrorSnackBar(l10n.communityFailedToDelete(e));
         }
       }
     }

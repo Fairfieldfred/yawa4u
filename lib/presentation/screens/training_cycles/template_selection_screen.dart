@@ -1,5 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+
+import '../../../core/extensions/context_extensions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -350,23 +352,11 @@ class _TemplateSelectionScreenState extends ConsumerState<TemplateSelectionScree
         ref.invalidate(availableTemplatesProvider);
 
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(l10n.templateSelectionDeletedSnackbar(template.name)),
-              backgroundColor: context.successColor,
-              behavior: SnackBarBehavior.floating,
-            ),
-          );
+          context.showSuccessSnackBar(l10n.templateSelectionDeletedSnackbar(template.name));
         }
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(l10n.templateSelectionDeleteError(e)),
-              backgroundColor: context.errorColor,
-              behavior: SnackBarBehavior.floating,
-            ),
-          );
+          context.showErrorSnackBar(l10n.templateSelectionDeleteError(e));
         }
       }
     }

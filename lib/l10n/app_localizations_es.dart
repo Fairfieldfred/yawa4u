@@ -2812,6 +2812,67 @@ class AppLocalizationsEs extends AppLocalizations {
   String get integrationsStravaDisconnectConfirm => 'Desconectar';
 
   @override
+  String get exerciseCardHistoryRetry => 'No se pudo cargar el historial — toca para reintentar';
+
+  @override
+  String get cycleComparisonLoadError => 'No se pudieron cargar las estadísticas del ciclo';
+
+  @override
+  String calendarDropdownPeriodAdded(Object number) {
+    return 'Período $number añadido';
+  }
+
+  @override
+  String get calendarDropdownCannotRemovePeriod => 'No se puede eliminar: debe haber al menos 1 período';
+
+  @override
+  String calendarDropdownPeriodRemoved(Object number) {
+    return 'Período $number eliminado';
+  }
+
+  @override
+  String get integrationsUnknownError => 'Error desconocido';
+
+  @override
+  String integrationsLastRunSummary(Object total, Object imported, Object duplicates, Object unsupported) {
+    return 'Última ejecución: $total encontrados · $imported importados · $duplicates ya existentes · $unsupported no-cardio omitidos';
+  }
+
+  @override
+  String get integrationsAppleHealthRequired => 'Se necesita acceso a Apple Health';
+
+  @override
+  String get integrationsAppleHealthIntro =>
+      'YAWA4U lee entrenamientos de Apple Health. El acceso fue denegado o aún no se ha concedido.';
+
+  @override
+  String get integrationsAppleHealthStep1 => '1. Abre Ajustes → Salud → Acceso a datos y dispositivos';
+
+  @override
+  String get integrationsAppleHealthStep2 => '2. Elige YAWA4U';
+
+  @override
+  String get integrationsAppleHealthStep3 => '3. Activa las categorías de entrenamiento que quieras compartir';
+
+  @override
+  String get integrationsOpenSettings => 'Abrir Ajustes';
+
+  @override
+  String get communitySignInButton => 'Iniciar sesión';
+
+  @override
+  String communityTemplateSaved(Object name) {
+    return '\"$name\" guardado — ciclo borrador creado';
+  }
+
+  @override
+  String get statsNoStrengthTitle => 'Aún no hay entrenamientos registrados';
+
+  @override
+  String get statsNoStrengthSubtitle =>
+      'Las estadísticas aparecerán aquí cuando registres tu primer entrenamiento de fuerza.';
+
+  @override
   String get syncWithAnotherDevice => 'Sincronizar con otro dispositivo';
 
   @override

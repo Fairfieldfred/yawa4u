@@ -1,6 +1,13 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'dart:io' show Platform;
 
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/material.dart';
+
+import '../../../core/extensions/context_extensions.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+import '../../../core/theme/skins/skins.dart';
 import '../../../data/services/health_sync_service.dart';
 import '../../../data/services/strava_integration_service.dart';
 import '../../../domain/providers/health_providers.dart';
@@ -36,9 +43,7 @@ class _IntegrationsScreenState extends ConsumerState<IntegrationsScreen> {
     ref.invalidate(healthSyncStatusProvider);
     if (!mounted) return;
     if (granted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppLocalizations.of(context)!.integrationsHealthPermissionsGranted)),
-      );
+      context.showSnackBar(AppLocalizations.of(context)!.integrationsHealthPermissionsGranted);
     } else {
       _showHealthConnectGuide();
     }
@@ -46,6 +51,9 @@ class _IntegrationsScreenState extends ConsumerState<IntegrationsScreen> {
   }
 
   void _showHealthConnectGuide() {
+    // The denied-permission path differs per platform: iOS grants happen in
+    // the Health app / iOS Settings, Android's in the Health Connect app.
+    final isIOS = !kIsWeb && Platform.isIOS;
     showDialog(
       context: context,
       builder: (context) {
@@ -56,27 +64,48 @@ class _IntegrationsScreenState extends ConsumerState<IntegrationsScreen> {
           ),
           title: Row(
             children: [
-              const Icon(Icons.health_and_safety, color: Colors.green),
+              Icon(Icons.health_and_safety, color: context.successColor),
               const SizedBox(width: 12),
-              Expanded(child: Text(l10n.integrationsHealthConnectRequired)),
+              Expanded(
+                child: Text(
+                  isIOS ? l10n.integrationsAppleHealthRequired : l10n.integrationsHealthConnectRequired,
+                ),
+              ),
             ],
           ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(l10n.integrationsHealthConnectIntro),
-              const SizedBox(height: 16),
-              Text(l10n.integrationsHealthConnectStep1),
-              const SizedBox(height: 8),
-              Text(l10n.integrationsHealthConnectStep2),
-              const SizedBox(height: 8),
-              Text(l10n.integrationsHealthConnectStep3),
-              const SizedBox(height: 8),
-              Text(l10n.integrationsHealthConnectStep4),
-            ],
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: isIOS
+                  ? [
+                      Text(l10n.integrationsAppleHealthIntro),
+                      const SizedBox(height: 16),
+                      Text(l10n.integrationsAppleHealthStep1),
+                      const SizedBox(height: 8),
+                      Text(l10n.integrationsAppleHealthStep2),
+                      const SizedBox(height: 8),
+                      Text(l10n.integrationsAppleHealthStep3),
+                    ]
+                  : [
+                      Text(l10n.integrationsHealthConnectIntro),
+                      const SizedBox(height: 16),
+                      Text(l10n.integrationsHealthConnectStep1),
+                      const SizedBox(height: 8),
+                      Text(l10n.integrationsHealthConnectStep2),
+                      const SizedBox(height: 8),
+                      Text(l10n.integrationsHealthConnectStep3),
+                      const SizedBox(height: 8),
+                      Text(l10n.integrationsHealthConnectStep4),
+                    ],
+            ),
           ),
           actions: [
+            if (isIOS)
+              TextButton(
+                onPressed: () => launchUrl(Uri.parse('app-settings:')),
+                child: Text(l10n.integrationsOpenSettings),
+              ),
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
               child: Text(l10n.integrationsGotIt),
@@ -108,20 +137,14 @@ class _IntegrationsScreenState extends ConsumerState<IntegrationsScreen> {
             result.skippedUnsupportedType,
           )
         : l10n.integrationsHealthSyncFailed(result.error ?? '');
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(text)));
+    context.showSnackBar(text);
   }
 
   Future<void> _resetCursor() async {
     await ref.read(healthSyncServiceProvider).resetCursor();
     ref.invalidate(healthSyncStatusProvider);
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(AppLocalizations.of(context)!.integrationsResetCursorMessage),
-      ),
-    );
+    context.showSnackBar(AppLocalizations.of(context)!.integrationsResetCursorMessage);
     setState(() {});
   }
 
@@ -212,13 +235,7 @@ class _StravaCardState extends ConsumerState<_StravaCard> {
     ref.invalidate(stravaSyncStatusProvider);
     if (!mounted) return;
     final l10n = AppLocalizations.of(context)!;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          success ? l10n.integrationsStravaConnected : l10n.integrationsStravaConnectFailed,
-        ),
-      ),
-    );
+    context.showSnackBar(success ? l10n.integrationsStravaConnected : l10n.integrationsStravaConnectFailed);
     setState(() => _busy = false);
   }
 
@@ -241,9 +258,7 @@ class _StravaCardState extends ConsumerState<_StravaCard> {
             result.skippedUnsupportedType,
           )
         : l10nStrava.integrationsStravaSyncFailed(result.error ?? '');
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(text)));
+    context.showSnackBar(text);
   }
 
   Future<void> _disconnect() async {
@@ -644,7 +659,7 @@ class _ResultLine extends StatelessWidget {
       return Padding(
         padding: const EdgeInsets.only(top: 4),
         child: Text(
-          result.error ?? 'Unknown error',
+          result.error ?? AppLocalizations.of(context)!.integrationsUnknownError,
           style: TextStyle(color: Theme.of(context).colorScheme.error),
         ),
       );
@@ -652,12 +667,12 @@ class _ResultLine extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(top: 4),
       child: Text(
-        'Last run: ${result.totalPoints} found · '
-        '+${result.imported} imported'
-        '${result.inferred > 0 ? ' · ${result.inferred} inferred' : ''}'
-        ' · ${result.skippedDuplicate} already here'
-        ' · ${result.skippedUnsupportedType} non-cardio skipped'
-        '${result.failed > 0 ? ' · ${result.failed} failed' : ''}',
+        AppLocalizations.of(context)!.integrationsLastRunSummary(
+          result.totalPoints,
+          result.imported,
+          result.skippedDuplicate,
+          result.skippedUnsupportedType,
+        ),
         style: Theme.of(context).textTheme.bodySmall,
       ),
     );

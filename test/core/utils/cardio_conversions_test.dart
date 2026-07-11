@@ -316,15 +316,13 @@ void main() {
     group('formatPace', () {
       test('formats metric run pace', () {
         // 0.3 sec/m = 300 sec/km = 5:00/km
-        final result =
-            CardioConversions.formatPace(0.3, UnitSystem.metric);
+        final result = CardioConversions.formatPace(0.3, UnitSystem.metric);
         expect(result, contains('/km'));
         expect(result, contains('5:00'));
       });
 
       test('formats imperial run pace', () {
-        final result =
-            CardioConversions.formatPace(0.3, UnitSystem.imperial);
+        final result = CardioConversions.formatPace(0.3, UnitSystem.imperial);
         expect(result, contains('/mi'));
       });
 
@@ -374,8 +372,7 @@ void main() {
 
       test('formats imperial speed in mph', () {
         // 10 m/s = 36 km/h = 22.4 mph
-        final result =
-            CardioConversions.formatSpeed(10, UnitSystem.imperial);
+        final result = CardioConversions.formatSpeed(10, UnitSystem.imperial);
         expect(result, contains('mph'));
         expect(result, contains('22.4'));
       });

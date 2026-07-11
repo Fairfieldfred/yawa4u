@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+import '../../../core/extensions/context_extensions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uuid/uuid.dart';
@@ -526,22 +528,18 @@ class _AddExerciseScreenState extends ConsumerState<AddExerciseScreen> {
     // Show confirmation and go back
     if (mounted) {
       final l10n = AppLocalizations.of(context)!;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            isReplacing
-                ? l10n.addExerciseReplaced(
-                    context.localizedExerciseName(
-                      existingExercise?.name ?? 'Exercise',
-                    ),
-                    context.localizedExerciseName(exerciseDef.name),
-                  )
-                : l10n.addExerciseAdded(
-                    context.localizedExerciseName(exerciseDef.name),
-                  ),
-          ),
-          duration: const Duration(seconds: 2),
-        ),
+      context.showSnackBar(
+        isReplacing
+            ? l10n.addExerciseReplaced(
+                context.localizedExerciseName(
+                  existingExercise?.name ?? 'Exercise',
+                ),
+                context.localizedExerciseName(exerciseDef.name),
+              )
+            : l10n.addExerciseAdded(
+                context.localizedExerciseName(exerciseDef.name),
+              ),
+        duration: const Duration(seconds: 2),
       );
 
       // Use Navigator.pop to work with both Navigator.push and GoRouter

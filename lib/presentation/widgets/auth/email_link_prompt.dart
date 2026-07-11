@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+import '../../../core/extensions/context_extensions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme/skins/skins.dart';
@@ -200,9 +202,7 @@ class _EmailLinkSheetState extends ConsumerState<_EmailLinkSheet> {
     if (result != null) {
       setState(() => _error = result);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppLocalizations.of(context)!.authVerificationSent)),
-      );
+      context.showSnackBar(AppLocalizations.of(context)!.authVerificationSent);
     }
   }
 

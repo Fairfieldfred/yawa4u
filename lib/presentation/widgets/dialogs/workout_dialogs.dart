@@ -98,20 +98,23 @@ class _NoteDialogState extends State<NoteDialog> {
           color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(20),
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _buildHeader(context, l10n),
-            const SizedBox(height: 24),
-            _buildNoteField(context, l10n),
-            if (_isExerciseNote) ...[
-              const SizedBox(height: 16),
-              _buildPinCheckbox(context, l10n),
+        // Scrollable so large text scales / small screens never overflow.
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _buildHeader(context, l10n),
+              const SizedBox(height: 24),
+              _buildNoteField(context, l10n),
+              if (_isExerciseNote) ...[
+                const SizedBox(height: 16),
+                _buildPinCheckbox(context, l10n),
+              ],
+              const SizedBox(height: 24),
+              _buildActions(context, l10n),
             ],
-            const SizedBox(height: 24),
-            _buildActions(context, l10n),
-          ],
+          ),
         ),
       ),
     );
@@ -274,16 +277,19 @@ class _RenameTrainingCycleDialogState extends State<RenameTrainingCycleDialog> {
           color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(20),
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _buildHeader(context, l10n),
-            const SizedBox(height: 24),
-            _buildNameField(context, l10n),
-            const SizedBox(height: 24),
-            _buildActions(context, l10n),
-          ],
+        // Scrollable so large text scales / small screens never overflow.
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _buildHeader(context, l10n),
+              const SizedBox(height: 24),
+              _buildNameField(context, l10n),
+              const SizedBox(height: 24),
+              _buildActions(context, l10n),
+            ],
+          ),
         ),
       ),
     );
@@ -443,20 +449,23 @@ class _RelabelDayDialogState extends State<RelabelDayDialog> {
           color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(20),
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _buildHeader(context, l10n),
-            const SizedBox(height: 16),
-            _buildDescription(context, l10n),
-            const SizedBox(height: 24),
-            _buildDaySelector(context, l10n),
-            const SizedBox(height: 24),
-            _buildApplyToAllCheckbox(context, l10n),
-            const SizedBox(height: 32),
-            _buildActions(context, l10n),
-          ],
+        // Scrollable so large text scales / small screens never overflow.
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _buildHeader(context, l10n),
+              const SizedBox(height: 16),
+              _buildDescription(context, l10n),
+              const SizedBox(height: 24),
+              _buildDaySelector(context, l10n),
+              const SizedBox(height: 24),
+              _buildApplyToAllCheckbox(context, l10n),
+              const SizedBox(height: 32),
+              _buildActions(context, l10n),
+            ],
+          ),
         ),
       ),
     );

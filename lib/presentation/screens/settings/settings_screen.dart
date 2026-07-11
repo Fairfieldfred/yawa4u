@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+import '../../../core/extensions/context_extensions.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -263,9 +265,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     });
 
     if (mounted) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.settingsSavedMessage)));
+      context.showSnackBar(AppLocalizations.of(context)!.settingsSavedMessage);
     }
   }
 
@@ -440,10 +440,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     Expanded(
                       child: TextFormField(
                         controller: _heightInchesController,
-                        decoration: const InputDecoration(
-                          labelText: '',
+                        decoration: InputDecoration(
+                          labelText: l10n.inchesLabel,
                           suffixText: 'in',
-                          border: OutlineInputBorder(),
+                          border: const OutlineInputBorder(),
                         ),
                         keyboardType: TextInputType.number,
                         inputFormatters: [

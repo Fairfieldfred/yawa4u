@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
+
+import '../../../core/extensions/context_extensions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uuid/uuid.dart';
@@ -178,12 +180,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> with Widg
     } catch (e) {
       if (!mounted) return;
       final l10n = AppLocalizations.of(context)!;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(l10n.workoutActionError(e)),
-          backgroundColor: context.errorColor,
-        ),
-      );
+      context.showErrorSnackBar(l10n.workoutActionError(e));
     }
   }
 
@@ -2431,21 +2428,11 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> with Widg
         await repository.update(updatedTrainingCycle);
 
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(l10n.noteSaved),
-              backgroundColor: context.successColor,
-            ),
-          );
+          context.showSuccessSnackBar(l10n.noteSaved);
         }
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(l10n.noteSaveError(e)),
-              backgroundColor: context.errorColor,
-            ),
-          );
+          context.showErrorSnackBar(l10n.noteSaveError(e));
         }
       }
     }
@@ -2473,21 +2460,11 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> with Widg
         await repository.update(updatedTrainingCycle);
 
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(l10n.workoutRenamedTo(newName)),
-              backgroundColor: context.successColor,
-            ),
-          );
+          context.showSuccessSnackBar(l10n.workoutRenamedTo(newName));
         }
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(l10n.workoutRenameError(e)),
-              backgroundColor: context.errorColor,
-            ),
-          );
+          context.showErrorSnackBar(l10n.workoutRenameError(e));
         }
       }
     }
@@ -2526,21 +2503,11 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> with Widg
         await repository.update(updatedTrainingCycle);
 
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(l10n.workoutCycleCompleted(trainingCycle.name)),
-              backgroundColor: context.successColor,
-            ),
-          );
+          context.showSuccessSnackBar(l10n.workoutCycleCompleted(trainingCycle.name));
         }
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(l10n.workoutEndCycleError(e)),
-              backgroundColor: context.errorColor,
-            ),
-          );
+          context.showErrorSnackBar(l10n.workoutEndCycleError(e));
         }
       }
     }
@@ -2567,21 +2534,11 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> with Widg
         await repository.update(updatedWorkout);
 
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(l10n.noteSaved),
-              backgroundColor: context.successColor,
-            ),
-          );
+          context.showSuccessSnackBar(l10n.noteSaved);
         }
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(l10n.noteSaveError(e)),
-              backgroundColor: context.errorColor,
-            ),
-          );
+          context.showErrorSnackBar(l10n.noteSaveError(e));
         }
       }
     }
@@ -2635,14 +2592,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> with Widg
           }
 
           if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  l10n.workoutLabelUpdatedForAllDays(workout.dayNumber),
-                ),
-                backgroundColor: context.successColor,
-              ),
-            );
+            context.showSuccessSnackBar(l10n.workoutLabelUpdatedForAllDays(workout.dayNumber));
           }
         } else {
           // Update only the current workout(s) for this specific period and day
@@ -2683,23 +2633,13 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> with Widg
           }
 
           if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(l10n.workoutLabelUpdated),
-                backgroundColor: context.successColor,
-              ),
-            );
+            context.showSuccessSnackBar(l10n.workoutLabelUpdated);
           }
         }
       } catch (e) {
         debugPrint('Error updating label: $e');
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(l10n.workoutLabelUpdateError(e)),
-              backgroundColor: context.errorColor,
-            ),
-          );
+          context.showErrorSnackBar(l10n.workoutLabelUpdateError(e));
         }
       }
     }
@@ -2748,22 +2688,12 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> with Widg
         }
 
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(l10n.workoutAllDayLabelsCleared),
-              backgroundColor: context.successColor,
-            ),
-          );
+          context.showSuccessSnackBar(l10n.workoutAllDayLabelsCleared);
         }
       } catch (e) {
         debugPrint('Error clearing day names: $e');
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(l10n.workoutClearLabelsError(e)),
-              backgroundColor: context.errorColor,
-            ),
-          );
+          context.showErrorSnackBar(l10n.workoutClearLabelsError(e));
         }
       }
     }

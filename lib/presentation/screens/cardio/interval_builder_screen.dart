@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+import '../../../core/extensions/context_extensions.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -188,18 +190,12 @@ class _IntervalBuilderScreenState extends ConsumerState<IntervalBuilderScreen> {
       }
       if (mounted) {
         final l10n = AppLocalizations.of(context)!;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.intervalBuilderSaved)),
-        );
+        context.showSnackBar(l10n.intervalBuilderSaved);
         context.pop();
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(UserErrors.describe(e, context: 'save intervals')),
-          ),
-        );
+        context.showSnackBar(UserErrors.describe(e, context: 'save intervals'));
       }
     } finally {
       if (mounted) setState(() => _saving = false);
@@ -577,8 +573,8 @@ class _IntervalEditorRowState extends ConsumerState<_IntervalEditorRow> {
                     allowPaceZone: hasPaceZones || i.targetKind == IntervalTargetKind.paceZone,
                     allowPowerZone: hasPowerZones || i.targetKind == IntervalTargetKind.powerZone,
                     onChanged: (kind) {
-                  // Clear whichever target fields are about to become
-                  // irrelevant so stale data doesn't linger in the DB.
+                      // Clear whichever target fields are about to become
+                      // irrelevant so stale data doesn't linger in the DB.
                       final updated = i.copyWith(
                         targetKind: kind,
                         targetDurationSec: kind == IntervalTargetKind.durationSec ? (i.targetDurationSec ?? 60) : null,

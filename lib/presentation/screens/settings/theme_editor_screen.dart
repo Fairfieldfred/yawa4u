@@ -1,6 +1,8 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+
+import '../../../core/extensions/context_extensions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uuid/uuid.dart';
@@ -117,9 +119,7 @@ class _ThemeEditorScreenState extends ConsumerState<ThemeEditorScreen> {
     } catch (e) {
       setState(() => _isLoading = false);
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.themeEditorErrorLoading(e))));
+        context.showSnackBar(AppLocalizations.of(context)!.themeEditorErrorLoading(e));
       }
     }
   }
@@ -206,9 +206,7 @@ class _ThemeEditorScreenState extends ConsumerState<ThemeEditorScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.themeEditorErrorPicking(e))));
+        context.showSnackBar(AppLocalizations.of(context)!.themeEditorErrorPicking(e));
       }
     } finally {
       if (mounted) {
@@ -255,9 +253,7 @@ class _ThemeEditorScreenState extends ConsumerState<ThemeEditorScreen> {
     if (_nameController.text.trim().isEmpty) {
       _pageController.jumpToPage(0);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppLocalizations.of(context)!.themeEditorNameRequired)),
-        );
+        context.showSnackBar(AppLocalizations.of(context)!.themeEditorNameRequired);
       }
       return;
     }
@@ -282,20 +278,12 @@ class _ThemeEditorScreenState extends ConsumerState<ThemeEditorScreen> {
 
       if (mounted) {
         final l10nSave = AppLocalizations.of(context)!;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              widget.skinId != null ? l10nSave.themeEditorUpdated : l10nSave.themeEditorCreated,
-            ),
-          ),
-        );
+        context.showSnackBar(widget.skinId != null ? l10nSave.themeEditorUpdated : l10nSave.themeEditorCreated);
         context.pop();
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.themeEditorErrorSaving(e))));
+        context.showSnackBar(AppLocalizations.of(context)!.themeEditorErrorSaving(e));
       }
     } finally {
       if (mounted) {

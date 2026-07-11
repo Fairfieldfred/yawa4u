@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -32,7 +34,12 @@ class CalendarSportDots extends ConsumerWidget {
 
     return async.when(
       loading: () => const SizedBox.shrink(),
-      error: (_, _) => const SizedBox.shrink(),
+      // Decorative dots — nothing actionable to render, but never fail
+      // silently: log so the underlying query error is visible.
+      error: (e, st) {
+        log('calendar sport dots failed to load', error: e, stackTrace: st, name: 'yawa4u.calendar');
+        return const SizedBox.shrink();
+      },
       data: (sessions) {
         final sports = _cardioSports(sessions);
         if (sports.isEmpty) return const SizedBox.shrink();

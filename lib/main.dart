@@ -87,6 +87,18 @@ class MyApp extends ConsumerWidget {
       title: AppConstants.appName,
       debugShowCheckedModeBanner: false,
 
+      // A11y: honor the system text size but clamp the extremes so layouts
+      // stay usable (very large scales break the dense workout grids).
+      builder: (context, child) {
+        final mediaQuery = MediaQuery.of(context);
+        return MediaQuery(
+          data: mediaQuery.copyWith(
+            textScaler: mediaQuery.textScaler.clamp(minScaleFactor: 0.8, maxScaleFactor: 1.6),
+          ),
+          child: child!,
+        );
+      },
+
       // Localization configuration
       locale: locale,
       localizationsDelegates: AppLocalizations.localizationsDelegates,

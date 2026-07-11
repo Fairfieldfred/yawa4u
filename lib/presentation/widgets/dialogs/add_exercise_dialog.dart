@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+import '../../../core/extensions/context_extensions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uuid/uuid.dart';
@@ -366,9 +368,7 @@ class _AddSessionSheetState extends State<_AddSessionSheet> {
     } catch (e) {
       if (!mounted) return;
       final l10n = AppLocalizations.of(context)!;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.failedToSave(e))),
-      );
+      context.showSnackBar(l10n.failedToSave(e));
     } finally {
       if (mounted) setState(() => _saving = false);
     }

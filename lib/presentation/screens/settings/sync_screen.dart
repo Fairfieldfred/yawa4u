@@ -2,6 +2,8 @@ import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+
+import '../../../core/extensions/context_extensions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:share_plus/share_plus.dart';
@@ -132,12 +134,7 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
       );
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(l10n.backupExportError(e)),
-            backgroundColor: context.errorColor,
-          ),
-        );
+        context.showErrorSnackBar(l10n.backupExportError(e));
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -194,12 +191,7 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
       );
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(l10n.backupRestoreError(e)),
-            backgroundColor: context.errorColor,
-          ),
-        );
+        context.showErrorSnackBar(l10n.backupRestoreError(e));
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);

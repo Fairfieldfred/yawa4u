@@ -11,9 +11,8 @@ mixin _$TrainingCycleDaoMixin on DatabaseAccessor<AppDatabase> {
 class TrainingCycleDaoManager {
   final _$TrainingCycleDaoMixin _db;
   TrainingCycleDaoManager(this._db);
-  $$TrainingCyclesTableTableManager get trainingCycles =>
-      $$TrainingCyclesTableTableManager(
-        _db.attachedDatabase,
-        _db.trainingCycles,
-      );
+  $$TrainingCyclesTableTableManager get trainingCycles => $$TrainingCyclesTableTableManager(
+    _db.attachedDatabase,
+    _db.trainingCycles,
+  );
 }

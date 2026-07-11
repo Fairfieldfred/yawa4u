@@ -11,6 +11,5 @@ mixin _$ExerciseDaoMixin on DatabaseAccessor<AppDatabase> {
 class ExerciseDaoManager {
   final _$ExerciseDaoMixin _db;
   ExerciseDaoManager(this._db);
-  $$ExercisesTableTableManager get exercises =>
-      $$ExercisesTableTableManager(_db.attachedDatabase, _db.exercises);
+  $$ExercisesTableTableManager get exercises => $$ExercisesTableTableManager(_db.attachedDatabase, _db.exercises);
 }

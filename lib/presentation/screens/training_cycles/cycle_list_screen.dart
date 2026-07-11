@@ -1,5 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+
+import '../../../core/extensions/context_extensions.dart';
+import 'package:intl/intl.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:go_router/go_router.dart';
@@ -661,12 +664,7 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(l10n.errorGeneric(e)),
-            backgroundColor: context.errorColor,
-          ),
-        );
+        context.showErrorSnackBar(l10n.errorGeneric(e));
       }
     }
   }
@@ -695,21 +693,11 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
         await repository.update(updatedTrainingCycle);
 
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(l10n.noteSaved),
-              backgroundColor: context.successColor,
-            ),
-          );
+          context.showSuccessSnackBar(l10n.noteSaved);
         }
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(l10n.noteSaveError(e)),
-              backgroundColor: context.errorColor,
-            ),
-          );
+          context.showErrorSnackBar(l10n.noteSaveError(e));
         }
       }
     }
@@ -790,21 +778,11 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
       }
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(l10n.cycleListCopiedSnackbar(cycleTerm)),
-            backgroundColor: context.successColor,
-          ),
-        );
+        context.showSuccessSnackBar(l10n.cycleListCopiedSnackbar(cycleTerm));
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(l10n.cycleListErrorCopying(cycleTerm, e)),
-            backgroundColor: context.errorColor,
-          ),
-        );
+        context.showErrorSnackBar(l10n.cycleListErrorCopying(cycleTerm, e));
       }
     }
   }
@@ -918,24 +896,14 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
       }
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(l10n.cycleListRestartedSnackbar(cycleTerm)),
-            backgroundColor: context.successColor,
-          ),
-        );
+        context.showSuccessSnackBar(l10n.cycleListRestartedSnackbar(cycleTerm));
 
         // Navigate to workout tab
         context.go('/');
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(l10n.cycleListErrorRestarting(cycleTerm, e)),
-            backgroundColor: context.errorColor,
-          ),
-        );
+        context.showErrorSnackBar(l10n.cycleListErrorRestarting(cycleTerm, e));
       }
     }
   }
@@ -964,12 +932,7 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
 
         if (mounted) {
           final l10n = AppLocalizations.of(context)!;
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(l10n.cycleListTemplateSaved(result.name)),
-              backgroundColor: context.successColor,
-            ),
-          );
+          context.showSuccessSnackBar(l10n.cycleListTemplateSaved(result.name));
 
           // Refresh templates provider
           ref.invalidate(availableTemplatesProvider);
@@ -977,12 +940,7 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
       } catch (e) {
         if (mounted) {
           final l10n = AppLocalizations.of(context)!;
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(l10n.cycleListErrorSavingTemplate(e)),
-              backgroundColor: context.errorColor,
-            ),
-          );
+          context.showErrorSnackBar(l10n.cycleListErrorSavingTemplate(e));
         }
       }
     }
@@ -994,12 +952,7 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
       // Show loading indicator
       if (mounted) {
         final l10n = AppLocalizations.of(context)!;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(l10n.cycleListPreparingShare),
-            duration: Duration(seconds: 1),
-          ),
-        );
+        context.showSnackBar(l10n.cycleListPreparingShare, duration: Duration(seconds: 1));
       }
 
       // Load the full trainingCycle with workouts
@@ -1025,12 +978,7 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(AppLocalizations.of(context)!.cycleListErrorPreparingShare(e)),
-            backgroundColor: context.errorColor,
-          ),
-        );
+        context.showErrorSnackBar(AppLocalizations.of(context)!.cycleListErrorPreparingShare(e));
       }
     }
   }
@@ -1046,22 +994,12 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
       await TemplateExporter.exportToClipboard(trainingCycleToExport);
       if (mounted) {
         final l10n = AppLocalizations.of(context)!;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(l10n.cycleListTemplateExported),
-            backgroundColor: context.successColor,
-          ),
-        );
+        context.showSuccessSnackBar(l10n.cycleListTemplateExported);
       }
     } catch (e) {
       if (mounted) {
         final l10n = AppLocalizations.of(context)!;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(l10n.cycleListErrorExporting(e)),
-            backgroundColor: context.errorColor,
-          ),
-        );
+        context.showErrorSnackBar(l10n.cycleListErrorExporting(e));
       }
     }
   }
@@ -1083,22 +1021,12 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
 
         if (mounted) {
           final l10n = AppLocalizations.of(context)!;
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(l10n.cycleListRenamedSnackbar(newName)),
-              backgroundColor: context.successColor,
-            ),
-          );
+          context.showSuccessSnackBar(l10n.cycleListRenamedSnackbar(newName));
         }
       } catch (e) {
         if (mounted) {
           final l10n = AppLocalizations.of(context)!;
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(l10n.cycleListErrorRenaming(e)),
-              backgroundColor: context.errorColor,
-            ),
-          );
+          context.showErrorSnackBar(l10n.cycleListErrorRenaming(e));
         }
       }
     }
@@ -1134,22 +1062,11 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
         await ref.read(endTrainingCycleUseCaseProvider).execute(trainingCycle);
 
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                l10n.cycleListCompletedSnackbar(trainingCycle.name),
-              ),
-            ),
-          );
+          context.showSnackBar(l10n.cycleListCompletedSnackbar(trainingCycle.name));
         }
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(l10n.cycleListErrorCompleting(e)),
-              backgroundColor: context.errorColor,
-            ),
-          );
+          context.showErrorSnackBar(l10n.cycleListErrorCompleting(e));
         }
       }
     }
@@ -1193,39 +1110,18 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
         await repository.delete(trainingCycle.id);
 
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(l10n.cycleListDeletedSnackbar(trainingCycle.name))),
-          );
+          context.showSnackBar(l10n.cycleListDeletedSnackbar(trainingCycle.name));
         }
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(l10n.cycleListErrorDeleting(e)),
-              backgroundColor: context.errorColor,
-            ),
-          );
+          context.showErrorSnackBar(l10n.cycleListErrorDeleting(e));
         }
       }
     }
   }
 
   String _formatDate(DateTime date) {
-    final months = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec',
-    ];
-    return '${months[date.month - 1]} ${date.day}, ${date.year}';
+    return DateFormat.yMMMd(Localizations.localeOf(context).toString()).format(date);
   }
 }
 

@@ -59,39 +59,36 @@ SkinColors _$SkinColorsFromJson(Map<String, dynamic> json) => SkinColors(
   info: json['info'] as String,
 );
 
-Map<String, dynamic> _$SkinColorsToJson(SkinColors instance) =>
-    <String, dynamic>{
-      'primary': instance.primary,
-      'primaryDark': instance.primaryDark,
-      'primaryLight': instance.primaryLight,
-      'secondary': instance.secondary,
-      'success': instance.success,
-      'warning': instance.warning,
-      'error': instance.error,
-      'info': instance.info,
-    };
+Map<String, dynamic> _$SkinColorsToJson(SkinColors instance) => <String, dynamic>{
+  'primary': instance.primary,
+  'primaryDark': instance.primaryDark,
+  'primaryLight': instance.primaryLight,
+  'secondary': instance.secondary,
+  'success': instance.success,
+  'warning': instance.warning,
+  'error': instance.error,
+  'info': instance.info,
+};
 
-SkinModeColors _$SkinModeColorsFromJson(Map<String, dynamic> json) =>
-    SkinModeColors(
-      scaffoldBackground: json['scaffoldBackground'] as String,
-      cardBackground: json['cardBackground'] as String,
-      inputBackground: json['inputBackground'] as String,
-      divider: json['divider'] as String,
-      textPrimary: json['textPrimary'] as String,
-      textSecondary: json['textSecondary'] as String,
-      textDisabled: json['textDisabled'] as String,
-    );
+SkinModeColors _$SkinModeColorsFromJson(Map<String, dynamic> json) => SkinModeColors(
+  scaffoldBackground: json['scaffoldBackground'] as String,
+  cardBackground: json['cardBackground'] as String,
+  inputBackground: json['inputBackground'] as String,
+  divider: json['divider'] as String,
+  textPrimary: json['textPrimary'] as String,
+  textSecondary: json['textSecondary'] as String,
+  textDisabled: json['textDisabled'] as String,
+);
 
-Map<String, dynamic> _$SkinModeColorsToJson(SkinModeColors instance) =>
-    <String, dynamic>{
-      'scaffoldBackground': instance.scaffoldBackground,
-      'cardBackground': instance.cardBackground,
-      'inputBackground': instance.inputBackground,
-      'divider': instance.divider,
-      'textPrimary': instance.textPrimary,
-      'textSecondary': instance.textSecondary,
-      'textDisabled': instance.textDisabled,
-    };
+Map<String, dynamic> _$SkinModeColorsToJson(SkinModeColors instance) => <String, dynamic>{
+  'scaffoldBackground': instance.scaffoldBackground,
+  'cardBackground': instance.cardBackground,
+  'inputBackground': instance.inputBackground,
+  'divider': instance.divider,
+  'textPrimary': instance.textPrimary,
+  'textSecondary': instance.textSecondary,
+  'textDisabled': instance.textDisabled,
+};
 
 SkinMuscleGroupColors _$SkinMuscleGroupColorsFromJson(
   Map<String, dynamic> json,
@@ -129,23 +126,21 @@ Map<String, dynamic> _$SkinWorkoutStatusColorsToJson(
   'deload': instance.deload,
 };
 
-SkinComponents _$SkinComponentsFromJson(Map<String, dynamic> json) =>
-    SkinComponents(
-      cardBorderRadius: (json['cardBorderRadius'] as num?)?.toDouble() ?? 12,
-      buttonBorderRadius: (json['buttonBorderRadius'] as num?)?.toDouble() ?? 8,
-      inputBorderRadius: (json['inputBorderRadius'] as num?)?.toDouble() ?? 8,
-      cardElevation: (json['cardElevation'] as num?)?.toDouble() ?? 2,
-      buttonElevation: (json['buttonElevation'] as num?)?.toDouble() ?? 2,
-    );
+SkinComponents _$SkinComponentsFromJson(Map<String, dynamic> json) => SkinComponents(
+  cardBorderRadius: (json['cardBorderRadius'] as num?)?.toDouble() ?? 12,
+  buttonBorderRadius: (json['buttonBorderRadius'] as num?)?.toDouble() ?? 8,
+  inputBorderRadius: (json['inputBorderRadius'] as num?)?.toDouble() ?? 8,
+  cardElevation: (json['cardElevation'] as num?)?.toDouble() ?? 2,
+  buttonElevation: (json['buttonElevation'] as num?)?.toDouble() ?? 2,
+);
 
-Map<String, dynamic> _$SkinComponentsToJson(SkinComponents instance) =>
-    <String, dynamic>{
-      'cardBorderRadius': instance.cardBorderRadius,
-      'buttonBorderRadius': instance.buttonBorderRadius,
-      'inputBorderRadius': instance.inputBorderRadius,
-      'cardElevation': instance.cardElevation,
-      'buttonElevation': instance.buttonElevation,
-    };
+Map<String, dynamic> _$SkinComponentsToJson(SkinComponents instance) => <String, dynamic>{
+  'cardBorderRadius': instance.cardBorderRadius,
+  'buttonBorderRadius': instance.buttonBorderRadius,
+  'inputBorderRadius': instance.inputBorderRadius,
+  'cardElevation': instance.cardElevation,
+  'buttonElevation': instance.buttonElevation,
+};
 
 SkinBackgrounds _$SkinBackgroundsFromJson(
   Map<String, dynamic> json,
@@ -160,14 +155,13 @@ SkinBackgrounds _$SkinBackgroundsFromJson(
   darkOverlayOpacity: (json['darkOverlayOpacity'] as num?)?.toDouble() ?? 0.75,
 );
 
-Map<String, dynamic> _$SkinBackgroundsToJson(SkinBackgrounds instance) =>
-    <String, dynamic>{
-      'workout': instance.workout,
-      'cycles': instance.cycles,
-      'exercises': instance.exercises,
-      'more': instance.more,
-      'defaultBackground': instance.defaultBackground,
-      'appIcon': instance.appIcon,
-      'lightOverlayOpacity': instance.lightOverlayOpacity,
-      'darkOverlayOpacity': instance.darkOverlayOpacity,
-    };
+Map<String, dynamic> _$SkinBackgroundsToJson(SkinBackgrounds instance) => <String, dynamic>{
+  'workout': instance.workout,
+  'cycles': instance.cycles,
+  'exercises': instance.exercises,
+  'more': instance.more,
+  'defaultBackground': instance.defaultBackground,
+  'appIcon': instance.appIcon,
+  'lightOverlayOpacity': instance.lightOverlayOpacity,
+  'darkOverlayOpacity': instance.darkOverlayOpacity,
+};

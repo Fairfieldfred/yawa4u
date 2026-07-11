@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+
+import '../../core/extensions/context_extensions.dart';
+
+import '../../l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
@@ -164,12 +168,7 @@ class _CalendarDropdownState extends ConsumerState<CalendarDropdown> {
     await trainingCycleRepository.update(updatedTrainingCycle);
 
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Period $newPeriodNumber added'),
-          backgroundColor: context.successColor,
-        ),
-      );
+      context.showSuccessSnackBar(AppLocalizations.of(context)!.calendarDropdownPeriodAdded(newPeriodNumber));
     }
   }
 
@@ -184,12 +183,7 @@ class _CalendarDropdownState extends ConsumerState<CalendarDropdown> {
 
     if (periodToRemove < 1) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Cannot remove: Must have at least 1 period'),
-            backgroundColor: context.errorColor,
-          ),
-        );
+        context.showErrorSnackBar(AppLocalizations.of(context)!.calendarDropdownCannotRemovePeriod);
       }
       return;
     }
@@ -223,12 +217,7 @@ class _CalendarDropdownState extends ConsumerState<CalendarDropdown> {
     await trainingCycleRepository.update(updatedTrainingCycle);
 
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Period $periodToRemove removed'),
-          backgroundColor: context.successColor,
-        ),
-      );
+      context.showSuccessSnackBar(AppLocalizations.of(context)!.calendarDropdownPeriodRemoved(periodToRemove));
 
       // If selected period was removed or is now out of bounds, go to previous period
       if (_selectedPeriod >= updatedTrainingCycle.periodsTotal) {
@@ -283,10 +272,7 @@ class _CalendarDropdownState extends ConsumerState<CalendarDropdown> {
     final bottomPadding = 16.0;
 
     final calculatedHeight =
-        headerHeight +
-        periodHeaderHeight +
-        (maxDaysInAnyPeriod * (dayButtonHeight + dayMargin)) +
-        bottomPadding;
+        headerHeight + periodHeaderHeight + (maxDaysInAnyPeriod * (dayButtonHeight + dayMargin)) + bottomPadding;
 
     // Get available screen height and limit the dropdown height
     final screenHeight = MediaQuery.of(context).size.height;
@@ -381,11 +367,10 @@ class _CalendarDropdownState extends ConsumerState<CalendarDropdown> {
                     periodIndex,
                   ) {
                     final periodNumber = periodIndex + 1;
-                    final daysForPeriod = (maxDayByPeriod[periodNumber] ?? 0)
-                        .clamp(
-                          widget.trainingCycle.daysPerPeriod,
-                          maxDaysInAnyPeriod,
-                        );
+                    final daysForPeriod = (maxDayByPeriod[periodNumber] ?? 0).clamp(
+                      widget.trainingCycle.daysPerPeriod,
+                      maxDaysInAnyPeriod,
+                    );
                     return Expanded(
                       child: _buildPeriodColumn(
                         periodNumber,

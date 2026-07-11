@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+import '../../../core/extensions/context_extensions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/constants/muscle_groups.dart';
@@ -54,9 +56,7 @@ class _TemplatePreviewScreenState extends ConsumerState<TemplatePreviewScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.templatePreviewErrorCreating(e))));
+        context.showSnackBar(AppLocalizations.of(context)!.templatePreviewErrorCreating(e));
       }
     } finally {
       if (mounted) {

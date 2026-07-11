@@ -4867,6 +4867,108 @@ abstract class AppLocalizations {
   /// **'Disconnect'**
   String get integrationsStravaDisconnectConfirm;
 
+  /// No description provided for @exerciseCardHistoryRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load history — tap to retry'**
+  String get exerciseCardHistoryRetry;
+
+  /// No description provided for @cycleComparisonLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load cycle statistics'**
+  String get cycleComparisonLoadError;
+
+  /// No description provided for @calendarDropdownPeriodAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Period {number} added'**
+  String calendarDropdownPeriodAdded(Object number);
+
+  /// No description provided for @calendarDropdownCannotRemovePeriod.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot remove: must have at least 1 period'**
+  String get calendarDropdownCannotRemovePeriod;
+
+  /// No description provided for @calendarDropdownPeriodRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'Period {number} removed'**
+  String calendarDropdownPeriodRemoved(Object number);
+
+  /// No description provided for @integrationsUnknownError.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown error'**
+  String get integrationsUnknownError;
+
+  /// No description provided for @integrationsLastRunSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Last run: {total} found · {imported} imported · {duplicates} already here · {unsupported} non-cardio skipped'**
+  String integrationsLastRunSummary(Object total, Object imported, Object duplicates, Object unsupported);
+
+  /// No description provided for @integrationsAppleHealthRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Apple Health access needed'**
+  String get integrationsAppleHealthRequired;
+
+  /// No description provided for @integrationsAppleHealthIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'YAWA4U reads workouts from Apple Health. Access was denied or hasn\'t been granted yet.'**
+  String get integrationsAppleHealthIntro;
+
+  /// No description provided for @integrationsAppleHealthStep1.
+  ///
+  /// In en, this message translates to:
+  /// **'1. Open Settings → Health → Data Access & Devices'**
+  String get integrationsAppleHealthStep1;
+
+  /// No description provided for @integrationsAppleHealthStep2.
+  ///
+  /// In en, this message translates to:
+  /// **'2. Choose YAWA4U'**
+  String get integrationsAppleHealthStep2;
+
+  /// No description provided for @integrationsAppleHealthStep3.
+  ///
+  /// In en, this message translates to:
+  /// **'3. Turn on the workout categories you want to share'**
+  String get integrationsAppleHealthStep3;
+
+  /// No description provided for @integrationsOpenSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Settings'**
+  String get integrationsOpenSettings;
+
+  /// No description provided for @communitySignInButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in'**
+  String get communitySignInButton;
+
+  /// No description provided for @communityTemplateSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'\"{name}\" saved — draft cycle created'**
+  String communityTemplateSaved(Object name);
+
+  /// No description provided for @statsNoStrengthTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No workouts logged yet'**
+  String get statsNoStrengthTitle;
+
+  /// No description provided for @statsNoStrengthSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Statistics appear here after you log your first strength workout.'**
+  String get statsNoStrengthSubtitle;
+
   /// No description provided for @syncWithAnotherDevice.
   ///
   /// In en, this message translates to:

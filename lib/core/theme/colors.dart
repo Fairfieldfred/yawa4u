@@ -113,21 +113,7 @@ class AppColors {
     return luminance > 0.5 ? lightTextPrimary : darkTextPrimary;
   }
 
-  /// Get muscle group color by name
-  static Color getMuscleColor(String muscleGroup) {
-    final normalized = muscleGroup.toLowerCase();
-    if (normalized.contains('chest') || normalized.contains('tricep') || normalized.contains('shoulder')) {
-      return musclePink;
-    } else if (normalized.contains('back') || normalized.contains('bicep')) {
-      return muscleCyan;
-    } else if (normalized.contains('quad') ||
-        normalized.contains('hamstring') ||
-        normalized.contains('glute') ||
-        normalized.contains('calv')) {
-      return muscleTeal;
-    } else if (normalized.contains('trap') || normalized.contains('forearm') || normalized.contains('ab')) {
-      return musclePurple;
-    }
-    return primary; // Default
-  }
+  // getMuscleColor was removed: it matched English substrings (broken under
+  // es) and had no callers — muscle colors are skin-driven via the
+  // MuscleGroupColors ThemeExtension.
 }

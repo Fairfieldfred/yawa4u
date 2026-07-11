@@ -117,7 +117,29 @@ class ExerciseCardWidget extends ConsumerWidget {
     return asyncPrev.when(
       data: (prevExercise) => _buildPreviousPerformanceContent(context, ref, prevExercise),
       loading: () => const SizedBox.shrink(),
-      error: (_, _) => const SizedBox.shrink(),
+      // History failed to load — offer a small retry instead of vanishing.
+      error: (_, _) => InkWell(
+        onTap: () => ref.invalidate(
+          previousPerformanceProvider((name: exercise.name, currentId: exercise.id)),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.only(top: 2),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.refresh, size: 14, color: Theme.of(context).colorScheme.onSurfaceVariant),
+              const SizedBox(width: 4),
+              Text(
+                AppLocalizations.of(context)!.exerciseCardHistoryRetry,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  fontSize: 12,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
@@ -339,9 +361,7 @@ class ExerciseCardWidget extends ConsumerWidget {
                                 child: Text(
                                   l10n.exerciseCardWeightHeader,
                                   style: TextStyle(
-                                    color: Theme.of(context).brightness == Brightness.light
-                                        ? Theme.of(context).textTheme.bodySmall?.color?.withValues(alpha: 0.7)
-                                        : Colors.white,
+                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                                     fontSize: 12,
                                     fontWeight: FontWeight.w600,
                                   ),
@@ -353,9 +373,7 @@ class ExerciseCardWidget extends ConsumerWidget {
                                 child: Text(
                                   l10n.exerciseCardRepsHeader,
                                   style: TextStyle(
-                                    color: Theme.of(context).brightness == Brightness.light
-                                        ? Theme.of(context).textTheme.bodySmall?.color?.withValues(alpha: 0.7)
-                                        : Colors.white,
+                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                                     fontSize: 12,
                                     fontWeight: FontWeight.w600,
                                   ),
@@ -368,9 +386,7 @@ class ExerciseCardWidget extends ConsumerWidget {
                                 child: Text(
                                   l10n.exerciseCardLogHeader,
                                   style: TextStyle(
-                                    color: Theme.of(context).brightness == Brightness.light
-                                        ? Theme.of(context).textTheme.bodySmall?.color?.withValues(alpha: 0.7)
-                                        : Colors.white,
+                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                                     fontSize: 12,
                                     fontWeight: FontWeight.w600,
                                   ),
@@ -507,8 +523,8 @@ class ExerciseCardWidget extends ConsumerWidget {
           height: 32,
           child: Text(
             l10n.exerciseCardExerciseHeader,
-            style: const TextStyle(
-              color: Colors.grey,
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
               fontSize: 12,
               fontWeight: FontWeight.w600,
             ),
@@ -536,14 +552,14 @@ class ExerciseCardWidget extends ConsumerWidget {
               children: [
                 Icon(
                   Icons.arrow_upward,
-                  color: isFirstExercise ? Colors.grey : onSurfaceColor,
+                  color: isFirstExercise ? Theme.of(context).disabledColor : onSurfaceColor,
                   size: 20,
                 ),
                 const SizedBox(width: 12),
                 Text(
                   l10n.exerciseCardMoveUp,
                   style: TextStyle(
-                    color: isFirstExercise ? Colors.grey : onSurfaceColor,
+                    color: isFirstExercise ? Theme.of(context).disabledColor : onSurfaceColor,
                   ),
                 ),
               ],
@@ -559,14 +575,14 @@ class ExerciseCardWidget extends ConsumerWidget {
               children: [
                 Icon(
                   Icons.arrow_downward,
-                  color: isLastExercise ? Colors.grey : onSurfaceColor,
+                  color: isLastExercise ? Theme.of(context).disabledColor : onSurfaceColor,
                   size: 20,
                 ),
                 const SizedBox(width: 12),
                 Text(
                   l10n.exerciseCardMoveDown,
                   style: TextStyle(
-                    color: isLastExercise ? Colors.grey : onSurfaceColor,
+                    color: isLastExercise ? Theme.of(context).disabledColor : onSurfaceColor,
                   ),
                 ),
               ],
@@ -593,14 +609,14 @@ class ExerciseCardWidget extends ConsumerWidget {
             children: [
               Icon(
                 Icons.healing,
-                color: exercise.sets.any((s) => s.isLogged) ? onSurfaceColor : Colors.grey,
+                color: exercise.sets.any((s) => s.isLogged) ? onSurfaceColor : Theme.of(context).disabledColor,
                 size: 20,
               ),
               const SizedBox(width: 12),
               Text(
                 l10n.exerciseCardJointPain,
                 style: TextStyle(
-                  color: exercise.sets.any((s) => s.isLogged) ? onSurfaceColor : Colors.grey,
+                  color: exercise.sets.any((s) => s.isLogged) ? onSurfaceColor : Theme.of(context).disabledColor,
                 ),
               ),
             ],
@@ -658,14 +674,14 @@ class ExerciseCardWidget extends ConsumerWidget {
               children: [
                 Icon(
                   Icons.delete_outline,
-                  color: exercise.sets.any((s) => s.isLogged) ? Colors.grey : context.errorColor,
+                  color: exercise.sets.any((s) => s.isLogged) ? Theme.of(context).disabledColor : context.errorColor,
                   size: 20,
                 ),
                 const SizedBox(width: 12),
                 Text(
                   l10n.exerciseCardDeleteExercise,
                   style: TextStyle(
-                    color: exercise.sets.any((s) => s.isLogged) ? Colors.grey : context.errorColor,
+                    color: exercise.sets.any((s) => s.isLogged) ? Theme.of(context).disabledColor : context.errorColor,
                   ),
                 ),
               ],
@@ -926,7 +942,7 @@ class ExerciseCardWidget extends ConsumerWidget {
                             vertical: 2,
                           ),
                           decoration: BoxDecoration(
-                            color: Colors.grey.withValues(alpha: 0.6),
+                            color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
                             borderRadius: BorderRadius.circular(3),
                           ),
                           child: Text(
@@ -961,7 +977,7 @@ class ExerciseCardWidget extends ConsumerWidget {
                       ? context.successColor.withValues(alpha: 0.2)
                       : (isLoggable
                             ? Theme.of(context).inputDecorationTheme.fillColor
-                            : Colors.grey.withValues(alpha: 0.1)),
+                            : Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.1)),
                   borderRadius: BorderRadius.circular(4),
                   border: Border.all(
                     color: set.isLogged
@@ -1049,8 +1065,8 @@ class ExerciseCardWidget extends ConsumerWidget {
           height: 32,
           child: Text(
             l10n.exerciseCardSetHeader,
-            style: const TextStyle(
-              color: Colors.grey,
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
               fontSize: 12,
               fontWeight: FontWeight.w600,
             ),
@@ -1133,10 +1149,10 @@ class ExerciseCardWidget extends ConsumerWidget {
                   Navigator.pop(context);
                   showSetTypeInfoDialog(context);
                 },
-                child: const Icon(
+                child: Icon(
                   Icons.help_outline,
                   size: 16,
-                  color: Colors.grey,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
               ),
             ],
@@ -1150,7 +1166,9 @@ class ExerciseCardWidget extends ConsumerWidget {
             children: [
               Icon(
                 set.setType == SetType.regular ? Icons.radio_button_checked : Icons.radio_button_unchecked,
-                color: set.setType == SetType.regular ? context.selectedIndicatorColor : Colors.grey,
+                color: set.setType == SetType.regular
+                    ? context.selectedIndicatorColor
+                    : Theme.of(context).colorScheme.onSurfaceVariant,
                 size: 20,
               ),
               const SizedBox(width: 12),
@@ -1171,7 +1189,9 @@ class ExerciseCardWidget extends ConsumerWidget {
             children: [
               Icon(
                 set.setType == SetType.myorep ? Icons.radio_button_checked : Icons.radio_button_unchecked,
-                color: set.setType == SetType.myorep ? context.selectedIndicatorColor : Colors.grey,
+                color: set.setType == SetType.myorep
+                    ? context.selectedIndicatorColor
+                    : Theme.of(context).colorScheme.onSurfaceVariant,
                 size: 20,
               ),
               const SizedBox(width: 12),
@@ -1193,7 +1213,9 @@ class ExerciseCardWidget extends ConsumerWidget {
               children: [
                 Icon(
                   set.setType == SetType.myorepMatch ? Icons.radio_button_checked : Icons.radio_button_unchecked,
-                  color: set.setType == SetType.myorepMatch ? context.selectedIndicatorColor : Colors.grey,
+                  color: set.setType == SetType.myorepMatch
+                      ? context.selectedIndicatorColor
+                      : Theme.of(context).colorScheme.onSurfaceVariant,
                   size: 20,
                 ),
                 const SizedBox(width: 12),
@@ -1214,7 +1236,9 @@ class ExerciseCardWidget extends ConsumerWidget {
             children: [
               Icon(
                 set.setType == SetType.maxReps ? Icons.radio_button_checked : Icons.radio_button_unchecked,
-                color: set.setType == SetType.maxReps ? context.selectedIndicatorColor : Colors.grey,
+                color: set.setType == SetType.maxReps
+                    ? context.selectedIndicatorColor
+                    : Theme.of(context).colorScheme.onSurfaceVariant,
                 size: 20,
               ),
               const SizedBox(width: 12),
@@ -1235,7 +1259,9 @@ class ExerciseCardWidget extends ConsumerWidget {
             children: [
               Icon(
                 set.setType == SetType.endWithPartials ? Icons.radio_button_checked : Icons.radio_button_unchecked,
-                color: set.setType == SetType.endWithPartials ? context.selectedIndicatorColor : Colors.grey,
+                color: set.setType == SetType.endWithPartials
+                    ? context.selectedIndicatorColor
+                    : Theme.of(context).colorScheme.onSurfaceVariant,
                 size: 20,
               ),
               const SizedBox(width: 12),
@@ -1257,7 +1283,9 @@ class ExerciseCardWidget extends ConsumerWidget {
               children: [
                 Icon(
                   set.setType == SetType.dropSet ? Icons.radio_button_checked : Icons.radio_button_unchecked,
-                  color: set.setType == SetType.dropSet ? context.selectedIndicatorColor : Colors.grey,
+                  color: set.setType == SetType.dropSet
+                      ? context.selectedIndicatorColor
+                      : Theme.of(context).colorScheme.onSurfaceVariant,
                   size: 20,
                 ),
                 const SizedBox(width: 12),

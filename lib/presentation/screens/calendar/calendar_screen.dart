@@ -427,12 +427,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
           }
         } catch (e) {
           if (context.mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(l10n.calendarFailedToMove('$e')),
-                backgroundColor: Colors.red,
-              ),
-            );
+            context.showErrorSnackBar(l10n.calendarFailedToMove('$e'));
           }
         }
       },
@@ -453,12 +448,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
         } catch (e) {
           if (context.mounted) {
             final l10n = AppLocalizations.of(context)!;
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(l10n.calendarFailedToReorder('$e')),
-                backgroundColor: Colors.red,
-              ),
-            );
+            context.showErrorSnackBar(l10n.calendarFailedToReorder('$e'));
           }
         }
       },
@@ -721,12 +711,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
           }
         } catch (e) {
           if (context.mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(l10n.calendarFailedToMove('$e')),
-                backgroundColor: Colors.red,
-              ),
-            );
+            context.showErrorSnackBar(l10n.calendarFailedToMove('$e'));
           }
         }
       },
@@ -747,12 +732,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
         } catch (e) {
           if (context.mounted) {
             final l10n = AppLocalizations.of(context)!;
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(l10n.calendarFailedToReorder('$e')),
-                backgroundColor: Colors.red,
-              ),
-            );
+            context.showErrorSnackBar(l10n.calendarFailedToReorder('$e'));
           }
         }
       },
@@ -1651,12 +1631,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     } catch (e) {
       if (mounted) {
         final l10n = AppLocalizations.of(context)!;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(l10n.calendarFailedToInsertDay('$e')),
-            backgroundColor: context.errorColor,
-          ),
-        );
+        context.showErrorSnackBar(l10n.calendarFailedToInsertDay('$e'));
       }
     }
   }
@@ -1701,12 +1676,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     } catch (e) {
       if (mounted) {
         final l10n = AppLocalizations.of(context)!;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(l10n.calendarFailedToRemoveRestDay('$e')),
-            backgroundColor: context.errorColor,
-          ),
-        );
+        context.showErrorSnackBar(l10n.calendarFailedToRemoveRestDay('$e'));
       }
     }
   }

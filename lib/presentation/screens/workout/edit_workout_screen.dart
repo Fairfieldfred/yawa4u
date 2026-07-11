@@ -1,5 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+
+import '../../../core/extensions/context_extensions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -388,21 +390,11 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
     try {
       await controller.addPeriod(trainingCycle);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(l10n.editWorkoutPeriodAdded(trainingCycle.periodsTotal)),
-            backgroundColor: context.successColor,
-          ),
-        );
+        context.showSuccessSnackBar(l10n.editWorkoutPeriodAdded(trainingCycle.periodsTotal));
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(l10n.editWorkoutPeriodAddError(e)),
-            backgroundColor: context.errorColor,
-          ),
-        );
+        context.showErrorSnackBar(l10n.editWorkoutPeriodAddError(e));
       }
     }
   }
@@ -453,25 +445,15 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
         }
 
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                removeRecovery
-                    ? l10n.editWorkoutRecoveryPeriodRemoved
-                    : l10n.editWorkoutPeriodRemoved(lastNonRecoveryPeriod),
-              ),
-              backgroundColor: context.successColor,
-            ),
+          context.showSuccessSnackBar(
+            removeRecovery
+                ? l10n.editWorkoutRecoveryPeriodRemoved
+                : l10n.editWorkoutPeriodRemoved(lastNonRecoveryPeriod),
           );
         }
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(l10n.editWorkoutPeriodRemoveError(e)),
-              backgroundColor: context.errorColor,
-            ),
-          );
+          context.showErrorSnackBar(l10n.editWorkoutPeriodRemoveError(e));
         }
       }
     }
@@ -526,21 +508,11 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
       try {
         await controller.updateRecoveryPeriodType(trainingCycle, result);
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(l10n.editWorkoutRecoveryTypeChanged(result.displayName)),
-              backgroundColor: context.successColor,
-            ),
-          );
+          context.showSuccessSnackBar(l10n.editWorkoutRecoveryTypeChanged(result.displayName));
         }
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(l10n.editWorkoutRecoveryTypeError(e)),
-              backgroundColor: context.errorColor,
-            ),
-          );
+          context.showErrorSnackBar(l10n.editWorkoutRecoveryTypeError(e));
         }
       }
     }
@@ -642,21 +614,11 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
     try {
       await controller.addDay(trainingCycle);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(l10n.editWorkoutDayAdded(trainingCycle.daysPerPeriod + 1)),
-            backgroundColor: context.successColor,
-          ),
-        );
+        context.showSuccessSnackBar(l10n.editWorkoutDayAdded(trainingCycle.daysPerPeriod + 1));
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(l10n.editWorkoutDayAddError(e)),
-            backgroundColor: context.errorColor,
-          ),
-        );
+        context.showErrorSnackBar(l10n.editWorkoutDayAddError(e));
       }
     }
   }
@@ -712,21 +674,11 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
       }
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(l10n.editWorkoutDayRemoved(dayToRemove)),
-            backgroundColor: context.successColor,
-          ),
-        );
+        context.showSuccessSnackBar(l10n.editWorkoutDayRemoved(dayToRemove));
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(l10n.editWorkoutDayRemoveError(e)),
-            backgroundColor: context.errorColor,
-          ),
-        );
+        context.showErrorSnackBar(l10n.editWorkoutDayRemoveError(e));
       }
     }
   }
@@ -874,12 +826,10 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
                       offset: const Offset(-180, 40),
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(minWidth: 250),
-                      color: const Color(0xFF2C2C2E),
+                      color: Theme.of(context).cardTheme.color,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
-                        side: BorderSide(
-                          color: Colors.white.withValues(alpha: 0.1),
-                        ),
+                        side: BorderSide(color: Theme.of(context).dividerColor),
                       ),
                       onSelected: (value) {
                         switch (value) {
@@ -918,8 +868,8 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
                             height: 32,
                             child: Text(
                               l10n.editWorkoutExerciseMenuHeader,
-                              style: const TextStyle(
-                                color: Colors.grey,
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
                                 fontSize: 12,
                                 fontWeight: FontWeight.w600,
                               ),
@@ -931,15 +881,15 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
                             height: 48,
                             child: Row(
                               children: [
-                                const Icon(
+                                Icon(
                                   Icons.edit_outlined,
-                                  color: Colors.white,
+                                  color: Theme.of(context).colorScheme.onSurface,
                                   size: 20,
                                 ),
                                 const SizedBox(width: 12),
                                 Text(
                                   l10n.editWorkoutNewNote,
-                                  style: const TextStyle(color: Colors.white),
+                                  style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
                                 ),
                               ],
                             ),
@@ -953,14 +903,18 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
                               children: [
                                 Icon(
                                   Icons.arrow_upward,
-                                  color: index > 0 ? Colors.white : Colors.grey,
+                                  color: index > 0
+                                      ? Theme.of(context).colorScheme.onSurface
+                                      : Theme.of(context).disabledColor,
                                   size: 20,
                                 ),
                                 const SizedBox(width: 12),
                                 Text(
                                   l10n.editWorkoutMoveUp,
                                   style: TextStyle(
-                                    color: index > 0 ? Colors.white : Colors.grey,
+                                    color: index > 0
+                                        ? Theme.of(context).colorScheme.onSurface
+                                        : Theme.of(context).disabledColor,
                                   ),
                                 ),
                               ],
@@ -975,14 +929,18 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
                               children: [
                                 Icon(
                                   Icons.arrow_downward,
-                                  color: index < totalExercises - 1 ? Colors.white : Colors.grey,
+                                  color: index < totalExercises - 1
+                                      ? Theme.of(context).colorScheme.onSurface
+                                      : Theme.of(context).disabledColor,
                                   size: 20,
                                 ),
                                 const SizedBox(width: 12),
                                 Text(
                                   l10n.editWorkoutMoveDown,
                                   style: TextStyle(
-                                    color: index < totalExercises - 1 ? Colors.white : Colors.grey,
+                                    color: index < totalExercises - 1
+                                        ? Theme.of(context).colorScheme.onSurface
+                                        : Theme.of(context).disabledColor,
                                   ),
                                 ),
                               ],
@@ -994,15 +952,15 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
                             height: 48,
                             child: Row(
                               children: [
-                                const Icon(
+                                Icon(
                                   Icons.swap_horiz,
-                                  color: Colors.white,
+                                  color: Theme.of(context).colorScheme.onSurface,
                                   size: 20,
                                 ),
                                 const SizedBox(width: 12),
                                 Text(
                                   l10n.editWorkoutReplace,
-                                  style: const TextStyle(color: Colors.white),
+                                  style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
                                 ),
                               ],
                             ),
@@ -1013,11 +971,11 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
                             height: 48,
                             child: Row(
                               children: [
-                                const Icon(Icons.add, color: Colors.white, size: 20),
+                                Icon(Icons.add, color: Theme.of(context).colorScheme.onSurface, size: 20),
                                 const SizedBox(width: 12),
                                 Text(
                                   l10n.editWorkoutAddSet,
-                                  style: const TextStyle(color: Colors.white),
+                                  style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
                                 ),
                               ],
                             ),
@@ -1059,9 +1017,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
                           child: Text(
                             AppLocalizations.of(context)!.editWorkoutSetHeader,
                             style: TextStyle(
-                              color: Theme.of(context).brightness == Brightness.light
-                                  ? Theme.of(context).textTheme.bodySmall?.color?.withValues(alpha: 0.7)
-                                  : Colors.white,
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
                             ),
@@ -1073,9 +1029,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
                           child: Text(
                             AppLocalizations.of(context)!.editWorkoutRepsHeader,
                             style: TextStyle(
-                              color: Theme.of(context).brightness == Brightness.light
-                                  ? Theme.of(context).textTheme.bodySmall?.color?.withValues(alpha: 0.7)
-                                  : Colors.white,
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
                             ),
@@ -1795,21 +1749,11 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
         );
 
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(l10n.editWorkoutPeriod1Mirrored(_selectedPeriod)),
-              backgroundColor: context.successColor,
-            ),
-          );
+          context.showSuccessSnackBar(l10n.editWorkoutPeriod1Mirrored(_selectedPeriod));
         }
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(l10n.editWorkoutMirrorError(e)),
-              backgroundColor: context.errorColor,
-            ),
-          );
+          context.showErrorSnackBar(l10n.editWorkoutMirrorError(e));
         }
       }
     }
@@ -1887,12 +1831,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
       }
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(l10n.editWorkoutPeriodAddError(e)),
-            backgroundColor: context.errorColor,
-          ),
-        );
+        context.showErrorSnackBar(l10n.editWorkoutPeriodAddError(e));
       }
     }
   }
@@ -1957,21 +1896,11 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
         ref.invalidate(workoutsByTrainingCycleProvider(widget.trainingCycleId));
 
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(l10n.noteSaved),
-              backgroundColor: context.successColor,
-            ),
-          );
+          context.showSuccessSnackBar(l10n.noteSaved);
         }
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(l10n.noteSaveError(e)),
-              backgroundColor: context.errorColor,
-            ),
-          );
+          context.showErrorSnackBar(l10n.noteSaveError(e));
         }
       }
     }
@@ -1988,22 +1917,12 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
       await TemplateExporter.exportToClipboard(trainingCycleToExport);
       if (context.mounted) {
         final l10n = AppLocalizations.of(context)!;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(l10n.editWorkoutTemplateExported),
-            backgroundColor: context.successColor,
-          ),
-        );
+        context.showSuccessSnackBar(l10n.editWorkoutTemplateExported);
       }
     } catch (e) {
       if (context.mounted) {
         final l10n = AppLocalizations.of(context)!;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(l10n.editWorkoutTemplateExportError(e)),
-            backgroundColor: context.errorColor,
-          ),
-        );
+        context.showErrorSnackBar(l10n.editWorkoutTemplateExportError(e));
       }
     }
   }

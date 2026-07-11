@@ -1723,6 +1723,46 @@
   "integrationsStravaDisconnectTitle": "Disconnect Strava?",
   "integrationsStravaDisconnectMessage": "New activities will stop syncing. Workouts already imported stay on this device.",
   "integrationsStravaDisconnectConfirm": "Disconnect",
+  "exerciseCardHistoryRetry": "Couldn't load history \u2014 tap to retry",
+  "cycleComparisonLoadError": "Couldn't load cycle statistics",
+  "calendarDropdownPeriodAdded": "Period {number} added",
+  "@calendarDropdownPeriodAdded": {
+    "placeholders": {
+      "number": {}
+    }
+  },
+  "calendarDropdownCannotRemovePeriod": "Cannot remove: must have at least 1 period",
+  "calendarDropdownPeriodRemoved": "Period {number} removed",
+  "@calendarDropdownPeriodRemoved": {
+    "placeholders": {
+      "number": {}
+    }
+  },
+  "integrationsUnknownError": "Unknown error",
+  "integrationsLastRunSummary": "Last run: {total} found \u00b7 {imported} imported \u00b7 {duplicates} already here \u00b7 {unsupported} non-cardio skipped",
+  "@integrationsLastRunSummary": {
+    "placeholders": {
+      "total": {},
+      "imported": {},
+      "duplicates": {},
+      "unsupported": {}
+    }
+  },
+  "integrationsAppleHealthRequired": "Apple Health access needed",
+  "integrationsAppleHealthIntro": "YAWA4U reads workouts from Apple Health. Access was denied or hasn't been granted yet.",
+  "integrationsAppleHealthStep1": "1. Open Settings \u2192 Health \u2192 Data Access & Devices",
+  "integrationsAppleHealthStep2": "2. Choose YAWA4U",
+  "integrationsAppleHealthStep3": "3. Turn on the workout categories you want to share",
+  "integrationsOpenSettings": "Open Settings",
+  "communitySignInButton": "Sign in",
+  "communityTemplateSaved": "\"{name}\" saved \u2014 draft cycle created",
+  "@communityTemplateSaved": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "statsNoStrengthTitle": "No workouts logged yet",
+  "statsNoStrengthSubtitle": "Statistics appear here after you log your first strength workout.",
   "syncWithAnotherDevice": "Sync with another device",
   "syncWifiRequired": "Both devices must be on the same WiFi network.",
   "syncHostButton": "Host Sync (Show QR Code)",

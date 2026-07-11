@@ -2795,6 +2795,66 @@ class AppLocalizationsEn extends AppLocalizations {
   String get integrationsStravaDisconnectConfirm => 'Disconnect';
 
   @override
+  String get exerciseCardHistoryRetry => 'Couldn\'t load history — tap to retry';
+
+  @override
+  String get cycleComparisonLoadError => 'Couldn\'t load cycle statistics';
+
+  @override
+  String calendarDropdownPeriodAdded(Object number) {
+    return 'Period $number added';
+  }
+
+  @override
+  String get calendarDropdownCannotRemovePeriod => 'Cannot remove: must have at least 1 period';
+
+  @override
+  String calendarDropdownPeriodRemoved(Object number) {
+    return 'Period $number removed';
+  }
+
+  @override
+  String get integrationsUnknownError => 'Unknown error';
+
+  @override
+  String integrationsLastRunSummary(Object total, Object imported, Object duplicates, Object unsupported) {
+    return 'Last run: $total found · $imported imported · $duplicates already here · $unsupported non-cardio skipped';
+  }
+
+  @override
+  String get integrationsAppleHealthRequired => 'Apple Health access needed';
+
+  @override
+  String get integrationsAppleHealthIntro =>
+      'YAWA4U reads workouts from Apple Health. Access was denied or hasn\'t been granted yet.';
+
+  @override
+  String get integrationsAppleHealthStep1 => '1. Open Settings → Health → Data Access & Devices';
+
+  @override
+  String get integrationsAppleHealthStep2 => '2. Choose YAWA4U';
+
+  @override
+  String get integrationsAppleHealthStep3 => '3. Turn on the workout categories you want to share';
+
+  @override
+  String get integrationsOpenSettings => 'Open Settings';
+
+  @override
+  String get communitySignInButton => 'Sign in';
+
+  @override
+  String communityTemplateSaved(Object name) {
+    return '\"$name\" saved — draft cycle created';
+  }
+
+  @override
+  String get statsNoStrengthTitle => 'No workouts logged yet';
+
+  @override
+  String get statsNoStrengthSubtitle => 'Statistics appear here after you log your first strength workout.';
+
+  @override
   String get syncWithAnotherDevice => 'Sync with another device';
 
   @override

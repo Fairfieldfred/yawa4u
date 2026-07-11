@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+
+import '../../../core/extensions/context_extensions.dart';
+import 'package:intl/intl.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uuid/uuid.dart';
@@ -179,13 +182,7 @@ class _CardioSessionScreenState extends ConsumerState<CardioSessionScreen> {
       context.pushReplacement('/cardio-session/${session.id}/intervals');
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            UserErrors.describe(e, context: 'load template'),
-          ),
-        ),
-      );
+      context.showSnackBar(UserErrors.describe(e, context: 'load template'));
     } finally {
       if (mounted) setState(() => _saving = false);
     }
@@ -304,24 +301,15 @@ class _CardioSessionScreenState extends ConsumerState<CardioSessionScreen> {
       if (!mounted) return;
       _dirty = false;
       final l10n = AppLocalizations.of(context)!;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            _existing == null
-                ? (isPlanning ? l10n.cardioSessionPlanned : l10n.cardioSessionLogged)
-                : l10n.cardioSessionUpdated,
-          ),
-        ),
+      context.showSnackBar(
+        _existing == null
+            ? (isPlanning ? l10n.cardioSessionPlanned : l10n.cardioSessionLogged)
+            : l10n.cardioSessionUpdated,
       );
       context.pop();
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(UserErrors.describe(e, context: 'save session')),
-          backgroundColor: Theme.of(context).colorScheme.error,
-        ),
-      );
+      context.showErrorSnackBar(UserErrors.describe(e, context: 'save session'));
     } finally {
       if (mounted) setState(() => _saving = false);
     }
@@ -359,160 +347,160 @@ class _CardioSessionScreenState extends ConsumerState<CardioSessionScreen> {
         }
       },
       child: Scaffold(
-      appBar: AppBar(
-        title: Text(title),
-        actions: [
-          if (_existing != null)
-            IconButton(
-              tooltip: l10n.cardioSessionEditIntervalsTooltip,
-              icon: const Icon(Icons.timeline),
-              onPressed: () {
-                context.push(
-                  '/cardio-session/${_existing!.id}/intervals',
-                );
-              },
-            ),
-          if (_isReadOnly)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              child: Chip(label: Text(l10n.cardioSessionImportedChip), visualDensity: VisualDensity.compact),
-            ),
-        ],
-      ),
-      body: AbsorbPointer(
-        absorbing: _saving,
-        child: ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            if (!_isReadOnly) ...[
-              _ModeIndicator(isPlan: isPlanMode),
-              const SizedBox(height: 12),
-            ],
-            Row(
-              children: [
-                SportBadge(sport: _sport),
-                const SizedBox(width: 8),
-                Text(
-                  _dateLabel(),
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-                const Spacer(),
-                TextButton.icon(
-                  onPressed: _isReadOnly ? null : _pickDate,
-                  icon: const Icon(Icons.calendar_today, size: 18),
-                  label: Text(l10n.cardioSessionDateButton),
-                ),
-              ],
-            ),
-            // "Start from template" — only shown when creating a new
-            // session. Opens the template picker, instantiates the
-            // chosen one via SessionRepository, and routes straight to
-            // the interval builder so the user can review/edit.
-            if (_existing == null) ...[
-              const SizedBox(height: 8),
-              OutlinedButton.icon(
-                onPressed: _saving ? null : _pickTemplate,
-                icon: const Icon(Icons.auto_awesome),
-                label: Text(l10n.cardioSessionStartFromTemplate),
+        appBar: AppBar(
+          title: Text(title),
+          actions: [
+            if (_existing != null)
+              IconButton(
+                tooltip: l10n.cardioSessionEditIntervalsTooltip,
+                icon: const Icon(Icons.timeline),
+                onPressed: () {
+                  context.push(
+                    '/cardio-session/${_existing!.id}/intervals',
+                  );
+                },
               ),
-            ],
-            const SizedBox(height: 12),
-            TextField(
-              controller: _labelController,
-              enabled: !_isReadOnly,
-              textCapitalization: TextCapitalization.sentences,
-              decoration: InputDecoration(
-                labelText: l10n.cardioSessionNameLabel,
-                hintText: l10n.cardioSessionNameHint,
-                border: const OutlineInputBorder(),
-                prefixIcon: const Icon(Icons.label_outline),
-              ),
-            ),
-            const SizedBox(height: 16),
-            DistanceInput(
-              key: ValueKey('distance-${_sport.name}-${units.name}'),
-              initialMeters: _distanceMeters,
-              units: units,
-              sport: _sport,
-              enabled: !_isReadOnly,
-              onChanged: (meters) {
-                _distanceMeters = meters;
-                _markDirty();
-              },
-            ),
-            const SizedBox(height: 12),
-            DurationInput(
-              key: ValueKey('duration-${_existing?.id ?? 'new'}'),
-              initialSeconds: _durationSeconds,
-              enabled: !_isReadOnly,
-              onChanged: (seconds) {
-                _durationSeconds = seconds;
-                _markDirty();
-              },
-            ),
-            const SizedBox(height: 12),
-            HrInput(
-              key: ValueKey('hr-${_existing?.id ?? 'new'}'),
-              initialBpm: _averageHr,
-              enabled: !_isReadOnly,
-              onChanged: (bpm) {
-                _averageHr = bpm;
-                _markDirty();
-              },
-            ),
-            const SizedBox(height: 16),
-            _RpeSlider(
-              value: _rpe,
-              onChanged: (v) => setState(() {
-                _rpe = v;
-                _dirty = true;
-              }),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _notesController,
-              maxLines: 3,
-              decoration: InputDecoration(
-                labelText: l10n.cardioSessionNotesLabel,
-                hintText: l10n.cardioSessionNotesHint,
-                border: const OutlineInputBorder(),
-                prefixIcon: const Icon(Icons.edit_note),
-              ),
-            ),
-            const SizedBox(height: 24),
-            FilledButton.icon(
-              onPressed: _saving ? null : _save,
-              icon: _saving
-                  ? const SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Icon(Icons.check),
-              label: Text(
-                _existing == null
-                    ? (widget.planned ? l10n.cardioSessionPlanButton : l10n.cardioSessionSaveButton)
-                    : (_existing!.status == WorkoutStatus.incomplete
-                          ? l10n.cardioSessionLogButton
-                          : l10n.cardioSessionUpdateButton),
-              ),
-              style: FilledButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 14),
-              ),
-            ),
-            if (_distanceMeters != null && _durationSeconds != null)
+            if (_isReadOnly)
               Padding(
-                padding: const EdgeInsets.only(top: 16),
-                child: _PaceReadout(
-                  distanceMeters: _distanceMeters!,
-                  durationSeconds: _durationSeconds!,
-                  units: units,
-                  sport: _sport,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: Chip(label: Text(l10n.cardioSessionImportedChip), visualDensity: VisualDensity.compact),
               ),
           ],
         ),
-      ),
+        body: AbsorbPointer(
+          absorbing: _saving,
+          child: ListView(
+            padding: const EdgeInsets.all(16),
+            children: [
+              if (!_isReadOnly) ...[
+                _ModeIndicator(isPlan: isPlanMode),
+                const SizedBox(height: 12),
+              ],
+              Row(
+                children: [
+                  SportBadge(sport: _sport),
+                  const SizedBox(width: 8),
+                  Text(
+                    _dateLabel(),
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                  const Spacer(),
+                  TextButton.icon(
+                    onPressed: _isReadOnly ? null : _pickDate,
+                    icon: const Icon(Icons.calendar_today, size: 18),
+                    label: Text(l10n.cardioSessionDateButton),
+                  ),
+                ],
+              ),
+              // "Start from template" — only shown when creating a new
+              // session. Opens the template picker, instantiates the
+              // chosen one via SessionRepository, and routes straight to
+              // the interval builder so the user can review/edit.
+              if (_existing == null) ...[
+                const SizedBox(height: 8),
+                OutlinedButton.icon(
+                  onPressed: _saving ? null : _pickTemplate,
+                  icon: const Icon(Icons.auto_awesome),
+                  label: Text(l10n.cardioSessionStartFromTemplate),
+                ),
+              ],
+              const SizedBox(height: 12),
+              TextField(
+                controller: _labelController,
+                enabled: !_isReadOnly,
+                textCapitalization: TextCapitalization.sentences,
+                decoration: InputDecoration(
+                  labelText: l10n.cardioSessionNameLabel,
+                  hintText: l10n.cardioSessionNameHint,
+                  border: const OutlineInputBorder(),
+                  prefixIcon: const Icon(Icons.label_outline),
+                ),
+              ),
+              const SizedBox(height: 16),
+              DistanceInput(
+                key: ValueKey('distance-${_sport.name}-${units.name}'),
+                initialMeters: _distanceMeters,
+                units: units,
+                sport: _sport,
+                enabled: !_isReadOnly,
+                onChanged: (meters) {
+                  _distanceMeters = meters;
+                  _markDirty();
+                },
+              ),
+              const SizedBox(height: 12),
+              DurationInput(
+                key: ValueKey('duration-${_existing?.id ?? 'new'}'),
+                initialSeconds: _durationSeconds,
+                enabled: !_isReadOnly,
+                onChanged: (seconds) {
+                  _durationSeconds = seconds;
+                  _markDirty();
+                },
+              ),
+              const SizedBox(height: 12),
+              HrInput(
+                key: ValueKey('hr-${_existing?.id ?? 'new'}'),
+                initialBpm: _averageHr,
+                enabled: !_isReadOnly,
+                onChanged: (bpm) {
+                  _averageHr = bpm;
+                  _markDirty();
+                },
+              ),
+              const SizedBox(height: 16),
+              _RpeSlider(
+                value: _rpe,
+                onChanged: (v) => setState(() {
+                  _rpe = v;
+                  _dirty = true;
+                }),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: _notesController,
+                maxLines: 3,
+                decoration: InputDecoration(
+                  labelText: l10n.cardioSessionNotesLabel,
+                  hintText: l10n.cardioSessionNotesHint,
+                  border: const OutlineInputBorder(),
+                  prefixIcon: const Icon(Icons.edit_note),
+                ),
+              ),
+              const SizedBox(height: 24),
+              FilledButton.icon(
+                onPressed: _saving ? null : _save,
+                icon: _saving
+                    ? const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.check),
+                label: Text(
+                  _existing == null
+                      ? (widget.planned ? l10n.cardioSessionPlanButton : l10n.cardioSessionSaveButton)
+                      : (_existing!.status == WorkoutStatus.incomplete
+                            ? l10n.cardioSessionLogButton
+                            : l10n.cardioSessionUpdateButton),
+                ),
+                style: FilledButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                ),
+              ),
+              if (_distanceMeters != null && _durationSeconds != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 16),
+                  child: _PaceReadout(
+                    distanceMeters: _distanceMeters!,
+                    durationSeconds: _durationSeconds!,
+                    units: units,
+                    sport: _sport,
+                  ),
+                ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -541,22 +529,7 @@ class _CardioSessionScreenState extends ConsumerState<CardioSessionScreen> {
   }
 
   String _dateLabel() {
-    final d = _scheduledDate;
-    final months = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec',
-    ];
-    return '${months[d.month - 1]} ${d.day}, ${d.year}';
+    return DateFormat.yMMMd(Localizations.localeOf(context).toString()).format(_scheduledDate);
   }
 }
 

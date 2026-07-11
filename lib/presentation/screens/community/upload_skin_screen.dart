@@ -2,6 +2,8 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+
+import '../../../core/extensions/context_extensions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme/skins/skins.dart';
@@ -120,9 +122,7 @@ class _UploadSkinScreenState extends ConsumerState<UploadSkinScreen> {
 
     final displayName = _displayNameController.text.trim();
     if (displayName.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.uploadEnterDisplayName)),
-      );
+      context.showSnackBar(l10n.uploadEnterDisplayName);
       return;
     }
 
@@ -140,13 +140,7 @@ class _UploadSkinScreenState extends ConsumerState<UploadSkinScreen> {
       if (user == null) {
         if (mounted) {
           setState(() => _isUploading = false);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(l10n.uploadNotSignedIn),
-              backgroundColor: context.errorColor,
-              behavior: SnackBarBehavior.floating,
-            ),
-          );
+          context.showErrorSnackBar(l10n.uploadNotSignedIn);
         }
         return;
       }
@@ -167,27 +161,13 @@ class _UploadSkinScreenState extends ConsumerState<UploadSkinScreen> {
       if (mounted) {
         ref.invalidate(communitySkinsProvider);
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              l10n.uploadPublishedToCommunity(_selectedSkin!.name),
-            ),
-            backgroundColor: context.successColor,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
+        context.showSuccessSnackBar(l10n.uploadPublishedToCommunity(_selectedSkin!.name));
         Navigator.of(context).pop();
       }
     } catch (e) {
       if (mounted) {
         setState(() => _isUploading = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(l10n.uploadFailed(e)),
-            backgroundColor: context.errorColor,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
+        context.showErrorSnackBar(l10n.uploadFailed(e));
       }
     }
   }

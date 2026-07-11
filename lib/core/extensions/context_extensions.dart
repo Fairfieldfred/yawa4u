@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../theme/skins/skins.dart';
+
 /// Extension methods for BuildContext
 /// Provides convenient access to theme, media query, navigator, etc.
 extension ContextExtensions on BuildContext {
@@ -81,37 +83,10 @@ extension ContextExtensions on BuildContext {
   /// Check if device is likely a desktop
   bool get isDesktop => screenWidth >= 1200;
 
-  // ========== NAVIGATOR ==========
-
-  /// Get NavigatorState
-  NavigatorState get navigator => Navigator.of(this);
-
-  /// Pop the current route
-  void pop<T>([T? result]) => navigator.pop(result);
-
-  /// Check if can pop
-  bool get canPop => navigator.canPop();
-
-  /// Push a new route
-  Future<T?> push<T>(Route<T> route) => navigator.push(route);
-
-  /// Push a named route
-  Future<T?> pushNamed<T>(String routeName, {Object? arguments}) {
-    return navigator.pushNamed(routeName, arguments: arguments);
-  }
-
-  /// Push and remove until
-  Future<T?> pushAndRemoveUntil<T>(
-    Route<T> newRoute,
-    bool Function(Route<dynamic>) predicate,
-  ) {
-    return navigator.pushAndRemoveUntil(newRoute, predicate);
-  }
-
-  /// Replace current route
-  Future<T?> pushReplacement<T, TO>(Route<T> newRoute, {TO? result}) {
-    return navigator.pushReplacement(newRoute, result: result);
-  }
+  // Navigator helpers (push/pop/etc.) were removed: they collided with
+  // go_router's BuildContext extension — this app's navigation idiom — and
+  // had no callers. Use context.go / context.push from go_router, or
+  // Navigator.of(context) for dialogs.
 
   // ========== SCAFFOLD ==========
 
@@ -139,12 +114,12 @@ extension ContextExtensions on BuildContext {
     );
   }
 
-  /// Show a success SnackBar
+  /// Show a success SnackBar (uses the active skin's success color).
   void showSuccessSnackBar(String message, {Duration? duration}) {
     scaffoldMessenger.showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: Colors.green,
+        backgroundColor: successColor,
         duration: duration ?? const Duration(seconds: 3),
       ),
     );
@@ -164,11 +139,12 @@ extension ContextExtensions on BuildContext {
 
   // ========== DIALOGS ==========
 
-  /// Show a simple alert dialog
+  /// Show a simple alert dialog. All strings must be localized by the
+  /// caller — no English defaults.
   Future<bool?> showAlertDialog({
     required String title,
     required String message,
-    String confirmText = 'OK',
+    required String confirmText,
     String? cancelText,
   }) {
     return showDialog<bool>(
@@ -179,11 +155,11 @@ extension ContextExtensions on BuildContext {
         actions: [
           if (cancelText != null)
             TextButton(
-              onPressed: () => context.pop(false),
+              onPressed: () => Navigator.of(context).pop(false),
               child: Text(cancelText),
             ),
           TextButton(
-            onPressed: () => context.pop(true),
+            onPressed: () => Navigator.of(context).pop(true),
             child: Text(confirmText),
           ),
         ],
@@ -191,12 +167,13 @@ extension ContextExtensions on BuildContext {
     );
   }
 
-  /// Show a confirmation dialog
+  /// Show a confirmation dialog. All strings must be localized by the
+  /// caller — no English defaults.
   Future<bool> showConfirmDialog({
     required String title,
     required String message,
-    String confirmText = 'Confirm',
-    String cancelText = 'Cancel',
+    required String confirmText,
+    required String cancelText,
   }) async {
     final result = await showAlertDialog(
       title: title,
@@ -207,18 +184,24 @@ extension ContextExtensions on BuildContext {
     return result ?? false;
   }
 
-  /// Show a delete confirmation dialog
-  Future<bool> showDeleteConfirmDialog({required String itemName}) {
+  /// Show a delete confirmation dialog. All strings must be localized by
+  /// the caller — no English defaults.
+  Future<bool> showDeleteConfirmDialog({
+    required String title,
+    required String message,
+    required String confirmText,
+    required String cancelText,
+  }) {
     return showConfirmDialog(
-      title: 'Delete $itemName?',
-      message: 'This action cannot be undone.',
-      confirmText: 'Delete',
-      cancelText: 'Cancel',
+      title: title,
+      message: message,
+      confirmText: confirmText,
+      cancelText: cancelText,
     );
   }
 
-  /// Show a loading dialog
-  void showLoadingDialog({String? message}) {
+  /// Show a loading dialog. [message] must be localized by the caller.
+  void showLoadingDialog({required String message}) {
     showDialog(
       context: this,
       barrierDismissible: false,
@@ -227,7 +210,7 @@ extension ContextExtensions on BuildContext {
           children: [
             const CircularProgressIndicator(),
             const SizedBox(width: 16),
-            Expanded(child: Text(message ?? 'Loading...')),
+            Expanded(child: Text(message)),
           ],
         ),
       ),
@@ -236,7 +219,8 @@ extension ContextExtensions on BuildContext {
 
   /// Dismiss the current dialog
   void dismissDialog() {
-    if (canPop) pop();
+    final navigator = Navigator.of(this);
+    if (navigator.canPop()) navigator.pop();
   }
 
   // ========== BOTTOM SHEET ==========
