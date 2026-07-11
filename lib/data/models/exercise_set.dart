@@ -42,11 +42,12 @@ class ExerciseSet {
     bool? isLogged,
     String? notes,
     bool? isSkipped,
+    bool clearWeight = false,
   }) {
     return ExerciseSet(
       id: id ?? this.id,
       setNumber: setNumber ?? this.setNumber,
-      weight: weight ?? this.weight,
+      weight: clearWeight ? null : (weight ?? this.weight),
       reps: reps ?? this.reps,
       setType: setType ?? this.setType,
       isLogged: isLogged ?? this.isLogged,

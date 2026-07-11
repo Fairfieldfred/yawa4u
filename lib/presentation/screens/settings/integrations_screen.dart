@@ -247,6 +247,26 @@ class _StravaCardState extends ConsumerState<_StravaCard> {
   }
 
   Future<void> _disconnect() async {
+    final l10n = AppLocalizations.of(context)!;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l10n.integrationsStravaDisconnectTitle),
+        content: Text(l10n.integrationsStravaDisconnectMessage),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(l10n.cancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(l10n.integrationsStravaDisconnectConfirm),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+
     setState(() => _busy = true);
     await ref.read(stravaIntegrationServiceProvider).disconnect();
     ref.invalidate(stravaSyncStatusProvider);

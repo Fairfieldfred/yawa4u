@@ -1708,6 +1708,21 @@
     }
   },
   "cycleListMenuNeedsExercisesHint": "Add exercises to every training day first",
+  "cycleListDeleteDialogDetail": "This permanently deletes {workoutCount} workouts, including {loggedSetCount} logged sets of training history.",
+  "@cycleListDeleteDialogDetail": {
+    "placeholders": {
+      "workoutCount": {},
+      "loggedSetCount": {}
+    }
+  },
+  "cardioSessionPromoteTitle": "Log this session?",
+  "cardioSessionPromoteMessage": "Saving marks this planned session as completed with the values entered.",
+  "cardioSessionModePlan": "Plan",
+  "cardioSessionModeLog": "Log",
+  "cardioSessionRpeClearTooltip": "Clear effort rating",
+  "integrationsStravaDisconnectTitle": "Disconnect Strava?",
+  "integrationsStravaDisconnectMessage": "New activities will stop syncing. Workouts already imported stay on this device.",
+  "integrationsStravaDisconnectConfirm": "Disconnect",
   "syncWithAnotherDevice": "Sync with another device",
   "syncWifiRequired": "Both devices must be on the same WiFi network.",
   "syncHostButton": "Host Sync (Show QR Code)",

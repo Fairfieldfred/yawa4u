@@ -511,6 +511,115 @@ void main() {
     });
   });
 
+  group('drag-drop undo snapshots', () {
+    test('multi-cycle undo restores exact prior scheduledDates for every stacked cycle', () async {
+      // Two stacked cycles active over the same dates.
+      await insertCycle(id: 'cycle-a', startDate: DateTime(2024, 3, 1), daysPerPeriod: 5);
+      await insertCycle(id: 'cycle-b', startDate: DateTime(2024, 3, 2), daysPerPeriod: 7);
+
+      final wA = TestFixtures.createWorkout(
+        id: 'w-a',
+        trainingCycleId: 'cycle-a',
+        periodNumber: 1,
+        dayNumber: 3,
+        scheduledDate: DateTime(2024, 3, 3),
+      );
+      final wB = TestFixtures.createWorkout(
+        id: 'w-b',
+        trainingCycleId: 'cycle-b',
+        periodNumber: 1,
+        dayNumber: 2,
+        scheduledDate: DateTime(2024, 3, 3),
+      );
+      await workoutRepo.create(wA);
+      await workoutRepo.create(wB);
+
+      // Insert a rest day before March 3 in BOTH cycles (what the calendar
+      // does for stacked cycles), keeping one snapshot per cycle.
+      final snapA = await service.insertDayBeforeDate(cycleId: 'cycle-a', restDayDate: DateTime(2024, 3, 3));
+      final snapB = await service.insertDayBeforeDate(cycleId: 'cycle-b', restDayDate: DateTime(2024, 3, 3));
+      expect(snapA, isNotNull);
+      expect(snapB, isNotNull);
+
+      // Both workouts shifted off March 3.
+      expect((await workoutRepo.getById('w-a'))!.scheduledDate, isNot(DateTime(2024, 3, 3)));
+      expect((await workoutRepo.getById('w-b'))!.scheduledDate, isNot(DateTime(2024, 3, 3)));
+
+      // Undo both (what CalendarUndoNotifier.undo does).
+      await service.restoreSnapshot('cycle-a', snapA!);
+      await service.restoreSnapshot('cycle-b', snapB!);
+
+      expect((await workoutRepo.getById('w-a'))!.scheduledDate, DateTime(2024, 3, 3));
+      expect((await workoutRepo.getById('w-b'))!.scheduledDate, DateTime(2024, 3, 3));
+    });
+
+    test('moveCardioToDate returns a snapshot that restores the prior schedule', () async {
+      final startDate = DateTime(2024, 3, 1);
+      await insertCycle(startDate: startDate, daysPerPeriod: 5);
+
+      final cardio = TestFixtures.createCardioSession(
+        id: 'cardio-undo',
+        trainingCycleId: 'cycle-1',
+        sport: Sport.run,
+        periodNumber: 1,
+        dayNumber: 2,
+        scheduledDate: DateTime(2024, 3, 2),
+      );
+      await sessionRepo.createCardio(cardio);
+
+      final snapshot = await service.moveCardioToDate(
+        cycleId: 'cycle-1',
+        session: cardio,
+        targetDate: DateTime(2024, 3, 8),
+      );
+
+      var moved = await sessionRepo.getById('cardio-undo');
+      expect(moved!.scheduledDate, DateTime(2024, 3, 8));
+
+      await service.restoreSnapshot('cycle-1', snapshot);
+
+      moved = await sessionRepo.getById('cardio-undo');
+      expect(moved!.scheduledDate, DateTime(2024, 3, 2));
+      expect(moved.periodNumber, 1);
+      expect(moved.dayNumber, 2);
+    });
+
+    test('moveExerciseToDate snapshot restores the exercise to its source workout', () async {
+      await insertCycle(startDate: DateTime(2024, 3, 1), daysPerPeriod: 5);
+
+      final exercise = TestFixtures.createExercise(
+        id: 'ex-undo',
+        workoutId: 'w-src',
+        name: 'Bench Press',
+        orderIndex: 0,
+      );
+      final source = TestFixtures.createWorkout(
+        id: 'w-src',
+        trainingCycleId: 'cycle-1',
+        periodNumber: 1,
+        dayNumber: 1,
+        scheduledDate: DateTime(2024, 3, 1),
+        exercises: [exercise],
+      );
+      await workoutRepo.create(source);
+
+      final snapshot = await service.moveExerciseToDate(
+        cycleId: 'cycle-1',
+        sourceWorkoutId: 'w-src',
+        exerciseId: 'ex-undo',
+        targetDate: DateTime(2024, 3, 4),
+      );
+
+      var sourceNow = await workoutRepo.getById('w-src');
+      expect(sourceNow!.exercises, isEmpty);
+
+      await service.restoreSnapshot('cycle-1', snapshot);
+
+      sourceNow = await workoutRepo.getById('w-src');
+      expect(sourceNow!.exercises.map((e) => e.id), ['ex-undo']);
+    });
+  });
+
   group('reorderExerciseWithinDay', () {
     test('reorders exercises across workouts on the same day', () async {
       await insertCycle(startDate: DateTime(2024, 3, 1), daysPerPeriod: 5);

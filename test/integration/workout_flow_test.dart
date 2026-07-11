@@ -189,6 +189,56 @@ void main() {
       expect(cycleWorkouts[0].exercises[0].sets.length, 2);
     });
 
+    test('reset-workout undo restores weight/reps/isLogged per set', () async {
+      final cycle = TestDataFactory.createCycle(id: 'cycle-reset-undo');
+      await ctx.cycleRepo.create(cycle);
+
+      final workout = TestDataFactory.createWorkout(
+        id: 'w-reset-undo',
+        trainingCycleId: 'cycle-reset-undo',
+        exercises: [
+          TestDataFactory.createExercise(
+            id: 'ex-ru',
+            workoutId: 'w-reset-undo',
+            name: 'Squat',
+            orderIndex: 0,
+            sets: [
+              TestDataFactory.createSet(id: 's-ru-1', setNumber: 1, weight: 225.0, reps: '5', isLogged: true),
+              TestDataFactory.createSet(id: 's-ru-2', setNumber: 2, weight: 230.0, reps: '3', isLogged: true),
+            ],
+          ),
+        ],
+      );
+      await ctx.workoutRepo.create(workout);
+
+      // Snapshot before reset (what the Reset menu does), then reset the
+      // sets the same way the workout screen does.
+      final snapshot = await ctx.workoutRepo.getById('w-reset-undo');
+      final resetExercises = snapshot!.exercises
+          .map(
+            (e) => e.copyWith(
+              sets: e.sets.map((s) => s.copyWith(isLogged: false, clearWeight: true, reps: '')).toList(),
+            ),
+          )
+          .toList();
+      await ctx.workoutRepo.update(snapshot.copyWith(exercises: resetExercises));
+
+      final afterReset = await ctx.workoutRepo.getById('w-reset-undo');
+      expect(afterReset!.exercises.first.sets.every((s) => !s.isLogged && s.weight == null && s.reps.isEmpty), isTrue);
+
+      // Undo: write the snapshot back.
+      await ctx.workoutRepo.update(snapshot);
+
+      final restored = await ctx.workoutRepo.getById('w-reset-undo');
+      final sets = restored!.exercises.first.sets;
+      expect(sets[0].weight, 225.0);
+      expect(sets[0].reps, '5');
+      expect(sets[0].isLogged, isTrue);
+      expect(sets[1].weight, 230.0);
+      expect(sets[1].reps, '3');
+      expect(sets[1].isLogged, isTrue);
+    });
+
     test('reset completed workout back to incomplete', () async {
       final cycle = TestDataFactory.createCycle(id: 'cycle-reset');
       await ctx.cycleRepo.create(cycle);

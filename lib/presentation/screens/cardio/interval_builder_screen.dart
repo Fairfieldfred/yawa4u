@@ -12,6 +12,8 @@ import '../../../data/models/session_interval.dart';
 import '../../../domain/providers/database_providers.dart';
 import '../../../domain/providers/session_providers.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../domain/providers/onboarding_providers.dart';
+import '../../widgets/cardio/distance_input.dart';
 import '../../widgets/cardio/sport_badge.dart';
 
 /// Interval builder for a cardio session.
@@ -308,6 +310,7 @@ class _IntervalBuilderScreenState extends ConsumerState<IntervalBuilderScreen> {
                             key: ValueKey(interval.id),
                             index: i,
                             interval: interval,
+                            sport: session.sport,
                             isFirst: i == 0,
                             isLast: i == _intervals.length - 1,
                             isChild: interval.parentIntervalId != null,
@@ -433,6 +436,7 @@ class _IntervalEditorRow extends ConsumerStatefulWidget {
     super.key,
     required this.index,
     required this.interval,
+    required this.sport,
     required this.isFirst,
     required this.isLast,
     required this.onChanged,
@@ -448,6 +452,11 @@ class _IntervalEditorRow extends ConsumerStatefulWidget {
   /// belongs to.
   final int index;
   final SessionInterval interval;
+
+  /// The parent session's sport — drives zone availability and the
+  /// unit system used for distance targets.
+  final Sport sport;
+
   final bool isFirst;
   final bool isLast;
   final ValueChanged<SessionInterval> onChanged;
@@ -554,27 +563,51 @@ class _IntervalEditorRowState extends ConsumerState<_IntervalEditorRow> {
                 ),
               ],
             ] else ...[
-              _TargetKindPicker(
-                value: i.targetKind,
-                onChanged: (kind) {
+              Builder(
+                builder: (context) {
+                  // Pace/power zone targets only make sense once the user
+                  // has configured those zones in Settings → Zones. Keep a
+                  // kind visible if the interval already uses it (e.g. from
+                  // a template) so the dropdown never loses its value.
+                  final zones = ref.watch(sportZonesProvider(widget.sport)).value ?? const [];
+                  final hasPaceZones = zones.any((z) => z.unit.startsWith('sec_per'));
+                  final hasPowerZones = zones.any((z) => z.unit == 'watts');
+                  return _TargetKindPicker(
+                    value: i.targetKind,
+                    allowPaceZone: hasPaceZones || i.targetKind == IntervalTargetKind.paceZone,
+                    allowPowerZone: hasPowerZones || i.targetKind == IntervalTargetKind.powerZone,
+                    onChanged: (kind) {
                   // Clear whichever target fields are about to become
                   // irrelevant so stale data doesn't linger in the DB.
-                  final updated = i.copyWith(
-                    targetKind: kind,
-                    targetDurationSec: kind == IntervalTargetKind.durationSec ? (i.targetDurationSec ?? 60) : null,
-                    targetDistanceM: kind == IntervalTargetKind.distanceM ? (i.targetDistanceM ?? 400) : null,
-                    targetHrZone: kind == IntervalTargetKind.hrZone ? (i.targetHrZone ?? 2) : null,
-                    targetPaceZone: kind == IntervalTargetKind.paceZone ? (i.targetPaceZone ?? 2) : null,
-                    targetPowerZone: kind == IntervalTargetKind.powerZone ? (i.targetPowerZone ?? 2) : null,
+                      final updated = i.copyWith(
+                        targetKind: kind,
+                        targetDurationSec: kind == IntervalTargetKind.durationSec ? (i.targetDurationSec ?? 60) : null,
+                        targetDistanceM: kind == IntervalTargetKind.distanceM ? (i.targetDistanceM ?? 400) : null,
+                        targetHrZone: kind == IntervalTargetKind.hrZone ? (i.targetHrZone ?? 2) : null,
+                        targetPaceZone: kind == IntervalTargetKind.paceZone ? (i.targetPaceZone ?? 2) : null,
+                        targetPowerZone: kind == IntervalTargetKind.powerZone ? (i.targetPowerZone ?? 2) : null,
+                      );
+                      widget.onChanged(updated);
+                    },
                   );
-                  widget.onChanged(updated);
                 },
               ),
               const SizedBox(height: 8),
-              _TargetValueField(
-                interval: i,
-                onChanged: widget.onChanged,
-              ),
+              if (i.targetKind == IntervalTargetKind.distanceM)
+                // Distance targets respect the user's per-sport unit system
+                // (mi/km/yd) instead of demanding raw meters.
+                DistanceInput(
+                  key: ValueKey('target-distance-${i.id}'),
+                  initialMeters: i.targetDistanceM,
+                  units: ref.read(onboardingServiceProvider).unitsFor(widget.sport),
+                  sport: widget.sport,
+                  onChanged: (meters) => widget.onChanged(i.copyWith(targetDistanceM: meters)),
+                )
+              else
+                _TargetValueField(
+                  interval: i,
+                  onChanged: widget.onChanged,
+                ),
             ],
           ],
         ),
@@ -656,10 +689,20 @@ class _RepeatCountFieldState extends State<_RepeatCountField> {
 }
 
 class _TargetKindPicker extends StatelessWidget {
-  const _TargetKindPicker({required this.value, required this.onChanged});
+  const _TargetKindPicker({
+    required this.value,
+    required this.onChanged,
+    this.allowPaceZone = true,
+    this.allowPowerZone = true,
+  });
 
   final IntervalTargetKind value;
   final ValueChanged<IntervalTargetKind> onChanged;
+
+  /// Pace/power zone options are hidden until the user has configured the
+  /// matching zones (unless the current value already uses them).
+  final bool allowPaceZone;
+  final bool allowPowerZone;
 
   /// Five kinds don't fit a SegmentedButton cleanly on a phone, so this
   /// is a DropdownButton. The icon-per-kind helps scanning the options.
@@ -690,14 +733,16 @@ class _TargetKindPicker extends StatelessWidget {
             label: l10n.intervalTargetHrZone,
           ),
         ),
-        DropdownMenuItem(
-          value: IntervalTargetKind.paceZone,
-          child: _TargetKindRow(icon: Icons.speed, label: l10n.intervalTargetPaceZone),
-        ),
-        DropdownMenuItem(
-          value: IntervalTargetKind.powerZone,
-          child: _TargetKindRow(icon: Icons.bolt, label: l10n.intervalTargetPowerZone),
-        ),
+        if (allowPaceZone)
+          DropdownMenuItem(
+            value: IntervalTargetKind.paceZone,
+            child: _TargetKindRow(icon: Icons.speed, label: l10n.intervalTargetPaceZone),
+          ),
+        if (allowPowerZone)
+          DropdownMenuItem(
+            value: IntervalTargetKind.powerZone,
+            child: _TargetKindRow(icon: Icons.bolt, label: l10n.intervalTargetPowerZone),
+          ),
       ],
       onChanged: (v) {
         if (v != null) onChanged(v);

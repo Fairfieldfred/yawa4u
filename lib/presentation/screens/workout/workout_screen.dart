@@ -2794,13 +2794,20 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> with Widg
               try {
                 final repository = ref.read(workoutRepositoryProvider);
 
+                // Snapshot the pre-reset state (fresh from the DB) so the
+                // snackbar's Undo can restore every set exactly.
+                final resetSnapshots = <Workout>[];
+
                 for (final workout in workouts) {
+                  final fresh = await repository.getById(workout.id) ?? workout;
+                  resetSnapshots.add(fresh);
+
                   // Create updated exercises with reset sets
-                  final updatedExercises = workout.exercises.map((exercise) {
+                  final updatedExercises = fresh.exercises.map((exercise) {
                     final updatedSets = exercise.sets.map((set) {
                       return set.copyWith(
                         isLogged: false,
-                        weight: null, // Clear weight
+                        clearWeight: true,
                         reps: '', // Clear reps
                       );
                     }).toList();
@@ -2809,7 +2816,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> with Widg
                   }).toList();
 
                   // Update workout with reset exercises and status
-                  final updatedWorkout = workout.copyWith(
+                  final updatedWorkout = fresh.copyWith(
                     exercises: updatedExercises,
                     status: WorkoutStatus.incomplete,
                     completedDate: null,
@@ -2817,12 +2824,18 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> with Widg
 
                   await repository.update(updatedWorkout);
                 }
+                _invalidateWorkoutProviders();
 
                 if (!mounted) return;
                 ScaffoldMessenger.of(this.context).showSnackBar(
                   SnackBar(
                     content: Text(l10n.workoutReset),
                     backgroundColor: this.context.successColor,
+                    duration: const Duration(seconds: 6),
+                    action: SnackBarAction(
+                      label: l10n.undo,
+                      onPressed: () => _restoreWorkouts(resetSnapshots),
+                    ),
                   ),
                 );
               } catch (e) {
@@ -2841,6 +2854,18 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> with Widg
         ],
       ),
     );
+  }
+
+  /// Undo helper for the Reset action — writes the pre-reset snapshots
+  /// back, restoring weight/reps/isLogged for every set.
+  Future<void> _restoreWorkouts(List<Workout> snapshots) async {
+    await _guardWrite(() async {
+      final repository = ref.read(workoutRepositoryProvider);
+      for (final workout in snapshots) {
+        await repository.update(workout);
+      }
+      _invalidateWorkoutProviders();
+    });
   }
 
   void _skipWorkout(List<Workout> workouts) {

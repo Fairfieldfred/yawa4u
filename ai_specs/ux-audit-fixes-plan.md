@@ -94,22 +94,22 @@ Fix all findings from the 2026-07-09 code-level UX/UI audit (5 parallel reviewer
 - [x] Robot journey: deep-link to `/calendar` renders Calendar tab; back from pushed template screen returns to Cycles tab (`test/journeys/tab_deep_link_journey_test.dart`)
 - [x] Verify: `flutter analyze` && `flutter test`
 
-### Phase 6: Forgiveness & undo coverage
+### Phase 6: Forgiveness & undo coverage ✅
 
 - **Goal**: every destructive/movable action reversible or clearly confirmed.
-- [ ] `lib/presentation/screens/calendar/calendar_screen.dart:367-451,648-732` - `onExerciseDropped`/`onExerciseReordered`/cardio moves capture undo snapshots (`calendarUndoProvider.notifier.setSnapshots`) before mutate
-- [ ] `calendar_screen.dart` snackbars (moved/inserted/removed) - add `SnackBarAction` "Undo" invoking restore (keep edit-sheet Undo too)
-- [ ] `lib/domain/providers/calendar_providers.dart:645-661` - align messaging with reality: in-session undo (drop the 24h claim) OR persist snapshots; pick in-session
-- [ ] `workout_screen.dart:2718-2786` - Reset workout: snapshot sets → 6s undo snackbar (mirror delete-set pattern `:452-463`)
-- [ ] `cycle_list_screen.dart:1184-1228` - delete-cycle dialog enumerates what's destroyed (N workouts, logged history); type-safe destructive styling kept
-- [ ] `lib/presentation/screens/cardio/cardio_session_screen.dart` - `PopScope` dirty-guard (mirror `interval_builder_screen.dart:245-252`)
-- [ ] `cardio_session_screen.dart:201,286-304,247-248` - explicit Plan/Log segmented indicator; confirm dialog on planned→completed promotion
-- [ ] `cardio_session_screen.dart:497-504` - RPE: discrete "not set" affordance (clear button/`null` chip), slider min 1
-- [ ] `lib/presentation/screens/cardio/interval_builder_screen.dart:693-700` - hide pace/power zone kinds until zones configured (per file-header intent `:24-27`); distance target respects `UnitSystem` (`:769-801`, reuse `DistanceInput`)
-- [ ] `lib/presentation/screens/settings/integrations_screen.dart:249-258` - Strava disconnect confirm dialog
-- [ ] TDD: calendar move snapshot→undo restores exact prior scheduledDates (multi-cycle)
-- [ ] TDD: reset-workout undo restores weight/reps/isLogged per set
-- [ ] Verify: `flutter analyze` && `flutter test`
+- [x] `lib/presentation/screens/calendar/calendar_screen.dart:367-451,648-732` - `onExerciseDropped`/`onExerciseReordered`/cardio moves capture undo snapshots before mutate; `ScheduleSnapshot` gained `exercisePlacements` so exercise moves/reorders actually restore (previously the snapshot couldn't undo cross-workout moves); `moveCardioToDate`/`reorderExerciseWithinDayByDate` now return snapshots
+- [x] `calendar_screen.dart` snackbars (moved exercise/cardio, rest-day inserted/removed) - `SnackBarAction` "Undo" (6s) invoking restore; edit-sheet Undo kept
+- [x] `lib/domain/providers/calendar_providers.dart:645-661` - in-session undo; 24h claim dropped (`hasRecentSnapshot` = snapshot exists)
+- [x] `workout_screen.dart:2718-2786` - Reset workout: fresh-from-DB snapshots → 6s undo snackbar (`_restoreWorkouts`). Also fixed a real bug: `copyWith(weight: null)` was a no-op, so Reset never cleared weights — added `ExerciseSet.copyWith(clearWeight:)`
+- [x] `cycle_list_screen.dart:1184-1228` - delete-cycle dialog enumerates N workouts + N logged sets destroyed; destructive styling kept
+- [x] `lib/presentation/screens/cardio/cardio_session_screen.dart` - `PopScope` dirty-guard (mirrors interval builder)
+- [x] `cardio_session_screen.dart:201,286-304,247-248` - `_ModeIndicator` Plan/Log segmented indicator; confirm dialog on planned→completed promotion
+- [x] `cardio_session_screen.dart:497-504` - RPE: clear button for "not set", slider min 1
+- [x] `lib/presentation/screens/cardio/interval_builder_screen.dart:693-700` - pace/power zone kinds hidden until zones configured (kept visible if the interval already uses them); distance target uses `DistanceInput` with the sport's `UnitSystem`
+- [x] `lib/presentation/screens/settings/integrations_screen.dart:249-258` - Strava disconnect confirm dialog
+- [x] TDD: calendar move snapshot→undo restores exact prior scheduledDates (multi-cycle) + cardio-move and exercise-placement restore tests (`schedule_service_test.dart`)
+- [x] TDD: reset-workout undo restores weight/reps/isLogged per set (`workout_flow_test.dart`)
+- [x] Verify: `flutter analyze` && `flutter test`
 
 ### Phase 7: Consistency sweep — theming, l10n, errors, a11y, community polish
 

@@ -1157,12 +1157,21 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
 
   Future<void> _deleteTrainingCycle(TrainingCycle trainingCycle) async {
     final l10n = AppLocalizations.of(context)!;
+
+    // Enumerate what the delete destroys so the decision is informed:
+    // workout count and how many logged sets of history go with it.
+    final workouts = ref.read(workoutsByTrainingCycleListProvider(trainingCycle.id));
+    final workoutCount = workouts.length;
+    final loggedSetCount = workouts.expand((w) => w.exercises).expand((e) => e.sets).where((s) => s.isLogged).length;
+
+    if (!mounted) return;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: Text(l10n.cycleListDeleteDialogTitle),
         content: Text(
-          l10n.cycleListDeleteDialogContent(trainingCycle.name),
+          '${l10n.cycleListDeleteDialogContent(trainingCycle.name)}\n\n'
+          '${l10n.cycleListDeleteDialogDetail(workoutCount, loggedSetCount)}',
         ),
         actions: [
           TextButton(

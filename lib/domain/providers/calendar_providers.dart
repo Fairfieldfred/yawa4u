@@ -641,13 +641,10 @@ class CalendarUndoState {
   /// The most recent snapshot, used for display (e.g. the action description).
   ScheduleSnapshot? get snapshot => entries.isEmpty ? null : entries.first.snapshot;
 
-  /// Returns true if there's a snapshot from within the last 24 hours
-  bool get hasRecentSnapshot {
-    final snap = snapshot;
-    if (snap == null) return false;
-    final age = DateTime.now().difference(snap.timestamp);
-    return age.inHours < 24;
-  }
+  /// Whether an in-session snapshot exists to undo. Snapshots live only in
+  /// memory, so undo is available for the current session — not 24 hours
+  /// (the old claim, which never survived an app restart anyway).
+  bool get hasRecentSnapshot => snapshot != null;
 
   CalendarUndoState clear() {
     return const CalendarUndoState();

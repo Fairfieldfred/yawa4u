@@ -90,14 +90,26 @@ class _CardioSessionScreenState extends ConsumerState<CardioSessionScreen> {
   bool _saving = false;
   bool _loading = true;
 
+  /// Set when any form field changes; drives the PopScope discard guard.
+  bool _dirty = false;
+
+  void _markDirty() {
+    if (!_dirty) setState(() => _dirty = true);
+  }
+
   @override
   void initState() {
     super.initState();
     _sport = widget.sport ?? Sport.run;
     if (widget.sessionId != null) {
-      _loadExisting();
+      _loadExisting().then((_) {
+        _labelController.addListener(_markDirty);
+        _notesController.addListener(_markDirty);
+      });
     } else {
       _loading = false;
+      _labelController.addListener(_markDirty);
+      _notesController.addListener(_markDirty);
     }
   }
 
@@ -186,10 +198,41 @@ class _CardioSessionScreenState extends ConsumerState<CardioSessionScreen> {
       firstDate: DateTime(2000),
       lastDate: DateTime.now().add(const Duration(days: 365 * 5)),
     );
-    if (picked != null) setState(() => _scheduledDate = picked);
+    if (picked != null) {
+      setState(() {
+        _scheduledDate = picked;
+        _dirty = true;
+      });
+    }
   }
 
   Future<void> _save() async {
+    // Promoting a planned session to completed is a meaningful state
+    // change — confirm before it happens.
+    final promotesPlan =
+        _existing != null && _existing!.status == WorkoutStatus.incomplete && !_existing!.source.isExternal;
+    if (promotesPlan) {
+      final l10n = AppLocalizations.of(context)!;
+      final confirmed = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: Text(l10n.cardioSessionPromoteTitle),
+          content: Text(l10n.cardioSessionPromoteMessage),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: Text(l10n.cancel),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: Text(l10n.cardioSessionLogButton),
+            ),
+          ],
+        ),
+      );
+      if (confirmed != true || !mounted) return;
+    }
+
     setState(() => _saving = true);
     final repo = ref.read(sessionRepositoryProvider);
 
@@ -259,6 +302,7 @@ class _CardioSessionScreenState extends ConsumerState<CardioSessionScreen> {
       }
 
       if (!mounted) return;
+      _dirty = false;
       final l10n = AppLocalizations.of(context)!;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -303,7 +347,18 @@ class _CardioSessionScreenState extends ConsumerState<CardioSessionScreen> {
       title = widget.planned ? l10n.cardioSessionPlanTitle(sportName) : l10n.cardioSessionLogTitle(sportName);
     }
 
-    return Scaffold(
+    // Explicit Plan vs Log mode indicator (segmented, non-interactive).
+    final isPlanMode = (_existing == null && widget.planned) || (_existing?.status == WorkoutStatus.incomplete);
+
+    return PopScope(
+      canPop: !_dirty,
+      onPopInvokedWithResult: (didPop, _) async {
+        if (didPop) return;
+        if (await _confirmDiscard() && context.mounted) {
+          context.pop();
+        }
+      },
+      child: Scaffold(
       appBar: AppBar(
         title: Text(title),
         actions: [
@@ -329,6 +384,10 @@ class _CardioSessionScreenState extends ConsumerState<CardioSessionScreen> {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
+            if (!_isReadOnly) ...[
+              _ModeIndicator(isPlan: isPlanMode),
+              const SizedBox(height: 12),
+            ],
             Row(
               children: [
                 SportBadge(sport: _sport),
@@ -376,26 +435,38 @@ class _CardioSessionScreenState extends ConsumerState<CardioSessionScreen> {
               units: units,
               sport: _sport,
               enabled: !_isReadOnly,
-              onChanged: (meters) => _distanceMeters = meters,
+              onChanged: (meters) {
+                _distanceMeters = meters;
+                _markDirty();
+              },
             ),
             const SizedBox(height: 12),
             DurationInput(
               key: ValueKey('duration-${_existing?.id ?? 'new'}'),
               initialSeconds: _durationSeconds,
               enabled: !_isReadOnly,
-              onChanged: (seconds) => _durationSeconds = seconds,
+              onChanged: (seconds) {
+                _durationSeconds = seconds;
+                _markDirty();
+              },
             ),
             const SizedBox(height: 12),
             HrInput(
               key: ValueKey('hr-${_existing?.id ?? 'new'}'),
               initialBpm: _averageHr,
               enabled: !_isReadOnly,
-              onChanged: (bpm) => _averageHr = bpm,
+              onChanged: (bpm) {
+                _averageHr = bpm;
+                _markDirty();
+              },
             ),
             const SizedBox(height: 16),
             _RpeSlider(
               value: _rpe,
-              onChanged: (v) => setState(() => _rpe = v),
+              onChanged: (v) => setState(() {
+                _rpe = v;
+                _dirty = true;
+              }),
             ),
             const SizedBox(height: 16),
             TextField(
@@ -442,7 +513,31 @@ class _CardioSessionScreenState extends ConsumerState<CardioSessionScreen> {
           ],
         ),
       ),
+      ),
     );
+  }
+
+  /// Discard-changes confirmation for the PopScope guard.
+  Future<bool> _confirmDiscard() async {
+    final l10n = AppLocalizations.of(context)!;
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l10n.settingsDiscardTitle),
+        content: Text(l10n.settingsDiscardMessage),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(l10n.settingsKeepEditingButton),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(l10n.settingsDiscardButton),
+          ),
+        ],
+      ),
+    );
+    return result ?? false;
   }
 
   String _dateLabel() {
@@ -465,7 +560,41 @@ class _CardioSessionScreenState extends ConsumerState<CardioSessionScreen> {
   }
 }
 
-/// RPE slider (1–10). Null value means the user hasn't entered anything.
+/// Non-interactive Plan/Log mode indicator so users always know whether
+/// saving produces a target or a completed workout.
+class _ModeIndicator extends StatelessWidget {
+  const _ModeIndicator({required this.isPlan});
+
+  final bool isPlan;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return IgnorePointer(
+      child: SegmentedButton<bool>(
+        segments: [
+          ButtonSegment<bool>(
+            value: true,
+            icon: const Icon(Icons.event_note, size: 16),
+            label: Text(l10n.cardioSessionModePlan),
+          ),
+          ButtonSegment<bool>(
+            value: false,
+            icon: const Icon(Icons.check_circle_outline, size: 16),
+            label: Text(l10n.cardioSessionModeLog),
+          ),
+        ],
+        selected: {isPlan},
+        onSelectionChanged: null,
+        showSelectedIcon: false,
+        style: const ButtonStyle(visualDensity: VisualDensity.compact),
+      ),
+    );
+  }
+}
+
+/// RPE slider (1–10). Null value means "not set"; the clear button makes
+/// the not-set state an explicit affordance instead of a hidden zero.
 class _RpeSlider extends StatelessWidget {
   const _RpeSlider({required this.value, required this.onChanged});
 
@@ -492,15 +621,22 @@ class _RpeSlider extends StatelessWidget {
                 color: Theme.of(context).colorScheme.primary,
               ),
             ),
+            if (value != null)
+              IconButton(
+                tooltip: l10n.cardioSessionRpeClearTooltip,
+                icon: const Icon(Icons.close, size: 18),
+                visualDensity: VisualDensity.compact,
+                onPressed: () => onChanged(null),
+              ),
           ],
         ),
         Slider(
-          value: (value ?? 0).toDouble(),
-          min: 0,
+          value: (value ?? 1).toDouble(),
+          min: 1,
           max: 10,
-          divisions: 10,
+          divisions: 9,
           label: value != null ? l10n.cardioSessionRpeValue(value!) : l10n.cardioSessionRpeNotSet,
-          onChanged: (v) => onChanged(v < 1 ? null : v.toInt()),
+          onChanged: (v) => onChanged(v.toInt()),
         ),
       ],
     );

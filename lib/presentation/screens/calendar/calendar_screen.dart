@@ -372,12 +372,13 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
           switch (dragData) {
             case ExerciseDragData():
               final scheduleService = ref.read(scheduleServiceProvider);
-              await scheduleService.moveExerciseToDate(
+              final snapshot = await scheduleService.moveExerciseToDate(
                 cycleId: currentCycle.id,
                 sourceWorkoutId: dragData.sourceWorkoutId,
                 exerciseId: dragData.exercise.id,
                 targetDate: targetDate,
               );
+              ref.read(calendarUndoProvider.notifier).setSnapshot(currentCycle.id, snapshot);
 
               if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -388,18 +389,23 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                         DateHelpers.shortDate.format(targetDate),
                       ),
                     ),
-                    duration: const Duration(seconds: 2),
+                    duration: const Duration(seconds: 6),
+                    action: SnackBarAction(
+                      label: l10n.undo,
+                      onPressed: () => ref.read(calendarUndoProvider.notifier).undo(),
+                    ),
                   ),
                 );
               }
 
             case CardioDragData():
               final scheduleService = ref.read(scheduleServiceProvider);
-              await scheduleService.moveCardioToDate(
+              final snapshot = await scheduleService.moveCardioToDate(
                 cycleId: currentCycle.id,
                 session: dragData.session,
                 targetDate: targetDate,
               );
+              ref.read(calendarUndoProvider.notifier).setSnapshot(currentCycle.id, snapshot);
 
               if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -410,7 +416,11 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                         DateHelpers.shortDate.format(targetDate),
                       ),
                     ),
-                    duration: const Duration(seconds: 2),
+                    duration: const Duration(seconds: 6),
+                    action: SnackBarAction(
+                      label: l10n.undo,
+                      onPressed: () => ref.read(calendarUndoProvider.notifier).undo(),
+                    ),
                   ),
                 );
               }
@@ -431,12 +441,15 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
 
         try {
           final scheduleService = ref.read(scheduleServiceProvider);
-          await scheduleService.reorderExerciseWithinDayByDate(
+          final snapshot = await scheduleService.reorderExerciseWithinDayByDate(
             cycleId: currentCycle.id,
             targetDate: targetDate,
             oldIndex: oldIndex,
             newIndex: newIndex,
           );
+          if (snapshot != null) {
+            ref.read(calendarUndoProvider.notifier).setSnapshot(currentCycle.id, snapshot);
+          }
         } catch (e) {
           if (context.mounted) {
             final l10n = AppLocalizations.of(context)!;
@@ -653,12 +666,13 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
           switch (dragData) {
             case ExerciseDragData():
               final scheduleService = ref.read(scheduleServiceProvider);
-              await scheduleService.moveExerciseToDate(
+              final snapshot = await scheduleService.moveExerciseToDate(
                 cycleId: currentCycle.id,
                 sourceWorkoutId: dragData.sourceWorkoutId,
                 exerciseId: dragData.exercise.id,
                 targetDate: targetDate,
               );
+              ref.read(calendarUndoProvider.notifier).setSnapshot(currentCycle.id, snapshot);
 
               if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -669,18 +683,23 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                         DateHelpers.shortDate.format(targetDate),
                       ),
                     ),
-                    duration: const Duration(seconds: 2),
+                    duration: const Duration(seconds: 6),
+                    action: SnackBarAction(
+                      label: l10n.undo,
+                      onPressed: () => ref.read(calendarUndoProvider.notifier).undo(),
+                    ),
                   ),
                 );
               }
 
             case CardioDragData():
               final scheduleService = ref.read(scheduleServiceProvider);
-              await scheduleService.moveCardioToDate(
+              final snapshot = await scheduleService.moveCardioToDate(
                 cycleId: currentCycle.id,
                 session: dragData.session,
                 targetDate: targetDate,
               );
+              ref.read(calendarUndoProvider.notifier).setSnapshot(currentCycle.id, snapshot);
 
               if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -691,7 +710,11 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                         DateHelpers.shortDate.format(targetDate),
                       ),
                     ),
-                    duration: const Duration(seconds: 2),
+                    duration: const Duration(seconds: 6),
+                    action: SnackBarAction(
+                      label: l10n.undo,
+                      onPressed: () => ref.read(calendarUndoProvider.notifier).undo(),
+                    ),
                   ),
                 );
               }
@@ -712,12 +735,15 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
 
         try {
           final scheduleService = ref.read(scheduleServiceProvider);
-          await scheduleService.reorderExerciseWithinDayByDate(
+          final snapshot = await scheduleService.reorderExerciseWithinDayByDate(
             cycleId: currentCycle.id,
             targetDate: targetDate,
             oldIndex: oldIndex,
             newIndex: newIndex,
           );
+          if (snapshot != null) {
+            ref.read(calendarUndoProvider.notifier).setSnapshot(currentCycle.id, snapshot);
+          }
         } catch (e) {
           if (context.mounted) {
             final l10n = AppLocalizations.of(context)!;
@@ -1614,7 +1640,11 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(l10n.calendarRestDayInserted(period, day)),
-            duration: const Duration(seconds: 2),
+            duration: const Duration(seconds: 6),
+            action: SnackBarAction(
+              label: l10n.undo,
+              onPressed: () => ref.read(calendarUndoProvider.notifier).undo(),
+            ),
           ),
         );
       }
@@ -1660,7 +1690,11 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(l10n.calendarRestDayRemoved(DateHelpers.shortDate.format(restDayDate))),
-            duration: const Duration(seconds: 2),
+            duration: const Duration(seconds: 6),
+            action: SnackBarAction(
+              label: l10n.undo,
+              onPressed: () => ref.read(calendarUndoProvider.notifier).undo(),
+            ),
           ),
         );
       }

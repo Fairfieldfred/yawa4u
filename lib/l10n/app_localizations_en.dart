@@ -2765,6 +2765,36 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cycleListMenuNeedsExercisesHint => 'Add exercises to every training day first';
 
   @override
+  String cycleListDeleteDialogDetail(Object workoutCount, Object loggedSetCount) {
+    return 'This permanently deletes $workoutCount workouts, including $loggedSetCount logged sets of training history.';
+  }
+
+  @override
+  String get cardioSessionPromoteTitle => 'Log this session?';
+
+  @override
+  String get cardioSessionPromoteMessage => 'Saving marks this planned session as completed with the values entered.';
+
+  @override
+  String get cardioSessionModePlan => 'Plan';
+
+  @override
+  String get cardioSessionModeLog => 'Log';
+
+  @override
+  String get cardioSessionRpeClearTooltip => 'Clear effort rating';
+
+  @override
+  String get integrationsStravaDisconnectTitle => 'Disconnect Strava?';
+
+  @override
+  String get integrationsStravaDisconnectMessage =>
+      'New activities will stop syncing. Workouts already imported stay on this device.';
+
+  @override
+  String get integrationsStravaDisconnectConfirm => 'Disconnect';
+
+  @override
   String get syncWithAnotherDevice => 'Sync with another device';
 
   @override

@@ -29,6 +29,12 @@ class ScheduleSnapshot {
   final DateTime? cycleStartDate;
   final List<WorkoutSnapshot> workoutSnapshots;
   final List<CardioSessionSnapshot> cardioSnapshots;
+
+  /// Where each exercise lived (workout + order) before a drag/reorder.
+  /// Empty for pure date shifts, which don't move exercises between
+  /// workouts.
+  final List<ExercisePlacementSnapshot> exercisePlacements;
+
   final String description;
   final DateTime timestamp;
 
@@ -36,9 +42,33 @@ class ScheduleSnapshot {
     required this.cycleStartDate,
     required this.workoutSnapshots,
     this.cardioSnapshots = const [],
+    this.exercisePlacements = const [],
     required this.description,
     DateTime? timestamp,
   }) : timestamp = timestamp ?? DateTime.now();
+}
+
+/// Which workout an exercise belonged to (and at which position) before a
+/// drag-drop move or reorder.
+class ExercisePlacementSnapshot {
+  final String exerciseId;
+  final String workoutId;
+  final int orderIndex;
+
+  ExercisePlacementSnapshot({
+    required this.exerciseId,
+    required this.workoutId,
+    required this.orderIndex,
+  });
+}
+
+/// Capture the placement of every exercise across [workouts].
+List<ExercisePlacementSnapshot> _placementsOf(List<Workout> workouts) {
+  return [
+    for (final w in workouts)
+      for (final e in w.exercises)
+        ExercisePlacementSnapshot(exerciseId: e.id, workoutId: w.id, orderIndex: e.orderIndex),
+  ];
 }
 
 /// Minimal cardio-session state snapshot for undo
@@ -743,10 +773,12 @@ class ScheduleService {
     final cycleStart = DateHelpers.stripTime(cycle.startDate!);
     final strippedTargetDate = DateHelpers.stripTime(targetDate);
 
-    // Create snapshot for undo
+    // Create snapshot for undo — includes exercise placements because this
+    // operation moves an exercise between workouts.
     final snapshot = ScheduleSnapshot(
       cycleStartDate: cycle.startDate,
       workoutSnapshots: workouts.map((w) => WorkoutSnapshot.fromWorkout(w)).toList(),
+      exercisePlacements: _placementsOf(workouts),
       description: 'Move exercise to ${DateHelpers.shortDate.format(targetDate)}',
     );
 
@@ -933,7 +965,8 @@ class ScheduleService {
   }
 
   /// Reorder an exercise within the same day, finding workouts by date
-  Future<void> reorderExerciseWithinDayByDate({
+  /// Returns a snapshot for undo, or null when the reorder was a no-op.
+  Future<ScheduleSnapshot?> reorderExerciseWithinDayByDate({
     required String cycleId,
     required DateTime targetDate,
     required int oldIndex,
@@ -941,7 +974,7 @@ class ScheduleService {
   }) async {
     final cycle = await _cycleRepository.getById(cycleId);
     if (cycle == null || cycle.startDate == null) {
-      return;
+      return null;
     }
 
     final workouts = await _workoutRepository.getByTrainingCycleId(cycleId);
@@ -971,8 +1004,15 @@ class ScheduleService {
     }
 
     if (oldIndex < 0 || oldIndex >= allExercises.length || newIndex < 0 || newIndex >= allExercises.length) {
-      return;
+      return null;
     }
+
+    final snapshot = ScheduleSnapshot(
+      cycleStartDate: cycle.startDate,
+      workoutSnapshots: dayWorkouts.map((w) => WorkoutSnapshot.fromWorkout(w)).toList(),
+      exercisePlacements: _placementsOf(dayWorkouts),
+      description: 'Reordered exercises',
+    );
 
     // Get the exercise being moved
     final movingItem = allExercises[oldIndex];
@@ -1002,6 +1042,8 @@ class ScheduleService {
       );
       await _workoutRepository.update(updatedWorkout);
     }
+
+    return snapshot;
   }
 
   /// Move a cardio session to a different calendar date.
@@ -1009,13 +1051,21 @@ class ScheduleService {
   /// Updates `scheduledDate`, `periodNumber`, and `dayNumber` so the session
   /// is fully consistent with the target date — mirroring the approach used
   /// by [moveExerciseToDate] for strength exercises.
-  Future<void> moveCardioToDate({
+  /// Returns a snapshot for undo.
+  Future<ScheduleSnapshot> moveCardioToDate({
     required String cycleId,
     required CardioSession session,
     required DateTime targetDate,
   }) async {
     final cycle = await _cycleRepository.getById(cycleId);
     if (cycle == null) throw Exception('Training cycle not found');
+
+    final snapshot = ScheduleSnapshot(
+      cycleStartDate: cycle.startDate,
+      workoutSnapshots: const [],
+      cardioSnapshots: [CardioSessionSnapshot.fromSession(session)],
+      description: 'Move session to ${DateHelpers.shortDate.format(targetDate)}',
+    );
 
     final cycleStart = DateHelpers.stripTime(
       cycle.startDate ?? cycle.createdDate,
@@ -1034,6 +1084,8 @@ class ScheduleService {
       dayNumber: targetDay,
     );
     await _sessionRepository.updateSession(updated);
+
+    return snapshot;
   }
 
   /// Restore a schedule from a snapshot (undo operation)
@@ -1074,6 +1126,42 @@ class ScheduleService {
           );
           await _workoutRepository.update(updated);
         }
+      }
+    }
+
+    // Restore exercise placements (which workout each exercise belongs to
+    // and at which position) — undoes drag-drop moves and reorders.
+    if (snapshot.exercisePlacements.isNotEmpty) {
+      final workouts = await _workoutRepository.getByTrainingCycleId(cycleId);
+      final placementById = {for (final p in snapshot.exercisePlacements) p.exerciseId: p};
+
+      // Pull the affected exercises out of whichever workout currently
+      // holds them, then re-insert them at their snapshot position.
+      final lists = {for (final w in workouts) w.id: List<Exercise>.of(w.exercises)};
+      final pulled = <String, Exercise>{};
+      for (final w in workouts) {
+        lists[w.id]!.removeWhere((e) {
+          if (!placementById.containsKey(e.id)) return false;
+          pulled[e.id] = e;
+          return true;
+        });
+      }
+
+      final placements = [...snapshot.exercisePlacements]..sort((a, b) => a.orderIndex.compareTo(b.orderIndex));
+      for (final placement in placements) {
+        final exercise = pulled[placement.exerciseId];
+        final target = lists[placement.workoutId];
+        if (exercise == null || target == null) continue;
+        target.insert(
+          placement.orderIndex.clamp(0, target.length),
+          exercise.copyWith(workoutId: placement.workoutId),
+        );
+      }
+
+      for (final w in workouts) {
+        final list = lists[w.id]!;
+        final renumbered = [for (var i = 0; i < list.length; i++) list[i].copyWith(orderIndex: i)];
+        await _workoutRepository.update(w.copyWith(exercises: renumbered));
       }
     }
 

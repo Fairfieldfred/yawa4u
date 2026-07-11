@@ -4813,6 +4813,60 @@ abstract class AppLocalizations {
   /// **'Add exercises to every training day first'**
   String get cycleListMenuNeedsExercisesHint;
 
+  /// No description provided for @cycleListDeleteDialogDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'This permanently deletes {workoutCount} workouts, including {loggedSetCount} logged sets of training history.'**
+  String cycleListDeleteDialogDetail(Object workoutCount, Object loggedSetCount);
+
+  /// No description provided for @cardioSessionPromoteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Log this session?'**
+  String get cardioSessionPromoteTitle;
+
+  /// No description provided for @cardioSessionPromoteMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Saving marks this planned session as completed with the values entered.'**
+  String get cardioSessionPromoteMessage;
+
+  /// No description provided for @cardioSessionModePlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Plan'**
+  String get cardioSessionModePlan;
+
+  /// No description provided for @cardioSessionModeLog.
+  ///
+  /// In en, this message translates to:
+  /// **'Log'**
+  String get cardioSessionModeLog;
+
+  /// No description provided for @cardioSessionRpeClearTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear effort rating'**
+  String get cardioSessionRpeClearTooltip;
+
+  /// No description provided for @integrationsStravaDisconnectTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Disconnect Strava?'**
+  String get integrationsStravaDisconnectTitle;
+
+  /// No description provided for @integrationsStravaDisconnectMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'New activities will stop syncing. Workouts already imported stay on this device.'**
+  String get integrationsStravaDisconnectMessage;
+
+  /// No description provided for @integrationsStravaDisconnectConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Disconnect'**
+  String get integrationsStravaDisconnectConfirm;
+
   /// No description provided for @syncWithAnotherDevice.
   ///
   /// In en, this message translates to:
