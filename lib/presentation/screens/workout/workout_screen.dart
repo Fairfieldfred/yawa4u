@@ -2359,11 +2359,8 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> with Widg
       height: 32,
       child: Text(
         title,
-        style: TextStyle(
+        style: context.textTheme.labelMedium?.copyWith(
           color: Theme.of(context).textTheme.bodySmall?.color,
-          fontSize: 12,
-          fontWeight: FontWeight.w600,
-          letterSpacing: 0.5,
         ),
       ),
     );

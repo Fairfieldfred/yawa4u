@@ -154,8 +154,7 @@ class _DesktopCalendarDayCellState extends State<DesktopCalendarDayCell> {
         children: [
           Text(
             '${widget.date.day}',
-            style: TextStyle(
-              fontSize: 12,
+            style: Theme.of(context).textTheme.labelMedium?.copyWith(
               fontWeight: (widget.isToday || widget.isSelected) ? FontWeight.bold : FontWeight.w500,
               color: widget.isToday ? Colors.blue : Theme.of(context).colorScheme.onSurface,
             ),

@@ -312,7 +312,7 @@ class _EmailLinkSheetState extends ConsumerState<_EmailLinkSheet> {
             if (_error != null) ...[
               Text(
                 _error!,
-                style: TextStyle(color: context.errorColor, fontSize: 13),
+                style: context.textTheme.bodySmall?.copyWith(color: context.errorColor),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 8),
@@ -400,7 +400,7 @@ class _EmailLinkSheetState extends ConsumerState<_EmailLinkSheet> {
           if (_error != null) ...[
             Text(
               _error!,
-              style: TextStyle(color: context.errorColor, fontSize: 13),
+              style: context.textTheme.bodySmall?.copyWith(color: context.errorColor),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 12),

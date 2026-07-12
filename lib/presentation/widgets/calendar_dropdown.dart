@@ -306,13 +306,10 @@ class _CalendarDropdownState extends ConsumerState<CalendarDropdown> {
               children: [
                 Text(
                   'PERIODS',
-                  style: TextStyle(
+                  style: context.textTheme.labelMedium?.copyWith(
                     color: Theme.of(
                       context,
                     ).colorScheme.onSurface.withValues(alpha: 0.6),
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                    letterSpacing: 0.5,
                   ),
                 ),
                 Row(
@@ -450,19 +447,17 @@ class _CalendarDropdownState extends ConsumerState<CalendarDropdown> {
               children: [
                 Text(
                   isRecovery ? widget.trainingCycle.recoveryPeriodType.abbreviation : '$periodNumber',
-                  style: TextStyle(
+                  style: context.textTheme.headlineSmall?.copyWith(
                     color: Theme.of(context).colorScheme.onSurface,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
                   ),
                 ),
                 Text(
                   '${calculateRIR(periodNumber, widget.trainingCycle.recoveryPeriod)} RIR',
-                  style: TextStyle(
+                  style: context.textTheme.labelSmall?.copyWith(
                     color: Theme.of(
                       context,
                     ).colorScheme.onSurface.withValues(alpha: 0.6),
-                    fontSize: 10,
+                    fontWeight: FontWeight.normal,
                   ),
                 ),
               ],
@@ -531,18 +526,17 @@ class _CalendarDropdownState extends ConsumerState<CalendarDropdown> {
                     children: [
                       Text(
                         dayInfo.dayName,
-                        style: TextStyle(
+                        style: context.textTheme.bodySmall?.copyWith(
                           color: textColor,
-                          fontSize: 12,
                           fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                         ),
                       ),
                       if (dayInfo.dayOfMonth > 0)
                         Text(
                           '${dayInfo.dayOfMonth}',
-                          style: TextStyle(
+                          style: context.textTheme.labelSmall?.copyWith(
                             color: textColor.withValues(alpha: 0.7),
-                            fontSize: 10,
+                            fontWeight: FontWeight.normal,
                           ),
                         ),
                     ],

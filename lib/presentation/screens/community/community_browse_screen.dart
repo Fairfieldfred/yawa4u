@@ -189,8 +189,7 @@ class _TemplatesTab extends ConsumerWidget {
                       const SizedBox(height: 8),
                       Text(
                         l10n.communityNoProgramsSubtitle,
-                        style: TextStyle(
-                          fontSize: 13,
+                        style: context.textTheme.bodySmall?.copyWith(
                           color: colorScheme.onSurface.withValues(alpha: 0.4),
                         ),
                       ),
@@ -313,8 +312,7 @@ class _SkinsTab extends ConsumerWidget {
                       const SizedBox(height: 8),
                       Text(
                         l10n.communityNoThemesSubtitle,
-                        style: TextStyle(
-                          fontSize: 13,
+                        style: context.textTheme.bodySmall?.copyWith(
                           color: colorScheme.onSurface.withValues(alpha: 0.4),
                         ),
                       ),
@@ -427,10 +425,7 @@ class _MyUploadsTab extends ConsumerWidget {
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 child: Text(
                   l10n.communityNoProgramsUploaded,
-                  style: TextStyle(
-                    color: colorScheme.onSurfaceVariant,
-                    fontSize: 14,
-                  ),
+                  style: context.textTheme.bodyMedium?.copyWith(color: colorScheme.onSurfaceVariant),
                 ),
               );
             }
@@ -467,10 +462,7 @@ class _MyUploadsTab extends ConsumerWidget {
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 child: Text(
                   l10n.communityNoThemesUploaded,
-                  style: TextStyle(
-                    color: colorScheme.onSurfaceVariant,
-                    fontSize: 14,
-                  ),
+                  style: context.textTheme.bodyMedium?.copyWith(color: colorScheme.onSurfaceVariant),
                 ),
               );
             }
@@ -614,11 +606,7 @@ class _MyUploadTemplateCard extends StatelessWidget {
                 children: [
                   Text(
                     t.name,
-                    style: TextStyle(
-                      color: colorScheme.onSurface,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: context.textTheme.titleMedium?.copyWith(color: colorScheme.onSurface),
                   ),
                   const SizedBox(height: 4),
                   Row(
@@ -631,10 +619,7 @@ class _MyUploadTemplateCard extends StatelessWidget {
                       const SizedBox(width: 4),
                       Text(
                         l10n.communityDownloadCount(template.downloadCount),
-                        style: TextStyle(
-                          color: colorScheme.onSurfaceVariant,
-                          fontSize: 12,
-                        ),
+                        style: context.textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant),
                       ),
                     ],
                   ),
@@ -691,11 +676,7 @@ class _MyUploadSkinCard extends StatelessWidget {
                 children: [
                   Text(
                     skin.name,
-                    style: TextStyle(
-                      color: colorScheme.onSurface,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: context.textTheme.titleMedium?.copyWith(color: colorScheme.onSurface),
                   ),
                   const SizedBox(height: 4),
                   Row(
@@ -708,10 +689,7 @@ class _MyUploadSkinCard extends StatelessWidget {
                       const SizedBox(width: 4),
                       Text(
                         l10n.communityDownloadCount(skin.downloadCount),
-                        style: TextStyle(
-                          color: colorScheme.onSurfaceVariant,
-                          fontSize: 12,
-                        ),
+                        style: context.textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant),
                       ),
                     ],
                   ),
@@ -763,11 +741,7 @@ class _CommunityTemplateCard extends StatelessWidget {
                   Expanded(
                     child: Text(
                       t.name,
-                      style: TextStyle(
-                        color: colorScheme.onSurface,
-                        fontSize: 17,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: context.textTheme.titleMedium?.copyWith(color: colorScheme.onSurface),
                     ),
                   ),
                   _DownloadCountChip(count: template.downloadCount),
@@ -778,9 +752,8 @@ class _CommunityTemplateCard extends StatelessWidget {
                 t.description,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(
+                style: context.textTheme.bodyMedium?.copyWith(
                   color: colorScheme.onSurfaceVariant,
-                  fontSize: 14,
                   height: 1.4,
                 ),
               ),
@@ -795,10 +768,7 @@ class _CommunityTemplateCard extends StatelessWidget {
                   const SizedBox(width: 4),
                   Text(
                     template.authorDisplayName,
-                    style: TextStyle(
-                      color: colorScheme.onSurfaceVariant,
-                      fontSize: 12,
-                    ),
+                    style: context.textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant),
                   ),
                   const SizedBox(width: 16),
                   Icon(
@@ -809,10 +779,7 @@ class _CommunityTemplateCard extends StatelessWidget {
                   const SizedBox(width: 4),
                   Text(
                     l10n.communityPeriodsCount(t.periodsTotal),
-                    style: TextStyle(
-                      color: colorScheme.onSurfaceVariant,
-                      fontSize: 12,
-                    ),
+                    style: context.textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant),
                   ),
                   const SizedBox(width: 16),
                   Icon(
@@ -823,10 +790,7 @@ class _CommunityTemplateCard extends StatelessWidget {
                   const SizedBox(width: 4),
                   Text(
                     l10n.communitySessionsCount(t.workouts.length),
-                    style: TextStyle(
-                      color: colorScheme.onSurfaceVariant,
-                      fontSize: 12,
-                    ),
+                    style: context.textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant),
                   ),
                 ],
               ),
@@ -847,10 +811,7 @@ class _CommunityTemplateCard extends StatelessWidget {
                       ),
                       child: Text(
                         tag,
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: colorScheme.onPrimaryContainer,
-                        ),
+                        style: context.textTheme.bodySmall?.copyWith(color: colorScheme.onPrimaryContainer),
                       ),
                     );
                   }).toList(),
@@ -916,11 +877,7 @@ class _CommunitySkinCard extends StatelessWidget {
                   children: [
                     Text(
                       skin.name,
-                      style: TextStyle(
-                        color: colorScheme.onSurface,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: context.textTheme.titleMedium?.copyWith(color: colorScheme.onSurface),
                     ),
                     if (skin.description.isNotEmpty) ...[
                       const SizedBox(height: 4),
@@ -928,10 +885,7 @@ class _CommunitySkinCard extends StatelessWidget {
                         skin.description,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: colorScheme.onSurfaceVariant,
-                          fontSize: 13,
-                        ),
+                        style: context.textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant),
                       ),
                     ],
                     const SizedBox(height: 6),
@@ -945,10 +899,7 @@ class _CommunitySkinCard extends StatelessWidget {
                         const SizedBox(width: 4),
                         Text(
                           skin.authorDisplayName,
-                          style: TextStyle(
-                            color: colorScheme.onSurfaceVariant,
-                            fontSize: 12,
-                          ),
+                          style: context.textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant),
                         ),
                       ],
                     ),
@@ -989,11 +940,7 @@ class _DownloadCountChip extends StatelessWidget {
           const SizedBox(width: 4),
           Text(
             _formatCount(count),
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: colorScheme.onSecondaryContainer,
-            ),
+            style: context.textTheme.labelMedium?.copyWith(color: colorScheme.onSecondaryContainer),
           ),
         ],
       ),

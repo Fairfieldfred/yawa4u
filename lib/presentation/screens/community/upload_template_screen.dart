@@ -116,9 +116,8 @@ class _UploadTemplateScreenState extends ConsumerState<UploadTemplateScreen> {
               children: [
                 Text(
                   l10n.uploadSelectProgramDesc,
-                  style: TextStyle(
+                  style: context.textTheme.bodyMedium?.copyWith(
                     color: colorScheme.onSurfaceVariant,
-                    fontSize: 15,
                     height: 1.5,
                   ),
                 ),
@@ -127,11 +126,7 @@ class _UploadTemplateScreenState extends ConsumerState<UploadTemplateScreen> {
                 // Template picker
                 Text(
                   l10n.uploadProgramLabel,
-                  style: TextStyle(
-                    color: colorScheme.onSurface,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: context.textTheme.titleMedium?.copyWith(color: colorScheme.onSurface),
                 ),
                 const SizedBox(height: 8),
                 templatesAsync.when(
@@ -192,10 +187,7 @@ class _UploadTemplateScreenState extends ConsumerState<UploadTemplateScreen> {
                                       children: [
                                         Text(
                                           t.name,
-                                          style: TextStyle(
-                                            color: colorScheme.onSurface,
-                                            fontWeight: FontWeight.w600,
-                                          ),
+                                          style: context.textTheme.titleSmall?.copyWith(color: colorScheme.onSurface),
                                         ),
                                         const SizedBox(height: 2),
                                         Text(
@@ -204,9 +196,8 @@ class _UploadTemplateScreenState extends ConsumerState<UploadTemplateScreen> {
                                             t.daysPerPeriod,
                                             t.workouts.length,
                                           ),
-                                          style: TextStyle(
+                                          style: context.textTheme.bodySmall?.copyWith(
                                             color: colorScheme.onSurfaceVariant,
-                                            fontSize: 12,
                                           ),
                                         ),
                                       ],
@@ -228,11 +219,7 @@ class _UploadTemplateScreenState extends ConsumerState<UploadTemplateScreen> {
                 // Display name
                 Text(
                   l10n.uploadDisplayNameLabel,
-                  style: TextStyle(
-                    color: colorScheme.onSurface,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: context.textTheme.titleMedium?.copyWith(color: colorScheme.onSurface),
                 ),
                 const SizedBox(height: 8),
                 TextFormField(
@@ -249,11 +236,7 @@ class _UploadTemplateScreenState extends ConsumerState<UploadTemplateScreen> {
                 // Tags
                 Text(
                   l10n.uploadTagsLabel,
-                  style: TextStyle(
-                    color: colorScheme.onSurface,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: context.textTheme.titleMedium?.copyWith(color: colorScheme.onSurface),
                 ),
                 const SizedBox(height: 8),
                 TextFormField(
@@ -295,10 +278,7 @@ class _UploadTemplateScreenState extends ConsumerState<UploadTemplateScreen> {
                         )
                       : Text(
                           l10n.uploadPublishProgramButton,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: context.textTheme.titleMedium,
                         ),
                   style: FilledButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),

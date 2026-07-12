@@ -641,10 +641,8 @@ class _OverflowMenu extends StatelessWidget {
           height: 32,
           child: Text(
             l10n.cardioSessionMenuHeader,
-            style: const TextStyle(
-              color: Colors.grey,
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
+            style: theme.textTheme.labelMedium?.copyWith(
+              color: theme.textTheme.bodySmall?.color,
             ),
           ),
         ),
@@ -897,8 +895,7 @@ class _SubMetricChip extends StatelessWidget {
           ],
           TextSpan(
             text: data.value,
-            style: TextStyle(
-              fontWeight: FontWeight.w600,
+            style: theme.textTheme.labelMedium?.copyWith(
               color: theme.colorScheme.onSurface,
               fontFeatures: const [FontFeature.tabularFigures()],
             ),

@@ -483,9 +483,9 @@ class _OnboardingProfileScreenState extends ConsumerState<OnboardingProfileScree
                         ],
                         decoration: InputDecoration(
                           labelText: l10n.centimetersLabel,
-                          labelStyle: const TextStyle(
-                            fontSize: 18,
-                            color: Colors.grey,
+                          labelStyle: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                            fontWeight: FontWeight.normal,
+                            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                           ),
                           suffixText: l10n.cmSuffix,
                           border: const OutlineInputBorder(),
@@ -512,9 +512,9 @@ class _OnboardingProfileScreenState extends ConsumerState<OnboardingProfileScree
                               ],
                               decoration: InputDecoration(
                                 labelText: l10n.feetLabel,
-                                labelStyle: const TextStyle(
-                                  fontSize: 18,
-                                  color: Colors.grey,
+                                labelStyle: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                  fontWeight: FontWeight.normal,
+                                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                                 ),
                                 suffixText: l10n.ftSuffix,
                                 border: const OutlineInputBorder(),
@@ -540,9 +540,9 @@ class _OnboardingProfileScreenState extends ConsumerState<OnboardingProfileScree
                               ],
                               decoration: InputDecoration(
                                 labelText: l10n.inchesLabel,
-                                labelStyle: const TextStyle(
-                                  fontSize: 18,
-                                  color: Colors.grey,
+                                labelStyle: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                  fontWeight: FontWeight.normal,
+                                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                                 ),
                                 suffixText: l10n.inSuffix,
                                 border: const OutlineInputBorder(),
@@ -580,9 +580,9 @@ class _OnboardingProfileScreenState extends ConsumerState<OnboardingProfileScree
                       ],
                       decoration: InputDecoration(
                         labelText: _useMetric ? l10n.kilogramsLabel : l10n.poundsLabel,
-                        labelStyle: const TextStyle(
-                          fontSize: 18,
-                          color: Colors.grey,
+                        labelStyle: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                          fontWeight: FontWeight.normal,
+                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                         ),
                         suffixText: _useMetric ? l10n.kgSuffix : l10n.lbsSuffix,
                         border: const OutlineInputBorder(),

@@ -97,9 +97,7 @@ class _DurationInputState extends State<DurationInput> {
             ? IconButton(
                 icon: Text(
                   ':',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
+                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                     color: Theme.of(context).colorScheme.primary,
                   ),
                 ),

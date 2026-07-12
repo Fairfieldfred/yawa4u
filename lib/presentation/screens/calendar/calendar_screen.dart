@@ -237,17 +237,15 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
           border: Border.all(color: context.workoutCurrentColor, width: 2),
           shape: BoxShape.circle,
         ),
-        todayTextStyle: TextStyle(
+        todayTextStyle: context.textTheme.titleSmall!.copyWith(
           color: Theme.of(context).colorScheme.onSurface,
-          fontWeight: FontWeight.bold,
         ),
         selectedDecoration: BoxDecoration(
           border: Border.all(color: context.warningColor, width: 2),
           shape: BoxShape.circle,
         ),
-        selectedTextStyle: TextStyle(
+        selectedTextStyle: context.textTheme.titleSmall!.copyWith(
           color: Theme.of(context).colorScheme.onSurface,
-          fontWeight: FontWeight.bold,
         ),
         defaultTextStyle: TextStyle(
           color: Theme.of(context).colorScheme.onSurface,
@@ -263,9 +261,8 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
           border: Border.all(color: Theme.of(context).colorScheme.outline),
           borderRadius: BorderRadius.circular(8),
         ),
-        formatButtonTextStyle: TextStyle(
+        formatButtonTextStyle: context.textTheme.labelLarge!.copyWith(
           color: Theme.of(context).colorScheme.onSurface,
-          fontWeight: FontWeight.w500,
         ),
         leftChevronIcon: Icon(
           Icons.chevron_left,
@@ -277,13 +274,11 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
         ),
       ),
       daysOfWeekStyle: DaysOfWeekStyle(
-        weekdayStyle: TextStyle(
+        weekdayStyle: context.textTheme.labelLarge!.copyWith(
           color: Theme.of(context).colorScheme.onSurface.withAlpha(179),
-          fontWeight: FontWeight.w500,
         ),
-        weekendStyle: TextStyle(
+        weekendStyle: context.textTheme.labelLarge!.copyWith(
           color: Theme.of(context).colorScheme.onSurface.withAlpha(179),
-          fontWeight: FontWeight.w500,
         ),
       ),
       calendarBuilders: CalendarBuilders(
@@ -542,19 +537,16 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                 children: [
                   Text(
                     '${day.day}',
-                    style: TextStyle(
+                    style: context.textTheme.bodyLarge?.copyWith(
                       color: textColor,
-                      fontSize: 16,
                       fontWeight: (isToday || isSelected) ? FontWeight.bold : FontWeight.normal,
                     ),
                   ),
                   if (dayData?.hasWorkout ?? false)
                     Text(
                       AppLocalizations.of(context)!.calendarPeriodDayLabel(dayData!.periodNumber!, dayData.dayNumber!),
-                      style: TextStyle(
+                      style: context.textTheme.labelSmall?.copyWith(
                         color: textColor.withAlpha(200),
-                        fontSize: 9,
-                        fontWeight: FontWeight.w500,
                       ),
                     ),
                   // v5 — cardio sport indicators. Renders nothing if the
@@ -613,9 +605,8 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
         alignment: Alignment.center,
         child: Text(
           '${day.day}',
-          style: TextStyle(
+          style: context.textTheme.bodyLarge?.copyWith(
             color: Theme.of(context).colorScheme.onSurface.withAlpha(51),
-            fontSize: 16,
           ),
         ),
       ),
@@ -975,9 +966,8 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
               color: Theme.of(context).colorScheme.inverseSurface,
               borderRadius: BorderRadius.circular(8),
             ),
-            textStyle: TextStyle(
+            textStyle: context.textTheme.bodySmall?.copyWith(
               color: Theme.of(context).colorScheme.onInverseSurface,
-              fontSize: 12,
             ),
             child: Container(
               height: 12,
@@ -1076,9 +1066,8 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                 color: Theme.of(context).colorScheme.inverseSurface,
                 borderRadius: BorderRadius.circular(8),
               ),
-              textStyle: TextStyle(
+              textStyle: context.textTheme.bodySmall?.copyWith(
                 color: Theme.of(context).colorScheme.onInverseSurface,
-                fontSize: 12,
               ),
               child: Container(
                 width: diameter,
@@ -1309,11 +1298,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
       ),
       child: Text(
         label,
-        style: TextStyle(
-          color: color,
-          fontSize: 12,
-          fontWeight: FontWeight.w500,
-        ),
+        style: context.textTheme.labelMedium?.copyWith(color: color),
       ),
     );
   }
@@ -1584,7 +1569,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
       ),
       child: Text(
         label,
-        style: TextStyle(color: color, fontSize: 10, fontWeight: FontWeight.w500),
+        style: context.textTheme.labelSmall?.copyWith(color: color),
       ),
     );
   }

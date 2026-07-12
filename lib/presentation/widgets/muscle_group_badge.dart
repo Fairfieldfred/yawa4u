@@ -111,7 +111,7 @@ class MuscleGroupBadge extends StatelessWidget {
             const SizedBox(width: 8),
             Text(
               displayText,
-              style: TextStyle(
+              style: Theme.of(context).textTheme.labelMedium?.copyWith(
                 color: isLightMode ? Colors.grey.shade700 : Colors.white,
                 fontSize: fontSize,
                 fontWeight: fontWeight,

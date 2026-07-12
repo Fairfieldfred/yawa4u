@@ -63,3 +63,6 @@ sentry.properties
 .vscode/launch.json
 .agents/skills
 .gitnexus
+
+# UI screenshot regression artifacts (regenerate via the flutter drive harness — see docs/TYPOGRAPHY.md)
+ai_specs/screenshots/

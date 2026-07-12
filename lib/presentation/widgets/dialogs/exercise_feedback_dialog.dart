@@ -160,8 +160,7 @@ class _ExerciseFeedbackDialogState extends State<ExerciseFeedbackDialog> {
         return ChoiceChip(
           label: Text(
             _localizedName(v, l10n),
-            style: TextStyle(
-              fontSize: 11,
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(
               fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
               color: isSelected ? Colors.white : null,
             ),

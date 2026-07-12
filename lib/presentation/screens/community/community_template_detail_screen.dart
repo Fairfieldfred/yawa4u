@@ -104,10 +104,7 @@ class _CommunityTemplateDetailScreenState extends ConsumerState<CommunityTemplat
                     const SizedBox(width: 4),
                     Text(
                       widget.template.authorDisplayName,
-                      style: TextStyle(
-                        color: colorScheme.onSurfaceVariant,
-                        fontSize: 14,
-                      ),
+                      style: context.textTheme.bodyMedium?.copyWith(color: colorScheme.onSurfaceVariant),
                     ),
                     const Spacer(),
                     Icon(
@@ -118,10 +115,7 @@ class _CommunityTemplateDetailScreenState extends ConsumerState<CommunityTemplat
                     const SizedBox(width: 4),
                     Text(
                       l10n.communityDownloadCount(widget.template.downloadCount),
-                      style: TextStyle(
-                        color: colorScheme.onSurfaceVariant,
-                        fontSize: 14,
-                      ),
+                      style: context.textTheme.bodyMedium?.copyWith(color: colorScheme.onSurfaceVariant),
                     ),
                   ],
                 ),
@@ -130,9 +124,8 @@ class _CommunityTemplateDetailScreenState extends ConsumerState<CommunityTemplat
                 // Description
                 Text(
                   t.description,
-                  style: TextStyle(
+                  style: context.textTheme.bodyLarge?.copyWith(
                     color: colorScheme.onSurfaceVariant,
-                    fontSize: 16,
                     height: 1.5,
                   ),
                 ),
@@ -161,11 +154,7 @@ class _CommunityTemplateDetailScreenState extends ConsumerState<CommunityTemplat
                 // Sessions list
                 Text(
                   l10n.communitySessionsHeader,
-                  style: TextStyle(
-                    color: colorScheme.onSurface,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: context.textTheme.headlineMedium?.copyWith(color: colorScheme.onSurface),
                 ),
                 const SizedBox(height: 16),
                 ...t.workouts.map(
@@ -201,10 +190,7 @@ class _CommunityTemplateDetailScreenState extends ConsumerState<CommunityTemplat
                         )
                       : Text(
                           _downloaded ? l10n.communitySavedButton : l10n.communityDownloadProgramButton,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: context.textTheme.titleMedium,
                         ),
                   style: FilledButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
@@ -271,19 +257,12 @@ class _CommunityTemplateDetailScreenState extends ConsumerState<CommunityTemplat
         const SizedBox(height: 8),
         Text(
           value,
-          style: TextStyle(
-            color: colorScheme.onSurface,
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-          ),
+          style: context.textTheme.titleMedium?.copyWith(color: colorScheme.onSurface),
         ),
         const SizedBox(height: 4),
         Text(
           label,
-          style: TextStyle(
-            color: colorScheme.onSurfaceVariant,
-            fontSize: 12,
-          ),
+          style: context.textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant),
         ),
       ],
     );
@@ -305,10 +284,7 @@ class _CommunityTemplateDetailScreenState extends ConsumerState<CommunityTemplat
         child: ExpansionTile(
           title: Text(
             workout.dayName ?? l10n.communityDayFallback(workout.dayNumber),
-            style: TextStyle(
-              color: colorScheme.onSurface,
-              fontWeight: FontWeight.w600,
-            ),
+            style: context.textTheme.titleMedium?.copyWith(color: colorScheme.onSurface),
           ),
           subtitle: Text(
             workout.isCardio
@@ -328,9 +304,8 @@ class _CommunityTemplateDetailScreenState extends ConsumerState<CommunityTemplat
                         if (workout.notes != null && workout.notes!.isNotEmpty)
                           Text(
                             workout.notes!,
-                            style: TextStyle(
+                            style: context.textTheme.bodyMedium?.copyWith(
                               color: colorScheme.onSurfaceVariant,
-                              fontSize: 14,
                               height: 1.4,
                             ),
                           ),
@@ -362,18 +337,12 @@ class _CommunityTemplateDetailScreenState extends ConsumerState<CommunityTemplat
                                   children: [
                                     Text(
                                       exercise.name,
-                                      style: TextStyle(
-                                        color: colorScheme.onSurface,
-                                        fontSize: 15,
-                                      ),
+                                      style: context.textTheme.bodyMedium?.copyWith(color: colorScheme.onSurface),
                                     ),
                                     const SizedBox(height: 2),
                                     Text(
                                       l10n.communitySetsReps(exercise.sets, exercise.reps),
-                                      style: TextStyle(
-                                        color: colorScheme.onSurfaceVariant,
-                                        fontSize: 13,
-                                      ),
+                                      style: context.textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant),
                                     ),
                                   ],
                                 ),

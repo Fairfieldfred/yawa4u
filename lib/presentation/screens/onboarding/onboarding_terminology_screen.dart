@@ -171,19 +171,14 @@ class _OnboardingTerminologyScreenState extends ConsumerState<OnboardingTerminol
                                   children: [
                                     Text(
                                       term.localizedName(l10n),
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16,
-                                        color: Theme.of(
-                                          context,
-                                        ).colorScheme.onSurface,
+                                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                        color: Theme.of(context).colorScheme.onSurface,
                                       ),
                                     ),
                                     const SizedBox(height: 4),
                                     Text(
                                       term.localizedDescription(l10n),
-                                      style: TextStyle(
-                                        fontSize: 13,
+                                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                         color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                                       ),
                                     ),

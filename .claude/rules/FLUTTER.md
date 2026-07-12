@@ -45,6 +45,9 @@ Working rules for this codebase. Full rationale lives in Effective Dart
 
 - All styling flows through the skin system (`lib/core/theme/skins/`) and
   `Theme.of(context)` — no hardcoded colors/text styles in widgets.
+- Text uses the `textTheme` ramp (`context.textTheme.*` + `copyWith` for color) —
+  no inline `TextStyle(fontSize:/fontWeight:)`; see `docs/TYPOGRAPHY.md` for the
+  ramp table, mapping rules, and the screenshot regression harness.
 - Custom design tokens go in `ThemeExtension`s.
 - Dynamic text scaling and ≥ 4.5:1 text contrast; `Semantics` labels on
   interactive elements (widget tests rely on semantic identifiers).

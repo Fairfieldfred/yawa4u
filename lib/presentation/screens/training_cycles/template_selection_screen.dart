@@ -105,18 +105,15 @@ class _TemplateSelectionScreenState extends ConsumerState<TemplateSelectionScree
                   children: [
                     Text(
                       l10n.templateSelectionBrowseCommunity,
-                      style: TextStyle(
+                      style: context.textTheme.titleMedium?.copyWith(
                         color: colorScheme.onSurface,
-                        fontSize: 17,
-                        fontWeight: FontWeight.bold,
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       l10n.templateSelectionBrowseCommunitySubtitle,
-                      style: TextStyle(
+                      style: context.textTheme.bodySmall?.copyWith(
                         color: colorScheme.onSurfaceVariant,
-                        fontSize: 13,
                       ),
                     ),
                   ],
@@ -164,10 +161,8 @@ class _TemplateSelectionScreenState extends ConsumerState<TemplateSelectionScree
                   Expanded(
                     child: Text(
                       template.name,
-                      style: TextStyle(
+                      style: context.textTheme.headlineSmall?.copyWith(
                         color: colorScheme.onSurface,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
@@ -184,11 +179,7 @@ class _TemplateSelectionScreenState extends ConsumerState<TemplateSelectionScree
                         ),
                         child: Text(
                           l10n.templateSelectionDaysPerPeriod(template.daysPerPeriod),
-                          style: const TextStyle(
-                            color: Colors.blue,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                          ),
+                          style: context.textTheme.labelMedium?.copyWith(color: Colors.blue),
                         ),
                       ),
                       FutureBuilder<bool>(
@@ -216,10 +207,8 @@ class _TemplateSelectionScreenState extends ConsumerState<TemplateSelectionScree
               const SizedBox(height: 8),
               Text(
                 template.description,
-                style: TextStyle(
+                style: context.textTheme.bodyMedium?.copyWith(
                   color: colorScheme.onSurfaceVariant,
-                  fontSize: 14,
-                  height: 1.4,
                 ),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
@@ -235,9 +224,8 @@ class _TemplateSelectionScreenState extends ConsumerState<TemplateSelectionScree
                   const SizedBox(width: 4),
                   Text(
                     l10n.templateSelectionPeriodsCount(template.periodsTotal),
-                    style: TextStyle(
+                    style: context.textTheme.bodySmall?.copyWith(
                       color: colorScheme.onSurfaceVariant,
-                      fontSize: 13,
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -249,9 +237,8 @@ class _TemplateSelectionScreenState extends ConsumerState<TemplateSelectionScree
                   const SizedBox(width: 4),
                   Text(
                     l10n.templateSelectionSessionsCount(template.workouts.length),
-                    style: TextStyle(
+                    style: context.textTheme.bodySmall?.copyWith(
                       color: colorScheme.onSurfaceVariant,
-                      fontSize: 13,
                     ),
                   ),
                 ],

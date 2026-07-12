@@ -395,7 +395,7 @@ class _TrainingCycleCreateScreenState extends ConsumerState<TrainingCycleCreateS
                 label: Text(_isSubmitting ? l10n.cycleCreateCreatingButton : l10n.cycleCreateButton(cycleTerm)),
                 style: FilledButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
-                  textStyle: const TextStyle(fontSize: 16),
+                  textStyle: context.textTheme.bodyLarge,
                 ),
               ),
               const SizedBox(height: 16),

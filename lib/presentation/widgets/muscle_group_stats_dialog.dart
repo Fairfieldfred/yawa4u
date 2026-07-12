@@ -78,11 +78,7 @@ class MuscleGroupStatsDialog extends ConsumerWidget {
                   children: [
                     Text(
                       l10n.muscleGroupStatsTitle,
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: textColor,
-                      ),
+                      style: Theme.of(context).textTheme.headlineMedium?.copyWith(color: textColor),
                     ),
                     IconButton(
                       onPressed: () => Navigator.of(context).pop(),
@@ -107,7 +103,7 @@ class MuscleGroupStatsDialog extends ConsumerWidget {
                         child: Center(
                           child: Text(
                             isRecovery ? l10n.muscleGroupStatsDeload : l10n.muscleGroupStatsPeriod(period),
-                            style: TextStyle(fontSize: 12, color: textColor),
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(color: textColor),
                           ),
                         ),
                       );
@@ -178,10 +174,8 @@ class MuscleGroupStatsDialog extends ConsumerWidget {
                                             Expanded(
                                               child: Text(
                                                 group.displayName,
-                                                style: TextStyle(
+                                                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                                                   color: textColor,
-                                                  fontWeight: FontWeight.bold,
-                                                  fontSize: 18,
                                                 ),
                                                 overflow: TextOverflow.ellipsis,
                                               ),
@@ -191,9 +185,8 @@ class MuscleGroupStatsDialog extends ConsumerWidget {
                                         const SizedBox(height: 4),
                                         Text(
                                           l10n.muscleGroupStatsAvgSets(avgSets),
-                                          style: TextStyle(
+                                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                             color: textColor,
-                                            fontSize: 12,
                                           ),
                                         ),
                                       ],
@@ -218,9 +211,8 @@ class MuscleGroupStatsDialog extends ConsumerWidget {
                                         alignment: Alignment.center,
                                         child: Text(
                                           count > 0 ? count.toString() : '-',
-                                          style: TextStyle(
+                                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                             color: textColor,
-                                            fontSize: 12,
                                           ),
                                         ),
                                       ),

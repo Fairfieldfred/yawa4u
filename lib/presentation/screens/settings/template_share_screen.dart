@@ -517,10 +517,8 @@ class _TemplateShareScreenState extends ConsumerState<TemplateShareScreen> {
                         Expanded(
                           child: Text(
                             template.name,
-                            style: TextStyle(
+                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
                               color: isSelected ? colorScheme.onPrimaryContainer : colorScheme.onSurface,
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
                             ),
                           ),
                         ),
@@ -535,10 +533,8 @@ class _TemplateShareScreenState extends ConsumerState<TemplateShareScreen> {
                           ),
                           child: Text(
                             l10n.templateShareDaysPerPeriod(template.daysPerPeriod),
-                            style: const TextStyle(
+                            style: Theme.of(context).textTheme.labelMedium?.copyWith(
                               color: Colors.blue,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
                             ),
                           ),
                         ),
@@ -547,13 +543,12 @@ class _TemplateShareScreenState extends ConsumerState<TemplateShareScreen> {
                     const SizedBox(height: 4),
                     Text(
                       template.description,
-                      style: TextStyle(
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: isSelected
                             ? colorScheme.onPrimaryContainer.withValues(
                                 alpha: 0.7,
                               )
                             : colorScheme.onSurfaceVariant,
-                        fontSize: 13,
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -573,13 +568,12 @@ class _TemplateShareScreenState extends ConsumerState<TemplateShareScreen> {
                         const SizedBox(width: 4),
                         Text(
                           l10n.templateSharePeriodsCount(template.periodsTotal),
-                          style: TextStyle(
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color: isSelected
                                 ? colorScheme.onPrimaryContainer.withValues(
                                     alpha: 0.7,
                                   )
                                 : colorScheme.onSurfaceVariant,
-                            fontSize: 12,
                           ),
                         ),
                         const SizedBox(width: 12),
@@ -595,13 +589,12 @@ class _TemplateShareScreenState extends ConsumerState<TemplateShareScreen> {
                         const SizedBox(width: 4),
                         Text(
                           l10n.templateShareWorkoutsCount(template.workouts.length),
-                          style: TextStyle(
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color: isSelected
                                 ? colorScheme.onPrimaryContainer.withValues(
                                     alpha: 0.7,
                                   )
                                 : colorScheme.onSurfaceVariant,
-                            fontSize: 12,
                           ),
                         ),
                       ],

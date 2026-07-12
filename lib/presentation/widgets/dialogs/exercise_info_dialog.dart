@@ -596,11 +596,7 @@ class _ExerciseInfoDialogState extends ConsumerState<ExerciseInfoDialog> {
                           : weight.toString();
                       return LineTooltipItem(
                         '$formatted ${l10n.lbsSuffix}',
-                        TextStyle(
-                          color: primaryColor,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 12,
-                        ),
+                        Theme.of(context).textTheme.labelMedium!.copyWith(color: primaryColor),
                       );
                     }).toList(),
                   ),
@@ -787,14 +783,12 @@ class _ExerciseInfoDialogState extends ConsumerState<ExerciseInfoDialog> {
       }
 
       spans.add(
-        TextSpan(text: group.weightStr, style: const TextStyle(fontSize: 18)),
+        TextSpan(text: group.weightStr, style: Theme.of(context).textTheme.headlineSmall),
       );
       spans.add(
         TextSpan(
           text: ' ${l10n.lbsSuffix}',
-          style: TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w400,
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
             color: Theme.of(
               context,
             ).colorScheme.onSurface.withAlpha((255 * 0.7).round()),
@@ -803,7 +797,7 @@ class _ExerciseInfoDialogState extends ConsumerState<ExerciseInfoDialog> {
       );
       spans.add(const TextSpan(text: '  x  '));
       spans.add(
-        TextSpan(text: group.repsStr, style: const TextStyle(fontSize: 18)),
+        TextSpan(text: group.repsStr, style: Theme.of(context).textTheme.headlineSmall),
       );
     }
 

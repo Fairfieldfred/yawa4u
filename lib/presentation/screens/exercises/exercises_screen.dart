@@ -144,11 +144,8 @@ class _ExercisesHomeScreenState extends ConsumerState<ExercisesHomeScreen> {
           height: 32,
           child: Text(
             cycleTerm.toUpperCase(),
-            style: TextStyle(
+            style: context.textTheme.labelSmall?.copyWith(
               color: Theme.of(context).colorScheme.primary,
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-              letterSpacing: 0.5,
             ),
           ),
         ),
@@ -425,20 +422,15 @@ class _ExercisesHomeScreenState extends ConsumerState<ExercisesHomeScreen> {
           children: [
             Text(
               trainingCycle.name.toUpperCase(),
-              style: TextStyle(
+              style: context.textTheme.labelMedium?.copyWith(
                 color: Theme.of(context).textTheme.bodySmall?.color,
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-                letterSpacing: 0.5,
               ),
             ),
             const SizedBox(height: 2),
             Text(
               l10n.exercisesPeriodDayHeader(period, day),
-              style: TextStyle(
+              style: context.textTheme.titleMedium?.copyWith(
                 color: Theme.of(context).textTheme.titleLarge?.color,
-                fontSize: 17,
-                fontWeight: FontWeight.w600,
               ),
             ),
           ],
@@ -715,11 +707,8 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
             children: [
               Text(
                 trainingCycle.name.toUpperCase(),
-                style: TextStyle(
+                style: context.textTheme.labelMedium?.copyWith(
                   color: Theme.of(context).textTheme.bodySmall?.color,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                  letterSpacing: 0.5,
                 ),
               ),
               const SizedBox(height: 2),
@@ -727,10 +716,8 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
                 dayName.isNotEmpty
                     ? l10n.exercisesPeriodDayHeaderWithName(displayPeriod, displayDay, dayName)
                     : l10n.exercisesPeriodDayHeader(displayPeriod, displayDay),
-                style: TextStyle(
+                style: context.textTheme.titleMedium?.copyWith(
                   color: Theme.of(context).textTheme.titleLarge?.color,
-                  fontSize: 17,
-                  fontWeight: FontWeight.w600,
                 ),
               ),
             ],
@@ -955,9 +942,8 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
                               ),
                               child: Text(
                                 l10n.exercisesFinishWorkout,
-                                style: const TextStyle(
-                                  fontSize: 17,
-                                  fontWeight: FontWeight.w600,
+                                style: context.textTheme.titleMedium?.copyWith(
+                                  color: Colors.white,
                                   letterSpacing: 0.5,
                                 ),
                               ),
@@ -1214,11 +1200,8 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
       height: 32,
       child: Text(
         title,
-        style: TextStyle(
+        style: context.textTheme.labelMedium?.copyWith(
           color: Theme.of(context).textTheme.bodySmall?.color,
-          fontSize: 12,
-          fontWeight: FontWeight.w600,
-          letterSpacing: 0.5,
         ),
       ),
     );
@@ -2155,14 +2138,12 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
       }
 
       spans.add(
-        TextSpan(text: group.weightStr, style: const TextStyle(fontSize: 18)),
+        TextSpan(text: group.weightStr, style: context.textTheme.headlineSmall),
       );
       spans.add(
         TextSpan(
           text: ' ${l10n.exercisesWeightUnitLbs}',
-          style: TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w400,
+          style: context.textTheme.bodySmall?.copyWith(
             color: Theme.of(
               context,
             ).colorScheme.onSurface.withAlpha((255 * 0.7).round()),
@@ -2171,7 +2152,7 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
       );
       spans.add(const TextSpan(text: '  x  '));
       spans.add(
-        TextSpan(text: group.repsStr, style: const TextStyle(fontSize: 18)),
+        TextSpan(text: group.repsStr, style: context.textTheme.headlineSmall),
       );
     }
 

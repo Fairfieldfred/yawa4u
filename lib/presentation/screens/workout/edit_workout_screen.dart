@@ -119,10 +119,8 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
                             ),
                             Text(
                               l10n.editWorkoutStartButton,
-                              style: TextStyle(
+                              style: context.textTheme.labelSmall?.copyWith(
                                 color: context.successColor,
-                                fontSize: 10,
-                                fontWeight: FontWeight.w600,
                               ),
                             ),
                           ],
@@ -797,11 +795,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
                         child: Center(
                           child: Text(
                             'i',
-                            style: TextStyle(
-                              color: Theme.of(
-                                context,
-                              ).textTheme.bodySmall?.color,
-                              fontSize: 12,
+                            style: context.textTheme.bodySmall?.copyWith(
                               fontWeight: FontWeight.bold,
                               fontStyle: FontStyle.italic,
                             ),
@@ -868,10 +862,8 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
                             height: 32,
                             child: Text(
                               l10n.editWorkoutExerciseMenuHeader,
-                              style: TextStyle(
+                              style: context.textTheme.labelMedium?.copyWith(
                                 color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
                               ),
                             ),
                           ),
@@ -1016,10 +1008,8 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
                         Expanded(
                           child: Text(
                             AppLocalizations.of(context)!.editWorkoutSetHeader,
-                            style: TextStyle(
+                            style: context.textTheme.labelMedium?.copyWith(
                               color: Theme.of(context).colorScheme.onSurfaceVariant,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
                             ),
                             textAlign: TextAlign.center,
                           ),
@@ -1028,10 +1018,8 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
                         Expanded(
                           child: Text(
                             AppLocalizations.of(context)!.editWorkoutRepsHeader,
-                            style: TextStyle(
+                            style: context.textTheme.labelMedium?.copyWith(
                               color: Theme.of(context).colorScheme.onSurfaceVariant,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
                             ),
                             textAlign: TextAlign.center,
                           ),
@@ -1129,10 +1117,8 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
                                   height: 32,
                                   child: Text(
                                     l10n.editWorkoutSetMenuHeader,
-                                    style: const TextStyle(
-                                      color: Colors.grey,
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w600,
+                                    style: context.textTheme.labelMedium?.copyWith(
+                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                                     ),
                                   ),
                                 ),
@@ -1189,10 +1175,8 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
                                   height: 32,
                                   child: Text(
                                     l10n.editWorkoutSetTypeHeader,
-                                    style: const TextStyle(
-                                      color: Colors.grey,
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w600,
+                                    style: context.textTheme.labelMedium?.copyWith(
+                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                                     ),
                                   ),
                                 ),
@@ -1459,12 +1443,10 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
                                     ),
                                     child: Text(
                                       _getSetTypeBadge(set.setType)!,
-                                      style: TextStyle(
+                                      style: context.textTheme.labelSmall?.copyWith(
                                         color: Theme.of(context).brightness == Brightness.light
                                             ? Colors.black
                                             : Colors.white,
-                                        fontSize: 9,
-                                        fontWeight: FontWeight.bold,
                                       ),
                                     ),
                                   ),

@@ -59,17 +59,12 @@ class CycleSummaryDialog extends ConsumerWidget {
                         children: [
                           Text(
                             l10n.cycleSummaryTitle(ref.watch(trainingCycleTermProvider)),
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: textColor,
-                            ),
+                            style: Theme.of(context).textTheme.headlineMedium?.copyWith(color: textColor),
                           ),
                           const SizedBox(height: 4),
                           Text(
                             trainingCycle.name.toUpperCase(),
-                            style: TextStyle(
-                              fontSize: 12,
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
                               color: secondaryTextColor,
                               letterSpacing: 0.5,
                             ),
@@ -91,11 +86,7 @@ class CycleSummaryDialog extends ConsumerWidget {
                 // Workouts Section
                 Text(
                   l10n.cycleSummaryWorkoutsSection,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    color: textColor,
-                  ),
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(color: textColor),
                 ),
                 const SizedBox(height: 12),
                 _buildStatRow(
@@ -129,11 +120,7 @@ class CycleSummaryDialog extends ConsumerWidget {
                 // Stats Section
                 Text(
                   l10n.cycleSummaryStatsSection,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    color: textColor,
-                  ),
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(color: textColor),
                 ),
                 const SizedBox(height: 12),
                 _buildNavigationRow(
@@ -158,10 +145,7 @@ class CycleSummaryDialog extends ConsumerWidget {
                     onPressed: () => Navigator.of(context).pop(),
                     child: Text(
                       l10n.closeUpper,
-                      style: TextStyle(
-                        color: textColor,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: Theme.of(context).textTheme.labelLarge?.copyWith(color: textColor),
                     ),
                   ),
                 ),
@@ -203,10 +187,10 @@ class CycleSummaryDialog extends ConsumerWidget {
           Expanded(
             child: Text(
               label,
-              style: TextStyle(fontSize: 16, color: textColor),
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: textColor),
             ),
           ),
-          Text(value, style: TextStyle(fontSize: 16, color: textColor)),
+          Text(value, style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: textColor)),
         ],
       ),
     );
@@ -228,7 +212,7 @@ class CycleSummaryDialog extends ConsumerWidget {
             Expanded(
               child: Text(
                 label,
-                style: TextStyle(fontSize: 16, color: textColor),
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: textColor),
               ),
             ),
             Icon(Icons.chevron_right, color: secondaryTextColor),

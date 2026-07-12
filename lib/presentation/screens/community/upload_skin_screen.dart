@@ -189,9 +189,8 @@ class _UploadSkinScreenState extends ConsumerState<UploadSkinScreen> {
               children: [
                 Text(
                   l10n.uploadSelectThemeDesc,
-                  style: TextStyle(
+                  style: context.textTheme.bodyMedium?.copyWith(
                     color: colorScheme.onSurfaceVariant,
-                    fontSize: 15,
                     height: 1.5,
                   ),
                 ),
@@ -200,11 +199,7 @@ class _UploadSkinScreenState extends ConsumerState<UploadSkinScreen> {
                 // Skin picker
                 Text(
                   l10n.uploadThemeLabel,
-                  style: TextStyle(
-                    color: colorScheme.onSurface,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: context.textTheme.titleMedium?.copyWith(color: colorScheme.onSurface),
                 ),
                 const SizedBox(height: 8),
 
@@ -232,10 +227,7 @@ class _UploadSkinScreenState extends ConsumerState<UploadSkinScreen> {
                         const SizedBox(height: 4),
                         Text(
                           l10n.uploadCreateCustomThemeHint,
-                          style: TextStyle(
-                            color: colorScheme.onSurfaceVariant,
-                            fontSize: 13,
-                          ),
+                          style: context.textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant),
                         ),
                       ],
                     ),
@@ -274,10 +266,7 @@ class _UploadSkinScreenState extends ConsumerState<UploadSkinScreen> {
                                   children: [
                                     Text(
                                       skin.name,
-                                      style: TextStyle(
-                                        color: colorScheme.onSurface,
-                                        fontWeight: FontWeight.w600,
-                                      ),
+                                      style: context.textTheme.titleSmall?.copyWith(color: colorScheme.onSurface),
                                     ),
                                     if (skin.description.isNotEmpty) ...[
                                       const SizedBox(height: 2),
@@ -285,9 +274,8 @@ class _UploadSkinScreenState extends ConsumerState<UploadSkinScreen> {
                                         skin.description,
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
-                                        style: TextStyle(
+                                        style: context.textTheme.bodySmall?.copyWith(
                                           color: colorScheme.onSurfaceVariant,
-                                          fontSize: 12,
                                         ),
                                       ),
                                     ],
@@ -306,11 +294,7 @@ class _UploadSkinScreenState extends ConsumerState<UploadSkinScreen> {
                 // Display name
                 Text(
                   l10n.uploadDisplayNameLabel,
-                  style: TextStyle(
-                    color: colorScheme.onSurface,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: context.textTheme.titleMedium?.copyWith(color: colorScheme.onSurface),
                 ),
                 const SizedBox(height: 8),
                 TextFormField(
@@ -327,11 +311,7 @@ class _UploadSkinScreenState extends ConsumerState<UploadSkinScreen> {
                 // Tags
                 Text(
                   l10n.uploadTagsLabel,
-                  style: TextStyle(
-                    color: colorScheme.onSurface,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: context.textTheme.titleMedium?.copyWith(color: colorScheme.onSurface),
                 ),
                 const SizedBox(height: 8),
                 TextFormField(
@@ -373,10 +353,7 @@ class _UploadSkinScreenState extends ConsumerState<UploadSkinScreen> {
                         )
                       : Text(
                           l10n.uploadPublishThemeButton,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: context.textTheme.titleMedium,
                         ),
                   style: FilledButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),

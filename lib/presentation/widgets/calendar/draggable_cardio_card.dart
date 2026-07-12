@@ -166,10 +166,9 @@ class DraggableCardioCard extends StatelessWidget {
       ),
       child: Text(
         text,
-        style: TextStyle(
+        style: Theme.of(context).textTheme.labelSmall?.copyWith(
           color: color,
           fontSize: compact ? 7 : 10,
-          fontWeight: FontWeight.w500,
         ),
       ),
     );

@@ -116,10 +116,7 @@ class _CommunitySkinDetailScreenState extends ConsumerState<CommunitySkinDetailS
                     const SizedBox(width: 4),
                     Text(
                       skin.authorDisplayName,
-                      style: TextStyle(
-                        color: colorScheme.onSurfaceVariant,
-                        fontSize: 14,
-                      ),
+                      style: context.textTheme.bodyMedium?.copyWith(color: colorScheme.onSurfaceVariant),
                     ),
                     const Spacer(),
                     Icon(
@@ -130,10 +127,7 @@ class _CommunitySkinDetailScreenState extends ConsumerState<CommunitySkinDetailS
                     const SizedBox(width: 4),
                     Text(
                       l10n.communityDownloadCount(skin.downloadCount),
-                      style: TextStyle(
-                        color: colorScheme.onSurfaceVariant,
-                        fontSize: 14,
-                      ),
+                      style: context.textTheme.bodyMedium?.copyWith(color: colorScheme.onSurfaceVariant),
                     ),
                   ],
                 ),
@@ -143,9 +137,8 @@ class _CommunitySkinDetailScreenState extends ConsumerState<CommunitySkinDetailS
                 if (skin.description.isNotEmpty)
                   Text(
                     skin.description,
-                    style: TextStyle(
+                    style: context.textTheme.bodyLarge?.copyWith(
                       color: colorScheme.onSurfaceVariant,
-                      fontSize: 16,
                       height: 1.5,
                     ),
                   ),
@@ -170,11 +163,7 @@ class _CommunitySkinDetailScreenState extends ConsumerState<CommunitySkinDetailS
                 if (skin.skin != null) ...[
                   Text(
                     l10n.communityColorPreview,
-                    style: TextStyle(
-                      color: colorScheme.onSurface,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: context.textTheme.headlineSmall?.copyWith(color: colorScheme.onSurface),
                   ),
                   const SizedBox(height: 12),
                   _buildColorPreview(skin.skin!.colors, colorScheme, l10n),
@@ -209,10 +198,7 @@ class _CommunitySkinDetailScreenState extends ConsumerState<CommunitySkinDetailS
                         )
                       : Text(
                           _downloaded ? l10n.communitySavedButton : l10n.communityDownloadThemeButton,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: context.textTheme.titleMedium,
                         ),
                   style: FilledButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
@@ -281,8 +267,8 @@ class _CommunitySkinDetailScreenState extends ConsumerState<CommunitySkinDetailS
               const SizedBox(height: 4),
               Text(
                 entry.key,
-                style: TextStyle(
-                  fontSize: 10,
+                style: context.textTheme.labelSmall?.copyWith(
+                  fontWeight: FontWeight.normal,
                   color: colorScheme.onSurfaceVariant,
                 ),
               ),

@@ -207,9 +207,8 @@ class _SentryDebugScreenState extends State<SentryDebugScreen> {
               child: SingleChildScrollView(
                 child: SelectableText(
                   _statusLog,
-                  style: const TextStyle(
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     fontFamily: 'monospace',
-                    fontSize: 12,
                     color: Colors.greenAccent,
                   ),
                 ),

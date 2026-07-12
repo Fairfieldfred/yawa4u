@@ -226,11 +226,8 @@ class _CompletedCycleWorkoutScreenState extends ConsumerState<CompletedCycleWork
                 children: [
                   Text(
                     trainingCycle.name.toUpperCase(),
-                    style: TextStyle(
+                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
                       color: Theme.of(context).textTheme.bodySmall?.color,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      letterSpacing: 0.5,
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -249,11 +246,7 @@ class _CompletedCycleWorkoutScreenState extends ConsumerState<CompletedCycleWork
                         ),
                         child: Text(
                           l10n.completedWorkoutCompletedBadge,
-                          style: TextStyle(
-                            color: successColor,
-                            fontSize: 9,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: Theme.of(context).textTheme.labelSmall?.copyWith(color: successColor),
                         ),
                       );
                     },
@@ -263,10 +256,8 @@ class _CompletedCycleWorkoutScreenState extends ConsumerState<CompletedCycleWork
               const SizedBox(height: 2),
               Text(
                 l10n.completedWorkoutWeekDayTitle(displayPeriod, displayDay, dayName),
-                style: TextStyle(
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   color: Theme.of(context).textTheme.titleLarge?.color,
-                  fontSize: 17,
-                  fontWeight: FontWeight.w600,
                 ),
               ),
             ],
@@ -433,12 +424,8 @@ class _CompletedCycleWorkoutScreenState extends ConsumerState<CompletedCycleWork
                             child: Center(
                               child: Text(
                                 'i',
-                                style: TextStyle(
-                                  color: Theme.of(
-                                    context,
-                                  ).textTheme.bodySmall?.color,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
+                                style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                                  color: Theme.of(context).textTheme.bodySmall?.color,
                                   fontStyle: FontStyle.italic,
                                 ),
                               ),
@@ -466,12 +453,10 @@ class _CompletedCycleWorkoutScreenState extends ConsumerState<CompletedCycleWork
                             Expanded(
                               child: Text(
                                 l10n.completedWorkoutWeightHeader,
-                                style: TextStyle(
+                                style: Theme.of(context).textTheme.labelMedium?.copyWith(
                                   color: Theme.of(context).brightness == Brightness.light
                                       ? Theme.of(context).textTheme.bodySmall?.color?.withValues(alpha: 0.7)
                                       : Colors.white,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w600,
                                 ),
                                 textAlign: TextAlign.center,
                               ),
@@ -480,12 +465,10 @@ class _CompletedCycleWorkoutScreenState extends ConsumerState<CompletedCycleWork
                             Expanded(
                               child: Text(
                                 l10n.completedWorkoutRepsHeader,
-                                style: TextStyle(
+                                style: Theme.of(context).textTheme.labelMedium?.copyWith(
                                   color: Theme.of(context).brightness == Brightness.light
                                       ? Theme.of(context).textTheme.bodySmall?.color?.withValues(alpha: 0.7)
                                       : Colors.white,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w600,
                                 ),
                                 textAlign: TextAlign.center,
                               ),
@@ -495,12 +478,10 @@ class _CompletedCycleWorkoutScreenState extends ConsumerState<CompletedCycleWork
                               width: 40,
                               child: Text(
                                 l10n.completedWorkoutLogHeader,
-                                style: TextStyle(
+                                style: Theme.of(context).textTheme.labelMedium?.copyWith(
                                   color: Theme.of(context).brightness == Brightness.light
                                       ? Theme.of(context).textTheme.bodySmall?.color?.withValues(alpha: 0.7)
                                       : Colors.white,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w600,
                                 ),
                                 textAlign: TextAlign.center,
                               ),
@@ -521,12 +502,8 @@ class _CompletedCycleWorkoutScreenState extends ConsumerState<CompletedCycleWork
                               width: 24,
                               child: Text(
                                 '${index + 1}',
-                                style: TextStyle(
-                                  color: Theme.of(
-                                    context,
-                                  ).colorScheme.onSurface.withValues(alpha: 0.5),
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w500,
+                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
                                 ),
                                 textAlign: TextAlign.center,
                               ),
@@ -612,12 +589,10 @@ class _CompletedCycleWorkoutScreenState extends ConsumerState<CompletedCycleWork
                                         ),
                                         child: Text(
                                           _getSetTypeBadge(set.setType)!,
-                                          style: TextStyle(
+                                          style: Theme.of(context).textTheme.labelSmall?.copyWith(
                                             color: Theme.of(context).brightness == Brightness.light
                                                 ? Colors.black
                                                 : Colors.white,
-                                            fontSize: 9,
-                                            fontWeight: FontWeight.bold,
                                           ),
                                         ),
                                       ),
@@ -843,13 +818,8 @@ class _ReadOnlyCalendarDropdownState extends State<_ReadOnlyCalendarDropdown> {
               children: [
                 Text(
                   l10n.completedWorkoutWeeksReadOnly,
-                  style: TextStyle(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.6),
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                    letterSpacing: 0.5,
+                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                   ),
                 ),
                 Container(
@@ -863,11 +833,7 @@ class _ReadOnlyCalendarDropdownState extends State<_ReadOnlyCalendarDropdown> {
                   ),
                   child: Text(
                     l10n.completedWorkoutCompletedBadge,
-                    style: TextStyle(
-                      color: context.successColor,
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(color: context.successColor),
                   ),
                 ),
               ],
@@ -967,19 +933,15 @@ class _ReadOnlyCalendarDropdownState extends State<_ReadOnlyCalendarDropdown> {
               children: [
                 Text(
                   isDeload ? l10n.completedWorkoutDlLabel : '$periodNumber',
-                  style: TextStyle(
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     color: Theme.of(context).colorScheme.onSurface,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
                   ),
                 ),
                 Text(
                   l10n.completedWorkoutRirLabel(calculateRIR(periodNumber, widget.trainingCycle.recoveryPeriod)),
-                  style: TextStyle(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.6),
-                    fontSize: 10,
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                    fontWeight: FontWeight.normal,
                   ),
                 ),
               ],
@@ -1035,18 +997,17 @@ class _ReadOnlyCalendarDropdownState extends State<_ReadOnlyCalendarDropdown> {
                   children: [
                     Text(
                       dayInfo.dayName,
-                      style: TextStyle(
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: textColor,
-                        fontSize: 12,
                         fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                       ),
                     ),
                     if (dayInfo.dayOfMonth > 0)
                       Text(
                         '${dayInfo.dayOfMonth}',
-                        style: TextStyle(
+                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
                           color: textColor.withValues(alpha: 0.7),
-                          fontSize: 10,
+                          fontWeight: FontWeight.normal,
                         ),
                       ),
                   ],

@@ -485,9 +485,7 @@ class _ThemeEditorScreenState extends ConsumerState<ThemeEditorScreen> {
                         )
                       : Text(
                           '${index + 1}',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
+                          style: context.textTheme.labelMedium?.copyWith(
                             color: isActive
                                 ? Theme.of(context).colorScheme.onPrimary
                                 : Theme.of(context).colorScheme.onSurface,

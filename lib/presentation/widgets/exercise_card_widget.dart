@@ -316,11 +316,7 @@ class ExerciseCardWidget extends ConsumerWidget {
                               child: Center(
                                 child: Text(
                                   'i',
-                                  style: TextStyle(
-                                    color: Theme.of(
-                                      context,
-                                    ).textTheme.bodySmall?.color,
-                                    fontSize: 12,
+                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                     fontWeight: FontWeight.bold,
                                     fontStyle: FontStyle.italic,
                                   ),
@@ -360,10 +356,8 @@ class ExerciseCardWidget extends ConsumerWidget {
                               Expanded(
                                 child: Text(
                                   l10n.exerciseCardWeightHeader,
-                                  style: TextStyle(
+                                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
                                     color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600,
                                   ),
                                   textAlign: TextAlign.center,
                                 ),
@@ -372,10 +366,8 @@ class ExerciseCardWidget extends ConsumerWidget {
                               Expanded(
                                 child: Text(
                                   l10n.exerciseCardRepsHeader,
-                                  style: TextStyle(
+                                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
                                     color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600,
                                   ),
                                   textAlign: TextAlign.center,
                                 ),
@@ -385,10 +377,8 @@ class ExerciseCardWidget extends ConsumerWidget {
                                 width: 40,
                                 child: Text(
                                   l10n.exerciseCardLogHeader,
-                                  style: TextStyle(
+                                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
                                     color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600,
                                   ),
                                   textAlign: TextAlign.center,
                                 ),
@@ -523,10 +513,8 @@ class ExerciseCardWidget extends ConsumerWidget {
           height: 32,
           child: Text(
             l10n.exerciseCardExerciseHeader,
-            style: TextStyle(
+            style: Theme.of(context).textTheme.labelMedium?.copyWith(
               color: Theme.of(context).colorScheme.onSurfaceVariant,
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
             ),
           ),
         ),
@@ -837,10 +825,8 @@ class ExerciseCardWidget extends ConsumerWidget {
                           ),
                           child: Text(
                             l10n.exerciseCardPrBadge,
-                            style: TextStyle(
+                            style: Theme.of(context).textTheme.labelSmall?.copyWith(
                               color: Theme.of(context).colorScheme.onPrimary,
-                              fontSize: 9,
-                              fontWeight: FontWeight.bold,
                             ),
                           ),
                         ),
@@ -947,10 +933,8 @@ class ExerciseCardWidget extends ConsumerWidget {
                           ),
                           child: Text(
                             _getSetTypeBadge(set.setType)!,
-                            style: TextStyle(
+                            style: Theme.of(context).textTheme.labelSmall?.copyWith(
                               color: Theme.of(context).brightness == Brightness.light ? Colors.black : Colors.white,
-                              fontSize: 9,
-                              fontWeight: FontWeight.bold,
                             ),
                           ),
                         ),
@@ -1065,10 +1049,8 @@ class ExerciseCardWidget extends ConsumerWidget {
           height: 32,
           child: Text(
             l10n.exerciseCardSetHeader,
-            style: TextStyle(
+            style: Theme.of(context).textTheme.labelMedium?.copyWith(
               color: Theme.of(context).colorScheme.onSurfaceVariant,
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
             ),
           ),
         ),
@@ -1138,10 +1120,8 @@ class ExerciseCardWidget extends ConsumerWidget {
             children: [
               Text(
                 l10n.exerciseCardSetTypeHeader,
-                style: const TextStyle(
-                  color: Colors.grey,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
+                style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
               ),
               GestureDetector(

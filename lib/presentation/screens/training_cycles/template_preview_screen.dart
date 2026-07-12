@@ -82,10 +82,8 @@ class _TemplatePreviewScreenState extends ConsumerState<TemplatePreviewScreen> {
                 // Description
                 Text(
                   widget.template.description,
-                  style: TextStyle(
+                  style: context.textTheme.bodyLarge?.copyWith(
                     color: colorScheme.onSurfaceVariant,
-                    fontSize: 16,
-                    height: 1.5,
                   ),
                 ),
                 const SizedBox(height: 24),
@@ -133,9 +131,8 @@ class _TemplatePreviewScreenState extends ConsumerState<TemplatePreviewScreen> {
                         )
                       : Text(
                           AppLocalizations.of(context)!.templatePreviewLoadProgram,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
+                          style: context.textTheme.titleMedium?.copyWith(
+                            color: colorScheme.onPrimary,
                           ),
                         ),
                 ),
@@ -170,10 +167,8 @@ class _TemplatePreviewScreenState extends ConsumerState<TemplatePreviewScreen> {
           padding: EdgeInsets.only(top: widgets.isEmpty ? 0 : 16, bottom: 8),
           child: Text(
             periodLabel,
-            style: TextStyle(
+            style: context.textTheme.headlineSmall?.copyWith(
               color: colorScheme.onSurface,
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
             ),
           ),
         ),
@@ -230,16 +225,14 @@ class _TemplatePreviewScreenState extends ConsumerState<TemplatePreviewScreen> {
         const SizedBox(height: 8),
         Text(
           value,
-          style: TextStyle(
+          style: context.textTheme.titleMedium?.copyWith(
             color: colorScheme.onSurface,
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
           ),
         ),
         const SizedBox(height: 4),
         Text(
           label,
-          style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 12),
+          style: context.textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant),
         ),
       ],
     );
@@ -260,9 +253,8 @@ class _TemplatePreviewScreenState extends ConsumerState<TemplatePreviewScreen> {
         child: ExpansionTile(
           title: Text(
             workout.dayName ?? l10n.templatePreviewDayFallback(workout.dayNumber),
-            style: TextStyle(
+            style: context.textTheme.titleMedium?.copyWith(
               color: colorScheme.onSurface,
-              fontWeight: FontWeight.w600,
             ),
           ),
           subtitle: Text(
@@ -283,10 +275,8 @@ class _TemplatePreviewScreenState extends ConsumerState<TemplatePreviewScreen> {
                         if (workout.notes != null && workout.notes!.isNotEmpty)
                           Text(
                             workout.notes!,
-                            style: TextStyle(
+                            style: context.textTheme.bodyMedium?.copyWith(
                               color: colorScheme.onSurfaceVariant,
-                              fontSize: 14,
-                              height: 1.4,
                             ),
                           ),
                       ],
@@ -317,17 +307,15 @@ class _TemplatePreviewScreenState extends ConsumerState<TemplatePreviewScreen> {
                                   children: [
                                     Text(
                                       exercise.name,
-                                      style: TextStyle(
+                                      style: context.textTheme.bodyMedium?.copyWith(
                                         color: colorScheme.onSurface,
-                                        fontSize: 15,
                                       ),
                                     ),
                                     const SizedBox(height: 2),
                                     Text(
                                       l10n.templatePreviewSetsReps(exercise.sets, exercise.reps),
-                                      style: TextStyle(
+                                      style: context.textTheme.bodySmall?.copyWith(
                                         color: colorScheme.onSurfaceVariant,
-                                        fontSize: 13,
                                       ),
                                     ),
                                   ],

@@ -179,10 +179,9 @@ class _OnboardingEquipmentScreenState extends ConsumerState<OnboardingEquipmentS
                           Expanded(
                             child: Text(
                               _localizedName(l10n, equipment),
-                              style: TextStyle(
+                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                 color: Theme.of(context).colorScheme.onSurface,
                                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                                fontSize: 13,
                               ),
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,

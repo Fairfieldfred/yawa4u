@@ -52,7 +52,7 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
       appBar: AppBar(
         leading: const AppIconWidget(),
         leadingWidth: kToolbarHeight + 12,
-        title: Text(cycleTermPlural, style: const TextStyle(fontSize: 18)),
+        title: Text(cycleTermPlural, style: context.textTheme.headlineSmall),
         actions: [
           const QuickLogAction(),
           // Theme toggle

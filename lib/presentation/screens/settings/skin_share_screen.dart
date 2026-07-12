@@ -256,11 +256,8 @@ class _SkinShareScreenState extends ConsumerState<SkinShareScreen> {
               const SizedBox(height: 8),
               Text(
                 l10n.skinShareCreateThemeHint,
-                style: TextStyle(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.onSurface.withValues(alpha: 0.5),
-                  fontSize: 12,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -523,22 +520,19 @@ class _SkinShareScreenState extends ConsumerState<SkinShareScreen> {
                   children: [
                     Text(
                       skin.name,
-                      style: TextStyle(
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         color: isSelected ? colorScheme.onPrimaryContainer : colorScheme.onSurface,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       skin.description,
-                      style: TextStyle(
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: isSelected
                             ? colorScheme.onPrimaryContainer.withValues(
                                 alpha: 0.7,
                               )
                             : colorScheme.onSurfaceVariant,
-                        fontSize: 13,
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,

@@ -516,8 +516,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         ),
                         child: Text(
                           _bmi!.toStringAsFixed(1),
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
+                          style: context.textTheme.labelLarge?.copyWith(
                             color: _getBmiColor(context, _bmi!),
                           ),
                         ),
@@ -737,16 +736,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                   children: [
                                     Text(
                                       term.displayName,
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16,
-                                      ),
+                                      style: context.textTheme.titleMedium,
                                     ),
                                     const SizedBox(height: 2),
                                     Text(
                                       term.description,
-                                      style: TextStyle(
-                                        fontSize: 13,
+                                      style: context.textTheme.bodySmall?.copyWith(
                                         color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                                       ),
                                     ),
