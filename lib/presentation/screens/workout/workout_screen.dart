@@ -218,6 +218,18 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> with Widg
     await repository.update(
       workout.updateExercise(exerciseIndex, exercise.copyWith(sets: updatedSets)),
     );
+    if (!mounted) return;
+    // The weight field only re-reads its initialValue when the revision bump
+    // changes its key, and that rebuild happens while the invalidated stream
+    // providers are still serving the cached pre-write workout — so without a
+    // local override the recreated field would show the stale empty weight.
+    // Seed _localWeights (the same override typing uses) so the merged
+    // exercise already carries the suggestion on that rebuild.
+    setState(() {
+      for (final id in filledIds) {
+        _localWeights[id] = weightLbs;
+      }
+    });
     ref.read(autoSuggestedSetIdsProvider.notifier).addAll(filledIds);
     ref.read(suggestionRevisionProvider.notifier).bump();
     _invalidateWorkoutProviders();
