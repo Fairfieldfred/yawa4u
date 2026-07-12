@@ -7,6 +7,7 @@ import '../../../core/constants/muscle_groups.dart';
 import '../../../data/models/training_cycle_template.dart';
 import '../../../domain/providers/database_providers.dart';
 import '../../../domain/providers/template_providers.dart';
+import '../../../data/services/exercise_name_localizer.dart';
 import '../../../l10n/app_localizations.dart';
 
 class TemplatePreviewScreen extends ConsumerStatefulWidget {
@@ -306,7 +307,7 @@ class _TemplatePreviewScreenState extends ConsumerState<TemplatePreviewScreen> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      exercise.name,
+                                      context.localizedExerciseName(exercise.name),
                                       style: context.textTheme.bodyMedium?.copyWith(
                                         color: colorScheme.onSurface,
                                       ),

@@ -139,7 +139,7 @@ class _AddExerciseScreenState extends ConsumerState<AddExerciseScreen> {
                       padding: const EdgeInsets.only(right: 8),
                       child: FilterChip(
                         label: Text(
-                          _selectedMuscleGroup!.displayName,
+                          _selectedMuscleGroup!.localizedName(AppLocalizations.of(context)!),
                           style: TextStyle(
                             color: Theme.of(context).brightness == Brightness.light
                                 ? Colors.black.withValues(alpha: 0.85)
@@ -175,7 +175,7 @@ class _AddExerciseScreenState extends ConsumerState<AddExerciseScreen> {
                       padding: const EdgeInsets.only(right: 8),
                       child: FilterChip(
                         label: Text(
-                          equipment.displayName,
+                          equipment.localizedName(AppLocalizations.of(context)!),
                           style: TextStyle(
                             color: Theme.of(context).brightness == Brightness.light
                                 ? Colors.black.withValues(alpha: 0.85)
@@ -337,7 +337,7 @@ class _AddExerciseScreenState extends ConsumerState<AddExerciseScreen> {
                       ),
                     ),
                     child: Text(
-                      exercise.muscleGroup.displayName,
+                      exercise.muscleGroup.localizedName(AppLocalizations.of(context)!),
                       style: Theme.of(context).textTheme.labelSmall?.copyWith(
                         color: Theme.of(context).brightness == Brightness.light
                             ? Colors.black.withValues(alpha: 0.85)
@@ -361,7 +361,7 @@ class _AddExerciseScreenState extends ConsumerState<AddExerciseScreen> {
                       ),
                     ),
                     child: Text(
-                      exercise.equipmentType.displayName,
+                      exercise.equipmentType.localizedName(AppLocalizations.of(context)!),
                       style: Theme.of(context).textTheme.labelSmall?.copyWith(
                         color: Theme.of(context).brightness == Brightness.light
                             ? Colors.black.withValues(alpha: 0.85)
@@ -640,7 +640,7 @@ class _FilterModalState extends ConsumerState<_FilterModal> {
                   children: MuscleGroup.values.map((muscleGroup) {
                     final isSelected = _tempMuscleGroup == muscleGroup;
                     return ChoiceChip(
-                      label: Text(muscleGroup.displayName),
+                      label: Text(muscleGroup.localizedName(AppLocalizations.of(context)!)),
                       selected: isSelected,
                       onSelected: (selected) {
                         setState(() {
@@ -682,7 +682,7 @@ class _FilterModalState extends ConsumerState<_FilterModal> {
                   children: EquipmentType.values.map((equipment) {
                     final isSelected = _tempEquipment.contains(equipment);
                     return FilterChip(
-                      label: Text(equipment.displayName),
+                      label: Text(equipment.localizedName(AppLocalizations.of(context)!)),
                       selected: isSelected,
                       onSelected: (selected) {
                         setState(() {

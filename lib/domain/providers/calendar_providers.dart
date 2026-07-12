@@ -23,6 +23,9 @@ final scheduleServiceProvider = Provider<ScheduleService>((ref) {
   );
 });
 
+/// One exercise entry in a calendar day's muscle-group breakdown.
+typedef CalendarExerciseSummary = ({String name, int setCount});
+
 /// Represents an exercise with its parent workout context
 class CalendarExerciseItem {
   final Exercise exercise;
@@ -92,13 +95,14 @@ class CalendarDayData {
   final bool isRecoveryPeriod;
   final bool isCompleted;
   final bool isPartiallyCompleted;
-  final Set<String> muscleGroups;
+  final Set<MuscleGroup> muscleGroups;
 
-  /// Map of muscle group name to total number of sets
-  final Map<String, int> muscleGroupSets;
+  /// Map of muscle group to total number of sets
+  final Map<MuscleGroup, int> muscleGroupSets;
 
-  /// Map of muscle group name to list of exercise names with set counts
-  final Map<String, List<String>> muscleGroupExercises;
+  /// Map of muscle group to the day's exercises with their set counts.
+  /// Exercise names are canonical English — localize at display time.
+  final Map<MuscleGroup, List<CalendarExerciseSummary>> muscleGroupExercises;
 
   /// List of all exercises for this day with workout context (for drag-drop)
   final List<CalendarExerciseItem> exercises;
@@ -286,20 +290,20 @@ List<CalendarDayData> buildCalendarData({
     }
 
     // Collect muscle groups and count sets per muscle group
-    final muscleGroups = <String>{};
-    final muscleGroupSets = <String, int>{};
-    final muscleGroupExercises = <String, List<String>>{};
+    final muscleGroups = <MuscleGroup>{};
+    final muscleGroupSets = <MuscleGroup, int>{};
+    final muscleGroupExercises = <MuscleGroup, List<CalendarExerciseSummary>>{};
     final allDayExercises = <CalendarExerciseItem>[];
 
     for (final workout in dayWorkouts) {
       for (final exercise in workout.exercises) {
-        final groupName = exercise.muscleGroup.displayName;
-        muscleGroups.add(groupName);
-        muscleGroupSets[groupName] = (muscleGroupSets[groupName] ?? 0) + exercise.sets.length;
+        final group = exercise.muscleGroup;
+        muscleGroups.add(group);
+        muscleGroupSets[group] = (muscleGroupSets[group] ?? 0) + exercise.sets.length;
         // Track exercise names with set counts
-        final exercises = muscleGroupExercises[groupName] ?? [];
-        exercises.add('${exercise.name} (${exercise.sets.length} sets)');
-        muscleGroupExercises[groupName] = exercises;
+        final exercises = muscleGroupExercises[group] ?? [];
+        exercises.add((name: exercise.name, setCount: exercise.sets.length));
+        muscleGroupExercises[group] = exercises;
 
         // Add to flat exercise list for drag-drop
         // Use the workout's actual period/day, not calculated
@@ -388,13 +392,13 @@ CalendarDayData mergeDayData(CalendarDayData primary, CalendarDayData secondary)
   final newCardio = secondary.cardioSessions.where((s) => !seenCardioIds.contains(s.id)).toList();
 
   // Merge muscle group sets by summing.
-  final mergedSets = Map<String, int>.from(primary.muscleGroupSets);
+  final mergedSets = Map<MuscleGroup, int>.from(primary.muscleGroupSets);
   for (final entry in secondary.muscleGroupSets.entries) {
     mergedSets[entry.key] = (mergedSets[entry.key] ?? 0) + entry.value;
   }
 
   // Merge muscle group exercises by concatenating.
-  final mergedExercises = Map<String, List<String>>.from(
+  final mergedExercises = Map<MuscleGroup, List<CalendarExerciseSummary>>.from(
     primary.muscleGroupExercises,
   );
   for (final entry in secondary.muscleGroupExercises.entries) {

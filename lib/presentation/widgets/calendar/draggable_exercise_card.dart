@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/constants/muscle_groups.dart';
 import '../../../data/models/exercise.dart';
+import '../../../data/services/exercise_name_localizer.dart';
 import '../../../l10n/app_localizations.dart';
 import 'calendar_drag_data.dart';
 
@@ -103,7 +104,7 @@ class DraggableExerciseCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      exercise.name,
+                      context.localizedExerciseName(exercise.name),
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         fontWeight: FontWeight.w600,
                         fontSize: compact ? 10 : 12,

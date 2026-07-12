@@ -1,5 +1,7 @@
 import '../../core/constants/enums.dart';
+import '../../core/constants/muscle_groups.dart';
 import '../../core/constants/sports.dart';
+import '../../l10n/app_localizations.dart';
 import 'cardio_detail.dart';
 import 'exercise.dart';
 import 'session_interval.dart';
@@ -380,4 +382,22 @@ Session sessionFromJson(Map<String, dynamic> json) {
   final kind = json['kind'] as String?;
   if (kind == 'cardio') return CardioSession.fromJson(json);
   return StrengthSession.fromJson(json);
+}
+
+/// Display-time localization for [Session.displayName].
+///
+/// Stored labels stay canonical English (auto-generated strength labels hold a
+/// [MuscleGroup] displayName that ScheduleService matches on); this maps them —
+/// and the "Day N" / sport-name fallbacks — to the active locale. User-edited
+/// labels pass through unchanged.
+extension SessionLocalizedDisplay on Session {
+  String localizedDisplayName(AppLocalizations l10n) {
+    final label = this.label;
+    if (label != null && label.isNotEmpty) return MuscleGroups.localizedLabel(l10n, label);
+    final dayName = this.dayName;
+    if (dayName != null && dayName.isNotEmpty) return dayName;
+    final dayNumber = this.dayNumber;
+    if (dayNumber != null) return l10n.sessionDayFallback(dayNumber);
+    return sport.localizedName(l10n);
+  }
 }

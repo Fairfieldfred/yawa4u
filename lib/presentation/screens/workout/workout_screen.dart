@@ -1155,7 +1155,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> with Widg
 
     if (!mounted) return;
     final l10n = AppLocalizations.of(context)!;
-    final label = session.label?.trim().isNotEmpty == true ? session.label! : session.sport.displayName;
+    final label = session.label?.trim().isNotEmpty == true ? session.label! : session.sport.localizedName(l10n);
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(

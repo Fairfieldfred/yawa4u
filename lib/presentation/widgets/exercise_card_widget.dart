@@ -289,7 +289,7 @@ class ExerciseCardWidget extends ConsumerWidget {
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
-                                  equipmentType.displayName.toUpperCase(),
+                                  equipmentType.localizedName(l10n).toUpperCase(),
                                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                     fontSize: 13,
                                     fontWeight: FontWeight.w500,
@@ -920,7 +920,7 @@ class ExerciseCardWidget extends ConsumerWidget {
                       right: 4,
                       child: Semantics(
                         label: l10n.exerciseCardSetTypeSemantic(
-                          set.setType.displayName,
+                          set.setType.localizedName(l10n),
                         ),
                         child: Container(
                           padding: const EdgeInsets.symmetric(

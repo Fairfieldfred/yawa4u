@@ -132,7 +132,7 @@ class _TemplateCard extends StatelessWidget {
                     ),
                   ),
                   _Pill(
-                    label: template.difficulty.displayName,
+                    label: template.difficulty.localizedName(AppLocalizations.of(context)!),
                     color: color,
                   ),
                 ],

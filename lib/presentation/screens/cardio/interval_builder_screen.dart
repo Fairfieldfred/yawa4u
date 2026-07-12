@@ -276,7 +276,7 @@ class _IntervalBuilderScreenState extends ConsumerState<IntervalBuilderScreen> {
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        session.displayName,
+                        session.localizedDisplayName(l10n),
                         style:
                             Theme.of(
                               context,

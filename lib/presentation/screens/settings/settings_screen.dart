@@ -886,7 +886,7 @@ class _SportToggleTile extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        sport.displayName,
+                        sport.localizedName(AppLocalizations.of(context)!),
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                           fontWeight: FontWeight.w600,
                         ),

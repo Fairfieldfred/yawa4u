@@ -157,13 +157,14 @@ class _AddSessionSheetState extends State<_AddSessionSheet> {
       }
     }
 
-    final allMuscleGroups = MuscleGroup.values.toList()..sort((a, b) => a.displayName.compareTo(b.displayName));
+    final allMuscleGroups = MuscleGroup.values.toList()
+      ..sort((a, b) => a.localizedName(l10n).compareTo(b.localizedName(l10n)));
 
     final isCardio = _currentSport != Sport.strength;
 
     // Dynamic title based on mode.
     final title = _showSportPicker
-        ? (isCardio ? l10n.addSessionPlanSport(_currentSport.displayName) : l10n.addSessionTitle)
+        ? (isCardio ? l10n.addSessionPlanSport(_currentSport.localizedName(l10n)) : l10n.addSessionTitle)
         : l10n.selectMuscleGroupTitle;
 
     return Container(
@@ -214,7 +215,7 @@ class _AddSessionSheetState extends State<_AddSessionSheet> {
                         final existingWorkout = muscleGroupWorkouts[muscleGroup];
 
                         return ListTile(
-                          title: Text(muscleGroup.displayName),
+                          title: Text(muscleGroup.localizedName(l10n)),
                           trailing: const Icon(
                             Icons.arrow_forward_ios,
                             size: 16,
@@ -269,7 +270,7 @@ class _AddSessionSheetState extends State<_AddSessionSheet> {
                     color: Colors.white,
                   ),
                 )
-              : Text(l10n.planSportButton(_currentSport.displayName)),
+              : Text(l10n.planSportButton(_currentSport.localizedName(l10n))),
         ),
       ],
     );
@@ -361,7 +362,7 @@ class _AddSessionSheetState extends State<_AddSessionSheet> {
       ScaffoldMessenger.of(parentCtx).showSnackBar(
         SnackBar(
           content: Text(
-            l10n.sessionPlannedSnackbar(_currentSport.displayName),
+            l10n.sessionPlannedSnackbar(_currentSport.localizedName(l10n)),
           ),
         ),
       );

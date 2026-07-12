@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/sports.dart';
+import '../../../../l10n/app_localizations.dart';
 
 /// Small legend row that maps each sport's color to its label.
 ///
@@ -34,7 +35,7 @@ class SportLegend extends StatelessWidget {
               ),
               const SizedBox(width: 6),
               Text(
-                sport.displayName,
+                sport.localizedName(AppLocalizations.of(context)!),
                 style: Theme.of(context).textTheme.bodySmall,
               ),
             ],

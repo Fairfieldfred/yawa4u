@@ -171,7 +171,7 @@ class _CreateCustomExerciseDialogState extends ConsumerState<CreateCustomExercis
                         items: MuscleGroup.values.map((group) {
                           return DropdownMenuItem(
                             value: group,
-                            child: Text(group.displayName),
+                            child: Text(group.localizedName(l10n)),
                           );
                         }).toList(),
                         onChanged: (value) {
@@ -200,7 +200,7 @@ class _CreateCustomExerciseDialogState extends ConsumerState<CreateCustomExercis
                           ...MuscleGroup.values.where((group) => group != _selectedMuscleGroup).map((group) {
                             return DropdownMenuItem<MuscleGroup?>(
                               value: group,
-                              child: Text(group.displayName),
+                              child: Text(group.localizedName(l10n)),
                             );
                           }),
                         ],
@@ -223,7 +223,7 @@ class _CreateCustomExerciseDialogState extends ConsumerState<CreateCustomExercis
                         items: EquipmentType.values.map((type) {
                           return DropdownMenuItem(
                             value: type,
-                            child: Text(type.displayName),
+                            child: Text(type.localizedName(l10n)),
                           );
                         }).toList(),
                         onChanged: (value) {

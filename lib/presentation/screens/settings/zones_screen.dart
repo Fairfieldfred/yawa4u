@@ -54,7 +54,7 @@ class _ZonesScreenState extends ConsumerState<ZonesScreen> with SingleTickerProv
         bottom: TabBar(
           controller: _tabController,
           isScrollable: true,
-          tabs: [for (final s in _sports) Tab(text: s.displayName)],
+          tabs: [for (final s in _sports) Tab(text: s.localizedName(l10n))],
         ),
       ),
       body: TabBarView(
@@ -280,7 +280,7 @@ class _EmptyState extends StatelessWidget {
       icon: sport.icon,
       iconSize: 64,
       iconColor: sport.color.withValues(alpha: 0.6),
-      title: l10n.zonesNoZones(sport.displayName),
+      title: l10n.zonesNoZones(sport.localizedName(l10n)),
       subtitle: l10n.zonesNoZonesSubtitle,
       padding: const EdgeInsets.all(24),
       primaryAction: EmptyStateAction(

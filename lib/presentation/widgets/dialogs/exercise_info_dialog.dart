@@ -176,7 +176,8 @@ class _ExerciseInfoDialogState extends ConsumerState<ExerciseInfoDialog> {
                   children: [
                     // Muscle group + Equipment type
                     Text(
-                      '${widget.exercise.muscleGroup.displayName} · ${widget.exercise.equipmentType.displayName}',
+                      '${widget.exercise.muscleGroup.localizedName(AppLocalizations.of(context)!)} · '
+                      '${widget.exercise.equipmentType.localizedName(AppLocalizations.of(context)!)}',
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: Theme.of(
                           context,

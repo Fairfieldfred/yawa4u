@@ -719,6 +719,13 @@
       "number": {}
     }
   },
+  "sessionDayFallback": "Day {number}",
+  "@sessionDayFallback": {
+    "description": "Generic fallback title for a session without a label or day name",
+    "placeholders": {
+      "number": {}
+    }
+  },
   "templatePreviewCardioSession": "{sport} session",
   "@templatePreviewCardioSession": {
     "placeholders": {
@@ -1255,6 +1262,14 @@
   "@calendarMuscleGroupSets": {
     "placeholders": {
       "muscleGroup": {},
+      "setCount": {}
+    }
+  },
+  "calendarExerciseSetCount": "{name} ({setCount, plural, =1{1 set} other{{setCount} sets}})",
+  "@calendarExerciseSetCount": {
+    "description": "Exercise line in the calendar muscle-group tooltip/list",
+    "placeholders": {
+      "name": {},
       "setCount": {}
     }
   },
@@ -2658,6 +2673,9 @@
     }
   },
   "cardioTemplatePickerNoTemplates": "No templates for this sport yet.",
+  "cardioDifficultyBeginner": "Beginner",
+  "cardioDifficultyIntermediate": "Intermediate",
+  "cardioDifficultyAdvanced": "Advanced",
   "cardioTemplatePickerStepsCount": "{count} steps",
   "@cardioTemplatePickerStepsCount": {
     "placeholders": {

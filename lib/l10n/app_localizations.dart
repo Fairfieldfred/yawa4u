@@ -2168,6 +2168,12 @@ abstract class AppLocalizations {
   /// **'Day {number}'**
   String templatePreviewDayFallback(Object number);
 
+  /// Generic fallback title for a session without a label or day name
+  ///
+  /// In en, this message translates to:
+  /// **'Day {number}'**
+  String sessionDayFallback(Object number);
+
   /// No description provided for @templatePreviewCardioSession.
   ///
   /// In en, this message translates to:
@@ -3463,6 +3469,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{muscleGroup} • {setCount} sets'**
   String calendarMuscleGroupSets(Object muscleGroup, Object setCount);
+
+  /// Exercise line in the calendar muscle-group tooltip/list
+  ///
+  /// In en, this message translates to:
+  /// **'{name} ({setCount, plural, =1{1 set} other{{setCount} sets}})'**
+  String calendarExerciseSetCount(Object name, num setCount);
 
   /// No description provided for @calendarMoreExercises.
   ///
@@ -7878,6 +7890,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No templates for this sport yet.'**
   String get cardioTemplatePickerNoTemplates;
+
+  /// No description provided for @cardioDifficultyBeginner.
+  ///
+  /// In en, this message translates to:
+  /// **'Beginner'**
+  String get cardioDifficultyBeginner;
+
+  /// No description provided for @cardioDifficultyIntermediate.
+  ///
+  /// In en, this message translates to:
+  /// **'Intermediate'**
+  String get cardioDifficultyIntermediate;
+
+  /// No description provided for @cardioDifficultyAdvanced.
+  ///
+  /// In en, this message translates to:
+  /// **'Advanced'**
+  String get cardioDifficultyAdvanced;
 
   /// No description provided for @cardioTemplatePickerStepsCount.
   ///

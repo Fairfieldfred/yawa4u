@@ -554,7 +554,7 @@ class _SourceBadge extends StatelessWidget {
           ),
           const SizedBox(width: 4),
           Text(
-            source.displayName,
+            source.localizedName(AppLocalizations.of(context)!),
             style: theme.textTheme.labelSmall?.copyWith(
               fontSize: 11,
               fontWeight: FontWeight.w500,

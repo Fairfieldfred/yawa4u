@@ -10,6 +10,7 @@ import '../../../data/repositories/community_repository.dart';
 import '../../../domain/providers/community_providers.dart';
 import '../../../domain/providers/database_providers.dart';
 import '../../../domain/providers/template_providers.dart';
+import '../../../data/services/exercise_name_localizer.dart';
 import '../../../l10n/app_localizations.dart';
 
 /// Detail + download screen for a single community template.
@@ -336,7 +337,7 @@ class _CommunityTemplateDetailScreenState extends ConsumerState<CommunityTemplat
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      exercise.name,
+                                      context.localizedExerciseName(exercise.name),
                                       style: context.textTheme.bodyMedium?.copyWith(color: colorScheme.onSurface),
                                     ),
                                     const SizedBox(height: 2),

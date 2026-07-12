@@ -43,7 +43,7 @@ class CardioSummaryCard extends StatelessWidget {
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      session.displayName,
+                      session.localizedDisplayName(l10n),
                       style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w600,
                       ),

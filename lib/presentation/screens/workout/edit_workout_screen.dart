@@ -31,6 +31,7 @@ import '../../widgets/muscle_group_badge.dart';
 import '../../widgets/skeleton_loader.dart';
 import '../cardio/sport_picker_sheet.dart';
 import 'add_exercise_screen.dart';
+import '../../../data/services/exercise_name_localizer.dart';
 import '../../../l10n/app_localizations.dart';
 import 'edit_workout_controller.dart';
 
@@ -471,8 +472,8 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
           children: RecoveryPeriodType.values.map((type) {
             final isSelected = type == trainingCycle.recoveryPeriodType;
             return ListTile(
-              title: Text(type.displayName),
-              subtitle: Text(type.description),
+              title: Text(type.localizedName(l10n)),
+              subtitle: Text(type.localizedDescription(l10n)),
               leading: Radio<RecoveryPeriodType>(
                 value: type,
                 fillColor: WidgetStateProperty.resolveWith((states) {
@@ -506,7 +507,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
       try {
         await controller.updateRecoveryPeriodType(trainingCycle, result);
         if (mounted) {
-          context.showSuccessSnackBar(l10n.editWorkoutRecoveryTypeChanged(result.displayName));
+          context.showSuccessSnackBar(l10n.editWorkoutRecoveryTypeChanged(result.localizedName(l10n)));
         }
       } catch (e) {
         if (mounted) {
@@ -738,6 +739,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
   }) {
     final muscleGroup = exercise.muscleGroup;
     final equipmentType = exercise.equipmentType;
+    final l10n = AppLocalizations.of(context)!;
 
     return Stack(
       clipBehavior: Clip.none,
@@ -761,7 +763,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            exercise.name,
+                            context.localizedExerciseName(exercise.name),
                             style: Theme.of(context).textTheme.titleMedium?.copyWith(
                               fontSize: 17,
                               fontWeight: FontWeight.w600,
@@ -769,7 +771,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            equipmentType.displayName.toUpperCase(),
+                            equipmentType.localizedName(l10n).toUpperCase(),
                             style: Theme.of(context).textTheme.bodySmall?.copyWith(
                               fontSize: 13,
                               fontWeight: FontWeight.w500,
@@ -1934,7 +1936,7 @@ class _CardioPill extends StatelessWidget {
               SportBadge(sport: session.sport, compact: true),
               const SizedBox(width: 8),
               Text(
-                session.displayName,
+                session.localizedDisplayName(AppLocalizations.of(context)!),
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   fontWeight: FontWeight.w600,
                 ),

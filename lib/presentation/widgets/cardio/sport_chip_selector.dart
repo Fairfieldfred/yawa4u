@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/constants/sports.dart';
+import '../../../l10n/app_localizations.dart';
 
 /// Horizontal row of sport chips used for picking a sport.
 ///
@@ -76,7 +77,7 @@ class _SportChip extends StatelessWidget {
             Icon(sport.icon, size: 18, color: textColor),
             const SizedBox(width: 8),
             Text(
-              sport.displayName,
+              sport.localizedName(AppLocalizations.of(context)!),
               style: Theme.of(context).textTheme.labelLarge?.copyWith(
                 color: textColor,
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,

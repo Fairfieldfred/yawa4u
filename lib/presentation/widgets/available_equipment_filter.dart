@@ -29,6 +29,26 @@ enum EquipmentOption {
   final String displayName;
   final IconData icon;
 
+  /// Localized display name for UI (uses ARB translations)
+  String localizedName(AppLocalizations l10n) {
+    return switch (this) {
+      EquipmentOption.dumbbells => l10n.equipmentDumbbells,
+      EquipmentOption.homeGymRack => l10n.equipmentHomeGymRack,
+      EquipmentOption.functionalTrainer => l10n.equipmentFunctionalTrainer,
+      EquipmentOption.gymMachines => l10n.equipmentGymMachines,
+      EquipmentOption.barbells => l10n.equipmentBarbells,
+      EquipmentOption.kettlebells => l10n.equipmentKettlebells,
+      EquipmentOption.resistanceBands => l10n.equipmentResistanceBands,
+      EquipmentOption.treadmill => l10n.equipmentTreadmill,
+      EquipmentOption.exerciseBike => l10n.equipmentExerciseBike,
+      EquipmentOption.rowingMachine => l10n.equipmentRowingMachine,
+      EquipmentOption.lapPool => l10n.equipmentLapPool,
+      EquipmentOption.crossfitGym => l10n.equipmentCrossfitGym,
+      EquipmentOption.pullUpBar => l10n.equipmentPullUpBar,
+      EquipmentOption.suspensionTrainer => l10n.equipmentSuspensionTrainer,
+    };
+  }
+
   /// Maps user equipment options to exercise equipment types
   Set<EquipmentType> get mappedEquipmentTypes {
     switch (this) {
@@ -341,7 +361,7 @@ class _AvailableEquipmentFilterState extends ConsumerState<AvailableEquipmentFil
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    equipment.displayName,
+                    equipment.localizedName(AppLocalizations.of(context)!),
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: Theme.of(context).colorScheme.onSurface,
                       fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,

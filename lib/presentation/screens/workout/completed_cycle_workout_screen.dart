@@ -9,6 +9,7 @@ import '../../../core/constants/muscle_groups.dart';
 import '../../../core/theme/skins/skins.dart';
 import '../../../core/utils/date_helpers.dart';
 import '../../../core/utils/weight_conversion.dart';
+import '../../../data/services/exercise_name_localizer.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../data/models/exercise.dart';
 import '../../../data/models/exercise_set.dart';
@@ -390,7 +391,7 @@ class _CompletedCycleWorkoutScreenState extends ConsumerState<CompletedCycleWork
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                exercise.name,
+                                context.localizedExerciseName(exercise.name),
                                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                                   fontSize: 17,
                                   fontWeight: FontWeight.w600,
@@ -398,7 +399,8 @@ class _CompletedCycleWorkoutScreenState extends ConsumerState<CompletedCycleWork
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                equipmentType?.displayName.toUpperCase() ?? l10n.completedWorkoutUnknownEquipment,
+                                equipmentType?.localizedName(l10n).toUpperCase() ??
+                                    l10n.completedWorkoutUnknownEquipment,
                                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                   fontSize: 13,
                                   fontWeight: FontWeight.w500,

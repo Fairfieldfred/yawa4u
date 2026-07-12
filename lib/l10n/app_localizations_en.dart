@@ -1177,6 +1177,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String sessionDayFallback(Object number) {
+    return 'Day $number';
+  }
+
+  @override
   String templatePreviewCardioSession(Object sport) {
     return '$sport session';
   }
@@ -1949,6 +1954,17 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String calendarMuscleGroupSets(Object muscleGroup, Object setCount) {
     return '$muscleGroup • $setCount sets';
+  }
+
+  @override
+  String calendarExerciseSetCount(Object name, num setCount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      setCount,
+      locale: localeName,
+      other: '$setCount sets',
+      one: '1 set',
+    );
+    return '$name ($_temp0)';
   }
 
   @override
@@ -4482,6 +4498,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get cardioTemplatePickerNoTemplates => 'No templates for this sport yet.';
+
+  @override
+  String get cardioDifficultyBeginner => 'Beginner';
+
+  @override
+  String get cardioDifficultyIntermediate => 'Intermediate';
+
+  @override
+  String get cardioDifficultyAdvanced => 'Advanced';
 
   @override
   String cardioTemplatePickerStepsCount(Object count) {

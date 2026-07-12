@@ -146,6 +146,15 @@ class MuscleGroups {
   /// All muscle groups in order
   static const List<MuscleGroup> all = MuscleGroup.values;
 
+  /// Localized display text for a stored workout label.
+  ///
+  /// Auto-generated labels persist the English [MuscleGroupExtension.displayName]
+  /// (stored data stays canonical English). Labels that match a muscle group are
+  /// shown localized; anything else (user-edited text) passes through unchanged.
+  static String localizedLabel(AppLocalizations l10n, String label) {
+    return parse(label)?.localizedName(l10n) ?? label;
+  }
+
   /// Parse muscle group from string (case-insensitive)
   static MuscleGroup? parse(String value) {
     final normalized = value.trim().toLowerCase();

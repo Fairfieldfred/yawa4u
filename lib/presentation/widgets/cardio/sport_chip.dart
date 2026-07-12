@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/constants/sports.dart';
+import '../../../l10n/app_localizations.dart';
 
 /// A compact, selectable sport indicator for use in horizontal rows.
 ///
@@ -26,7 +27,7 @@ class SportChip extends StatelessWidget {
     final color = sport.color;
 
     return Tooltip(
-      message: sport.displayName,
+      message: sport.localizedName(AppLocalizations.of(context)!),
       child: GestureDetector(
         onTap: onTap,
         child: AnimatedContainer(

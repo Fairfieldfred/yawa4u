@@ -64,7 +64,8 @@ class MuscleGroupStatsDialog extends ConsumerWidget {
           }
 
           // Sort muscle groups by name or some other criteria if needed
-          final sortedGroups = muscleGroups.toList()..sort((a, b) => a.displayName.compareTo(b.displayName));
+          final sortedGroups = muscleGroups.toList()
+            ..sort((a, b) => a.localizedName(l10n).compareTo(b.localizedName(l10n)));
 
           return Padding(
             padding: const EdgeInsets.all(20.0),
@@ -173,7 +174,7 @@ class MuscleGroupStatsDialog extends ConsumerWidget {
                                             const SizedBox(width: 8),
                                             Expanded(
                                               child: Text(
-                                                group.displayName,
+                                                group.localizedName(l10n),
                                                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                                                   color: textColor,
                                                 ),

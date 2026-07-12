@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/constants/sports.dart';
+import '../../../l10n/app_localizations.dart';
 
 /// Small pill showing a sport's icon + optional label in its accent color.
 ///
@@ -47,7 +48,7 @@ class SportBadge extends StatelessWidget {
           Icon(sport.icon, size: iconSize, color: color),
           if (showLabel) ...[
             const SizedBox(width: 6),
-            Text(sport.displayName, style: labelStyle),
+            Text(sport.localizedName(AppLocalizations.of(context)!), style: labelStyle),
           ],
         ],
       ),

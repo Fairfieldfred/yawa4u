@@ -1,4 +1,5 @@
 import '../../core/constants/sports.dart';
+import '../../l10n/app_localizations.dart';
 
 /// In-memory model of a prebuilt cardio session loaded from
 /// `assets/cardio_sessions/*.json`.
@@ -74,6 +75,18 @@ extension CardioSessionDifficultyExt on CardioSessionDifficulty {
         return 'Intermediate';
       case CardioSessionDifficulty.advanced:
         return 'Advanced';
+    }
+  }
+
+  /// Localized display name for UI (uses ARB translations)
+  String localizedName(AppLocalizations l10n) {
+    switch (this) {
+      case CardioSessionDifficulty.beginner:
+        return l10n.cardioDifficultyBeginner;
+      case CardioSessionDifficulty.intermediate:
+        return l10n.cardioDifficultyIntermediate;
+      case CardioSessionDifficulty.advanced:
+        return l10n.cardioDifficultyAdvanced;
     }
   }
 }

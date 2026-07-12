@@ -14,6 +14,7 @@ import '../../../core/utils/date_helpers.dart';
 import '../../../core/constants/enums.dart';
 import '../../../core/constants/muscle_groups.dart';
 import '../../../core/constants/sports.dart';
+import '../../../data/services/exercise_name_localizer.dart';
 import '../../../data/models/session.dart';
 import '../../../data/models/training_cycle.dart';
 import '../../../data/models/workout.dart';
@@ -380,7 +381,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                   SnackBar(
                     content: Text(
                       l10n.calendarMovedExercise(
-                        dragData.exercise.name,
+                        context.localizedExerciseName(dragData.exercise.name),
                         DateHelpers.shortDate.format(targetDate),
                       ),
                     ),
@@ -407,7 +408,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                   SnackBar(
                     content: Text(
                       l10n.calendarMovedCardio(
-                        dragData.session.label ?? dragData.session.sport.displayName,
+                        dragData.session.label ?? dragData.session.sport.localizedName(l10n),
                         DateHelpers.shortDate.format(targetDate),
                       ),
                     ),
@@ -660,7 +661,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                   SnackBar(
                     content: Text(
                       l10n.calendarMovedExercise(
-                        dragData.exercise.name,
+                        context.localizedExerciseName(dragData.exercise.name),
                         DateHelpers.shortDate.format(targetDate),
                       ),
                     ),
@@ -687,7 +688,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                   SnackBar(
                     content: Text(
                       l10n.calendarMovedCardio(
-                        dragData.session.label ?? dragData.session.sport.displayName,
+                        dragData.session.label ?? dragData.session.sport.localizedName(l10n),
                         DateHelpers.shortDate.format(targetDate),
                       ),
                     ),
@@ -930,8 +931,8 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
 
   Widget _buildMuscleGroupBars(
     BuildContext context,
-    Map<String, int> muscleGroupSets, {
-    Map<String, List<String>>? muscleGroupExercises,
+    Map<MuscleGroup, int> muscleGroupSets, {
+    Map<MuscleGroup, List<CalendarExerciseSummary>>? muscleGroupExercises,
   }) {
     if (muscleGroupSets.isEmpty) return const SizedBox.shrink();
 
@@ -983,11 +984,11 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     );
   }
 
-  Color _getMuscleGroupColor(BuildContext context, String muscleGroup) {
+  Color _getMuscleGroupColor(BuildContext context, MuscleGroup muscleGroup) {
     // Map muscle groups to colors based on category
-    final upperPush = ['Chest', 'Triceps', 'Shoulders'];
-    final upperPull = ['Back', 'Biceps'];
-    final legs = ['Quads', 'Hamstrings', 'Glutes', 'Calves'];
+    const upperPush = [MuscleGroup.chest, MuscleGroup.triceps, MuscleGroup.shoulders];
+    const upperPull = [MuscleGroup.back, MuscleGroup.biceps];
+    const legs = [MuscleGroup.quads, MuscleGroup.hamstrings, MuscleGroup.glutes, MuscleGroup.calves];
 
     if (upperPush.contains(muscleGroup)) {
       return Colors.pink;
@@ -1003,17 +1004,19 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
   /// Builds a tooltip message showing muscle group, set count, and exercises
   String _buildTooltipMessage(
     BuildContext context,
-    String muscleGroup,
+    MuscleGroup muscleGroup,
     int setCount,
-    List<String> exercises,
+    List<CalendarExerciseSummary> exercises,
   ) {
     final l10n = AppLocalizations.of(context)!;
     final buffer = StringBuffer();
-    buffer.write(l10n.calendarMuscleGroupSets(muscleGroup, setCount));
+    buffer.write(l10n.calendarMuscleGroupSets(muscleGroup.localizedName(l10n), setCount));
     if (exercises.isNotEmpty) {
       buffer.writeln();
       for (final exercise in exercises) {
-        buffer.write('\n• $exercise');
+        buffer.write(
+          '\n• ${l10n.calendarExerciseSetCount(context.localizedExerciseName(exercise.name), exercise.setCount)}',
+        );
       }
     }
     return buffer.toString();
@@ -1021,9 +1024,9 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
 
   Widget _buildMuscleGroupCircles(
     BuildContext context,
-    Map<String, int> muscleGroupSets,
+    Map<MuscleGroup, int> muscleGroupSets,
     CalendarFormat calendarFormat, {
-    Map<String, List<String>>? muscleGroupExercises,
+    Map<MuscleGroup, List<CalendarExerciseSummary>>? muscleGroupExercises,
   }) {
     if (muscleGroupSets.isEmpty) return const SizedBox.shrink();
 
@@ -1087,9 +1090,9 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
   /// Builds a list view of muscle groups with exercises for macOS desktop
   Widget _buildMuscleGroupList(
     BuildContext context,
-    Map<String, int> muscleGroupSets,
+    Map<MuscleGroup, int> muscleGroupSets,
     CalendarFormat calendarFormat, {
-    Map<String, List<String>>? muscleGroupExercises,
+    Map<MuscleGroup, List<CalendarExerciseSummary>>? muscleGroupExercises,
   }) {
     if (muscleGroupSets.isEmpty) return const SizedBox.shrink();
     final l10n = AppLocalizations.of(context)!;
@@ -1133,7 +1136,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                   children: [
                     // Muscle group header with set count
                     Text(
-                      l10n.calendarMuscleGroupSets(muscleGroup, setCount),
+                      l10n.calendarMuscleGroupSets(muscleGroup.localizedName(l10n), setCount),
                       style: textStyle.labelSmall?.copyWith(
                         fontWeight: FontWeight.w600,
                         color: color,
@@ -1148,7 +1151,10 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                           .take(isWeekView ? 4 : 2)
                           .map(
                             (exercise) => Text(
-                              exercise,
+                              l10n.calendarExerciseSetCount(
+                                context.localizedExerciseName(exercise.name),
+                                exercise.setCount,
+                              ),
                               style: textStyle.labelSmall?.copyWith(
                                 fontSize: isWeekView ? 10 : 8,
                                 color: Theme.of(
@@ -1361,7 +1367,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                         const SizedBox(width: 6),
                         Expanded(
                           child: Text(
-                            session.label ?? session.sport.displayName,
+                            session.label ?? session.sport.localizedName(l10n),
                             style: theme.textTheme.bodySmall,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -1413,7 +1419,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     for (final workout in segment.workouts) {
       totalExercises += workout.exercises.length;
       for (final exercise in workout.exercises) {
-        groups.add(exercise.muscleGroup.displayName);
+        groups.add(exercise.muscleGroup.localizedName(l10n));
       }
     }
     return Padding(
@@ -1452,7 +1458,10 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
         ),
         const SizedBox(height: 4),
         Text(
-          l10n.calendarExercisesMuscleGroups(totalExercises, dayData.muscleGroups.join(', ')),
+          l10n.calendarExercisesMuscleGroups(
+            totalExercises,
+            dayData.muscleGroups.map((group) => group.localizedName(l10n)).join(', '),
+          ),
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
             color: Theme.of(context).colorScheme.onSurface.withAlpha(179),
           ),
@@ -1517,7 +1526,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                 const SizedBox(width: 6),
                 Expanded(
                   child: Text(
-                    session.label ?? session.sport.displayName,
+                    session.label ?? session.sport.localizedName(l10n),
                     style: theme.textTheme.bodySmall,
                     overflow: TextOverflow.ellipsis,
                   ),
