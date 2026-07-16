@@ -1,12 +1,17 @@
 import 'dart:async';
 import 'dart:developer';
+import 'dart:isolate';
 import 'dart:math' show max;
+import 'dart:ui' show IsolateNameServer;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../core/constants/enums.dart';
+import '../../core/constants/rest_timer_contract.dart';
+import '../../data/models/live_set_info.dart';
 import '../../data/services/notification_service.dart';
 import 'onboarding_providers.dart';
 
@@ -88,23 +93,35 @@ int defaultRestSeconds(SetType setType) {
 /// and even process death. The 1s [Timer] only refreshes the display; each
 /// tick re-derives the remaining time from the persisted deadline. An OS
 /// notification is scheduled at the deadline so the user is alerted with the
-/// screen off.
+/// screen off, and (Android) a live ongoing notification shows the countdown
+/// with +/-/skip actions on the lock screen. Those actions run in a
+/// background isolate that mutates the same persisted keys
+/// (see `handleRestTimerAction`) and pings [RestTimerContract.resyncPortName].
 class RestTimerNotifier extends Notifier<RestTimerState> {
-  static const _endMsKey = 'rest_timer_end_ms';
-  static const _totalKey = 'rest_timer_total_seconds';
-  static const _pausedRemainingKey = 'rest_timer_paused_remaining';
-  static const _exerciseIdKey = 'rest_timer_exercise_id';
-  static const _workoutIdKey = 'rest_timer_workout_id';
-  static const _titleKey = 'rest_timer_notification_title';
-  static const _bodyKey = 'rest_timer_notification_body';
+  static const _endMsKey = RestTimerContract.endMsKey;
+  static const _totalKey = RestTimerContract.totalKey;
+  static const _pausedRemainingKey = RestTimerContract.pausedRemainingKey;
+  static const _exerciseIdKey = RestTimerContract.exerciseIdKey;
+  static const _workoutIdKey = RestTimerContract.workoutIdKey;
+  static const _titleKey = RestTimerContract.titleKey;
+  static const _bodyKey = RestTimerContract.bodyKey;
+  static const _liveInfoKey = RestTimerContract.liveInfoKey;
 
   /// Notification id reserved for the rest timer.
-  static const notificationId = 9001;
+  static const notificationId = RestTimerContract.notificationId;
 
   static const _defaultNotificationTitle = 'Rest over';
   static const _defaultNotificationBody = 'Time for your next set';
 
   Timer? _timer;
+  ReceivePort? _resyncPort;
+
+  /// Bumped on every timer transition that changes what the live card should
+  /// show. Card posts deferred behind async work (permission request,
+  /// notification cancel) check it before posting so a stale card can't
+  /// overwrite a newer one — or resurface after cancel as an undismissable
+  /// orphan.
+  int _liveCardEpoch = 0;
 
   SharedPreferences get _prefs => ref.read(sharedPreferencesProvider);
   NotificationService get _notifications => ref.read(notificationServiceProvider);
@@ -112,7 +129,11 @@ class RestTimerNotifier extends Notifier<RestTimerState> {
 
   @override
   RestTimerState build() {
-    ref.onDispose(() => _timer?.cancel());
+    ref.onDispose(() {
+      _timer?.cancel();
+      _disposeResyncPort();
+    });
+    _registerResyncPort();
     return _rehydrate();
   }
 
@@ -121,7 +142,8 @@ class RestTimerNotifier extends Notifier<RestTimerState> {
   /// Optionally stores [exerciseId] and [workoutId] so the timer banner
   /// can open the rest-timer settings for the triggering exercise.
   /// [notificationTitle] and [notificationBody] localize the OS notification
-  /// shown at zero.
+  /// shown at zero. When [liveInfo] is provided, a live countdown card with
+  /// quick actions is shown on the lock screen while the rest runs (Android).
   void start(
     SetType setType, {
     int? exerciseRestSeconds,
@@ -129,6 +151,7 @@ class RestTimerNotifier extends Notifier<RestTimerState> {
     String? workoutId,
     String? notificationTitle,
     String? notificationBody,
+    LiveSetInfo? liveInfo,
   }) {
     final seconds = exerciseRestSeconds ?? defaultRestSeconds(setType);
     if (seconds <= 0) return; // No rest for drop sets
@@ -139,6 +162,7 @@ class RestTimerNotifier extends Notifier<RestTimerState> {
       workoutId: workoutId,
       notificationTitle: notificationTitle,
       notificationBody: notificationBody,
+      liveInfo: liveInfo,
     );
   }
 
@@ -147,9 +171,15 @@ class RestTimerNotifier extends Notifier<RestTimerState> {
     int seconds, {
     String? notificationTitle,
     String? notificationBody,
+    LiveSetInfo? liveInfo,
   }) {
     if (seconds <= 0) return;
-    _begin(seconds, notificationTitle: notificationTitle, notificationBody: notificationBody);
+    _begin(
+      seconds,
+      notificationTitle: notificationTitle,
+      notificationBody: notificationBody,
+      liveInfo: liveInfo,
+    );
   }
 
   /// Pause the timer.
@@ -164,7 +194,12 @@ class RestTimerNotifier extends Notifier<RestTimerState> {
     }
     _prefs.setInt(_pausedRemainingKey, remaining);
     _prefs.remove(_endMsKey);
-    unawaited(_cancelNotification());
+    final epoch = ++_liveCardEpoch;
+    unawaited(
+      _cancelNotification().then((_) async {
+        if (epoch == _liveCardEpoch) await _showPausedCard(remaining);
+      }),
+    );
     state = state.copyWith(isPaused: true, remainingSeconds: remaining);
   }
 
@@ -175,7 +210,9 @@ class RestTimerNotifier extends Notifier<RestTimerState> {
     final end = _now().add(Duration(seconds: remaining));
     _prefs.setInt(_endMsKey, end.millisecondsSinceEpoch);
     _prefs.remove(_pausedRemainingKey);
+    _liveCardEpoch++;
     unawaited(_scheduleNotification(end));
+    unawaited(_showLiveCard(end));
     state = state.copyWith(isPaused: false, remainingSeconds: remaining);
     _startTicking();
   }
@@ -194,6 +231,8 @@ class RestTimerNotifier extends Notifier<RestTimerState> {
       _prefs.setInt(_pausedRemainingKey, remaining);
       final newTotal = max(state.totalSeconds + seconds, remaining);
       _prefs.setInt(_totalKey, newTotal);
+      _liveCardEpoch++;
+      unawaited(_showPausedCard(remaining));
       state = state.copyWith(remainingSeconds: remaining, totalSeconds: newTotal);
       return;
     }
@@ -203,36 +242,72 @@ class RestTimerNotifier extends Notifier<RestTimerState> {
     final newEndMs = endMs + seconds * 1000;
     final remaining = _remainingUntil(newEndMs);
     if (remaining <= 0) {
-      _complete();
+      _complete(cancelNotifications: true);
       return;
     }
     _prefs.setInt(_endMsKey, newEndMs);
     final newTotal = max(state.totalSeconds + seconds, remaining);
     _prefs.setInt(_totalKey, newTotal);
-    unawaited(_scheduleNotification(DateTime.fromMillisecondsSinceEpoch(newEndMs)));
+    final end = DateTime.fromMillisecondsSinceEpoch(newEndMs);
+    _liveCardEpoch++;
+    unawaited(_scheduleNotification(end));
+    unawaited(_showLiveCard(end));
     state = state.copyWith(remainingSeconds: remaining, totalSeconds: newTotal);
   }
 
   /// Cancel the timer and reset state.
   void cancel() {
     _timer?.cancel();
+    _liveCardEpoch++;
     _clearPersisted();
     unawaited(_cancelNotification());
     state = const RestTimerState();
   }
 
   /// Re-derives the timer from the persisted deadline. Call when the app
-  /// returns to the foreground: display timers don't fire in background, so
-  /// the shown remaining time may have drifted or the deadline passed.
-  void resync() {
-    if (_prefs.getInt(_pausedRemainingKey) != null) return; // paused: no drift
+  /// returns to the foreground (display timers don't fire in background) or
+  /// when a background notification action mutated the persisted state.
+  /// Reloads SharedPreferences first: the background isolate writes through
+  /// to disk, but this isolate's cache would otherwise stay stale.
+  Future<void> resync() async {
+    try {
+      await _prefs.reload();
+    } catch (e, st) {
+      log('Failed to reload prefs on resync', error: e, stackTrace: st, name: 'yawa4u.restTimer');
+    }
+
+    final pausedRemaining = _prefs.getInt(_pausedRemainingKey);
+    if (pausedRemaining != null) {
+      // Paused: no clock drift, but a background action may have shifted it.
+      if (state.isPaused && pausedRemaining != state.remainingSeconds) {
+        state = state.copyWith(
+          remainingSeconds: pausedRemaining,
+          totalSeconds: max(_prefs.getInt(_totalKey) ?? state.totalSeconds, pausedRemaining),
+        );
+      }
+      return;
+    }
+
     final endMs = _prefs.getInt(_endMsKey);
-    if (endMs == null) return;
+    if (endMs == null) {
+      // A background skip cleared the timer while we weren't looking.
+      if (state.isRunning) {
+        _timer?.cancel();
+        state = const RestTimerState();
+      }
+      return;
+    }
+
     final remaining = _remainingUntil(endMs);
     if (remaining <= 0) {
       _complete();
     } else {
-      state = state.copyWith(remainingSeconds: remaining, isRunning: true);
+      state = state.copyWith(
+        remainingSeconds: remaining,
+        totalSeconds: max(_prefs.getInt(_totalKey) ?? state.totalSeconds, remaining),
+        isRunning: true,
+        isPaused: false,
+      );
       _startTicking();
     }
   }
@@ -247,6 +322,7 @@ class RestTimerNotifier extends Notifier<RestTimerState> {
     String? workoutId,
     String? notificationTitle,
     String? notificationBody,
+    LiveSetInfo? liveInfo,
   }) {
     _timer?.cancel();
     final end = _now().add(Duration(seconds: seconds));
@@ -257,8 +333,14 @@ class RestTimerNotifier extends Notifier<RestTimerState> {
     _setOrRemove(_workoutIdKey, workoutId);
     _setOrRemove(_titleKey, notificationTitle);
     _setOrRemove(_bodyKey, notificationBody);
+    _setOrRemove(_liveInfoKey, liveInfo?.toJsonString());
 
-    unawaited(_requestPermissionAndSchedule(end));
+    final epoch = ++_liveCardEpoch;
+    unawaited(
+      _requestPermissionAndSchedule(end).then((_) async {
+        if (epoch == _liveCardEpoch) await _showLiveCard(end);
+      }),
+    );
 
     state = RestTimerState(
       remainingSeconds: seconds,
@@ -327,10 +409,18 @@ class RestTimerNotifier extends Notifier<RestTimerState> {
 
   /// Fires the completion haptic and resets state. Guarded so completion
   /// happens exactly once even if a tick and a lifecycle resync race.
-  void _complete() {
+  ///
+  /// On natural completion the deadline alert (which shares the live card's
+  /// notification id) fires at the same moment and replaces the card, so
+  /// nothing needs cancelling. When completion is forced early (subtracting
+  /// past zero, pausing an elapsed timer) pass [cancelNotifications] to
+  /// remove the now-stale pending alert and live card.
+  void _complete({bool cancelNotifications = false}) {
     _timer?.cancel();
     if (!state.isRunning) return;
+    _liveCardEpoch++;
     _clearPersisted();
+    if (cancelNotifications) unawaited(_cancelNotification());
     unawaited(ref.read(restTimerHapticProvider)());
     state = const RestTimerState();
   }
@@ -343,6 +433,7 @@ class RestTimerNotifier extends Notifier<RestTimerState> {
     _prefs.remove(_workoutIdKey);
     _prefs.remove(_titleKey);
     _prefs.remove(_bodyKey);
+    _prefs.remove(_liveInfoKey);
   }
 
   void _setOrRemove(String key, String? value) {
@@ -351,6 +442,53 @@ class RestTimerNotifier extends Notifier<RestTimerState> {
     } else {
       _prefs.setString(key, value);
     }
+  }
+
+  LiveSetInfo? get _persistedLiveInfo => LiveSetInfo.fromJsonString(_prefs.getString(_liveInfoKey));
+
+  Future<void> _showLiveCard(DateTime end) async {
+    try {
+      final info = _persistedLiveInfo;
+      if (info == null) return;
+      await _notifications.showRestCountdown(id: notificationId, until: end, info: info);
+    } catch (e, st) {
+      // Includes ref-after-dispose when the notifier goes away mid-flight.
+      log('Failed to show rest countdown card', error: e, stackTrace: st, name: 'yawa4u.restTimer');
+    }
+  }
+
+  Future<void> _showPausedCard(int remainingSeconds) async {
+    try {
+      final info = _persistedLiveInfo;
+      if (info == null) return;
+      await _notifications.showRestPaused(
+        id: notificationId,
+        info: info,
+        remainingDisplay: RestTimerState(remainingSeconds: remainingSeconds).displayTime,
+      );
+    } catch (e, st) {
+      log('Failed to show paused rest card', error: e, stackTrace: st, name: 'yawa4u.restTimer');
+    }
+  }
+
+  void _registerResyncPort() {
+    if (kIsWeb) return;
+    try {
+      final port = ReceivePort();
+      IsolateNameServer.removePortNameMapping(RestTimerContract.resyncPortName);
+      IsolateNameServer.registerPortWithName(port.sendPort, RestTimerContract.resyncPortName);
+      port.listen((_) => unawaited(resync()));
+      _resyncPort = port;
+    } catch (e, st) {
+      log('Failed to register rest-timer resync port', error: e, stackTrace: st, name: 'yawa4u.restTimer');
+    }
+  }
+
+  void _disposeResyncPort() {
+    if (_resyncPort == null) return;
+    IsolateNameServer.removePortNameMapping(RestTimerContract.resyncPortName);
+    _resyncPort?.close();
+    _resyncPort = null;
   }
 
   Future<void> _requestPermissionAndSchedule(DateTime end) async {

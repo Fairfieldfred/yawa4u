@@ -1,6 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:yawa4u/core/constants/rest_timer_contract.dart';
+import 'package:yawa4u/data/models/live_set_info.dart';
 import 'package:yawa4u/data/services/notification_service.dart';
 import 'package:yawa4u/domain/providers/onboarding_providers.dart';
 import 'package:yawa4u/domain/providers/rest_timer_provider.dart';
@@ -8,6 +10,9 @@ import 'package:yawa4u/domain/providers/rest_timer_provider.dart';
 /// Records scheduling calls instead of touching platform channels.
 class FakeNotificationService implements NotificationService {
   final List<({int id, DateTime when, String title, String body})> scheduled = [];
+  final List<({int id, DateTime until, LiveSetInfo info})> countdownCards = [];
+  final List<({int id, LiveSetInfo info, String remainingDisplay})> pausedCards = [];
+  final List<({int id, String title, String body})> shownNow = [];
   final List<int> cancelled = [];
   int permissionRequests = 0;
 
@@ -31,10 +36,37 @@ class FakeNotificationService implements NotificationService {
   }
 
   @override
+  Future<void> showNow({required int id, required String title, required String body}) async {
+    shownNow.add((id: id, title: title, body: body));
+  }
+
+  @override
+  Future<void> showRestCountdown({required int id, required DateTime until, required LiveSetInfo info}) async {
+    countdownCards.add((id: id, until: until, info: info));
+  }
+
+  @override
+  Future<void> showRestPaused({required int id, required LiveSetInfo info, required String remainingDisplay}) async {
+    pausedCards.add((id: id, info: info, remainingDisplay: remainingDisplay));
+  }
+
+  @override
   Future<void> cancel(int id) async {
     cancelled.add(id);
   }
 }
+
+const _liveInfo = LiveSetInfo(
+  title: 'Bench Press',
+  body: 'Next: set 2 of 4 · 80 kg × 8',
+  addLabel: '+30s',
+  subtractLabel: '−30s',
+  skipLabel: 'Skip',
+);
+
+/// Drains the microtask chain behind the timer's deferred notification work
+/// (permission → schedule → live card) by yielding a full event-loop turn.
+Future<void> flushAsyncWork() => Future<void>.delayed(Duration.zero);
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -123,7 +155,7 @@ void main() {
     notifier.cancel();
   });
 
-  test('subtracting past zero completes the timer immediately', () async {
+  test('subtracting past zero completes the timer immediately and clears notifications', () async {
     final hapticLog = <String>[];
     final container = makeContainer(hapticLog: hapticLog);
     final notifier = container.read(restTimerProvider.notifier);
@@ -134,6 +166,8 @@ void main() {
 
     expect(container.read(restTimerProvider).isRunning, false);
     expect(hapticLog, ['haptic']);
+    // The pending alert for the old (now stale) deadline must not fire later.
+    expect(notifications.cancelled, [RestTimerNotifier.notificationId]);
   });
 
   test('completion fires haptic and resets state exactly once', () async {
@@ -146,8 +180,8 @@ void main() {
 
     // Both a tick-driven check and a lifecycle resync observe the elapsed
     // deadline; completion must only fire once.
-    notifier.resync();
-    notifier.resync();
+    await notifier.resync();
+    await notifier.resync();
     await container.pump();
 
     expect(container.read(restTimerProvider).isRunning, false);
@@ -177,5 +211,240 @@ void main() {
     expect(notifications.scheduled.last.when, now.add(const Duration(seconds: 40)));
 
     notifier.cancel();
+  });
+
+  group('live countdown card', () {
+    test('start with liveInfo shows the card and persists the payload', () async {
+      final container = makeContainer();
+      container.read(restTimerProvider.notifier).startCustom(60, liveInfo: _liveInfo);
+      await flushAsyncWork();
+
+      expect(notifications.countdownCards, hasLength(1));
+      expect(notifications.countdownCards.single.id, RestTimerNotifier.notificationId);
+      expect(notifications.countdownCards.single.until, now.add(const Duration(seconds: 60)));
+      expect(notifications.countdownCards.single.info.title, 'Bench Press');
+      expect(
+        LiveSetInfo.fromJsonString(prefs.getString(RestTimerContract.liveInfoKey))?.body,
+        'Next: set 2 of 4 · 80 kg × 8',
+      );
+    });
+
+    test('start without liveInfo shows no card', () async {
+      final container = makeContainer();
+      container.read(restTimerProvider.notifier).startCustom(60);
+      await flushAsyncWork();
+
+      expect(notifications.countdownCards, isEmpty);
+      expect(prefs.getString(RestTimerContract.liveInfoKey), isNull);
+    });
+
+    test('addTime reposts the card with the shifted deadline', () async {
+      final container = makeContainer();
+      final notifier = container.read(restTimerProvider.notifier);
+
+      notifier.startCustom(60, liveInfo: _liveInfo);
+      await flushAsyncWork();
+      notifier.addTime(30);
+      await flushAsyncWork();
+
+      expect(notifications.countdownCards, hasLength(2));
+      expect(notifications.countdownCards.last.until, now.add(const Duration(seconds: 90)));
+
+      notifier.cancel();
+    });
+
+    test('a card deferred behind the permission request never posts after a newer transition', () async {
+      final container = makeContainer();
+      final notifier = container.read(restTimerProvider.notifier);
+
+      // Cancel lands before the deferred start card does: no orphaned
+      // ongoing notification may surface afterwards.
+      notifier.startCustom(60, liveInfo: _liveInfo);
+      notifier.cancel();
+      await flushAsyncWork();
+      expect(notifications.countdownCards, isEmpty);
+
+      // An immediate addTime repost wins over the stale deferred start card.
+      notifier.startCustom(60, liveInfo: _liveInfo);
+      notifier.addTime(30);
+      await flushAsyncWork();
+      expect(notifications.countdownCards, hasLength(1));
+      expect(notifications.countdownCards.single.until, now.add(const Duration(seconds: 90)));
+
+      notifier.cancel();
+    });
+
+    test('pause shows the paused card, resume reposts the countdown', () async {
+      final container = makeContainer();
+      final notifier = container.read(restTimerProvider.notifier);
+
+      notifier.startCustom(60, liveInfo: _liveInfo);
+      now = now.add(const Duration(seconds: 20));
+      notifier.pause();
+      await flushAsyncWork();
+
+      expect(notifications.pausedCards, hasLength(1));
+      expect(notifications.pausedCards.single.remainingDisplay, '00:40');
+
+      notifier.resume();
+      await flushAsyncWork();
+
+      expect(notifications.countdownCards.last.until, now.add(const Duration(seconds: 40)));
+
+      notifier.cancel();
+      await flushAsyncWork();
+      expect(notifications.cancelled, contains(RestTimerNotifier.notificationId));
+    });
+
+    test('cancel clears the persisted payload', () async {
+      final container = makeContainer();
+      final notifier = container.read(restTimerProvider.notifier);
+
+      notifier.startCustom(60, liveInfo: _liveInfo);
+      notifier.cancel();
+      await container.pump();
+
+      expect(prefs.getString(RestTimerContract.liveInfoKey), isNull);
+    });
+  });
+
+  group('resync after background notification actions', () {
+    test('picks up a deadline shifted by a background action', () async {
+      final container = makeContainer();
+      final notifier = container.read(restTimerProvider.notifier);
+
+      notifier.startCustom(60, liveInfo: _liveInfo);
+
+      // Simulate the background isolate's +30s mutation.
+      final endMs = prefs.getInt(RestTimerContract.endMsKey)!;
+      await prefs.setInt(RestTimerContract.endMsKey, endMs + 30 * 1000);
+      await prefs.setInt(RestTimerContract.totalKey, 90);
+
+      await notifier.resync();
+
+      expect(container.read(restTimerProvider).remainingSeconds, 90);
+      expect(container.read(restTimerProvider).totalSeconds, 90);
+
+      notifier.cancel();
+    });
+
+    test('resets running state after a background skip cleared the timer', () async {
+      final hapticLog = <String>[];
+      final container = makeContainer(hapticLog: hapticLog);
+      final notifier = container.read(restTimerProvider.notifier);
+
+      notifier.startCustom(60, liveInfo: _liveInfo);
+      expect(container.read(restTimerProvider).isRunning, true);
+
+      // Simulate the background isolate's skip: all keys removed.
+      await prefs.remove(RestTimerContract.endMsKey);
+      await prefs.remove(RestTimerContract.totalKey);
+      await prefs.remove(RestTimerContract.liveInfoKey);
+
+      await notifier.resync();
+
+      expect(container.read(restTimerProvider).isRunning, false);
+      // A deliberate skip is not a completion: no haptic.
+      expect(hapticLog, isEmpty);
+    });
+
+    test('picks up a paused remaining shifted by a background action', () async {
+      final container = makeContainer();
+      final notifier = container.read(restTimerProvider.notifier);
+
+      notifier.startCustom(60, liveInfo: _liveInfo);
+      notifier.pause();
+      expect(container.read(restTimerProvider).remainingSeconds, 60);
+
+      await prefs.setInt(RestTimerContract.pausedRemainingKey, 90);
+      await prefs.setInt(RestTimerContract.totalKey, 90);
+
+      await notifier.resync();
+
+      expect(container.read(restTimerProvider).isPaused, true);
+      expect(container.read(restTimerProvider).remainingSeconds, 90);
+
+      notifier.cancel();
+    });
+  });
+
+  group('handleRestTimerAction (background isolate logic)', () {
+    Future<void> seedRunningTimer({int seconds = 60}) async {
+      await prefs.setInt(RestTimerContract.endMsKey, now.add(Duration(seconds: seconds)).millisecondsSinceEpoch);
+      await prefs.setInt(RestTimerContract.totalKey, seconds);
+      await prefs.setString(RestTimerContract.titleKey, 'Rest over');
+      await prefs.setString(RestTimerContract.bodyKey, 'Next set');
+      await prefs.setString(RestTimerContract.liveInfoKey, _liveInfo.toJsonString());
+    }
+
+    test('add shifts the deadline, reposts the card and reschedules the alert', () async {
+      await seedRunningTimer();
+
+      await handleRestTimerAction(
+        actionId: RestTimerContract.actionAdd,
+        prefs: prefs,
+        notifications: notifications,
+        now: () => now,
+      );
+
+      final expectedEnd = now.add(const Duration(seconds: 90));
+      expect(prefs.getInt(RestTimerContract.endMsKey), expectedEnd.millisecondsSinceEpoch);
+      expect(prefs.getInt(RestTimerContract.totalKey), 90);
+      expect(notifications.countdownCards.single.until, expectedEnd);
+      expect(notifications.scheduled.single.when, expectedEnd);
+      expect(notifications.scheduled.single.title, 'Rest over');
+    });
+
+    test('subtract past zero clears state and fires the alert immediately', () async {
+      await seedRunningTimer(seconds: 20);
+
+      await handleRestTimerAction(
+        actionId: RestTimerContract.actionSubtract,
+        prefs: prefs,
+        notifications: notifications,
+        now: () => now,
+      );
+
+      expect(prefs.getInt(RestTimerContract.endMsKey), isNull);
+      expect(prefs.getString(RestTimerContract.liveInfoKey), isNull);
+      expect(notifications.cancelled, [RestTimerContract.notificationId]);
+      expect(notifications.shownNow.single.title, 'Rest over');
+    });
+
+    test('skip clears everything and cancels the notification', () async {
+      await seedRunningTimer();
+
+      await handleRestTimerAction(
+        actionId: RestTimerContract.actionSkip,
+        prefs: prefs,
+        notifications: notifications,
+        now: () => now,
+      );
+
+      expect(prefs.getInt(RestTimerContract.endMsKey), isNull);
+      expect(prefs.getInt(RestTimerContract.totalKey), isNull);
+      expect(prefs.getString(RestTimerContract.liveInfoKey), isNull);
+      expect(notifications.cancelled, [RestTimerContract.notificationId]);
+      expect(notifications.shownNow, isEmpty);
+      expect(notifications.scheduled, isEmpty);
+    });
+
+    test('add while paused updates the paused remaining and reposts the paused card', () async {
+      await prefs.setInt(RestTimerContract.pausedRemainingKey, 40);
+      await prefs.setInt(RestTimerContract.totalKey, 60);
+      await prefs.setString(RestTimerContract.liveInfoKey, _liveInfo.toJsonString());
+
+      await handleRestTimerAction(
+        actionId: RestTimerContract.actionAdd,
+        prefs: prefs,
+        notifications: notifications,
+        now: () => now,
+      );
+
+      expect(prefs.getInt(RestTimerContract.pausedRemainingKey), 70);
+      expect(prefs.getInt(RestTimerContract.totalKey), 90);
+      expect(notifications.pausedCards.single.remainingDisplay, '01:10');
+      expect(notifications.scheduled, isEmpty);
+    });
   });
 }

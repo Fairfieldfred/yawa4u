@@ -3042,6 +3042,27 @@
   "restTimerSkip": "Skip rest",
   "restTimerNotificationTitle": "Rest over",
   "restTimerNotificationBody": "Time for your next set",
+  "restLiveNextSet": "Next: set {setNumber} of {totalSets}",
+  "@restLiveNextSet": {
+    "description": "Live lock-screen notification body while resting, without a weight/reps target",
+    "placeholders": {
+      "setNumber": {},
+      "totalSets": {}
+    }
+  },
+  "restLiveNextSetTarget": "Next: set {setNumber} of {totalSets} · {target}",
+  "@restLiveNextSetTarget": {
+    "description": "Live lock-screen notification body while resting. target is a pre-formatted string like '80 kg × 8-12'",
+    "placeholders": {
+      "setNumber": {},
+      "totalSets": {},
+      "target": {}
+    }
+  },
+  "restLiveAllSetsDone": "All sets done — great work!",
+  "restLiveActionAdd": "+30s",
+  "restLiveActionSubtract": "−30s",
+  "restLiveActionSkip": "Skip",
 
   "cycleComparisonNeedTwoCycles": "Need at least 2 cycles to compare",
   "cycleComparisonUnlockHint": "Complete a training cycle to unlock comparisons.",

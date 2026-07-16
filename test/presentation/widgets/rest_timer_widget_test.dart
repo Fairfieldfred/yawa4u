@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:yawa4u/core/constants/enums.dart';
+import 'package:yawa4u/data/models/live_set_info.dart';
 import 'package:yawa4u/data/services/notification_service.dart';
 import 'package:yawa4u/domain/providers/onboarding_providers.dart';
 import 'package:yawa4u/domain/providers/rest_timer_provider.dart';
@@ -24,6 +25,15 @@ class _NoopNotificationService implements NotificationService {
     required String title,
     required String body,
   }) async {}
+
+  @override
+  Future<void> showNow({required int id, required String title, required String body}) async {}
+
+  @override
+  Future<void> showRestCountdown({required int id, required DateTime until, required LiveSetInfo info}) async {}
+
+  @override
+  Future<void> showRestPaused({required int id, required LiveSetInfo info, required String remainingDisplay}) async {}
 
   @override
   Future<void> cancel(int id) async {}

@@ -5055,6 +5055,28 @@ class AppLocalizationsEs extends AppLocalizations {
   String get restTimerNotificationBody => 'Hora de tu próxima serie';
 
   @override
+  String restLiveNextSet(Object setNumber, Object totalSets) {
+    return 'Siguiente: serie $setNumber de $totalSets';
+  }
+
+  @override
+  String restLiveNextSetTarget(Object setNumber, Object totalSets, Object target) {
+    return 'Siguiente: serie $setNumber de $totalSets · $target';
+  }
+
+  @override
+  String get restLiveAllSetsDone => 'Todas las series hechas, ¡buen trabajo!';
+
+  @override
+  String get restLiveActionAdd => '+30s';
+
+  @override
+  String get restLiveActionSubtract => '−30s';
+
+  @override
+  String get restLiveActionSkip => 'Omitir';
+
+  @override
   String get cycleComparisonNeedTwoCycles => 'Se necesitan al menos 2 ciclos para comparar';
 
   @override

@@ -16,8 +16,10 @@ import '../../../data/database/daos/exercise_set_dao.dart' show ExerciseSetDao;
 import '../../../data/database/mappers/entity_mappers.dart' show ExerciseFeedbackMapper;
 import '../../../core/theme/skins/skins.dart';
 import '../../../core/utils/session_order.dart';
+import '../../../core/utils/weight_conversion.dart';
 import '../../../data/models/exercise.dart';
 import '../../../data/models/exercise_set.dart';
+import '../../../data/models/live_set_info.dart';
 import '../../../data/models/session.dart';
 import '../../../data/models/training_cycle.dart';
 import '../../../data/models/workout.dart';
@@ -392,8 +394,40 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> with Widg
             workoutId: exercise.workoutId,
             notificationTitle: l10n.restTimerNotificationTitle,
             notificationBody: l10n.restTimerNotificationBody,
+            liveInfo: _buildLiveSetInfo(l10n, updatedExercise),
           );
     }
+  }
+
+  /// Builds the lock-screen live card content for the rest after a logged
+  /// set: localized exercise name plus the upcoming set's target. Strings are
+  /// resolved here because the notification layers (including the background
+  /// action isolate) have no BuildContext to localize with.
+  LiveSetInfo _buildLiveSetInfo(AppLocalizations l10n, Exercise exercise) {
+    ExerciseSet? next;
+    for (final s in exercise.sets) {
+      if (!s.isLogged && !s.isSkipped) {
+        next = s;
+        break;
+      }
+    }
+    final String body;
+    if (next == null) {
+      body = l10n.restLiveAllSetsDone;
+    } else if (next.weight != null && next.reps.isNotEmpty) {
+      final weight = formatWeightForDisplay(next.weight, ref.read(useMetricProvider));
+      final unit = ref.read(weightUnitProvider);
+      body = l10n.restLiveNextSetTarget(next.setNumber, exercise.sets.length, '$weight $unit × ${next.reps}');
+    } else {
+      body = l10n.restLiveNextSet(next.setNumber, exercise.sets.length);
+    }
+    return LiveSetInfo(
+      title: context.localizedExerciseName(exercise.name),
+      body: body,
+      addLabel: l10n.restLiveActionAdd,
+      subtractLabel: l10n.restLiveActionSubtract,
+      skipLabel: l10n.restLiveActionSkip,
+    );
   }
 
   Future<void> _addSetBelow(

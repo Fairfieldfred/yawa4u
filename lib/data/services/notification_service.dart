@@ -1,13 +1,20 @@
 import 'dart:developer';
+import 'dart:math' show max;
+import 'dart:ui' show IsolateNameServer;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/data/latest_all.dart' as tz_data;
 import 'package:timezone/timezone.dart' as tz;
 
-/// Thin wrapper around [FlutterLocalNotificationsPlugin] for one-shot local
-/// notifications (currently only the rest timer).
+import '../../core/constants/rest_timer_contract.dart';
+import '../models/live_set_info.dart';
+
+/// Thin wrapper around [FlutterLocalNotificationsPlugin] for the rest timer:
+/// a one-shot alert scheduled at the deadline, plus (Android only) a live
+/// ongoing notification with a system-rendered countdown and quick actions.
 ///
 /// Injectable via `notificationServiceProvider`; tests substitute a fake that
 /// records calls. All methods are safe no-ops on platforms without local
@@ -20,6 +27,23 @@ class NotificationService {
   static const _channelName = 'Rest timer';
   static const _channelDescription = 'Alerts when the rest between sets is over';
 
+  static const _liveChannelId = 'rest_timer_live';
+  static const _liveChannelName = 'Rest countdown';
+  static const _liveChannelDescription = 'Live countdown for the rest between sets';
+
+  static const _alertDetails = NotificationDetails(
+    android: AndroidNotificationDetails(
+      _channelId,
+      _channelName,
+      channelDescription: _channelDescription,
+      importance: Importance.high,
+      priority: Priority.high,
+      category: AndroidNotificationCategory.alarm,
+    ),
+    iOS: DarwinNotificationDetails(presentAlert: true, presentSound: true),
+    macOS: DarwinNotificationDetails(presentAlert: true, presentSound: true),
+  );
+
   bool get _isSupportedPlatform {
     if (kIsWeb) return false;
     return switch (defaultTargetPlatform) {
@@ -27,6 +51,10 @@ class NotificationService {
       _ => false,
     };
   }
+
+  /// The live countdown card is a promoted-style ongoing notification —
+  /// Android only. iOS gets a Live Activity in a later phase.
+  bool get _supportsLiveCard => !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
 
   /// Initializes the plugin and timezone database. Idempotent.
   Future<void> ensureInitialized() async {
@@ -39,6 +67,7 @@ class NotificationService {
         iOS: DarwinInitializationSettings(),
         macOS: DarwinInitializationSettings(),
       ),
+      onDidReceiveBackgroundNotificationResponse: restTimerBackgroundActionHandler,
     );
     _plugin = plugin;
     _initialized = true;
@@ -85,18 +114,6 @@ class NotificationService {
     if (plugin == null) return;
     if (!when.isAfter(DateTime.now())) return;
 
-    const details = NotificationDetails(
-      android: AndroidNotificationDetails(
-        _channelId,
-        _channelName,
-        channelDescription: _channelDescription,
-        importance: Importance.high,
-        priority: Priority.high,
-        category: AndroidNotificationCategory.alarm,
-      ),
-      iOS: DarwinNotificationDetails(presentAlert: true, presentSound: true),
-      macOS: DarwinNotificationDetails(presentAlert: true, presentSound: true),
-    );
     final scheduledDate = tz.TZDateTime.from(when.toUtc(), tz.UTC);
 
     try {
@@ -105,7 +122,7 @@ class NotificationService {
         scheduledDate: scheduledDate,
         title: title,
         body: body,
-        notificationDetails: details,
+        notificationDetails: _alertDetails,
         androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
       );
     } on PlatformException catch (e, st) {
@@ -121,7 +138,7 @@ class NotificationService {
           scheduledDate: scheduledDate,
           title: title,
           body: body,
-          notificationDetails: details,
+          notificationDetails: _alertDetails,
           androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
         );
       } else {
@@ -130,9 +147,199 @@ class NotificationService {
     }
   }
 
+  /// Shows an alert notification immediately (e.g. when a background action
+  /// shortens the rest past zero and the scheduled alert must fire now).
+  Future<void> showNow({required int id, required String title, required String body}) async {
+    await ensureInitialized();
+    await _plugin?.show(id: id, title: title, body: body, notificationDetails: _alertDetails);
+  }
+
+  /// Shows the live rest countdown card: an ongoing, silent notification
+  /// whose chronometer counts down to [until] rendered by the OS — it keeps
+  /// ticking on the lock screen with no app involvement, even if the process
+  /// dies. Quick actions (+/-/skip) are handled in a background isolate.
+  Future<void> showRestCountdown({
+    required int id,
+    required DateTime until,
+    required LiveSetInfo info,
+  }) async {
+    if (!_supportsLiveCard) return;
+    await ensureInitialized();
+    final details = NotificationDetails(
+      android: AndroidNotificationDetails(
+        _liveChannelId,
+        _liveChannelName,
+        channelDescription: _liveChannelDescription,
+        importance: Importance.low,
+        priority: Priority.low,
+        category: AndroidNotificationCategory.workout,
+        visibility: NotificationVisibility.public,
+        ongoing: true,
+        autoCancel: false,
+        onlyAlertOnce: true,
+        silent: true,
+        showWhen: true,
+        when: until.millisecondsSinceEpoch,
+        usesChronometer: true,
+        chronometerCountDown: true,
+        actions: _restActions(info),
+      ),
+    );
+    await _plugin?.show(id: id, title: info.title, body: info.body, notificationDetails: details);
+  }
+
+  /// Replaces the countdown card with a static paused card. [remainingDisplay]
+  /// is a pre-formatted "MM:SS" string (locale-neutral).
+  Future<void> showRestPaused({
+    required int id,
+    required LiveSetInfo info,
+    required String remainingDisplay,
+  }) async {
+    if (!_supportsLiveCard) return;
+    await ensureInitialized();
+    final details = NotificationDetails(
+      android: AndroidNotificationDetails(
+        _liveChannelId,
+        _liveChannelName,
+        channelDescription: _liveChannelDescription,
+        importance: Importance.low,
+        priority: Priority.low,
+        category: AndroidNotificationCategory.workout,
+        visibility: NotificationVisibility.public,
+        ongoing: true,
+        autoCancel: false,
+        onlyAlertOnce: true,
+        silent: true,
+        showWhen: false,
+        actions: _restActions(info),
+      ),
+    );
+    await _plugin?.show(
+      id: id,
+      title: info.title,
+      body: '⏸ $remainingDisplay · ${info.body}',
+      notificationDetails: details,
+    );
+  }
+
   /// Cancels a scheduled or shown notification by [id].
   Future<void> cancel(int id) async {
     if (!_initialized) return;
     await _plugin?.cancel(id: id);
   }
+
+  static List<AndroidNotificationAction> _restActions(LiveSetInfo info) => [
+    AndroidNotificationAction(RestTimerContract.actionSubtract, info.subtractLabel, cancelNotification: false),
+    AndroidNotificationAction(RestTimerContract.actionAdd, info.addLabel, cancelNotification: false),
+    AndroidNotificationAction(RestTimerContract.actionSkip, info.skipLabel),
+  ];
+}
+
+/// Entry point invoked by the plugin in a background isolate when the user
+/// taps a notification action (the app may be backgrounded or dead).
+@pragma('vm:entry-point')
+Future<void> restTimerBackgroundActionHandler(NotificationResponse response) async {
+  final actionId = response.actionId;
+  if (actionId == null) return;
+  try {
+    final prefs = await SharedPreferences.getInstance();
+    await handleRestTimerAction(actionId: actionId, prefs: prefs, notifications: NotificationService());
+    // Wake the main isolate (if the app is alive) so the in-app banner
+    // re-derives its state from the mutated preferences.
+    IsolateNameServer.lookupPortByName(RestTimerContract.resyncPortName)?.send('resync');
+  } catch (e, st) {
+    log('Rest-timer notification action failed', error: e, stackTrace: st, name: 'yawa4u.notifications');
+  }
+}
+
+/// Applies a +/-/skip notification action to the persisted rest-timer state
+/// and refreshes the notifications accordingly. Runs without any access to
+/// the app's providers: SharedPreferences is the shared substrate between
+/// this isolate and the main isolate's `RestTimerNotifier`.
+@visibleForTesting
+Future<void> handleRestTimerAction({
+  required String actionId,
+  required SharedPreferences prefs,
+  required NotificationService notifications,
+  DateTime Function() now = DateTime.now,
+}) async {
+  const id = RestTimerContract.notificationId;
+
+  Future<void> clearAll() async {
+    for (final key in [
+      RestTimerContract.endMsKey,
+      RestTimerContract.totalKey,
+      RestTimerContract.pausedRemainingKey,
+      RestTimerContract.exerciseIdKey,
+      RestTimerContract.workoutIdKey,
+      RestTimerContract.titleKey,
+      RestTimerContract.bodyKey,
+      RestTimerContract.liveInfoKey,
+    ]) {
+      await prefs.remove(key);
+    }
+    await notifications.cancel(id);
+  }
+
+  if (actionId == RestTimerContract.actionSkip) {
+    await clearAll();
+    return;
+  }
+
+  final delta = switch (actionId) {
+    RestTimerContract.actionAdd => RestTimerContract.actionShiftSeconds,
+    RestTimerContract.actionSubtract => -RestTimerContract.actionShiftSeconds,
+    _ => 0,
+  };
+  if (delta == 0) return;
+
+  final info = LiveSetInfo.fromJsonString(prefs.getString(RestTimerContract.liveInfoKey));
+
+  final pausedRemaining = prefs.getInt(RestTimerContract.pausedRemainingKey);
+  if (pausedRemaining != null) {
+    final remaining = pausedRemaining + delta;
+    if (remaining <= 0) {
+      await clearAll();
+      return;
+    }
+    await prefs.setInt(RestTimerContract.pausedRemainingKey, remaining);
+    await prefs.setInt(
+      RestTimerContract.totalKey,
+      max((prefs.getInt(RestTimerContract.totalKey) ?? 0) + delta, remaining),
+    );
+    if (info != null) {
+      await notifications.showRestPaused(id: id, info: info, remainingDisplay: _formatMmSs(remaining));
+    }
+    return;
+  }
+
+  final endMs = prefs.getInt(RestTimerContract.endMsKey);
+  if (endMs == null) return;
+  final newEndMs = endMs + delta * 1000;
+  final remaining = ((newEndMs - now().millisecondsSinceEpoch) / 1000).ceil();
+  final title = prefs.getString(RestTimerContract.titleKey) ?? 'Rest over';
+  final body = prefs.getString(RestTimerContract.bodyKey) ?? 'Time for your next set';
+
+  if (remaining <= 0) {
+    await clearAll();
+    await notifications.showNow(id: id, title: title, body: body);
+    return;
+  }
+
+  await prefs.setInt(RestTimerContract.endMsKey, newEndMs);
+  await prefs.setInt(
+    RestTimerContract.totalKey,
+    max((prefs.getInt(RestTimerContract.totalKey) ?? 0) + delta, remaining),
+  );
+  final end = DateTime.fromMillisecondsSinceEpoch(newEndMs);
+  if (info != null) {
+    await notifications.showRestCountdown(id: id, until: end, info: info);
+  }
+  await notifications.scheduleAt(id: id, when: end, title: title, body: body);
+}
+
+String _formatMmSs(int seconds) {
+  final minutes = seconds ~/ 60;
+  final secs = seconds % 60;
+  return '${minutes.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}';
 }

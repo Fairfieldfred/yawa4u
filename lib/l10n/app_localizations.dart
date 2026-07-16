@@ -8755,6 +8755,42 @@ abstract class AppLocalizations {
   /// **'Time for your next set'**
   String get restTimerNotificationBody;
 
+  /// Live lock-screen notification body while resting, without a weight/reps target
+  ///
+  /// In en, this message translates to:
+  /// **'Next: set {setNumber} of {totalSets}'**
+  String restLiveNextSet(Object setNumber, Object totalSets);
+
+  /// Live lock-screen notification body while resting. target is a pre-formatted string like '80 kg × 8-12'
+  ///
+  /// In en, this message translates to:
+  /// **'Next: set {setNumber} of {totalSets} · {target}'**
+  String restLiveNextSetTarget(Object setNumber, Object totalSets, Object target);
+
+  /// No description provided for @restLiveAllSetsDone.
+  ///
+  /// In en, this message translates to:
+  /// **'All sets done — great work!'**
+  String get restLiveAllSetsDone;
+
+  /// No description provided for @restLiveActionAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'+30s'**
+  String get restLiveActionAdd;
+
+  /// No description provided for @restLiveActionSubtract.
+  ///
+  /// In en, this message translates to:
+  /// **'−30s'**
+  String get restLiveActionSubtract;
+
+  /// No description provided for @restLiveActionSkip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get restLiveActionSkip;
+
   /// No description provided for @cycleComparisonNeedTwoCycles.
   ///
   /// In en, this message translates to:
