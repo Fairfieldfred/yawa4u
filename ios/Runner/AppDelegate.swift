@@ -17,5 +17,12 @@ import UIKit
 
   func didInitializeImplicitFlutterEngine(_ engineBridge: FlutterImplicitEngineBridge) {
     GeneratedPluginRegistrant.register(with: engineBridge.pluginRegistry)
+    // Rest-timer Live Activity. Registered here rather than in the live_card
+    // package because the widget extension must compile the shared
+    // ActivityAttributes struct, which it cannot import across a pod module
+    // boundary.
+    LiveCardPlugin.register(
+      with: engineBridge.pluginRegistry.registrar(forPlugin: "LiveCardPlugin")!
+    )
   }
 }

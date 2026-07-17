@@ -23,27 +23,40 @@ class LiveCardAction {
   };
 }
 
-/// Posts an ongoing notification as an Android 16 **Live Update** — a promoted
-/// notification that earns a status-bar chip, a pinned lock-screen card, and a
-/// slot in Samsung's Now Bar.
+/// A glanceable, self-ticking card on the lock screen.
 ///
-/// This exists because a plain `IMPORTANCE_LOW` ongoing notification is demoted
-/// to a bare icon on the One UI lock screen, and raising importance to fix that
-/// would make it audible on every update. Promotion is the sanctioned way to be
-/// both silent and visible.
+/// One API over two native mechanisms that solve the same problem:
 ///
-/// [isSupported] is feature-detected via `canPostPromotedNotifications()` — not
-/// an API-level check — because users can revoke Live Updates per app and OEMs
-/// add their own criteria. Callers must fall back to an ordinary notification
-/// when it returns false.
+/// * **Android 16+** — a *Live Update*: a promoted ongoing notification with a
+///   status-bar chip, a pinned lock-screen card, and a Samsung Now Bar slot.
+///   Needed because a plain `IMPORTANCE_LOW` ongoing notification is demoted
+///   to a bare icon on One UI, and raising importance to fix that would make
+///   it audible on every update.
+/// * **iOS 16.2+** — an ActivityKit *Live Activity* on the Lock Screen and
+///   Dynamic Island.
+///
+/// Both render the countdown from a wall-clock deadline in their own process,
+/// so a running timer costs zero updates — only real state transitions are
+/// pushed.
+///
+/// [isSupported] is always feature-detected, never inferred from an OS
+/// version: Android users can revoke Live Updates per app (and OEMs add their
+/// own criteria), and iOS users can disable Live Activities. Callers must have
+/// a fallback for false.
 class LiveCard {
   static const MethodChannel _channel = MethodChannel('yawa4u/live_card');
 
   const LiveCard();
 
-  /// Whether this device can post promoted notifications right now.
+  static bool get _platformSupported {
+    if (kIsWeb) return false;
+    return defaultTargetPlatform == TargetPlatform.android ||
+        defaultTargetPlatform == TargetPlatform.iOS;
+  }
+
+  /// Whether this device can show a live card right now.
   Future<bool> isSupported() async {
-    if (kIsWeb || defaultTargetPlatform != TargetPlatform.android) return false;
+    if (!_platformSupported) return false;
     try {
       return await _channel.invokeMethod<bool>('isSupported') ?? false;
     } on MissingPluginException {
@@ -82,12 +95,17 @@ class LiveCard {
   }
 
   /// Shows a static (non-counting) card — used while the timer is paused.
+  /// Shows a static (non-counting) card — used while the timer is paused.
+  ///
+  /// [pausedDisplay] is the frozen "MM:SS" value: a system timer view can only
+  /// count, so a paused card has to render pre-formatted text instead.
   Future<void> showPaused({
     required int id,
     required String channelId,
     required String channelName,
     required String title,
     required String body,
+    String? pausedDisplay,
     String? channelDescription,
     List<LiveCardAction> actions = const [],
   }) async {
@@ -98,6 +116,7 @@ class LiveCard {
       'channelDescription': channelDescription,
       'title': title,
       'body': body,
+      'pausedDisplay': pausedDisplay,
       'actions': actions.map((a) => a._toMap()).toList(),
     });
   }
@@ -105,7 +124,7 @@ class LiveCard {
   Future<void> cancel(int id) => _invoke('cancel', {'id': id});
 
   Future<void> _invoke(String method, Map<String, Object?> args) async {
-    if (kIsWeb || defaultTargetPlatform != TargetPlatform.android) return;
+    if (!_platformSupported) return;
     try {
       await _channel.invokeMethod<void>(method, args);
     } on MissingPluginException {

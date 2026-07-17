@@ -425,7 +425,15 @@ class RestTimerNotifier extends Notifier<RestTimerState> {
     if (!state.isRunning) return;
     _liveCardEpoch++;
     _clearPersisted();
-    if (cancelNotifications) unawaited(_cancelNotification());
+    if (cancelNotifications) {
+      unawaited(_cancelNotification());
+    } else {
+      // Natural completion: the deadline alert fires (don't cancel it), but the
+      // live card must still go. On Android it self-retires via timeoutAfter;
+      // on iOS a Live Activity has no such timeout, so end it explicitly or it
+      // lingers on the Lock Screen.
+      unawaited(_cancelLiveCard());
+    }
     unawaited(ref.read(restTimerHapticProvider)());
     state = const RestTimerState();
   }
@@ -533,17 +541,21 @@ class RestTimerNotifier extends Notifier<RestTimerState> {
     }
   }
 
-  /// Drops both the live card and the pending deadline alert. Used whenever
-  /// the rest ends early (skip, or shifted past zero) — on a natural
-  /// completion the alert is meant to fire and the card retires itself via
-  /// `timeoutAfter`.
-  Future<void> _cancelNotification() async {
-    await _cancelAlert();
+  /// Drops the live card (Android notification / iOS Live Activity), leaving
+  /// the deadline alert alone.
+  Future<void> _cancelLiveCard() async {
     try {
       await _notifications.cancel(liveCardId);
     } catch (e, st) {
       log('Failed to cancel rest countdown card', error: e, stackTrace: st, name: 'yawa4u.restTimer');
     }
+  }
+
+  /// Drops both the live card and the pending deadline alert. Used whenever
+  /// the rest ends early (skip, or shifted past zero).
+  Future<void> _cancelNotification() async {
+    await _cancelAlert();
+    await _cancelLiveCard();
   }
 }
 

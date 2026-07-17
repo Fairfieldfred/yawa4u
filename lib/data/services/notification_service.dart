@@ -61,9 +61,17 @@ class NotificationService {
     };
   }
 
-  /// The live countdown card is a promoted-style ongoing notification —
-  /// Android only. iOS gets a Live Activity in a later phase.
-  bool get _supportsLiveCard => !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
+  /// Platforms with a live rest card: Android (promoted ongoing notification)
+  /// and iOS (ActivityKit Live Activity), both behind [LiveCard].
+  bool get _supportsLiveCard {
+    if (kIsWeb) return false;
+    return defaultTargetPlatform == TargetPlatform.android || defaultTargetPlatform == TargetPlatform.iOS;
+  }
+
+  /// Whether a plain ongoing notification can stand in for the live card.
+  /// Android only — iOS has no ongoing-notification equivalent, so when Live
+  /// Activities are unavailable there the card is simply skipped.
+  bool get _supportsNotificationFallback => !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
 
   /// Initializes the plugin and timezone database. Idempotent.
   Future<void> ensureInitialized() async {
@@ -195,6 +203,7 @@ class NotificationService {
       );
       return;
     }
+    if (!_supportsNotificationFallback) return;
 
     final details = NotificationDetails(
       android: AndroidNotificationDetails(
@@ -239,10 +248,12 @@ class NotificationService {
         channelDescription: _liveChannelDescription,
         title: info.title,
         body: body,
+        pausedDisplay: remainingDisplay,
         actions: _liveCardActions(info),
       );
       return;
     }
+    if (!_supportsNotificationFallback) return;
 
     final details = NotificationDetails(
       android: AndroidNotificationDetails(
@@ -265,7 +276,16 @@ class NotificationService {
   }
 
   /// Cancels a scheduled or shown notification by [id].
+  ///
+  /// The live card is a Live Activity on iOS, which the notification plugin
+  /// knows nothing about — so a cancel of the card id is also routed to
+  /// [LiveCard] to end the activity. Alert cancels (a different id) are
+  /// deliberately NOT routed there, or pausing (which drops only the alert)
+  /// would tear the card down on iOS.
   Future<void> cancel(int id) async {
+    if (id == RestTimerContract.liveCardId) {
+      await _liveCard.cancel(id);
+    }
     if (!_initialized) return;
     await _plugin?.cancel(id: id);
   }

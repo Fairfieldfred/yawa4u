@@ -203,7 +203,10 @@ void main() {
     final container = makeContainer(hapticLog: hapticLog);
     final notifier = container.read(restTimerProvider.notifier);
 
-    notifier.startCustom(10);
+    notifier.startCustom(10, liveInfo: _liveInfo);
+    await flushAsyncWork();
+    // Ignore the alert-clear that every start does; assert on completion alone.
+    notifications.cancelled.clear();
     now = now.add(const Duration(seconds: 11));
 
     // Both a tick-driven check and a lifecycle resync observe the elapsed
@@ -215,6 +218,11 @@ void main() {
     expect(container.read(restTimerProvider).isRunning, false);
     expect(container.read(restTimerProvider).remainingSeconds, 0);
     expect(hapticLog, ['haptic']);
+    // Natural completion ends the live card (iOS activities don't self-retire)
+    // but must leave the deadline alert to fire — so only the card id is
+    // cancelled, never the alert id.
+    expect(notifications.cancelled, contains(RestTimerNotifier.liveCardId));
+    expect(notifications.cancelled, isNot(contains(RestTimerNotifier.notificationId)));
   });
 
   test('pause cancels the notification, resume reschedules from the new deadline', () async {
