@@ -107,8 +107,12 @@ class RestTimerNotifier extends Notifier<RestTimerState> {
   static const _bodyKey = RestTimerContract.bodyKey;
   static const _liveInfoKey = RestTimerContract.liveInfoKey;
 
-  /// Notification id reserved for the rest timer.
+  /// Notification id for the "rest over" alert at the deadline.
   static const notificationId = RestTimerContract.notificationId;
+
+  /// Notification id for the live countdown card (distinct from
+  /// [notificationId] — sharing one id silenced the alert).
+  static const liveCardId = RestTimerContract.liveCardId;
 
   static const _defaultNotificationTitle = 'Rest over';
   static const _defaultNotificationBody = 'Time for your next set';
@@ -195,8 +199,9 @@ class RestTimerNotifier extends Notifier<RestTimerState> {
     _prefs.setInt(_pausedRemainingKey, remaining);
     _prefs.remove(_endMsKey);
     final epoch = ++_liveCardEpoch;
+    // Only the alert is dropped: the card stays, restyled as paused.
     unawaited(
-      _cancelNotification().then((_) async {
+      _cancelAlert().then((_) async {
         if (epoch == _liveCardEpoch) await _showPausedCard(remaining);
       }),
     );
@@ -450,7 +455,7 @@ class RestTimerNotifier extends Notifier<RestTimerState> {
     try {
       final info = _persistedLiveInfo;
       if (info == null) return;
-      await _notifications.showRestCountdown(id: notificationId, until: end, info: info);
+      await _notifications.showRestCountdown(id: liveCardId, until: end, info: info);
     } catch (e, st) {
       // Includes ref-after-dispose when the notifier goes away mid-flight.
       log('Failed to show rest countdown card', error: e, stackTrace: st, name: 'yawa4u.restTimer');
@@ -462,7 +467,7 @@ class RestTimerNotifier extends Notifier<RestTimerState> {
       final info = _persistedLiveInfo;
       if (info == null) return;
       await _notifications.showRestPaused(
-        id: notificationId,
+        id: liveCardId,
         info: info,
         remainingDisplay: RestTimerState(remainingSeconds: remainingSeconds).displayTime,
       );
@@ -494,6 +499,12 @@ class RestTimerNotifier extends Notifier<RestTimerState> {
   Future<void> _requestPermissionAndSchedule(DateTime end) async {
     try {
       await _notifications.requestPermission();
+      // Drop any previous "Rest over" still sitting on screen first. Posting
+      // the next alert to the same id while one is visible is an *update*,
+      // and an update doesn't re-alert — so back-to-back sets would go
+      // silent from the second rest onwards unless the user dismissed each
+      // one by hand.
+      await _cancelAlert();
       await _scheduleNotification(end);
     } catch (e, st) {
       log('Failed to schedule rest-timer notification', error: e, stackTrace: st, name: 'yawa4u.restTimer');
@@ -513,11 +524,25 @@ class RestTimerNotifier extends Notifier<RestTimerState> {
     }
   }
 
-  Future<void> _cancelNotification() async {
+  /// Drops the pending deadline alert, leaving the live card alone.
+  Future<void> _cancelAlert() async {
     try {
       await _notifications.cancel(notificationId);
     } catch (e, st) {
       log('Failed to cancel rest-timer notification', error: e, stackTrace: st, name: 'yawa4u.restTimer');
+    }
+  }
+
+  /// Drops both the live card and the pending deadline alert. Used whenever
+  /// the rest ends early (skip, or shifted past zero) — on a natural
+  /// completion the alert is meant to fire and the card retires itself via
+  /// `timeoutAfter`.
+  Future<void> _cancelNotification() async {
+    await _cancelAlert();
+    try {
+      await _notifications.cancel(liveCardId);
+    } catch (e, st) {
+      log('Failed to cancel rest countdown card', error: e, stackTrace: st, name: 'yawa4u.restTimer');
     }
   }
 }

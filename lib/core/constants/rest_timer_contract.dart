@@ -8,10 +8,21 @@
 class RestTimerContract {
   RestTimerContract._();
 
-  /// Notification id shared by the live countdown card and the "rest over"
-  /// alert: the alert scheduled at the deadline replaces the countdown card
-  /// even when the app process is dead.
+  /// Notification id for the "rest over" alert fired at the deadline.
+  ///
+  /// Must NOT be shared with [liveCardId]: Android keys a notification by id,
+  /// so posting the card first left the alert updating the card's low
+  /// importance/silent channel instead of alerting on its own high-importance
+  /// one — the deadline alert went silent.
   static const int notificationId = 9001;
+
+  /// Notification id for the live countdown card.
+  ///
+  /// The card is posted with `timeoutAfter` set to the remaining rest, so the
+  /// OS retires it exactly at the deadline as the alert fires — this is what
+  /// keeps it from lingering when the app process is dead and no Dart code
+  /// can cancel it.
+  static const int liveCardId = 9002;
 
   static const String endMsKey = 'rest_timer_end_ms';
   static const String totalKey = 'rest_timer_total_seconds';

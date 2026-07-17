@@ -72,6 +72,11 @@
         </activity-alias>
         <!-- flutter_local_notifications: delivers scheduled notifications and
              restores them after a reboot. -->
+        <!-- Required for the rest-timer notification's +30s/-30s/Skip buttons:
+             the plugin ships this receiver but does NOT declare it, so without
+             this the action broadcasts are dropped and the buttons do nothing. -->
+        <receiver android:exported="false"
+            android:name="com.dexterous.flutterlocalnotifications.ActionBroadcastReceiver" />
         <receiver android:exported="false"
             android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver" />
         <receiver android:exported="false"

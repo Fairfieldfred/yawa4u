@@ -5,6 +5,7 @@ import 'dart:ui' show IsolateNameServer;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:live_card/live_card.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/data/latest_all.dart' as tz_data;
 import 'package:timezone/timezone.dart' as tz;
@@ -22,6 +23,14 @@ import '../models/live_set_info.dart';
 class NotificationService {
   FlutterLocalNotificationsPlugin? _plugin;
   bool _initialized = false;
+
+  /// Android 16 Live Update renderer for the countdown card. Falls back to a
+  /// plain notification when the OS can't promote (pre-16, or the user
+  /// revoked Live Updates for the app).
+  final LiveCard _liveCard;
+  bool? _canPromote;
+
+  NotificationService({LiveCard liveCard = const LiveCard()}) : _liveCard = liveCard;
 
   static const _channelId = 'rest_timer';
   static const _channelName = 'Rest timer';
@@ -158,6 +167,10 @@ class NotificationService {
   /// whose chronometer counts down to [until] rendered by the OS — it keeps
   /// ticking on the lock screen with no app involvement, even if the process
   /// dies. Quick actions (+/-/skip) are handled in a background isolate.
+  ///
+  /// `timeoutAfter` retires the card at the deadline without any Dart code
+  /// running, which is the only thing that can clear it once the app process
+  /// is gone.
   Future<void> showRestCountdown({
     required int id,
     required DateTime until,
@@ -165,6 +178,24 @@ class NotificationService {
   }) async {
     if (!_supportsLiveCard) return;
     await ensureInitialized();
+    final remainingMs = until.difference(DateTime.now()).inMilliseconds;
+    if (remainingMs <= 0) return;
+
+    if (await _promotionAvailable()) {
+      await _liveCard.showCountdown(
+        id: id,
+        channelId: _liveChannelId,
+        channelName: _liveChannelName,
+        channelDescription: _liveChannelDescription,
+        title: info.title,
+        body: info.body,
+        until: until,
+        chipText: _formatMmSs((remainingMs / 1000).ceil()),
+        actions: _liveCardActions(info),
+      );
+      return;
+    }
+
     final details = NotificationDetails(
       android: AndroidNotificationDetails(
         _liveChannelId,
@@ -182,6 +213,7 @@ class NotificationService {
         when: until.millisecondsSinceEpoch,
         usesChronometer: true,
         chronometerCountDown: true,
+        timeoutAfter: remainingMs,
         actions: _restActions(info),
       ),
     );
@@ -197,6 +229,21 @@ class NotificationService {
   }) async {
     if (!_supportsLiveCard) return;
     await ensureInitialized();
+    final body = '⏸ $remainingDisplay · ${info.body}';
+
+    if (await _promotionAvailable()) {
+      await _liveCard.showPaused(
+        id: id,
+        channelId: _liveChannelId,
+        channelName: _liveChannelName,
+        channelDescription: _liveChannelDescription,
+        title: info.title,
+        body: body,
+        actions: _liveCardActions(info),
+      );
+      return;
+    }
+
     final details = NotificationDetails(
       android: AndroidNotificationDetails(
         _liveChannelId,
@@ -214,12 +261,7 @@ class NotificationService {
         actions: _restActions(info),
       ),
     );
-    await _plugin?.show(
-      id: id,
-      title: info.title,
-      body: '⏸ $remainingDisplay · ${info.body}',
-      notificationDetails: details,
-    );
+    await _plugin?.show(id: id, title: info.title, body: body, notificationDetails: details);
   }
 
   /// Cancels a scheduled or shown notification by [id].
@@ -233,6 +275,23 @@ class NotificationService {
     AndroidNotificationAction(RestTimerContract.actionAdd, info.addLabel, cancelNotification: false),
     AndroidNotificationAction(RestTimerContract.actionSkip, info.skipLabel),
   ];
+
+  /// Same three actions as [_restActions], for the promoted renderer. Both
+  /// route to the same Dart handler via flutter_local_notifications' receiver,
+  /// so the action ids must stay identical.
+  static List<LiveCardAction> _liveCardActions(LiveSetInfo info) => [
+    LiveCardAction(id: RestTimerContract.actionSubtract, label: info.subtractLabel),
+    LiveCardAction(id: RestTimerContract.actionAdd, label: info.addLabel),
+    LiveCardAction(id: RestTimerContract.actionSkip, label: info.skipLabel, cancelNotification: true),
+  ];
+
+  /// Cached per process: the answer only changes when the user toggles the
+  /// app's Live Updates permission, which restarts nothing but is rare enough
+  /// that a stale `false` for one session is acceptable.
+  Future<bool> _promotionAvailable() async {
+    if (!_supportsLiveCard) return false;
+    return _canPromote ??= await _liveCard.isSupported();
+  }
 }
 
 /// Entry point invoked by the plugin in a background isolate when the user
@@ -263,7 +322,8 @@ Future<void> handleRestTimerAction({
   required NotificationService notifications,
   DateTime Function() now = DateTime.now,
 }) async {
-  const id = RestTimerContract.notificationId;
+  const alertId = RestTimerContract.notificationId;
+  const cardId = RestTimerContract.liveCardId;
 
   Future<void> clearAll() async {
     for (final key in [
@@ -278,7 +338,8 @@ Future<void> handleRestTimerAction({
     ]) {
       await prefs.remove(key);
     }
-    await notifications.cancel(id);
+    await notifications.cancel(cardId);
+    await notifications.cancel(alertId);
   }
 
   if (actionId == RestTimerContract.actionSkip) {
@@ -308,7 +369,7 @@ Future<void> handleRestTimerAction({
       max((prefs.getInt(RestTimerContract.totalKey) ?? 0) + delta, remaining),
     );
     if (info != null) {
-      await notifications.showRestPaused(id: id, info: info, remainingDisplay: _formatMmSs(remaining));
+      await notifications.showRestPaused(id: cardId, info: info, remainingDisplay: _formatMmSs(remaining));
     }
     return;
   }
@@ -322,7 +383,7 @@ Future<void> handleRestTimerAction({
 
   if (remaining <= 0) {
     await clearAll();
-    await notifications.showNow(id: id, title: title, body: body);
+    await notifications.showNow(id: alertId, title: title, body: body);
     return;
   }
 
@@ -333,9 +394,9 @@ Future<void> handleRestTimerAction({
   );
   final end = DateTime.fromMillisecondsSinceEpoch(newEndMs);
   if (info != null) {
-    await notifications.showRestCountdown(id: id, until: end, info: info);
+    await notifications.showRestCountdown(id: cardId, until: end, info: info);
   }
-  await notifications.scheduleAt(id: id, when: end, title: title, body: body);
+  await notifications.scheduleAt(id: alertId, when: end, title: title, body: body);
 }
 
 String _formatMmSs(int seconds) {

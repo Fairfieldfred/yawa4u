@@ -1,0 +1,7 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Android 16+: lets an ongoing notification request promotion to a Live
+         Update (status-bar chip, pinned lock-screen card, Samsung Now Bar).
+         Install-time permission — no runtime request, and a silent no-op on
+         older releases. Merged into the host app's manifest. -->
+    <uses-permission android:name="android.permission.POST_PROMOTED_NOTIFICATIONS" />
+</manifest>

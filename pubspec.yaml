@@ -18,6 +18,8 @@ environment:
   sdk: ^3.10.0
 
 dependencies:
+  live_card:
+    path: packages/live_card
   csv: ^6.0.0
   feedback_sentry: ^3.2.0
   firebase_core: ^4.2.1

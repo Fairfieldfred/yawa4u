@@ -118,7 +118,7 @@ void main() {
     final notifier = container.read(restTimerProvider.notifier);
 
     notifier.startCustom(90, notificationTitle: 'Rest over', notificationBody: 'Next set');
-    await container.pump();
+    await flushAsyncWork();
 
     expect(notifications.scheduled, hasLength(1));
     expect(notifications.scheduled.single.when, now.add(const Duration(seconds: 90)));
@@ -126,10 +126,37 @@ void main() {
     expect(notifications.scheduled.single.id, RestTimerNotifier.notificationId);
 
     notifier.cancel();
-    await container.pump();
+    await flushAsyncWork();
 
-    expect(notifications.cancelled, [RestTimerNotifier.notificationId]);
+    expect(notifications.cancelled, containsAll([RestTimerNotifier.notificationId, RestTimerNotifier.liveCardId]));
     expect(container.read(restTimerProvider).isRunning, false);
+  });
+
+  test('starting a rest clears a lingering "Rest over" so the next alert can sound', () async {
+    final container = makeContainer(hapticLog: <String>[]);
+    final notifier = container.read(restTimerProvider.notifier);
+
+    // Rest 1 runs to its deadline; the alert it posted stays on screen
+    // because the user never tapped it.
+    notifier.startCustom(60);
+    now = now.add(const Duration(seconds: 61));
+    await notifier.resync();
+    await flushAsyncWork();
+    notifications.cancelled.clear();
+
+    // Rest 2 must drop that stale alert before scheduling, otherwise the new
+    // alert is an update to a visible notification and never makes a sound.
+    notifier.startCustom(60);
+    await flushAsyncWork();
+
+    expect(notifications.cancelled, contains(RestTimerNotifier.notificationId));
+    notifier.cancel();
+  });
+
+  test('the alert and the live card never share a notification id', () {
+    // Sharing one id let the card's low-importance silent channel own the id,
+    // so the deadline alert updated it instead of alerting — it went silent.
+    expect(RestTimerNotifier.notificationId, isNot(RestTimerNotifier.liveCardId));
   });
 
   test('addTime reschedules the notification and shifts the deadline both ways', () async {
@@ -137,17 +164,17 @@ void main() {
     final notifier = container.read(restTimerProvider.notifier);
 
     notifier.startCustom(60);
-    await container.pump();
+    await flushAsyncWork();
     expect(notifications.scheduled, hasLength(1));
 
     notifier.addTime(30);
-    await container.pump();
+    await flushAsyncWork();
     expect(notifications.scheduled, hasLength(2));
     expect(notifications.scheduled.last.when, now.add(const Duration(seconds: 90)));
     expect(container.read(restTimerProvider).remainingSeconds, 90);
 
     notifier.addTime(-30);
-    await container.pump();
+    await flushAsyncWork();
     expect(notifications.scheduled, hasLength(3));
     expect(notifications.scheduled.last.when, now.add(const Duration(seconds: 60)));
     expect(container.read(restTimerProvider).remainingSeconds, 60);
@@ -166,8 +193,9 @@ void main() {
 
     expect(container.read(restTimerProvider).isRunning, false);
     expect(hapticLog, ['haptic']);
-    // The pending alert for the old (now stale) deadline must not fire later.
-    expect(notifications.cancelled, [RestTimerNotifier.notificationId]);
+    // The pending alert for the old (now stale) deadline must not fire later,
+    // and the card must not outlive the rest it was counting down.
+    expect(notifications.cancelled, containsAll([RestTimerNotifier.notificationId, RestTimerNotifier.liveCardId]));
   });
 
   test('completion fires haptic and resets state exactly once', () async {
@@ -196,15 +224,17 @@ void main() {
     notifier.startCustom(60);
     now = now.add(const Duration(seconds: 20));
     notifier.pause();
-    await container.pump();
+    await flushAsyncWork();
 
-    expect(notifications.cancelled, [RestTimerNotifier.notificationId]);
+    // Only the alert is dropped; the card must survive to show as paused.
+    expect(notifications.cancelled, contains(RestTimerNotifier.notificationId));
+    expect(notifications.cancelled, isNot(contains(RestTimerNotifier.liveCardId)));
     expect(container.read(restTimerProvider).isPaused, true);
     expect(container.read(restTimerProvider).remainingSeconds, 40);
 
     now = now.add(const Duration(minutes: 5));
     notifier.resume();
-    await container.pump();
+    await flushAsyncWork();
 
     expect(container.read(restTimerProvider).isPaused, false);
     expect(container.read(restTimerProvider).remainingSeconds, 40);
@@ -220,7 +250,7 @@ void main() {
       await flushAsyncWork();
 
       expect(notifications.countdownCards, hasLength(1));
-      expect(notifications.countdownCards.single.id, RestTimerNotifier.notificationId);
+      expect(notifications.countdownCards.single.id, RestTimerNotifier.liveCardId);
       expect(notifications.countdownCards.single.until, now.add(const Duration(seconds: 60)));
       expect(notifications.countdownCards.single.info.title, 'Bench Press');
       expect(
@@ -284,7 +314,10 @@ void main() {
       await flushAsyncWork();
 
       expect(notifications.pausedCards, hasLength(1));
+      expect(notifications.pausedCards.single.id, RestTimerNotifier.liveCardId);
       expect(notifications.pausedCards.single.remainingDisplay, '00:40');
+      // Pausing drops only the alert — the card stays, restyled as paused.
+      expect(notifications.cancelled, isNot(contains(RestTimerNotifier.liveCardId)));
 
       notifier.resume();
       await flushAsyncWork();
@@ -293,7 +326,7 @@ void main() {
 
       notifier.cancel();
       await flushAsyncWork();
-      expect(notifications.cancelled, contains(RestTimerNotifier.notificationId));
+      expect(notifications.cancelled, containsAll([RestTimerNotifier.notificationId, RestTimerNotifier.liveCardId]));
     });
 
     test('cancel clears the persisted payload', () async {
@@ -391,8 +424,12 @@ void main() {
       expect(prefs.getInt(RestTimerContract.endMsKey), expectedEnd.millisecondsSinceEpoch);
       expect(prefs.getInt(RestTimerContract.totalKey), 90);
       expect(notifications.countdownCards.single.until, expectedEnd);
+      expect(notifications.countdownCards.single.id, RestTimerContract.liveCardId);
       expect(notifications.scheduled.single.when, expectedEnd);
       expect(notifications.scheduled.single.title, 'Rest over');
+      // The rescheduled alert must keep its own id, or it lands on the card's
+      // silent channel and never sounds.
+      expect(notifications.scheduled.single.id, RestTimerContract.notificationId);
     });
 
     test('subtract past zero clears state and fires the alert immediately', () async {
@@ -407,8 +444,12 @@ void main() {
 
       expect(prefs.getInt(RestTimerContract.endMsKey), isNull);
       expect(prefs.getString(RestTimerContract.liveInfoKey), isNull);
-      expect(notifications.cancelled, [RestTimerContract.notificationId]);
+      expect(
+        notifications.cancelled,
+        containsAll([RestTimerContract.notificationId, RestTimerContract.liveCardId]),
+      );
       expect(notifications.shownNow.single.title, 'Rest over');
+      expect(notifications.shownNow.single.id, RestTimerContract.notificationId);
     });
 
     test('skip clears everything and cancels the notification', () async {
@@ -424,7 +465,10 @@ void main() {
       expect(prefs.getInt(RestTimerContract.endMsKey), isNull);
       expect(prefs.getInt(RestTimerContract.totalKey), isNull);
       expect(prefs.getString(RestTimerContract.liveInfoKey), isNull);
-      expect(notifications.cancelled, [RestTimerContract.notificationId]);
+      expect(
+        notifications.cancelled,
+        containsAll([RestTimerContract.notificationId, RestTimerContract.liveCardId]),
+      );
       expect(notifications.shownNow, isEmpty);
       expect(notifications.scheduled, isEmpty);
     });
@@ -444,6 +488,7 @@ void main() {
       expect(prefs.getInt(RestTimerContract.pausedRemainingKey), 70);
       expect(prefs.getInt(RestTimerContract.totalKey), 90);
       expect(notifications.pausedCards.single.remainingDisplay, '01:10');
+      expect(notifications.pausedCards.single.id, RestTimerContract.liveCardId);
       expect(notifications.scheduled, isEmpty);
     });
   });

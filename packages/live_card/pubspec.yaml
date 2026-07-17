@@ -1,0 +1,22 @@
+name: live_card
+description: >
+  Android 16 "Live Update" (promoted ongoing notification) for the rest-timer
+  countdown card — the lock-screen/Now Bar presentation that a plain
+  low-importance notification cannot get.
+version: 0.0.1
+publish_to: none
+
+environment:
+  sdk: ^3.10.0
+  flutter: ">=3.41.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+flutter:
+  plugin:
+    platforms:
+      android:
+        package: com.fredblair.live_card
+        pluginClass: LiveCardPlugin
