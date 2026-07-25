@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/extensions/context_extensions.dart';
+import '../../../domain/providers/cloud_backup_providers.dart';
 import '../../../domain/providers/onboarding_providers.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../widgets/app_icon_widget.dart';
@@ -31,6 +32,10 @@ class HomeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Kicks off the silent app-launch cloud backup check exactly once per
+    // session (the provider body runs once per container).
+    ref.watch(autoCloudBackupTriggerProvider);
+
     final selectedIndex = navigationShell.currentIndex;
     final cycleTermPlural = ref.watch(trainingCycleTermPluralProvider);
     final isDesktop = context.isDesktop;

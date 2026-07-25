@@ -4753,6 +4753,168 @@ abstract class AppLocalizations {
   /// **'Syncing merges data — items from the other device are added, nothing is deleted.'**
   String get syncMergeNote;
 
+  /// No description provided for @cloudBackupSectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cloud backup'**
+  String get cloudBackupSectionTitle;
+
+  /// No description provided for @cloudBackupSectionSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep a copy of your data in your account so it survives losing or replacing your device.'**
+  String get cloudBackupSectionSubtitle;
+
+  /// No description provided for @cloudBackupOnboardingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Back up to the cloud'**
+  String get cloudBackupOnboardingTitle;
+
+  /// No description provided for @cloudBackupOnboardingSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep your training data safe if you lose or replace your device. Requires a free account with a verified email.'**
+  String get cloudBackupOnboardingSubtitle;
+
+  /// No description provided for @cloudBackupEnableTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cloud backup'**
+  String get cloudBackupEnableTitle;
+
+  /// No description provided for @cloudBackupDisabledNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Turning this off keeps your existing cloud copy.'**
+  String get cloudBackupDisabledNote;
+
+  /// No description provided for @cloudBackupAccountLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Account'**
+  String get cloudBackupAccountLabel;
+
+  /// No description provided for @cloudBackupPendingSignIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in with a verified email to start backing up'**
+  String get cloudBackupPendingSignIn;
+
+  /// No description provided for @cloudBackupFinishSignIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish sign-in'**
+  String get cloudBackupFinishSignIn;
+
+  /// No description provided for @cloudBackupLastBackupLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Last backup'**
+  String get cloudBackupLastBackupLabel;
+
+  /// No description provided for @cloudBackupNever.
+  ///
+  /// In en, this message translates to:
+  /// **'Never backed up'**
+  String get cloudBackupNever;
+
+  /// No description provided for @cloudBackupNowButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Back up now'**
+  String get cloudBackupNowButton;
+
+  /// No description provided for @cloudBackupInProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Backing up…'**
+  String get cloudBackupInProgress;
+
+  /// No description provided for @cloudBackupSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Backed up to the cloud'**
+  String get cloudBackupSuccess;
+
+  /// No description provided for @cloudBackupError.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t back up: {error}'**
+  String cloudBackupError(Object error);
+
+  /// No description provided for @cloudBackupRestoreButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore from cloud'**
+  String get cloudBackupRestoreButton;
+
+  /// No description provided for @cloudBackupRestoreConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore cloud backup?'**
+  String get cloudBackupRestoreConfirmTitle;
+
+  /// No description provided for @cloudBackupRestoreConfirmMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Items from the cloud backup will be added to your existing data. Nothing is deleted, and entries that already exist are kept unchanged.'**
+  String get cloudBackupRestoreConfirmMessage;
+
+  /// No description provided for @cloudBackupRestoreSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Cloud backup restored — {count} items added'**
+  String cloudBackupRestoreSuccess(Object count);
+
+  /// No description provided for @cloudBackupRestoreError.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t restore: {error}'**
+  String cloudBackupRestoreError(Object error);
+
+  /// No description provided for @cloudBackupNoBackupFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No cloud backup found for this account'**
+  String get cloudBackupNoBackupFound;
+
+  /// No description provided for @cloudBackupOverwriteEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Overwrite cloud backup?'**
+  String get cloudBackupOverwriteEmptyTitle;
+
+  /// No description provided for @cloudBackupOverwriteEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This device has no data, but your cloud backup does. Backing up now would replace your cloud backup with an empty one. If you\'re setting up a new device, restore from the cloud first.'**
+  String get cloudBackupOverwriteEmptyMessage;
+
+  /// No description provided for @cloudBackupDeleteButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete cloud backup'**
+  String get cloudBackupDeleteButton;
+
+  /// No description provided for @cloudBackupDeleteConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete cloud backup?'**
+  String get cloudBackupDeleteConfirmTitle;
+
+  /// No description provided for @cloudBackupDeleteConfirmMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This removes the backup from the cloud. Data on this device is not affected.'**
+  String get cloudBackupDeleteConfirmMessage;
+
+  /// No description provided for @cloudBackupDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Cloud backup deleted'**
+  String get cloudBackupDeleted;
+
   /// No description provided for @emptyWorkoutCreateCycle.
   ///
   /// In en, this message translates to:

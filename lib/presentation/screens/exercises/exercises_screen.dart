@@ -13,18 +13,22 @@ import '../../../data/database/app_database.dart' show ExerciseSetsCompanion;
 import '../../../data/database/mappers/entity_mappers.dart' show ExerciseFeedbackMapper;
 import '../../../core/theme/skins/skins.dart';
 import '../../../core/utils/day_sequence.dart';
+import '../../../core/utils/weight_conversion.dart';
 import '../../../data/models/exercise.dart';
 import '../../../data/models/exercise_set.dart';
+import '../../../data/models/live_set_info.dart';
 import '../../../data/models/session.dart';
 import '../../../data/models/training_cycle.dart';
 import '../../../data/models/workout.dart';
 import '../../../data/repositories/training_cycle_repository.dart';
+import '../../../data/services/exercise_name_localizer.dart';
 import '../../../domain/controllers/workout_home_controller.dart';
 import '../../../domain/providers/calendar_providers.dart';
 import '../../../domain/providers/database_providers.dart';
 import '../../../domain/providers/exercise_providers.dart';
 import '../../widgets/empty_state_widget.dart';
 import '../../../domain/providers/onboarding_providers.dart';
+import '../../../domain/providers/rest_timer_provider.dart';
 import '../../../domain/providers/session_providers.dart';
 import '../../../domain/providers/theme_provider.dart';
 import '../../../domain/providers/training_cycle_providers.dart';
@@ -35,9 +39,11 @@ import '../../widgets/cardio/cardio_session_card.dart';
 import '../../widgets/cycle_summary_dialog.dart';
 import '../../widgets/dialogs/add_exercise_dialog.dart';
 import '../../widgets/dialogs/exercise_feedback_dialog.dart';
+import '../../widgets/dialogs/rest_timer_dialog.dart';
 import '../../widgets/dialogs/workout_dialogs.dart';
 import '../../widgets/exercise_card_widget.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../widgets/rest_timer_widget.dart';
 import '../../widgets/screen_background.dart';
 import '../workout/add_exercise_screen.dart';
 
@@ -767,6 +773,11 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
                           backgroundColor: Theme.of(context).dividerColor,
                         ),
 
+                        // Rest timer bar — same surface as the workout screen.
+                        RestTimerWidget(
+                          onTap: (exerciseId, workoutId) => _setRestTimer(workoutId, exerciseId),
+                        ),
+
                         Expanded(
                           child: PageView.builder(
                             controller: _pageController,
@@ -831,6 +842,10 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
                                               id,
                                             ),
                                             onJointPain: (id) => _logJointPain(
+                                              source.workout.id,
+                                              id,
+                                            ),
+                                            onRestTimer: (id) => _setRestTimer(
                                               source.workout.id,
                                               id,
                                             ),
@@ -1825,6 +1840,83 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
     if (mounted) {
       setState(() {});
     }
+
+    // Start rest timer when a set is logged
+    if (nowLogging && mounted) {
+      final l10n = AppLocalizations.of(context)!;
+      ref
+          .read(restTimerProvider.notifier)
+          .start(
+            set.setType,
+            exerciseRestSeconds: exercise.restSeconds,
+            exerciseId: exercise.id,
+            workoutId: exercise.workoutId,
+            notificationTitle: l10n.restTimerNotificationTitle,
+            notificationBody: l10n.restTimerNotificationBody,
+            liveInfo: _buildLiveSetInfo(l10n, updatedExercise),
+          );
+    }
+  }
+
+  /// Builds the lock-screen live card content for the rest after a logged
+  /// set: localized exercise name plus the upcoming set's target. Strings are
+  /// resolved here because the notification layers (including the background
+  /// action isolate) have no BuildContext to localize with.
+  LiveSetInfo _buildLiveSetInfo(AppLocalizations l10n, Exercise exercise) {
+    ExerciseSet? next;
+    for (final s in exercise.sets) {
+      if (!s.isLogged && !s.isSkipped) {
+        next = s;
+        break;
+      }
+    }
+    final String body;
+    if (next == null) {
+      body = l10n.restLiveAllSetsDone;
+    } else if (next.weight != null && next.reps.isNotEmpty) {
+      final weight = formatWeightForDisplay(next.weight, ref.read(useMetricProvider));
+      final unit = ref.read(weightUnitProvider);
+      body = l10n.restLiveNextSetTarget(next.setNumber, exercise.sets.length, '$weight $unit × ${next.reps}');
+    } else {
+      body = l10n.restLiveNextSet(next.setNumber, exercise.sets.length);
+    }
+    return LiveSetInfo(
+      title: context.localizedExerciseName(exercise.name),
+      body: body,
+      addLabel: l10n.restLiveActionAdd,
+      subtractLabel: l10n.restLiveActionSubtract,
+      skipLabel: l10n.restLiveActionSkip,
+    );
+  }
+
+  Future<void> _setRestTimer(String workoutId, String exerciseId) async {
+    final repository = ref.read(workoutRepositoryProvider);
+    final workout = await repository.getById(workoutId);
+    if (workout == null) return;
+
+    final exerciseIndex = workout.exercises.indexWhere(
+      (e) => e.id == exerciseId,
+    );
+    if (exerciseIndex == -1) return;
+
+    final exercise = workout.exercises[exerciseIndex];
+    if (!mounted) return;
+
+    final result = await RestTimerDialog.show(
+      context,
+      currentRestSeconds: exercise.restSeconds,
+    );
+    if (result == null) return;
+
+    // -1 means "use default" (clear override)
+    final newRestSeconds = result == -1 ? null : result;
+    final updatedExercise = exercise.copyWith(restSeconds: newRestSeconds);
+    final updatedWorkout = workout.updateExercise(
+      exerciseIndex,
+      updatedExercise,
+    );
+    await repository.update(updatedWorkout);
+    _invalidateWorkoutProviders();
   }
 
   // ========== Cardio Page ==========

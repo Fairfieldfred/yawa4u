@@ -63,6 +63,19 @@ either direction. A repeating unit of a cycle is a "Period" (not always 7 days).
 their cycle term (Block/Mesocycle/…) in onboarding — read it via `trainingCycleTermProvider`,
 never hardcode "Training Cycle" in UI copy.
 
+**Rest-timer live card (lock-screen surfaces).** Beyond the plain deadline notification, the rest
+timer shows a live countdown card on the lock screen via `packages/live_card` — a path-dependency
+plugin exposing a platform-agnostic Dart `LiveCard` API over the `yawa4u/live_card` channel.
+Android renders it as an Android 16 "Live Update" promoted ongoing notification; iOS as a WidgetKit
+Live Activity (`ios/RestTimerWidget/`, deployment target 16.1) driven by a wall-clock deadline
+(`Text(timerInterval:)` — zero ActivityKit pushes while running; only start/±/pause/skip push).
+`RestTimerAttributes` compiles into both app and extension; no App Group is used, deliberately.
+Lifecycle gotchas: the alert notification (id 9001) and the card (id 9002) are **separate ids** —
+sharing one silenced the alert; Android's card self-retires via `timeoutAfter` but iOS must end the
+Live Activity explicitly (natural completion and card-id cancels route through `LiveCard`; alert-id
+cancels must NOT, or pausing tears down the card). The app manifest must declare the
+flutter_local_notifications `ActionBroadcastReceiver` or notification action buttons silently no-op.
+
 **Community & auth (the only cloud subsystem).** Everything else is local-first (Drift/SQLite).
 The community library is the exception: `CommunityService` does raw Firestore/Storage I/O against
 `community_templates` / `community_skins`, wrapped by `CommunityRepository`. `main.dart` calls
@@ -98,7 +111,8 @@ creates a draft cycle (see `community_template_detail_screen.dart`).
    SharedPreferences and re-derives remaining time on every tick/rebuild — never count ticks.
    It schedules an OS notification (`NotificationService`) at the deadline and fires a haptic at
    zero. Tests inject `restTimerClockProvider`, `restTimerHapticProvider`, and
-   `notificationServiceProvider` fakes.
+   `notificationServiceProvider` fakes. The lock-screen countdown card is a separate surface —
+   see "Rest-timer live card" above.
 
 ## Conventions
 

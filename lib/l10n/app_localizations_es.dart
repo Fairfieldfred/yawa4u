@@ -2757,6 +2757,98 @@ class AppLocalizationsEs extends AppLocalizations {
       'La sincronización combina datos: se añaden los elementos del otro dispositivo, no se elimina nada.';
 
   @override
+  String get cloudBackupSectionTitle => 'Copia en la nube';
+
+  @override
+  String get cloudBackupSectionSubtitle =>
+      'Guarda una copia de tus datos en tu cuenta para que sobreviva si pierdes o cambias de dispositivo.';
+
+  @override
+  String get cloudBackupOnboardingTitle => 'Copia de seguridad en la nube';
+
+  @override
+  String get cloudBackupOnboardingSubtitle =>
+      'Mantén tus datos de entrenamiento a salvo si pierdes o cambias de dispositivo. Requiere una cuenta gratuita con correo verificado.';
+
+  @override
+  String get cloudBackupEnableTitle => 'Copia en la nube';
+
+  @override
+  String get cloudBackupDisabledNote => 'Desactivar esta opción conserva tu copia existente en la nube.';
+
+  @override
+  String get cloudBackupAccountLabel => 'Cuenta';
+
+  @override
+  String get cloudBackupPendingSignIn => 'Inicia sesión con un correo verificado para empezar a hacer copias';
+
+  @override
+  String get cloudBackupFinishSignIn => 'Completar inicio de sesión';
+
+  @override
+  String get cloudBackupLastBackupLabel => 'Última copia';
+
+  @override
+  String get cloudBackupNever => 'Sin copias de seguridad';
+
+  @override
+  String get cloudBackupNowButton => 'Hacer copia ahora';
+
+  @override
+  String get cloudBackupInProgress => 'Haciendo copia…';
+
+  @override
+  String get cloudBackupSuccess => 'Copia guardada en la nube';
+
+  @override
+  String cloudBackupError(Object error) {
+    return 'No se pudo hacer la copia: $error';
+  }
+
+  @override
+  String get cloudBackupRestoreButton => 'Restaurar desde la nube';
+
+  @override
+  String get cloudBackupRestoreConfirmTitle => '¿Restaurar copia de la nube?';
+
+  @override
+  String get cloudBackupRestoreConfirmMessage =>
+      'Los elementos de la copia en la nube se añadirán a tus datos existentes. No se elimina nada y las entradas que ya existen se conservan sin cambios.';
+
+  @override
+  String cloudBackupRestoreSuccess(Object count) {
+    return 'Copia restaurada — $count elementos añadidos';
+  }
+
+  @override
+  String cloudBackupRestoreError(Object error) {
+    return 'No se pudo restaurar: $error';
+  }
+
+  @override
+  String get cloudBackupNoBackupFound => 'No se encontró ninguna copia en la nube para esta cuenta';
+
+  @override
+  String get cloudBackupOverwriteEmptyTitle => '¿Sobrescribir la copia de la nube?';
+
+  @override
+  String get cloudBackupOverwriteEmptyMessage =>
+      'Este dispositivo no tiene datos, pero tu copia en la nube sí. Hacer una copia ahora reemplazaría tu copia en la nube por una vacía. Si estás configurando un dispositivo nuevo, restaura primero desde la nube.';
+
+  @override
+  String get cloudBackupDeleteButton => 'Eliminar copia de la nube';
+
+  @override
+  String get cloudBackupDeleteConfirmTitle => '¿Eliminar copia de la nube?';
+
+  @override
+  String get cloudBackupDeleteConfirmMessage =>
+      'Esto elimina la copia de la nube. Los datos de este dispositivo no se ven afectados.';
+
+  @override
+  String get cloudBackupDeleted => 'Copia de la nube eliminada';
+
+  @override
   String emptyWorkoutCreateCycle(Object cycleTerm) {
     return 'Crear $cycleTerm';
   }

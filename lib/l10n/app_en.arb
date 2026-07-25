@@ -1700,6 +1700,48 @@
     }
   },
   "syncMergeNote": "Syncing merges data \u2014 items from the other device are added, nothing is deleted.",
+  "cloudBackupSectionTitle": "Cloud backup",
+  "cloudBackupSectionSubtitle": "Keep a copy of your data in your account so it survives losing or replacing your device.",
+  "cloudBackupOnboardingTitle": "Back up to the cloud",
+  "cloudBackupOnboardingSubtitle": "Keep your training data safe if you lose or replace your device. Requires a free account with a verified email.",
+  "cloudBackupEnableTitle": "Cloud backup",
+  "cloudBackupDisabledNote": "Turning this off keeps your existing cloud copy.",
+  "cloudBackupAccountLabel": "Account",
+  "cloudBackupPendingSignIn": "Sign in with a verified email to start backing up",
+  "cloudBackupFinishSignIn": "Finish sign-in",
+  "cloudBackupLastBackupLabel": "Last backup",
+  "cloudBackupNever": "Never backed up",
+  "cloudBackupNowButton": "Back up now",
+  "cloudBackupInProgress": "Backing up\u2026",
+  "cloudBackupSuccess": "Backed up to the cloud",
+  "cloudBackupError": "Couldn't back up: {error}",
+  "@cloudBackupError": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "cloudBackupRestoreButton": "Restore from cloud",
+  "cloudBackupRestoreConfirmTitle": "Restore cloud backup?",
+  "cloudBackupRestoreConfirmMessage": "Items from the cloud backup will be added to your existing data. Nothing is deleted, and entries that already exist are kept unchanged.",
+  "cloudBackupRestoreSuccess": "Cloud backup restored \u2014 {count} items added",
+  "@cloudBackupRestoreSuccess": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "cloudBackupRestoreError": "Couldn't restore: {error}",
+  "@cloudBackupRestoreError": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "cloudBackupNoBackupFound": "No cloud backup found for this account",
+  "cloudBackupOverwriteEmptyTitle": "Overwrite cloud backup?",
+  "cloudBackupOverwriteEmptyMessage": "This device has no data, but your cloud backup does. Backing up now would replace your cloud backup with an empty one. If you're setting up a new device, restore from the cloud first.",
+  "cloudBackupDeleteButton": "Delete cloud backup",
+  "cloudBackupDeleteConfirmTitle": "Delete cloud backup?",
+  "cloudBackupDeleteConfirmMessage": "This removes the backup from the cloud. Data on this device is not affected.",
+  "cloudBackupDeleted": "Cloud backup deleted",
   "emptyWorkoutCreateCycle": "Create {cycleTerm}",
   "@emptyWorkoutCreateCycle": {
     "placeholders": {

@@ -14,6 +14,7 @@ import '../../../data/services/wifi_sync_service.dart';
 import '../../../domain/providers/sync_providers.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../widgets/qr_scanner_view.dart';
+import 'widgets/cloud_backup_section.dart';
 
 /// Screen for WiFi-based sync between devices
 class SyncScreen extends ConsumerStatefulWidget {
@@ -394,6 +395,10 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
               ),
             ),
           ],
+          const SizedBox(height: 32),
+
+          // ─── Cloud backup ─────────────────────────────────────────────
+          const CloudBackupSection(),
           const SizedBox(height: 32),
 
           // Instructions

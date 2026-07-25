@@ -2741,6 +2741,98 @@ class AppLocalizationsEn extends AppLocalizations {
   String get syncMergeNote => 'Syncing merges data — items from the other device are added, nothing is deleted.';
 
   @override
+  String get cloudBackupSectionTitle => 'Cloud backup';
+
+  @override
+  String get cloudBackupSectionSubtitle =>
+      'Keep a copy of your data in your account so it survives losing or replacing your device.';
+
+  @override
+  String get cloudBackupOnboardingTitle => 'Back up to the cloud';
+
+  @override
+  String get cloudBackupOnboardingSubtitle =>
+      'Keep your training data safe if you lose or replace your device. Requires a free account with a verified email.';
+
+  @override
+  String get cloudBackupEnableTitle => 'Cloud backup';
+
+  @override
+  String get cloudBackupDisabledNote => 'Turning this off keeps your existing cloud copy.';
+
+  @override
+  String get cloudBackupAccountLabel => 'Account';
+
+  @override
+  String get cloudBackupPendingSignIn => 'Sign in with a verified email to start backing up';
+
+  @override
+  String get cloudBackupFinishSignIn => 'Finish sign-in';
+
+  @override
+  String get cloudBackupLastBackupLabel => 'Last backup';
+
+  @override
+  String get cloudBackupNever => 'Never backed up';
+
+  @override
+  String get cloudBackupNowButton => 'Back up now';
+
+  @override
+  String get cloudBackupInProgress => 'Backing up…';
+
+  @override
+  String get cloudBackupSuccess => 'Backed up to the cloud';
+
+  @override
+  String cloudBackupError(Object error) {
+    return 'Couldn\'t back up: $error';
+  }
+
+  @override
+  String get cloudBackupRestoreButton => 'Restore from cloud';
+
+  @override
+  String get cloudBackupRestoreConfirmTitle => 'Restore cloud backup?';
+
+  @override
+  String get cloudBackupRestoreConfirmMessage =>
+      'Items from the cloud backup will be added to your existing data. Nothing is deleted, and entries that already exist are kept unchanged.';
+
+  @override
+  String cloudBackupRestoreSuccess(Object count) {
+    return 'Cloud backup restored — $count items added';
+  }
+
+  @override
+  String cloudBackupRestoreError(Object error) {
+    return 'Couldn\'t restore: $error';
+  }
+
+  @override
+  String get cloudBackupNoBackupFound => 'No cloud backup found for this account';
+
+  @override
+  String get cloudBackupOverwriteEmptyTitle => 'Overwrite cloud backup?';
+
+  @override
+  String get cloudBackupOverwriteEmptyMessage =>
+      'This device has no data, but your cloud backup does. Backing up now would replace your cloud backup with an empty one. If you\'re setting up a new device, restore from the cloud first.';
+
+  @override
+  String get cloudBackupDeleteButton => 'Delete cloud backup';
+
+  @override
+  String get cloudBackupDeleteConfirmTitle => 'Delete cloud backup?';
+
+  @override
+  String get cloudBackupDeleteConfirmMessage =>
+      'This removes the backup from the cloud. Data on this device is not affected.';
+
+  @override
+  String get cloudBackupDeleted => 'Cloud backup deleted';
+
+  @override
   String emptyWorkoutCreateCycle(Object cycleTerm) {
     return 'Create $cycleTerm';
   }

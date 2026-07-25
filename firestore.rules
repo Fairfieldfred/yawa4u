@@ -51,5 +51,16 @@ service cloud.firestore {
       allow delete: if request.auth != null
                     && resource.data.authorUid == request.auth.uid;
     }
+
+    // ── User cloud backups (metadata doc; blob lives in Storage) ──────
+    match /user_backups/{uid} {
+      // Owners can read their own backup metadata.
+      allow read: if request.auth != null && request.auth.uid == uid;
+
+      // Owners with a verified email can write/delete their metadata.
+      allow write: if request.auth != null
+                   && request.auth.uid == uid
+                   && request.auth.token.email_verified == true;
+    }
   }
 }

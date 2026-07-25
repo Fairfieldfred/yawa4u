@@ -3,8 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/skins/skins.dart';
+import '../../../domain/providers/cloud_backup_providers.dart';
 import '../../../domain/providers/onboarding_providers.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../widgets/auth/email_link_prompt.dart';
 
 /// Training cycle terminology options
 enum TrainingCycleTerm {
@@ -66,12 +68,26 @@ class OnboardingTerminologyScreen extends ConsumerStatefulWidget {
 
 class _OnboardingTerminologyScreenState extends ConsumerState<OnboardingTerminologyScreen> {
   TrainingCycleTerm _selectedTerm = TrainingCycleTerm.mesocycle;
+  bool _cloudBackupOptIn = false;
 
   Future<void> _completeOnboarding() async {
     // Save terminology preference
     ref.read(userProfileProvider.notifier).updateTrainingCycleTerm(_selectedTerm.name);
 
+    // Cloud backup opt-in: enable the pref, then ask for the verified email
+    // it needs. Cancelling the sheet keeps backup enabled but pending —
+    // sign-in can be finished later from the Sync screen. No upload happens
+    // here (a fresh install has no data yet); the first backup runs on a
+    // later app launch or via "Back up now".
+    if (_cloudBackupOptIn) {
+      await ref.read(cloudBackupSettingsProvider.notifier).setEnabled(true);
+      if (mounted) {
+        await showEmailLinkPrompt(context);
+      }
+    }
+
     // Mark onboarding as complete
+    if (!mounted) return;
     await ref.read(userProfileProvider.notifier).completeOnboarding();
 
     // Land on Home — the Workout tab's empty state carries the
@@ -190,6 +206,25 @@ class _OnboardingTerminologyScreenState extends ConsumerState<OnboardingTerminol
                         ),
                       ),
                     );
+                  },
+                ),
+              ),
+            ),
+
+            // Cloud backup opt-in
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Card(
+                margin: EdgeInsets.zero,
+                child: SwitchListTile(
+                  secondary: const Icon(Icons.cloud_upload_outlined),
+                  title: Text(l10n.cloudBackupOnboardingTitle),
+                  subtitle: Text(l10n.cloudBackupOnboardingSubtitle),
+                  value: _cloudBackupOptIn,
+                  onChanged: (value) {
+                    setState(() {
+                      _cloudBackupOptIn = value;
+                    });
                   },
                 ),
               ),
