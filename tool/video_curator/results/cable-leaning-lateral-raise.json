@@ -1,0 +1,96 @@
+{
+  "exercise": "Cable Leaning Lateral Raise",
+  "workout": "Shoulders",
+  "pick": {
+    "videoId": "8jx2LKa8Afs",
+    "confidence": 0.6,
+    "reason": "It is the only candidate that directly demonstrates the leaning cable lateral raise itself with a form tip, whereas the higher-profile alternatives either question the movement, recommend doing something else instead, or cover dumbbell/general lateral raises.",
+    "source": "claude"
+  },
+  "startSeconds": 0,
+  "endSeconds": 21,
+  "chosen": {
+    "videoId": "8jx2LKa8Afs",
+    "title": "Leaning Cable Lateral Raises Pro Tip",
+    "channel": "Joseph Mencel",
+    "description": "",
+    "durationSeconds": 21,
+    "viewCount": 31819,
+    "embeddable": true
+  },
+  "candidates": [
+    {
+      "videoId": "KVauca12MF4",
+      "title": "Do This Instead of Leaning Cable Lateral Raises",
+      "channel": "TylerPath",
+      "description": "",
+      "durationSeconds": 18,
+      "viewCount": 8703828,
+      "embeddable": true
+    },
+    {
+      "videoId": "f_OGBg2KxgY",
+      "title": "Stop Messing Up Lateral Raises (Easy Fix)",
+      "channel": "Jeff Nippard",
+      "description": "Here are three simple ways to level up your lateral raise game and build bigger shoulders! Adjust the cable height for more tension in the stretched position, use wrist cuffs for a better mind-muscle connection, and stretch the cable across your body to get your side delts more stretched.",
+      "durationSeconds": 44,
+      "viewCount": 11591590,
+      "embeddable": true
+    },
+    {
+      "videoId": "8jx2LKa8Afs",
+      "title": "Leaning Cable Lateral Raises Pro Tip",
+      "channel": "Joseph Mencel",
+      "description": "",
+      "durationSeconds": 21,
+      "viewCount": 31819,
+      "embeddable": true
+    },
+    {
+      "videoId": "23VoAvqwSzo",
+      "title": "💪 Cable Lateral Raises — one of the best moves for building wide, 3D shoulders",
+      "channel": "SynerMuscle",
+      "description": "",
+      "durationSeconds": 13,
+      "viewCount": 742386,
+      "embeddable": true
+    },
+    {
+      "videoId": "lMJUXEvcMkQ",
+      "title": "Cable Lateral Raise Setup in 10 Seconds !✅",
+      "channel": "Aakash Wadhwani",
+      "description": "",
+      "durationSeconds": 11,
+      "viewCount": 2633488,
+      "embeddable": true
+    },
+    {
+      "videoId": "xrBcuPNTxLg",
+      "title": "Do THIS Next Time on Cable Lateral Raises for Muscle Growth",
+      "channel": "TylerPath",
+      "description": "",
+      "durationSeconds": 19,
+      "viewCount": 7432537,
+      "embeddable": true
+    },
+    {
+      "videoId": "HeovYNoZDRg",
+      "title": "A Better Way To Do Lateral Raises",
+      "channel": "Jeff Nippard",
+      "description": "Should you lean in or lean away when doing dumbbell lateral raises? In this short, I'll explore three different lateral raise techniques and explain why leaning in during dumbbell lateral raises might be the most effective approach for side delt growth!",
+      "durationSeconds": 48,
+      "viewCount": 17368962,
+      "embeddable": true
+    },
+    {
+      "videoId": "-_8jT_KQXbs",
+      "title": "Should you Lean on Cable Lateral Raises?",
+      "channel": "TylerPath",
+      "description": "",
+      "durationSeconds": 22,
+      "viewCount": 7141373,
+      "embeddable": true
+    }
+  ],
+  "curatedAt": "2026-07-25T14:47:07.257782"
+}

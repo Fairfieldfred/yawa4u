@@ -1,0 +1,96 @@
+{
+  "exercise": "Cable Rope Twist Curl",
+  "workout": "Biceps",
+  "pick": {
+    "videoId": "n8KIHmsSU9s",
+    "confidence": 0.62,
+    "reason": "JayCutlerTV is a reputable bodybuilding channel and this is a focused rope curl demonstration, the closest match to the rope twist curl movement, though its 19s length is shorter than ideal.",
+    "source": "claude"
+  },
+  "startSeconds": 0,
+  "endSeconds": 19,
+  "chosen": {
+    "videoId": "n8KIHmsSU9s",
+    "title": "ROPE CURLS FOR THICKER ARMS",
+    "channel": "JayCutlerTV",
+    "description": "Build thicker, stronger arms by targeting the brachialis with this rope curl variation. #bodybuilding #biceps",
+    "durationSeconds": 19,
+    "viewCount": 680924,
+    "embeddable": true
+  },
+  "candidates": [
+    {
+      "videoId": "n8KIHmsSU9s",
+      "title": "ROPE CURLS FOR THICKER ARMS",
+      "channel": "JayCutlerTV",
+      "description": "Build thicker, stronger arms by targeting the brachialis with this rope curl variation. #bodybuilding #biceps",
+      "durationSeconds": 19,
+      "viewCount": 680924,
+      "embeddable": true
+    },
+    {
+      "videoId": "fSfgRE_vcOo",
+      "title": "Rope Curls: Know The Difference ⚠️ #arms",
+      "channel": "Hazzytrainer",
+      "description": "",
+      "durationSeconds": 13,
+      "viewCount": 699378,
+      "embeddable": true
+    },
+    {
+      "videoId": "2MUEL4nL6hA",
+      "title": "How to PROPERLY Cable Bicep Curl For Bigger Biceps (EASY FIX)",
+      "channel": "Colossus Fitness",
+      "description": "FREE GIFTS 👀:\n➢Free form guide: https://www.colossusfitness.com/free-form-guide\n➢Fat loss guide: https://www.colossusfitness.com/fat-loss-guide\n\nONLINE COACHING 💪:\n➢https://www.colossusfitness.com/\n\nInstagram: \n➢ My Instagram: https://www.instagram.com/colossusfit/\n\nIn this video, I show you how to do a proper cable curl for the best results possible. I want you to continue to get the results you deserve, so listen to these tips and add them in every-time you do cable curls. \n\nPodcast (Fit, Healthy & Happy):\nItunes: http://bit.ly/FitHappyHealthyPodcast\nSpotify: http://bit.ly/FitHealhyHappyPodcastSpotify\n\nCheck us out on our other media:\n➢Instagram: http://bit.ly/InstagramColossusFitness",
+      "durationSeconds": 73,
+      "viewCount": 99398,
+      "embeddable": true
+    },
+    {
+      "videoId": "YC9QZiti-40",
+      "title": "How To Perform Cable Hammer Curls For Maximum Bicep Gains!",
+      "channel": "Daniel Antonie",
+      "description": "",
+      "durationSeconds": 16,
+      "viewCount": 1073259,
+      "embeddable": true
+    },
+    {
+      "videoId": "dyEZvuMZXsY",
+      "title": "You Should Start Doing Cable Curls Like This",
+      "channel": "TylerPath",
+      "description": "",
+      "durationSeconds": 15,
+      "viewCount": 3165618,
+      "embeddable": true
+    },
+    {
+      "videoId": "f3x4mtWEPa8",
+      "title": "Better way to do Cable Bicep Curls to Maximize Biceps Growth",
+      "channel": "TylerPath",
+      "description": "",
+      "durationSeconds": 17,
+      "viewCount": 1558637,
+      "embeddable": true
+    },
+    {
+      "videoId": "LKGKUfoQKTs",
+      "title": "Best Way to do Rope Curls for Biceps Growth",
+      "channel": "TylerPath",
+      "description": "",
+      "durationSeconds": 12,
+      "viewCount": 870470,
+      "embeddable": true
+    },
+    {
+      "videoId": "4XQLqBelbPw",
+      "title": "Cable Bicep Curl Tutorial: #biceps #bicepcurls #gymtutorial",
+      "channel": "Luke and Sarah Bond",
+      "description": "Master the cable bicep curl with this step-by-step tutorial! Luke and Sarah Bond, certified personal trainers, guide you through proper form and technique to maximize your bicep gains. Using a cable machine, this exercise provides constant tension on the biceps for optimal muscle growth. Strengthen your arms and sculpt your biceps with this effective isolation exercise. Subscribe now for more fitness tutorials and workout tips!",
+      "durationSeconds": 18,
+      "viewCount": 613667,
+      "embeddable": true
+    }
+  ],
+  "curatedAt": "2026-07-25T14:48:28.751746"
+}

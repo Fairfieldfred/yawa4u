@@ -1,0 +1,96 @@
+{
+  "exercise": "Kettlebell Reverse Lunge",
+  "workout": "Quads/Glutes",
+  "pick": {
+    "videoId": "y2jz7ot6r2I",
+    "confidence": 0.9,
+    "reason": "A dedicated 2-minute kettlebell reverse lunge tutorial from a reputable kettlebell-focused trainer, exactly matching the exercise, unlike the other candidates which are ultra-short Shorts or cover variants like goblet lunges.",
+    "source": "claude"
+  },
+  "startSeconds": 0,
+  "endSeconds": 122,
+  "chosen": {
+    "videoId": "y2jz7ot6r2I",
+    "title": "Kettlebell Reverse Lunge: The Compete Exercise Tutorial",
+    "channel": "Greg Brookes",
+    "description": "http://www.gbpersonaltraining.com/kettlebell-reverse-lunge-exercise/ for more on this and other Kettlebell Exercises please visit GB Personal Training",
+    "durationSeconds": 122,
+    "viewCount": 140627,
+    "embeddable": true
+  },
+  "candidates": [
+    {
+      "videoId": "y2jz7ot6r2I",
+      "title": "Kettlebell Reverse Lunge: The Compete Exercise Tutorial",
+      "channel": "Greg Brookes",
+      "description": "http://www.gbpersonaltraining.com/kettlebell-reverse-lunge-exercise/ for more on this and other Kettlebell Exercises please visit GB Personal Training",
+      "durationSeconds": 122,
+      "viewCount": 140627,
+      "embeddable": true
+    },
+    {
+      "videoId": "uEnyqgbDyI0",
+      "title": "How to do a Single Rack Kettlebell Reverse Lunge, easy steps | Coach Sean #coachsean #howto #fitness",
+      "channel": "Coach Sean",
+      "description": "How to do a Single Rack Kettlebell Reverse Lunge, easy steps\n#coachsean #howto #fitness #fitnessmotivation #howtodo #exercise",
+      "durationSeconds": 34,
+      "viewCount": 30106,
+      "embeddable": true
+    },
+    {
+      "videoId": "niq8QoGEXfE",
+      "title": "Goblet Reverse Lunge [How To]",
+      "channel": "Le Sweat",
+      "description": "How to do goblet reverse lunges using a kettlebell. This exercise can also be done with a dumbbell.\n\nFor follow-along workouts and gym guides, check out www.le-sweat.com!",
+      "durationSeconds": 16,
+      "viewCount": 19982,
+      "embeddable": true
+    },
+    {
+      "videoId": "gWN9epxFqX8",
+      "title": "Kettlebell Goblet Reverse Lunge Exercise | Onnit Tutorial",
+      "channel": "Onnit",
+      "description": "This is a powerful movement to build incredible leg and core strength as well as balance. Stepping back will put less stress on your knees, but requires a bit more coordination. \n► Full-Body Kettlebell Workout for Beginners: https://bit.ly/3LzCgyX\n\nKeep your core engaged throughout the movement to avoid rounding your shoulders forward as you start to fatigue.\n\n| How to do the kettlebell goblet reverse lunge exercise |\n\nStep 1: Two hand clean a kettlebell into the goblet position\n\nStep 2: Step back with your right leg until your right thigh is perpendicular to the ground.\n\nStep 3: Drive through both feet until standing fully in the starting position\n\nStep 4: Lower yourself back down and gently touch the ground with your knee. Repeat\n\nTips and Safety: Maintain core tension and thoracic extension to avoid rounding forward. Make sure you are using a pair of kettlebells you feel comfortable with in the rack position. Avoid slamming your knee into the ground on the descent.\n\nIf you like what you watched, please subscribe to our channel and give us a like so others can find us too!\n\n========================================­=====\n\n| Connect with Onnit |\n► Facebook: http://bit.ly/38h9xdc \n► Instagram: http://bit.ly/38gElef \n► Twitter: http://bit.ly/2uRtpGg \n► Pinterest: http://bit.ly/32G2Yjh \n\nOur mission is to inspire peak performance through a combination of unique products and actionable information. Combining bleeding-edge science, earth-grown nutrients, and time-tested strategies from top athletes and medical professionals, we are dedicated to providing our customers with supplements, foods, and fitness equipment aimed at helping people achieve a new level of well-being we call Total Human Optimization.",
+      "durationSeconds": 22,
+      "viewCount": 102885,
+      "embeddable": true
+    },
+    {
+      "videoId": "0PeWMg7AIsQ",
+      "title": "❌WRONG vs ✅RIGHT - REVERSE LUNGE #lunges #lunge #legday #legdayworkouts #reverselunges #legexercise",
+      "channel": "Katja Believe",
+      "description": "",
+      "durationSeconds": 9,
+      "viewCount": 271702,
+      "embeddable": true
+    },
+    {
+      "videoId": "38xlLGfguz4",
+      "title": "Front vs reverse lunge ✅",
+      "channel": "Oliver Sjostrom",
+      "description": "",
+      "durationSeconds": 9,
+      "viewCount": 5839665,
+      "embeddable": true
+    },
+    {
+      "videoId": "q0XgDzjvDMA",
+      "title": "HOW TO REVERSE LUNGE for the booty #reverselunge #glutes #gluteworkout",
+      "channel": "WORKOUT WITH GINA",
+      "description": "",
+      "durationSeconds": 86,
+      "viewCount": 3085366,
+      "embeddable": true
+    },
+    {
+      "videoId": "vVF2I4heSJU",
+      "title": "Kettlebell Lunges",
+      "channel": "Adriell mayes",
+      "description": "",
+      "durationSeconds": 10,
+      "viewCount": 64894,
+      "embeddable": true
+    }
+  ],
+  "curatedAt": "2026-07-27T06:11:49.075965"
+}

@@ -1,0 +1,96 @@
+{
+  "exercise": "Pullup (Corn Cob)",
+  "workout": "Back",
+  "pick": {
+    "videoId": "UAHtAgJUFe8",
+    "confidence": 0.75,
+    "reason": "A dedicated 60-second 'How to' demonstration of the exact exercise from a fitness channel, making it the most instructional and focused choice versus the casual self-recorded P90X clips.",
+    "source": "claude"
+  },
+  "startSeconds": 0,
+  "endSeconds": 60,
+  "chosen": {
+    "videoId": "UAHtAgJUFe8",
+    "title": "How to do a Corn Cob Pull Up",
+    "channel": "I Know Fit",
+    "description": "",
+    "durationSeconds": 60,
+    "viewCount": 2962,
+    "embeddable": true
+  },
+  "candidates": [
+    {
+      "videoId": "UAHtAgJUFe8",
+      "title": "How to do a Corn Cob Pull Up",
+      "channel": "I Know Fit",
+      "description": "",
+      "durationSeconds": 60,
+      "viewCount": 2962,
+      "embeddable": true
+    },
+    {
+      "videoId": "1bm-jVc-ARI",
+      "title": "Corn-Cob Pull Ups | Day #127 WellFit 365",
+      "channel": "WellFit Personal Training",
+      "description": "Ive stated before that I'm a huge fan of the pull up exercise and all of its many variations. This one of those variations and its worth a try.\n\nThis is a great way to add some extra time under tension during your pull ups.\nStart from full extension of arms as always and lift to the top part of the pull up. While in that position extend one arm out sideways and push your body along the length of the bar. Once you reach full extension of that arm, switch sides and move your body the length of the bar until the other arm is fully extended sideways.\nIt should look like your face is sliding along the length of the bar, just like when you eat corn off the cob. Hence the awesome name!\n\nThese are more challenging than regular pull ups so your rep number will be down but time under tension should be greater",
+      "durationSeconds": 82,
+      "viewCount": 97,
+      "embeddable": true
+    },
+    {
+      "videoId": "FBY_YuFpgo4",
+      "title": "How to do Corn Cob pull ups",
+      "channel": "The WOD Side",
+      "description": "",
+      "durationSeconds": 23,
+      "viewCount": 1023,
+      "embeddable": true
+    },
+    {
+      "videoId": "APx029zOnNQ",
+      "title": "Corn cob pull ups #corncobpullups",
+      "channel": "Cooking at Home with Chef Jeff",
+      "description": "Pull ups and chin ups are a great upper body workout! Here is a link to the pull up bar https://amzn.to/2xlabqq",
+      "durationSeconds": 80,
+      "viewCount": 155,
+      "embeddable": true
+    },
+    {
+      "videoId": "Y_YSf8U_O0w",
+      "title": "p90x Corn Cob Pull Ups",
+      "channel": "Andrew Kovski",
+      "description": "p90x Corn Cob Pull Ups, crazy..",
+      "durationSeconds": 47,
+      "viewCount": 60988,
+      "embeddable": true
+    },
+    {
+      "videoId": "k3_aaYhY6y0",
+      "title": "P90X Corn Cob Pull-ups",
+      "channel": "BlkBallsMcGraw",
+      "description": "Probably the hardest pull up maneuver I ever did\nTaken from P90X \"Corn Cob Pull-ups\"\n\nhttps://www.facebook.com/pages/Super-Insanity-Mans-Fitness-Page/185149138191131",
+      "durationSeconds": 63,
+      "viewCount": 2744,
+      "embeddable": true
+    },
+    {
+      "videoId": "5WHdim80e7o",
+      "title": "The BIGGEST Pull-Up Problem (No One Talks About!)",
+      "channel": "Calisthenicmovement",
+      "description": "𝗢𝘂𝗿 𝗪𝗼𝗿𝗸𝗼𝘂𝘁 𝗣𝗿𝗼𝗴𝗿𝗮𝗺𝘀 ➡️ http://calimove.com ⬅️\n\n✔️Instagram ➢ https://instagram.com/calimove\n✔️Facebook ➢ https://www.facebook.com/pages/Calisthenic-Movement/154846744637610\n\nMusic: ➢ http://www.epidemicsound.com/",
+      "durationSeconds": 359,
+      "viewCount": 3191515,
+      "embeddable": true
+    },
+    {
+      "videoId": "itCFEGO7VNQ",
+      "title": "Corn Cob pull ups",
+      "channel": "StrengthWarrior",
+      "description": "Corn Cob pull ups",
+      "durationSeconds": 19,
+      "viewCount": 448,
+      "embeddable": true
+    }
+  ],
+  "curatedAt": "2026-07-27T06:24:47.189707"
+}

@@ -9,6 +9,7 @@ import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 import '../../../core/constants/enums.dart';
 import '../../../core/constants/equipment_types.dart';
+import '../../../core/constants/exercise_videos.g.dart';
 import '../../../core/constants/muscle_groups.dart';
 import '../../../data/services/exercise_name_localizer.dart';
 import '../../../core/theme/skins/skins.dart';
@@ -22,49 +23,33 @@ import '../../../l10n/app_localizations.dart';
 /// Check if running on desktop platform
 bool get _isDesktop => Platform.isMacOS || Platform.isWindows || Platform.isLinux;
 
-/// Hardcoded YouTube video URLs for exercises
-/// Add video URLs here - supports full URLs or just video IDs
+/// Hand-curated YouTube video URLs, keyed by canonical exercise name.
+/// These override the generated map (`generatedExerciseVideos`) — use for
+/// hand-picked timestamps or better picks than the curation tool found.
+/// Supports full URLs or bare video IDs. Don't add empty-string entries;
+/// they would shadow the generated pick for that exercise.
 const Map<String, String> _exerciseVideos = {
-  // Chest
-  'Bench Press': 'https://www.youtube.com/watch?v=fGm-ef-4PVk', // TODO: Add YouTube URL
+  'Bench Press': 'https://www.youtube.com/watch?v=fGm-ef-4PVk',
   'Bench Press (Incline)': 'https://www.youtube.com/watch?v=fGm-ef-4PVk',
   'Incline Dumbbell Press': 'https://www.youtube.com/watch?v=p2t9daxLpB8',
-  'Dumbbell Bench Press': '',
-
-  // Back
-  'Barbell Row': '',
-  'Cable Row': '',
-  'Lat Pulldown': '',
-  'Face Pull': '',
-
-  // Shoulders
-  'Overhead Press': '',
   'Dumbbell Lateral Raise': 'https://youtu.be/v_ZkxWzYnMc?t=215',
-
-  // Arms
   'Barbell Curl': 'https://youtu.be/i1YgFZB6alI?t=139',
   'Hammer Curl': 'https://youtu.be/Kd3tbUnbueU',
-  'Cable Triceps Pushdown (Bar)': '',
-  'Tricep Pushdown': '',
-  'Barbell Overhead Triceps Extension': '',
-  'Overhead Tricep Extension': '',
-  'Assisted Dip': '',
-
-  // Legs
-  'Barbell Squat': '',
-  'Front Squat': '',
-  'Belt Squat': '',
-  'Bulgarian Split Squat': '',
-  'Leg Press': '',
-  'Leg Extension': '',
-  'Leg Curl': '',
-  'Romanian Deadlift': '',
-
-  // Calves
-  'Calf Raise': '',
-  'Seated Calf Raise': '',
-  'Belt Squat Calves': '',
 };
+
+/// Resolves the video for an exercise: an explicit per-exercise `videoUrl`
+/// (custom exercises) wins, then the hand-curated map, then the generated
+/// curation map. Empty strings are treated as absent.
+String? resolveExerciseVideoUrl(Exercise exercise) {
+  for (final url in [
+    exercise.videoUrl,
+    _exerciseVideos[exercise.name],
+    generatedExerciseVideos[exercise.name],
+  ]) {
+    if (url != null && url.isNotEmpty) return url;
+  }
+  return null;
+}
 
 /// Dialog for displaying exercise information with Detail and History tabs.
 class ExerciseInfoDialog extends ConsumerStatefulWidget {
@@ -88,8 +73,7 @@ class _ExerciseInfoDialogState extends ConsumerState<ExerciseInfoDialog> {
   }
 
   void _initializeYoutubeController() {
-    // Try exercise.videoUrl first, then fall back to hardcoded map
-    _videoUrl = widget.exercise.videoUrl ?? _exerciseVideos[widget.exercise.name];
+    _videoUrl = resolveExerciseVideoUrl(widget.exercise);
     final videoId = _extractVideoId(_videoUrl);
     if (videoId != null) {
       _youtubeController = YoutubePlayerController(
@@ -806,8 +790,7 @@ class _ExerciseInfoDialogState extends ConsumerState<ExerciseInfoDialog> {
   }
 
   Future<void> _openYouTube() async {
-    // Try exercise.videoUrl first, then fall back to hardcoded map
-    final url = widget.exercise.videoUrl ?? _exerciseVideos[widget.exercise.name];
+    final url = resolveExerciseVideoUrl(widget.exercise);
     if (url == null || url.isEmpty) return;
 
     final uri = Uri.parse(url);

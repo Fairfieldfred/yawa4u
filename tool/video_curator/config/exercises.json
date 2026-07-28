@@ -1,0 +1,1722 @@
+[
+  {
+    "workout": "Shoulders",
+    "exercise": "45 Degree Cable Rear Delt Pull",
+    "searchHints": "Cable"
+  },
+  {
+    "workout": "Abs",
+    "exercise": "Ab Wheel",
+    "searchHints": "Bodyweight Only"
+  },
+  {
+    "workout": "Abs",
+    "exercise": "Ab Ripper X",
+    "searchHints": "Bodyweight Only"
+  },
+  {
+    "workout": "Quads",
+    "exercise": "Air Squats",
+    "searchHints": "Bodyweight Only"
+  },
+  {
+    "workout": "Shoulders",
+    "exercise": "Arnold Press",
+    "searchHints": "Dumbbell"
+  },
+  {
+    "workout": "Triceps",
+    "exercise": "Assisted Dip",
+    "searchHints": "Band Assistance"
+  },
+  {
+    "workout": "Back",
+    "exercise": "Assisted Pullup (Normal Grip)",
+    "searchHints": "Band Assistance"
+  },
+  {
+    "workout": "Back",
+    "exercise": "Assisted Pullup (Parallel Grip)",
+    "searchHints": "Band Assistance"
+  },
+  {
+    "workout": "Back",
+    "exercise": "Assisted Pullup (Underhand Grip)",
+    "searchHints": "Band Assistance"
+  },
+  {
+    "workout": "Back",
+    "exercise": "Assisted Pullup (Wide Grip)",
+    "searchHints": "Band Assistance"
+  },
+  {
+    "workout": "Back",
+    "exercise": "Back Extension",
+    "searchHints": "Bodyweight Loadable"
+  },
+  {
+    "workout": "Hamstrings",
+    "exercise": "Back Raise (45 degree)",
+    "searchHints": "Bodyweight Only"
+  },
+  {
+    "workout": "Hamstrings",
+    "exercise": "Back Raise (Glute Ham Deck)",
+    "searchHints": "Bodyweight Only"
+  },
+  {
+    "workout": "Back",
+    "exercise": "Barbell Bent Over Row",
+    "searchHints": "Barbell"
+  },
+  {
+    "workout": "Traps",
+    "exercise": "Barbell Bent Over Shrug",
+    "searchHints": "Barbell"
+  },
+  {
+    "workout": "Biceps",
+    "exercise": "Barbell Curl",
+    "searchHints": "Barbell"
+  },
+  {
+    "workout": "Shoulders",
+    "exercise": "Barbell Facepull",
+    "searchHints": "Barbell"
+  },
+  {
+    "workout": "Back",
+    "exercise": "Barbell Flexion Row",
+    "searchHints": "Barbell"
+  },
+  {
+    "workout": "Shoulders",
+    "exercise": "Barbell Front Raise",
+    "searchHints": "Barbell"
+  },
+  {
+    "workout": "Shoulders",
+    "exercise": "Barbell Front Raise (EZ Bar Underhand)",
+    "searchHints": "Barbell"
+  },
+  {
+    "workout": "Hamstrings",
+    "exercise": "Barbell Good Morning",
+    "searchHints": "Barbell"
+  },
+  {
+    "workout": "Glutes",
+    "exercise": "Barbell Hip Thrust",
+    "searchHints": "Barbell"
+  },
+  {
+    "workout": "Triceps",
+    "exercise": "Barbell Overhead Triceps Extension",
+    "searchHints": "Barbell"
+  },
+  {
+    "workout": "Back",
+    "exercise": "Barbell Row to Chest",
+    "searchHints": "Barbell"
+  },
+  {
+    "workout": "Shoulders",
+    "exercise": "Barbell Shoulder Press",
+    "searchHints": "Barbell"
+  },
+  {
+    "workout": "Traps",
+    "exercise": "Barbell Shrug",
+    "searchHints": "Barbell"
+  },
+  {
+    "workout": "Triceps",
+    "exercise": "Barbell Skullcrusher",
+    "searchHints": "Barbell"
+  },
+  {
+    "workout": "Quads",
+    "exercise": "Barbell Split Squat",
+    "searchHints": "Barbell"
+  },
+  {
+    "workout": "Quads",
+    "exercise": "Barbell Squat",
+    "searchHints": "Barbell"
+  },
+  {
+    "workout": "Forearms",
+    "exercise": "Barbell Standing Wrist Curl",
+    "searchHints": "Barbell"
+  },
+  {
+    "workout": "Shoulders",
+    "exercise": "Barbell Upright Row",
+    "searchHints": "Barbell"
+  },
+  {
+    "workout": "Biceps",
+    "exercise": "Bayesian Curl",
+    "searchHints": "Cable"
+  },
+  {
+    "workout": "Quads",
+    "exercise": "Belt Squat",
+    "searchHints": "Cable"
+  },
+  {
+    "workout": "Calves",
+    "exercise": "Belt Calf Raises",
+    "searchHints": "Cable"
+  },
+  {
+    "workout": "Obliques",
+    "exercise": "Bicycle Crunch",
+    "searchHints": "Bodyweight Only"
+  },
+  {
+    "workout": "Chest",
+    "exercise": "Bench Press",
+    "searchHints": "Barbell"
+  },
+  {
+    "workout": "Chest",
+    "exercise": "Bench Press (Incline)",
+    "searchHints": "Barbell"
+  },
+  {
+    "workout": "Chest",
+    "exercise": "Bench Press (Decline)",
+    "searchHints": "Barbell"
+  },
+  {
+    "workout": "Quads",
+    "exercise": "Bodyweight Squat",
+    "searchHints": "Bodyweight Only"
+  },
+  {
+    "workout": "Quads",
+    "exercise": "Bulgarian Split Squat",
+    "searchHints": "Dumbbell"
+  },
+  {
+    "workout": "Abductors",
+    "exercise": "Cable Abduction",
+    "searchHints": "Cable"
+  },
+  {
+    "workout": "Traps",
+    "exercise": "Cable Bent Over Shrug",
+    "searchHints": "Cable"
+  },
+  {
+    "workout": "Chest",
+    "exercise": "Cable Chest Press",
+    "searchHints": "Cable"
+  },
+  {
+    "workout": "Shoulders",
+    "exercise": "Cable Cross Body Bent Lateral Raise",
+    "searchHints": "Cable"
+  },
+  {
+    "workout": "Shoulders",
+    "exercise": "Cable Cross Body Lateral Raise",
+    "searchHints": "Cable"
+  },
+  {
+    "workout": "Biceps",
+    "exercise": "Cable Curl",
+    "searchHints": "Cable"
+  },
+  {
+    "workout": "Biceps",
+    "exercise": "Cable Curl (EZ Bar)",
+    "searchHints": "Cable"
+  },
+  {
+    "workout": "Biceps",
+    "exercise": "Cable Curl (Single Arm)",
+    "searchHints": "Cable"
+  },
+  {
+    "workout": "Back",
+    "exercise": "Cable Flexion Row",
+    "searchHints": "Cable"
+  },
+  {
+    "workout": "Chest",
+    "exercise": "Cable Flye",
+    "searchHints": "Cable"
+  },
+  {
+    "workout": "Chest",
+    "exercise": "Cable Flye (Bent Over)",
+    "searchHints": "Cable"
+  },
+  {
+    "workout": "Chest",
+    "exercise": "Cable Flye (Underhand)",
+    "searchHints": "Cable"
+  },
+  {
+    "workout": "Glutes",
+    "exercise": "Cable Glute Kickback",
+    "searchHints": "Cable"
+  },
+  {
+    "workout": "Biceps",
+    "exercise": "Cable Hammer Curl",
+    "searchHints": "Cable"
+  },
+  {
+    "workout": "Glutes",
+    "exercise": "Cable Kickback",
+    "searchHints": "Cable"
+  },
+  {
+    "workout": "Shoulders",
+    "exercise": "Cable Lateral Raise (Single Arm)",
+    "searchHints": "Cable"
+  },
+  {
+    "workout": "Shoulders",
+    "exercise": "Cable Leaning Lateral Raise",
+    "searchHints": "Cable"
+  },
+  {
+    "workout": "Triceps",
+    "exercise": "Cable Overhead triceps Extension",
+    "searchHints": "Cable"
+  },
+  {
+    "workout": "Glutes",
+    "exercise": "Cable Pull Through",
+    "searchHints": "Cable"
+  },
+  {
+    "workout": "Back",
+    "exercise": "Cable Pullover",
+    "searchHints": "Cable"
+  },
+  {
+    "workout": "Obliques",
+    "exercise": "Cable Pallof Press",
+    "searchHints": "Cable"
+  },
+  {
+    "workout": "Abs",
+    "exercise": "Cable Rope Crunch",
+    "searchHints": "Cable"
+  },
+  {
+    "workout": "Shoulders",
+    "exercise": "Cable Rope Facepull",
+    "searchHints": "Cable"
+  },
+  {
+    "workout": "Shoulders",
+    "exercise": "Cable Rope Facepull (Kneeling)",
+    "searchHints": "Cable"
+  },
+  {
+    "workout": "Biceps",
+    "exercise": "Cable Rope Twist Curl",
+    "searchHints": "Cable"
+  },
+  {
+    "workout": "Traps",
+    "exercise": "Cable Shrug",
+    "searchHints": "Cable"
+  },
+  {
+    "workout": "Traps",
+    "exercise": "Cable Side Shrug",
+    "searchHints": "Cable"
+  },
+  {
+    "workout": "Shoulders",
+    "exercise": "Cable Single Arm Rear Delt Raise",
+    "searchHints": "Cable"
+  },
+  {
+    "workout": "Traps",
+    "exercise": "Cable Single Arm Side Shrug",
+    "searchHints": "Cable"
+  },
+  {
+    "workout": "Shoulders",
+    "exercise": "Cable Shoulder Press",
+    "searchHints": "Cable"
+  },
+  {
+    "workout": "Triceps",
+    "exercise": "Cable Triceps Pushdown (Bar)",
+    "searchHints": "Cable"
+  },
+  {
+    "workout": "Triceps",
+    "exercise": "Cable Triceps Pushdown (Rope)",
+    "searchHints": "Cable"
+  },
+  {
+    "workout": "Triceps",
+    "exercise": "Cable Triceps Pushdown (SIngle Arm)",
+    "searchHints": "Cable"
+  },
+  {
+    "workout": "Shoulders",
+    "exercise": "Cable Upright Row",
+    "searchHints": "Cable"
+  },
+  {
+    "workout": "Obliques",
+    "exercise": "Cable Woodchop (High to Low)",
+    "searchHints": "Cable"
+  },
+  {
+    "workout": "Obliques",
+    "exercise": "Cable Woodchop (Low to High)",
+    "searchHints": "Cable"
+  },
+  {
+    "workout": "Forearms",
+    "exercise": "Cable Wrist Curl",
+    "searchHints": "Cable"
+  },
+  {
+    "workout": "Calves",
+    "exercise": "Calf Machine",
+    "searchHints": "Machine"
+  },
+  {
+    "workout": "Back",
+    "exercise": "Cambered Bar Row",
+    "searchHints": "Barbell"
+  },
+  {
+    "workout": "Triceps",
+    "exercise": "Chair Dips",
+    "searchHints": "Bodyweight Only"
+  },
+  {
+    "workout": "Back",
+    "exercise": "Chest Supported Row",
+    "searchHints": "Machine"
+  },
+  {
+    "workout": "Biceps",
+    "exercise": "Concentration Curl",
+    "searchHints": "Dumbbell"
+  },
+  {
+    "workout": "Biceps",
+    "exercise": "Congdon Curl",
+    "searchHints": "Dumbbell"
+  },
+  {
+    "workout": "Biceps",
+    "exercise": "Crouching Cowen Curls",
+    "searchHints": "Dumbbell"
+  },
+  {
+    "workout": "Glutes",
+    "exercise": "Deadlift",
+    "searchHints": "Barbell"
+  },
+  {
+    "workout": "Glutes",
+    "exercise": "Deadlift (Deficit 25's)",
+    "searchHints": "Barbell"
+  },
+  {
+    "workout": "Glutes",
+    "exercise": "Deadlift (Deficit)",
+    "searchHints": "Barbell"
+  },
+  {
+    "workout": "Glutes",
+    "exercise": "Deadlift (Sumo Stance)",
+    "searchHints": "Barbell"
+  },
+  {
+    "workout": "Chest",
+    "exercise": "Dip (Chest-Focused)",
+    "searchHints": "Bodyweight Only"
+  },
+  {
+    "workout": "Triceps",
+    "exercise": "Dip (Triceps-Focused)",
+    "searchHints": "Bodyweight Only"
+  },
+  {
+    "workout": "Triceps",
+    "exercise": "Dip (Weighted, Triceps Focused)",
+    "searchHints": "Bodyweight Loadable"
+  },
+  {
+    "workout": "Chest",
+    "exercise": "Dip (Weighted, Chest-Focused",
+    "searchHints": "Bodyweight Loadable"
+  },
+  {
+    "workout": "Triceps",
+    "exercise": "Dip Machine",
+    "searchHints": "Machine"
+  },
+  {
+    "workout": "Obliques",
+    "exercise": "Dumbbell Side Bend",
+    "searchHints": "Dumbbell"
+  },
+  {
+    "workout": "Forearms",
+    "exercise": "Dumbbell Bench Wrist Curl",
+    "searchHints": "Dumbbell"
+  },
+  {
+    "workout": "Shoulders",
+    "exercise": "Dumbbell Bent Lateral Raise",
+    "searchHints": "Dumbbell"
+  },
+  {
+    "workout": "Shoulders",
+    "exercise": "Dumbbell Bent Over Shrug",
+    "searchHints": "Dumbbell"
+  },
+  {
+    "workout": "Biceps",
+    "exercise": "Dumbbell Curl (2-Arm)",
+    "searchHints": "Dumbbell"
+  },
+  {
+    "workout": "Biceps",
+    "exercise": "Dumbbell Curl (Alternating)",
+    "searchHints": "Dumbbell"
+  },
+  {
+    "workout": "Biceps",
+    "exercise": "Dumbbell Curl (Incline)",
+    "searchHints": "Dumbbell"
+  },
+  {
+    "workout": "Shoulders",
+    "exercise": "Dumbbell Facepull",
+    "searchHints": "Dumbbell"
+  },
+  {
+    "workout": "Shoulders",
+    "exercise": "Dumbbell Facepull (Incline)",
+    "searchHints": "Dumbbell"
+  },
+  {
+    "workout": "Grip",
+    "exercise": "Dumbbell Farmer's Walk",
+    "searchHints": "Dumbbell"
+  },
+  {
+    "workout": "Chest",
+    "exercise": "Dumbbell Flye (Flat)",
+    "searchHints": "Dumbbell"
+  },
+  {
+    "workout": "Chest",
+    "exercise": "Dumbbell Flye (Incline)",
+    "searchHints": "Dumbbell"
+  },
+  {
+    "workout": "Shoulders",
+    "exercise": "Dumbbell Front Raise",
+    "searchHints": "Dumbbell"
+  },
+  {
+    "workout": "Quads",
+    "exercise": "Dumbbell Front Squat",
+    "searchHints": "Dumbbell"
+  },
+  {
+    "workout": "Glutes",
+    "exercise": "Dumbbell Hip Thrust (Single Leg)",
+    "searchHints": "Dumbbell"
+  },
+  {
+    "workout": "Shoulders",
+    "exercise": "Dumbbell Incline Y Raises",
+    "searchHints": "Dumbbell"
+  },
+  {
+    "workout": "Shoulders",
+    "exercise": "Dumbbell Lateral Raise",
+    "searchHints": "Dumbbell"
+  },
+  {
+    "workout": "Shoulders",
+    "exercise": "Dumbbell Lateral Raise (Incline)",
+    "searchHints": "Dumbbell"
+  },
+  {
+    "workout": "Shoulders",
+    "exercise": "Dumbbell Lateral Raise (Super Rom)",
+    "searchHints": "Dumbbell"
+  },
+  {
+    "workout": "Shoulders",
+    "exercise": "Dumbbell Lateral Raise (Thumbs Down)",
+    "searchHints": "Dumbbell"
+  },
+  {
+    "workout": "Shoulders",
+    "exercise": "Dumbbell Lateral Raise (Top Hold)",
+    "searchHints": "Dumbbell"
+  },
+  {
+    "workout": "Shoulders",
+    "exercise": "Dumbbell Leaning Shrug",
+    "searchHints": "Dumbbell"
+  },
+  {
+    "workout": "Triceps",
+    "exercise": "Dumbbell Overhead Extension",
+    "searchHints": "Dumbbell"
+  },
+  {
+    "workout": "Triceps",
+    "exercise": "Dumbbell Overhead Extension (Single Arm)",
+    "searchHints": "Dumbbell"
+  },
+  {
+    "workout": "Biceps",
+    "exercise": "Dumbbell Preacher Curl (Single Arm)",
+    "searchHints": "Dumbbell"
+  },
+  {
+    "workout": "Chest",
+    "exercise": "Dumbbell Press (Flat)",
+    "searchHints": "Dumbbell"
+  },
+  {
+    "workout": "Shoulders",
+    "exercise": "Dumbbell Press (High Incline)",
+    "searchHints": "Dumbbell"
+  },
+  {
+    "workout": "Chest",
+    "exercise": "Dumbbell Press (Incline)",
+    "searchHints": "Dumbbell"
+  },
+  {
+    "workout": "Chest",
+    "exercise": "Dumbbell Press (Deep Swimmers)",
+    "searchHints": "Dumbbell"
+  },
+  {
+    "workout": "Chest",
+    "exercise": "Dumbbell Press (Low Incline)",
+    "searchHints": "Dumbbell"
+  },
+  {
+    "workout": "Chest",
+    "exercise": "Dumbbell Press Flye (Flat)",
+    "searchHints": "Dumbbell"
+  },
+  {
+    "workout": "Chest",
+    "exercise": "Dumbbell Press Flye (Incline)",
+    "searchHints": "Dumbbell"
+  },
+  {
+    "workout": "Back",
+    "exercise": "Dumbbell Pullover",
+    "searchHints": "Dumbbell"
+  },
+  {
+    "workout": "Back",
+    "exercise": "Dumbbell Row (2-Arm)",
+    "searchHints": "Dumbbell"
+  },
+  {
+    "workout": "Back",
+    "exercise": "Dumbbell Row (2-Arm, Incline)",
+    "searchHints": "Dumbbell"
+  },
+  {
+    "workout": "Back",
+    "exercise": "Dumbbell Row (Single Arm, Supported)",
+    "searchHints": "Dumbbell"
+  },
+  {
+    "workout": "Back",
+    "exercise": "Dumbbell Row to Hips",
+    "searchHints": "Dumbbell"
+  },
+  {
+    "workout": "Shoulders",
+    "exercise": "Dumbbell Shoulder Press (Seated)",
+    "searchHints": "Dumbbell"
+  },
+  {
+    "workout": "Shoulders",
+    "exercise": "Dumbbell Shoulder Press (Standing)",
+    "searchHints": "Dumbbell"
+  },
+  {
+    "workout": "Traps",
+    "exercise": "Dumbbell Shrug",
+    "searchHints": "Dumbbell"
+  },
+  {
+    "workout": "Shoulders",
+    "exercise": "Dumbbell Shrug (Seated)",
+    "searchHints": "Dumbbell"
+  },
+  {
+    "workout": "Triceps",
+    "exercise": "Dumbbell Skullcrusher",
+    "searchHints": "Dumbbell"
+  },
+  {
+    "workout": "Biceps",
+    "exercise": "Dumbbell Spider Curl",
+    "searchHints": "Dumbbell"
+  },
+  {
+    "workout": "Glutes",
+    "exercise": "Dumbbell Split Squat",
+    "searchHints": "Dumbbell"
+  },
+  {
+    "workout": "Forearms",
+    "exercise": "Dumbbell Standing Wrist Curl",
+    "searchHints": "Dumbbell"
+  },
+  {
+    "workout": "Hamstrings",
+    "exercise": "Dumbbell Stiff Legged Deadlift",
+    "searchHints": "Dumbbell"
+  },
+  {
+    "workout": "Biceps",
+    "exercise": "Dumbbell Twist Curl",
+    "searchHints": "Dumbbell"
+  },
+  {
+    "workout": "Shoulders",
+    "exercise": "Dumbbell Upright Row",
+    "searchHints": "Dumbbell"
+  },
+  {
+    "workout": "Biceps",
+    "exercise": "EZ Bar Curl (Narrow Grip)",
+    "searchHints": "Barbell"
+  },
+  {
+    "workout": "Biceps",
+    "exercise": "EZ Bar Curl (Normal Grip)",
+    "searchHints": "Barbell"
+  },
+  {
+    "workout": "Biceps",
+    "exercise": "EZ Bar Cule (Wide Grip)",
+    "searchHints": "Barbell"
+  },
+  {
+    "workout": "Triceps",
+    "exercise": "EZ Bar Overhead Triceps Extension",
+    "searchHints": "Barbell"
+  },
+  {
+    "workout": "Triceps",
+    "exercise": "EZ Bar Overhead Triceps Extension (Seated)",
+    "searchHints": "Barbell"
+  },
+  {
+    "workout": "Biceps",
+    "exercise": "EZ Bar Preacher Curl",
+    "searchHints": "Barbell"
+  },
+  {
+    "workout": "Back",
+    "exercise": "EZ Bar Row (Underhand)",
+    "searchHints": "Barbell"
+  },
+  {
+    "workout": "Triceps",
+    "exercise": "EZ Bar Skullcrusher",
+    "searchHints": "Barbell"
+  },
+  {
+    "workout": "Biceps",
+    "exercise": "EZ Bar Spider Curl",
+    "searchHints": "Barbell"
+  },
+  {
+    "workout": "Biceps",
+    "exercise": "Freemotion Curl (Facing Away)",
+    "searchHints": "Freemotion"
+  },
+  {
+    "workout": "Biceps",
+    "exercise": "Freemotion Curl (Facing Machine)",
+    "searchHints": "Freemotion"
+  },
+  {
+    "workout": "Biceps",
+    "exercise": "Freemotion Curl (Single Arm)",
+    "searchHints": "Freemotion"
+  },
+  {
+    "workout": "Shoulders",
+    "exercise": "Freemotion Rear Delt Flyes",
+    "searchHints": "Freemotion"
+  },
+  {
+    "workout": "Shoulders",
+    "exercise": "Freemotion Rear Delt Flyes (Paused)",
+    "searchHints": "Freemotion"
+  },
+  {
+    "workout": "Quads",
+    "exercise": "Freemotion Squat",
+    "searchHints": "Freemotion"
+  },
+  {
+    "workout": "Shoulders",
+    "exercise": "Freemotion Y-Raises",
+    "searchHints": "Freemotion"
+  },
+  {
+    "workout": "Shoulders",
+    "exercise": "Freemotion Y-Raises (Paused)",
+    "searchHints": "Freemotion"
+  },
+  {
+    "workout": "Glutes",
+    "exercise": "Front Foot Elevated Smith Lunge",
+    "searchHints": "Smith Machine"
+  },
+  {
+    "workout": "Quads",
+    "exercise": "Front Squat",
+    "searchHints": "Barbell"
+  },
+  {
+    "workout": "Quads",
+    "exercise": "Front Squat (Cross Grip)",
+    "searchHints": "Barbell"
+  },
+  {
+    "workout": "Quads",
+    "exercise": "Goblet Squat",
+    "searchHints": "Dumbbell"
+  },
+  {
+    "workout": "Forearms",
+    "exercise": "Grip Roller",
+    "searchHints": "Machine"
+  },
+  {
+    "workout": "Quads",
+    "exercise": "Hack Squat",
+    "searchHints": "Machine"
+  },
+  {
+    "workout": "Biceps",
+    "exercise": "Hammer Curl",
+    "searchHints": "Dumbbell"
+  },
+  {
+    "workout": "Chest",
+    "exercise": "Hammer Machine Press (Flat)",
+    "searchHints": "Machine"
+  },
+  {
+    "workout": "Chest",
+    "exercise": "Hammer machine Press (Incline)",
+    "searchHints": "Machine"
+  },
+  {
+    "workout": "Back",
+    "exercise": "Hammer Machine Row (High)",
+    "searchHints": "Machine"
+  },
+  {
+    "workout": "Back",
+    "exercise": "Hammer Machine Row (Low)",
+    "searchHints": "Machine"
+  },
+  {
+    "workout": "Biceps",
+    "exercise": "Hammer Preacher Curl",
+    "searchHints": "Dumbbell"
+  },
+  {
+    "workout": "Abs",
+    "exercise": "Hanging Knee Raise",
+    "searchHints": "Bodyweight Only"
+  },
+  {
+    "workout": "Obliques",
+    "exercise": "Hanging Oblique Knee Raise",
+    "searchHints": "Bodyweight Only"
+  },
+  {
+    "workout": "Abs",
+    "exercise": "Hanging Straight Leg Raise",
+    "searchHints": "Bodyweight Only"
+  },
+  {
+    "workout": "Glutes",
+    "exercise": "Hip Abduction Machine",
+    "searchHints": "Machine"
+  },
+  {
+    "workout": "Adductors",
+    "exercise": "Hip Adduction Machine",
+    "searchHints": "Machine"
+  },
+  {
+    "workout": "Adductors",
+    "exercise": "Hip Adduction Machine (Single Leg)",
+    "searchHints": "Machine"
+  },
+  {
+    "workout": "Adductors",
+    "exercise": "Cable Hip Adduction",
+    "searchHints": "Cable"
+  },
+  {
+    "workout": "Adductors",
+    "exercise": "Copenhagen Plank",
+    "searchHints": "Bodyweight Only"
+  },
+  {
+    "workout": "Adductors",
+    "exercise": "Copenhagen Plank (Elevated)",
+    "searchHints": "Bodyweight Only"
+  },
+  {
+    "workout": "Adductors",
+    "exercise": "Side-Lying Hip Adduction",
+    "searchHints": "Bodyweight Only"
+  },
+  {
+    "workout": "Adductors",
+    "exercise": "Side-Lying Hip Adduction (Weighted)",
+    "searchHints": "Dumbbell"
+  },
+  {
+    "workout": "Shoulders",
+    "exercise": "In and Out Straight Arm Shoulder Flyes",
+    "searchHints": "Dumbbell"
+  },
+  {
+    "workout": "Back",
+    "exercise": "Inverted Row",
+    "searchHints": "Bodyweight Only"
+  },
+  {
+    "workout": "Triceps",
+    "exercise": "Inverted Skullcrusher",
+    "searchHints": "Bodyweight Only"
+  },
+  {
+    "workout": "Triceps",
+    "exercise": "JM Press",
+    "searchHints": "Barbell"
+  },
+  {
+    "workout": "Glutes/Hamstrings",
+    "exercise": "Two-Hand Kettlebell Swing",
+    "searchHints": "Kettlebell"
+  },
+  {
+    "workout": "Glutes/Hamstrings",
+    "exercise": "Single-Arm Kettlebell Swing",
+    "searchHints": "Kettlebell"
+  },
+  {
+    "workout": "Quads/Glutes",
+    "exercise": "Kettlebell Goblet Squat",
+    "searchHints": "Kettlebell"
+  },
+  {
+    "workout": "Full Body",
+    "exercise": "Kettlebell Turkish Get-Up",
+    "searchHints": "Kettlebell"
+  },
+  {
+    "workout": "Shoulders/Glutes",
+    "exercise": "Kettlebell Clean",
+    "searchHints": "Kettlebell"
+  },
+  {
+    "workout": "Full Body",
+    "exercise": "Kettlebell Snatch",
+    "searchHints": "Kettlebell"
+  },
+  {
+    "workout": "Shoulders",
+    "exercise": "Kettlebell Overhead Press",
+    "searchHints": "Kettlebell"
+  },
+  {
+    "workout": "Shoulders/Quads",
+    "exercise": "Kettlebell Push Press",
+    "searchHints": "Kettlebell"
+  },
+  {
+    "workout": "Hamstrings/Back",
+    "exercise": "Kettlebell Deadlift",
+    "searchHints": "Kettlebell"
+  },
+  {
+    "workout": "Hamstrings/Glutes",
+    "exercise": "Kettlebell Single-Leg Deadlift",
+    "searchHints": "Kettlebell"
+  },
+  {
+    "workout": "Back",
+    "exercise": "Kettlebell Row",
+    "searchHints": "Kettlebell"
+  },
+  {
+    "workout": "Shoulders/Core",
+    "exercise": "Kettlebell Halo",
+    "searchHints": "Kettlebell"
+  },
+  {
+    "workout": "Core/Shoulders",
+    "exercise": "Kettlebell Windmill",
+    "searchHints": "Kettlebell"
+  },
+  {
+    "workout": "Chest/Triceps",
+    "exercise": "Kettlebell Floor Press",
+    "searchHints": "Kettlebell"
+  },
+  {
+    "workout": "Full Body",
+    "exercise": "Kettlebell Thruster",
+    "searchHints": "Kettlebell"
+  },
+  {
+    "workout": "Quads/Glutes",
+    "exercise": "Kettlebell Lunge",
+    "searchHints": "Kettlebell"
+  },
+  {
+    "workout": "Quads/Glutes",
+    "exercise": "Kettlebell Reverse Lunge",
+    "searchHints": "Kettlebell"
+  },
+  {
+    "workout": "Grip/Core",
+    "exercise": "Kettlebell Farmer's Walk",
+    "searchHints": "Kettlebell"
+  },
+  {
+    "workout": "Core/Shoulders",
+    "exercise": "Kettlebell Racked Carry",
+    "searchHints": "Kettlebell"
+  },
+  {
+    "workout": "Shoulders/Core",
+    "exercise": "Kettlebell Overhead Carry",
+    "searchHints": "Kettlebell"
+  },
+  {
+    "workout": "Quads",
+    "exercise": "Kettlebell Sumo Squat",
+    "searchHints": "Kettlebell"
+  },
+  {
+    "workout": "Core/Quads",
+    "exercise": "Kettlebell Figure-8",
+    "searchHints": "Kettlebell"
+  },
+  {
+    "workout": "Core/Shoulders",
+    "exercise": "Kettlebell Around the Body Pass",
+    "searchHints": "Kettlebell"
+  },
+  {
+    "workout": "Core/Obliques",
+    "exercise": "Kettlebell Russian Twist",
+    "searchHints": "Kettlebell"
+  },
+  {
+    "workout": "Core/Abs",
+    "exercise": "Kettlebell Sit-Up",
+    "searchHints": "Kettlebell"
+  },
+  {
+    "workout": "Shoulders/Back",
+    "exercise": "Kettlebell High Pull",
+    "searchHints": "Kettlebell"
+  },
+  {
+    "workout": "Shoulders/Grip",
+    "exercise": "Kettlebell Bottoms-Up Press",
+    "searchHints": "Kettlebell"
+  },
+  {
+    "workout": "Full Body",
+    "exercise": "Kettlebell Clean and Press",
+    "searchHints": "Kettlebell"
+  },
+  {
+    "workout": "Full Body",
+    "exercise": "Kettlebell Clean and Jerk",
+    "searchHints": "Kettlebell"
+  },
+  {
+    "workout": "Quads/Core",
+    "exercise": "Kettlebell Front Squat",
+    "searchHints": "Kettlebell"
+  },
+  {
+    "workout": "Shoulders/Core",
+    "exercise": "Kettlebell Bent Press",
+    "searchHints": "Kettlebell"
+  },
+  {
+    "workout": "Core/Back",
+    "exercise": "Kettlebell Plank Pull-Through",
+    "searchHints": "Kettlebell"
+  },
+  {
+    "workout": "Back/Core",
+    "exercise": "Kettlebell Renegade Row",
+    "searchHints": "Kettlebell"
+  },
+  {
+    "workout": "Quads/Adductors",
+    "exercise": "Kettlebell Lateral Lunge",
+    "searchHints": "Kettlebell"
+  },
+  {
+    "workout": "Hamstrings/Glutes",
+    "exercise": "Kettlebell Hip Hinge",
+    "searchHints": "Kettlebell"
+  },
+  {
+    "workout": "Shoulders/Traps",
+    "exercise": "Kettlebell Upright Row",
+    "searchHints": "Kettlebell"
+  },
+  {
+    "workout": "Biceps",
+    "exercise": "Kettlebell Bicep Curl",
+    "searchHints": "Kettlebell"
+  },
+  {
+    "workout": "Triceps",
+    "exercise": "Kettlebell Tricep Extension",
+    "searchHints": "Kettlebell"
+  },
+  {
+    "workout": "Core/Grip",
+    "exercise": "Kettlebell Suitcase Carry",
+    "searchHints": "Kettlebell"
+  },
+  {
+    "workout": "Full Body",
+    "exercise": "Kettlebell Swing to Squat",
+    "searchHints": "Kettlebell"
+  },
+  {
+    "workout": "Obliques",
+    "exercise": "Landmine Rotation",
+    "searchHints": "Barbell"
+  },
+  {
+    "workout": "Back",
+    "exercise": "Landmine Row",
+    "searchHints": "Barbell"
+  },
+  {
+    "workout": "Back",
+    "exercise": "Lat Pulldown",
+    "searchHints": "Cable"
+  },
+  {
+    "workout": "Back",
+    "exercise": "Lawnmowers",
+    "searchHints": "Barbell"
+  },
+  {
+    "workout": "Hamstrings",
+    "exercise": "Leg Curl (Standing)",
+    "searchHints": "Machine"
+  },
+  {
+    "workout": "Quads",
+    "exercise": "Leg extension",
+    "searchHints": "Machine"
+  },
+  {
+    "workout": "Quads",
+    "exercise": "Leg Press",
+    "searchHints": "Machine"
+  },
+  {
+    "workout": "Calves",
+    "exercise": "Leg Press Calves",
+    "searchHints": "Machine"
+  },
+  {
+    "workout": "Biceps",
+    "exercise": "Lying Biceps Dumbbell Curl",
+    "searchHints": "Dumbbell"
+  },
+  {
+    "workout": "Biceps",
+    "exercise": "Lying Cable Curl",
+    "searchHints": "Cable"
+  },
+  {
+    "workout": "Biceps",
+    "exercise": "Lying Down Curl",
+    "searchHints": "Cable"
+  },
+  {
+    "workout": "Biceps",
+    "exercise": "Lying Dumbbell Curl",
+    "searchHints": "Dumbbell"
+  },
+  {
+    "workout": "Hamstrings",
+    "exercise": "Lying Leg Curl",
+    "searchHints": "Machine"
+  },
+  {
+    "workout": "Chest",
+    "exercise": "Machine Chest Press",
+    "searchHints": "Machine"
+  },
+  {
+    "workout": "Chest",
+    "exercise": "Machine Chest Press (Incline)",
+    "searchHints": "Machine"
+  },
+  {
+    "workout": "Back",
+    "exercise": "Machine Chest Supported Row",
+    "searchHints": "Machine"
+  },
+  {
+    "workout": "Abs",
+    "exercise": "Machine Crunch",
+    "searchHints": "Machine"
+  },
+  {
+    "workout": "Chest",
+    "exercise": "Machine Flye",
+    "searchHints": "Machine"
+  },
+  {
+    "workout": "Glutes",
+    "exercise": "Machine Glute Kickback",
+    "searchHints": "Machine"
+  },
+  {
+    "workout": "Glutes",
+    "exercise": "Machine Hip Thrust",
+    "searchHints": "Machine"
+  },
+  {
+    "workout": "Shoulders",
+    "exercise": "Machine Lateral Raise",
+    "searchHints": "Machine"
+  },
+  {
+    "workout": "Biceps",
+    "exercise": "Machine Preacher Curl",
+    "searchHints": "Machine"
+  },
+  {
+    "workout": "Back",
+    "exercise": "Machine Pulldown",
+    "searchHints": "Machine"
+  },
+  {
+    "workout": "Back",
+    "exercise": "Machine Pullover",
+    "searchHints": "Machine"
+  },
+  {
+    "workout": "Shoulders",
+    "exercise": "Machine Reverse Flye",
+    "searchHints": "Machine"
+  },
+  {
+    "workout": "Shoulders",
+    "exercise": "Machine Shoulder Press",
+    "searchHints": "Machine"
+  },
+  {
+    "workout": "Traps",
+    "exercise": "Machine Shrug",
+    "searchHints": "Machine"
+  },
+  {
+    "workout": "Triceps",
+    "exercise": "Machine Triceps Extension",
+    "searchHints": "Machine"
+  },
+  {
+    "workout": "Triceps",
+    "exercise": "Machine Triceps Pushdown",
+    "searchHints": "Machine"
+  },
+  {
+    "workout": "Back",
+    "exercise": "Meadows Row",
+    "searchHints": "Barbell"
+  },
+  {
+    "workout": "Abs",
+    "exercise": "Modified Candlestick",
+    "searchHints": "Bodyweight Only"
+  },
+  {
+    "workout": "Hamstrings",
+    "exercise": "Nordic Curl",
+    "searchHints": "Bodyweight Only"
+  },
+  {
+    "workout": "Chest",
+    "exercise": "Pec dec Flye",
+    "searchHints": "Machine"
+  },
+  {
+    "workout": "Quads",
+    "exercise": "Pendulum Squat",
+    "searchHints": "Machine"
+  },
+  {
+    "workout": "Shoulders",
+    "exercise": "Pike Press",
+    "searchHints": "Bodyweight Only"
+  },
+  {
+    "workout": "Back",
+    "exercise": "Pulldown (Narrow Grip)",
+    "searchHints": "Cable"
+  },
+  {
+    "workout": "Back",
+    "exercise": "Pulldown (Normal Grip)",
+    "searchHints": "Cable"
+  },
+  {
+    "workout": "Back",
+    "exercise": "Pulldown (Parallel Grip)",
+    "searchHints": "Cable"
+  },
+  {
+    "workout": "Back",
+    "exercise": "Pulldown (Single Arm)",
+    "searchHints": "Cable"
+  },
+  {
+    "workout": "Back",
+    "exercise": "Pulldown (Straight Arm)",
+    "searchHints": "Cable"
+  },
+  {
+    "workout": "Back",
+    "exercise": "Pulldown (Underhand Grip)",
+    "searchHints": "Cable"
+  },
+  {
+    "workout": "Back",
+    "exercise": "Pulldown (Upright Torso to Abs)",
+    "searchHints": "Cable"
+  },
+  {
+    "workout": "Back",
+    "exercise": "Pulldown (Wide Grip)",
+    "searchHints": "Cable"
+  },
+  {
+    "workout": "Grip",
+    "exercise": "Pullup Bar Hang",
+    "searchHints": "Bodyweight Only"
+  },
+  {
+    "workout": "Back",
+    "exercise": "Pullup (Normal Grip)",
+    "searchHints": "Bodyweight Only"
+  },
+  {
+    "workout": "Back",
+    "exercise": "Pullup (Parallel Grip)",
+    "searchHints": "Bodyweight Only"
+  },
+  {
+    "workout": "Back",
+    "exercise": "Pullup (Close Grip Overhand)",
+    "searchHints": "Bodyweight Only"
+  },
+  {
+    "workout": "Back",
+    "exercise": "Pullup (Reverse Grip)",
+    "searchHints": "Bodyweight Only"
+  },
+  {
+    "workout": "Back",
+    "exercise": "Pullup (Corn Cob)",
+    "searchHints": "Bodyweight Only"
+  },
+  {
+    "workout": "Back",
+    "exercise": "Pullup (Weighted, Normal Grip)",
+    "searchHints": "Bodyweight Loadable"
+  },
+  {
+    "workout": "Back",
+    "exercise": "Pullup (Weighted, Parallel Grip)",
+    "searchHints": "Bodyweight Loadable"
+  },
+  {
+    "workout": "Back",
+    "exercise": "Pullup (Weighted, Underhand Grip)",
+    "searchHints": "Bodyweight Loadable"
+  },
+  {
+    "workout": "Back",
+    "exercise": "Pullup (Weighted, Wide Grip)",
+    "searchHints": "Bodyweight Loadable"
+  },
+  {
+    "workout": "Back",
+    "exercise": "Pullup (Wide Grip",
+    "searchHints": "Bodyweight Only"
+  },
+  {
+    "workout": "Chest",
+    "exercise": "Pushup",
+    "searchHints": "Bodyweight Only"
+  },
+  {
+    "workout": "Chest",
+    "exercise": "Pushup (Deficit)",
+    "searchHints": "Bodyweight Only"
+  },
+  {
+    "workout": "Chest",
+    "exercise": "Pushup (Military)",
+    "searchHints": "Bodyweight Only"
+  },
+  {
+    "workout": "Chest",
+    "exercise": "Pushup (Prison Cell)",
+    "searchHints": "Bodyweight Only"
+  },
+  {
+    "workout": "Chest",
+    "exercise": "Pushup (Decline)",
+    "searchHints": "Bodyweight Only"
+  },
+  {
+    "workout": "Chest",
+    "exercise": "Pushup (Diamond)",
+    "searchHints": "Bodyweight Only"
+  },
+  {
+    "workout": "Chest",
+    "exercise": "Pushup (Divebomber)",
+    "searchHints": "Bodyweight Only"
+  },
+  {
+    "workout": "Chest",
+    "exercise": "Pushup (Weighted, Military)",
+    "searchHints": "Bodyweight Loadable"
+  },
+  {
+    "workout": "Chest",
+    "exercise": "Pushup (Weighted, Normal Grip)",
+    "searchHints": "Bodyweight Loadable"
+  },
+  {
+    "workout": "Abs",
+    "exercise": "Reaching Sit-Up",
+    "searchHints": "Bodyweight Only"
+  },
+  {
+    "workout": "Obliques",
+    "exercise": "Russian Twist",
+    "searchHints": "Bodyweight Only"
+  },
+  {
+    "workout": "Obliques",
+    "exercise": "Russian Twist (Weighted)",
+    "searchHints": "Dumbbell"
+  },
+  {
+    "workout": "Shoulders",
+    "exercise": "Reverse Cable Crossover",
+    "searchHints": "Cable"
+  },
+  {
+    "workout": "Forearms",
+    "exercise": "Reverse Curl",
+    "searchHints": "Barbell"
+  },
+  {
+    "workout": "Glutes",
+    "exercise": "Reverse Hyper",
+    "searchHints": "Machine"
+  },
+  {
+    "workout": "Glutes",
+    "exercise": "Reverse Lunge (Barbell)",
+    "searchHints": "Barbell"
+  },
+  {
+    "workout": "Glutes",
+    "exercise": "Reverse Lunge (Dumbbell)",
+    "searchHints": "Dumbbell"
+  },
+  {
+    "workout": "Shoulders",
+    "exercise": "Reverse Pec Dec Flye",
+    "searchHints": "Machine"
+  },
+  {
+    "workout": "Back",
+    "exercise": "Seal Row",
+    "searchHints": "Barbell"
+  },
+  {
+    "workout": "Back",
+    "exercise": "Seated Cable Row",
+    "searchHints": "Cable"
+  },
+  {
+    "workout": "Back",
+    "exercise": "Seated Cable Row (Single Arm)",
+    "searchHints": "Cable"
+  },
+  {
+    "workout": "Hamstrings",
+    "exercise": "Seated Leg Curl",
+    "searchHints": "Machine"
+  },
+  {
+    "workout": "Quads",
+    "exercise": "Single Leg Extension",
+    "searchHints": "Machine"
+  },
+  {
+    "workout": "Quads",
+    "exercise": "Single Leg Press",
+    "searchHints": "Machine"
+  },
+  {
+    "workout": "Hamstrings",
+    "exercise": "Single Leg Romanian Deadlift",
+    "searchHints": "Dumbbell"
+  },
+  {
+    "workout": "Quads",
+    "exercise": "Single Leg Squats",
+    "searchHints": "Bodyweight Only"
+  },
+  {
+    "workout": "Hamstrings",
+    "exercise": "Single-Leg Leg Curl",
+    "searchHints": "Machine"
+  },
+  {
+    "workout": "Quads",
+    "exercise": "Sissy Squat (Machine)",
+    "searchHints": "Bodyweight Only"
+  },
+  {
+    "workout": "Quads",
+    "exercise": "Sissy Squat (No Machine)",
+    "searchHints": "Bodyweight Only"
+  },
+  {
+    "workout": "Obliques",
+    "exercise": "Side Plank",
+    "searchHints": "Bodyweight Only"
+  },
+  {
+    "workout": "Obliques",
+    "exercise": "Side Plank (Weighted)",
+    "searchHints": "Dumbbell"
+  },
+  {
+    "workout": "Abs",
+    "exercise": "Sit-ups",
+    "searchHints": "Bodyweight Only"
+  },
+  {
+    "workout": "Abs",
+    "exercise": "Slant Board Sit-Up (Weighted)",
+    "searchHints": "Bodyweight Loadable"
+  },
+  {
+    "workout": "Chest",
+    "exercise": "Smith Machine Bench Press (Medium Grip)",
+    "searchHints": "Smith Machine"
+  },
+  {
+    "workout": "Chest",
+    "exercise": "Smith MachineBench Press (Narrow grip)",
+    "searchHints": "Smith Machine"
+  },
+  {
+    "workout": "Chest",
+    "exercise": "Smith Machine Bench Press (Wide Grip)",
+    "searchHints": "Smith Machine"
+  },
+  {
+    "workout": "Calves",
+    "exercise": "Smith Machine Calves",
+    "searchHints": "Smith Machine"
+  },
+  {
+    "workout": "Hamstrings",
+    "exercise": "Smith Machine Good Morning",
+    "searchHints": "Smith Machine"
+  },
+  {
+    "workout": "Triceps",
+    "exercise": "Smith Machine JM Press",
+    "searchHints": "Smith Machine"
+  },
+  {
+    "workout": "Chest",
+    "exercise": "Smith Machine Press (Incline, Medium Grip)",
+    "searchHints": "Smith Machine"
+  },
+  {
+    "workout": "Chest",
+    "exercise": "Smith Machine Press (Incline, Wide Grip)",
+    "searchHints": "Smith Machine"
+  },
+  {
+    "workout": "Back",
+    "exercise": "Smith Machine Row",
+    "searchHints": "Smith Machine"
+  },
+  {
+    "workout": "Shoulders",
+    "exercise": "Smith Machine Shoulder Press (Seated)",
+    "searchHints": "Smith Machine"
+  },
+  {
+    "workout": "Traps",
+    "exercise": "Smith Machine Shrug",
+    "searchHints": "Smith Machine"
+  },
+  {
+    "workout": "Triceps",
+    "exercise": "Smith Machine Skullcrusher",
+    "searchHints": "Smith Machine"
+  },
+  {
+    "workout": "Glutes",
+    "exercise": "Smith Machine Split Squat",
+    "searchHints": "Smith Machine"
+  },
+  {
+    "workout": "Quads",
+    "exercise": "Smith Machine Squat (Feet Forward)",
+    "searchHints": "Smith Machine"
+  },
+  {
+    "workout": "Shoulders",
+    "exercise": "Smith Machine Upright Row",
+    "searchHints": "Smith Machine"
+  },
+  {
+    "workout": "Calves",
+    "exercise": "Stair Calves",
+    "searchHints": "Bodyweight Only"
+  },
+  {
+    "workout": "Calves",
+    "exercise": "Stair Calves (Single Leg)",
+    "searchHints": "Bodyweight Only"
+  },
+  {
+    "workout": "Calves",
+    "exercise": "Standng Calf Raise",
+    "searchHints": "Dumbbell"
+  },
+  {
+    "workout": "Biceps",
+    "exercise": "Static Arm Curls",
+    "searchHints": "Dumbbell"
+  },
+  {
+    "workout": "Hamstrings",
+    "exercise": "Stiff-Legged (Romanian) Deadlift",
+    "searchHints": "Barbell"
+  },
+  {
+    "workout": "Back",
+    "exercise": "T-Bar Row",
+    "searchHints": "Machine"
+  },
+  {
+    "workout": "Glutes",
+    "exercise": "Trap Bar Deadlift",
+    "searchHints": "Barbell"
+  },
+  {
+    "workout": "Biceps",
+    "exercise": "Twenty Ones",
+    "searchHints": "Barbell"
+  },
+  {
+    "workout": "Abs",
+    "exercise": "V-Up (Weighted)",
+    "searchHints": "Bodyweight Loadable"
+  },
+  {
+    "workout": "Glutes",
+    "exercise": "Walking Lunges (Glute-Focused, Barbell)",
+    "searchHints": "Barbell"
+  },
+  {
+    "workout": "Glutes",
+    "exercise": "Walking Lunges (Glute Focused, Bodyweight)",
+    "searchHints": "Bodyweight Only"
+  },
+  {
+    "workout": "Glutes",
+    "exercise": "Walking Lunges (Glute Focused, Dumbbell)",
+    "searchHints": "Dumbbell"
+  },
+  {
+    "workout": "Quads",
+    "exercise": "Walking Lunges (Quad Focused, Barbell)",
+    "searchHints": "Barbell"
+  },
+  {
+    "workout": "Quads",
+    "exercise": "Walking Lunges (Quad Focused, Bodyweight)",
+    "searchHints": "Bodyweight Only"
+  },
+  {
+    "workout": "Quads",
+    "exercise": "Walking Lunges (Quad Focused, Dumbbell)",
+    "searchHints": "Dumbbell"
+  },
+  {
+    "workout": "Quads",
+    "exercise": "Wall Squats",
+    "searchHints": "Bodyweight Only"
+  },
+  {
+    "workout": "Shoulders",
+    "exercise": "Weighted Circles",
+    "searchHints": "Dumbbell"
+  }
+]

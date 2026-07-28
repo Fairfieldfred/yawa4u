@@ -1,0 +1,96 @@
+{
+  "exercise": "Slant Board Sit-Up (Weighted)",
+  "workout": "Abs",
+  "pick": {
+    "videoId": "hNoqupytA8g",
+    "confidence": 0.6,
+    "reason": "It's the only proper instructional demonstration in the 1-15 min range from a trainer, covering bench/decline sit-up form that maps directly to a slant board sit-up, whereas the other candidates are 6-40s shorts, warnings, or off-target crunch variations.",
+    "source": "claude"
+  },
+  "startSeconds": 0,
+  "endSeconds": 117,
+  "chosen": {
+    "videoId": "hNoqupytA8g",
+    "title": "Weight Training : How to Do Sit-Ups on the Bench",
+    "channel": "ehowhealth",
+    "description": "You don't need to be sitting on a floor to do sit-ups. Do sit-ups on the bench with help from a long time personal trainer in this free video clip.\n\nExpert: Bryan Francis\nContact: www.stupidgymshit.com\nBio: Bryan Francis has been a successful personal trainer for over 11 years now, and has achieved numerous advanced credentials, which has allowed him to work with high school and professional athletes.\nFilmmaker: Paul Muller\n\nSeries Description: Weight training can be a great way to work out all areas of your body, from your shoulder muscles all the way down to your hamstrings. Find out all you need to know about weight training with help from a longtime personal trainer in this free video series.",
+    "durationSeconds": 117,
+    "viewCount": 677065,
+    "embeddable": true
+  },
+  "candidates": [
+    {
+      "videoId": "xfNAzPwNRqw",
+      "title": "How to Properly do Decline Ab Crunches",
+      "channel": "TylerPath",
+      "description": "",
+      "durationSeconds": 18,
+      "viewCount": 2438968,
+      "embeddable": true
+    },
+    {
+      "videoId": "dwB9Rp_patE",
+      "title": "IMPORTANT: ⚠️ when doing decline sit ups do NOT go right the way down.",
+      "channel": "Josef Rakich",
+      "description": "Connect With Me! ➡️ https://hoo.be/click-this-link",
+      "durationSeconds": 12,
+      "viewCount": 648187,
+      "embeddable": true
+    },
+    {
+      "videoId": "xIPIU53wNG0",
+      "title": "Stop doing weighted crunches and sit-ups ‼️",
+      "channel": "Dr. Rob Jones",
+      "description": "",
+      "durationSeconds": 40,
+      "viewCount": 114298,
+      "embeddable": true
+    },
+    {
+      "videoId": "KkofWeLhSuo",
+      "title": "Weighted decline sit-ups",
+      "channel": "Rhys Harper Fitness",
+      "description": "For my full gym transformation programme please go to - rhysharperfitness.myshopify.com #gym #gymworkout #football #legday #squats #pullups #gluteworkout #backworkout #gymjunkie #soccer #plyometrics #training",
+      "durationSeconds": 6,
+      "viewCount": 81813,
+      "embeddable": true
+    },
+    {
+      "videoId": "4sjBHwJLmWc",
+      "title": "Transform Your Abs  Decline Sit Ups and V Ups Explained",
+      "channel": "czch_fit",
+      "description": "#sciencebasedtraining #sciencebased #lifting",
+      "durationSeconds": 26,
+      "viewCount": 25857,
+      "embeddable": true
+    },
+    {
+      "videoId": "KZ7EWSAkpdM",
+      "title": "How to improve your sit-ups (decline tips)",
+      "channel": "Quinlan Smith",
+      "description": "",
+      "durationSeconds": 16,
+      "viewCount": 171898,
+      "embeddable": true
+    },
+    {
+      "videoId": "hNoqupytA8g",
+      "title": "Weight Training : How to Do Sit-Ups on the Bench",
+      "channel": "ehowhealth",
+      "description": "You don't need to be sitting on a floor to do sit-ups. Do sit-ups on the bench with help from a long time personal trainer in this free video clip.\n\nExpert: Bryan Francis\nContact: www.stupidgymshit.com\nBio: Bryan Francis has been a successful personal trainer for over 11 years now, and has achieved numerous advanced credentials, which has allowed him to work with high school and professional athletes.\nFilmmaker: Paul Muller\n\nSeries Description: Weight training can be a great way to work out all areas of your body, from your shoulder muscles all the way down to your hamstrings. Find out all you need to know about weight training with help from a longtime personal trainer in this free video series.",
+      "durationSeconds": 117,
+      "viewCount": 677065,
+      "embeddable": true
+    },
+    {
+      "videoId": "Jzuy72vTAr4",
+      "title": "Slant Board Sit-up",
+      "channel": "CK Strength (Christian Kruszewski)",
+      "description": "",
+      "durationSeconds": 9,
+      "viewCount": 3939,
+      "embeddable": true
+    }
+  ],
+  "curatedAt": "2026-07-28T10:29:07.166575"
+}

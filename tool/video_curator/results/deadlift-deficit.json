@@ -1,0 +1,96 @@
+{
+  "exercise": "Deadlift (Deficit)",
+  "workout": "Glutes",
+  "pick": {
+    "videoId": "hnuPZZfeRzs",
+    "confidence": 0.85,
+    "reason": "A focused ~4-minute tutorial specifically on performing the deficit deadlift with setup and form guidance, unlike the too-short demos or videos about the standard deadlift.",
+    "source": "claude"
+  },
+  "startSeconds": 0,
+  "endSeconds": 226,
+  "chosen": {
+    "videoId": "hnuPZZfeRzs",
+    "title": "How to Perform a Deficit Deadlift",
+    "channel": "Misfit Athletics",
+    "description": "This Phase we will be asking you to perform deadlifts off of a 3\" (or shorter) elevated riser. The purpose of this movement is to help train the first pull of the deadlift where leg drive is so critical, yet often missed. With this movement comes considerations on how to set up appropriately for both the effectiveness of the exercise as well as overall safety. Check it out before taking on this strength piece!\n\nBe sure to visit us at www.misfitathletics.com\n\nGet a Discount on Pure Spectrum CBD!! Use code MISFIT at https://www.purespectrumcbd.com/?ref=411\n\nMisfit Apparel at sharpentheaxeco.com\nInstagram: http://instagram.com/misfitathletics\nFacebook: https://www.facebook.com/misfitathletics\n\n\nThanks for clicking like and don’t forget to subscribe!",
+    "durationSeconds": 226,
+    "viewCount": 68464,
+    "embeddable": true
+  },
+  "candidates": [
+    {
+      "videoId": "ZaTM37cfiDs",
+      "title": "How To Deadlift With Perfect Technique (Step By Step)",
+      "channel": "Jeff Nippard",
+      "description": "How to deadlift with perfect technique. Here are my 5 steps:\n\nFirst: set your stance. Start with your shins about one inch from the barbell and your feet at hip width. For a sumo deadlift, you’ll take a wider stance but I’ll cover that separately. The bar should cross the middle of your foot. Point your toes slightly out.\n\nSecond: grab the bar. Set your hips back with nearly straight knees. Don’t make the common mistake of squatting down. A deadlift isn’t a squat. Grip the bar with your hands just outside your shins. An over/under grip, hook grip or strapped grip will keep the bar from slipping. Let your shins make contact with the bar – they should be pointed straight up.\n\nThird: pull the slack out. Instead of ripping the bar, pull tension into the bar gradually.\n\nFourth: pull. Lift your chest up while thrusting your hips forward. Keep the bar in contact with your legs.\n\nFifth: lockout. Stand up straight and lift your chest up. Don’t shrug or squeeze your back at the top.\n\nLower the weight by setting your hips back and letting your knees bend. Keep the bar in tight so it lands back over the middle of your foot.",
+      "durationSeconds": 56,
+      "viewCount": 12643164,
+      "embeddable": true
+    },
+    {
+      "videoId": "hnuPZZfeRzs",
+      "title": "How to Perform a Deficit Deadlift",
+      "channel": "Misfit Athletics",
+      "description": "This Phase we will be asking you to perform deadlifts off of a 3\" (or shorter) elevated riser. The purpose of this movement is to help train the first pull of the deadlift where leg drive is so critical, yet often missed. With this movement comes considerations on how to set up appropriately for both the effectiveness of the exercise as well as overall safety. Check it out before taking on this strength piece!\n\nBe sure to visit us at www.misfitathletics.com\n\nGet a Discount on Pure Spectrum CBD!! Use code MISFIT at https://www.purespectrumcbd.com/?ref=411\n\nMisfit Apparel at sharpentheaxeco.com\nInstagram: http://instagram.com/misfitathletics\nFacebook: https://www.facebook.com/misfitathletics\n\n\nThanks for clicking like and don’t forget to subscribe!",
+      "durationSeconds": 226,
+      "viewCount": 68464,
+      "embeddable": true
+    },
+    {
+      "videoId": "CpWsUsqBtN8",
+      "title": "Movement Demo - The Deficit Deadlift",
+      "channel": "Rogue Fitness",
+      "description": "Mark Bell explains and demonstrates the deficit deadlift at Rogue HQ.\n\nWest Side Power Bar\nhttp://www.roguefitness.com/westside-power-bar.php",
+      "durationSeconds": 73,
+      "viewCount": 560533,
+      "embeddable": true
+    },
+    {
+      "videoId": "X-uKkAukJVA",
+      "title": "Deficit Deadlift",
+      "channel": "Renaissance Periodization",
+      "description": "Filmed at Exile Gym in Baltimore, MD.",
+      "durationSeconds": 11,
+      "viewCount": 181932,
+      "embeddable": true
+    },
+    {
+      "videoId": "eQNcHUM88YE",
+      "title": "Deficit Deadlifts",
+      "channel": "Zac Cupples",
+      "description": "Should you really be deadlifting from a deficit (or even the floor)? \n\nFor most peeps... probably not. Work within a range of motion you have!",
+      "durationSeconds": 30,
+      "viewCount": 25192,
+      "embeddable": true
+    },
+    {
+      "videoId": "VmsQKB-rbk8",
+      "title": "How to Avoid Lower Back Pain on Deadlifts (NON NEGOTIABLE)",
+      "channel": "TylerPath",
+      "description": "",
+      "durationSeconds": 18,
+      "viewCount": 1236981,
+      "embeddable": true
+    },
+    {
+      "videoId": "gDEdTxQbqCw",
+      "title": "Why Deficit Deadlifts Can Improve Your Technique…",
+      "channel": "Range of Strength",
+      "description": "",
+      "durationSeconds": 22,
+      "viewCount": 64536,
+      "embeddable": true
+    },
+    {
+      "videoId": "rDk1oz5bbMA",
+      "title": "Deadlift form check! 🏋️‍♀️ #shorts",
+      "channel": "LisaFiitt Workouts",
+      "description": "My STRNG fitness app includes my workouts & nutrition plan! You can try it FREE for 7 days from my website or search for STRNG in the app/play store! 🤩 https://strngofficial.com/\n\n#gluteday #legday #fitness #deadlift #formcheck",
+      "durationSeconds": 8,
+      "viewCount": 3163852,
+      "embeddable": true
+    }
+  ],
+  "curatedAt": "2026-07-25T14:52:02.523335"
+}

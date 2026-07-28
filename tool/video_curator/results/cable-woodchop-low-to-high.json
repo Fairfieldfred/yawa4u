@@ -1,0 +1,96 @@
+{
+  "exercise": "Cable Woodchop (Low to High)",
+  "workout": "Obliques",
+  "pick": {
+    "videoId": "rHfjG2Oflz0",
+    "confidence": 0.85,
+    "reason": "Exact title match for the low-to-high variation, a focused 102-second demonstration explicitly targeting the obliques, and long enough to include form cues unlike the 7–39s clips or the high-to-low variant.",
+    "source": "claude"
+  },
+  "startSeconds": 0,
+  "endSeconds": 102,
+  "chosen": {
+    "videoId": "rHfjG2Oflz0",
+    "title": "Cable Woodchop (Low to High)",
+    "channel": "Discovery Learning",
+    "description": "A core strength exercise targetting the obliques",
+    "durationSeconds": 102,
+    "viewCount": 97428,
+    "embeddable": true
+  },
+  "candidates": [
+    {
+      "videoId": "rHfjG2Oflz0",
+      "title": "Cable Woodchop (Low to High)",
+      "channel": "Discovery Learning",
+      "description": "A core strength exercise targetting the obliques",
+      "durationSeconds": 102,
+      "viewCount": 97428,
+      "embeddable": true
+    },
+    {
+      "videoId": "8OZImYISmSg",
+      "title": "Cable Woodchopper (Low to High)",
+      "channel": "Modern Athlete Strength Systems",
+      "description": "Coach Ben demonstrates the Cable Woodchopper (Low to High).\n\nIf you want to train with the Modern Athlete team then visit us at www.modernathletestrength.com or on Instagram at modernathletestrength.",
+      "durationSeconds": 7,
+      "viewCount": 314241,
+      "embeddable": true
+    },
+    {
+      "videoId": "ZPdNM1tcRPA",
+      "title": "Transform Your Obliques Workout with High to Low Cable Wood Choppers",
+      "channel": "GOODBYEKILOS",
+      "description": "",
+      "durationSeconds": 21,
+      "viewCount": 79543,
+      "embeddable": true
+    },
+    {
+      "videoId": "90Qh5XG6mqs",
+      "title": "Cable Wood Chopper",
+      "channel": "Proteus Training",
+      "description": "",
+      "durationSeconds": 39,
+      "viewCount": 585774,
+      "embeddable": true
+    },
+    {
+      "videoId": "ZDt4MCvjMAA",
+      "title": "HOW TO: Cable Wood Chop",
+      "channel": "Goodlife Health Clubs",
+      "description": "Find out how to do a Cable Wood Chop. Need a helping hand? Head to your local Goodlife. bit.ly/try-it-at-Goodlife",
+      "durationSeconds": 50,
+      "viewCount": 153595,
+      "embeddable": true
+    },
+    {
+      "videoId": "KG4Bf-1U_BY",
+      "title": "Cable Woodchopper the RIGHT way🔥outfit @dfyne.official code QUANB #abs #core #obliques #gymtips",
+      "channel": "QuanBFit",
+      "description": "",
+      "durationSeconds": 115,
+      "viewCount": 38902,
+      "embeddable": true
+    },
+    {
+      "videoId": "BrXm1kg4SKI",
+      "title": "How to do a cable wood chop",
+      "channel": "Jenn Alivea (Jenn Alivea Fitness)",
+      "description": "How to do a cable wood chop. Focus: core \nSee more of my exercises tutorials in my playlists. Visit jennalivea.com for my 12 week fitness plan and meal plans.",
+      "durationSeconds": 9,
+      "viewCount": 115637,
+      "embeddable": true
+    },
+    {
+      "videoId": "2RkW97tfsA0",
+      "title": "How to do a Low to High Cable Wood Chopper",
+      "channel": "Central Fitness Online",
+      "description": "To perform a low to high cable woodchopper, set the pulley to the lowest position and attach a single handle. Stand with your feet shoulder-width apart, sideways to the machine, and grasp the handle with both hands near your outside knee. Engage your core and rotate your torso as you pull the handle diagonally upward across your body to above your opposite shoulder, simulating a chopping motion. Keep your arms extended but not locked, and pivot your back foot to allow a full range of motion. Pause briefly at the top of the movement, then slowly return to the starting position. Repeat for the desired number of repetitions before switching sides to ensure balanced training.",
+      "durationSeconds": 35,
+      "viewCount": 9029,
+      "embeddable": true
+    }
+  ],
+  "curatedAt": "2026-07-25T14:50:28.929636"
+}

@@ -1,0 +1,13 @@
+name: video_curator
+description: Offline YouTube video curation pipeline for per-exercise demo clips.
+publish_to: none
+version: 0.1.0
+
+environment:
+  sdk: ^3.9.0
+
+dependencies:
+  http: ^1.2.0
+
+dev_dependencies:
+  test: ^1.25.0

@@ -1,0 +1,96 @@
+{
+  "exercise": "Kettlebell Suitcase Carry",
+  "workout": "Core/Grip",
+  "pick": {
+    "videoId": "tNHdx7pmrGI",
+    "confidence": 0.9,
+    "reason": "Buff Dudes' 4.5-minute dedicated suitcase carry tutorial from a reputable channel is the only candidate within the preferred 1-15 minute range with detailed form and grip cues, while all others are sub-40-second shorts.",
+    "source": "claude"
+  },
+  "startSeconds": 0,
+  "endSeconds": 266,
+  "chosen": {
+    "videoId": "tNHdx7pmrGI",
+    "title": "Killer Core Strength With One Simple Movement | Suitcase Carry Exercise Tutorial",
+    "channel": "Buff Dudes Workouts",
+    "description": "👉GRAB our 🔴HOME GYM WORKOUT PLAN🔴 here: https://bit.ly/homegymplan\n\n👉 http://eepurl.com/cTlXxf 👈 Subscribe to our newsletter for weekly food recipes, exercise tutorials and Buff Dudes updates\n\nIn this video we go over how to perform the Suitcase Carry, an excellent core exercise focusing on grip strength, and a perfect exercise to perform at home or in the garage if you don't have access to a commercial gym. We hope you enjoy this exercise tutorial, look for more on the way!\n\n#exercise #tutorial",
+    "durationSeconds": 266,
+    "viewCount": 146877,
+    "embeddable": true
+  },
+  "candidates": [
+    {
+      "videoId": "w76_JnzMfXM",
+      "title": "How to do a Suitcase Carry #fitness #gym #strengthtraining",
+      "channel": "Charlie Howick",
+      "description": "",
+      "durationSeconds": 39,
+      "viewCount": 112643,
+      "embeddable": true
+    },
+    {
+      "videoId": "3RKKnZhhelE",
+      "title": "How to Perform A Suitcase Carry",
+      "channel": "Champion Physical Therapy and Performance",
+      "description": "👊🏻Was this helpful? Subscribe to our Youtube channel for more fitness tips!\n🤔Have a question/comment? Drop a note below in the comment section and let us know!               \n\n*****\n💪WANT TO TRAIN WITH CHAMPION?  Click here to learn more about our amazing new online training platform and in-person training programs:\n\n👉👉👉 https://championptandperformance.com/get-started/\n\n*****\n👋 FOLLOW CHAMPION SOCIAL MEDIA FOR EVEN MORE:\n\nInstagram: http://instagram.com/championptp\nFacebook: https://www.facebook.com/ChampionPTandPerformance",
+      "durationSeconds": 19,
+      "viewCount": 60841,
+      "embeddable": true
+    },
+    {
+      "videoId": "v8O0kNuvp_k",
+      "title": "The most underrated core / ab exercise - How to suitcase carry",
+      "channel": "Rosati Strength Systems",
+      "description": "Email @rosatistrengthsystems@gmail.com\nTo join our live workshop Monday May 1st 7pm EST \n\nApply for coaching here:\n\nhttps://rosatistrengthsystems.wufoo.com/forms/z1yer5jd1hvuj26/",
+      "durationSeconds": 21,
+      "viewCount": 126649,
+      "embeddable": true
+    },
+    {
+      "videoId": "aEJYkg98d2k",
+      "title": "Core Exercise: The Suitcase Carry",
+      "channel": "Coach Gabe West",
+      "description": "Looking for a new core exercise that you can do at home? Check out this suitcase carry! This is a great exercise for training your core and staying healthy all year round.\n\nIn this video, we'll show you how to do the suitcase carry and how it can help you train your Core and stay healthy all year round. This is a great exercise for beginner exercisers and is a great way to add some excitement to your home workouts!\n\n#shorts #weightlossjourney #kettlebell #weightlosstips #fatlossworkout #kettlebelltraining #nutrition #workout #fatloss #abworkout #gym #viral",
+      "durationSeconds": 17,
+      "viewCount": 36340,
+      "embeddable": true
+    },
+    {
+      "videoId": "C8c7x2Xmq80",
+      "title": "Suitcase Carries: The Ultimate Conditioning Exercise Explained!",
+      "channel": "D1 Training Centennial Hills",
+      "description": "Learn the fundamentals of conditioning exercises with us! We'll guide you through the suitcase carry, explaining proper form and the ideal weight to use. Get ready to enhance your strength and posture with this effective gym workout. Watch now and transform your fitness journey! #SuitcaseCarries #ConditioningExercise #FitnessTutorial #GymWorkout #StrengthTraining #ExerciseForm #Weightlifting #FitnessTips #WorkoutMotivation #HealthyLifestyle",
+      "durationSeconds": 29,
+      "viewCount": 10363,
+      "embeddable": true
+    },
+    {
+      "videoId": "T5XLh0rXbxQ",
+      "title": "1-Kettlebell Suitcase Carry",
+      "channel": "All Day Fit",
+      "description": "",
+      "durationSeconds": 16,
+      "viewCount": 15713,
+      "embeddable": true
+    },
+    {
+      "videoId": "tNHdx7pmrGI",
+      "title": "Killer Core Strength With One Simple Movement | Suitcase Carry Exercise Tutorial",
+      "channel": "Buff Dudes Workouts",
+      "description": "👉GRAB our 🔴HOME GYM WORKOUT PLAN🔴 here: https://bit.ly/homegymplan\n\n👉 http://eepurl.com/cTlXxf 👈 Subscribe to our newsletter for weekly food recipes, exercise tutorials and Buff Dudes updates\n\nIn this video we go over how to perform the Suitcase Carry, an excellent core exercise focusing on grip strength, and a perfect exercise to perform at home or in the garage if you don't have access to a commercial gym. We hope you enjoy this exercise tutorial, look for more on the way!\n\n#exercise #tutorial",
+      "durationSeconds": 266,
+      "viewCount": 146877,
+      "embeddable": true
+    },
+    {
+      "videoId": "BaRMAhD7SP4",
+      "title": "Kettlebell Suitcase Carry | HEARTCORE Athletics",
+      "channel": "HEARTCORE Athletics",
+      "description": "Für mehr Informationen zum funktionellen Fitnesstraining nach der CrossFit Philosophie folge mir auf \n\nwww.heartcore-athletics.com\n\nfacebook: http://facebook.com/HEARTCOREAthletics\ntwitter: http://twitter.com/HEARTCORE_Athl\ninstagram: instagram.com/artvanderheide/\n\nFinish strong, dein Art!!",
+      "durationSeconds": 29,
+      "viewCount": 131830,
+      "embeddable": true
+    }
+  ],
+  "curatedAt": "2026-07-27T06:15:54.595122"
+}

@@ -76,13 +76,26 @@ Live Activity explicitly (natural completion and card-id cancels route through `
 cancels must NOT, or pausing tears down the card). The app manifest must declare the
 flutter_local_notifications `ActionBroadcastReceiver` or notification action buttons silently no-op.
 
-**Community & auth (the only cloud subsystem).** Everything else is local-first (Drift/SQLite).
-The community library is the exception: `CommunityService` does raw Firestore/Storage I/O against
-`community_templates` / `community_skins`, wrapped by `CommunityRepository`. `main.dart` calls
-`FirebaseAuthService().ensureSignedIn()` at startup to sign in **anonymously** (browsing/downloading
-needs no account); uploading is gated behind `canUploadProvider` → `isEmailVerifiedProvider`, so a
-user must link+verify an email first. Downloading a community template saves it locally *and*
-creates a draft cycle (see `community_template_detail_screen.dart`).
+**Community & auth.** Everything else is local-first (Drift/SQLite); the only cloud subsystems
+are the community library and cloud backup (next paragraph). `CommunityService` does raw
+Firestore/Storage I/O against `community_templates` / `community_skins`, wrapped by
+`CommunityRepository`. `main.dart` calls `FirebaseAuthService().ensureSignedIn()` at startup to
+sign in **anonymously** (browsing/downloading needs no account); uploading is gated behind
+`canUploadProvider` → `isEmailVerifiedProvider`, so a user must link+verify an email first.
+Downloading a community template saves it locally *and* creates a draft cycle (see
+`community_template_detail_screen.dart`).
+
+**Cloud backup (opt-in).** `CloudBackupService` gzips the full `DataBackupService` v4 export into
+a single per-user slot — Storage blob `user_backups/{uid}/latest.json.gz` + Firestore metadata doc
+`user_backups/{uid}` — overwritten on every upload (50 MB cap, mirrored in `storage.rules`).
+Requires a linked+verified email, same gate as community uploads (enforced by the Firebase rules,
+checked client-side to fail fast). All Firestore/Storage I/O goes through the `CloudBackupGateway`
+seam so tests use an in-memory fake. Restore merges via `importFromJson` (uuid-skip ⇒ no duplicate
+rows). `autoCloudBackupTriggerProvider` (watched by the home shell) fires a silent auto-backup once
+per session when enabled and the last success is >24h old, with two clobber guards: an empty local
+DB is never auto-backed-up, and a device that has never backed up won't overwrite an existing
+cloud backup — restore (or explicit manual backup) comes first. UI: `CloudBackupSection` on the
+Sync screen; the opt-in toggle is also offered during onboarding.
 
 ## Domain pitfalls (top sources of bugs)
 
@@ -112,7 +125,9 @@ creates a draft cycle (see `community_template_detail_screen.dart`).
    It schedules an OS notification (`NotificationService`) at the deadline and fires a haptic at
    zero. Tests inject `restTimerClockProvider`, `restTimerHapticProvider`, and
    `notificationServiceProvider` fakes. The lock-screen countdown card is a separate surface —
-   see "Rest-timer live card" above.
+   see "Rest-timer live card" above. The set-log → timer-start flow (`_toggleSetLog` +
+   `_buildLiveSetInfo` + `_setRestTimer`) is **duplicated** in `workout_screen.dart` and
+   `exercises/exercises_screen.dart` — behavior changes must be applied to both.
 
 ## Conventions
 
@@ -123,6 +138,7 @@ creates a draft cycle (see `community_template_detail_screen.dart`).
   lowercase enum values.
 - Backup format is JSON `version: 4` (multi-sport); `version: 3` imports still accepted. Users
   can export/restore a backup file from the Sync screen (`DataBackupService.exportToFile`).
+  Cloud backup uploads the same v4 export, gzipped (see "Cloud backup" above).
 - Snackbars go through `context.showSnackBar` / `showSuccessSnackBar` / `showErrorSnackBar`
   (`lib/core/extensions/context_extensions.dart`) unless they need a `SnackBarAction` (e.g. Undo) —
   those stay raw `ScaffoldMessenger`. `ContextExtensions` deliberately has NO push/pop helpers;

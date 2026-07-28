@@ -1,0 +1,96 @@
+{
+  "exercise": "Freemotion Curl (Facing Machine)",
+  "workout": "Biceps",
+  "pick": {
+    "videoId": "HNo5dMNC4Po",
+    "confidence": 0.7,
+    "reason": "A trainer-led form demonstration of a bicep curl on an actual Freemotion machine, matching the exercise directly, whereas the other candidates show a different machine (preacher, lateral raise) or generic cable curls.",
+    "source": "claude"
+  },
+  "startSeconds": 0,
+  "endSeconds": 36,
+  "chosen": {
+    "videoId": "HNo5dMNC4Po",
+    "title": "FREEMOTION LIFT BICEP CURL",
+    "channel": "Do Work  Factory ",
+    "description": "Gold’s Gym Dundalk & Do Work Factory’s trainer Matt Wilson demonstrates form and technique.",
+    "durationSeconds": 36,
+    "viewCount": 2393,
+    "embeddable": true
+  },
+  "candidates": [
+    {
+      "videoId": "Htw-s61mOw0",
+      "title": "How to Properly Use The Seated Preacher Bicep Curl Machine With Good Form (Exercise Demonstration)",
+      "channel": "Gerardi Performance",
+      "description": "► Schedule a call with me to learn more about my online personal training program: https://www.coach.gerardiperformance.com/10-minute-call \n\n► Free Training For Busy Professionals Struggling To Sustainably Lose Fat and Build Muscle: coach.gerardiperformance.com/training \n\n►Ready to get started training with me? Apply for online personal training with me: https://forms.gle/WmkLekei4VZ3snbP9\n\n► Use my codes for discounts: https://linktr.ee/gerardiperformance\n\n► Take my free online body quiz to see which of my programs would be best for you: https://www.gerardiperformance.com/personal-diet-training-plan-quiz \n\n► Follow me on instagram: https://bit.ly/2xxlvCV\n-\nThis Is An Exercise Demonstration Video On How to Properly Use The Seated Preacher Bicep Curl Machine With Good Form\n-\n-\n#bicepcurls #bicepcurl #bicepexercise #bicepexercises #bicepworkouts",
+      "durationSeconds": 27,
+      "viewCount": 1469308,
+      "embeddable": true
+    },
+    {
+      "videoId": "jH1UEL5Ut7Q",
+      "title": "FREE MOTION SINGLE ARM BICEP CURL",
+      "channel": "Do Work  Factory ",
+      "description": "Gold’s Gym Dundalk & Do Work Factory’s trainer Matt Wilson demonstrates form and technique.",
+      "durationSeconds": 55,
+      "viewCount": 668,
+      "embeddable": true
+    },
+    {
+      "videoId": "Zi9nYtLsuz0",
+      "title": "Freemotion Lateral Raise Machine",
+      "channel": "Etage Athletic Club",
+      "description": "",
+      "durationSeconds": 23,
+      "viewCount": 213791,
+      "embeddable": true
+    },
+    {
+      "videoId": "RvLg9jj37wQ",
+      "title": "How to Do Free Motion Cable Curls. #cablecurls #bicepcurls #armday #bicepsworkout",
+      "channel": "Chris Gates Fitness",
+      "description": "",
+      "durationSeconds": 60,
+      "viewCount": 266,
+      "embeddable": true
+    },
+    {
+      "videoId": "HNo5dMNC4Po",
+      "title": "FREEMOTION LIFT BICEP CURL",
+      "channel": "Do Work  Factory ",
+      "description": "Gold’s Gym Dundalk & Do Work Factory’s trainer Matt Wilson demonstrates form and technique.",
+      "durationSeconds": 36,
+      "viewCount": 2393,
+      "embeddable": true
+    },
+    {
+      "videoId": "4XQLqBelbPw",
+      "title": "Cable Bicep Curl Tutorial: #biceps #bicepcurls #gymtutorial",
+      "channel": "Luke and Sarah Bond",
+      "description": "Master the cable bicep curl with this step-by-step tutorial! Luke and Sarah Bond, certified personal trainers, guide you through proper form and technique to maximize your bicep gains. Using a cable machine, this exercise provides constant tension on the biceps for optimal muscle growth. Strengthen your arms and sculpt your biceps with this effective isolation exercise. Subscribe now for more fitness tutorials and workout tips!",
+      "durationSeconds": 18,
+      "viewCount": 614437,
+      "embeddable": true
+    },
+    {
+      "videoId": "T91SoJ8qVr8",
+      "title": "Sitting Cable One Arm Bicep Curl Exercise on the freemotion bicep curl machine",
+      "channel": "Zama Athletics",
+      "description": "Sitting Cable One Arm Bicep Curl Exercise on the freemotion bicep curl machine. #exercisetutorial #bicepworkout #bicepsday #exercises #exercise #bicepcurl #bicep #bicepsworkout #bicepcurls #gym #fitness #bicepcablecurl #biceps #armworkout #armworkouts #tips #peraonaltrainer #zamaathletics\n\nZamaAthletics.com",
+      "durationSeconds": 9,
+      "viewCount": 255,
+      "embeddable": true
+    },
+    {
+      "videoId": "4DuUW3KCEOw",
+      "title": "How To Do Free Motion Bicep Curls | APPROACH | OMSfitness",
+      "channel": "OMSfitness",
+      "description": "How To Have Proper Form In Free Motion Bicep Curls | OMSfitness\n\nOMSfitness Official Site: https://oms.fitness/\nOMSfitness on Facebook: https://www.facebook.com/OMSfitnesstraining/\nOMSfitness on Instagram: https://www.instagram.com/osmithfitness/\n\n#ProperForm #Form #Biceps #Curls #Bicepcurls",
+      "durationSeconds": 23,
+      "viewCount": 155,
+      "embeddable": true
+    }
+  ],
+  "curatedAt": "2026-07-26T07:28:38.521726"
+}

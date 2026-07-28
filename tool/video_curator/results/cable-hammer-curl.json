@@ -1,0 +1,96 @@
+{
+  "exercise": "Cable Hammer Curl",
+  "workout": "Biceps",
+  "pick": {
+    "videoId": "VY4walmoM-I",
+    "confidence": 0.92,
+    "reason": "Buff Dudes is a reputable fitness channel and this is a dedicated cable hammer curl tutorial at a proper demonstration length (77s), while the other candidates are ultra-short Shorts or cover a different curl variation.",
+    "source": "claude"
+  },
+  "startSeconds": 0,
+  "endSeconds": 77,
+  "chosen": {
+    "videoId": "VY4walmoM-I",
+    "title": "How to Perform Cable Hammer Curls | Biceps Exercise Tutorial",
+    "channel": "Buff Dudes Workouts",
+    "description": "How to Perform Cable Hammer Curls | Biceps Exercise Tutorial\n\n\n🤳 BUFF Workout APP on iOS: https://apps.apple.com/us/app/buff-gym-workout-tracker/id6480278630\n📱 BUFF Workout APP on Android: https://play.google.com/store/apps/details?id=com.buffdudes.android&pcampaignid=web_share",
+    "durationSeconds": 77,
+    "viewCount": 19833,
+    "embeddable": true
+  },
+  "candidates": [
+    {
+      "videoId": "YC9QZiti-40",
+      "title": "How To Perform Cable Hammer Curls For Maximum Bicep Gains!",
+      "channel": "Daniel Antonie",
+      "description": "",
+      "durationSeconds": 16,
+      "viewCount": 1073259,
+      "embeddable": true
+    },
+    {
+      "videoId": "VY4walmoM-I",
+      "title": "How to Perform Cable Hammer Curls | Biceps Exercise Tutorial",
+      "channel": "Buff Dudes Workouts",
+      "description": "How to Perform Cable Hammer Curls | Biceps Exercise Tutorial\n\n\n🤳 BUFF Workout APP on iOS: https://apps.apple.com/us/app/buff-gym-workout-tracker/id6480278630\n📱 BUFF Workout APP on Android: https://play.google.com/store/apps/details?id=com.buffdudes.android&pcampaignid=web_share",
+      "durationSeconds": 77,
+      "viewCount": 19833,
+      "embeddable": true
+    },
+    {
+      "videoId": "ozlCXTPZtw4",
+      "title": "📝FORM CHECK - ROPE HAMMER CURL",
+      "channel": "Renshaw's Personal Training",
+      "description": "",
+      "durationSeconds": 26,
+      "viewCount": 98811,
+      "embeddable": true
+    },
+    {
+      "videoId": "HTtd5uMFVz8",
+      "title": "Best way to do Rope Hammer Curls",
+      "channel": "TylerPath",
+      "description": "",
+      "durationSeconds": 12,
+      "viewCount": 561272,
+      "embeddable": true
+    },
+    {
+      "videoId": "n8KIHmsSU9s",
+      "title": "ROPE CURLS FOR THICKER ARMS",
+      "channel": "JayCutlerTV",
+      "description": "Build thicker, stronger arms by targeting the brachialis with this rope curl variation. #bodybuilding #biceps",
+      "durationSeconds": 19,
+      "viewCount": 680924,
+      "embeddable": true
+    },
+    {
+      "videoId": "meT0Bvuhzew",
+      "title": "How to do a Cable Hammer Curl",
+      "channel": "GeorgeGatsby3",
+      "description": "",
+      "durationSeconds": 52,
+      "viewCount": 44049,
+      "embeddable": true
+    },
+    {
+      "videoId": "CrbTqNOlFgE",
+      "title": "✅ The PERFECT Cable Bicep Curl",
+      "channel": "Andrew Kwong (DeltaBolic)",
+      "description": "✅ The PERFECT Cable Bicep Curl 💪🔥\n1️⃣ Keep your upper arms fixed in a vertical position. Avoid moving it. \n2️⃣ Tuck your elbows in \n3️⃣ Maintain a neutral wrist \n4️⃣ Keep your shoulders down \nTry this for better bicep isolation! 🚀 #Biceps #CableCurls\n\nSize & Shred Training program\n👉🏻 deltabolic.com\n\n\n\nInquiries: deltabolic@gmail.com\n\nFollow me on:\nTiktok https://tiktok.com/@deltabolic\nIG: https://Instagram.com/deltabolic\nFacebook: https://facebook.com/deltabolic\nThreads: https://threads.net/deltabolic",
+      "durationSeconds": 10,
+      "viewCount": 2653114,
+      "embeddable": true
+    },
+    {
+      "videoId": "fSfgRE_vcOo",
+      "title": "Rope Curls: Know The Difference ⚠️ #arms",
+      "channel": "Hazzytrainer",
+      "description": "",
+      "durationSeconds": 13,
+      "viewCount": 699378,
+      "embeddable": true
+    }
+  ],
+  "curatedAt": "2026-07-25T14:46:36.416705"
+}

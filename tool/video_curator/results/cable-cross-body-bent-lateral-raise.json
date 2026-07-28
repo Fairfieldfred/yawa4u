@@ -1,0 +1,96 @@
+{
+  "exercise": "Cable Cross Body Bent Lateral Raise",
+  "workout": "Shoulders",
+  "pick": {
+    "videoId": "2OMbdPF7mz4",
+    "confidence": 0.8,
+    "reason": "Renaissance Periodization's clip is the only candidate demonstrating the exact cross-body cable lateral raise variation, from a highly reputable evidence-based channel, though it is shorter than the preferred length.",
+    "source": "claude"
+  },
+  "startSeconds": 0,
+  "endSeconds": 12,
+  "chosen": {
+    "videoId": "2OMbdPF7mz4",
+    "title": "Cable Cross Body Lateral Raise",
+    "channel": "Renaissance Periodization",
+    "description": "Filmed at Exile Gym in Baltimore, MD.",
+    "durationSeconds": 12,
+    "viewCount": 369295,
+    "embeddable": true
+  },
+  "candidates": [
+    {
+      "videoId": "f_OGBg2KxgY",
+      "title": "Stop Messing Up Lateral Raises (Easy Fix)",
+      "channel": "Jeff Nippard",
+      "description": "Here are three simple ways to level up your lateral raise game and build bigger shoulders! Adjust the cable height for more tension in the stretched position, use wrist cuffs for a better mind-muscle connection, and stretch the cable across your body to get your side delts more stretched.",
+      "durationSeconds": 44,
+      "viewCount": 11591590,
+      "embeddable": true
+    },
+    {
+      "videoId": "2OMbdPF7mz4",
+      "title": "Cable Cross Body Lateral Raise",
+      "channel": "Renaissance Periodization",
+      "description": "Filmed at Exile Gym in Baltimore, MD.",
+      "durationSeconds": 12,
+      "viewCount": 369295,
+      "embeddable": true
+    },
+    {
+      "videoId": "UFcaodmbXd8",
+      "title": "Lateral Raise Tip",
+      "channel": "ArielYu_Fit",
+      "description": "Dumbbell Lateral Raise is a classic exercise for building defined, squared shoulders. To perform it more effectively, keep these four key points in mind:\n\n1. Half Grip the Dumbbells\nUsing a half grip helps reduce forearm involvement and allows better isolation of the lateral deltoids.\n2. Slight Bend in the Elbows\nKeep your elbows slightly bent to reduce stress on the shoulder joints and lower the risk of injury.\n3. Depress the Shoulders and Stabilize the Scapulae\nActively depress your shoulders and stabilize your scapulae to prevent shrugging and better isolate shoulder activation.\n4. Slight Forward Lean\nLean your torso slightly forward to increase the range of motion and better target the delts throughout the lift\n\n#gymtips #shoulders #shoulderworkouts #upperbodyworkout #dumbbellworkout #ﬁtness",
+      "durationSeconds": 13,
+      "viewCount": 2075523,
+      "embeddable": true
+    },
+    {
+      "videoId": "uxCEbEM9z9Q",
+      "title": "\"3 Effective Reverse Cable Fly Variations for Stronger Shoulders!\"",
+      "channel": "KC FITNESS",
+      "description": "\"3 Effective Reverse Cable Fly Variations for Stronger Shoulders!\"\n\n\nyour queries \nReverse cable fly\nShoulder workout\nCable exercises\nShoulder training\nFitness variations\nMuscle building\nGym exercises\nWorkout tips\nShoulder strength\nUpper body workout\n\n\n\n\n\n#ReverseCableFly #ShoulderWorkout #FitnessVariations #GymExercises #MuscleBuilding #WorkoutTips #ShoulderStrength #UpperBodyWorkout #CableExercises #FlyVariations",
+      "durationSeconds": 6,
+      "viewCount": 965851,
+      "embeddable": true
+    },
+    {
+      "videoId": "xrBcuPNTxLg",
+      "title": "Do THIS Next Time on Cable Lateral Raises for Muscle Growth",
+      "channel": "TylerPath",
+      "description": "",
+      "durationSeconds": 19,
+      "viewCount": 7432537,
+      "embeddable": true
+    },
+    {
+      "videoId": "rgUAkKiffVI",
+      "title": "Protect your shoulder while doing lateral raises❗️ #HeyDrRob #GetBetterNotOlder #LateralRaises",
+      "channel": "Dr. Rob Jones",
+      "description": "",
+      "durationSeconds": 29,
+      "viewCount": 267419,
+      "embeddable": true
+    },
+    {
+      "videoId": "23VoAvqwSzo",
+      "title": "💪 Cable Lateral Raises — one of the best moves for building wide, 3D shoulders",
+      "channel": "SynerMuscle",
+      "description": "",
+      "durationSeconds": 13,
+      "viewCount": 742372,
+      "embeddable": true
+    },
+    {
+      "videoId": "lMJUXEvcMkQ",
+      "title": "Cable Lateral Raise Setup in 10 Seconds !✅",
+      "channel": "Aakash Wadhwani",
+      "description": "",
+      "durationSeconds": 11,
+      "viewCount": 2633459,
+      "embeddable": true
+    }
+  ],
+  "curatedAt": "2026-07-25T14:44:51.456073"
+}

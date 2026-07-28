@@ -1,0 +1,96 @@
+{
+  "exercise": "Cable Upright Row",
+  "workout": "Shoulders",
+  "pick": {
+    "videoId": "nwkLwMRHMQo",
+    "confidence": 0.75,
+    "reason": "Jeff Nippard is a highly reputable evidence-based channel and this 7-minute video gives detailed form cues and safety modifications for the upright row, meeting the preferred length while all other candidates are sub-30-second shorts.",
+    "source": "claude"
+  },
+  "startSeconds": 0,
+  "endSeconds": 300,
+  "chosen": {
+    "videoId": "nwkLwMRHMQo",
+    "title": "How To Fix The Upright Row: Avoid Shoulder Pain & Maximize Growth",
+    "channel": "Jeff Nippard",
+    "description": "In this video we're looking at 3 ways to modify the upright row to make it safer and more effective. \n\nGet my Fundamentals Hypertrophy Program:\nhttp://www.strcng.com/programs/fundamentals\n\nSupport Technique Tuesday: I am choosing to leave the entire Technique Tuesday Series COMPLETELY UNSPONSORED so I can focus all of my attention on delivering the relevant information. *Each episode takes ~30-40 hours to write, produce and edit.* If you're learning from these videos every week, consider supporting my work by trying one of my science-based training programs that best suits your goals. ($9.99 - $39.99)\n‣ http://www.jeffnippard.com/programs\n\nWatch more Technique Tuesday videos:\nhttps://www.youtube.com/playlist?list=PLp4G6oBUcv8yGQifkb4p_ZOoACPnYslx9\n\n-------------------------------\n\nCheck out what my amazing sponsors have to offer:\n\n▹ MASS (Monthly Research Review)\n‣ https://bit.ly/jeffMASS\n‣ Only $25/month (pre-paid yearly)\n\n▹ PEScience Supplements\n‣ https://www.PEScience.com/discount/jeff\n‣ Use discount code JEFF to save $$\n\n▹ RISE Training Gear and Sportwear\n‣ http://rise.ca/jeff\n‣ Use discount code JEFF to save 10%\n\n▹ Body-Analyser Weight and Bodyfat % Scale\n‣ https://vitagoods.com/jefffit\n‣ Use the above link to save 60% off! \n\n-------------------------------\n\nFollow me on social media:\n\nInstagram ‣ http://instagram.com/jeffnippard\nFacebook ‣ http://facebook.com/jeffnippard\nTwitter ‣ http://twitter.com/jeffnippard\nPodcast ‣ The Jeff Nippard Podcast on iTunes and Stitcher\n\n-------------------------------\n\nSOURCES:\n\nhttps://www.researchgate.net/publication/232210633_The_Upright_Row_Implications_for_Preventing_Subacromial_Impingement\nhttps://www.youtube.com/watch?v=vARsKXb7wNc\n\nIf you're eager to learn more about proper technique, I recommend subscribing to the 3DMJ Lifting Library:\n‣ https://www.3dmjvault.com/courses/lifting-library\n\nFilmed at Body and Soul Gym in Kelowna, BC - my favourite 24 hr gym in the Okanagan!\n‣ https://www.bodyandsoulkelowna.com/\n\nIntro Music: \n‣ Ryan Little: https://www.youtube.com/watch?v=UFK-mqdEAqE\n\nFilmed and edited by Rashaun R and me using Final Cut Pro X and Sony A7R3\n\nRashaun's YouTube:\n‣https://www.youtube.com/channel/UClnG0SHgQJm9CcZWIEgRnMw\n\n-------------------------------\n\nAbout me: I'm a Canadian natural pro bodybuilder and internationally-qualified powerlifter with a BSc in biochemistry/chemistry and a passion for science. I've been training for 12 years drug-free. I'm 5'5 and fluctuate between 160 lbs (lean) and 180 lbs (bulked). \n\n-------------------------------\n\nDisclaimers: Jeff Nippard is not a doctor or a medical professional.  Always consult a physician before starting any exercise program. Use of this information is strictly at your own risk. Jeff Nippard will not assume any liability for direct or indirect losses or damages that may result from the use of information contained in this video including but not limited to economic loss, injury, illness or death.",
+    "durationSeconds": 447,
+    "viewCount": 538329,
+    "embeddable": true
+  },
+  "candidates": [
+    {
+      "videoId": "MVDNQt5NgKI",
+      "title": "Cable Upright Row",
+      "channel": "Kraken Fitness",
+      "description": "The Gym For People Who Aren't Gym People.\n\nWhen it comes to the fitness industry, a lot of gyms just treat you like a number, and not a person. But we know that your results matter. We are determined to hold you accountable until you get there and help you become a lean, fat-burning machine without excessive cardio or restrictive diets\n\nIn a recent survey, we found our clients:\n\n• Lose an average of 14.2lbs on average in the first 3 months\n• Continue losing 1.1lbs per week on average until they reach their goal of 10-40lbs+ total lost\n• 97% feel that they learned the skills to keep the weight off forever\n\nIn other words, you’re weeks away from hitting your goal.\n\n*****\n\nNUTRITION PROGRAM\n\nOur clients have seen results with and without our nutrition program. However we provide one of the best nutrition coaching programs in Burnaby.\n\n• Hundreds of video lessons\n• Weekly coaching check-ins\n• 3D body scans\n• Tracking sheets\n• Recipes, grocery lists and eating out guides\n\n*****\n\nFor more information, visit our website: https://krakentraining.com/",
+      "durationSeconds": 27,
+      "viewCount": 253720,
+      "embeddable": true
+    },
+    {
+      "videoId": "ID83n8pEPw8",
+      "title": "\"Cable Upright Row Tutorial: Avoid This Common Gym Mistake\"#shorts #fitneess #gym",
+      "channel": "KC FITNESS",
+      "description": "",
+      "durationSeconds": 6,
+      "viewCount": 136121,
+      "embeddable": true
+    },
+    {
+      "videoId": "qr3ziolhjvQ",
+      "title": "Cable Upright Row",
+      "channel": "Renaissance Periodization",
+      "description": "Filmed at Exile Gym in Baltimore, MD.",
+      "durationSeconds": 11,
+      "viewCount": 377435,
+      "embeddable": true
+    },
+    {
+      "videoId": "nfhe918YV9k",
+      "title": "Cable Upright Rows",
+      "channel": "Your4® - Matt & Meag",
+      "description": "#shorts",
+      "durationSeconds": 11,
+      "viewCount": 262677,
+      "embeddable": true
+    },
+    {
+      "videoId": "nwkLwMRHMQo",
+      "title": "How To Fix The Upright Row: Avoid Shoulder Pain & Maximize Growth",
+      "channel": "Jeff Nippard",
+      "description": "In this video we're looking at 3 ways to modify the upright row to make it safer and more effective. \n\nGet my Fundamentals Hypertrophy Program:\nhttp://www.strcng.com/programs/fundamentals\n\nSupport Technique Tuesday: I am choosing to leave the entire Technique Tuesday Series COMPLETELY UNSPONSORED so I can focus all of my attention on delivering the relevant information. *Each episode takes ~30-40 hours to write, produce and edit.* If you're learning from these videos every week, consider supporting my work by trying one of my science-based training programs that best suits your goals. ($9.99 - $39.99)\n‣ http://www.jeffnippard.com/programs\n\nWatch more Technique Tuesday videos:\nhttps://www.youtube.com/playlist?list=PLp4G6oBUcv8yGQifkb4p_ZOoACPnYslx9\n\n-------------------------------\n\nCheck out what my amazing sponsors have to offer:\n\n▹ MASS (Monthly Research Review)\n‣ https://bit.ly/jeffMASS\n‣ Only $25/month (pre-paid yearly)\n\n▹ PEScience Supplements\n‣ https://www.PEScience.com/discount/jeff\n‣ Use discount code JEFF to save $$\n\n▹ RISE Training Gear and Sportwear\n‣ http://rise.ca/jeff\n‣ Use discount code JEFF to save 10%\n\n▹ Body-Analyser Weight and Bodyfat % Scale\n‣ https://vitagoods.com/jefffit\n‣ Use the above link to save 60% off! \n\n-------------------------------\n\nFollow me on social media:\n\nInstagram ‣ http://instagram.com/jeffnippard\nFacebook ‣ http://facebook.com/jeffnippard\nTwitter ‣ http://twitter.com/jeffnippard\nPodcast ‣ The Jeff Nippard Podcast on iTunes and Stitcher\n\n-------------------------------\n\nSOURCES:\n\nhttps://www.researchgate.net/publication/232210633_The_Upright_Row_Implications_for_Preventing_Subacromial_Impingement\nhttps://www.youtube.com/watch?v=vARsKXb7wNc\n\nIf you're eager to learn more about proper technique, I recommend subscribing to the 3DMJ Lifting Library:\n‣ https://www.3dmjvault.com/courses/lifting-library\n\nFilmed at Body and Soul Gym in Kelowna, BC - my favourite 24 hr gym in the Okanagan!\n‣ https://www.bodyandsoulkelowna.com/\n\nIntro Music: \n‣ Ryan Little: https://www.youtube.com/watch?v=UFK-mqdEAqE\n\nFilmed and edited by Rashaun R and me using Final Cut Pro X and Sony A7R3\n\nRashaun's YouTube:\n‣https://www.youtube.com/channel/UClnG0SHgQJm9CcZWIEgRnMw\n\n-------------------------------\n\nAbout me: I'm a Canadian natural pro bodybuilder and internationally-qualified powerlifter with a BSc in biochemistry/chemistry and a passion for science. I've been training for 12 years drug-free. I'm 5'5 and fluctuate between 160 lbs (lean) and 180 lbs (bulked). \n\n-------------------------------\n\nDisclaimers: Jeff Nippard is not a doctor or a medical professional.  Always consult a physician before starting any exercise program. Use of this information is strictly at your own risk. Jeff Nippard will not assume any liability for direct or indirect losses or damages that may result from the use of information contained in this video including but not limited to economic loss, injury, illness or death.",
+      "durationSeconds": 447,
+      "viewCount": 538329,
+      "embeddable": true
+    },
+    {
+      "videoId": "m4_Ea9zL8Qs",
+      "title": "📌✅Do’s & ❌Don’ts for Upright Rows👌",
+      "channel": "SquatCouple",
+      "description": "",
+      "durationSeconds": 10,
+      "viewCount": 347193,
+      "embeddable": true
+    },
+    {
+      "videoId": "U-KG4oahSLA",
+      "title": "How To Properly Perform An Upright Row!",
+      "channel": "Marcel Bradford",
+      "description": "How to properly perform an Upright Row!\n\nThe intention of this movement is to target your side delts.\n\n❌If you place your hands using a close grip and pull the bar high (above your shoulders), you will start to engage your traps. \n\n✅Instead place your hands wider and keep your elbows in line with the shoulders at the top of the movement. \n\nSAVE as a reference for your next shoulder day👊🏾\n\n#fitnesstips #workouts #gym #explorepage #reels #health #shoulderworkout #shoulderpress #fitnessmotivation",
+      "durationSeconds": 7,
+      "viewCount": 554974,
+      "embeddable": true
+    },
+    {
+      "videoId": "4O8nB-fw2zI",
+      "title": "Upright Row Tips:",
+      "channel": "ArielYu_Fit",
+      "description": "Upright Row Tips：\n 1. Narrow Grip:\n • Grip Width: The distance between your hands is relatively narrow, usually narrower than shoulder-width.\n • Target Muscles: The narrow grip primarily focuses on the upper trapezius and the anterior deltoid. This grip makes the trapezius more active, with a relatively higher involvement of the shoulders.\n 2. Wide Grip:\n • Grip Width: The distance between your hands is wide, typically much wider than shoulder-width.\n • Target Muscles: The wide grip mainly targets the lateral deltoid, with relatively less involvement of the trapezius. This grip is more focused on developing the outer part of the shoulders.\n 3. Shoulder-Width Grip:\n • Grip Width: The distance between your hands is shoulder-width or slightly wider.\n • Target Muscles: The shoulder-width grip is a balanced option, activating both the trapezius and the deltoid muscles. While this grip doesn’t concentrate on a specific muscle group as much as the narrow or wide grip, it allows for a more even development of the shoulders and upper back.\n\n#triceps #arms #homeworkout #workoutathome\n#gymmotivation #gymgirl #fyp #gymtips #shoulders #shoulderworkout #backworkout",
+      "durationSeconds": 19,
+      "viewCount": 298109,
+      "embeddable": true
+    }
+  ],
+  "curatedAt": "2026-07-25T14:50:10.090840"
+}

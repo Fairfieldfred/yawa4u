@@ -1,0 +1,96 @@
+{
+  "exercise": "Cable Curl (Single Arm)",
+  "workout": "Biceps",
+  "pick": {
+    "videoId": "E9PmhG6LygI",
+    "confidence": 0.72,
+    "reason": "It is an exact match for the single-arm cable curl with explicit correct-form instruction, whereas the higher-view candidates demonstrate two-arm or Bayesian cable curl variations.",
+    "source": "claude"
+  },
+  "startSeconds": 0,
+  "endSeconds": 38,
+  "chosen": {
+    "videoId": "E9PmhG6LygI",
+    "title": "How to correctly perform a single arm cable bicep curl - What's your go too bicep exercise?",
+    "channel": "The Coaching Collective ",
+    "description": "",
+    "durationSeconds": 38,
+    "viewCount": 187518,
+    "embeddable": true
+  },
+  "candidates": [
+    {
+      "videoId": "Pl9mdRlDLto",
+      "title": "Single Arm Cable Curl",
+      "channel": "TylerPath",
+      "description": "",
+      "durationSeconds": 21,
+      "viewCount": 510498,
+      "embeddable": true
+    },
+    {
+      "videoId": "E9PmhG6LygI",
+      "title": "How to correctly perform a single arm cable bicep curl - What's your go too bicep exercise?",
+      "channel": "The Coaching Collective ",
+      "description": "",
+      "durationSeconds": 38,
+      "viewCount": 187518,
+      "embeddable": true
+    },
+    {
+      "videoId": "_Z8Afknw_Fc",
+      "title": "How to do Bayesian cable curls",
+      "channel": "TylerPath",
+      "description": "",
+      "durationSeconds": 19,
+      "viewCount": 1914577,
+      "embeddable": true
+    },
+    {
+      "videoId": "kQWfaPsLN8Y",
+      "title": "The best way to do biceps curls",
+      "channel": "eugene teo",
+      "description": "",
+      "durationSeconds": 19,
+      "viewCount": 1027683,
+      "embeddable": true
+    },
+    {
+      "videoId": "CrbTqNOlFgE",
+      "title": "✅ The PERFECT Cable Bicep Curl",
+      "channel": "Andrew Kwong (DeltaBolic)",
+      "description": "✅ The PERFECT Cable Bicep Curl 💪🔥\n1️⃣ Keep your upper arms fixed in a vertical position. Avoid moving it. \n2️⃣ Tuck your elbows in \n3️⃣ Maintain a neutral wrist \n4️⃣ Keep your shoulders down \nTry this for better bicep isolation! 🚀 #Biceps #CableCurls\n\nSize & Shred Training program\n👉🏻 deltabolic.com\n\n\n\nInquiries: deltabolic@gmail.com\n\nFollow me on:\nTiktok https://tiktok.com/@deltabolic\nIG: https://Instagram.com/deltabolic\nFacebook: https://facebook.com/deltabolic\nThreads: https://threads.net/deltabolic",
+      "durationSeconds": 10,
+      "viewCount": 2653089,
+      "embeddable": true
+    },
+    {
+      "videoId": "dyEZvuMZXsY",
+      "title": "You Should Start Doing Cable Curls Like This",
+      "channel": "TylerPath",
+      "description": "",
+      "durationSeconds": 15,
+      "viewCount": 3165607,
+      "embeddable": true
+    },
+    {
+      "videoId": "w3sXATQzGvc",
+      "title": "✅ The PERFECT Bayesian Curl (DO THIS!)",
+      "channel": "Andrew Kwong (DeltaBolic)",
+      "description": "✅ The PERFECT Bayesian Curl Form Tips\n\n1️⃣ Set the cable handle at elbow height – A higher handle position provides a greater biceps stretch than a lower setup. It also helps keep your elbows from drifting forward and improves stability.\n\n2️⃣ Keep your elbows behind your torso – As far as your mobility allows, maintain this position to maximize the biceps stretch.\n\n3️⃣ Lean slightly forward – This enhances stability and reduces the chance of your elbows creeping forward. Avoid standing completely upright.\n\n4️⃣ Maintain a neutral wrist – Keep your wrist in line with your forearm throughout the movement.\n\n5️⃣ Depress your shoulders – Keep them down the entire time to prevent your traps from taking over. In other words, don’t shrug!\n\nSize & Shred Training program\n👉🏻 deltabolic.com\n\n\n\nInquiries: deltabolic@gmail.com\n\nFollow me on:\nTiktok https://tiktok.com/@deltabolic\nIG: https://Instagram.com/deltabolic\nFacebook: https://facebook.com/deltabolic\nThreads: https://threads.net/deltabolic",
+      "durationSeconds": 13,
+      "viewCount": 1281881,
+      "embeddable": true
+    },
+    {
+      "videoId": "PEiIOW7HGnA",
+      "title": "99% Make This Technique Mistake",
+      "channel": "Jeff Nippard",
+      "description": "Let's look at 3 common technique mistakes on the lat pulldown, incline dumbbell press and bayesian cable curl! I'll also demo how to do these exercises with proper form.",
+      "durationSeconds": 45,
+      "viewCount": 7528513,
+      "embeddable": true
+    }
+  ],
+  "curatedAt": "2026-07-25T14:45:32.309986"
+}

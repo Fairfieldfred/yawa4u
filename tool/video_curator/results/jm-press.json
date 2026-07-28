@@ -1,0 +1,96 @@
+{
+  "exercise": "JM Press",
+  "workout": "Triceps",
+  "pick": {
+    "videoId": "hOCW9cE-GJg",
+    "confidence": 0.95,
+    "reason": "An 8-minute focused tutorial from elitefts featuring JM Blakley, the exercise's creator, teaching correct form — the only candidate that is a full demonstration rather than a sub-minute short.",
+    "source": "claude"
+  },
+  "startSeconds": 0,
+  "endSeconds": 300,
+  "chosen": {
+    "videoId": "hOCW9cE-GJg",
+    "title": "The Official JM Press Tutorial",
+    "channel": "elitefts",
+    "description": "Elitefts Columnist and Bench Press legend JM Blakley teaches and explains the JM Press, as well as how he came up with this exercise.\n\nCheck out JM Blakley's YouTube Channel: https://www.youtube.com/channel/UCfPQP6Kds1Hlu2n8v-efq9A/featured\n_________________________\nTime Stamps\nIntro - 0:00\nHistory of the JM Press - 0:24 \nThe demonstration - 3:49\nJM's YouTube - 7:51\nOutro - 8:08\n_________________________\nShop Our Site: https://www.elitefts.com/\nShop Our Popular Items: https://www.elitefts.com/shop/sale/be...\nFollow Us On IG: https://instagram.com/elitefts/\nFollow JM on Instagram: https://www.instagram.com/j.m.blakley/?hl=en\nFollow Us On FB: https://www.facebook.com/Elitefts/\nTweet Us At: https://twitter.com/elitefts\nEmail Us At: customerservice@elitefts.net\n_________________________\nDo YOU want to get FREE one on one coaching from one of the best in the business? Follow us on Instagram and keep an eye out for more chances to win!",
+    "durationSeconds": 506,
+    "viewCount": 423551,
+    "embeddable": true
+  },
+  "candidates": [
+    {
+      "videoId": "T6hKsaGd0bU",
+      "title": "✅ How To: JM PRESS With JM BLAKLEY ✅  #elitefts #jmpress",
+      "channel": "elitefts",
+      "description": "",
+      "durationSeconds": 27,
+      "viewCount": 378423,
+      "embeddable": true
+    },
+    {
+      "videoId": "jmgz4ILVveM",
+      "title": "Correct way to perform JM PRESS",
+      "channel": "Evans Green",
+      "description": "",
+      "durationSeconds": 17,
+      "viewCount": 299649,
+      "embeddable": true
+    },
+    {
+      "videoId": "TQZsq8j2Lmo",
+      "title": "JM Press hits the triceps hard. Feels weird at first, so be patient and press up explosively.💪 #gym",
+      "channel": "Ryan McCaffrey",
+      "description": "",
+      "durationSeconds": 21,
+      "viewCount": 308288,
+      "embeddable": true
+    },
+    {
+      "videoId": "hOCW9cE-GJg",
+      "title": "The Official JM Press Tutorial",
+      "channel": "elitefts",
+      "description": "Elitefts Columnist and Bench Press legend JM Blakley teaches and explains the JM Press, as well as how he came up with this exercise.\n\nCheck out JM Blakley's YouTube Channel: https://www.youtube.com/channel/UCfPQP6Kds1Hlu2n8v-efq9A/featured\n_________________________\nTime Stamps\nIntro - 0:00\nHistory of the JM Press - 0:24 \nThe demonstration - 3:49\nJM's YouTube - 7:51\nOutro - 8:08\n_________________________\nShop Our Site: https://www.elitefts.com/\nShop Our Popular Items: https://www.elitefts.com/shop/sale/be...\nFollow Us On IG: https://instagram.com/elitefts/\nFollow JM on Instagram: https://www.instagram.com/j.m.blakley/?hl=en\nFollow Us On FB: https://www.facebook.com/Elitefts/\nTweet Us At: https://twitter.com/elitefts\nEmail Us At: customerservice@elitefts.net\n_________________________\nDo YOU want to get FREE one on one coaching from one of the best in the business? Follow us on Instagram and keep an eye out for more chances to win!",
+      "durationSeconds": 506,
+      "viewCount": 423551,
+      "embeddable": true
+    },
+    {
+      "videoId": "Tih5iHyELsE",
+      "title": "JM Press",
+      "channel": "Renaissance Periodization",
+      "description": "Filmed at Exile gym in Baltimore, MD.",
+      "durationSeconds": 14,
+      "viewCount": 657797,
+      "embeddable": true
+    },
+    {
+      "videoId": "Q89qOqfvhrY",
+      "title": "How to: Dumbbell JM press #tricepspress #tricepsworkout",
+      "channel": "ATLASTHETICS",
+      "description": "",
+      "durationSeconds": 50,
+      "viewCount": 66424,
+      "embeddable": true
+    },
+    {
+      "videoId": "Gve6GxtEhpg",
+      "title": "How To Perform the JM Press (According to JM Blakley) 👏 #shorts",
+      "channel": "elitefts",
+      "description": "Watch the Full Video: https://www.youtube.com/watch?v=hOCW9cE-GJg\n\nJM Blakley teaches the correct way to perform the JM Press",
+      "durationSeconds": 57,
+      "viewCount": 7916,
+      "embeddable": true
+    },
+    {
+      "videoId": "k-hj1-nC8_8",
+      "title": "Most people setup this Tricep JM Press WRONG…",
+      "channel": "Kendall Pederson",
+      "description": "",
+      "durationSeconds": 17,
+      "viewCount": 27756,
+      "embeddable": true
+    }
+  ],
+  "curatedAt": "2026-07-26T07:34:01.613309"
+}

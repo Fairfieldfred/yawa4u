@@ -1,0 +1,96 @@
+{
+  "exercise": "Congdon Curl",
+  "workout": "Biceps",
+  "pick": {
+    "videoId": "RiOuy3PpC6M",
+    "confidence": 0.6,
+    "reason": "It's an exact title match for the P90X-specific Congdon Curl (the longer of the exact-match clips), whereas the longer, more polished candidates demonstrate different curl variations; the only drawback is its very short 10-second length.",
+    "source": "claude"
+  },
+  "startSeconds": 0,
+  "endSeconds": 10,
+  "chosen": {
+    "videoId": "RiOuy3PpC6M",
+    "title": "Congdon curls",
+    "channel": "Aaron Warner",
+    "description": "",
+    "durationSeconds": 10,
+    "viewCount": 625,
+    "embeddable": true
+  },
+  "candidates": [
+    {
+      "videoId": "Q0qxaDdLNmk",
+      "title": "Congdon Curl",
+      "channel": "Chris Pardini",
+      "description": "",
+      "durationSeconds": 8,
+      "viewCount": 624,
+      "embeddable": true
+    },
+    {
+      "videoId": "RiOuy3PpC6M",
+      "title": "Congdon curls",
+      "channel": "Aaron Warner",
+      "description": "",
+      "durationSeconds": 10,
+      "viewCount": 625,
+      "embeddable": true
+    },
+    {
+      "videoId": "4BaUfi2CoSA",
+      "title": "Congdon curls",
+      "channel": "Aaron Warner",
+      "description": "",
+      "durationSeconds": 9,
+      "viewCount": 42,
+      "embeddable": true
+    },
+    {
+      "videoId": "Fg7RZjbMSIk",
+      "title": "How To-Full supination Bicep curls",
+      "channel": "Brent Lee",
+      "description": "Proper Form is everything when doing exercises within a workout. In this video I show the actual way the exercise is meant to be done. Then show you my twist to it.",
+      "durationSeconds": 231,
+      "viewCount": 1367,
+      "embeddable": true
+    },
+    {
+      "videoId": "bIJBARf-WfM",
+      "title": "Static Arm Curl",
+      "channel": "HomeBodyTraining",
+      "description": "The static arm curl is an isolation exercise that works your biceps.",
+      "durationSeconds": 39,
+      "viewCount": 86,
+      "embeddable": true
+    },
+    {
+      "videoId": "TFqRO8oLND4",
+      "title": "Static Bicep Curls - How To do Them Properly",
+      "channel": "AKR M.E. Fitness",
+      "description": "I am doing static bicep curls.",
+      "durationSeconds": 16,
+      "viewCount": 2301,
+      "embeddable": true
+    },
+    {
+      "videoId": "8Ubr8L_vo1Q",
+      "title": "DB Zottman Curls",
+      "channel": "Tiffany LeRoy - Envision Personalized Training ",
+      "description": "",
+      "durationSeconds": 14,
+      "viewCount": 31437,
+      "embeddable": true
+    },
+    {
+      "videoId": "clFk-7fOMlk",
+      "title": "P90X One Arm Full Supination Concentration Curls Part 2",
+      "channel": "Owens Christopher",
+      "description": "Celebrating 🥳",
+      "durationSeconds": 12,
+      "viewCount": 381,
+      "embeddable": true
+    }
+  ],
+  "curatedAt": "2026-07-25T14:51:39.178373"
+}
