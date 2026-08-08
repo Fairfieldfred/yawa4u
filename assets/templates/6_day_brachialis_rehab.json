@@ -35,15 +35,15 @@
             "dayName": null,
             "exercises": [
                 {
-                    "name": "Walking Lunges (Dumbbell)",
-                    "muscleGroup": "glutes",
+                    "name": "Walking Lunges (Quad Focused, Dumbbell)",
+                    "muscleGroup": "quads",
                     "equipmentType": "dumbbell",
                     "sets": 2,
                     "reps": "8-12",
                     "setType": "regular"
                 },
                 {
-                    "name": "Belt Squat Calves",
+                    "name": "Belt Calf Raises",
                     "muscleGroup": "calves",
                     "equipmentType": "cable",
                     "sets": 3,
@@ -447,7 +447,7 @@
             "dayName": null,
             "exercises": [
                 {
-                    "name": "Incline Dumbbell Y Raises",
+                    "name": "Dumbbell Incline Y Raises",
                     "muscleGroup": "shoulders",
                     "equipmentType": "dumbbell",
                     "sets": 2,
@@ -524,15 +524,15 @@
             "dayName": null,
             "exercises": [
                 {
-                    "name": "Walking Lunges (Dumbbell)",
-                    "muscleGroup": "glutes",
+                    "name": "Walking Lunges (Quad Focused, Dumbbell)",
+                    "muscleGroup": "quads",
                     "equipmentType": "dumbbell",
                     "sets": 2,
                     "reps": "8-12",
                     "setType": "regular"
                 },
                 {
-                    "name": "Belt Squat Calves",
+                    "name": "Belt Calf Raises",
                     "muscleGroup": "calves",
                     "equipmentType": "cable",
                     "sets": 3,
@@ -944,7 +944,7 @@
             "dayName": null,
             "exercises": [
                 {
-                    "name": "Incline Dumbbell Y Raises",
+                    "name": "Dumbbell Incline Y Raises",
                     "muscleGroup": "shoulders",
                     "equipmentType": "dumbbell",
                     "sets": 2,
@@ -1029,15 +1029,15 @@
             "dayName": null,
             "exercises": [
                 {
-                    "name": "Walking Lunges (Dumbbell)",
-                    "muscleGroup": "glutes",
+                    "name": "Walking Lunges (Quad Focused, Dumbbell)",
+                    "muscleGroup": "quads",
                     "equipmentType": "dumbbell",
                     "sets": 2,
                     "reps": "8-12",
                     "setType": "regular"
                 },
                 {
-                    "name": "Belt Squat Calves",
+                    "name": "Belt Calf Raises",
                     "muscleGroup": "calves",
                     "equipmentType": "cable",
                     "sets": 3,
@@ -1441,7 +1441,7 @@
             "dayName": null,
             "exercises": [
                 {
-                    "name": "Incline Dumbbell Y Raises",
+                    "name": "Dumbbell Incline Y Raises",
                     "muscleGroup": "shoulders",
                     "equipmentType": "dumbbell",
                     "sets": 2,
@@ -1518,15 +1518,15 @@
             "dayName": null,
             "exercises": [
                 {
-                    "name": "Walking Lunges (Dumbbell)",
-                    "muscleGroup": "glutes",
+                    "name": "Walking Lunges (Quad Focused, Dumbbell)",
+                    "muscleGroup": "quads",
                     "equipmentType": "dumbbell",
                     "sets": 2,
                     "reps": "8-12",
                     "setType": "regular"
                 },
                 {
-                    "name": "Belt Squat Calves",
+                    "name": "Belt Calf Raises",
                     "muscleGroup": "calves",
                     "equipmentType": "cable",
                     "sets": 3,
@@ -1938,7 +1938,7 @@
             "dayName": null,
             "exercises": [
                 {
-                    "name": "Incline Dumbbell Y Raises",
+                    "name": "Dumbbell Incline Y Raises",
                     "muscleGroup": "shoulders",
                     "equipmentType": "dumbbell",
                     "sets": 2,

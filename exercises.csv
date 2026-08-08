@@ -73,7 +73,7 @@ Cable Shrug,Traps,Cable
 Cable Side Shrug,Traps,Cable
 Cable Single Arm Rear Delt Raise,Shoulders,Cable
 Cable Single Arm Side Shrug,Traps,Cable
-Cable Shoulder Press, Shoulders,Cable
+Cable Shoulder Press,Shoulders,Cable
 Cable Triceps Pushdown (Bar),Triceps,Cable
 Cable Triceps Pushdown (Rope),Triceps,Cable
 Cable Triceps Pushdown (SIngle Arm),Triceps,Cable
@@ -96,7 +96,7 @@ Deadlift (Sumo Stance),Glutes,Barbell
 Dip (Chest-Focused),Chest,Bodyweight Only
 Dip (Triceps-Focused),Triceps,Bodyweight Only
 "Dip (Weighted, Triceps Focused)",Triceps,Bodyweight Loadable 
-"Dip (Weighted, Chest-Focused",Chest,Bodyweight Loadable 
+"Dip (Weighted, Chest-Focused)",Chest,Bodyweight Loadable 
 Dip Machine,Triceps,Machine
 Dumbbell Side Bend,Obliques,Dumbbell
 Dumbbell Bench Wrist Curl,Forearms,Dumbbell
@@ -152,7 +152,7 @@ Dumbbell Twist Curl,Biceps,Dumbbell
 Dumbbell Upright Row,Shoulders,Dumbbell
 EZ Bar Curl (Narrow Grip),Biceps,Barbell
 EZ Bar Curl (Normal Grip),Biceps,Barbell
-EZ Bar Cule (Wide Grip),Biceps,Barbell
+EZ Bar Curl (Wide Grip),Biceps,Barbell
 EZ Bar Overhead Triceps Extension,Triceps,Barbell
 EZ Bar Overhead Triceps Extension (Seated),Triceps,Barbell
 EZ Bar Preacher Curl,Biceps,Barbell
@@ -277,8 +277,8 @@ Pulldown (Straight Arm),Back,Cable
 Pulldown (Underhand Grip),Back,Cable
 Pulldown (Upright Torso to Abs),Back,Cable
 Pulldown (Wide Grip),Back,Cable
-Pullup Bar Hang, Grip, Bodyweight Only
-Pullup Bar Hang, Grip, Bodyweight Loadable
+Pullup Bar Hang,Grip,Bodyweight Only
+Pullup Bar Hang,Grip,Bodyweight Loadable
 Pullup (Normal Grip),Back,Bodyweight Only
 Pullup (Parallel Grip),Back,Bodyweight Only
 Pullup (Close Grip Overhand),Back,Bodyweight Only
@@ -288,7 +288,7 @@ Pullup (Corn Cob),Back,Bodyweight Only
 "Pullup (Weighted, Parallel Grip)",Back,Bodyweight Loadable 
 "Pullup (Weighted, Underhand Grip)",Back,Bodyweight Loadable 
 "Pullup (Weighted, Wide Grip)",Back,Bodyweight Loadable 
-Pullup (Wide Grip,Back,Bodyweight Only
+Pullup (Wide Grip),Back,Bodyweight Only
 Pushup,Chest,Bodyweight Only
 Pushup (Deficit),Chest,Bodyweight Only
 Pushup (Military),Chest,Bodyweight Only
@@ -354,3 +354,6 @@ V-Up (Weighted),Abs,Bodyweight Loadable
 "Walking Lunges (Quad Focused, Dumbbell)",Quads,Dumbbell
 Wall Squats,Quads,Bodyweight Only
 Weighted Circles,Shoulders,Dumbbell
+Bicep Ladder,Biceps,Bodyweight Only
+Plank,Abs,Bodyweight Only
+Dumbbell Lunge,Quads,Dumbbell

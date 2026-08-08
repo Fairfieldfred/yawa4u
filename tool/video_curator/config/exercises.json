@@ -456,7 +456,7 @@
   },
   {
     "workout": "Chest",
-    "exercise": "Dip (Weighted, Chest-Focused",
+    "exercise": "Dip (Weighted, Chest-Focused)",
     "searchHints": "Bodyweight Loadable"
   },
   {
@@ -716,7 +716,7 @@
   },
   {
     "workout": "Biceps",
-    "exercise": "EZ Bar Cule (Wide Grip)",
+    "exercise": "EZ Bar Curl (Wide Grip)",
     "searchHints": "Barbell"
   },
   {
@@ -1391,7 +1391,7 @@
   },
   {
     "workout": "Back",
-    "exercise": "Pullup (Wide Grip",
+    "exercise": "Pullup (Wide Grip)",
     "searchHints": "Bodyweight Only"
   },
   {
@@ -1717,6 +1717,21 @@
   {
     "workout": "Shoulders",
     "exercise": "Weighted Circles",
+    "searchHints": "Dumbbell"
+  },
+  {
+    "workout": "Biceps",
+    "exercise": "Bicep Ladder",
+    "searchHints": "Bodyweight Only"
+  },
+  {
+    "workout": "Abs",
+    "exercise": "Plank",
+    "searchHints": "Bodyweight Only"
+  },
+  {
+    "workout": "Quads",
+    "exercise": "Dumbbell Lunge",
     "searchHints": "Dumbbell"
   }
 ]

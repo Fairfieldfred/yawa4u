@@ -37,8 +37,8 @@
       "sport": "strength",
       "exercises": [
         { "name": "Barbell Squat", "muscleGroup": "quads", "equipmentType": "barbell", "sets": 3, "reps": "8-10", "setType": "regular" },
-        { "name": "Romanian Deadlift", "muscleGroup": "hamstrings", "equipmentType": "barbell", "sets": 3, "reps": "8-10", "setType": "regular" },
-        { "name": "Pull-up", "muscleGroup": "back", "equipmentType": "bodyweightOnly", "sets": 3, "reps": "max", "setType": "maxReps" },
+        { "name": "Stiff-Legged (Romanian) Deadlift", "muscleGroup": "hamstrings", "equipmentType": "barbell", "sets": 3, "reps": "8-10", "setType": "regular" },
+        { "name": "Pullup (Normal Grip)", "muscleGroup": "back", "equipmentType": "bodyweightOnly", "sets": 3, "reps": "max", "setType": "maxReps" },
         { "name": "Plank", "muscleGroup": "abs", "equipmentType": "bodyweightOnly", "sets": 3, "reps": "60s", "setType": "regular" }
       ]
     },
@@ -93,8 +93,8 @@
       "sport": "strength",
       "exercises": [
         { "name": "Barbell Squat", "muscleGroup": "quads", "equipmentType": "barbell", "sets": 3, "reps": "8-10", "setType": "regular" },
-        { "name": "Romanian Deadlift", "muscleGroup": "hamstrings", "equipmentType": "barbell", "sets": 3, "reps": "8-10", "setType": "regular" },
-        { "name": "Pull-up", "muscleGroup": "back", "equipmentType": "bodyweightOnly", "sets": 3, "reps": "max", "setType": "maxReps" },
+        { "name": "Stiff-Legged (Romanian) Deadlift", "muscleGroup": "hamstrings", "equipmentType": "barbell", "sets": 3, "reps": "8-10", "setType": "regular" },
+        { "name": "Pullup (Normal Grip)", "muscleGroup": "back", "equipmentType": "bodyweightOnly", "sets": 3, "reps": "max", "setType": "maxReps" },
         { "name": "Plank", "muscleGroup": "abs", "equipmentType": "bodyweightOnly", "sets": 3, "reps": "60s", "setType": "regular" }
       ]
     },
@@ -149,8 +149,8 @@
       "sport": "strength",
       "exercises": [
         { "name": "Barbell Squat", "muscleGroup": "quads", "equipmentType": "barbell", "sets": 3, "reps": "6-8", "setType": "regular" },
-        { "name": "Romanian Deadlift", "muscleGroup": "hamstrings", "equipmentType": "barbell", "sets": 3, "reps": "6-8", "setType": "regular" },
-        { "name": "Pull-up", "muscleGroup": "back", "equipmentType": "bodyweightOnly", "sets": 3, "reps": "max", "setType": "maxReps" },
+        { "name": "Stiff-Legged (Romanian) Deadlift", "muscleGroup": "hamstrings", "equipmentType": "barbell", "sets": 3, "reps": "6-8", "setType": "regular" },
+        { "name": "Pullup (Normal Grip)", "muscleGroup": "back", "equipmentType": "bodyweightOnly", "sets": 3, "reps": "max", "setType": "maxReps" },
         { "name": "Dumbbell Lunge", "muscleGroup": "quads", "equipmentType": "dumbbell", "sets": 3, "reps": "8-10", "setType": "regular", "notes": "Each leg" },
         { "name": "Plank", "muscleGroup": "abs", "equipmentType": "bodyweightOnly", "sets": 3, "reps": "60s", "setType": "regular" }
       ]
@@ -206,8 +206,8 @@
       "sport": "strength",
       "exercises": [
         { "name": "Barbell Squat", "muscleGroup": "quads", "equipmentType": "barbell", "sets": 3, "reps": "6-8", "setType": "regular" },
-        { "name": "Romanian Deadlift", "muscleGroup": "hamstrings", "equipmentType": "barbell", "sets": 3, "reps": "6-8", "setType": "regular" },
-        { "name": "Pull-up", "muscleGroup": "back", "equipmentType": "bodyweightOnly", "sets": 3, "reps": "max", "setType": "maxReps" },
+        { "name": "Stiff-Legged (Romanian) Deadlift", "muscleGroup": "hamstrings", "equipmentType": "barbell", "sets": 3, "reps": "6-8", "setType": "regular" },
+        { "name": "Pullup (Normal Grip)", "muscleGroup": "back", "equipmentType": "bodyweightOnly", "sets": 3, "reps": "max", "setType": "maxReps" },
         { "name": "Dumbbell Lunge", "muscleGroup": "quads", "equipmentType": "dumbbell", "sets": 3, "reps": "8-10", "setType": "regular", "notes": "Each leg" },
         { "name": "Plank", "muscleGroup": "abs", "equipmentType": "bodyweightOnly", "sets": 3, "reps": "60s", "setType": "regular" }
       ]
@@ -263,8 +263,8 @@
       "sport": "strength",
       "exercises": [
         { "name": "Barbell Squat", "muscleGroup": "quads", "equipmentType": "barbell", "sets": 3, "reps": "5", "setType": "regular" },
-        { "name": "Romanian Deadlift", "muscleGroup": "hamstrings", "equipmentType": "barbell", "sets": 3, "reps": "5", "setType": "regular" },
-        { "name": "Pull-up", "muscleGroup": "back", "equipmentType": "bodyweightOnly", "sets": 3, "reps": "max", "setType": "maxReps" },
+        { "name": "Stiff-Legged (Romanian) Deadlift", "muscleGroup": "hamstrings", "equipmentType": "barbell", "sets": 3, "reps": "5", "setType": "regular" },
+        { "name": "Pullup (Normal Grip)", "muscleGroup": "back", "equipmentType": "bodyweightOnly", "sets": 3, "reps": "max", "setType": "maxReps" },
         { "name": "Dumbbell Lunge", "muscleGroup": "quads", "equipmentType": "dumbbell", "sets": 3, "reps": "6-8", "setType": "regular", "notes": "Each leg" },
         { "name": "Plank", "muscleGroup": "abs", "equipmentType": "bodyweightOnly", "sets": 3, "reps": "60s", "setType": "regular" }
       ]
@@ -324,8 +324,8 @@
       "notes": "Taper week — reduced volume, keep loads moderate.",
       "exercises": [
         { "name": "Barbell Squat", "muscleGroup": "quads", "equipmentType": "barbell", "sets": 2, "reps": "8", "setType": "regular" },
-        { "name": "Romanian Deadlift", "muscleGroup": "hamstrings", "equipmentType": "barbell", "sets": 2, "reps": "8", "setType": "regular" },
-        { "name": "Pull-up", "muscleGroup": "back", "equipmentType": "bodyweightOnly", "sets": 2, "reps": "max", "setType": "maxReps" },
+        { "name": "Stiff-Legged (Romanian) Deadlift", "muscleGroup": "hamstrings", "equipmentType": "barbell", "sets": 2, "reps": "8", "setType": "regular" },
+        { "name": "Pullup (Normal Grip)", "muscleGroup": "back", "equipmentType": "bodyweightOnly", "sets": 2, "reps": "max", "setType": "maxReps" },
         { "name": "Plank", "muscleGroup": "abs", "equipmentType": "bodyweightOnly", "sets": 2, "reps": "45s", "setType": "regular" }
       ]
     },

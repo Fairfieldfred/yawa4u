@@ -1,0 +1,97 @@
+{
+  "exercise": "Bicep Ladder",
+  "workout": "Biceps",
+  "pick": {
+    "videoId": "VYPJXvgSPAQ",
+    "confidence": 0.55,
+    "reason": "It is an exact-title demonstration of the Bicep Ladder exercise with the most views among the matching candidates, while the higher-production videos are about different bicep exercises entirely.",
+    "source": "claude"
+  },
+  "startSeconds": 0,
+  "endSeconds": 22,
+  "chosen": {
+    "videoId": "VYPJXvgSPAQ",
+    "title": "Bicep Ladder",
+    "channel": "Gagesfitlife",
+    "description": "",
+    "durationSeconds": 22,
+    "viewCount": 4872,
+    "embeddable": true
+  },
+  "candidates": [
+    {
+      "videoId": "gi871C7C27g",
+      "title": "Bicep ladder",
+      "channel": "The Kylie Larson",
+      "description": "",
+      "durationSeconds": 24,
+      "viewCount": 683,
+      "embeddable": true
+    },
+    {
+      "videoId": "VCw_uIxW8WE",
+      "title": "STOP Doing This On Bicep Curls!",
+      "channel": "ATHLEAN-X™",
+      "description": "If you struggle to build big biceps despite the fact that you’re doing curls every time you train your biceps, then you are probably making a pretty big mistake. If you’re not paying attention to how you’re curling those dumbbells, then you might not know exactly what that mistake is, but that’s where I come in.\n\nWhen doing dumbbell curls, are you supinating? I mean, really supinating? In other words, are your turning your hands up and out as you curl the weight up? You see, by not fully supinating your forearms when you curl, you are not fully activating the biceps.\n\nThe major functions of the biceps is not limited to flexing the elbow joint, but also also supination of the forearm. In order to fully activate the biceps, you need to turn your hands outwards as you bend your elbow. You want your pinky fingers to be pointing towards the sky at the top of every rep in order to make sure that you have achieved full supination.\n\nFor more tips on building muscle, be sure to stay tuned to this channel and remember to subscribe so you never miss another video from a physical therapist with a pro sports background as a PT and strength coach.\n\nYou can subscribe to this channel here - http://bit.ly/2b0coMW\n\nGet Your Workout & Meal Plan:\n📝 https://www.athleanx.com\n\nConnect With Me:\n👉 https://www.instagram.com/athleanx\n\nFor complete step-by-step workout programs, head on over to athleanx.com and make sure to use the program selector to find the training plan that is best suited to your personal goals.\n\nJeff Cavaliere MSPT, CSCS served as both the head physical therapist and assistant strength coach for the New York Mets. Jeff earned his Masters of Physical Therapy and Bachelor’s of Physioneurobiology from the College of Health Sciences University of Connecticut Storrs. He is a certified Strength and Conditioning Specialist by the National Strength and Conditioning Association (NSCA).",
+      "durationSeconds": 40,
+      "viewCount": 1017701,
+      "embeddable": true
+    },
+    {
+      "videoId": "VYPJXvgSPAQ",
+      "title": "Bicep Ladder",
+      "channel": "Gagesfitlife",
+      "description": "",
+      "durationSeconds": 22,
+      "viewCount": 4872,
+      "embeddable": true
+    },
+    {
+      "videoId": "8UIbEovL-xU",
+      "title": "Try This Bicep Superset to Grow (Dumbbells Only)",
+      "channel": "Adolfo",
+      "description": "The Most BRUTAL Bicep Super-Set EVER! Supersets are a great way to shock your arms into growth as you can hit your biceps and triceps back to back. The superset arm workout for mass in today's video was highly intense.\n\n#shorts #biceps #bicepsworkout",
+      "durationSeconds": 22,
+      "viewCount": 2028808,
+      "embeddable": true
+    },
+    {
+      "videoId": "nPfuQ6pXQuE",
+      "title": "bicep ladder",
+      "channel": "Bre McLane",
+      "description": "Description",
+      "durationSeconds": 27,
+      "viewCount": 1554,
+      "embeddable": true
+    },
+    {
+      "videoId": "tl0o6umNa1k",
+      "title": "Avoid These 3 Mistakes on Standing Barbell Bicep Curls for Better Biceps Growth",
+      "channel": "TylerPath",
+      "description": "",
+      "durationSeconds": 18,
+      "viewCount": 583156,
+      "embeddable": true
+    },
+    {
+      "videoId": "9n1OGTqCyeI",
+      "title": "Mike Mentzer's GREATEST Biceps Exercise of All Time",
+      "channel": "ATHLEAN-X™",
+      "description": "According to the legendary Mike Mentzer, the close grip underhand pulldown is the greatest biceps exercise of all time. He says that this is better than any curl you can do. The reason for this is that this pulldown variation involves flexion of the elbow from a flexed shoulder position rather than down at your sides as they are in a typical barbell curl. This creates a greater contraction in the biceps and leads to more overall stimulation in the long run. Because you can anchor your knees under the pads, you can load up the weight here and easily overload your biceps. Just remember to initiate the pull with your elbows rather than pulling down with the lats. Try it and you will see just how much more effectively you can build your biceps with this great biceps exercise.\n\nTo see the whole video and other amazing tips Mentzer had for building big biceps be sure to check out the whole video here:\n\nhttps://youtu.be/puSK4XFHr8I?si=wAbLVAYNWZJBsUCC",
+      "durationSeconds": 38,
+      "viewCount": 3059125,
+      "embeddable": true
+    },
+    {
+      "videoId": "M7ncFUo09eI",
+      "title": "BICEPS 🔥 | 4 Curl Variations (dumbbells only) Get Bigger Biceps",
+      "channel": "Ashton Hall",
+      "description": "TRAIN WITH ME! \nBuild your dream physique and get in phenomenal shape with my fitness app designed to get you results.\nJoin today: https://burnandbuildapp.com/ \n\nMy socials: \nInstagram: https://www.instagram.com/ashtonhallofficial/ \nTikTok: https://www.tiktok.com/@ashtonhallofficial",
+      "durationSeconds": 16,
+      "viewCount": 1525875,
+      "embeddable": true
+    }
+  ],
+  "quotaSpent": 101,
+  "curatedAt": "2026-07-28T15:06:16.550819"
+}
