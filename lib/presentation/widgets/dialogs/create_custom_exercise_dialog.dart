@@ -247,6 +247,7 @@ class _CreateCustomExerciseDialogState extends ConsumerState<CreateCustomExercis
                           ),
                         ),
                         keyboardType: TextInputType.number,
+                        keyboardAppearance: Brightness.light,
                         validator: (value) {
                           if (value != null && value.trim().isNotEmpty) {
                             final parsed = int.tryParse(value.trim());

@@ -46,6 +46,7 @@ class _HrInputState extends State<HrInput> {
       controller: _controller,
       enabled: widget.enabled,
       keyboardType: TextInputType.number,
+      keyboardAppearance: Brightness.light,
       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
       decoration: InputDecoration(
         labelText: widget.label ?? l10n.avgHrLabel,

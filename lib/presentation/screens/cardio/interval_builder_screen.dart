@@ -659,6 +659,7 @@ class _RepeatCountFieldState extends State<_RepeatCountField> {
           child: TextField(
             controller: _controller,
             keyboardType: TextInputType.number,
+            keyboardAppearance: Brightness.light,
             inputFormatters: [
               FilteringTextInputFormatter.digitsOnly,
               LengthLimitingTextInputFormatter(2),
@@ -894,6 +895,7 @@ class _TargetValueFieldState extends State<_TargetValueField> {
           : isFreeform
           ? TextInputType.text
           : TextInputType.number,
+      keyboardAppearance: Brightness.light,
       inputFormatters: isDuration
           ? [FilteringTextInputFormatter.allow(RegExp(r'[0-9:]'))]
           : isFreeform

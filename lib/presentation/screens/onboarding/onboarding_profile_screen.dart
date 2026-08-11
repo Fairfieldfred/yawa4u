@@ -478,6 +478,7 @@ class _OnboardingProfileScreenState extends ConsumerState<OnboardingProfileScree
                       TextFormField(
                         controller: _heightCmController,
                         keyboardType: TextInputType.number,
+                        keyboardAppearance: Brightness.light,
                         inputFormatters: [
                           FilteringTextInputFormatter.digitsOnly,
                         ],
@@ -507,6 +508,7 @@ class _OnboardingProfileScreenState extends ConsumerState<OnboardingProfileScree
                             child: TextFormField(
                               controller: _heightFeetController,
                               keyboardType: TextInputType.number,
+                              keyboardAppearance: Brightness.light,
                               inputFormatters: [
                                 FilteringTextInputFormatter.digitsOnly,
                               ],
@@ -535,6 +537,7 @@ class _OnboardingProfileScreenState extends ConsumerState<OnboardingProfileScree
                             child: TextFormField(
                               controller: _heightInchesController,
                               keyboardType: TextInputType.number,
+                              keyboardAppearance: Brightness.light,
                               inputFormatters: [
                                 FilteringTextInputFormatter.digitsOnly,
                               ],
@@ -573,6 +576,7 @@ class _OnboardingProfileScreenState extends ConsumerState<OnboardingProfileScree
                       keyboardType: const TextInputType.numberWithOptions(
                         decimal: true,
                       ),
+                      keyboardAppearance: Brightness.light,
                       inputFormatters: [
                         FilteringTextInputFormatter.allow(
                           RegExp(r'^\d+\.?\d{0,1}'),
@@ -687,6 +691,7 @@ class _OnboardingProfileScreenState extends ConsumerState<OnboardingProfileScree
                               keyboardType: const TextInputType.numberWithOptions(
                                 decimal: true,
                               ),
+                              keyboardAppearance: Brightness.light,
                               inputFormatters: [
                                 FilteringTextInputFormatter.allow(
                                   RegExp(r'^\d+\.?\d{0,1}'),
@@ -715,6 +720,7 @@ class _OnboardingProfileScreenState extends ConsumerState<OnboardingProfileScree
                               keyboardType: const TextInputType.numberWithOptions(
                                 decimal: true,
                               ),
+                              keyboardAppearance: Brightness.light,
                               inputFormatters: [
                                 FilteringTextInputFormatter.allow(
                                   RegExp(r'^\d+\.?\d{0,1}'),

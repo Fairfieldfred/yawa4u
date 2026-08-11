@@ -234,6 +234,7 @@ class _ZoneRowState extends State<_ZoneRow> {
             child: TextField(
               controller: _minCtrl,
               keyboardType: TextInputType.number,
+              keyboardAppearance: Brightness.light,
               inputFormatters: [FilteringTextInputFormatter.digitsOnly],
               decoration: InputDecoration(
                 labelText: l10n.zonesMinLabel,
@@ -250,6 +251,7 @@ class _ZoneRowState extends State<_ZoneRow> {
             child: TextField(
               controller: _maxCtrl,
               keyboardType: TextInputType.number,
+              keyboardAppearance: Brightness.light,
               inputFormatters: [FilteringTextInputFormatter.digitsOnly],
               decoration: InputDecoration(
                 labelText: l10n.zonesMaxLabel,

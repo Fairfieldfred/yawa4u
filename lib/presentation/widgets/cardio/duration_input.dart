@@ -84,6 +84,7 @@ class _DurationInputState extends State<DurationInput> {
       controller: _controller,
       enabled: widget.enabled,
       keyboardType: TextInputType.datetime,
+      keyboardAppearance: Brightness.light,
       inputFormatters: [
         FilteringTextInputFormatter.allow(RegExp(r'[0-9:]')),
       ],

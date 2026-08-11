@@ -750,7 +750,7 @@ class ExerciseCardWidget extends ConsumerWidget {
                               )
                             : Theme.of(context).textTheme.bodyMedium,
                         textAlign: TextAlign.center,
-                        keyboardAppearance: Theme.of(context).brightness,
+                        keyboardAppearance: Brightness.light,
                         textInputAction: TextInputAction.next,
                         decoration: InputDecoration(
                           filled: false,
@@ -866,7 +866,7 @@ class ExerciseCardWidget extends ConsumerWidget {
                         style: Theme.of(context).textTheme.bodyMedium,
                         textAlign: TextAlign.center,
                         keyboardType: TextInputType.number,
-                        keyboardAppearance: Theme.of(context).brightness,
+                        keyboardAppearance: Brightness.light,
                         textInputAction: TextInputAction.done,
                         decoration: InputDecoration(
                           filled: false,

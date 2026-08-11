@@ -112,6 +112,7 @@ class _DistanceInputState extends State<DistanceInput> {
       controller: _controller,
       enabled: widget.enabled,
       keyboardType: const TextInputType.numberWithOptions(decimal: true),
+      keyboardAppearance: Brightness.light,
       inputFormatters: [
         FilteringTextInputFormatter.allow(RegExp(r'[0-9.]')),
       ],
