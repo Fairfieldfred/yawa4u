@@ -146,11 +146,11 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
   /// (existing entries kept, new entries added — nothing deleted).
   Future<void> _restoreBackup() async {
     final l10n = AppLocalizations.of(context)!;
-    final picked = await FilePicker.platform.pickFiles(
+    final picked = await FilePicker.pickFile(
       type: FileType.custom,
       allowedExtensions: ['json'],
     );
-    final path = picked?.files.single.path;
+    final path = picked?.path;
     if (path == null || !mounted) return;
 
     final confirmed = await showDialog<bool>(

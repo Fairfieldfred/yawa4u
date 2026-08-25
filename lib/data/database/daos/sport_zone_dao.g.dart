@@ -11,5 +11,6 @@ mixin _$SportZoneDaoMixin on DatabaseAccessor<AppDatabase> {
 class SportZoneDaoManager {
   final _$SportZoneDaoMixin _db;
   SportZoneDaoManager(this._db);
-  $$SportZonesTableTableManager get sportZones => $$SportZonesTableTableManager(_db.attachedDatabase, _db.sportZones);
+  $$SportZonesTableTableManager get sportZones =>
+      $$SportZonesTableTableManager(_db.attachedDatabase, _db.sportZones);
 }

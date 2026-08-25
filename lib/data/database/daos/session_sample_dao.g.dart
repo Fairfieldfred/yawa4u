@@ -13,13 +13,16 @@ mixin _$SessionSampleDaoMixin on DatabaseAccessor<AppDatabase> {
 class SessionSampleDaoManager {
   final _$SessionSampleDaoMixin _db;
   SessionSampleDaoManager(this._db);
-  $$TrainingCyclesTableTableManager get trainingCycles => $$TrainingCyclesTableTableManager(
-    _db.attachedDatabase,
-    _db.trainingCycles,
-  );
-  $$SessionsTableTableManager get sessions => $$SessionsTableTableManager(_db.attachedDatabase, _db.sessions);
-  $$SessionSamplesTableTableManager get sessionSamples => $$SessionSamplesTableTableManager(
-    _db.attachedDatabase,
-    _db.sessionSamples,
-  );
+  $$TrainingCyclesTableTableManager get trainingCycles =>
+      $$TrainingCyclesTableTableManager(
+        _db.attachedDatabase,
+        _db.trainingCycles,
+      );
+  $$SessionsTableTableManager get sessions =>
+      $$SessionsTableTableManager(_db.attachedDatabase, _db.sessions);
+  $$SessionSamplesTableTableManager get sessionSamples =>
+      $$SessionSamplesTableTableManager(
+        _db.attachedDatabase,
+        _db.sessionSamples,
+      );
 }

@@ -37,10 +37,8 @@ class CsvLoaderService {
       // Load CSV from assets
       final csvString = await rootBundle.loadString('exercises.csv');
 
-      // Parse CSV (explicitly set eol to handle Unix line endings)
-      final List<List<dynamic>> csvTable = const CsvToListConverter(
-        eol: '\n',
-      ).convert(csvString);
+      // Parse CSV (v8 decoder auto-detects delimiters and line endings)
+      final List<List<dynamic>> csvTable = csv.decode(csvString);
 
       // Skip header row and convert to ExerciseDefinition objects
       _exercises = [];

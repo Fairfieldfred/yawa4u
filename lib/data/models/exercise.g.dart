@@ -16,12 +16,18 @@ Exercise _$ExerciseFromJson(Map<String, dynamic> json) => Exercise(
     json['secondaryMuscleGroup'],
   ),
   equipmentType: $enumDecode(_$EquipmentTypeEnumMap, json['equipmentType']),
-  sets: (json['sets'] as List<dynamic>?)?.map((e) => ExerciseSet.fromJson(e as Map<String, dynamic>)).toList(),
+  sets: (json['sets'] as List<dynamic>?)
+      ?.map((e) => ExerciseSet.fromJson(e as Map<String, dynamic>))
+      .toList(),
   orderIndex: (json['orderIndex'] as num?)?.toInt() ?? 0,
   bodyweight: (json['bodyweight'] as num?)?.toDouble(),
   notes: json['notes'] as String?,
-  feedback: json['feedback'] == null ? null : ExerciseFeedback.fromJson(json['feedback'] as Map<String, dynamic>),
-  lastPerformed: json['lastPerformed'] == null ? null : DateTime.parse(json['lastPerformed'] as String),
+  feedback: json['feedback'] == null
+      ? null
+      : ExerciseFeedback.fromJson(json['feedback'] as Map<String, dynamic>),
+  lastPerformed: json['lastPerformed'] == null
+      ? null
+      : DateTime.parse(json['lastPerformed'] as String),
   videoUrl: json['videoUrl'] as String?,
   isNotePinned: json['isNotePinned'] as bool? ?? false,
   restSeconds: (json['restSeconds'] as num?)?.toInt(),

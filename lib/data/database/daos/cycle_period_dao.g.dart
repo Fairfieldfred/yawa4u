@@ -12,10 +12,11 @@ mixin _$CyclePeriodDaoMixin on DatabaseAccessor<AppDatabase> {
 class CyclePeriodDaoManager {
   final _$CyclePeriodDaoMixin _db;
   CyclePeriodDaoManager(this._db);
-  $$TrainingCyclesTableTableManager get trainingCycles => $$TrainingCyclesTableTableManager(
-    _db.attachedDatabase,
-    _db.trainingCycles,
-  );
+  $$TrainingCyclesTableTableManager get trainingCycles =>
+      $$TrainingCyclesTableTableManager(
+        _db.attachedDatabase,
+        _db.trainingCycles,
+      );
   $$CyclePeriodsTableTableManager get cyclePeriods =>
       $$CyclePeriodsTableTableManager(_db.attachedDatabase, _db.cyclePeriods);
 }

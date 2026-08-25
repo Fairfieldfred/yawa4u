@@ -11,22 +11,24 @@ ExerciseSet _$ExerciseSetFromJson(Map<String, dynamic> json) => ExerciseSet(
   setNumber: (json['setNumber'] as num).toInt(),
   weight: (json['weight'] as num?)?.toDouble(),
   reps: json['reps'] as String,
-  setType: $enumDecodeNullable(_$SetTypeEnumMap, json['setType']) ?? SetType.regular,
+  setType:
+      $enumDecodeNullable(_$SetTypeEnumMap, json['setType']) ?? SetType.regular,
   isLogged: json['isLogged'] as bool? ?? false,
   notes: json['notes'] as String?,
   isSkipped: json['isSkipped'] as bool? ?? false,
 );
 
-Map<String, dynamic> _$ExerciseSetToJson(ExerciseSet instance) => <String, dynamic>{
-  'id': instance.id,
-  'setNumber': instance.setNumber,
-  'weight': instance.weight,
-  'reps': instance.reps,
-  'setType': _$SetTypeEnumMap[instance.setType]!,
-  'isLogged': instance.isLogged,
-  'notes': instance.notes,
-  'isSkipped': instance.isSkipped,
-};
+Map<String, dynamic> _$ExerciseSetToJson(ExerciseSet instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'setNumber': instance.setNumber,
+      'weight': instance.weight,
+      'reps': instance.reps,
+      'setType': _$SetTypeEnumMap[instance.setType]!,
+      'isLogged': instance.isLogged,
+      'notes': instance.notes,
+      'isSkipped': instance.isSkipped,
+    };
 
 const _$SetTypeEnumMap = {
   SetType.regular: 'regular',

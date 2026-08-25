@@ -9,10 +9,8 @@ list(APPEND FLUTTER_PLUGIN_LIST
   firebase_auth
   firebase_core
   firebase_storage
-  flutter_inappwebview_windows
   sentry_flutter
   share_plus
-  sqlite3_flutter_libs
   url_launcher_windows
   window_to_front
 )

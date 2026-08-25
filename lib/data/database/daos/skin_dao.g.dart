@@ -11,5 +11,6 @@ mixin _$SkinDaoMixin on DatabaseAccessor<AppDatabase> {
 class SkinDaoManager {
   final _$SkinDaoMixin _db;
   SkinDaoManager(this._db);
-  $$SkinsTableTableManager get skins => $$SkinsTableTableManager(_db.attachedDatabase, _db.skins);
+  $$SkinsTableTableManager get skins =>
+      $$SkinsTableTableManager(_db.attachedDatabase, _db.skins);
 }

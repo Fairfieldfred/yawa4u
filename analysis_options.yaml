@@ -14,6 +14,12 @@ analyzer:
     - build/**
     - '**/*.g.dart'
     - '**/*.freezed.dart'
+    - android/**
+    - ios/**
+    - web/**
+    - windows/**
+    - macos/**
+    - linux/**
 
 formatter:
   page_width: 120

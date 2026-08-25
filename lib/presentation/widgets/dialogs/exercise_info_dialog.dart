@@ -76,14 +76,7 @@ class _ExerciseInfoDialogState extends ConsumerState<ExerciseInfoDialog> {
     _videoUrl = resolveExerciseVideoUrl(widget.exercise);
     final videoId = _extractVideoId(_videoUrl);
     if (videoId != null) {
-      _youtubeController = YoutubePlayerController(
-        initialVideoId: videoId,
-        flags: const YoutubePlayerFlags(
-          autoPlay: false,
-          mute: false,
-          enableCaption: false,
-        ),
-      );
+      _youtubeController = YoutubePlayerController.fromVideoId(videoId: videoId);
     }
   }
 
@@ -114,7 +107,8 @@ class _ExerciseInfoDialogState extends ConsumerState<ExerciseInfoDialog> {
 
   @override
   void dispose() {
-    _youtubeController?.dispose();
+    // Fire-and-forget teardown (dispose can't await).
+    _youtubeController?.close();
     super.dispose();
   }
 
@@ -290,11 +284,7 @@ class _ExerciseInfoDialogState extends ConsumerState<ExerciseInfoDialog> {
             // Mobile: Show embedded player
             ClipRRect(
               borderRadius: BorderRadius.circular(12),
-              child: YoutubePlayer(
-                controller: _youtubeController!,
-                showVideoProgressIndicator: true,
-                progressIndicatorColor: Theme.of(context).colorScheme.primary,
-              ),
+              child: YoutubePlayer(controller: _youtubeController!),
             ),
             const SizedBox(height: 16),
             // View on YouTube button

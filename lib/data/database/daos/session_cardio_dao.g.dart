@@ -13,11 +13,13 @@ mixin _$SessionCardioDaoMixin on DatabaseAccessor<AppDatabase> {
 class SessionCardioDaoManager {
   final _$SessionCardioDaoMixin _db;
   SessionCardioDaoManager(this._db);
-  $$TrainingCyclesTableTableManager get trainingCycles => $$TrainingCyclesTableTableManager(
-    _db.attachedDatabase,
-    _db.trainingCycles,
-  );
-  $$SessionsTableTableManager get sessions => $$SessionsTableTableManager(_db.attachedDatabase, _db.sessions);
+  $$TrainingCyclesTableTableManager get trainingCycles =>
+      $$TrainingCyclesTableTableManager(
+        _db.attachedDatabase,
+        _db.trainingCycles,
+      );
+  $$SessionsTableTableManager get sessions =>
+      $$SessionsTableTableManager(_db.attachedDatabase, _db.sessions);
   $$SessionCardioTableTableManager get sessionCardio =>
       $$SessionCardioTableTableManager(_db.attachedDatabase, _db.sessionCardio);
 }
