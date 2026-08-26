@@ -1,0 +1,1008 @@
+{
+  "id": "p90x",
+  "name": "P90X Resistance",
+  "description": "The six P90X resistance days: paired push/pull rounds, max-rep bodyweight finishers, fixed-rep burners, and done-or-not moves.",
+  "periodsTotal": 13,
+  "daysPerPeriod": 6,
+  "recoveryPeriod": 13,
+  "primarySport": "strength",
+  "workouts": [
+    {
+      "periodNumber": 1,
+      "dayNumber": 1,
+      "dayName": "Chest and Back",
+      "sport": "strength",
+      "notes": "Pushing and pulling as simple as it gets.",
+      "exercises": [
+        {
+          "name": "Pushup",
+          "muscleGroup": "chest",
+          "equipmentType": "bodyweightOnly",
+          "sets": 2,
+          "reps": "Max",
+          "setType": "maxReps"
+        },
+        {
+          "name": "Pullup (Wide Grip)",
+          "muscleGroup": "back",
+          "equipmentType": "bodyweightOnly",
+          "sets": 2,
+          "reps": "Max",
+          "setType": "maxReps"
+        },
+        {
+          "name": "Pushup (Military)",
+          "muscleGroup": "chest",
+          "equipmentType": "bodyweightOnly",
+          "sets": 2,
+          "reps": "Max",
+          "setType": "maxReps"
+        },
+        {
+          "name": "Pullup (Reverse Grip)",
+          "muscleGroup": "back",
+          "equipmentType": "bodyweightOnly",
+          "sets": 2,
+          "reps": "Max",
+          "setType": "maxReps"
+        },
+        {
+          "name": "Pushup (Wide Fly)",
+          "muscleGroup": "chest",
+          "equipmentType": "bodyweightOnly",
+          "sets": 2,
+          "reps": "Max",
+          "setType": "maxReps"
+        },
+        {
+          "name": "Pullup (Close Grip Overhand)",
+          "muscleGroup": "back",
+          "equipmentType": "bodyweightOnly",
+          "sets": 2,
+          "reps": "Max",
+          "setType": "maxReps"
+        },
+        {
+          "name": "Pushup (Decline)",
+          "muscleGroup": "chest",
+          "equipmentType": "bodyweightOnly",
+          "sets": 2,
+          "reps": "Max",
+          "setType": "maxReps"
+        },
+        {
+          "name": "Heavy Pants",
+          "muscleGroup": "hamstrings",
+          "equipmentType": "dumbbell",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Pushup (Diamond)",
+          "muscleGroup": "chest",
+          "equipmentType": "bodyweightOnly",
+          "sets": 2,
+          "reps": "Max",
+          "setType": "maxReps"
+        },
+        {
+          "name": "Lawnmowers",
+          "muscleGroup": "back",
+          "equipmentType": "barbell",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Pushup (Divebomber)",
+          "muscleGroup": "chest",
+          "equipmentType": "bodyweightOnly",
+          "sets": 2,
+          "reps": "Max",
+          "setType": "maxReps"
+        },
+        {
+          "name": "Back Flyes",
+          "muscleGroup": "shoulders",
+          "equipmentType": "dumbbell",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 1,
+      "dayNumber": 2,
+      "dayName": "Shoulders and Arms",
+      "sport": "strength",
+      "notes": "It's the glamour routine.",
+      "exercises": [
+        {
+          "name": "Dumbbell Shoulder Press (Alternating)",
+          "muscleGroup": "shoulders",
+          "equipmentType": "dumbbell",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "In and Out Bicep Curl",
+          "muscleGroup": "biceps",
+          "equipmentType": "dumbbell",
+          "sets": 2,
+          "reps": "16",
+          "setType": "regular"
+        },
+        {
+          "name": "Tricep Kickback (2-Arm)",
+          "muscleGroup": "triceps",
+          "equipmentType": "dumbbell",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Dumbbell Press (Deep Swimmers)",
+          "muscleGroup": "chest",
+          "equipmentType": "dumbbell",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Concentration Curl",
+          "muscleGroup": "biceps",
+          "equipmentType": "dumbbell",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Chair Dips",
+          "muscleGroup": "triceps",
+          "equipmentType": "bodyweightOnly",
+          "sets": 2,
+          "reps": "Max",
+          "setType": "maxReps"
+        },
+        {
+          "name": "Dumbbell Upright Row",
+          "muscleGroup": "shoulders",
+          "equipmentType": "dumbbell",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Static Arm Curls",
+          "muscleGroup": "biceps",
+          "equipmentType": "dumbbell",
+          "sets": 2,
+          "reps": "16",
+          "setType": "regular"
+        },
+        {
+          "name": "Tricep Kickback (Flip-Grip Twist)",
+          "muscleGroup": "triceps",
+          "equipmentType": "dumbbell",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Seated Two-Angle Shoulder Flyes",
+          "muscleGroup": "shoulders",
+          "equipmentType": "dumbbell",
+          "sets": 2,
+          "reps": "16",
+          "setType": "regular"
+        },
+        {
+          "name": "Crouching Cowen Curls",
+          "muscleGroup": "biceps",
+          "equipmentType": "dumbbell",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Lying Tricep Extension",
+          "muscleGroup": "triceps",
+          "equipmentType": "dumbbell",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "In and Out Straight Arm Shoulder Flyes",
+          "muscleGroup": "shoulders",
+          "equipmentType": "dumbbell",
+          "sets": 2,
+          "reps": "16",
+          "setType": "regular"
+        },
+        {
+          "name": "Congdon Curl",
+          "muscleGroup": "biceps",
+          "equipmentType": "dumbbell",
+          "sets": 2,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Side Tri-Rise",
+          "muscleGroup": "triceps",
+          "equipmentType": "bodyweightOnly",
+          "sets": 2,
+          "reps": "Max",
+          "setType": "maxReps"
+        }
+      ]
+    },
+    {
+      "periodNumber": 1,
+      "dayNumber": 3,
+      "dayName": "Legs and Back",
+      "sport": "strength",
+      "notes": "People ask...How do you get legs like that?",
+      "exercises": [
+        {
+          "name": "Balance Lunge",
+          "muscleGroup": "quads",
+          "equipmentType": "dumbbell",
+          "sets": 1,
+          "reps": "25",
+          "setType": "regular"
+        },
+        {
+          "name": "Calf Raise Squat",
+          "muscleGroup": "quads",
+          "equipmentType": "bodyweightOnly",
+          "sets": 1,
+          "reps": "25",
+          "setType": "regular"
+        },
+        {
+          "name": "Pullup (Reverse Grip)",
+          "muscleGroup": "back",
+          "equipmentType": "bodyweightOnly",
+          "sets": 2,
+          "reps": "Max",
+          "setType": "maxReps"
+        },
+        {
+          "name": "Super Skater",
+          "muscleGroup": "quads",
+          "equipmentType": "bodyweightOnly",
+          "sets": 1,
+          "reps": "25",
+          "setType": "regular"
+        },
+        {
+          "name": "Wall Squats",
+          "muscleGroup": "quads",
+          "equipmentType": "bodyweightOnly",
+          "sets": 1,
+          "reps": "Done",
+          "setType": "regular",
+          "notes": "P90X done-or-not move — log the set to check it off"
+        },
+        {
+          "name": "Pullup (Wide Grip)",
+          "muscleGroup": "back",
+          "equipmentType": "bodyweightOnly",
+          "sets": 2,
+          "reps": "Max",
+          "setType": "maxReps"
+        },
+        {
+          "name": "Step Back Lunge",
+          "muscleGroup": "quads",
+          "equipmentType": "dumbbell",
+          "sets": 1,
+          "reps": "15",
+          "setType": "regular"
+        },
+        {
+          "name": "Alternating Side Lunge",
+          "muscleGroup": "quads",
+          "equipmentType": "dumbbell",
+          "sets": 1,
+          "reps": "24",
+          "setType": "regular"
+        },
+        {
+          "name": "Pullup (Close Grip Overhand)",
+          "muscleGroup": "back",
+          "equipmentType": "bodyweightOnly",
+          "sets": 2,
+          "reps": "Max",
+          "setType": "maxReps"
+        },
+        {
+          "name": "Single Leg Wall Squat",
+          "muscleGroup": "quads",
+          "equipmentType": "bodyweightOnly",
+          "sets": 1,
+          "reps": "Done",
+          "setType": "regular",
+          "notes": "P90X done-or-not move — log the set to check it off"
+        },
+        {
+          "name": "Deadlift Squat",
+          "muscleGroup": "quads",
+          "equipmentType": "dumbbell",
+          "sets": 1,
+          "reps": "20",
+          "setType": "regular"
+        },
+        {
+          "name": "Pullup (Switch Grip)",
+          "muscleGroup": "back",
+          "equipmentType": "bodyweightOnly",
+          "sets": 2,
+          "reps": "Max",
+          "setType": "maxReps"
+        },
+        {
+          "name": "Three-Way Lunge",
+          "muscleGroup": "quads",
+          "equipmentType": "dumbbell",
+          "sets": 1,
+          "reps": "15",
+          "setType": "regular"
+        },
+        {
+          "name": "Sneaky Lunge",
+          "muscleGroup": "quads",
+          "equipmentType": "bodyweightOnly",
+          "sets": 1,
+          "reps": "Done",
+          "setType": "regular",
+          "notes": "P90X done-or-not move — log the set to check it off"
+        },
+        {
+          "name": "Chair Salutation",
+          "muscleGroup": "quads",
+          "equipmentType": "bodyweightOnly",
+          "sets": 1,
+          "reps": "Done",
+          "setType": "regular",
+          "notes": "P90X done-or-not move — log the set to check it off"
+        },
+        {
+          "name": "Toe Roll Iso Lunge",
+          "muscleGroup": "quads",
+          "equipmentType": "bodyweightOnly",
+          "sets": 1,
+          "reps": "20",
+          "setType": "regular"
+        },
+        {
+          "name": "Groucho Walk",
+          "muscleGroup": "quads",
+          "equipmentType": "bodyweightOnly",
+          "sets": 1,
+          "reps": "Done",
+          "setType": "regular",
+          "notes": "P90X done-or-not move — log the set to check it off"
+        },
+        {
+          "name": "Calf Raise",
+          "muscleGroup": "calves",
+          "equipmentType": "bodyweightOnly",
+          "sets": 1,
+          "reps": "25",
+          "setType": "regular"
+        },
+        {
+          "name": "80-20 Siebers Speed Squat",
+          "muscleGroup": "quads",
+          "equipmentType": "bodyweightOnly",
+          "sets": 1,
+          "reps": "30",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 1,
+      "dayNumber": 4,
+      "dayName": "Chest, Shoulders, and Triceps",
+      "sport": "strength",
+      "notes": "Good old fashion weightlifting 101.",
+      "exercises": [
+        {
+          "name": "Slow-Motion 3 in 1 Pushup",
+          "muscleGroup": "chest",
+          "equipmentType": "bodyweightOnly",
+          "sets": 1,
+          "reps": "Max",
+          "setType": "maxReps"
+        },
+        {
+          "name": "In and Out Shoulder Flyes",
+          "muscleGroup": "shoulders",
+          "equipmentType": "dumbbell",
+          "sets": 1,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Chair Dips",
+          "muscleGroup": "triceps",
+          "equipmentType": "bodyweightOnly",
+          "sets": 1,
+          "reps": "Max",
+          "setType": "maxReps"
+        },
+        {
+          "name": "Plange Pushup",
+          "muscleGroup": "chest",
+          "equipmentType": "bodyweightOnly",
+          "sets": 1,
+          "reps": "Max",
+          "setType": "maxReps"
+        },
+        {
+          "name": "Pike Press",
+          "muscleGroup": "shoulders",
+          "equipmentType": "bodyweightOnly",
+          "sets": 1,
+          "reps": "Max",
+          "setType": "maxReps"
+        },
+        {
+          "name": "Side Tri-Rise",
+          "muscleGroup": "triceps",
+          "equipmentType": "bodyweightOnly",
+          "sets": 1,
+          "reps": "Max",
+          "setType": "maxReps"
+        },
+        {
+          "name": "Floor Flye",
+          "muscleGroup": "chest",
+          "equipmentType": "dumbbell",
+          "sets": 1,
+          "reps": "Max",
+          "setType": "maxReps"
+        },
+        {
+          "name": "Scarecrow",
+          "muscleGroup": "shoulders",
+          "equipmentType": "dumbbell",
+          "sets": 1,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Dumbbell Overhead Extension",
+          "muscleGroup": "triceps",
+          "equipmentType": "dumbbell",
+          "sets": 1,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Two-Twitch Speed Pushup",
+          "muscleGroup": "chest",
+          "equipmentType": "bodyweightOnly",
+          "sets": 1,
+          "reps": "Max",
+          "setType": "maxReps"
+        },
+        {
+          "name": "Y-Press",
+          "muscleGroup": "shoulders",
+          "equipmentType": "dumbbell",
+          "sets": 1,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Lying Tricep Extension",
+          "muscleGroup": "triceps",
+          "equipmentType": "dumbbell",
+          "sets": 1,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Side-to-Side Pushup",
+          "muscleGroup": "chest",
+          "equipmentType": "bodyweightOnly",
+          "sets": 1,
+          "reps": "Max",
+          "setType": "maxReps"
+        },
+        {
+          "name": "Pour Flyes",
+          "muscleGroup": "shoulders",
+          "equipmentType": "dumbbell",
+          "sets": 1,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Side-Leaning Tricep Extension",
+          "muscleGroup": "triceps",
+          "equipmentType": "bodyweightOnly",
+          "sets": 1,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Pushup (One-Arm)",
+          "muscleGroup": "chest",
+          "equipmentType": "bodyweightOnly",
+          "sets": 1,
+          "reps": "Max",
+          "setType": "maxReps"
+        },
+        {
+          "name": "Weighted Circles",
+          "muscleGroup": "shoulders",
+          "equipmentType": "dumbbell",
+          "sets": 1,
+          "reps": "40",
+          "setType": "regular"
+        },
+        {
+          "name": "Throw the Bomb",
+          "muscleGroup": "core",
+          "equipmentType": "dumbbell",
+          "sets": 1,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Clap Pushup",
+          "muscleGroup": "chest",
+          "equipmentType": "bodyweightOnly",
+          "sets": 1,
+          "reps": "Max",
+          "setType": "maxReps"
+        },
+        {
+          "name": "Slo-Mo Throw",
+          "muscleGroup": "core",
+          "equipmentType": "dumbbell",
+          "sets": 1,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Front-to-Back Tricep Extension",
+          "muscleGroup": "triceps",
+          "equipmentType": "dumbbell",
+          "sets": 1,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Pushup (One-Arm Balance)",
+          "muscleGroup": "chest",
+          "equipmentType": "bodyweightOnly",
+          "sets": 1,
+          "reps": "Max",
+          "setType": "maxReps"
+        },
+        {
+          "name": "Fly-Row Press",
+          "muscleGroup": "shoulders",
+          "equipmentType": "dumbbell",
+          "sets": 1,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Dumbbell Cross-Body Blow",
+          "muscleGroup": "core",
+          "equipmentType": "dumbbell",
+          "sets": 1,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 1,
+      "dayNumber": 5,
+      "dayName": "Back and Biceps",
+      "sport": "strength",
+      "notes": "An hour of pull ups, chin ups, and curls!",
+      "exercises": [
+        {
+          "name": "Pullup (Wide Grip)",
+          "muscleGroup": "back",
+          "equipmentType": "bodyweightOnly",
+          "sets": 1,
+          "reps": "Max",
+          "setType": "maxReps"
+        },
+        {
+          "name": "Lawnmowers",
+          "muscleGroup": "back",
+          "equipmentType": "barbell",
+          "sets": 1,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Twenty Ones",
+          "muscleGroup": "biceps",
+          "equipmentType": "barbell",
+          "sets": 1,
+          "reps": "21",
+          "setType": "regular"
+        },
+        {
+          "name": "Cross Body Curl (One-Arm)",
+          "muscleGroup": "biceps",
+          "equipmentType": "dumbbell",
+          "sets": 1,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Pullup (Switch Grip)",
+          "muscleGroup": "back",
+          "equipmentType": "bodyweightOnly",
+          "sets": 1,
+          "reps": "Max",
+          "setType": "maxReps"
+        },
+        {
+          "name": "Lawnmower (Elbow-Out)",
+          "muscleGroup": "back",
+          "equipmentType": "dumbbell",
+          "sets": 1,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Standing Bicep Curl",
+          "muscleGroup": "biceps",
+          "equipmentType": "dumbbell",
+          "sets": 1,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Concentration Curl (One-Arm)",
+          "muscleGroup": "biceps",
+          "equipmentType": "dumbbell",
+          "sets": 1,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Pullup (Corn Cob)",
+          "muscleGroup": "back",
+          "equipmentType": "bodyweightOnly",
+          "sets": 1,
+          "reps": "Max",
+          "setType": "maxReps"
+        },
+        {
+          "name": "Bent Over Row (Reverse Grip)",
+          "muscleGroup": "back",
+          "equipmentType": "dumbbell",
+          "sets": 1,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Open Arm Curl",
+          "muscleGroup": "biceps",
+          "equipmentType": "dumbbell",
+          "sets": 1,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Static Arm Curls",
+          "muscleGroup": "biceps",
+          "equipmentType": "dumbbell",
+          "sets": 1,
+          "reps": "16",
+          "setType": "regular"
+        },
+        {
+          "name": "Pullup (Towel)",
+          "muscleGroup": "back",
+          "equipmentType": "bodyweightOnly",
+          "sets": 1,
+          "reps": "Max",
+          "setType": "maxReps"
+        },
+        {
+          "name": "Congdon Locomotive",
+          "muscleGroup": "biceps",
+          "equipmentType": "dumbbell",
+          "sets": 1,
+          "reps": "40",
+          "setType": "regular"
+        },
+        {
+          "name": "Crouching Cowen Curls",
+          "muscleGroup": "biceps",
+          "equipmentType": "dumbbell",
+          "sets": 1,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Corkscrew Curl",
+          "muscleGroup": "biceps",
+          "equipmentType": "dumbbell",
+          "sets": 1,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Pullup (Reverse Grip)",
+          "muscleGroup": "back",
+          "equipmentType": "bodyweightOnly",
+          "sets": 1,
+          "reps": "Max",
+          "setType": "maxReps"
+        },
+        {
+          "name": "Seated Bent-Over Back Flye",
+          "muscleGroup": "back",
+          "equipmentType": "dumbbell",
+          "sets": 1,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Curl-Up / Hammer-Down",
+          "muscleGroup": "biceps",
+          "equipmentType": "dumbbell",
+          "sets": 1,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Hammer Curl",
+          "muscleGroup": "biceps",
+          "equipmentType": "dumbbell",
+          "sets": 1,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Pullup (Max Rep)",
+          "muscleGroup": "back",
+          "equipmentType": "bodyweightOnly",
+          "sets": 1,
+          "reps": "Max",
+          "setType": "maxReps"
+        },
+        {
+          "name": "Superman",
+          "muscleGroup": "back",
+          "equipmentType": "bodyweightOnly",
+          "sets": 1,
+          "reps": "Done",
+          "setType": "regular",
+          "notes": "P90X done-or-not move — log the set to check it off"
+        },
+        {
+          "name": "In-Out Hammer Curl",
+          "muscleGroup": "biceps",
+          "equipmentType": "dumbbell",
+          "sets": 1,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Strip-Set Curl",
+          "muscleGroup": "biceps",
+          "equipmentType": "dumbbell",
+          "sets": 1,
+          "reps": "16",
+          "setType": "regular"
+        }
+      ]
+    },
+    {
+      "periodNumber": 1,
+      "dayNumber": 6,
+      "dayName": "Core Synergistics",
+      "sport": "strength",
+      "notes": "Combine resistance, cardio, and balance training.",
+      "exercises": [
+        {
+          "name": "Pushup (Stacked Foot, Staggered Hands)",
+          "muscleGroup": "chest",
+          "equipmentType": "bodyweightOnly",
+          "sets": 1,
+          "reps": "Max",
+          "setType": "maxReps"
+        },
+        {
+          "name": "Banana Roll",
+          "muscleGroup": "core",
+          "equipmentType": "bodyweightOnly",
+          "sets": 1,
+          "reps": "Done",
+          "setType": "regular",
+          "notes": "P90X done-or-not move — log the set to check it off"
+        },
+        {
+          "name": "Leaning Crescent Lunge",
+          "muscleGroup": "quads",
+          "equipmentType": "bodyweightOnly",
+          "sets": 1,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Squat Run",
+          "muscleGroup": "quads",
+          "equipmentType": "bodyweightOnly",
+          "sets": 1,
+          "reps": "Max",
+          "setType": "maxReps"
+        },
+        {
+          "name": "Sphinx Pushup",
+          "muscleGroup": "chest",
+          "equipmentType": "bodyweightOnly",
+          "sets": 1,
+          "reps": "Max",
+          "setType": "maxReps"
+        },
+        {
+          "name": "Bow to Boat",
+          "muscleGroup": "core",
+          "equipmentType": "bodyweightOnly",
+          "sets": 1,
+          "reps": "Done",
+          "setType": "regular",
+          "notes": "P90X done-or-not move — log the set to check it off"
+        },
+        {
+          "name": "Low Lateral Skater",
+          "muscleGroup": "quads",
+          "equipmentType": "bodyweightOnly",
+          "sets": 1,
+          "reps": "Done",
+          "setType": "regular",
+          "notes": "P90X done-or-not move — log the set to check it off"
+        },
+        {
+          "name": "Lunge and Reach",
+          "muscleGroup": "quads",
+          "equipmentType": "bodyweightOnly",
+          "sets": 1,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Pushup (Prison Cell)",
+          "muscleGroup": "chest",
+          "equipmentType": "bodyweightOnly",
+          "sets": 1,
+          "reps": "Max",
+          "setType": "maxReps"
+        },
+        {
+          "name": "Side Hip Rise",
+          "muscleGroup": "obliques",
+          "equipmentType": "bodyweightOnly",
+          "sets": 1,
+          "reps": "Max",
+          "setType": "maxReps"
+        },
+        {
+          "name": "Squat X-Press",
+          "muscleGroup": "shoulders",
+          "equipmentType": "dumbbell",
+          "sets": 1,
+          "reps": "8-12",
+          "setType": "regular"
+        },
+        {
+          "name": "Plank to Chaturanga Run",
+          "muscleGroup": "core",
+          "equipmentType": "bodyweightOnly",
+          "sets": 1,
+          "reps": "Done",
+          "setType": "regular",
+          "notes": "P90X done-or-not move — log the set to check it off"
+        },
+        {
+          "name": "Walking Pushup",
+          "muscleGroup": "chest",
+          "equipmentType": "bodyweightOnly",
+          "sets": 1,
+          "reps": "Max",
+          "setType": "maxReps"
+        },
+        {
+          "name": "Superman Banana",
+          "muscleGroup": "core",
+          "equipmentType": "bodyweightOnly",
+          "sets": 1,
+          "reps": "Done",
+          "setType": "regular",
+          "notes": "P90X done-or-not move — log the set to check it off"
+        },
+        {
+          "name": "Lunge Kickback Curl Press",
+          "muscleGroup": "fullBody",
+          "equipmentType": "dumbbell",
+          "sets": 1,
+          "reps": "16",
+          "setType": "regular"
+        },
+        {
+          "name": "Towel Hopper",
+          "muscleGroup": "quads",
+          "equipmentType": "bodyweightOnly",
+          "sets": 1,
+          "reps": "Done",
+          "setType": "regular",
+          "notes": "P90X done-or-not move — log the set to check it off"
+        },
+        {
+          "name": "Pushup (Reach High and Under)",
+          "muscleGroup": "chest",
+          "equipmentType": "bodyweightOnly",
+          "sets": 1,
+          "reps": "Max",
+          "setType": "maxReps"
+        },
+        {
+          "name": "Steam Engine",
+          "muscleGroup": "core",
+          "equipmentType": "bodyweightOnly",
+          "sets": 1,
+          "reps": "Done",
+          "setType": "regular",
+          "notes": "P90X done-or-not move — log the set to check it off"
+        },
+        {
+          "name": "The Dreya Roll",
+          "muscleGroup": "core",
+          "equipmentType": "bodyweightOnly",
+          "sets": 1,
+          "reps": "Max",
+          "setType": "maxReps"
+        },
+        {
+          "name": "Plank to Chaturanga Iso",
+          "muscleGroup": "core",
+          "equipmentType": "bodyweightOnly",
+          "sets": 1,
+          "reps": "Done",
+          "setType": "regular",
+          "notes": "P90X done-or-not move — log the set to check it off"
+        },
+        {
+          "name": "Halfback",
+          "muscleGroup": "core",
+          "equipmentType": "bodyweightOnly",
+          "sets": 1,
+          "reps": "Done",
+          "setType": "regular",
+          "notes": "P90X done-or-not move — log the set to check it off"
+        },
+        {
+          "name": "Table Dip Leg Raise",
+          "muscleGroup": "triceps",
+          "equipmentType": "bodyweightOnly",
+          "sets": 1,
+          "reps": "8-12",
+          "setType": "regular"
+        }
+      ]
+    }
+  ]
+}

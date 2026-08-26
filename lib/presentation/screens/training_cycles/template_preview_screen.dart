@@ -285,7 +285,7 @@ class _TemplatePreviewScreenState extends ConsumerState<TemplatePreviewScreen> {
                   : Column(
                       children: workout.exercises.map((exercise) {
                         final muscleGroup = MuscleGroup.values.firstWhere(
-                          (m) => m.name == exercise.muscleGroup.toLowerCase(),
+                          (m) => m.name.toLowerCase() == exercise.muscleGroup.toLowerCase(),
                           orElse: () => MuscleGroup.chest,
                         );
 
