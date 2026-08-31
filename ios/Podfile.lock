@@ -1220,7 +1220,7 @@ PODS:
     - firebase_core
     - FirebaseAnalytics (= 12.18.0)
     - Flutter
-  - firebase_auth (6.6.0):
+  - firebase_auth (6.6.1):
     - Firebase/Auth (= 12.18.0)
     - firebase_core
     - Flutter
@@ -1496,7 +1496,7 @@ PODS:
     - libwebp (~> 1.0)
     - SDWebImage/Core (~> 5.17)
   - Sentry/HybridSDK (8.58.4)
-  - sentry_flutter (9.27.0):
+  - sentry_flutter (9.28.0):
     - Flutter
     - FlutterMacOS
     - Sentry/HybridSDK (= 8.58.4)
@@ -1512,7 +1512,7 @@ PODS:
     - FlutterMacOS
 
 DEPENDENCIES:
-  - camera_avfoundation (from `.symlinks/plugins/camera_avfoundation/ios`)
+  - camera_avfoundation (from `.symlinks/plugins/camera_avfoundation/darwin`)
   - cloud_firestore (from `.symlinks/plugins/cloud_firestore/ios`)
   - device_info_plus (from `.symlinks/plugins/device_info_plus/ios`)
   - file_picker_darwin (from `.symlinks/plugins/file_picker_darwin/darwin`)
@@ -1570,7 +1570,7 @@ SPEC REPOS:
 
 EXTERNAL SOURCES:
   camera_avfoundation:
-    :path: ".symlinks/plugins/camera_avfoundation/ios"
+    :path: ".symlinks/plugins/camera_avfoundation/darwin"
   cloud_firestore:
     :path: ".symlinks/plugins/cloud_firestore/ios"
   device_info_plus:
@@ -1622,10 +1622,10 @@ SPEC CHECKSUMS:
   camera_avfoundation: 968a9a5323c79a99c166ad9d7866bfd2047b5a9b
   cloud_firestore: 3f0a8af2d865cade8f7db11bc2a419bd66a7237e
   device_info_plus: 21fcca2080fbcd348be798aa36c3e5ed849eefbe
-  file_picker_darwin: 65c8ed1d70cc2ea0b81ae1840db93f8d9c051d19
+  file_picker_darwin: 5c32d1a83c7cd2e4e2d2eaea629cf830b3b5dc49
   Firebase: 5523dd53ebe603451b4e1befcd99fa20a5c015cd
   firebase_analytics: eabab995ffa6e93bf1888e573eda3a8264c0f30f
-  firebase_auth: dc6d519e56272e54b6ecb504682926822dfb3232
+  firebase_auth: 4c0f66df5d18671fd5ce6d6e9eb5ebdb653e03e5
   firebase_core: 22b31970001508f6e63945bedcb7b9de68819aa5
   firebase_storage: d29b933001ab3621acf6b45871a7f981e3e2448b
   FirebaseAnalytics: 651ecdc96c7dd8df0c15d55b6c6b70f78c2987b9
@@ -1664,7 +1664,7 @@ SPEC CHECKSUMS:
   SDWebImage: e9fc87c1aab89a8ab1bbd74eba378c6f53be8abf
   SDWebImageWebPCoder: 0e06e365080397465cc73a7a9b472d8a3bd0f377
   Sentry: 5321d74bdd28d6f6f8beaa1ca06f1fdc746bff49
-  sentry_flutter: b392decea911dcd74891cc4aef402c73abf065b1
+  sentry_flutter: 771dee2d190e0952aa3873211c4a3a10f0c1ef04
   share_plus: 50da8cb520a8f0f65671c6c6a99b3617ed10a58a
   shared_preferences_foundation: 7036424c3d8ec98dfe75ff1667cb0cd531ec82bb
   url_launcher_ios: 7a95fa5b60cc718a708b8f2966718e93db0cef1b
