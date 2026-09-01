@@ -48,9 +48,12 @@ final cycleStatsProvider = FutureProvider.autoDispose.family<WorkoutStats, Strin
 });
 
 /// Stats across all training cycles (lifetime).
+///
+/// Watches the reactive [sessionsProvider] stream so a sync (cloud or
+/// WiFi) landing new sessions updates All Time stats without a manual
+/// refresh.
 final lifetimeStatsProvider = FutureProvider<WorkoutStats>((ref) async {
-  final repo = ref.watch(sessionRepositoryProvider);
-  final sessions = await repo.watchAll().first;
+  final sessions = await ref.watch(sessionsProvider.future);
   return WorkoutStats.fromWorkouts(_strengthWorkouts(sessions));
 });
 

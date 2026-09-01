@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:yawa4u/core/constants/enums.dart';
@@ -160,6 +162,65 @@ void main() {
       addTearDown(container.dispose);
 
       expect(container.read(thisWeekStrengthCountProvider), equals(0));
+    });
+  });
+
+  group('lifetimeStatsProvider (All Time scope)', () {
+    test('counts every strength session, including cycle-less syncs', () async {
+      // One locally logged session + one cycle-less session of the kind
+      // a cloud sync imports.
+      final sessions = <Session>[
+        TestFixtures.createStrengthSession(id: 'local', trainingCycleId: 'cycle-1'),
+        TestFixtures.createStrengthSession(id: 'synced'),
+      ];
+
+      final container = ProviderContainer(
+        overrides: [
+          sessionsProvider.overrideWithValue(AsyncValue.data(sessions)),
+        ],
+      );
+      addTearDown(container.dispose);
+
+      final stats = await container.read(lifetimeStatsProvider.future);
+      expect(stats.totalWorkouts, 2);
+    });
+
+    test('recomputes when a sync lands new sessions', () async {
+      final controller = StreamController<List<Session>>(sync: true);
+      addTearDown(controller.close);
+
+      final container = ProviderContainer(
+        overrides: [
+          sessionsProvider.overrideWith((ref) => controller.stream),
+        ],
+      );
+      addTearDown(container.dispose);
+
+      // Keep a listener attached so the provider tracks the stream.
+      container.listen(lifetimeStatsProvider, (_, _) {});
+
+      controller.add([TestFixtures.createStrengthSession(id: 's1')]);
+      var stats = await container.read(lifetimeStatsProvider.future);
+      expect(stats.totalWorkouts, 1);
+
+      // Sync lands a new session — All Time stats must pick it up.
+      controller.add([
+        TestFixtures.createStrengthSession(id: 's1'),
+        TestFixtures.createStrengthSession(id: 's2'),
+      ]);
+      stats = await container.read(lifetimeStatsProvider.future);
+      expect(stats.totalWorkouts, 2);
+    });
+
+    test('reports loading while sessions load', () {
+      final container = ProviderContainer(
+        overrides: [
+          sessionsProvider.overrideWithValue(const AsyncValue.loading()),
+        ],
+      );
+      addTearDown(container.dispose);
+
+      expect(container.read(lifetimeStatsProvider).isLoading, isTrue);
     });
   });
 }

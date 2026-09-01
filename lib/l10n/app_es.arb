@@ -1047,6 +1047,7 @@
   "statsExerciseFrequencyCount": "{count}x",
   "statsPersonalRecordWeight": "{weight} lb",
   "statsActiveCycleLabel": "{cycleName} (Activo)",
+  "statsAllTimeLabel": "Todo el tiempo",
   "restTimerDialogTitle": "Temporizador de descanso",
   "restTimerUseDefault": "Usar predeterminado",
   "restTimerBasedOnSetType": "Según el tipo de serie",

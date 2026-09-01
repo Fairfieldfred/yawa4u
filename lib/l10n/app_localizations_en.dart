@@ -3662,6 +3662,9 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get statsAllTimeLabel => 'All Time';
+
+  @override
   String get restTimerDialogTitle => 'Rest Timer';
 
   @override

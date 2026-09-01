@@ -6373,6 +6373,12 @@ abstract class AppLocalizations {
   /// **'{cycleName} (Active)'**
   String statsActiveCycleLabel(Object cycleName);
 
+  /// No description provided for @statsAllTimeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'All Time'**
+  String get statsAllTimeLabel;
+
   /// No description provided for @restTimerDialogTitle.
   ///
   /// In en, this message translates to:

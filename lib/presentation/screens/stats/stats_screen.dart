@@ -28,6 +28,10 @@ import '../../widgets/stats/volume_line_chart.dart';
 import '../../widgets/stats/weight_progress_chart.dart';
 import '../../../l10n/app_localizations.dart';
 
+/// Sentinel dropdown value for the All Time scope (stats across every
+/// session on the device, cycle membership irrelevant).
+const String _kAllTimeScopeId = '__all_time__';
+
 /// Statistics & Analytics screen showing workout volume,
 /// muscle group distribution, exercise frequency, and personal records.
 class StatsScreen extends ConsumerStatefulWidget {
@@ -74,10 +78,12 @@ class _StatsScreenState extends ConsumerState<StatsScreen> with SingleTickerProv
     // Default to active cycle
     final effectiveCycleId = _selectedCycleId ?? currentCycle?.id ?? cycleList.firstOrNull?.id;
 
-    // Choose lifetime or cycle stats
-    final statsAsync = effectiveCycleId != null
-        ? ref.watch(cycleStatsProvider(effectiveCycleId))
-        : ref.watch(lifetimeStatsProvider);
+    // Choose lifetime or cycle stats — All Time (or no cycle at all)
+    // reads the every-session lifetime provider.
+    final isAllTime = effectiveCycleId == null || effectiveCycleId == _kAllTimeScopeId;
+    final statsAsync = isAllTime
+        ? ref.watch(lifetimeStatsProvider)
+        : ref.watch(cycleStatsProvider(effectiveCycleId));
 
     return ScreenBackground(
       screenType: ScreenType.more,
@@ -141,12 +147,12 @@ class _StatsScreenState extends ConsumerState<StatsScreen> with SingleTickerProv
                               const SizedBox(height: 16),
                               FilledButton.icon(
                                 onPressed: () {
-                                  if (effectiveCycleId != null) {
+                                  if (isAllTime) {
+                                    ref.invalidate(lifetimeStatsProvider);
+                                  } else {
                                     ref.invalidate(
                                       cycleStatsProvider(effectiveCycleId),
                                     );
-                                  } else {
-                                    ref.invalidate(lifetimeStatsProvider);
                                   }
                                 },
                                 icon: const Icon(Icons.refresh),
@@ -412,6 +418,13 @@ class _StatsScreenState extends ConsumerState<StatsScreen> with SingleTickerProv
         underline: const SizedBox.shrink(),
         dropdownColor: Theme.of(context).cardTheme.color,
         items: [
+          DropdownMenuItem<String?>(
+            value: _kAllTimeScopeId,
+            child: Text(
+              l10n.statsAllTimeLabel,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
           ...cycles.map((cycle) {
             final label = cycle.status == TrainingCycleStatus.current
                 ? l10n.statsActiveCycleLabel(cycle.name)

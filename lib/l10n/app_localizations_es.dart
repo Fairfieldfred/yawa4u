@@ -3681,6 +3681,9 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
+  String get statsAllTimeLabel => 'Todo el tiempo';
+
+  @override
   String get restTimerDialogTitle => 'Temporizador de descanso';
 
   @override
