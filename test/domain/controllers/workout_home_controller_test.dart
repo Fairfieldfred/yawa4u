@@ -285,7 +285,31 @@ void main() {
         displayPeriod: 1,
         displayDay: 1,
       );
-      expect(result, 'PUS');
+      expect(result, 'Push Day');
+    });
+
+    test('returns long and short dayNames verbatim', () {
+      for (final name in ['Chest, Shoulders, and Triceps', 'Ab']) {
+        final result = calculateDayName(
+          workouts: [TestFixtures.createWorkout(dayName: name)],
+          startDate: DateTime(2024, 1, 1),
+          daysPerPeriod: 7,
+          displayPeriod: 1,
+          displayDay: 1,
+        );
+        expect(result, name);
+      }
+    });
+
+    test('falls back to the weekday when dayName is empty', () {
+      final result = calculateDayName(
+        workouts: [TestFixtures.createWorkout(dayName: '')],
+        startDate: DateTime(2024, 1, 1),
+        daysPerPeriod: 5,
+        displayPeriod: 1,
+        displayDay: 1,
+      );
+      expect(result, 'MON');
     });
 
     test('calculates from start date when no dayName', () {

@@ -107,12 +107,12 @@ class CardioStats {
     if (n <= 0) return const [];
     final today = DateTime.now();
     final thisWeek = _startOfWeek(today);
-    final startWeek = thisWeek.subtract(Duration(days: 7 * (n - 1)));
+    final startWeek = DateTime(thisWeek.year, thisWeek.month, thisWeek.day - 7 * (n - 1));
     final byStart = {for (final b in weeklyBuckets) b.weekStart: b};
 
     final out = <WeeklyVolumeBucket>[];
     for (var i = 0; i < n; i++) {
-      final week = startWeek.add(Duration(days: 7 * i));
+      final week = DateTime(startWeek.year, startWeek.month, startWeek.day + 7 * i);
       out.add(byStart[week] ?? WeeklyVolumeBucket.empty(week));
     }
     return out;
@@ -126,10 +126,9 @@ class CardioStats {
   /// the same week-bucketing logic without going through a full stats
   /// computation (e.g., current-week strength session count).
   static DateTime startOfWeekPublic(DateTime date) {
-    final local = DateTime(date.year, date.month, date.day);
     // DateTime.weekday: Monday = 1, Sunday = 7.
-    final daysFromMonday = local.weekday - 1;
-    return local.subtract(Duration(days: daysFromMonday));
+    final daysFromMonday = date.weekday - 1;
+    return DateTime(date.year, date.month, date.day - daysFromMonday);
   }
 }
 

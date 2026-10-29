@@ -1178,6 +1178,11 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
+  String templatePreviewPeriodsList(String numbers) {
+    return 'Periodos $numbers';
+  }
+
+  @override
   String templatePreviewDayFallback(Object number) {
     return 'Día $number';
   }

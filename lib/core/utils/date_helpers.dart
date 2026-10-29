@@ -52,12 +52,12 @@ class DateHelpers {
 
   /// Get tomorrow's date at midnight
   static DateTime get tomorrow {
-    return today.add(const Duration(days: 1));
+    return addDays(today, 1);
   }
 
   /// Get yesterday's date at midnight
   static DateTime get yesterday {
-    return today.subtract(const Duration(days: 1));
+    return addDays(today, -1);
   }
 
   /// Strip time from a DateTime, returning midnight of that day
@@ -97,8 +97,9 @@ class DateHelpers {
 
   /// Get the number of days between two dates
   static int daysBetween(DateTime start, DateTime end) {
-    final startDate = stripTime(start);
-    final endDate = stripTime(end);
+    // Compare as UTC calendar dates so a 23- or 25-hour DST day still counts as one day.
+    final startDate = DateTime.utc(start.year, start.month, start.day);
+    final endDate = DateTime.utc(end.year, end.month, end.day);
     return endDate.difference(startDate).inDays;
   }
 
@@ -109,14 +110,27 @@ class DateHelpers {
 
   // ========== DATE ADDITIONS ==========
 
-  /// Add days to a date
+  /// Add calendar days to a date, keeping its wall-clock time.
+  ///
+  /// Steps by calendar day rather than a 24-hour [Duration], which would land
+  /// an hour off (and on the wrong day at midnight) across a DST transition.
   static DateTime addDays(DateTime date, int days) {
-    return date.add(Duration(days: days));
+    final constructor = date.isUtc ? DateTime.utc : DateTime.new;
+    return constructor(
+      date.year,
+      date.month,
+      date.day + days,
+      date.hour,
+      date.minute,
+      date.second,
+      date.millisecond,
+      date.microsecond,
+    );
   }
 
   /// Add periods to a date
   static DateTime addPeriods(DateTime date, int periods, int daysPerPeriod) {
-    return date.add(Duration(days: periods * daysPerPeriod));
+    return addDays(date, periods * daysPerPeriod);
   }
 
   /// Add months to a date (handles month boundaries correctly)
@@ -151,11 +165,7 @@ class DateHelpers {
     int periods,
     int daysPerPeriod,
   ) {
-    return addPeriods(
-      startDate,
-      periods,
-      daysPerPeriod,
-    ).subtract(const Duration(days: 1));
+    return addDays(startDate, periods * daysPerPeriod - 1);
   }
 
   /// Get the date for a specific period and day in a trainingCycle

@@ -99,7 +99,7 @@ class MuscleGroupStatsDialog extends ConsumerWidget {
                       child: SizedBox(),
                     ), // Space for Muscle Group Name
                     ...periods.map((period) {
-                      final isRecovery = period == trainingCycle.recoveryPeriod;
+                      final isRecovery = trainingCycle.isRecoveryPeriod(period);
                       return Expanded(
                         child: Center(
                           child: Text(

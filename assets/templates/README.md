@@ -20,6 +20,7 @@ v6 templates are valid v5 JSON — the `sport` field defaults to `"strength"` wh
   "periodsTotal": 6,
   "daysPerPeriod": 5,
   "recoveryPeriod": 4,
+  "additionalRecoveryPeriods": [2],  // optional mid-cycle recovery periods (e.g. P90X: [4, 8])
   "workouts": [
     {
       "periodNumber": 1,
@@ -49,6 +50,8 @@ Today (Phase 5.5), v6 templates containing `cardioTemplateId` will still load th
 
 - Keep `description` under 200 characters.
 - Use `primarySport` only as a defaults hint (days-per-period, initial sport picker); never rely on it to restrict content.
-- Always provide a `dayName` — it shows up in the calendar.
+- Always provide a `dayName` — it labels the day on strength and cardio sessions alike.
+- `recoveryPeriod` is the final recovery period; list any earlier ones in `additionalRecoveryPeriods`. Every one is flagged as recovery and RIR counts down to the next one.
+- Non-strength days with nothing to log (yoga, plyometrics, stretching) use `"sport": "other"` and no `cardioTemplateId` — they become planned sessions the user marks complete.
 - Strength exercises: reference names from `exercises.csv`. Custom names work but won't be recognized by the exercise library filters.
 - Cardio sessions: use the cardio session library (`assets/cardio_sessions/`) rather than redefining intervals inline. Keeps templates short and reusable.

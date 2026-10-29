@@ -2,6 +2,8 @@ import 'package:drift/drift.dart' hide isNull, isNotNull;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:yawa4u/core/constants/enums.dart';
+import 'package:yawa4u/core/constants/muscle_groups.dart';
+import 'package:yawa4u/core/utils/day_exercise_order.dart';
 import 'package:yawa4u/data/database/database.dart';
 import 'package:yawa4u/data/repositories/session_repository.dart';
 import 'package:yawa4u/data/repositories/workout_repository.dart';
@@ -493,6 +495,52 @@ void main() {
 
       await repo.deleteByTrainingCycleId(cycleId);
       expect(await repo.count(), 0);
+    });
+  });
+
+  group('WorkoutRepository moveExerciseWithinDay', () {
+    Future<void> seedAlternatingDay() async {
+      await insertTrainingCycle('cycle-1');
+      await repo.create(
+        TestFixtures.createWorkout(
+          id: 'chest',
+          trainingCycleId: 'cycle-1',
+          exercises: [
+            TestFixtures.createExercise(id: 'bench', workoutId: 'chest', orderIndex: 0),
+            TestFixtures.createExercise(id: 'fly', workoutId: 'chest', orderIndex: 2),
+          ],
+        ),
+      );
+      await repo.create(
+        TestFixtures.createWorkout(
+          id: 'back',
+          trainingCycleId: 'cycle-1',
+          label: 'Back',
+          exercises: [
+            TestFixtures.createExercise(id: 'row', workoutId: 'back', muscleGroup: MuscleGroup.back, orderIndex: 1),
+          ],
+        ),
+      );
+    }
+
+    Future<List<String>> dayOrder() async =>
+        orderedDayExercises(await repo.getByTrainingCycleId('cycle-1')).map((e) => e.id).toList();
+
+    test('moves across muscle groups without changing the exercise\'s workout', () async {
+      await seedAlternatingDay();
+      expect(await dayOrder(), ['bench', 'row', 'fly']);
+
+      expect(await repo.moveExerciseWithinDay(['chest', 'back'], 'fly', -1), isTrue);
+
+      expect(await dayOrder(), ['bench', 'fly', 'row']);
+      final back = await repo.getById('back');
+      expect(back!.exercises.map((e) => e.id), ['row']);
+    });
+
+    test('returns false at the top of the day', () async {
+      await seedAlternatingDay();
+      expect(await repo.moveExerciseWithinDay(['chest', 'back'], 'bench', -1), isFalse);
+      expect(await dayOrder(), ['bench', 'row', 'fly']);
     });
   });
 }

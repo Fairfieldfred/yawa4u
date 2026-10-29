@@ -3,6 +3,7 @@ import 'package:uuid/uuid.dart';
 import '../../core/constants/enums.dart';
 import '../../core/constants/muscle_groups.dart';
 import '../../core/utils/date_helpers.dart';
+import '../../core/utils/day_exercise_order.dart';
 import '../models/exercise.dart';
 import '../models/session.dart';
 import '../models/workout.dart';
@@ -674,12 +675,7 @@ class ScheduleService {
     final updatedSourceExercises = List<Exercise>.from(sourceWorkout.exercises);
     updatedSourceExercises.removeAt(exerciseIndex);
 
-    // Update order indices for remaining exercises
-    for (var i = 0; i < updatedSourceExercises.length; i++) {
-      updatedSourceExercises[i] = updatedSourceExercises[i].copyWith(
-        orderIndex: i,
-      );
-    }
+    // Remaining exercises keep their day-wide orderIndex; a gap is harmless.
 
     final updatedSourceWorkout = sourceWorkout.copyWith(
       exercises: updatedSourceExercises,
@@ -721,23 +717,23 @@ class ScheduleService {
     // At this point targetWorkout is guaranteed non-null due to assignment above
     final theTargetWorkout = targetWorkout;
     final targetExercises = List<Exercise>.from(theTargetWorkout.exercises);
-    final insertIndex = targetIndex ?? targetExercises.length;
-
-    // Update exercise with new workout ID and order index
-    final movedExercise = exercise.copyWith(
-      workoutId: theTargetWorkout.id,
-      orderIndex: insertIndex,
-    );
-
-    // Insert at the specified index
-    targetExercises.insert(
-      insertIndex.clamp(0, targetExercises.length),
-      movedExercise,
-    );
-
-    // Update order indices for all exercises
-    for (var i = 0; i < targetExercises.length; i++) {
-      targetExercises[i] = targetExercises[i].copyWith(orderIndex: i);
+    if (targetIndex == null) {
+      // Append to the end of the target day — orderIndex is a day-wide position.
+      targetExercises.add(
+        exercise.copyWith(
+          workoutId: theTargetWorkout.id,
+          orderIndex: nextDayOrderIndex(workouts.where((w) => w.periodNumber == targetPeriod && w.dayNumber == targetDay), excludingExerciseId: exercise.id),
+        ),
+      );
+    } else {
+      // Explicit index within the target workout (per-workout numbering).
+      targetExercises.insert(
+        targetIndex.clamp(0, targetExercises.length),
+        exercise.copyWith(workoutId: theTargetWorkout.id),
+      );
+      for (var i = 0; i < targetExercises.length; i++) {
+        targetExercises[i] = targetExercises[i].copyWith(orderIndex: i);
+      }
     }
 
     final updatedTargetWorkout = theTargetWorkout.copyWith(
@@ -802,12 +798,7 @@ class ScheduleService {
     final updatedSourceExercises = List<Exercise>.from(sourceWorkout.exercises);
     updatedSourceExercises.removeAt(exerciseIndex);
 
-    // Update order indices for remaining exercises
-    for (var i = 0; i < updatedSourceExercises.length; i++) {
-      updatedSourceExercises[i] = updatedSourceExercises[i].copyWith(
-        orderIndex: i,
-      );
-    }
+    // Remaining exercises keep their day-wide orderIndex; a gap is harmless.
 
     final updatedSourceWorkout = sourceWorkout.copyWith(
       exercises: updatedSourceExercises,
@@ -878,23 +869,23 @@ class ScheduleService {
     // At this point targetWorkout is guaranteed non-null
     final theTargetWorkout = targetWorkout;
     final targetExercises = List<Exercise>.from(theTargetWorkout.exercises);
-    final insertIndex = targetIndex ?? targetExercises.length;
-
-    // Update exercise with new workout ID and order index
-    final movedExercise = exercise.copyWith(
-      workoutId: theTargetWorkout.id,
-      orderIndex: insertIndex,
-    );
-
-    // Insert at the specified index
-    targetExercises.insert(
-      insertIndex.clamp(0, targetExercises.length),
-      movedExercise,
-    );
-
-    // Update order indices for all exercises
-    for (var i = 0; i < targetExercises.length; i++) {
-      targetExercises[i] = targetExercises[i].copyWith(orderIndex: i);
+    if (targetIndex == null) {
+      // Append to the end of the target day — orderIndex is a day-wide position.
+      targetExercises.add(
+        exercise.copyWith(
+          workoutId: theTargetWorkout.id,
+          orderIndex: nextDayOrderIndex(workoutsOnTargetDate, excludingExerciseId: exercise.id),
+        ),
+      );
+    } else {
+      // Explicit index within the target workout (per-workout numbering).
+      targetExercises.insert(
+        targetIndex.clamp(0, targetExercises.length),
+        exercise.copyWith(workoutId: theTargetWorkout.id),
+      );
+      for (var i = 0; i < targetExercises.length; i++) {
+        targetExercises[i] = targetExercises[i].copyWith(orderIndex: i);
+      }
     }
 
     final updatedTargetWorkout = theTargetWorkout.copyWith(
@@ -924,10 +915,13 @@ class ScheduleService {
 
     // Build flat list of exercises with their parent workouts
     final allExercises = <_ExerciseWithWorkout>[];
-    for (final workout in dayWorkouts) {
-      for (final exercise in workout.exercises) {
-        allExercises.add(_ExerciseWithWorkout(exercise, workout));
-      }
+    // In display order, so oldIndex/newIndex match what the calendar shows.
+    final workoutByExerciseId = {
+      for (final workout in dayWorkouts)
+        for (final exercise in workout.exercises) exercise.id: workout,
+    };
+    for (final exercise in orderedDayExercises(dayWorkouts)) {
+      allExercises.add(_ExerciseWithWorkout(exercise, workoutByExerciseId[exercise.id]!));
     }
 
     if (oldIndex < 0 || oldIndex >= allExercises.length || newIndex < 0 || newIndex >= allExercises.length) {
@@ -997,10 +991,13 @@ class ScheduleService {
 
     // Build flat list of exercises with their parent workouts
     final allExercises = <_ExerciseWithWorkout>[];
-    for (final workout in dayWorkouts) {
-      for (final exercise in workout.exercises) {
-        allExercises.add(_ExerciseWithWorkout(exercise, workout));
-      }
+    // In display order, so oldIndex/newIndex match what the calendar shows.
+    final workoutByExerciseId = {
+      for (final workout in dayWorkouts)
+        for (final exercise in workout.exercises) exercise.id: workout,
+    };
+    for (final exercise in orderedDayExercises(dayWorkouts)) {
+      allExercises.add(_ExerciseWithWorkout(exercise, workoutByExerciseId[exercise.id]!));
     }
 
     if (oldIndex < 0 || oldIndex >= allExercises.length || newIndex < 0 || newIndex >= allExercises.length) {
@@ -1147,21 +1144,18 @@ class ScheduleService {
         });
       }
 
-      final placements = [...snapshot.exercisePlacements]..sort((a, b) => a.orderIndex.compareTo(b.orderIndex));
-      for (final placement in placements) {
+      // Snapshot orderIndex values are restored verbatim — they're day-wide positions, so
+      // renumbering per workout would lose the day's order.
+      for (final placement in snapshot.exercisePlacements) {
         final exercise = pulled[placement.exerciseId];
         final target = lists[placement.workoutId];
         if (exercise == null || target == null) continue;
-        target.insert(
-          placement.orderIndex.clamp(0, target.length),
-          exercise.copyWith(workoutId: placement.workoutId),
-        );
+        target.add(exercise.copyWith(workoutId: placement.workoutId, orderIndex: placement.orderIndex));
       }
 
       for (final w in workouts) {
-        final list = lists[w.id]!;
-        final renumbered = [for (var i = 0; i < list.length; i++) list[i].copyWith(orderIndex: i)];
-        await _workoutRepository.update(w.copyWith(exercises: renumbered));
+        final list = lists[w.id]!..sort((a, b) => a.orderIndex.compareTo(b.orderIndex));
+        await _workoutRepository.update(w.copyWith(exercises: list));
       }
     }
 

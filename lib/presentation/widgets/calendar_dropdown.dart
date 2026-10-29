@@ -12,7 +12,9 @@ import '../../core/utils/date_helpers.dart';
 import '../../data/models/training_cycle.dart';
 import '../../data/models/workout.dart';
 import '../../domain/controllers/workout_home_controller.dart';
+import '../../domain/providers/calendar_providers.dart';
 import '../../domain/providers/database_providers.dart';
+import '../../domain/providers/session_providers.dart';
 import '../../domain/providers/workout_providers.dart';
 
 /// Dropdown for selecting period and day (appears below AppBar)
@@ -164,6 +166,7 @@ class _CalendarDropdownState extends ConsumerState<CalendarDropdown> {
     final updatedTrainingCycle = trainingCycle.copyWith(
       periodsTotal: trainingCycle.periodsTotal + 1,
       recoveryPeriod: trainingCycle.recoveryPeriod + 1,
+      additionalRecoveryPeriods: trainingCycle.additionalRecoveryPeriodsAfterInsert(newPeriodNumber),
     );
     await trainingCycleRepository.update(updatedTrainingCycle);
 
@@ -213,6 +216,7 @@ class _CalendarDropdownState extends ConsumerState<CalendarDropdown> {
     final updatedTrainingCycle = trainingCycle.copyWith(
       periodsTotal: trainingCycle.periodsTotal - 1,
       recoveryPeriod: trainingCycle.recoveryPeriod - 1,
+      additionalRecoveryPeriods: trainingCycle.additionalRecoveryPeriodsAfterRemoval(periodToRemove),
     );
     await trainingCycleRepository.update(updatedTrainingCycle);
 
@@ -231,22 +235,15 @@ class _CalendarDropdownState extends ConsumerState<CalendarDropdown> {
 
   @override
   Widget build(BuildContext context) {
-    // Build the date map once, respecting any schedule shifts
-    // (e.g. inserted rest days) via workout.scheduledDate.
+    // Build the date map once, respecting any schedule shifts (e.g. inserted rest days) via the
+    // scheduledDate of strength workouts and cardio-only days alike.
+    final cycleSessions = ref.watch(sessionsByTrainingCycleProvider(widget.trainingCycle.id)).value ?? const [];
     final dateMap = widget.trainingCycle.startDate != null
         ? DateHelpers.buildPeriodDayDateMap(
             cycleStart: widget.trainingCycle.startDate!,
             daysPerPeriod: widget.trainingCycle.daysPerPeriod,
             periodsTotal: widget.trainingCycle.periodsTotal,
-            scheduledDates: DateHelpers.extractScheduledDates(
-              widget.allWorkouts.map(
-                (w) => (
-                  periodNumber: w.periodNumber,
-                  dayNumber: w.dayNumber,
-                  scheduledDate: w.scheduledDate,
-                ),
-              ),
-            ),
+            scheduledDates: cycleScheduledDates(widget.allWorkouts, cycleSessions),
           )
         : <(int, int), DateTime>{};
 
@@ -371,7 +368,7 @@ class _CalendarDropdownState extends ConsumerState<CalendarDropdown> {
                     return Expanded(
                       child: _buildPeriodColumn(
                         periodNumber,
-                        widget.trainingCycle.recoveryPeriod == periodNumber,
+                        widget.trainingCycle.isRecoveryPeriod(periodNumber),
                         dateMap,
                         daysForPeriod,
                       ),
@@ -452,7 +449,7 @@ class _CalendarDropdownState extends ConsumerState<CalendarDropdown> {
                   ),
                 ),
                 Text(
-                  '${calculateRIR(periodNumber, widget.trainingCycle.recoveryPeriod)} RIR',
+                  '${calculateRIR(periodNumber, widget.trainingCycle.nextRecoveryPeriod(periodNumber))} RIR',
                   style: context.textTheme.labelSmall?.copyWith(
                     color: Theme.of(
                       context,

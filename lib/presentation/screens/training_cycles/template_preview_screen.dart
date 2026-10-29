@@ -158,7 +158,8 @@ class _TemplatePreviewScreenState extends ConsumerState<TemplatePreviewScreen> {
     final widgets = <Widget>[];
 
     for (final period in sortedPeriods) {
-      final isRecovery = widget.template.recoveryPeriod == period;
+      final isRecovery =
+          widget.template.recoveryPeriod == period || widget.template.additionalRecoveryPeriods.contains(period);
       final periodLabel = isRecovery
           ? l10n.templatePreviewPeriodRecoveryHeader(period)
           : l10n.templatePreviewPeriodHeader(period);
@@ -209,7 +210,11 @@ class _TemplatePreviewScreenState extends ConsumerState<TemplatePreviewScreen> {
           if (widget.template.recoveryPeriod != null)
             _buildInfoItem(
               Icons.refresh,
-              l10n.templatePreviewPeriodHeader(widget.template.recoveryPeriod!),
+              widget.template.additionalRecoveryPeriods.isEmpty
+                  ? l10n.templatePreviewPeriodHeader(widget.template.recoveryPeriod!)
+                  : l10n.templatePreviewPeriodsList(
+                      [...widget.template.additionalRecoveryPeriods, widget.template.recoveryPeriod!].join(', '),
+                    ),
               l10n.templatePreviewRecovery,
             ),
         ],

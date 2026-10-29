@@ -70,7 +70,7 @@ final sessionsInDateRangeProvider = StreamProvider.autoDispose.family<List<Sessi
 /// boundary behavior without standing up a real DB.
 ({DateTime start, DateTime end}) dayRangeContaining(DateTime at) {
   final start = DateTime(at.year, at.month, at.day);
-  final end = start.add(const Duration(days: 1)).subtract(const Duration(microseconds: 1));
+  final end = DateTime(at.year, at.month, at.day + 1).subtract(const Duration(microseconds: 1));
   return (start: start, end: end);
 }
 

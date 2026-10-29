@@ -904,5 +904,37 @@ void main() {
         expect(DateHelpers.dayOfWeekNames[6], 'SAT');
       });
     });
+
+    // Every local-time zone with daylight saving has one 23-hour and one
+    // 25-hour day a year. Walking a whole year catches both wherever the
+    // suite runs (zones without DST pass trivially).
+    group('daylight saving transitions', () {
+      final yearStart = DateTime(2026, 1, 1);
+
+      test('addDays lands on local midnight of the right calendar day', () {
+        for (var i = 0; i <= 365; i++) {
+          final result = DateHelpers.addDays(yearStart, i);
+          expect(result, DateTime(2026, 1, 1 + i), reason: 'offset $i');
+          expect(result.hour, 0, reason: 'offset $i');
+        }
+      });
+
+      test('daysBetween counts calendar days across a 23- or 25-hour day', () {
+        for (var i = 0; i <= 365; i++) {
+          expect(DateHelpers.daysBetween(yearStart, DateTime(2026, 1, 1 + i)), i, reason: 'offset $i');
+        }
+      });
+
+      test('getWorkoutDate maps a 13-period cycle onto consecutive days', () {
+        final start = DateTime(2026, 10, 19);
+        for (var period = 1; period <= 13; period++) {
+          for (var day = 1; day <= 7; day++) {
+            final index = (period - 1) * 7 + day - 1;
+            expect(DateHelpers.getWorkoutDate(start, period, day, 7), DateTime(2026, 10, 19 + index));
+          }
+        }
+        expect(DateHelpers.getTrainingCycleEndDate(start, 13, 7), DateTime(2027, 1, 17));
+      });
+    });
   });
 }

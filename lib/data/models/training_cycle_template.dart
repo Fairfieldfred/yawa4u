@@ -10,6 +10,9 @@ class TrainingCycleTemplate {
   final int periodsTotal;
   final int daysPerPeriod;
   final int? recoveryPeriod;
+
+  /// Mid-cycle recovery periods in addition to [recoveryPeriod] (JSON `additionalRecoveryPeriods`).
+  final List<int> additionalRecoveryPeriods;
   final String? primarySport;
   final List<WorkoutTemplate> workouts;
 
@@ -20,6 +23,7 @@ class TrainingCycleTemplate {
     required this.periodsTotal,
     required this.daysPerPeriod,
     this.recoveryPeriod,
+    this.additionalRecoveryPeriods = const [],
     this.primarySport,
     required this.workouts,
   });
@@ -32,6 +36,7 @@ class TrainingCycleTemplate {
       periodsTotal: json['periodsTotal'] as int,
       daysPerPeriod: json['daysPerPeriod'] as int,
       recoveryPeriod: json['recoveryPeriod'] as int?,
+      additionalRecoveryPeriods: (json['additionalRecoveryPeriods'] as List?)?.cast<int>() ?? const [],
       primarySport: json['primarySport'] as String?,
       workouts: (json['workouts'] as List).map((w) => WorkoutTemplate.fromJson(w as Map<String, dynamic>)).toList(),
     );
@@ -45,6 +50,7 @@ class TrainingCycleTemplate {
       'periodsTotal': periodsTotal,
       'daysPerPeriod': daysPerPeriod,
       'recoveryPeriod': recoveryPeriod,
+      if (additionalRecoveryPeriods.isNotEmpty) 'additionalRecoveryPeriods': additionalRecoveryPeriods,
       if (primarySport != null) 'primarySport': primarySport,
       'workouts': workouts.map((w) => w.toJson()).toList(),
     };

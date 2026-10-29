@@ -1,5 +1,6 @@
 import '../../core/constants/enums.dart';
 import '../../core/constants/sports.dart';
+import '../../core/utils/day_exercise_order.dart';
 import '../database/daos/exercise_dao.dart';
 import '../models/exercise.dart' as model;
 import '../models/session.dart';
@@ -158,7 +159,7 @@ class WorkoutRepository {
   Future<List<Workout>> getToday() async {
     final now = DateTime.now();
     final start = DateTime(now.year, now.month, now.day);
-    final end = start.add(const Duration(days: 1));
+    final end = DateTime(now.year, now.month, now.day + 1);
     return getByDateRange(start, end);
   }
 
@@ -177,6 +178,25 @@ class WorkoutRepository {
 
   Future<void> update(Workout workout) async {
     await _sessionRepository.updateStrength(_toStrengthSession(workout));
+  }
+
+  /// Moves [exerciseId] one place up ([offset] -1) or down (+1) in its training day's display order.
+  ///
+  /// [dayWorkoutIds] are the day's strength workouts; they're re-read so recent set edits aren't
+  /// overwritten. The whole day is renumbered (see [orderedDayExercises]) and the exercise stays in its
+  /// own muscle-group workout. Returns false when it can't move.
+  Future<bool> moveExerciseWithinDay(Iterable<String> dayWorkoutIds, String exerciseId, int offset) async {
+    final dayWorkouts = <Workout>[];
+    for (final id in dayWorkoutIds) {
+      final workout = await getById(id);
+      if (workout != null) dayWorkouts.add(workout);
+    }
+    final reordered = moveDayExercise(orderedDayExercises(dayWorkouts), exerciseId, offset);
+    if (reordered == null) return false;
+    for (final workout in renumberDayExercises(dayWorkouts, reordered)) {
+      await update(workout);
+    }
+    return true;
   }
 
   Future<void> delete(String id) async {

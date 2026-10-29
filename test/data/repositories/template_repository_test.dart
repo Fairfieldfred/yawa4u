@@ -439,4 +439,66 @@ void main() {
       expect(result.cardioSessions.first.dayName, 'Recovery Ride');
     });
   });
+
+  group('createTrainingCycleFromTemplate - day names and recovery periods', () {
+    test('strength workouts carry the template dayName', () async {
+      final template = makeTemplate(
+        workouts: [
+          WorkoutTemplate(
+            periodNumber: 1,
+            dayNumber: 1,
+            dayName: 'Chest and Back',
+            exercises: [
+              ExerciseTemplate(
+                name: 'Pushup',
+                muscleGroup: 'chest',
+                equipmentType: 'bodyweightOnly',
+                sets: 2,
+                reps: 'Max',
+              ),
+              ExerciseTemplate(
+                name: 'Pullup',
+                muscleGroup: 'back',
+                equipmentType: 'bodyweightOnly',
+                sets: 2,
+                reps: 'Max',
+              ),
+            ],
+          ),
+        ],
+      );
+
+      final result = await repo.createTrainingCycleFromTemplate(template);
+
+      expect(result.trainingCycle.workouts, hasLength(2));
+      expect(result.trainingCycle.workouts.map((w) => w.dayName), everyElement('Chest and Back'));
+    });
+
+    test('carries additionalRecoveryPeriods onto the cycle', () async {
+      final template = TrainingCycleTemplate(
+        id: 'mid-deload',
+        name: 'Mid deload',
+        description: 'Deloads mid-cycle',
+        periodsTotal: 13,
+        daysPerPeriod: 7,
+        recoveryPeriod: 13,
+        additionalRecoveryPeriods: const [4, 8],
+        workouts: const [],
+      );
+
+      final result = await repo.createTrainingCycleFromTemplate(template);
+
+      expect(result.trainingCycle.recoveryPeriods, [4, 8, 13]);
+    });
+
+    test('additionalRecoveryPeriods round-trips through template JSON', () {
+      final template = TrainingCycleTemplate.fromJson({
+        ...makeTemplate().toJson(),
+        'additionalRecoveryPeriods': [2],
+      });
+
+      expect(TrainingCycleTemplate.fromJson(template.toJson()).additionalRecoveryPeriods, [2]);
+      expect(TrainingCycleTemplate.fromJson(makeTemplate().toJson()).additionalRecoveryPeriods, isEmpty);
+    });
+  });
 }

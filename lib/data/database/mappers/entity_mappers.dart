@@ -33,6 +33,9 @@ class TrainingCycleMapper {
       periodsTotal: row.periodsTotal,
       daysPerPeriod: row.daysPerPeriod,
       recoveryPeriod: row.recoveryPeriod,
+      additionalRecoveryPeriods: row.additionalRecoveryPeriods != null
+          ? (jsonDecode(row.additionalRecoveryPeriods!) as List).cast<int>()
+          : null,
       status: TrainingCycleStatus.values[row.status],
       gender: row.gender != null ? Gender.values[row.gender!] : null,
       createdDate: row.createdDate,
@@ -55,6 +58,9 @@ class TrainingCycleMapper {
       periodsTotal: Value(cycle.periodsTotal),
       daysPerPeriod: Value(cycle.daysPerPeriod),
       recoveryPeriod: Value(cycle.recoveryPeriod),
+      additionalRecoveryPeriods: Value(
+        cycle.additionalRecoveryPeriods.isNotEmpty ? jsonEncode(cycle.additionalRecoveryPeriods) : null,
+      ),
       status: Value(cycle.status.index),
       gender: Value(cycle.gender?.index),
       createdDate: Value(cycle.createdDate),

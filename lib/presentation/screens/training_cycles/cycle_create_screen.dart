@@ -120,6 +120,10 @@ class _TrainingCycleCreateScreenState extends ConsumerState<TrainingCycleCreateS
         periodsTotal: _periodsTotal,
         daysPerPeriod: _daysPerPeriod,
         recoveryPeriod: _hasDeload ? _recoveryPeriod : null,
+        // The user may shrink the cycle after picking a template; drop recovery periods that fell off the end.
+        additionalRecoveryPeriods: _hasDeload
+            ? _selectedTemplate?.additionalRecoveryPeriods.where((p) => p < _periodsTotal).toList()
+            : null,
         recoveryPeriodType: _recoveryPeriodType,
         status: TrainingCycleStatus.draft,
         gender: Gender.male, // Default value - will be set from onboarding later

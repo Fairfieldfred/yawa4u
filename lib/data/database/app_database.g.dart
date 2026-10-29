@@ -199,6 +199,17 @@ class $TrainingCyclesTable extends TrainingCycles
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _additionalRecoveryPeriodsMeta =
+      const VerificationMeta('additionalRecoveryPeriods');
+  @override
+  late final GeneratedColumn<String> additionalRecoveryPeriods =
+      GeneratedColumn<String>(
+        'additional_recovery_periods',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -219,6 +230,7 @@ class $TrainingCyclesTable extends TrainingCycles
     primarySport,
     creatorUuid,
     ownerUuid,
+    additionalRecoveryPeriods,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -378,6 +390,15 @@ class $TrainingCyclesTable extends TrainingCycles
         ownerUuid.isAcceptableOrUnknown(data['owner_uuid']!, _ownerUuidMeta),
       );
     }
+    if (data.containsKey('additional_recovery_periods')) {
+      context.handle(
+        _additionalRecoveryPeriodsMeta,
+        additionalRecoveryPeriods.isAcceptableOrUnknown(
+          data['additional_recovery_periods']!,
+          _additionalRecoveryPeriodsMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -459,6 +480,10 @@ class $TrainingCyclesTable extends TrainingCycles
         DriftSqlType.string,
         data['${effectivePrefix}owner_uuid'],
       ),
+      additionalRecoveryPeriods: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}additional_recovery_periods'],
+      ),
     );
   }
 
@@ -487,6 +512,7 @@ class TrainingCycle extends DataClass implements Insertable<TrainingCycle> {
   final int? primarySport;
   final String? creatorUuid;
   final String? ownerUuid;
+  final String? additionalRecoveryPeriods;
   const TrainingCycle({
     required this.id,
     required this.uuid,
@@ -506,6 +532,7 @@ class TrainingCycle extends DataClass implements Insertable<TrainingCycle> {
     this.primarySport,
     this.creatorUuid,
     this.ownerUuid,
+    this.additionalRecoveryPeriods,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -547,6 +574,11 @@ class TrainingCycle extends DataClass implements Insertable<TrainingCycle> {
     }
     if (!nullToAbsent || ownerUuid != null) {
       map['owner_uuid'] = Variable<String>(ownerUuid);
+    }
+    if (!nullToAbsent || additionalRecoveryPeriods != null) {
+      map['additional_recovery_periods'] = Variable<String>(
+        additionalRecoveryPeriods,
+      );
     }
     return map;
   }
@@ -591,6 +623,10 @@ class TrainingCycle extends DataClass implements Insertable<TrainingCycle> {
       ownerUuid: ownerUuid == null && nullToAbsent
           ? const Value.absent()
           : Value(ownerUuid),
+      additionalRecoveryPeriods:
+          additionalRecoveryPeriods == null && nullToAbsent
+          ? const Value.absent()
+          : Value(additionalRecoveryPeriods),
     );
   }
 
@@ -620,6 +656,9 @@ class TrainingCycle extends DataClass implements Insertable<TrainingCycle> {
       primarySport: serializer.fromJson<int?>(json['primarySport']),
       creatorUuid: serializer.fromJson<String?>(json['creatorUuid']),
       ownerUuid: serializer.fromJson<String?>(json['ownerUuid']),
+      additionalRecoveryPeriods: serializer.fromJson<String?>(
+        json['additionalRecoveryPeriods'],
+      ),
     );
   }
   @override
@@ -646,6 +685,9 @@ class TrainingCycle extends DataClass implements Insertable<TrainingCycle> {
       'primarySport': serializer.toJson<int?>(primarySport),
       'creatorUuid': serializer.toJson<String?>(creatorUuid),
       'ownerUuid': serializer.toJson<String?>(ownerUuid),
+      'additionalRecoveryPeriods': serializer.toJson<String?>(
+        additionalRecoveryPeriods,
+      ),
     };
   }
 
@@ -668,6 +710,7 @@ class TrainingCycle extends DataClass implements Insertable<TrainingCycle> {
     Value<int?> primarySport = const Value.absent(),
     Value<String?> creatorUuid = const Value.absent(),
     Value<String?> ownerUuid = const Value.absent(),
+    Value<String?> additionalRecoveryPeriods = const Value.absent(),
   }) => TrainingCycle(
     id: id ?? this.id,
     uuid: uuid ?? this.uuid,
@@ -691,6 +734,9 @@ class TrainingCycle extends DataClass implements Insertable<TrainingCycle> {
     primarySport: primarySport.present ? primarySport.value : this.primarySport,
     creatorUuid: creatorUuid.present ? creatorUuid.value : this.creatorUuid,
     ownerUuid: ownerUuid.present ? ownerUuid.value : this.ownerUuid,
+    additionalRecoveryPeriods: additionalRecoveryPeriods.present
+        ? additionalRecoveryPeriods.value
+        : this.additionalRecoveryPeriods,
   );
   TrainingCycle copyWithCompanion(TrainingCyclesCompanion data) {
     return TrainingCycle(
@@ -730,6 +776,9 @@ class TrainingCycle extends DataClass implements Insertable<TrainingCycle> {
           ? data.creatorUuid.value
           : this.creatorUuid,
       ownerUuid: data.ownerUuid.present ? data.ownerUuid.value : this.ownerUuid,
+      additionalRecoveryPeriods: data.additionalRecoveryPeriods.present
+          ? data.additionalRecoveryPeriods.value
+          : this.additionalRecoveryPeriods,
     );
   }
 
@@ -753,7 +802,8 @@ class TrainingCycle extends DataClass implements Insertable<TrainingCycle> {
           ..write('recoveryPeriodType: $recoveryPeriodType, ')
           ..write('primarySport: $primarySport, ')
           ..write('creatorUuid: $creatorUuid, ')
-          ..write('ownerUuid: $ownerUuid')
+          ..write('ownerUuid: $ownerUuid, ')
+          ..write('additionalRecoveryPeriods: $additionalRecoveryPeriods')
           ..write(')'))
         .toString();
   }
@@ -778,6 +828,7 @@ class TrainingCycle extends DataClass implements Insertable<TrainingCycle> {
     primarySport,
     creatorUuid,
     ownerUuid,
+    additionalRecoveryPeriods,
   );
   @override
   bool operator ==(Object other) =>
@@ -800,7 +851,8 @@ class TrainingCycle extends DataClass implements Insertable<TrainingCycle> {
           other.recoveryPeriodType == this.recoveryPeriodType &&
           other.primarySport == this.primarySport &&
           other.creatorUuid == this.creatorUuid &&
-          other.ownerUuid == this.ownerUuid);
+          other.ownerUuid == this.ownerUuid &&
+          other.additionalRecoveryPeriods == this.additionalRecoveryPeriods);
 }
 
 class TrainingCyclesCompanion extends UpdateCompanion<TrainingCycle> {
@@ -822,6 +874,7 @@ class TrainingCyclesCompanion extends UpdateCompanion<TrainingCycle> {
   final Value<int?> primarySport;
   final Value<String?> creatorUuid;
   final Value<String?> ownerUuid;
+  final Value<String?> additionalRecoveryPeriods;
   const TrainingCyclesCompanion({
     this.id = const Value.absent(),
     this.uuid = const Value.absent(),
@@ -841,6 +894,7 @@ class TrainingCyclesCompanion extends UpdateCompanion<TrainingCycle> {
     this.primarySport = const Value.absent(),
     this.creatorUuid = const Value.absent(),
     this.ownerUuid = const Value.absent(),
+    this.additionalRecoveryPeriods = const Value.absent(),
   });
   TrainingCyclesCompanion.insert({
     this.id = const Value.absent(),
@@ -861,6 +915,7 @@ class TrainingCyclesCompanion extends UpdateCompanion<TrainingCycle> {
     this.primarySport = const Value.absent(),
     this.creatorUuid = const Value.absent(),
     this.ownerUuid = const Value.absent(),
+    this.additionalRecoveryPeriods = const Value.absent(),
   }) : uuid = Value(uuid),
        name = Value(name),
        periodsTotal = Value(periodsTotal),
@@ -887,6 +942,7 @@ class TrainingCyclesCompanion extends UpdateCompanion<TrainingCycle> {
     Expression<int>? primarySport,
     Expression<String>? creatorUuid,
     Expression<String>? ownerUuid,
+    Expression<String>? additionalRecoveryPeriods,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -909,6 +965,8 @@ class TrainingCyclesCompanion extends UpdateCompanion<TrainingCycle> {
       if (primarySport != null) 'primary_sport': primarySport,
       if (creatorUuid != null) 'creator_uuid': creatorUuid,
       if (ownerUuid != null) 'owner_uuid': ownerUuid,
+      if (additionalRecoveryPeriods != null)
+        'additional_recovery_periods': additionalRecoveryPeriods,
     });
   }
 
@@ -931,6 +989,7 @@ class TrainingCyclesCompanion extends UpdateCompanion<TrainingCycle> {
     Value<int?>? primarySport,
     Value<String?>? creatorUuid,
     Value<String?>? ownerUuid,
+    Value<String?>? additionalRecoveryPeriods,
   }) {
     return TrainingCyclesCompanion(
       id: id ?? this.id,
@@ -952,6 +1011,8 @@ class TrainingCyclesCompanion extends UpdateCompanion<TrainingCycle> {
       primarySport: primarySport ?? this.primarySport,
       creatorUuid: creatorUuid ?? this.creatorUuid,
       ownerUuid: ownerUuid ?? this.ownerUuid,
+      additionalRecoveryPeriods:
+          additionalRecoveryPeriods ?? this.additionalRecoveryPeriods,
     );
   }
 
@@ -1014,6 +1075,11 @@ class TrainingCyclesCompanion extends UpdateCompanion<TrainingCycle> {
     if (ownerUuid.present) {
       map['owner_uuid'] = Variable<String>(ownerUuid.value);
     }
+    if (additionalRecoveryPeriods.present) {
+      map['additional_recovery_periods'] = Variable<String>(
+        additionalRecoveryPeriods.value,
+      );
+    }
     return map;
   }
 
@@ -1037,7 +1103,8 @@ class TrainingCyclesCompanion extends UpdateCompanion<TrainingCycle> {
           ..write('recoveryPeriodType: $recoveryPeriodType, ')
           ..write('primarySport: $primarySport, ')
           ..write('creatorUuid: $creatorUuid, ')
-          ..write('ownerUuid: $ownerUuid')
+          ..write('ownerUuid: $ownerUuid, ')
+          ..write('additionalRecoveryPeriods: $additionalRecoveryPeriods')
           ..write(')'))
         .toString();
   }
@@ -10655,6 +10722,7 @@ typedef $$TrainingCyclesTableCreateCompanionBuilder =
       Value<int?> primarySport,
       Value<String?> creatorUuid,
       Value<String?> ownerUuid,
+      Value<String?> additionalRecoveryPeriods,
     });
 typedef $$TrainingCyclesTableUpdateCompanionBuilder =
     TrainingCyclesCompanion Function({
@@ -10676,6 +10744,7 @@ typedef $$TrainingCyclesTableUpdateCompanionBuilder =
       Value<int?> primarySport,
       Value<String?> creatorUuid,
       Value<String?> ownerUuid,
+      Value<String?> additionalRecoveryPeriods,
     });
 
 final class $$TrainingCyclesTableReferences
@@ -10820,6 +10889,11 @@ class $$TrainingCyclesTableFilterComposer
 
   ColumnFilters<String> get ownerUuid => $composableBuilder(
     column: $table.ownerUuid,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get additionalRecoveryPeriods => $composableBuilder(
+    column: $table.additionalRecoveryPeriods,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -10972,6 +11046,11 @@ class $$TrainingCyclesTableOrderingComposer
     column: $table.ownerUuid,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get additionalRecoveryPeriods => $composableBuilder(
+    column: $table.additionalRecoveryPeriods,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$TrainingCyclesTableAnnotationComposer
@@ -11054,6 +11133,11 @@ class $$TrainingCyclesTableAnnotationComposer
 
   GeneratedColumn<String> get ownerUuid =>
       $composableBuilder(column: $table.ownerUuid, builder: (column) => column);
+
+  GeneratedColumn<String> get additionalRecoveryPeriods => $composableBuilder(
+    column: $table.additionalRecoveryPeriods,
+    builder: (column) => column,
+  );
 
   Expression<T> sessionsRefs<T extends Object>(
     Expression<T> Function($$SessionsTableAnnotationComposer a) f,
@@ -11154,6 +11238,7 @@ class $$TrainingCyclesTableTableManager
                 Value<int?> primarySport = const Value.absent(),
                 Value<String?> creatorUuid = const Value.absent(),
                 Value<String?> ownerUuid = const Value.absent(),
+                Value<String?> additionalRecoveryPeriods = const Value.absent(),
               }) => TrainingCyclesCompanion(
                 id: id,
                 uuid: uuid,
@@ -11173,6 +11258,7 @@ class $$TrainingCyclesTableTableManager
                 primarySport: primarySport,
                 creatorUuid: creatorUuid,
                 ownerUuid: ownerUuid,
+                additionalRecoveryPeriods: additionalRecoveryPeriods,
               ),
           createCompanionCallback:
               ({
@@ -11194,6 +11280,7 @@ class $$TrainingCyclesTableTableManager
                 Value<int?> primarySport = const Value.absent(),
                 Value<String?> creatorUuid = const Value.absent(),
                 Value<String?> ownerUuid = const Value.absent(),
+                Value<String?> additionalRecoveryPeriods = const Value.absent(),
               }) => TrainingCyclesCompanion.insert(
                 id: id,
                 uuid: uuid,
@@ -11213,6 +11300,7 @@ class $$TrainingCyclesTableTableManager
                 primarySport: primarySport,
                 creatorUuid: creatorUuid,
                 ownerUuid: ownerUuid,
+                additionalRecoveryPeriods: additionalRecoveryPeriods,
               ),
           withReferenceMapper: (p0) => p0
               .map(

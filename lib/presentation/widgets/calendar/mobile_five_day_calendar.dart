@@ -109,12 +109,12 @@ class _MobileFiveDayCalendarState extends State<MobileFiveDayCalendar> {
   /// Converts a [DateTime] to the corresponding PageView page index.
   int _pageForDate(DateTime date) {
     final stripped = DateHelpers.stripTime(date);
-    return _kCenterPage + stripped.difference(_referenceDate).inDays;
+    return _kCenterPage + DateHelpers.daysBetween(_referenceDate, stripped);
   }
 
   /// Converts a page index to the corresponding [DateTime].
   DateTime _dateForPage(int page) {
-    return _referenceDate.add(Duration(days: page - _kCenterPage));
+    return DateHelpers.addDays(_referenceDate, page - _kCenterPage);
   }
 
   @override

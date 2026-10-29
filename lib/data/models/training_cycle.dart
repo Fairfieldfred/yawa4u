@@ -12,6 +12,13 @@ class TrainingCycle {
   final int periodsTotal;
   final int daysPerPeriod;
   final int recoveryPeriod;
+
+  /// Recovery periods inside the cycle in addition to the final [recoveryPeriod].
+  ///
+  /// Programs like P90X deload mid-cycle (periods 4 and 8 of 13). Kept
+  /// separate from [recoveryPeriod] because add/remove-period always inserts
+  /// before the final recovery period, which these earlier ones don't follow.
+  final List<int> additionalRecoveryPeriods;
   final TrainingCycleStatus status;
   final Gender? gender;
   final DateTime createdDate;
@@ -42,6 +49,7 @@ class TrainingCycle {
     required this.periodsTotal,
     required this.daysPerPeriod,
     int? recoveryPeriod,
+    List<int>? additionalRecoveryPeriods,
     RecoveryPeriodType? recoveryPeriodType,
     this.status = TrainingCycleStatus.draft,
     this.gender,
@@ -55,8 +63,29 @@ class TrainingCycle {
     this.primarySport,
   }) : _recoveryPeriodType = recoveryPeriodType ?? RecoveryPeriodType.deload,
        recoveryPeriod = recoveryPeriod ?? periodsTotal,
+       additionalRecoveryPeriods = additionalRecoveryPeriods ?? const [],
        createdDate = createdDate ?? DateTime.now(),
        workouts = workouts ?? [];
+
+  /// Every recovery period in ascending order, including the final [recoveryPeriod].
+  List<int> get recoveryPeriods => {...additionalRecoveryPeriods, recoveryPeriod}.toList()..sort();
+
+  /// Whether [period] is any of this cycle's recovery periods.
+  bool isRecoveryPeriod(int period) => period == recoveryPeriod || additionalRecoveryPeriods.contains(period);
+
+  /// The first recovery period at or after [period] — the one RIR counts down to.
+  int nextRecoveryPeriod(int period) => recoveryPeriods.firstWhere((p) => p >= period, orElse: () => recoveryPeriod);
+
+  /// [additionalRecoveryPeriods] renumbered for a new period inserted at [period].
+  List<int> additionalRecoveryPeriodsAfterInsert(int period) => [
+    for (final p in additionalRecoveryPeriods) p >= period ? p + 1 : p,
+  ];
+
+  /// [additionalRecoveryPeriods] renumbered for [period] being deleted.
+  List<int> additionalRecoveryPeriodsAfterRemoval(int period) => [
+    for (final p in additionalRecoveryPeriods)
+      if (p != period) p > period ? p - 1 : p,
+  ];
 
   /// Calculate end date based on start date and periods
   DateTime? getEndDate() {
@@ -163,6 +192,7 @@ class TrainingCycle {
     int? periodsTotal,
     int? daysPerPeriod,
     int? recoveryPeriod,
+    List<int>? additionalRecoveryPeriods,
     RecoveryPeriodType? recoveryPeriodType,
     TrainingCycleStatus? status,
     Gender? gender,
@@ -182,6 +212,7 @@ class TrainingCycle {
       periodsTotal: periodsTotal ?? this.periodsTotal,
       daysPerPeriod: daysPerPeriod ?? this.daysPerPeriod,
       recoveryPeriod: recoveryPeriod ?? this.recoveryPeriod,
+      additionalRecoveryPeriods: additionalRecoveryPeriods ?? this.additionalRecoveryPeriods,
       recoveryPeriodType: recoveryPeriodType ?? this.recoveryPeriodType,
       status: status ?? this.status,
       gender: gender ?? this.gender,
@@ -204,6 +235,7 @@ class TrainingCycle {
       'periodsTotal': periodsTotal,
       'daysPerPeriod': daysPerPeriod,
       'recoveryPeriod': recoveryPeriod,
+      if (additionalRecoveryPeriods.isNotEmpty) 'additionalRecoveryPeriods': additionalRecoveryPeriods,
       'recoveryPeriodType': recoveryPeriodType.name,
       'status': status.name,
       'gender': gender?.name,
@@ -226,6 +258,7 @@ class TrainingCycle {
       periodsTotal: json['periodsTotal'] as int,
       daysPerPeriod: json['daysPerPeriod'] as int,
       recoveryPeriod: json['recoveryPeriod'] as int?,
+      additionalRecoveryPeriods: (json['additionalRecoveryPeriods'] as List?)?.cast<int>(),
       recoveryPeriodType: json['recoveryPeriodType'] != null
           ? RecoveryPeriodType.values.firstWhere(
               (e) => e.name == json['recoveryPeriodType'],

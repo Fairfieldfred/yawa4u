@@ -116,6 +116,7 @@ class TrainingCycleRepository {
       periodsTotal: original.periodsTotal,
       daysPerPeriod: original.daysPerPeriod,
       recoveryPeriod: original.recoveryPeriod,
+      additionalRecoveryPeriods: original.additionalRecoveryPeriods,
       gender: original.gender,
       muscleGroupPriorities: original.muscleGroupPriorities,
       templateName: original.templateName,

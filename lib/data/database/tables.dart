@@ -28,6 +28,7 @@ class TrainingCycles extends Table {
   IntColumn get primarySport => integer().nullable()(); // Sport enum (v5)
   TextColumn get creatorUuid => text().nullable()(); // v5 coach-mode hook
   TextColumn get ownerUuid => text().nullable()(); // v5 coach-mode hook
+  TextColumn get additionalRecoveryPeriods => text().nullable()(); // v7 JSON List<int>
 }
 
 /// Exercises table - exercise instances within workouts (strength sessions)

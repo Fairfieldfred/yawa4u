@@ -7,6 +7,7 @@ import 'package:uuid/uuid.dart';
 
 import '../../../core/constants/equipment_types.dart';
 import '../../../core/constants/muscle_groups.dart';
+import '../../../core/utils/day_exercise_order.dart';
 import '../../../data/models/exercise.dart';
 import '../../../data/models/exercise_definition.dart';
 import '../../../data/models/exercise_set.dart';
@@ -491,6 +492,13 @@ class _AddExerciseScreenState extends ConsumerState<AddExerciseScreen> {
       ref.read(autoSuggestedSetIdsProvider.notifier).addAll(seeded.suggestedSetIds);
     }
 
+    // A new exercise goes to the end of the training day (orderIndex is day-wide across muscle groups).
+    final orderIndex =
+        existingExercise?.orderIndex ??
+        nextDayOrderIndex(
+          await repository.getByPeriodAndDay(workout.trainingCycleId, workout.periodNumber, workout.dayNumber),
+        );
+
     // Create new exercise from definition
     final newExercise = Exercise(
       id: newExerciseId,
@@ -498,7 +506,7 @@ class _AddExerciseScreenState extends ConsumerState<AddExerciseScreen> {
       name: exerciseDef.name,
       muscleGroup: exerciseDef.muscleGroup,
       equipmentType: exerciseDef.equipmentType,
-      orderIndex: existingExercise?.orderIndex ?? workout.exercises.length,
+      orderIndex: orderIndex,
       videoUrl: exerciseDef.videoUrl,
       restSeconds: exerciseDef.restSeconds,
       sets: existingExercise?.sets ?? seededSets!,

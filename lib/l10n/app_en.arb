@@ -713,6 +713,15 @@
       "number": {}
     }
   },
+  "templatePreviewPeriodsList": "Periods {numbers}",
+  "@templatePreviewPeriodsList": {
+    "description": "Comma-separated list of recovery period numbers, e.g. 'Periods 4, 8, 13'",
+    "placeholders": {
+      "numbers": {
+        "type": "String"
+      }
+    }
+  },
   "templatePreviewDayFallback": "Day {number}",
   "@templatePreviewDayFallback": {
     "placeholders": {

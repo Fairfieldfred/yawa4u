@@ -55,7 +55,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.e);
 
   @override
-  int get schemaVersion => 6;
+  int get schemaVersion => 7;
 
   @override
   MigrationStrategy get migration {
@@ -132,6 +132,11 @@ class AppDatabase extends _$AppDatabase {
           await customStatement('DROP INDEX IF EXISTS idx_workouts_status');
           await customStatement('DROP INDEX IF EXISTS idx_workouts_scheduled_date');
           await customStatement('DROP TABLE IF EXISTS workouts');
+        }
+
+        // Migration v6 -> v7: mid-cycle recovery periods (e.g. P90X weeks 4 and 8)
+        if (from < 7) {
+          await m.addColumn(trainingCycles, trainingCycles.additionalRecoveryPeriods);
         }
       },
       beforeOpen: (details) async {

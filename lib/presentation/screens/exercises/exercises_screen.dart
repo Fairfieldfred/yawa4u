@@ -12,6 +12,7 @@ import '../../../core/constants/enums.dart';
 import '../../../data/database/app_database.dart' show ExerciseSetsCompanion;
 import '../../../data/database/mappers/entity_mappers.dart' show ExerciseFeedbackMapper;
 import '../../../core/theme/skins/skins.dart';
+import '../../../core/utils/day_exercise_order.dart';
 import '../../../core/utils/day_sequence.dart';
 import '../../../core/utils/weight_conversion.dart';
 import '../../../data/models/exercise.dart';
@@ -99,7 +100,8 @@ class _ExercisesHomeScreenState extends ConsumerState<ExercisesHomeScreen> {
     final cycle = ref.read(currentTrainingCycleProvider);
     if (cycle == null) return;
     final workouts = ref.read(workoutsByTrainingCycleListProvider(cycle.id));
-    final date = dateForPeriodDay(cycle, workouts, period, day);
+    final sessions = _cachedSessionsPerCycle[cycle.id] ?? const <Session>[];
+    final date = dateForPeriodDay(cycle, workouts, period, day, sessions: sessions);
     ref.read(selectedWorkoutDateProvider.notifier).selectDate(date);
   }
 
@@ -311,14 +313,16 @@ class _ExercisesHomeScreenState extends ConsumerState<ExercisesHomeScreen> {
 
     // Canonical "today" slot for the primary cycle (date-based, shared with
     // the Calendar screen). Falls back to (1, 1) before the cycle starts.
-    final current = currentPeriodDay(currentTrainingCycle, primaryWorkouts);
+    final primarySessions = _cachedSessionsPerCycle[currentTrainingCycle.id] ?? const <Session>[];
+    final current = currentPeriodDay(currentTrainingCycle, primaryWorkouts, sessions: primarySessions);
     final currentPeriod = current?.period ?? 1;
     final currentDay = current?.day ?? 1;
 
     // The displayed day follows the shared selected date; fall back to today
     // when the selected date is outside this cycle.
     final selectedDate = ref.watch(selectedWorkoutDateProvider);
-    final selected = selectedPeriodDay(currentTrainingCycle, primaryWorkouts, selectedDate) ?? current;
+    final selected =
+        selectedPeriodDay(currentTrainingCycle, primaryWorkouts, selectedDate, sessions: primarySessions) ?? current;
     final displayPeriod = selected?.period ?? currentPeriod;
     final displayDay = selected?.day ?? currentDay;
 
@@ -594,15 +598,17 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
     final allExercises = <Exercise>[];
     final exerciseSources = <int, _ExerciseSource>{};
 
-    for (var workout in widget.workouts) {
-      for (var exercise in workout.exercises) {
-        final exerciseIndex = allExercises.length;
-        exerciseSources[exerciseIndex] = _ExerciseSource(
-          workout: workout,
-          exerciseIndex: workout.exercises.indexOf(exercise),
-        );
-        allExercises.add(exercise);
-      }
+    final workoutByExerciseId = {
+      for (final workout in widget.workouts)
+        for (final exercise in workout.exercises) exercise.id: workout,
+    };
+    for (final exercise in orderedDayExercises(widget.workouts)) {
+      final workout = workoutByExerciseId[exercise.id]!;
+      exerciseSources[allExercises.length] = _ExerciseSource(
+        workout: workout,
+        exerciseIndex: workout.exercises.indexOf(exercise),
+      );
+      allExercises.add(exercise);
     }
 
     return (allExercises, exerciseSources);
@@ -824,7 +830,7 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
                                           showMuscleGroupBadge: showMuscleGroupBadge,
                                           targetRir: calculateRIR(
                                             source.workout.periodNumber,
-                                            widget.trainingCycle.recoveryPeriod,
+                                            widget.trainingCycle.nextRecoveryPeriod(source.workout.periodNumber),
                                           ),
                                           weightUnit: ref.watch(
                                             weightUnitProvider,
@@ -2093,7 +2099,7 @@ class _WorkoutSessionViewState extends ConsumerState<_WorkoutSessionView> {
     final dateStr = entry.completedDate != null ? dateFormat.format(entry.completedDate!) : l10n.exercisesUnknownDate;
 
     final loggedSets = entry.exercise.sets.where((s) => s.isLogged).toList();
-    final isRecovery = entry.trainingCycle != null && entry.workout.periodNumber == entry.trainingCycle!.recoveryPeriod;
+    final isRecovery = entry.trainingCycle?.isRecoveryPeriod(entry.workout.periodNumber) ?? false;
 
     // Group sets by weight and build weight × reps string
     // This properly handles sets with different weights (e.g., "1 lbs x 1, 10 lbs x 1")

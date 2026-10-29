@@ -29,7 +29,7 @@ class CalendarSportDots extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final start = DateTime(date.year, date.month, date.day);
-    final end = start.add(const Duration(days: 1));
+    final end = DateTime(date.year, date.month, date.day + 1);
     final async = ref.watch(sessionsInDateRangeProvider((start: start, end: end)));
 
     return async.when(

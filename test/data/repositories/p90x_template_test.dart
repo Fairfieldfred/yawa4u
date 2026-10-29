@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:yawa4u/core/constants/enums.dart';
 import 'package:yawa4u/core/constants/equipment_types.dart';
 import 'package:yawa4u/core/constants/muscle_groups.dart';
+import 'package:yawa4u/core/utils/day_exercise_order.dart';
 import 'package:yawa4u/data/models/training_cycle_template.dart';
 import 'package:yawa4u/data/repositories/template_repository.dart';
 
@@ -21,19 +22,77 @@ void main() {
   });
 
   group('P90X template structure', () {
-    test('has the six P90X resistance days in order', () {
-      expect(template.workouts, hasLength(6));
-      expect(
-        template.workouts.map((w) => w.dayName).toList(),
-        [
-          'Chest and Back',
-          'Shoulders and Arms',
-          'Legs and Back',
-          'Chest, Shoulders, and Triceps',
-          'Back and Biceps',
-          'Core Synergistics',
-        ],
-      );
+    test('follows the 13-week Classic calendar', () {
+      const phaseA = [
+        'Chest and Back',
+        'Plyometrics',
+        'Shoulders and Arms',
+        'Yoga X',
+        'Legs and Back',
+        'Kenpo X',
+        'X Stretch',
+      ];
+      const phaseB = [
+        'Chest, Shoulders, and Triceps',
+        'Plyometrics',
+        'Back and Biceps',
+        'Yoga X',
+        'Legs and Back',
+        'Kenpo X',
+        'X Stretch',
+      ];
+      const recovery = [
+        'Yoga X',
+        'Core Synergistics',
+        'Kenpo X',
+        'X Stretch',
+        'Core Synergistics',
+        'Yoga X',
+        'X Stretch',
+      ];
+      const expected = {
+        1: phaseA, 2: phaseA, 3: phaseA, 4: recovery, //
+        5: phaseB, 6: phaseB, 7: phaseB, 8: recovery, //
+        9: phaseA, 10: phaseB, 11: phaseA, 12: phaseB, 13: recovery,
+      };
+
+      expect(template.periodsTotal, 13);
+      expect(template.daysPerPeriod, 7);
+      for (final entry in expected.entries) {
+        final week = template.workouts.where((w) => w.periodNumber == entry.key).toList()
+          ..sort((a, b) => a.dayNumber.compareTo(b.dayNumber));
+        expect(week.map((w) => w.dayName).toList(), entry.value, reason: 'week ${entry.key}');
+      }
+    });
+
+    test('flags weeks 4, 8 and 13 as recovery', () {
+      expect(template.recoveryPeriod, 13);
+      expect(template.additionalRecoveryPeriods, [4, 8]);
+    });
+
+    test('only resistance days are strength; Ab Ripper X opens days 1, 3 and 5', () {
+      for (final workout in template.workouts) {
+        final isResistance = workout.exercises.isNotEmpty;
+        expect(workout.isCardio, !isResistance, reason: '${workout.dayName} sport');
+        if (isResistance && workout.dayName != 'Core Synergistics') {
+          expect(
+            workout.exercises.first.name,
+            'Ab Ripper X',
+            reason: '${workout.dayName} week ${workout.periodNumber}',
+          );
+          expect(workout.exercises.where((e) => e.name == 'Ab Ripper X'), hasLength(1));
+        }
+      }
+    });
+
+    test('every Chest and Back day repeats the week 1 workout', () {
+      final days = template.workouts.where((w) => w.dayName == 'Chest and Back').toList();
+      final week1 = days.firstWhere((w) => w.periodNumber == 1).toJson()['exercises'];
+
+      expect(days.map((w) => w.periodNumber), [1, 2, 3, 9, 11]);
+      for (final day in days) {
+        expect(day.toJson()['exercises'], week1, reason: 'week ${day.periodNumber}');
+      }
     });
 
     test('every exercise references valid enums', () {
@@ -92,9 +151,11 @@ void main() {
       expect(groucho.notes, isNotNull);
     });
 
-    test('round-2 duplicates merge into 2 sets', () {
-      // Standard Push-Ups appears twice in Chest and Back.
-      expect(find('Chest and Back', 'Pushup').sets, 2);
+    test('round 2 is listed out in Chest and Back, merged into 2 sets elsewhere', () {
+      // Chest and Back runs the circuit twice as separate 1-set entries.
+      final chestAndBack = template.workouts.firstWhere((w) => w.dayName == 'Chest and Back');
+      final pushups = chestAndBack.exercises.where((e) => e.name == 'Pushup');
+      expect(pushups.map((e) => e.sets), [1, 1]);
       // Switch Grip Chin-Ups 2 pairs with Switch Grip Pull-Ups.
       expect(find('Legs and Back', 'Pullup (Switch Grip)').sets, 2);
       // Single-appearance exercises stay at 1 set.
@@ -107,8 +168,17 @@ void main() {
       final repo = TemplateRepository();
       final result = await repo.createTrainingCycleFromTemplate(template);
 
-      expect(result.cardioSessions, isEmpty);
+      expect(result.cardioSessions.map((s) => s.label).toSet(), {'Plyometrics', 'Yoga X', 'Kenpo X', 'X Stretch'});
+      expect(result.cardioSessions.map((s) => s.sport.name).toSet(), {'other'});
       expect(result.trainingCycle.workouts, isNotEmpty);
+      expect(result.trainingCycle.recoveryPeriods, [4, 8, 13]);
+      expect(
+        result.trainingCycle.workouts
+            .where((w) => w.periodNumber == 1 && w.dayNumber == 1)
+            .map((w) => w.dayName)
+            .toSet(),
+        {'Chest and Back'},
+      );
       expect(result.trainingCycle.name, template.name);
 
       // Every exercise keeps its set count and setType through instantiation.
@@ -121,8 +191,7 @@ void main() {
           expect(exercise.sets, isNotEmpty);
           // Same name can recur across days with different set counts —
           // match within the same day only.
-          final templateExercise = templateWorkout.exercises
-              .firstWhere((e) => e.name == exercise.name);
+          final templateExercise = templateWorkout.exercises.firstWhere((e) => e.name == exercise.name);
           expect(exercise.sets.length, templateExercise.sets);
           for (final set in exercise.sets) {
             expect(set.setType.name.toLowerCase(), templateExercise.setType.toLowerCase());
@@ -133,6 +202,21 @@ void main() {
         }
       }
       expect(maxRepSets, greaterThan(0), reason: 'maxReps sets must survive instantiation');
+    });
+
+    test('every strength day displays its exercises in template order', () async {
+      final result = await TemplateRepository().createTrainingCycleFromTemplate(template);
+
+      for (final day in template.workouts.where((w) => w.exercises.isNotEmpty)) {
+        final dayWorkouts = result.trainingCycle.workouts.where(
+          (w) => w.periodNumber == day.periodNumber && w.dayNumber == day.dayNumber,
+        );
+        expect(
+          orderedDayExercises(dayWorkouts).map((e) => e.name),
+          day.exercises.map((e) => e.name),
+          reason: 'week ${day.periodNumber} day ${day.dayNumber}',
+        );
+      }
     });
   });
 }

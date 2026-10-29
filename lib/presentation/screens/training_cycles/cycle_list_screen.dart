@@ -191,7 +191,7 @@ class _CycleListScreenState extends ConsumerState<CycleListScreen> {
     // Check EVERY period in the trainingCycle (except recovery period)
     for (int period = 1; period <= trainingCycle.periodsTotal; period++) {
       // Skip recovery/deload period - these don't need exercises
-      final isRecoveryPeriod = period == trainingCycle.recoveryPeriod;
+      final isRecoveryPeriod = trainingCycle.isRecoveryPeriod(period);
       if (isRecoveryPeriod) continue;
 
       final periodWorkouts = workouts.where((w) => w.periodNumber == period).toList();

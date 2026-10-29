@@ -3,12 +3,13 @@ import 'package:uuid/uuid.dart';
 
 import '../../core/constants/enums.dart';
 import '../../core/utils/date_helpers.dart';
-import '../../data/models/exercise.dart';
 import '../../data/models/exercise_set.dart';
+import '../../data/models/session.dart';
 import '../../data/models/training_cycle.dart';
 import '../../data/models/workout.dart';
 import '../providers/calendar_providers.dart';
 import '../providers/database_providers.dart';
+import '../providers/session_providers.dart';
 import '../providers/training_cycle_providers.dart';
 import '../providers/use_case_providers.dart';
 import '../providers/workout_providers.dart';
@@ -87,7 +88,8 @@ class WorkoutHomeController extends Notifier<WorkoutHomeState> {
     final cycle = ref.read(currentTrainingCycleProvider);
     if (cycle == null) return;
     final workouts = ref.read(workoutsByTrainingCycleListProvider(cycle.id));
-    final date = dateForPeriodDay(cycle, workouts, period, day);
+    final sessions = ref.read(sessionsByTrainingCycleProvider(cycle.id)).value ?? const <Session>[];
+    final date = dateForPeriodDay(cycle, workouts, period, day, sessions: sessions);
     ref.read(selectedWorkoutDateProvider.notifier).selectDate(date);
   }
 
@@ -338,85 +340,20 @@ class WorkoutHomeController extends Notifier<WorkoutHomeState> {
     await repository.update(updatedWorkout);
   }
 
+  /// Moves an exercise one place down within the day's display order.
   Future<void> moveExerciseDown(
     String exerciseId,
     int displayPeriod,
     int displayDay,
   ) async {
-    final repository = ref.read(workoutRepositoryProvider);
     final trainingCycle = ref.read(currentTrainingCycleProvider);
     if (trainingCycle == null) return;
 
-    final allWorkouts = ref.read(
-      workoutsByTrainingCycleListProvider(trainingCycle.id),
-    );
-
-    final todaysWorkouts = allWorkouts
-        .where(
-          (w) => w.periodNumber == displayPeriod && w.dayNumber == displayDay,
-        )
-        .toList();
-
-    // Collect all exercises from all workouts
-    final allExercises = <Exercise>[];
-    for (var workout in todaysWorkouts) {
-      allExercises.addAll(workout.exercises);
-    }
-
-    final globalIndex = allExercises.indexWhere((e) => e.id == exerciseId);
-    if (globalIndex == -1 || globalIndex >= allExercises.length - 1) return;
-
-    final exerciseToMove = allExercises[globalIndex];
-    final exerciseToSwapWith = allExercises[globalIndex + 1];
-
-    Workout? workoutWithMovingExercise;
-    Workout? workoutWithSwapExercise;
-
-    for (var workout in todaysWorkouts) {
-      if (workout.exercises.any((e) => e.id == exerciseToMove.id)) {
-        workoutWithMovingExercise = workout;
-      }
-      if (workout.exercises.any((e) => e.id == exerciseToSwapWith.id)) {
-        workoutWithSwapExercise = workout;
-      }
-    }
-
-    if (workoutWithMovingExercise == null || workoutWithSwapExercise == null) {
-      return;
-    }
-
-    if (workoutWithMovingExercise.id == workoutWithSwapExercise.id) {
-      final workout = workoutWithMovingExercise;
-      final exercises = List<Exercise>.from(workout.exercises);
-      final idx1 = exercises.indexWhere((e) => e.id == exerciseToMove.id);
-      final idx2 = exercises.indexWhere((e) => e.id == exerciseToSwapWith.id);
-
-      final temp = exercises[idx1];
-      exercises[idx1] = exercises[idx2];
-      exercises[idx2] = temp;
-
-      final updatedWorkout = workout.copyWith(exercises: exercises);
-      await repository.update(updatedWorkout);
-    } else {
-      final exercises1 = workoutWithMovingExercise.exercises.where((e) => e.id != exerciseToMove.id).toList();
-
-      final exercises2 = List<Exercise>.from(workoutWithSwapExercise.exercises);
-      final insertIndex = exercises2.indexWhere(
-        (e) => e.id == exerciseToSwapWith.id,
-      );
-
-      final movedExercise = exerciseToMove.copyWith(
-        workoutId: workoutWithSwapExercise.id,
-      );
-      exercises2.insert(insertIndex, movedExercise);
-
-      await repository.update(
-        workoutWithMovingExercise.copyWith(exercises: exercises1),
-      );
-      await repository.update(
-        workoutWithSwapExercise.copyWith(exercises: exercises2),
-      );
-    }
+    final dayWorkoutIds = ref
+        .read(workoutsByTrainingCycleListProvider(trainingCycle.id))
+        .where((w) => w.periodNumber == displayPeriod && w.dayNumber == displayDay)
+        .map((w) => w.id);
+    await ref.read(workoutRepositoryProvider).moveExerciseWithinDay(dayWorkoutIds, exerciseId, 1);
   }
 
   Future<void> deleteExercise(String workoutId, String exerciseId) async {
@@ -648,6 +585,7 @@ class WorkoutHomeController extends Notifier<WorkoutHomeState> {
       trainingCycle.copyWith(
         periodsTotal: trainingCycle.periodsTotal + 1,
         recoveryPeriod: trainingCycle.recoveryPeriod + 1,
+        additionalRecoveryPeriods: trainingCycle.additionalRecoveryPeriodsAfterInsert(newPeriodNumber),
       ),
     );
   }
@@ -679,6 +617,7 @@ class WorkoutHomeController extends Notifier<WorkoutHomeState> {
       trainingCycle.copyWith(
         periodsTotal: trainingCycle.periodsTotal - 1,
         recoveryPeriod: trainingCycle.recoveryPeriod - 1,
+        additionalRecoveryPeriods: trainingCycle.additionalRecoveryPeriodsAfterRemoval(periodToRemove),
       ),
     );
   }
@@ -774,7 +713,10 @@ String? getSetTypeBadge(SetType setType) {
   }
 }
 
-/// Calculate day name based on trainingCycle start date.
+/// The day label for a workout screen title.
+///
+/// A workout's own `dayName` (e.g. "Chest and Back") is returned verbatim;
+/// otherwise the label falls back to the weekday derived from the cycle's start date.
 ///
 /// When [allCycleWorkouts] and [periodsTotal] are provided, respects
 /// schedule shifts (inserted rest days) by using each workout's
@@ -786,11 +728,17 @@ String calculateDayName({
   required int displayPeriod,
   required int displayDay,
   List<Workout>? allCycleWorkouts,
+  List<Session> cycleSessions = const [],
   int periodsTotal = 0,
 }) {
-  // Priority 1: custom dayName set on the workout
-  if (workouts.isNotEmpty && workouts.first.dayName != null) {
-    return workouts.first.dayName!.substring(0, 3).toUpperCase();
+  // Priority 1: the day's own name — a strength workout's, else a cardio-only day's (e.g. "Kenpo X")
+  final cardioDayNames = cycleSessions
+      .whereType<CardioSession>()
+      .where((s) => s.periodNumber == displayPeriod && s.dayNumber == displayDay)
+      .map((s) => s.dayName);
+  final workoutDayName = workouts.isNotEmpty ? workouts.first.dayName : cardioDayNames.firstOrNull;
+  if (workoutDayName != null && workoutDayName.isNotEmpty) {
+    return workoutDayName;
   }
 
   // Priority 2: schedule-aware lookup via date map
@@ -799,15 +747,7 @@ String calculateDayName({
       cycleStart: startDate,
       daysPerPeriod: daysPerPeriod,
       periodsTotal: periodsTotal,
-      scheduledDates: DateHelpers.extractScheduledDates(
-        allCycleWorkouts.map(
-          (w) => (
-            periodNumber: w.periodNumber,
-            dayNumber: w.dayNumber,
-            scheduledDate: w.scheduledDate,
-          ),
-        ),
-      ),
+      scheduledDates: cycleScheduledDates(allCycleWorkouts, cycleSessions),
     );
     return DateHelpers.getDayInfo(dateMap, displayPeriod, displayDay).dayName;
   }

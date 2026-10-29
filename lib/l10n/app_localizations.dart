@@ -2162,6 +2162,12 @@ abstract class AppLocalizations {
   /// **'Period {number} (Recovery)'**
   String templatePreviewPeriodRecoveryHeader(Object number);
 
+  /// Comma-separated list of recovery period numbers, e.g. 'Periods 4, 8, 13'
+  ///
+  /// In en, this message translates to:
+  /// **'Periods {numbers}'**
+  String templatePreviewPeriodsList(String numbers);
+
   /// No description provided for @templatePreviewDayFallback.
   ///
   /// In en, this message translates to:

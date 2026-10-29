@@ -6,7 +6,7 @@ Canonical reference for the app's data models, Drift schema, and state managemen
 
 ## Drift Database Tables
 
-Schema version **6**. Every table has an auto-incrementing integer `id` plus a `uuid` text field for app-level identification.
+Schema version **7**. Every table has an auto-incrementing integer `id` plus a `uuid` text field for app-level identification.
 
 ### Core tables
 
@@ -51,6 +51,7 @@ Every user-owned row has nullable `creatorUuid` and `ownerUuid` columns (set to 
 | v3 → v4 | `restSeconds` on exercises + custom definitions |
 | v4 → v5 | Multi-sport: all new tables created + backfilled; workouts → sessions mirror; cycle_periods generated |
 | v5 → v6 | **Dropped `workouts` table.** Indexes dropped first, then `DROP TABLE IF EXISTS workouts`. `WorkoutRepository` became a facade over `SessionRepository`. Column rename of `exercises.workoutUuid` deferred (SQLite column renames are expensive). |
+| v6 → v7 | `training_cycles.additionalRecoveryPeriods` (nullable JSON `List<int>`) — mid-cycle recovery periods alongside the final `recoveryPeriod`. |
 
 ---
 
@@ -438,7 +439,9 @@ class TrainingCycle {
   String name;
   int periodsTotal;
   int daysPerPeriod;                      // Default varies by primarySport
-  int recoveryPeriod;
+  int recoveryPeriod;                     // Final recovery period
+  List<int> additionalRecoveryPeriods;    // Mid-cycle recovery periods (v7). Use isRecoveryPeriod(p) /
+                                          // nextRecoveryPeriod(p) — never compare against recoveryPeriod alone.
   RecoveryPeriodType recoveryPeriodType;  // Private backing field with deload fallback
   TrainingCycleStatus status;
   Gender? gender;
@@ -468,7 +471,10 @@ class Exercise {
   MuscleGroup? secondaryMuscleGroup;
   EquipmentType equipmentType;
   List<ExerciseSet> sets;
-  int orderIndex;
+  int orderIndex;                         // Position within the whole training DAY (across its muscle-group
+                                          // workouts), not within its workout. Read via orderedDayExercises();
+                                          // reorder via WorkoutRepository.moveExerciseWithinDay. Legacy days with
+                                          // colliding per-workout indices fall back to workout-by-workout order.
   double? bodyweight;
   String? notes;
   ExerciseFeedback? feedback;
@@ -800,6 +806,6 @@ Each table has a corresponding DAO. Use them directly only when you need a singl
 5. **CardioFeedback is separate.** Not a field on `CardioSession`. Load via `cardioFeedbackProvider(sessionId)` or `CardioFeedbackRepository`.
 6. **WorkoutRepository is a facade.** It wraps `SessionRepository` with `Workout` ↔ `StrengthSession` conversion. No direct DB access. New code should prefer `SessionRepository` directly.
 7. **Planned vs logged cardio.** Sessions created via draft cycle planning use `SessionSource.userPlanned` and `WorkoutStatus.incomplete`. The card shows a "Log" button to mark as completed.
-8. **Calendar schedule edits are multi-cycle and date-based.** The calendar renders **all** active (stacked) cycles, so any schedule edit (rest-day insert/remove) must loop over `currentTrainingCyclesProvider` (plural) — not `currentTrainingCycleProvider` (the primary only) — and shift by **calendar date**, because each cycle maps the same date to a different `(periodNumber, dayNumber)`. Use the date-based `ScheduleService.insertDayBeforeDate` / `removeRestDay`. They shift strength **and** cardio (`_shiftCardioByDate`), changing only `scheduledDate` and skipping external imports (`session.isReadOnly`). Undo (`CalendarUndoState`) stores one snapshot per affected cycle. ⚠️ The drag-drop handlers `moveExerciseToDate` / `moveCardioToDate` still use the singular primary-cycle provider — same latent bug if a secondary cycle's item becomes draggable.
+8. **Calendar schedule edits are multi-cycle and date-based.** The calendar renders **all** active (stacked) cycles, so any schedule edit (rest-day insert/remove) must loop over `currentTrainingCyclesProvider` (plural) — not `currentTrainingCycleProvider` (the primary only) — and shift by **calendar date**, because each cycle maps the same date to a different `(periodNumber, dayNumber)`. Use the date-based `ScheduleService.insertDayBeforeDate` / `removeRestDay`. They shift strength **and** cardio (`_shiftCardioByDate`), changing only `scheduledDate` and skipping external imports (`session.isReadOnly`). Undo (`CalendarUndoState`) stores one snapshot per affected cycle. Date ↔ slot lookups (`selectedPeriodDay` / `currentPeriodDay` / `dateForPeriodDay`, built on `cycleScheduledDates`) must be passed the cycle's `sessions` too — a cardio-only day (e.g. P90X Kenpo X) carries its own shifted `scheduledDate`, and a strength-only lookup resolves it to its pre-shift date. A day with cycle-attached cardio is not a rest day (`CalendarDayData.hasPlannedSession`). ⚠️ The drag-drop handlers `moveExerciseToDate` / `moveCardioToDate` still use the singular primary-cycle provider — same latent bug if a secondary cycle's item becomes draggable.
 9. **`copyWith(x: null)` keeps the old value.** To actually clear a nullable field use the dedicated flags: `ExerciseSet.copyWith(clearWeight: true)`, `Workout`/`CardioSession` `copyWith(clearScheduledDate: true)`. The Reset-workout bug (weights never cleared) came from this.
 10. **Snackbars & undo.** Simple snackbars use `context.showSnackBar` / `showSuccessSnackBar` / `showErrorSnackBar`; snackbars that need an action (Undo) stay raw `ScaffoldMessenger`. Calendar edits and Reset workout capture snapshots and offer a 6-second Undo.

@@ -635,7 +635,7 @@ class _ExerciseInfoDialogState extends ConsumerState<ExerciseInfoDialog> {
     final dateStr = entry.completedDate != null ? dateFormat.format(entry.completedDate!) : l10n.unknownDate;
 
     final loggedSets = entry.exercise.sets.where((s) => s.isLogged).toList();
-    final isRecovery = entry.trainingCycle != null && entry.workout.periodNumber == entry.trainingCycle!.recoveryPeriod;
+    final isRecovery = entry.trainingCycle?.isRecoveryPeriod(entry.workout.periodNumber) ?? false;
 
     // Group sets by weight and build weight × reps string
     // This properly handles sets with different weights (e.g., "1 lbs x 1, 10 lbs x 1")

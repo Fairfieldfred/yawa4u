@@ -15,6 +15,7 @@ import '../../../data/database/app_database.dart' show ExerciseSetsCompanion;
 import '../../../data/database/daos/exercise_set_dao.dart' show ExerciseSetDao;
 import '../../../data/database/mappers/entity_mappers.dart' show ExerciseFeedbackMapper;
 import '../../../core/theme/skins/skins.dart';
+import '../../../core/utils/day_exercise_order.dart';
 import '../../../core/utils/session_order.dart';
 import '../../../core/utils/weight_conversion.dart';
 import '../../../data/models/exercise.dart';
@@ -684,212 +685,21 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> with Widg
     }
   }
 
-  /// Get all exercises for the current day across all workouts (muscle groups)
-  List<Exercise> _getAllExercisesForCurrentDay() {
-    final trainingCycle = ref.read(currentTrainingCycleProvider);
-    if (trainingCycle == null) return [];
-
-    final allWorkouts = ref.read(
-      workoutsByTrainingCycleListProvider(trainingCycle.id),
-    );
-
-    final selectedDate = ref.read(selectedWorkoutDateProvider);
-    final slot =
-        selectedPeriodDay(trainingCycle, allWorkouts, selectedDate) ?? currentPeriodDay(trainingCycle, allWorkouts);
-    final displayPeriod = slot?.period ?? 1;
-    final displayDay = slot?.day ?? 1;
-
-    // Get workouts for current day
-    final dayWorkouts = allWorkouts
-        .where(
-          (w) => w.periodNumber == displayPeriod && w.dayNumber == displayDay,
-        )
-        .toList();
-
-    // Collect all exercises from all workouts for today
-    final allExercises = <Exercise>[];
-    for (var workout in dayWorkouts) {
-      allExercises.addAll(workout.exercises);
-    }
-    return allExercises;
-  }
-
-  Future<void> _moveExerciseUp(String workoutId, String exerciseId) async {
-    debugPrint(
-      'Move exercise up called: workoutId=$workoutId, exerciseId=$exerciseId',
-    );
+  /// Moves an exercise one place within its training day — [offset] -1 up, +1 down.
+  ///
+  /// The exercise keeps its muscle-group workout; only the day-wide order changes.
+  Future<void> _moveExercise(String workoutId, String exerciseId, int offset) async {
     final repository = ref.read(workoutRepositoryProvider);
+    final workout = await repository.getById(workoutId);
+    if (workout == null) return;
 
-    // Get all exercises for the current day across all muscle groups
-    final allExercises = _getAllExercisesForCurrentDay();
-    final currentIndex = allExercises.indexWhere((e) => e.id == exerciseId);
-
-    if (currentIndex == -1) {
-      debugPrint('Exercise not found in day exercises');
-      return;
+    final dayWorkoutIds = ref
+        .read(workoutsByTrainingCycleListProvider(workout.trainingCycleId))
+        .where((w) => w.periodNumber == workout.periodNumber && w.dayNumber == workout.dayNumber)
+        .map((w) => w.id);
+    if (await repository.moveExerciseWithinDay(dayWorkoutIds, exerciseId, offset)) {
+      _invalidateWorkoutProviders();
     }
-
-    if (currentIndex <= 0) {
-      debugPrint('Exercise is already at the top');
-      return;
-    }
-
-    final currentExercise = allExercises[currentIndex];
-    final aboveExercise = allExercises[currentIndex - 1];
-
-    debugPrint('Moving exercise "${currentExercise.name}" up');
-    debugPrint('Swapping with "${aboveExercise.name}"');
-
-    // If both exercises are in the same workout, just swap within that workout
-    if (currentExercise.workoutId == aboveExercise.workoutId) {
-      final workout = await repository.getById(currentExercise.workoutId);
-      if (workout == null) return;
-
-      final exercises = List<Exercise>.from(workout.exercises);
-      final idx = exercises.indexWhere((e) => e.id == exerciseId);
-      if (idx <= 0) return;
-
-      final exercise = exercises.removeAt(idx);
-      exercises.insert(idx - 1, exercise);
-
-      for (var i = 0; i < exercises.length; i++) {
-        exercises[i] = exercises[i].copyWith(orderIndex: i);
-      }
-
-      await repository.update(workout.copyWith(exercises: exercises));
-    } else {
-      // Exercises are in different workouts - need to swap between workouts
-      final currentWorkout = await repository.getById(
-        currentExercise.workoutId,
-      );
-      final aboveWorkout = await repository.getById(aboveExercise.workoutId);
-      if (currentWorkout == null || aboveWorkout == null) return;
-
-      // Remove current exercise from its workout
-      var currentExercises = List<Exercise>.from(currentWorkout.exercises);
-      currentExercises.removeWhere((e) => e.id == currentExercise.id);
-
-      // Remove above exercise from its workout
-      var aboveExercises = List<Exercise>.from(aboveWorkout.exercises);
-      aboveExercises.removeWhere((e) => e.id == aboveExercise.id);
-
-      // Add current exercise to above workout (with updated workoutId)
-      final movedCurrentExercise = currentExercise.copyWith(
-        workoutId: aboveWorkout.id,
-      );
-      aboveExercises.add(movedCurrentExercise);
-
-      // Add above exercise to current workout (with updated workoutId)
-      final movedAboveExercise = aboveExercise.copyWith(
-        workoutId: currentWorkout.id,
-      );
-      currentExercises.add(movedAboveExercise);
-
-      // Renumber exercises in both workouts
-      for (var i = 0; i < currentExercises.length; i++) {
-        currentExercises[i] = currentExercises[i].copyWith(orderIndex: i);
-      }
-      for (var i = 0; i < aboveExercises.length; i++) {
-        aboveExercises[i] = aboveExercises[i].copyWith(orderIndex: i);
-      }
-
-      await repository.update(
-        currentWorkout.copyWith(exercises: currentExercises),
-      );
-      await repository.update(aboveWorkout.copyWith(exercises: aboveExercises));
-    }
-
-    _invalidateWorkoutProviders();
-    debugPrint('Exercise moved up successfully');
-  }
-
-  Future<void> _moveExerciseDown(String workoutId, String exerciseId) async {
-    debugPrint(
-      'Move exercise down called: workoutId=$workoutId, exerciseId=$exerciseId',
-    );
-    final repository = ref.read(workoutRepositoryProvider);
-
-    // Get all exercises for the current day across all muscle groups
-    final allExercises = _getAllExercisesForCurrentDay();
-    final currentIndex = allExercises.indexWhere((e) => e.id == exerciseId);
-
-    if (currentIndex == -1) {
-      debugPrint('Exercise not found in day exercises');
-      return;
-    }
-
-    if (currentIndex >= allExercises.length - 1) {
-      debugPrint('Exercise is already at the bottom');
-      return;
-    }
-
-    final currentExercise = allExercises[currentIndex];
-    final belowExercise = allExercises[currentIndex + 1];
-
-    debugPrint('Moving exercise "${currentExercise.name}" down');
-    debugPrint('Swapping with "${belowExercise.name}"');
-
-    // If both exercises are in the same workout, just swap within that workout
-    if (currentExercise.workoutId == belowExercise.workoutId) {
-      final workout = await repository.getById(currentExercise.workoutId);
-      if (workout == null) return;
-
-      final exercises = List<Exercise>.from(workout.exercises);
-      final idx = exercises.indexWhere((e) => e.id == exerciseId);
-      if (idx == -1 || idx >= exercises.length - 1) return;
-
-      final exercise = exercises.removeAt(idx);
-      exercises.insert(idx + 1, exercise);
-
-      for (var i = 0; i < exercises.length; i++) {
-        exercises[i] = exercises[i].copyWith(orderIndex: i);
-      }
-
-      await repository.update(workout.copyWith(exercises: exercises));
-    } else {
-      // Exercises are in different workouts - need to swap between workouts
-      final currentWorkout = await repository.getById(
-        currentExercise.workoutId,
-      );
-      final belowWorkout = await repository.getById(belowExercise.workoutId);
-      if (currentWorkout == null || belowWorkout == null) return;
-
-      // Remove current exercise from its workout
-      var currentExercises = List<Exercise>.from(currentWorkout.exercises);
-      currentExercises.removeWhere((e) => e.id == currentExercise.id);
-
-      // Remove below exercise from its workout
-      var belowExercises = List<Exercise>.from(belowWorkout.exercises);
-      belowExercises.removeWhere((e) => e.id == belowExercise.id);
-
-      // Add current exercise to below workout (with updated workoutId)
-      final movedCurrentExercise = currentExercise.copyWith(
-        workoutId: belowWorkout.id,
-      );
-      belowExercises.insert(0, movedCurrentExercise);
-
-      // Add below exercise to current workout (with updated workoutId)
-      final movedBelowExercise = belowExercise.copyWith(
-        workoutId: currentWorkout.id,
-      );
-      currentExercises.add(movedBelowExercise);
-
-      // Renumber exercises in both workouts
-      for (var i = 0; i < currentExercises.length; i++) {
-        currentExercises[i] = currentExercises[i].copyWith(orderIndex: i);
-      }
-      for (var i = 0; i < belowExercises.length; i++) {
-        belowExercises[i] = belowExercises[i].copyWith(orderIndex: i);
-      }
-
-      await repository.update(
-        currentWorkout.copyWith(exercises: currentExercises),
-      );
-      await repository.update(belowWorkout.copyWith(exercises: belowExercises));
-    }
-
-    _invalidateWorkoutProviders();
-    debugPrint('Exercise moved down successfully');
   }
 
   Future<void> _replaceExercise(String workoutId, String exerciseId) async {
@@ -1376,8 +1186,11 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> with Widg
   /// selected date falls outside the cycle).
   (int, int) _displayDayForCycle(TrainingCycle cycle) {
     final workouts = _cachedWorkoutsPerCycle[cycle.id] ?? const <Workout>[];
+    final sessions = ref.read(sessionsByTrainingCycleProvider(cycle.id)).value ?? const <Session>[];
     final selectedDate = ref.read(selectedWorkoutDateProvider);
-    final slot = selectedPeriodDay(cycle, workouts, selectedDate) ?? currentPeriodDay(cycle, workouts);
+    final slot =
+        selectedPeriodDay(cycle, workouts, selectedDate, sessions: sessions) ??
+        currentPeriodDay(cycle, workouts, sessions: sessions);
     return slot != null ? (slot.period, slot.day) : (1, 1);
   }
 
@@ -1423,9 +1236,15 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> with Widg
         return _buildLoadingState(context);
       }
 
+      // The primary cycle's sessions — cardio days carry their own shifted dates.
+      final cycleSessionsAsync = ref.watch(
+        sessionsByTrainingCycleProvider(currentTrainingCycle.id),
+      );
+      final cycleSessions = cycleSessionsAsync.value ?? const <Session>[];
+
       // Canonical "today" slot for the primary cycle (date-based, shared with
       // the Calendar screen). Null means the cycle hasn't started or has ended.
-      final current = currentPeriodDay(currentTrainingCycle, allWorkouts);
+      final current = currentPeriodDay(currentTrainingCycle, allWorkouts, sessions: cycleSessions);
 
       if (current == null) {
         // TrainingCycle hasn't started yet or has ended
@@ -1443,7 +1262,8 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> with Widg
       // The displayed day follows the shared selected date; fall back to today
       // when the selected date is outside this cycle.
       final selectedDate = ref.watch(selectedWorkoutDateProvider);
-      final selected = selectedPeriodDay(currentTrainingCycle, allWorkouts, selectedDate) ?? current;
+      final selected =
+          selectedPeriodDay(currentTrainingCycle, allWorkouts, selectedDate, sessions: cycleSessions) ?? current;
       final displayPeriod = selected.period;
       final displayDay = selected.day;
 
@@ -1483,10 +1303,6 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> with Widg
       }
 
       // Cardio sessions attached to the primary cycle, for the displayed day.
-      final cycleSessionsAsync = ref.watch(
-        sessionsByTrainingCycleProvider(currentTrainingCycle.id),
-      );
-      final cycleSessions = cycleSessionsAsync.value ?? const <Session>[];
       final cycleCardioForDay = cycleSessions
           .whereType<CardioSession>()
           .where(
@@ -1546,6 +1362,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> with Widg
         displayPeriod: displayPeriod,
         displayDay: displayDay,
         allCycleWorkouts: allWorkouts,
+        cycleSessions: cycleSessions,
         periodsTotal: currentTrainingCycle.periodsTotal,
       );
 
@@ -1594,10 +1411,16 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> with Widg
                   ),
                 ),
                 const SizedBox(height: 2),
-                Text(
-                  l10n.workoutPeriodDayTitle(displayPeriod, displayDay, dayName),
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
+                // Long day names ("Chest, Shoulders, and Triceps") shrink to fit rather than overflow the AppBar.
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: AlignmentDirectional.centerStart,
+                  child: Text(
+                    l10n.workoutPeriodDayTitle(displayPeriod, displayDay, dayName),
+                    maxLines: 1,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
               ],
@@ -1880,11 +1703,8 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> with Widg
     required List<CardioSession> dayCardioSessions,
     required List<Sport> sports,
   }) {
-    // Flatten strength exercises.
-    final allExercises = <Exercise>[];
-    for (final w in dayStrengthWorkouts) {
-      allExercises.addAll(w.exercises);
-    }
+    // Strength exercises in day order (template order; consecutive same-group runs share a badge).
+    final allExercises = orderedDayExercises(dayStrengthWorkouts);
 
     // Classify strength block (as a single sort unit) by its aggregate
     // state — mirrors the bucket logic in sortByPerformedOrder.
@@ -1942,7 +1762,7 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> with Widg
       previousPerformanceBatchProvider(batchKey),
     );
     final batchMap = batchAsync.value ?? <String, Exercise?>{};
-    final periodRir = calculateRIR(displayPeriod, trainingCycle.recoveryPeriod);
+    final periodRir = calculateRIR(displayPeriod, trainingCycle.nextRecoveryPeriod(displayPeriod));
     final useMetric = ref.watch(useMetricProvider);
     final weightUnit = ref.watch(weightUnitProvider);
 
@@ -1987,8 +1807,8 @@ class _WorkoutHomeScreenState extends ConsumerState<WorkoutHomeScreen> with Widg
                     previousPerformance: batchMap[exercise.id],
                     callbacks: ExerciseCardCallbacks(
                       onAddNote: (id) => _addNote(exercise.workoutId, id),
-                      onMoveUp: (id) => _moveExerciseUp(exercise.workoutId, id),
-                      onMoveDown: (id) => _moveExerciseDown(exercise.workoutId, id),
+                      onMoveUp: (id) => _moveExercise(exercise.workoutId, id, -1),
+                      onMoveDown: (id) => _moveExercise(exercise.workoutId, id, 1),
                       onReplace: (id) => _replaceExercise(exercise.workoutId, id),
                       onJointPain: (id) => _logJointPain(exercise.workoutId, id),
                       onRestTimer: (id) => _setRestTimer(exercise.workoutId, id),

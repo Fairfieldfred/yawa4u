@@ -1539,6 +1539,16 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
           const SizedBox(height: 8),
           Row(
             children: [
+              if (dayData.hasPlannedSession) ...[
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () => _showEditSheet(context, dayData),
+                    icon: const Icon(Icons.edit, size: 18),
+                    label: Text(l10n.calendarEditButton),
+                  ),
+                ),
+                const SizedBox(width: 12),
+              ],
               if (dayData.periodNumber != null && dayData.dayNumber != null)
                 Expanded(
                   child: FilledButton.icon(
@@ -1676,8 +1686,8 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
   }
 
   void _showEditSheet(BuildContext context, CalendarDayData dayData) {
-    // Determine if this is a rest day (no workouts scheduled)
-    final isRestDay = !dayData.hasWorkout;
+    // A rest day has nothing planned — cardio-only days like Kenpo X are not rest days.
+    final isRestDay = !dayData.hasPlannedSession;
 
     CalendarEditSheet.show(
       context,
@@ -1685,7 +1695,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
       selectedDay: dayData.dayNumber, // Can be null for rest days
       isRestDay: isRestDay,
       selectedDate: dayData.date,
-      onInsertDayBefore: dayData.hasWorkout ? (period, day) => _insertDayBefore(period, day, dayData.date) : null,
+      onInsertDayBefore: isRestDay ? null : (period, day) => _insertDayBefore(period, day, dayData.date),
       onRemoveRestDay: isRestDay ? (date) => _removeRestDay(date) : null,
     );
   }

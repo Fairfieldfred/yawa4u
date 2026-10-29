@@ -333,4 +333,28 @@ void main() {
       expect(await repo.count(), equals(2));
     });
   });
+
+  group('additionalRecoveryPeriods', () {
+    test('persists through the database', () async {
+      final cycle = TestFixtures.createTrainingCycle(
+        id: 'p90x',
+        periodsTotal: 13,
+        recoveryPeriod: 13,
+      ).copyWith(additionalRecoveryPeriods: [4, 8]);
+      await repo.create(cycle);
+
+      final loaded = await repo.getById('p90x');
+
+      expect(loaded!.additionalRecoveryPeriods, [4, 8]);
+      expect(loaded.recoveryPeriods, [4, 8, 13]);
+    });
+
+    test('loads as empty when none are set', () async {
+      await repo.create(TestFixtures.createTrainingCycle(id: 'plain'));
+
+      final loaded = await repo.getById('plain');
+
+      expect(loaded!.additionalRecoveryPeriods, isEmpty);
+    });
+  });
 }

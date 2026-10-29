@@ -201,6 +201,7 @@ class TemplateRepository {
         periodsTotal: template.periodsTotal,
         daysPerPeriod: template.daysPerPeriod,
         recoveryPeriod: template.recoveryPeriod,
+        additionalRecoveryPeriods: template.additionalRecoveryPeriods,
         workouts: template.workouts,
       );
 
@@ -302,6 +303,7 @@ class TemplateRepository {
       periodsTotal: trainingCycle.periodsTotal,
       daysPerPeriod: trainingCycle.daysPerPeriod,
       recoveryPeriod: trainingCycle.recoveryPeriod,
+      additionalRecoveryPeriods: trainingCycle.additionalRecoveryPeriods,
       workouts: workoutTemplates,
     );
   }
@@ -391,10 +393,11 @@ class TemplateRepository {
         continue;
       }
 
-      // Strength path (existing logic).
+      // Strength path: one Workout per muscle group, but orderIndex is the exercise's position in the
+      // template's day so the workout screen keeps the template order across muscle groups.
       final exercisesByMuscleGroup = <MuscleGroup, List<Exercise>>{};
 
-      for (final exerciseTemplate in workoutTemplate.exercises) {
+      for (final (dayPosition, exerciseTemplate) in workoutTemplate.exercises.indexed) {
         final exerciseId = _uuid.v4();
 
         final muscleGroup = MuscleGroup.values.firstWhere(
@@ -431,6 +434,7 @@ class TemplateRepository {
           muscleGroup: muscleGroup,
           equipmentType: equipmentType,
           sets: sets,
+          orderIndex: dayPosition,
           notes: exerciseTemplate.notes,
         );
 
@@ -453,6 +457,7 @@ class TemplateRepository {
             trainingCycleId: trainingCycleId,
             periodNumber: workoutTemplate.periodNumber,
             dayNumber: workoutTemplate.dayNumber,
+            dayName: workoutTemplate.dayName,
             label: muscleGroup.displayName,
             exercises: updatedExercises,
           ),
@@ -469,6 +474,7 @@ class TemplateRepository {
       periodsTotal: template.periodsTotal,
       daysPerPeriod: template.daysPerPeriod,
       recoveryPeriod: template.recoveryPeriod,
+      additionalRecoveryPeriods: template.additionalRecoveryPeriods,
       workouts: workouts,
       primarySport: primarySport,
     );

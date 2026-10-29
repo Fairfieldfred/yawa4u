@@ -126,7 +126,7 @@ final thisWeekStrengthCountProvider = Provider<int>((ref) {
   return async.when(
     data: (sessions) {
       final start = CardioStats.startOfWeekPublic(DateTime.now());
-      final end = start.add(const Duration(days: 7));
+      final end = DateTime(start.year, start.month, start.day + 7);
       return sessions.where((s) => s.sport == Sport.strength).where(
         (s) {
           final anchor = s.scheduledDate ?? s.completedDate ?? s.startTime;

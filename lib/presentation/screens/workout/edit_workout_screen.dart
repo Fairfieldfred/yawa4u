@@ -12,6 +12,7 @@ import '../../../core/constants/enums.dart';
 import '../../../core/constants/equipment_types.dart';
 import '../../../core/constants/sports.dart';
 import '../../../core/theme/skins/skins.dart';
+import '../../../core/utils/day_exercise_order.dart';
 import '../../../core/utils/template_exporter.dart';
 import '../../../data/models/exercise.dart';
 import '../../../data/models/exercise_set.dart';
@@ -320,7 +321,7 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
                 children: List.generate(trainingCycle.periodsTotal, (index) {
                   final periodNumber = index + 1;
                   final isSelected = periodNumber == _selectedPeriod;
-                  final isRecoveryPeriod = periodNumber == trainingCycle.recoveryPeriod;
+                  final isRecoveryPeriod = trainingCycle.isRecoveryPeriod(periodNumber);
 
                   final chip = ChoiceChip(
                     label: Text(
@@ -691,11 +692,8 @@ class _EditWorkoutScreenState extends ConsumerState<EditWorkoutScreen> {
       return _buildEmptyState(context, null, controller);
     }
 
-    // Collect all exercises from all workouts for this day
-    final allExercises = <Exercise>[];
-    for (var workout in dayWorkouts) {
-      allExercises.addAll(workout.exercises);
-    }
+    // All of this day's exercises in day order
+    final allExercises = orderedDayExercises(dayWorkouts);
 
     if (allExercises.isEmpty) {
       return _buildEmptyState(context, null, controller);

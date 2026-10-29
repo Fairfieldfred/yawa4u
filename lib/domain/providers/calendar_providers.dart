@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/constants/enums.dart';
 import '../../core/constants/muscle_groups.dart';
 import '../../core/utils/date_helpers.dart';
+import '../../core/utils/day_exercise_order.dart';
 import '../../data/models/exercise.dart';
 import '../../data/models/session.dart';
 import '../../data/models/training_cycle.dart';
@@ -131,6 +132,12 @@ class CalendarDayData {
 
   /// True if this day has any session (strength or cardio).
   bool get hasAnySession => hasWorkout || hasCardio;
+
+  /// True if a training cycle has something planned here — strength or cycle-attached cardio.
+  ///
+  /// Imported activities don't count: a day holding only a Strava run is still a rest day in the plan.
+  bool get hasPlannedSession =>
+      hasWorkout || cardioSessions.any((s) => s.trainingCycleId != null && !s.isReadOnly);
 }
 
 /// Get the effective scheduled date for a workout.
@@ -274,13 +281,21 @@ List<CalendarDayData> buildCalendarData({
     final dayWorkouts = workoutsByDate[strippedDay] ?? [];
 
     // Get period/day from workouts if available, otherwise calculate default
-    int? displayPeriod;
-    int? displayDay;
+    int displayPeriod;
+    int displayDay;
+
+    // A cardio-only day (e.g. Kenpo X) carries its own slot, which survives rest-day shifts.
+    final dayCycleCardio = (cardioByDate[strippedDay] ?? const <CardioSession>[]).where(
+      (s) => s.trainingCycleId == cycle.id && !s.isReadOnly && s.periodNumber != null && s.dayNumber != null,
+    );
 
     if (dayWorkouts.isNotEmpty) {
       // Use the period/day from the first workout (all workouts on same day should share period/day)
       displayPeriod = dayWorkouts.first.periodNumber;
       displayDay = dayWorkouts.first.dayNumber;
+    } else if (dayCycleCardio.isNotEmpty) {
+      displayPeriod = dayCycleCardio.first.periodNumber!;
+      displayDay = dayCycleCardio.first.dayNumber!;
     } else {
       // No workouts on this day - it could be a rest day or inserted blank day
       // Calculate what the default period/day would be for UI display purposes
@@ -318,9 +333,12 @@ List<CalendarDayData> buildCalendarData({
       }
     }
 
-    // Sort exercises by order index
+    // Day display order — the same order the workout screen and reorder use.
+    final dayPosition = {
+      for (final (i, exercise) in orderedDayExercises(dayWorkouts).indexed) exercise.id: i,
+    };
     allDayExercises.sort(
-      (a, b) => a.exercise.orderIndex.compareTo(b.exercise.orderIndex),
+      (a, b) => dayPosition[a.exercise.id]!.compareTo(dayPosition[b.exercise.id]!),
     );
 
     // Cardio sessions for this day (imports + cycle-attached).
@@ -349,7 +367,7 @@ List<CalendarDayData> buildCalendarData({
               cycleName: cycle.name,
               periodNumber: displayPeriod,
               dayNumber: displayDay,
-              isRecoveryPeriod: displayPeriod == cycle.recoveryPeriod,
+              isRecoveryPeriod: cycle.isRecoveryPeriod(displayPeriod),
               workouts: dayWorkouts,
               cardioSessions: segmentCardio,
             ),
@@ -364,7 +382,7 @@ List<CalendarDayData> buildCalendarData({
         workouts: dayWorkouts,
         cardioSessions: dayCardio,
         segments: daySegments,
-        isRecoveryPeriod: displayPeriod == cycle.recoveryPeriod,
+        isRecoveryPeriod: cycle.isRecoveryPeriod(displayPeriod),
         isCompleted: isCompleted,
         isPartiallyCompleted: isPartiallyCompleted,
         muscleGroups: muscleGroups,
@@ -549,37 +567,47 @@ final selectedWorkoutDateProvider = NotifierProvider<SelectedWorkoutDateNotifier
   SelectedWorkoutDateNotifier.new,
 );
 
+/// Shifted `(period, day)` → date entries for a cycle, from its strength [workouts] and the
+/// cycle-attached cardio in [sessions].
+///
+/// Inserting or removing a rest day moves cardio-only days (e.g. P90X's Kenpo X) by their own
+/// `scheduledDate`, so slot lookups must include them or those days resolve to their pre-shift date.
+/// Imported sessions are skipped — they record when something happened, not a plan slot.
+Map<(int, int), DateTime> cycleScheduledDates(
+  Iterable<Workout> workouts, [
+  Iterable<Session> sessions = const [],
+]) => DateHelpers.extractScheduledDates([
+  for (final w in workouts) (periodNumber: w.periodNumber, dayNumber: w.dayNumber, scheduledDate: w.scheduledDate),
+  for (final s in sessions)
+    if (s is CardioSession && !s.isReadOnly && s.periodNumber != null && s.dayNumber != null)
+      (periodNumber: s.periodNumber!, dayNumber: s.dayNumber!, scheduledDate: s.scheduledDate),
+]);
+
 /// The (period, day) slot of [cycle] that contains [date], honoring schedule
-/// shifts via the cycle's workouts. Returns `null` when [date] is outside the
-/// cycle (or the cycle has no start date).
+/// shifts via the cycle's workouts and cardio [sessions]. Returns `null` when
+/// [date] is outside the cycle (or the cycle has no start date).
 ({int period, int day})? selectedPeriodDay(
   TrainingCycle cycle,
   List<Workout> workouts,
-  DateTime date,
-) {
+  DateTime date, {
+  Iterable<Session> sessions = const [],
+}) {
   if (cycle.startDate == null) return null;
   return DateHelpers.periodDayForDate(
     cycleStart: cycle.startDate!,
     daysPerPeriod: cycle.daysPerPeriod,
     periodsTotal: cycle.periodsTotal,
     date: date,
-    scheduledDates: DateHelpers.extractScheduledDates(
-      workouts.map(
-        (w) => (
-          periodNumber: w.periodNumber,
-          dayNumber: w.dayNumber,
-          scheduledDate: w.scheduledDate,
-        ),
-      ),
-    ),
+    scheduledDates: cycleScheduledDates(workouts, sessions),
   );
 }
 
 /// The (period, day) slot of [cycle] for today's date.
 ({int period, int day})? currentPeriodDay(
   TrainingCycle cycle,
-  List<Workout> workouts,
-) => selectedPeriodDay(cycle, workouts, DateTime.now());
+  List<Workout> workouts, {
+  Iterable<Session> sessions = const [],
+}) => selectedPeriodDay(cycle, workouts, DateTime.now(), sessions: sessions);
 
 /// The effective calendar date for a (period, day) slot of [cycle], honoring
 /// schedule shifts. Inverse of [selectedPeriodDay].
@@ -587,18 +615,15 @@ DateTime dateForPeriodDay(
   TrainingCycle cycle,
   List<Workout> workouts,
   int period,
-  int day,
-) {
-  final scheduled = workouts
-      .where((w) => w.periodNumber == period && w.dayNumber == day)
-      .map((w) => w.scheduledDate)
-      .firstWhere((d) => d != null, orElse: () => null);
+  int day, {
+  Iterable<Session> sessions = const [],
+}) {
   return DateHelpers.getEffectiveWorkoutDate(
     cycleStart: cycle.startDate ?? cycle.createdDate,
     daysPerPeriod: cycle.daysPerPeriod,
     periodNumber: period,
     dayNumber: day,
-    scheduledDate: scheduled,
+    scheduledDate: cycleScheduledDates(workouts, sessions)[(period, day)],
   );
 }
 

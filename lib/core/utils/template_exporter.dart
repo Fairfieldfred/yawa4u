@@ -36,6 +36,7 @@ class TemplateExporter {
       periodsTotal: trainingCycle.periodsTotal,
       daysPerPeriod: trainingCycle.daysPerPeriod,
       recoveryPeriod: trainingCycle.recoveryPeriod,
+      additionalRecoveryPeriods: trainingCycle.additionalRecoveryPeriods,
       workouts: sortedWorkouts.map(_convertWorkoutToTemplate).toList(),
     );
   }

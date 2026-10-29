@@ -345,6 +345,7 @@
   "templatePreviewRecovery": "Recuperación",
   "templatePreviewPeriodHeader": "Periodo {number}",
   "templatePreviewPeriodRecoveryHeader": "Periodo {number} (recuperación)",
+  "templatePreviewPeriodsList": "Periodos {numbers}",
   "templatePreviewDayFallback": "Día {number}",
   "sessionDayFallback": "Día {number}",
   "templatePreviewCardioSession": "Sesión de {sport}",

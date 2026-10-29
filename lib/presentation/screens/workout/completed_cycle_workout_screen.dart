@@ -7,6 +7,7 @@ import '../../../core/constants/enums.dart';
 import '../../../core/constants/equipment_types.dart';
 import '../../../core/constants/muscle_groups.dart';
 import '../../../core/theme/skins/skins.dart';
+import '../../../core/utils/day_exercise_order.dart';
 import '../../../core/utils/date_helpers.dart';
 import '../../../core/utils/weight_conversion.dart';
 import '../../../data/services/exercise_name_localizer.dart';
@@ -205,11 +206,8 @@ class _CompletedCycleWorkoutScreenState extends ConsumerState<CompletedCycleWork
       periodsTotal: trainingCycle.periodsTotal,
     );
 
-    // Collect all exercises from all workouts for today
-    final allExercises = <dynamic>[];
-    for (var workout in workouts) {
-      allExercises.addAll(workout.exercises);
-    }
+    // All of today's exercises in day order
+    final allExercises = orderedDayExercises(workouts);
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
@@ -255,10 +253,15 @@ class _CompletedCycleWorkoutScreenState extends ConsumerState<CompletedCycleWork
                 ],
               ),
               const SizedBox(height: 2),
-              Text(
-                l10n.completedWorkoutWeekDayTitle(displayPeriod, displayDay, dayName),
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: Theme.of(context).textTheme.titleLarge?.color,
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: AlignmentDirectional.centerStart,
+                child: Text(
+                  l10n.completedWorkoutWeekDayTitle(displayPeriod, displayDay, dayName),
+                  maxLines: 1,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    color: Theme.of(context).textTheme.titleLarge?.color,
+                  ),
                 ),
               ),
             ],
@@ -315,7 +318,7 @@ class _CompletedCycleWorkoutScreenState extends ConsumerState<CompletedCycleWork
 
                       final weekRir = calculateRIR(
                         displayPeriod,
-                        trainingCycle.recoveryPeriod,
+                        trainingCycle.nextRecoveryPeriod(displayPeriod),
                       );
 
                       return _buildExerciseCard(
@@ -859,7 +862,7 @@ class _ReadOnlyCalendarDropdownState extends State<_ReadOnlyCalendarDropdown> {
                   return Expanded(
                     child: _buildWeekColumn(
                       periodNumber,
-                      widget.trainingCycle.recoveryPeriod == periodNumber,
+                      widget.trainingCycle.isRecoveryPeriod(periodNumber),
                       dateMap,
                       daysForPeriod,
                     ),
@@ -940,7 +943,9 @@ class _ReadOnlyCalendarDropdownState extends State<_ReadOnlyCalendarDropdown> {
                   ),
                 ),
                 Text(
-                  l10n.completedWorkoutRirLabel(calculateRIR(periodNumber, widget.trainingCycle.recoveryPeriod)),
+                  l10n.completedWorkoutRirLabel(
+                    calculateRIR(periodNumber, widget.trainingCycle.nextRecoveryPeriod(periodNumber)),
+                  ),
                   style: Theme.of(context).textTheme.labelSmall?.copyWith(
                     color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                     fontWeight: FontWeight.normal,
