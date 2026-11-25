@@ -1,9 +1,20 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+    <!-- Hardware features implied by plugin permissions default to required,
+         which hides the app from devices without them on Google Play.
+         Wi-Fi (network_info_plus → ACCESS_WIFI_STATE, for Wi-Fi Sync) and the
+         camera (QR scanning) are optional extras, so mark them not required. -->
+    <uses-feature android:name="android.hardware.wifi" android:required="false" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+    <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
+    <uses-feature android:name="android.hardware.camera.any" android:required="false"
+        tools:replace="android:required" />
+
     <!-- Phase 5 — Health Connect permissions. The user approves these at
          runtime through the Health Connect UI; declaring them here is what
-         lets that dialog appear. Writes are optional in v1 but the
-         permissions are requested so a later "publish to Health Connect"
-         toggle is additive. -->
+         lets that dialog appear. Read-only: every permission declared here
+         must be justified in the Play Console Health Connect declaration,
+         so only add one when a shipped feature consumes it. -->
     <uses-permission android:name="android.permission.health.READ_EXERCISE" />
     <uses-permission android:name="android.permission.health.READ_DISTANCE" />
     <!-- <uses-permission android:name="android.permission.health.READ_HEART_RATE" /> -->
@@ -12,8 +23,6 @@
     <uses-permission android:name="android.permission.health.READ_POWER" /> -->
     <!-- <uses-permission android:name="android.permission.health.READ_TOTAL_CALORIES_BURNED" /> -->
     <!-- <uses-permission android:name="android.permission.health.READ_ELEVATION_GAINED" /> -->
-    <uses-permission android:name="android.permission.health.WRITE_EXERCISE" />
-    <uses-permission android:name="android.permission.health.WRITE_DISTANCE" />
 
     <!-- Rest-timer notification (flutter_local_notifications). POST_NOTIFICATIONS
          is the Android 13+ runtime permission; SCHEDULE_EXACT_ALARM lets the
@@ -44,12 +53,6 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
-            <!-- Health Connect: allow the system permissions UI to launch
-                 back into the app when the user responds to the rationale
-                 intent. -->
-            <intent-filter>
-                <action android:name="androidx.health.ACTION_SHOW_PERMISSIONS_RATIONALE" />
-            </intent-filter>
             <!-- Bucket 3 — Strava OAuth redirect. Catches yawa4u://strava-callback. -->
             <intent-filter android:label="oauth_callback">
                 <action android:name="android.intent.action.VIEW"/>
@@ -59,11 +62,19 @@
                     android:host="strava-callback"/>
             </intent-filter>
         </activity>
-        <!-- Alias for Health Connect permission rationale (required on
-             Android 14+ / Health Connect recent releases). -->
+        <!-- Health Connect "privacy policy" link (Android 13 and below).
+             Play policy requires this to show the privacy policy. -->
+        <activity android:name=".HealthPermissionsRationaleActivity"
+            android:exported="true"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar">
+            <intent-filter>
+                <action android:name="androidx.health.ACTION_SHOW_PERMISSIONS_RATIONALE" />
+            </intent-filter>
+        </activity>
+        <!-- Same link on Android 14+, where Health Connect is part of the OS. -->
         <activity-alias android:name="ViewPermissionUsageActivity"
             android:exported="true"
-            android:targetActivity=".MainActivity"
+            android:targetActivity=".HealthPermissionsRationaleActivity"
             android:permission="android.permission.START_VIEW_PERMISSION_USAGE">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW_PERMISSION_USAGE" />

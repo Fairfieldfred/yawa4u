@@ -20,8 +20,8 @@ if (localPropertiesFile.exists()) {
 }
 
 
-val flutterVersionName = localProperties.getProperty("flutter.versionName") ?: "1.2.3"
-val flutterVersionCode = localProperties.getProperty("flutter.versionCode")?.toInt() ?: 123
+val flutterVersionName = localProperties.getProperty("flutter.versionName") ?: "1.2.6"
+val flutterVersionCode = localProperties.getProperty("flutter.versionCode")?.toInt() ?: 126
 val flutterMinSdkVersion = localProperties.getProperty("flutter.minSdkVersion")?.toInt() ?: 26
 val flutterTargetSdkVersion = localProperties.getProperty("flutter.targetSdkVersion")?.toInt() ?: 36
 
@@ -72,8 +72,15 @@ android {
 
     buildTypes {
         getByName("release") {
-            isMinifyEnabled = false
-            isShrinkResources = false
+            // R8 shrinking + obfuscation. Play Console flags apps whose DEX
+            // obfuscation is below 25%. Plugins ship their own consumer rules;
+            // proguard-rules.pro only holds app-level extras.
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro",
+            )
             // Use the real release signing config when available;
             // otherwise fall back to debug keys so `flutter run` and
             // `flutter run --release` work on machines that don't have

@@ -123,17 +123,26 @@ class HealthSyncService {
   /// Data types we request read access to. Kept narrow — anything we
   /// don't plan to consume in v1 is omitted to reduce the scope of the
   /// permission prompt.
-  static const List<HealthDataType> _readTypes = [
+  static const List<HealthDataType> _appleHealthReadTypes = [
     HealthDataType.WORKOUT,
     HealthDataType.HEART_RATE,
     HealthDataType.DISTANCE_DELTA,
     HealthDataType.ACTIVE_ENERGY_BURNED,
   ];
 
-  static final List<HealthDataAccess> _readPermissions = List.filled(
-    _readTypes.length,
-    HealthDataAccess.READ,
-  );
+  /// Must match the `android.permission.health.READ_*` entries in
+  /// AndroidManifest.xml and the Play Console Health Connect declaration.
+  /// Requesting an undeclared type makes Health Connect report the whole
+  /// request as not granted, leaving the integration stuck "not connected".
+  static const List<HealthDataType> _healthConnectReadTypes = [
+    HealthDataType.WORKOUT,
+    HealthDataType.DISTANCE_DELTA,
+  ];
+
+  static List<HealthDataType> get _readTypes =>
+      !kIsWeb && Platform.isAndroid ? _healthConnectReadTypes : _appleHealthReadTypes;
+
+  static List<HealthDataAccess> get _readPermissions => List.filled(_readTypes.length, HealthDataAccess.READ);
 
   static final Logger _log = Logger('HealthSyncService');
 

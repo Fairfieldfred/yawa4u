@@ -72,126 +72,159 @@
     <div class="container">
         <h1>Privacy Policy</h1>
 
-        <p><strong>Last Updated:</strong> [June 14, 2025]</p>
+        <p><strong>Last Updated:</strong> November 19, 2026</p>
 
         <h2>Introduction</h2>
 
-        <p>YAWA4U ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we
-            handle information when you use our mobile application (the "App").</p>
+        <p>YAWA4U ("we," "our," or "us") is a training tracker for strength, running, cycling and swimming. This
+            Privacy Policy explains what information the YAWA4U mobile application (the "App") accesses, how it is
+            used, where it is stored, and the choices you have.</p>
 
         <div class="highlight">
-            <strong>The short version: We don't collect, store, or share any personal information about you.</strong>
+            <strong>The short version:</strong> YAWA4U is local-first. Your workouts, training plans and any health
+            data you choose to import are stored on your device. Nothing leaves your device unless you turn on a
+            feature that needs it (cloud backup, community uploads, or Strava). We never sell your data, never use it
+            for advertising, and never share health data with third parties.
         </div>
 
-        <h2>Information We Collect</h2>
+        <h2>Health and Fitness Data</h2>
 
-        <p><strong>We collect NO personal information from users of our App.</strong></p>
-
-        <p>We do collect anonymous usage data to improve our App, but this data is analytical data for usage, app
-            crashes, or app malfunctions.</p>
-
-        <p>Our App is designed to function completely anonymously without requiring or collecting any personal data,
-            including but not limited to:</p>
+        <p>If you choose to connect YAWA4U to <strong>Health Connect</strong> (Android) or <strong>Apple
+            Health</strong> (iOS) from <em>More &rarr; Integrations</em>, the App requests <strong>read-only</strong>
+            access to the following data types:</p>
 
         <ul>
-            <li>No names, email addresses, or contact information</li>
-            <li>No usernames or account credentials</li>
-            <li>No location data or GPS information</li>
-            <li>No photos, images, or media files</li>
-            <li>No microphone or audio recordings</li>
-            <li>No contact lists or address book information</li>
-            <li>No device identifiers or advertising IDs</li>
-            <li>No IP addresses or network information</li>
-            <li>No cookies or tracking technologies</li>
+            <li><strong>Exercise sessions / workouts</strong> &mdash; the sport type, start and end time, and duration
+                of workouts recorded by other apps and devices (for example Peloton, Garmin or Samsung Health).</li>
+            <li><strong>Distance</strong> &mdash; the distance covered during those workouts.</li>
+            <li><strong>Heart rate</strong> and <strong>active energy burned</strong> (Apple Health only) &mdash; to
+                show average and maximum heart rate and calories for an imported workout.</li>
         </ul>
 
-        <h2>How We Use Information</h2>
+        <p><strong>How we use it:</strong> this data is used only to import your completed workouts into your
+            YAWA4U training log, so they appear on the Calendar, in workout details (pace, speed, distance), and in
+            your training statistics (for example weekly distance and totals per sport). This saves you from entering
+            workouts by hand and lets you compare what you planned with what you actually did.</p>
 
-        <p>Since we collect no personal information, we do not use, process, or analyze any personal data from our
-            users.</p>
+        <p><strong>What we do not do:</strong> YAWA4U does not write, modify or delete any data in Health Connect
+            or Apple Health. Health data is never used for advertising or marketing, never sold, never used to
+            determine credit-worthiness or insurance eligibility, and never shared with third parties. It is not sent
+            to our analytics or crash-reporting services.</p>
 
-        <h2>Information Sharing and Disclosure</h2>
+        <p><strong>Where it is stored:</strong> imported workouts are stored in the App's local database on your
+            device. If you turn on <em>Cloud Backup</em> (see below), they are included in your private, encrypted
+            backup file, which only your account can access.</p>
 
-        <p>We do not share, sell, rent, or disclose any personal information to third parties because we do not collect
-            any personal information.</p>
+        <p><strong>Your control:</strong> access is only requested after you tap Connect, and you can revoke it at
+            any time in the Health Connect app (Android) or Settings &rarr; Health &rarr; Data Access &amp; Devices
+            (iOS). Revoking access stops future imports. Deleting an imported workout in the App, or uninstalling the
+            App, removes it from your device.</p>
 
-        <h2>Data Storage and Security</h2>
+        <p>YAWA4U's use of information received from Health Connect adheres to the
+            <a href="https://support.google.com/googleplay/android-developer/answer/12991134">Health Connect
+            Permissions policy</a>, including the Limited Use requirements. Data obtained from Apple HealthKit is
+            handled in accordance with Apple's App Store Review Guidelines.</p>
 
-        <p>Since our App collects no personal data, there is no personal information stored on our servers or any
-            third-party servers. The App functions entirely on your device without transmitting personal data.</p>
+        <h2>Data You Enter</h2>
 
-        <h2>Third-Party Services</h2>
+        <p>Training cycles, workouts, exercises, sets, weights and reps, notes, workout feedback, and optional body
+            measurements (height, weight, body-fat percentage) that you enter are stored only on your device unless
+            you choose to back them up or share them as described below.</p>
 
-        <p>Our App does not integrate with any third-party services that would collect personal information on our
-            behalf. If this changes in the future, we will update this Privacy Policy accordingly.</p>
+        <h2>Accounts</h2>
+
+        <p>When you first open the App, it signs in anonymously with Firebase Authentication (Google). This creates a
+            random identifier and does not collect your name or email. It lets you browse and download community
+            templates without an account.</p>
+
+        <p>If you choose to link an email address (required to upload to the community library or use cloud
+            backup), your email address is stored by Firebase Authentication and used only to verify your account
+            and let you sign in.</p>
+
+        <h2>Optional Cloud Features</h2>
+
+        <ul>
+            <li><strong>Cloud Backup (off by default).</strong> When enabled, a compressed copy of your App data
+                &mdash; including training data and any imported health workouts &mdash; is uploaded to Google
+                Firebase (Cloud Storage and Firestore) under your account. Each new backup replaces the previous one.
+                Only you can read it. You can turn backup off at any time, and you can delete your cloud backup from
+                the Sync screen.</li>
+            <li><strong>Community Library.</strong> Templates or themes you choose to upload, including their name,
+                content and any images you attach, are published publicly so other users can download them. Health
+                data is never included in community uploads.</li>
+            <li><strong>Strava.</strong> If you connect Strava, the App uses Strava's sign-in to import your
+                activities into your local training log. You can disconnect at any time in the App or in your Strava
+                settings.</li>
+            <li><strong>Wi-Fi Sync.</strong> Device-to-device sync sends your data directly between your own devices
+                on your local network. It does not go through our servers.</li>
+        </ul>
+
+        <h2>Camera and Photos</h2>
+
+        <p>The camera is used only to scan QR codes for sharing templates and themes between devices. Photos you
+            pick are used only as images in custom themes and are stored on your device (and in the community library
+            only if you choose to upload that theme).</p>
+
+        <h2>Analytics and Crash Reporting</h2>
+
+        <p>We use <strong>Google Firebase Analytics</strong> to collect anonymous usage events (for example "a
+            training cycle was created" or "a workout was completed") and basic device information, so we can
+            improve the App. We do not send your weights, reps, workout content, health data, or email address to
+            analytics.</p>
+
+        <p>We use <strong>Sentry</strong> to collect crash and error reports (stack traces and device/OS
+            information) so we can fix bugs. Sentry is configured not to send personally identifiable information,
+            and session replay is disabled. If you choose to send in-app feedback, the text and screenshot you submit
+            are sent to Sentry.</p>
+
+        <p>We do not use advertising networks or advertising identifiers.</p>
+
+        <h2>Information Sharing</h2>
+
+        <p>We do not sell, rent or trade your information. Data is shared only with the service providers that run
+            the features above (Google Firebase, Sentry, and Strava if you connect it), and only to provide those
+            features. We may disclose information if required by law.</p>
+
+        <h2>Data Retention and Deletion</h2>
+
+        <ul>
+            <li>Data on your device stays until you delete it in the App or uninstall the App.</li>
+            <li>Your cloud backup stays until you delete it or replace it with a new backup.</li>
+            <li>To delete your account, linked email, cloud backup, or community uploads, contact us at the address
+                below and we will delete them within 30 days.</li>
+        </ul>
+
+        <h2>Security</h2>
+
+        <p>Data sent to Firebase is encrypted in transit (HTTPS) and at rest. Access to your cloud backup is
+            restricted to your signed-in account.</p>
 
         <h2>Children's Privacy</h2>
 
-        <p>Our App is safe for users of all ages, including children under 13, because we do not collect any personal
-            information from anyone, regardless of age. We comply with the Children's Online Privacy Protection Act
-            (COPPA) by not collecting any personal information from children.</p>
-
-        <h2>International Users</h2>
-
-        <p>Since we collect no personal data, there are no cross-border data transfers or international privacy
-            considerations.</p>
+        <p>The App is not directed at children under 13, and we do not knowingly collect personal information from
+            them. If you believe a child has provided us with an email address, contact us and we will delete it.</p>
 
         <h2>Your Rights</h2>
 
-        <p>While we collect no personal information, you have the right to:</p>
-        <ul>
-            <li>Know what information is collected (none in our case)</li>
-            <li>Request deletion of information (not applicable as we collect none)</li>
-            <li>Opt-out of data collection (not applicable as we collect none)</li>
-        </ul>
-
-        <h2>California Privacy Rights</h2>
-
-        <p>Under the California Consumer Privacy Act (CCPA), California residents have specific rights regarding their
-            personal information. Since we collect no personal information, these rights are not applicable to our App
-            users.</p>
-
-        <h2>European Union Users</h2>
-
-        <p>Under the General Data Protection Regulation (GDPR), EU residents have specific rights regarding their
-            personal data. Since we collect no personal information, GDPR data subject rights are not applicable to our
-            App users.</p>
+        <p>Depending on where you live (for example under the GDPR or CCPA), you may have the right to access,
+            correct, export or delete your personal data, and to object to or restrict its processing. You can export
+            your data at any time from the Sync screen, and you can contact us to exercise any of these rights.</p>
 
         <h2>Changes to This Privacy Policy</h2>
 
-        <p>We may update this Privacy Policy from time to time. If we make any material changes that would affect our
-            data collection practices, we will notify users through the App or other appropriate means. The "Last
-            Updated" date at the top of this policy will reflect when changes were made.</p>
-
-        <h2>Analytics and Advertising</h2>
-
-        <p>Our App does not use any analytics services or advertising networks that would collect personal information
-            about users.</p>
-
-        <h2>Data Retention</h2>
-
-        <p>Since we collect no personal data, there is no data retention period applicable to personal information.</p>
+        <p>We may update this Privacy Policy from time to time. The "Last Updated" date at the top shows when it was
+            last changed. Material changes will be announced in the App.</p>
 
         <h2>Contact Us</h2>
 
         <div class="contact-info">
             <p>If you have any questions about this Privacy Policy or our privacy practices, please contact us at:</p>
 
-            <p><strong>Email:</strong> [support@blairhouseapps.com]<br>
-                <strong>Address:</strong> [Fairfield, CA]<br>
-                <strong>App Developer:</strong> [BlairHouseApps]
+            <p><strong>Email:</strong> support@blairhouseapps.com<br>
+                <strong>Address:</strong> Fairfield, CA, USA<br>
+                <strong>App Developer:</strong> BlairHouseApps
             </p>
         </div>
-
-        <h2>Legal Compliance</h2>
-
-        <p>This App and Privacy Policy comply with applicable privacy laws including:</p>
-        <ul>
-            <li>General Data Protection Regulation (GDPR)</li>
-            <li>California Consumer Privacy Act (CCPA)</li>
-            <li>Children's Online Privacy Protection Act (COPPA)</li>
-            <li>Google Play Store Privacy Requirements</li>
-        </ul>
 
         <div class="footer">
             <p>By using our App, you acknowledge that you have read and understood this Privacy Policy.</p>
